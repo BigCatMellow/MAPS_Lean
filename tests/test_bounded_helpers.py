@@ -10,7 +10,6 @@ from runtime.helpers import AiderHelper, HelperError, HelperRunStore, OllamaHelp
 
 FAKE_OLLAMA = r'''#!/usr/bin/env python3
 import os, sys
-from pathlib import Path
 log = os.environ.get("HELPER_FAKE_LOG")
 if log:
     with open(log, "a", encoding="utf-8") as handle:
@@ -78,59 +77,31 @@ class BoundedHelperTests(unittest.TestCase):
     def test_ollama_writes_only_scoped_output_and_records_result(self):
         helper = OllamaHelper(executable=self.ollama, run_store=self.run_store)
         result = helper.run(
-            task=task(),
-            repo=self.repo,
-            model="qwen3:8b",
-            prompt="summarize",
-            output_path="work/helper-output.md",
-            scope_summary="bounded summary",
+            task=task(), repo=self.repo, model="qwen3:8b", prompt="summarize",
+            output_path="work/helper-output.md", scope_summary="bounded summary",
         )
         self.assertEqual(result.status, "completed")
-        self.assertEqual(
-            (self.repo / "work/helper-output.md").read_text().strip(),
-            "response:summarize",
-        )
+        self.assertEqual((self.repo / "work/helper-output.md").read_text().strip(), "response:summarize")
         records = json.loads(self.run_store.path.read_text())
         self.assertEqual(records[0]["task_id"], "TASK-1")
 
     def test_ollama_rejects_out_of_scope_output(self):
         helper = OllamaHelper(executable=self.ollama, run_store=self.run_store)
         with self.assertRaises(HelperError):
-            helper.run(
-                task=task(),
-                repo=self.repo,
-                model="qwen3:8b",
-                prompt="x",
-                output_path="README.md",
-                scope_summary="x",
-            )
+            helper.run(task=task(), repo=self.repo, model="qwen3:8b", prompt="x",
+                       output_path="README.md", scope_summary="x")
 
     def test_helper_requires_active_parent_task(self):
         helper = OllamaHelper(executable=self.ollama, run_store=self.run_store)
         with self.assertRaises(HelperError):
-            helper.run(
-                task=task(status="READY"),
-                repo=self.repo,
-                model="qwen3:8b",
-                prompt="x",
-                output_path="work/helper-output.md",
-                scope_summary="x",
-            )
+            helper.run(task=task(status="READY"), repo=self.repo, model="qwen3:8b",
+                       prompt="x", output_path="work/helper-output.md", scope_summary="x")
 
     def test_aider_uses_one_shot_safe_flags_and_scoped_target(self):
-        helper = AiderHelper(
-            executable=self.aider,
-            git_executable=self.git,
-            run_store=self.run_store,
-        )
-        result = helper.run(
-            task=task(),
-            repo=self.repo,
-            targets=["src/a.py"],
-            message="add docstring",
-            scope_summary="edit one file",
-            model="ollama/qwen3",
-        )
+        helper = AiderHelper(executable=self.aider, git_executable=self.git, run_store=self.run_store)
+        result = helper.run(task=task(), repo=self.repo, targets=["src/a.py"],
+                            message="add docstring", scope_summary="edit one file",
+                            model="ollama/qwen3")
         self.assertEqual(result.status, "completed")
         line = [line for line in self.log.read_text().splitlines() if line.startswith("AIDER")][-1]
         self.assertIn("'--message'", line)
@@ -142,50 +113,33 @@ class BoundedHelperTests(unittest.TestCase):
     def test_aider_rejects_out_of_scope_target(self):
         helper = AiderHelper(executable=self.aider, git_executable=self.git)
         with self.assertRaises(HelperError):
-            helper.run(
-                task=task(),
-                repo=self.repo,
-                targets=["README.md"],
-                message="change",
-                scope_summary="bad",
-            )
+            helper.run(task=task(), repo=self.repo, targets=["README.md"],
+                       message="change", scope_summary="bad")
 
     def test_aider_rejects_dirty_target(self):
         os.environ["HELPER_FAKE_DIRTY"] = "1"
         self.addCleanup(os.environ.pop, "HELPER_FAKE_DIRTY", None)
         helper = AiderHelper(executable=self.aider, git_executable=self.git)
         with self.assertRaises(HelperError):
-            helper.run(
-                task=task(),
-                repo=self.repo,
-                targets=["src/a.py"],
-                message="change",
-                scope_summary="bounded",
-            )
+            helper.run(task=task(), repo=self.repo, targets=["src/a.py"],
+                       message="change", scope_summary="bounded")
 
-    def test_aider_rejects_blanket_yes_and_commit_flags(self):
-        helper = AiderHelper(executable=self.aider, git_executable=self.git)
-        for flag in ("--yes", "--yes-always", "--auto-commits", "--dirty-commits"):
-            with self.subTest(flag=flag), self.assertRaises(HelperError):
-                helper.run(
-                    task=task(),
-                    repo=self.repo,
-                    targets=["src/a.py"],
-                    message="change",
-                    scope_summary="bounded",
-                    extra_args=[flag],
-                )
+    def test_aider_has_no_generic_argument_escape_hatch(self):
+        source = Path(__file__).parents[1] / "runtime" / "helpers" / "aider.py"
+        text = source.read_text(encoding="utf-8")
+        self.assertNotIn("extra_args", text)
+        self.assertNotIn('"--yes"', text)
+        self.assertNotIn('"--yes-always"', text)
+        self.assertIn('"--no-auto-commits"', text)
+        self.assertIn('"--no-dirty-commits"', text)
 
     def test_helper_source_has_no_task_authority_calls(self):
         helper_dir = Path(__file__).parents[1] / "runtime" / "helpers"
         text = "\n".join(path.read_text(encoding="utf-8") for path in helper_dir.glob("*.py"))
         lowered = text.lower()
         for forbidden in (
-            "claim_task(",
-            "promote_ready(",
-            "submit_task(",
-            "record_review(",
-            "record_operator_approval(",
+            "claim_task(", "promote_ready(", "submit_task(",
+            "record_review(", "record_operator_approval(",
         ):
             self.assertNotIn(forbidden, lowered)
 
