@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Mapping
 
 from runtime.communication import HcomAdapter, HcomError
-from .store import RecoveryStore, now_z, parse_time
+from .store import RecoveryStore, parse_time
 
 LIVE_STATUSES = {"active", "listening", "waiting", "blocked"}
 DEFAULT_BACKOFF_SECONDS = (300, 900, 1800, 3600, 7200)
@@ -61,18 +61,37 @@ class RecoverySupervisor:
         *,
         now: datetime | None = None,
     ) -> list[str]:
-        """Open incidents only for prior-live sessions tied to current ACTIVE claims."""
+        """Open incidents only for prior-live sessions tied to current ACTIVE claims.
+
+        A worker with multiple ACTIVE tasks is ambiguous because the binding is
+        worker -> session, not task -> session. RnS records that ambiguity and
+        refuses to guess which task the stopped session represented.
+        """
         now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
-        sessions = {item.get("name"): item for item in self.hcom.list_sessions(include_stopped=True)}
+        sessions = {
+            item.get("name"): item
+            for item in self.hcom.list_sessions(include_stopped=True)
+        }
         state = self.store.load()
         detected: list[tuple[str, str, str]] = []
 
-        tasks = self.task_reader.list_tasks(statuses=("ACTIVE",))
-        active_by_worker = {
-            task.get("claimed_by"): task
-            for task in tasks
-            if task.get("claimed_by")
+        tasks_by_worker: dict[str, list[dict[str, Any]]] = {}
+        for task in self.task_reader.list_tasks(statuses=("ACTIVE",)):
+            worker_id = str(task.get("claimed_by") or "").strip()
+            if worker_id:
+                tasks_by_worker.setdefault(worker_id, []).append(task)
+
+        state["ambiguous_workers"] = {
+            worker_id: sorted(str(task["task_id"]) for task in tasks)
+            for worker_id, tasks in tasks_by_worker.items()
+            if len(tasks) != 1
         }
+        active_by_worker = {
+            worker_id: tasks[0]
+            for worker_id, tasks in tasks_by_worker.items()
+            if len(tasks) == 1
+        }
+
         for worker_id, session_name in sorted(bindings.items()):
             task = active_by_worker.get(worker_id)
             if not task:
@@ -105,7 +124,10 @@ class RecoverySupervisor:
     def tick(self, *, now: datetime | None = None) -> list[dict[str, Any]]:
         """Process due incidents and return an audit-friendly action list."""
         now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
-        sessions = {item.get("name"): item for item in self.hcom.list_sessions(include_stopped=True)}
+        sessions = {
+            item.get("name"): item
+            for item in self.hcom.list_sessions(include_stopped=True)
+        }
         state = self.store.load()
         actions: list[dict[str, Any]] = []
 
@@ -119,8 +141,14 @@ class RecoverySupervisor:
             if session_name in state["terminal_sessions"]:
                 incident["state"] = "suppressed"
                 incident["last_error"] = "terminal_session"
-                incident["updated_at"] = now_z()
-                actions.append({"incident_id": incident_id, "action": "suppress", "reason": "terminal_session"})
+                incident["updated_at"] = _time_z(now)
+                actions.append(
+                    {
+                        "incident_id": incident_id,
+                        "action": "suppress",
+                        "reason": "terminal_session",
+                    }
+                )
                 continue
 
             task = self.task_reader.get_task(task_id)
@@ -135,15 +163,23 @@ class RecoverySupervisor:
             if reason:
                 incident["state"] = "suppressed"
                 incident["last_error"] = reason
-                incident["updated_at"] = now_z()
-                actions.append({"incident_id": incident_id, "action": "suppress", "reason": reason})
+                incident["updated_at"] = _time_z(now)
+                actions.append(
+                    {"incident_id": incident_id, "action": "suppress", "reason": reason}
+                )
                 continue
 
             if session_is_live(sessions.get(session_name, {})):
                 incident["state"] = "resolved"
                 incident["last_error"] = ""
-                incident["updated_at"] = now_z()
-                actions.append({"incident_id": incident_id, "action": "resolve", "reason": "session_live"})
+                incident["updated_at"] = _time_z(now)
+                actions.append(
+                    {
+                        "incident_id": incident_id,
+                        "action": "resolve",
+                        "reason": "session_live",
+                    }
+                )
                 continue
 
             due_at = parse_time(str(incident["resume_after"]))
@@ -156,8 +192,14 @@ class RecoverySupervisor:
             if attempt >= len(self.backoff_seconds):
                 incident["state"] = "failed"
                 incident["last_error"] = "retry_budget_exhausted"
-                incident["updated_at"] = now_z()
-                actions.append({"incident_id": incident_id, "action": "fail", "reason": "retry_budget_exhausted"})
+                incident["updated_at"] = _time_z(now)
+                actions.append(
+                    {
+                        "incident_id": incident_id,
+                        "action": "fail",
+                        "reason": "retry_budget_exhausted",
+                    }
+                )
                 continue
 
             try:
@@ -174,10 +216,22 @@ class RecoverySupervisor:
             incident["last_attempt_at"] = _time_z(now)
             incident["last_error"] = error
             incident["next_attempt_at"] = _time_z(
-                now + timedelta(seconds=self.backoff_seconds[min(attempt - 1, len(self.backoff_seconds) - 1)])
+                now
+                + timedelta(
+                    seconds=self.backoff_seconds[
+                        min(attempt - 1, len(self.backoff_seconds) - 1)
+                    ]
+                )
             )
-            incident["updated_at"] = now_z()
-            actions.append({"incident_id": incident_id, "action": action, "attempt": attempt, "error": error})
+            incident["updated_at"] = _time_z(now)
+            actions.append(
+                {
+                    "incident_id": incident_id,
+                    "action": action,
+                    "attempt": attempt,
+                    "error": error,
+                }
+            )
 
         self.store.save(state)
         return actions
