@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 
@@ -19,6 +20,12 @@ def _nonnegative_int(value: int | None, label: str) -> int | None:
     if isinstance(value, bool) or not isinstance(value, int) or value < 0:
         raise ValueError(f"{label} must be a non-negative integer")
     return value
+
+
+def _safe_filename_part(value: object, fallback: str) -> str:
+    text = str(value or fallback)
+    safe = re.sub(r"[^A-Za-z0-9._-]+", "_", text).strip("._-")
+    return safe or fallback
 
 
 def check_run_budget(
@@ -90,8 +97,8 @@ def write_budget_escalation(
     """Persist budget exhaustion as evidence; grant no authority or task state."""
     if record.get("ok") is not False or record.get("reason") != "budget_exhausted":
         raise ValueError("only an exhausted budget record can be escalated")
-    run_id = str(record.get("run_id") or "unknown-run")
-    task_id = str(record.get("task_id") or "unknown-task")
+    run_id = _safe_filename_part(record.get("run_id"), "unknown-run")
+    task_id = _safe_filename_part(record.get("task_id"), "unknown-task")
     directory = Path(out_dir)
     directory.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
