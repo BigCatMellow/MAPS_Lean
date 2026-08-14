@@ -8,6 +8,7 @@ from typing import Iterable, Mapping, Sequence
 
 from .common import MutationResult, iso_z, utc_now
 
+
 class BaseStore:
     def __init__(self, db_path: str | Path):
         self.db_path = Path(db_path)
@@ -56,7 +57,7 @@ class BaseStore:
     def _advance_sequence_past_explicit(
         conn: sqlite3.Connection,
         task_id: str,
-        ) -> None:
+    ) -> None:
         match = re.fullmatch(r"TASK-(\d+)", task_id)
         if not match:
             return
@@ -81,7 +82,7 @@ class BaseStore:
         owner: str = "",
         risk: str = "",
         max_attempts: int = 3,
-        ) -> MutationResult:
+    ) -> MutationResult:
         now = iso_z(utc_now())
         try:
             with closing(self._connect()) as conn:
@@ -132,7 +133,7 @@ class BaseStore:
         self,
         task_id: str,
         contract: Mapping[str, object],
-        ) -> MutationResult:
+    ) -> MutationResult:
         scalar_fields = {
             "title",
             "outcome",
@@ -220,6 +221,13 @@ class BaseStore:
                     ((task_id, item) for item in cleaned),
                 )
 
+            # Optional mixins can participate in the same shaping transaction.
+            # PolicyStateMixin uses this hook so policy flags and approval reset
+            # cannot drift from the task contract if a second write fails.
+            policy_hook = getattr(self, "_apply_policy_contract_conn", None)
+            if callable(policy_hook):
+                policy_hook(conn, task_id, contract)
+
             conn.execute(
                 "UPDATE tasks SET agi_status = 'UNCHECKED', updated_at = ? WHERE task_id = ?",
                 (iso_z(utc_now()), task_id),
@@ -302,7 +310,7 @@ class BaseStore:
         table: str,
         column: str,
         task_id: str,
-        ) -> list[str]:
+    ) -> list[str]:
         return [
             row[column]
             for row in conn.execute(
@@ -318,7 +326,7 @@ class BaseStore:
         event_type: str,
         actor: str | None,
         summary: str,
-        ) -> None:
+    ) -> None:
         conn.execute(
             """
             INSERT INTO task_events(task_id, event_type, actor, summary, created_at)
