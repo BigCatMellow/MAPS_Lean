@@ -1,0 +1,4 @@
+# Active MAPS Lean control-plane dependencies.
+# Keep provider/model SDKs out of the core runtime unless a specific adapter needs them.
+langgraph
+langgraph-checkpoint-sqlite
