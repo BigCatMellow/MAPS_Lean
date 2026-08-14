@@ -66,6 +66,22 @@ handoff the addition before editing.
 Only one active owner edits a given output path. Parallel agents may research,
 review, or prepare non-overlapping artifacts; name one integration owner.
 
+## Execution integrity for consequential runs
+
+Use [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) when drift, recovery,
+reviewer independence, or exact context/scope matters.
+
+- Select context deliberately: required, optional-with-trigger, and excluded
+  material when the distinction is material. Use the
+  [context-packet template](../templates/context-packet.md) only when this is
+  clearer than keeping the fields in the task.
+- For long, high-risk, resumable, or heavily parallel work, freeze a run
+  binding when task/context/repository drift would otherwise be hard to
+  diagnose. A run binding freezes the approved contract; it does not grant
+  new authority.
+- State-changing APIs should return explicit failure reasons rather than one
+  ambiguous Boolean when the caller needs different recovery behavior.
+
 ## State model
 
 ```text
@@ -89,6 +105,35 @@ specified review and required evidence is available.
 `DONE` means the acceptance criteria, required verification, and proportional
 review are complete. Do not report a task done because time ended or the first
 implementation attempt looks plausible.
+
+## Conflicts
+
+When current authoritative sources materially disagree about scope, ownership,
+lifecycle state, an approved decision, or a load-bearing fact:
+
+1. stop only the affected work;
+2. record the conflicting claims/sources and affected scope;
+3. identify the authority or evidence that can resolve the conflict; and
+4. resume only after the conflict is explicitly resolved.
+
+Do not silently choose whichever source appears more plausible. A conflict
+record reports the problem; it does not grant authority to resolve it.
+
+## Review independence and evidence
+
+When independent review is required, a different session name is not enough.
+The reviewer must not be the submission author or a direct continuation of the
+author for the reviewed work, such as a rotation successor that inherited the
+same in-flight claims/context.
+
+For higher-risk work, keep the implementer's criterion/evidence claim separate
+from the reviewer's verdict. Review may confirm or reject the claim; it should
+not rewrite the original claim as if the reviewer made it.
+
+Functional review and security review answer different questions. Work that
+creates or changes network-facing/write-capable surfaces, permissions, secret
+handling, or other trust boundaries should receive a security-focused check
+proportional to the risk.
 
 ## When the contract changes during execution
 
