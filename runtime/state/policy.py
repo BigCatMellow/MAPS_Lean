@@ -115,6 +115,12 @@ class PolicyStateMixin:
                 (task_id,),
             ).fetchone()
             task["submission"] = dict(submission) if submission else None
+            if submission is None:
+                task["review_disqualified_ids"] = []
+            else:
+                task["review_disqualified_ids"] = sorted(
+                    self._continuity_component_conn(conn, submission["author_id"])
+                )
         return task
 
     def list_tasks(
