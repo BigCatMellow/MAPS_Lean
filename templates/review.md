@@ -32,6 +32,21 @@ instead of blocking approval.
 
 - <commands, screenshots, logs, links, artifacts, or reproduction steps>
 
+## High-risk completion / release summary
+
+Complete this section when the task requires
+`OPERATOR_VISIBLE_RELEASE_CHECK`; otherwise use `N/A`.
+
+- Released/approved artifact or revision: <PR/SHA/build/path>
+- What became true: <compact outcome>
+- Verification reproduced: <tests/reproduction actually checked>
+- Residual risk: <none or concise risk>
+- Operator-gated action still pending: <none or exact action requiring approval>
+
+This is the operator-visible summary for the existing task/review lifecycle. It
+does not create another `RELEASED` task state and does not authorize an
+external/destructive action by itself.
+
 ## Reviewer limits
 
 - Missing context/evidence: <none or blocker>
