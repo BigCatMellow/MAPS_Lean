@@ -1,0 +1,34 @@
+{
+  "workers": [
+    {
+      "worker_id": "core-primary",
+      "worker_class": "core",
+      "available": true,
+      "supported_task_types": ["*"],
+      "max_risk": "HIGH",
+      "can_mutate": true,
+      "can_review": true,
+      "cost_rank": 20
+    },
+    {
+      "worker_id": "bounded-editor",
+      "worker_class": "bounded",
+      "available": true,
+      "supported_task_types": ["IMPLEMENTATION", "MAINTENANCE", "REPAIR"],
+      "max_risk": "MEDIUM",
+      "can_mutate": true,
+      "can_review": false,
+      "cost_rank": 10
+    },
+    {
+      "worker_id": "local-helper",
+      "worker_class": "helper",
+      "available": true,
+      "supported_task_types": ["RESEARCH", "MAINTENANCE"],
+      "max_risk": "LOW",
+      "can_mutate": false,
+      "can_review": true,
+      "cost_rank": 1
+    }
+  ]
+}
