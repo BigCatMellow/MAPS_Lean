@@ -8,12 +8,14 @@
 ## Current reality
 
 - Checked facts: <what we directly inspected or verified>
-- Important assumptions: <what is still assumed>
+- Evidence/source paths: <where those facts came from>
+- Important assumptions: <what is still assumed rather than verified>
 
 ## Definition of DONE
 
 - Finished result: <observable end state>
-- Final proof: <how we will know the project actually succeeded>
+- Final proof: <specific evidence, test, review, release, or result that proves success>
+- Final proof performed/inspected by: <agent, reviewer, operator, or named role>
 
 ## Scope and boundaries
 
@@ -29,16 +31,17 @@
 
 - <important unknown, dependency, or risk>
 - Research/prototype needed first: <none or named work>
+- Evidence that would invalidate the current plan: <named result or condition>
 
 ## Decision path
 
 - Owner may decide: <bounded choices>
-- Escalate: <operator decisions>
+- Escalate to operator: <scope, cost, risk, irreversible, user-visible, or other named decisions>
 
 ## Planning
 
 - Roadmap: <path>
 - Roadmap state: `DRAFT | WORKING`
 - Mission meeting required: `YES | NO`
-- First wave: <first tasks or task group>
-- Reconsider if: <evidence or condition that should trigger re-planning>
+- First wave: <task IDs or first task group>
+- Reconsider if: <evidence, failed assumption, risk trigger, or effort threshold>
