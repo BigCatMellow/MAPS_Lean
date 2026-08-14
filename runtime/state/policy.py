@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import closing
+import sqlite3
 from typing import Mapping
 
 from .common import MutationResult, iso_z, utc_now
@@ -23,65 +24,77 @@ APPROVAL_TRIGGER_FLAGS = (
 
 
 class PolicyStateMixin:
-    def update_contract(self, task_id: str, contract: Mapping[str, object]) -> MutationResult:
+    @staticmethod
+    def _validate_policy_contract(
+        contract: Mapping[str, object],
+    ) -> MutationResult | None:
         raw_policy = contract.get("policy")
-        policy: dict[str, bool] | None = None
-        if raw_policy is not None:
-            if not isinstance(raw_policy, Mapping):
-                return MutationResult(False, "INVALID_CONTRACT", "policy must be an object")
-            unknown = sorted(set(raw_policy) - set(POLICY_FLAGS))
-            if unknown:
+        if raw_policy is None:
+            return None
+        if not isinstance(raw_policy, Mapping):
+            return MutationResult(False, "INVALID_CONTRACT", "policy must be an object")
+        unknown = sorted(set(raw_policy) - set(POLICY_FLAGS))
+        if unknown:
+            return MutationResult(
+                False,
+                "INVALID_CONTRACT",
+                "unknown policy fields: " + ", ".join(unknown),
+            )
+        for field in POLICY_FLAGS:
+            if field in raw_policy and not isinstance(raw_policy[field], bool):
                 return MutationResult(
                     False,
                     "INVALID_CONTRACT",
-                    "unknown policy fields: " + ", ".join(unknown),
+                    f"policy.{field} must be boolean",
                 )
-            policy = {}
-            for field in POLICY_FLAGS:
-                if field not in raw_policy:
-                    continue
-                value = raw_policy[field]
-                if not isinstance(value, bool):
-                    return MutationResult(
-                        False,
-                        "INVALID_CONTRACT",
-                        f"policy.{field} must be boolean",
-                    )
-                policy[field] = value
+        return None
 
-        base_contract = dict(contract)
-        base_contract.pop("policy", None)
-        result = super().update_contract(task_id, base_contract)
-        if not result.ok:
-            return result
+    def update_contract(self, task_id: str, contract: Mapping[str, object]) -> MutationResult:
+        validation = self._validate_policy_contract(contract)
+        if validation is not None:
+            return validation
+        # BaseStore owns the write transaction. It calls
+        # _apply_policy_contract_conn() before commit so task fields, list fields,
+        # policy flags, AGI reset, and approval invalidation are one atomic shape.
+        return super().update_contract(task_id, contract)
 
-        with closing(self._connect()) as conn:
-            conn.execute("BEGIN IMMEDIATE")
-            conn.execute("INSERT OR IGNORE INTO task_policy(task_id) VALUES (?)", (task_id,))
-            if policy:
-                clause = ", ".join(f"{field} = ?" for field in policy)
+    def _apply_policy_contract_conn(
+        self,
+        conn: sqlite3.Connection,
+        task_id: str,
+        contract: Mapping[str, object],
+    ) -> None:
+        raw_policy = contract.get("policy")
+        policy = raw_policy if isinstance(raw_policy, Mapping) else {}
+
+        conn.execute("INSERT OR IGNORE INTO task_policy(task_id) VALUES (?)", (task_id,))
+        if policy:
+            fields = [field for field in POLICY_FLAGS if field in policy]
+            if fields:
+                clause = ", ".join(f"{field} = ?" for field in fields)
                 conn.execute(
                     f"UPDATE task_policy SET {clause} WHERE task_id = ?",
-                    (*[1 if policy[field] else 0 for field in policy], task_id),
+                    (*[1 if policy[field] else 0 for field in fields], task_id),
                 )
-            # Any shaped-contract change invalidates a prior approval.
-            conn.execute(
-                """
-                UPDATE task_policy
-                SET approved_by = NULL, approved_at = NULL, approval_note = ''
-                WHERE task_id = ?
-                """,
-                (task_id,),
-            )
-            self._append_event(
-                conn,
-                task_id,
-                "TASK_POLICY_UPDATED",
-                None,
-                "Policy contract updated; operator approval reset",
-            )
-            conn.commit()
-        return MutationResult(True, "UPDATED", f"updated {task_id}", self.get_task(task_id))
+
+        # Any shaped-contract change invalidates a prior approval. This happens
+        # in the same transaction as the contract mutation so no reader can see
+        # a new contract carrying approval for the previous contract.
+        conn.execute(
+            """
+            UPDATE task_policy
+            SET approved_by = NULL, approved_at = NULL, approval_note = ''
+            WHERE task_id = ?
+            """,
+            (task_id,),
+        )
+        self._append_event(
+            conn,
+            task_id,
+            "TASK_POLICY_UPDATED",
+            None,
+            "Policy contract updated; operator approval reset",
+        )
 
     def get_task(self, task_id: str) -> dict | None:
         task = super().get_task(task_id)
