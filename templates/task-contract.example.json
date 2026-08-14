@@ -15,5 +15,13 @@
   "output_paths": ["<prospective write path>"],
   "non_goals": ["<explicit boundary>"],
   "acceptance_criteria": ["<observable pass/fail criterion>"],
-  "stop_conditions": ["<foreseeable condition that must stop execution>"]
+  "stop_conditions": ["<foreseeable condition that must stop execution>"],
+  "policy": {
+    "requires_operator_approval": false,
+    "destructive_action": false,
+    "external_side_effect": false,
+    "security_sensitive": false,
+    "broad_architecture": false,
+    "paid_execution": true
+  }
 }
