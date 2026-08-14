@@ -45,13 +45,19 @@ class RecoveryStore:
 
     def load(self) -> dict[str, Any]:
         if not self.path.exists():
-            return {"incidents": {}, "terminal_sessions": {}, "last_live": {}}
+            return {
+                "incidents": {},
+                "terminal_sessions": {},
+                "last_live": {},
+                "ambiguous_workers": {},
+            }
         value = json.loads(self.path.read_text(encoding="utf-8"))
         if not isinstance(value, dict):
             raise ValueError("recovery state must be an object")
         value.setdefault("incidents", {})
         value.setdefault("terminal_sessions", {})
         value.setdefault("last_live", {})
+        value.setdefault("ambiguous_workers", {})
         return value
 
     def save(self, value: dict[str, Any]) -> None:
