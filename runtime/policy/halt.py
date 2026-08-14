@@ -31,7 +31,13 @@ class HaltRecord:
 
     @classmethod
     def from_mapping(cls, value: dict[str, Any]) -> "HaltRecord":
-        record = cls(**{field: value.get(field) for field in cls.__dataclass_fields__})
+        record = cls(
+            **{
+                field: value[field]
+                for field in cls.__dataclass_fields__
+                if field in value
+            }
+        )
         record.validate()
         return record
 
