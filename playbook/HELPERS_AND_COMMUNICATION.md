@@ -20,6 +20,18 @@ Before spawning, record in the task or a helper note:
 The owner remains accountable for results, scope, review routing, and cleanup.
 A helper cannot self-promote into an owner, final reviewer, or decision-maker.
 
+If a helper rule is required for routing, audit, or safety, the helper/task
+record must have a durable field where that fact can be written. A rule that
+exists only in prose but has nowhere to record its answer cannot be reliably
+enforced or validated.
+
+## Parallel and broadcast work
+
+Do not broadcast one implementation assignment to several workers and let them
+race to become the owner. Split the work into explicit non-overlapping scopes,
+or assign one owner and bounded helpers. Each worker should know its output,
+stop condition, and integration owner before acting.
+
 ## Communication rules
 
 - Use direct messages for narrow factual questions; summarize any answer that
@@ -33,4 +45,3 @@ A helper cannot self-promote into an owner, final reviewer, or decision-maker.
 
 Native Codex and Claude agent views are sufficient. Visibility is useful for
 the operator, but an open pane/window never confers authority.
-
