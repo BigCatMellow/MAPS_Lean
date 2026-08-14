@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - agent/fresh-clone-install-smoke
+      - agent/execution-integrity-runtime
   workflow_dispatch:
 
 permissions:
