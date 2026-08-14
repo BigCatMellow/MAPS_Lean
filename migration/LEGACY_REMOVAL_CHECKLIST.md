@@ -2,10 +2,10 @@
 
 Use this before deleting top-level `legacy/`.
 
-**Current answer: DO NOT DELETE YET.** The useful runtime/knowledge is preserved
-and the replacement stack is verified. Remaining blockers are deferred
-independent review/merge, the final reference/privacy sweep, and explicit
-operator deletion approval.
+**Current answer: DO NOT DELETE YET.** The useful runtime/knowledge is preserved,
+the replacement stack is verified, and the current preservation privacy sweep
+passed. Remaining blockers are deferred independent review/merge, the final
+post-merge reference/dependency sweep, and explicit operator deletion approval.
 
 ## 1. Knowledge and source extraction
 
@@ -50,7 +50,7 @@ runtime behavior:
 - [x] durable halt state blocks routing lanes without mutating task truth.
 - [x] LangGraph is read-first and checkpoints into a separate SQLite DB.
 - [x] hcom adapter is project-isolated transport with no task-authority dependency.
-- [x] RnS verifies ACTIVE task + current claimant before recovery and cannot steal work.
+- [x] RnS verifies ACTIVE task + current claimant before recovery and cannot steal a claim.
 - [x] RnS has no mandatory WezTerm dependency.
 - [x] Ollama/Aider helpers require ACTIVE parent scope and cannot complete/review/approve parent work.
 - [x] fresh-clone installer/smoke uses only active runtime code.
@@ -84,34 +84,44 @@ Latest full-stack GitHub Actions run: `31847038026`.
 
 ## 5. Execution-integrity disposition
 
-The second archaeology pass is now intentionally disposed rather than left as
-an open-ended "maybe rebuild it" list:
-
 - [x] **Run manifest:** implemented in smaller active form for high-risk/resumable work.
 - [x] **Continuity-lineage reviewer independence:** implemented at routing and canonical review transitions.
 - [x] **General filesystem run scope:** implemented as frozen writable scope + read-only Git verifier.
 - [x] **Criterion evidence:** implemented as an optional mode; ordinary tasks retain the simpler review path.
 - [x] **Separate release state machine:** rejected for Lean core.
 
-### Release rationale
-
 Legacy's `APPROVED → RELEASED` subsystem largely reconciled multiple task/file
 mirrors and an old mandatory checklist. Lean has one task truth and risk-tiered
-review.
+review. For `OPERATOR_VISIBLE_RELEASE_CHECK`, the final approved
+review/completion summary is the durable operator-visible release summary.
+Actual destructive/external/security-sensitive actions still require explicit
+operator approval. A real deploy/release operation should be its own task or
+policy-gated action.
 
-For `OPERATOR_VISIBLE_RELEASE_CHECK`, the final approved review/completion
-summary is the durable operator-visible release summary. Actual destructive,
-external, security-sensitive, or otherwise operator-gated actions still require
-explicit operator approval through policy. A product that needs a real deploy or
-release operation should model that operation as its own task/action rather than
-add a universal second lifecycle.
+## 6. Current preservation privacy / secret sweep
 
-Migration snapshots remain until the reviewed stack reaches `main` and the
-final reference/privacy sweep is complete.
+See [`PRESERVATION_PRIVACY_SWEEP.md`](PRESERVATION_PRIVACY_SWEEP.md).
 
-## 6. Reference cleanup before legacy deletion
+- [x] current indexed repository search found no high-signal OpenAI/Anthropic,
+  GitHub PAT, AWS, Google, Slack, Hugging Face, bearer, or private-key patterns
+  checked by the sweep.
+- [x] no indexed `/home/` or `C:\\Users\\` machine-private home path found.
+- [x] recursive trees for both curated migration snapshots contain no `.env`,
+  private-key file, live `.db`/SQLite sidecar, `.sqlite`, `.jsonl`, `.log`,
+  settings/status/state JSON, PNG/JPG, live transcript, inbox, or message-store
+  artifact identified by the sweep.
+- [x] session-related preserved files are source/design/test material, not live
+  copied hcom transcript/session state.
 
-Run from repository root after the reviewed stack reaches `main`:
+Scope limitation: this is a current-tree/snapshot audit, **not** a forensic scan
+of every historical Git object or external/local state. If evidence later
+suggests a credential was committed historically, use a dedicated Git-history
+secret scanner and rotate the credential.
+
+## 7. Reference cleanup before legacy deletion
+
+Perform this after the reviewed runtime reaches `main`, so the result reflects
+the actual final active tree:
 
 ```bash
 rg -n 'legacy/' --glob '!legacy/**'
@@ -125,9 +135,8 @@ Then confirm:
 - [ ] no active test requires legacy runtime state.
 - [ ] fresh install/setup requires no legacy/migration execution path.
 - [ ] remaining provenance references are clearly historical/non-executable.
-- [ ] selected preserved evidence documents receive final secret/privacy review.
 
-## 7. Optional systems already decided
+## 8. Optional systems already decided
 
 - [x] full Library/Librarian: defer unless new measurements justify it.
 - [x] task fingerprint/memory retrieval: experimental; negative/mixed evidence preserved.
@@ -137,7 +146,7 @@ Then confirm:
 - [x] CommandCenterUI/Mission Control implementation: not Lean core.
 - [x] WezTerm cockpit: not required.
 
-## 8. Merge/removal gate
+## 9. Merge/removal gate
 
 ```text
 Legacy audit complete: YES
@@ -146,8 +155,8 @@ Replacement runtime reviewed: NO — deferred by operator
 Replacement runtime merged to main: NO
 Full integrated verification green: YES — run 31847038026
 Execution-integrity follow-ups disposed: YES
+Current preservation privacy/secret sweep: YES — PASS
 Final dependency/reference sweep: NO — perform after reviewed merge
-Final privacy/secret sweep: NO
 Removal approved by operator: NO
 Removal PR/commit: none
 ```
