@@ -1,24 +1,47 @@
-# Control-Plane Setup: SQLite, LangGraph, and hcom
+# Control-Plane Setup: SQLite, LangGraph, hcom, and RnS
 
-Use this guide to install and wire the retained MAPS control-plane components on
-a fresh machine or clone.
+Use this guide to install and rebuild the retained MAPS control plane on a fresh
+machine or clone.
 
 This is an implementation guide, not an authority document. The responsibility
 boundaries remain defined by [CONTROL_PLANE.md](../playbook/CONTROL_PLANE.md).
 
-## Target layout
+## Important migration rule
 
-Keep each system's mutable state separate:
+MAPS Lean now contains a curated copy of the proven legacy runtime under:
+
+```text
+migration/legacy-runtime-source/
+```
+
+That directory is **migration source, not active runtime**. Do not import from
+it in production code. It exists so `legacy/` can be removed without losing the
+implementation and tests needed to rebuild Lean correctly.
+
+Before replacing a retained subsystem from scratch:
+
+```text
+inspect extracted source
+→ identify the behavior/invariant it protected
+→ implement the smallest Lean version
+→ port the relevant test
+→ verify against disposable state
+```
+
+See [Legacy Runtime Extraction](../migration/LEGACY_RUNTIME_EXTRACTION.md).
+
+## Target layout
 
 ```text
 MAPS_Lean/
 ├── runtime/
 │   ├── state/
-│   │   └── sqlite_store.py
 │   ├── routing/
-│   │   └── langgraph_router.py
-│   └── communication/
-│       └── hcom_adapter.py
+│   ├── policy/
+│   ├── communication/
+│   ├── recovery/
+│   └── helpers/
+├── tests/
 ├── .maps/
 │   └── state/
 │       ├── maps.db
@@ -26,16 +49,16 @@ MAPS_Lean/
 └── .hcom/
 ```
 
-The three stores have different jobs:
+Keep each mutable store separate:
 
-- `.maps/state/maps.db` — MAPS task truth: task state, claims, leases,
-  submissions, reviews, and task events.
-- `.maps/state/langgraph-checkpoints.db` — LangGraph execution/checkpoint state.
-- `.hcom/` — hcom communication, session, hook, and transport state.
+- `.maps/state/maps.db` — MAPS task truth: tasks, ownership, claims, leases,
+  submission authorship, reviews, release/approval records, and task events.
+- `.maps/state/langgraph-checkpoints.db` — LangGraph execution/checkpoint memory.
+- `.hcom/` — hcom message/session/hook/transport state.
 
-**Do not combine these databases.** MAPS must not query hcom's internal database
-as project authority, and LangGraph checkpoint tables must not become the task
-ledger.
+**Do not combine these databases.** Legacy used LangGraph checkpoint tables in
+`map.db`; Lean intentionally separates them. hcom's own SQLite state must never
+become project/task authority.
 
 ## 1. Prerequisites
 
@@ -43,11 +66,13 @@ Recommended local setup:
 
 - Git
 - Python 3.10+
-- a Python virtual environment
+- Python virtual environments
+- SQLite Python binding (`sqlite3`, normally included with CPython)
 - Claude Code and/or Codex CLI if those workers will be launched through hcom
-- `uv` if available; ordinary `pip` also works for the Python packages
+- optional Ollama/Aider when local helper lanes are wanted
+- `uv` if available; ordinary `pip` also works
 
-Create local state and a Python environment from the repository root:
+From the repository root:
 
 ```bash
 mkdir -p .maps/state
@@ -56,20 +81,13 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 ```
 
-On Windows PowerShell, activate the environment with the corresponding
-`.venv\Scripts\Activate.ps1` command.
+On Windows PowerShell use `.venv\Scripts\Activate.ps1`.
 
-## 2. SQLite: install and verify
+## 2. SQLite
 
-### What MAPS uses SQLite for
+### Install / verify
 
-SQLite is the canonical mutable task ledger. Markdown remains the readable
-project brief, roadmap, decisions, handoffs, and evidence.
-
-Python already includes the `sqlite3` module in normal CPython builds, so MAPS
-does not need a separate Python database package just to use SQLite.
-
-Verify the Python binding:
+Python verification:
 
 ```bash
 python - <<'PY'
@@ -78,9 +96,8 @@ print("SQLite:", sqlite3.sqlite_version)
 PY
 ```
 
-The `sqlite3` command-line program is useful for manual inspection but is not
-required by the Python runtime. On Debian/Ubuntu/Linux Mint it is normally
-installed with:
+The CLI is useful but not required by the Python runtime. On Debian/Ubuntu/Linux
+Mint:
 
 ```bash
 sudo apt update
@@ -88,11 +105,9 @@ sudo apt install sqlite3
 sqlite3 --version
 ```
 
-SQLite also publishes prebuilt CLI binaries on its official download page.
+### Connection defaults
 
-### Connection defaults for MAPS
-
-For each MAPS task-ledger connection:
+Each task-ledger connection should use:
 
 ```sql
 PRAGMA foreign_keys = ON;
@@ -100,112 +115,102 @@ PRAGMA journal_mode = WAL;
 PRAGMA busy_timeout = 5000;
 ```
 
-Why:
+Keep the live DB on a local filesystem when relying on WAL for multi-process
+coordination.
 
-- `foreign_keys=ON` makes declared relationships actually enforceable on that
-  connection.
-- WAL allows readers and a writer to make progress concurrently on a local
-  filesystem.
-- `busy_timeout` gives short lock conflicts a chance to clear instead of
-  immediately failing.
+### Do not start from the old "minimal schema"
 
-Do not put the SQLite database on a network filesystem when relying on WAL for
-multi-process coordination. Keep it on the same host as the MAPS runtime.
+The legacy runtime already proved that several lifecycle facts matter:
 
-### Minimal starter schema
+- task dependencies and output paths;
+- acceptance criteria;
+- durable owner vs current claimant;
+- claim lease + heartbeat + attempts;
+- submission authorship independent from owner;
+- independent review records/findings;
+- release records;
+- approval gates;
+- agent lifecycle state;
+- events.
 
-The first runtime version should stay small. A sufficient starting point is:
-
-```sql
-CREATE TABLE IF NOT EXISTS tasks (
-    id TEXT PRIMARY KEY,
-    status TEXT NOT NULL CHECK (status IN (
-        'NEEDS_SHAPING',
-        'READY',
-        'ACTIVE',
-        'READY_FOR_REVIEW',
-        'CHANGES_REQUESTED',
-        'BLOCKED',
-        'DONE'
-    )),
-    risk TEXT NOT NULL CHECK (risk IN ('LOW', 'MEDIUM', 'HIGH')),
-    owner TEXT,
-    lease_until TEXT,
-    submitted_by TEXT,
-    reviewer TEXT,
-    updated_at TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS task_events (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    task_id TEXT NOT NULL REFERENCES tasks(id),
-    event_type TEXT NOT NULL,
-    actor TEXT,
-    detail TEXT,
-    created_at TEXT NOT NULL
-);
-```
-
-Add tables only when a real lifecycle rule needs them. Do not rebuild the whole
-historical MAP schema before the lean runtime proves the smaller contract.
-
-### Atomic claim pattern
-
-Task claiming must be a guarded database operation, not a read-then-write race.
-A simple pattern is:
-
-```sql
-BEGIN IMMEDIATE;
-
-UPDATE tasks
-SET status = 'ACTIVE',
-    owner = :agent_id,
-    lease_until = :lease_until,
-    updated_at = :now
-WHERE id = :task_id
-  AND status = 'READY'
-  AND owner IS NULL;
-
-SELECT changes();
-COMMIT;
-```
-
-Interpret the result as:
-
-- `changes() == 1` — claim succeeded;
-- `changes() == 0` — claim failed; re-read current task state and do not force
-  ownership.
-
-`BEGIN IMMEDIATE` starts the write transaction up front. SQLite permits many
-readers but only one simultaneous writer, so callers must handle `SQLITE_BUSY`
-by using the configured timeout and then retrying/reconciling rather than
-pretending the claim succeeded.
-
-### Required SQLite wrapper
-
-Put task-ledger access behind one module such as:
+The preserved source is:
 
 ```text
-runtime/state/sqlite_store.py
+migration/legacy-runtime-source/migration/schema.sql
+migration/legacy-runtime-source/db/claims.py
+migration/legacy-runtime-source/db/review_authorship.py
+migration/legacy-runtime-source/db/authority.py
 ```
 
-Expose semantic operations rather than arbitrary SQL throughout MAPS:
+Use that as the behavioral baseline. Simplify fields only when a ported test
+shows the removed concept is no longer required.
+
+### Lean-specific changes required
+
+Do not copy the old state layer unchanged. Resolve these differences first:
+
+1. Lean task lifecycle names currently use:
+
+   ```text
+   NEEDS_SHAPING → READY → ACTIVE → READY_FOR_REVIEW → DONE
+                              ↘ BLOCKED
+                        ↖ CHANGES_REQUESTED
+   ```
+
+   Legacy code uses states such as `IN_PROGRESS`, `SUBMITTED`, `APPROVED`, and
+   `RELEASED`. Pick one runtime vocabulary and make every transition/test agree.
+
+2. A consequential task MUST pass the AGI readiness gate before entering
+   `READY`.
+
+3. Submission authorship MUST remain separate from durable owner so owner
+   reassignment cannot defeat no-self-review.
+
+4. Output paths remain prospective write boundaries, not an after-the-fact
+   report of changed files.
+
+### Required state API
+
+Put task-ledger access behind `runtime/state/`. Expose semantic operations, not
+arbitrary SQL spread across the system. At minimum:
 
 ```text
-get_task(task_id)
 create_task(...)
-claim_task(task_id, agent_id, lease_until)
-renew_lease(task_id, agent_id, lease_until)
-submit_task(task_id, agent_id, evidence_ref)
-record_review(task_id, reviewer, verdict)
-transition_task(task_id, expected_state, new_state, actor)
+get_task(task_id)
+validate_ready(task_id)
+claim_task(task_id, worker_id)
+heartbeat(task_id, worker_id)
+submit_task(task_id, worker_id, evidence)
+claim_review(task_id, reviewer_id)
+record_review(task_id, reviewer_id, verdict)
+request_changes(task_id, ...)
+complete_task(task_id, ...)
+release_or_approve(...)
+recover_expired_claim(...)
 append_event(...)
 ```
 
-Every state-changing operation must validate the expected current state and
-return an explicit success/failure result.
+Every mutation must check expected state/authority and return explicit
+success/failure.
 
-## 3. LangGraph: install and verify
+### Atomic claim invariant
+
+Do not implement claim as `SELECT` followed by an unconditional `UPDATE`.
+The claim mutation itself must be guarded, so concurrent workers cannot both
+succeed.
+
+The extracted `db/claims.py` contains the prior guarded-update behavior and
+lease recovery logic. Port its invariant, then test a two-worker race.
+
+Required result:
+
+```text
+exactly one claim succeeds
+loser re-reads current task state
+loser never force-overwrites ownership
+```
+
+## 3. LangGraph
 
 ### Install
 
@@ -215,26 +220,20 @@ Inside `.venv`:
 python -m pip install -U langgraph langgraph-checkpoint-sqlite
 ```
 
-With `uv`:
+Or:
 
 ```bash
 uv pip install langgraph langgraph-checkpoint-sqlite
 ```
 
-The SQLite checkpointer is a separate package; installing `langgraph` alone is
-not enough for `from langgraph.checkpoint.sqlite import SqliteSaver`.
-
-For current `langgraph-checkpoint-sqlite`, use strict MessagePack loading unless
-there is a reviewed reason not to:
+For current `langgraph-checkpoint-sqlite`, keep strict MessagePack loading unless
+a reviewed compatibility reason requires otherwise:
 
 ```bash
 export LANGGRAPH_STRICT_MSGPACK=true
 ```
 
 ### Smoke test
-
-This confirms that LangGraph and its SQLite checkpointer both work and that the
-checkpoint database can be created:
 
 ```bash
 python - <<'PY'
@@ -266,34 +265,23 @@ with SqliteSaver.from_conn_string('.maps/state/langgraph-checkpoints.db') as cp:
 PY
 ```
 
-Expected result: a dictionary whose `route` is `wait_or_reconcile`, plus a new
-`.maps/state/langgraph-checkpoints.db` file.
+Expected: `route == wait_or_reconcile` and a dedicated checkpoint DB exists.
 
-The synchronous `SqliteSaver` is intended for lightweight synchronous use. If
-MAPS later runs an async LangGraph path, use `AsyncSqliteSaver` rather than
-calling async graph methods through the synchronous saver.
+### Migration source
 
-### How MAPS should use LangGraph
-
-Put the router behind:
+Preserved routing source:
 
 ```text
-runtime/routing/langgraph_router.py
+migration/legacy-runtime-source/graph/runner.py
+migration/legacy-runtime-source/graph/graph.py
+migration/legacy-runtime-source/workflow/runtime_policy.yaml
+migration/legacy-runtime-source/workflow/role_registry.yaml
+migration/legacy-runtime-source/scripts/pre_dispatch_policy.py
+migration/legacy-runtime-source/scripts/halt_state.py
 ```
 
-Its input should be a read-only snapshot of project/task conditions such as:
-
-```text
-task state
-dependencies
-risk/policy gates
-available workers
-review requirement
-approval requirement
-helper capacity
-```
-
-Its output should be a bounded operational route, for example:
+The old runner grew large and accumulated fixed-role/context-history concerns.
+Do not port it line-for-line. Preserve the useful route contract:
 
 ```text
 review
@@ -304,71 +292,77 @@ policy_gate
 wait_or_reconcile
 ```
 
-LangGraph must not:
+Input should be a read-only snapshot of:
 
-- invent product scope;
-- change operator priorities;
-- approve destructive or consequential actions;
-- directly overwrite MAPS task truth as a side effect of merely choosing a
-  route.
+```text
+task/dependency state
+AGI readiness
+risk/policy gates
+worker capability/availability
+review requirement
+approval requirement
+helper capacity
+halt state
+```
 
-The graph recommends the next route. A MAPS operation then performs the guarded
-SQLite transition.
+LangGraph recommends a route. A guarded MAPS operation performs any mutation.
 
-## 4. hcom: install and verify
+### Checkpoint migration
 
-hcom is a standalone communication/session-control CLI. It supports Claude
-Code, Codex, and other coding-agent CLIs. It has no required background service.
+Legacy `db/checkpointer.py` placed custom LangGraph checkpoint tables in the
+same `map.db` as task truth. Keep it only as compatibility/reference evidence.
+For Lean use the official SQLite saver against:
 
-### Preferred install on this project
+```text
+.maps/state/langgraph-checkpoints.db
+```
 
-If `uv` is available:
+## 4. hcom
+
+hcom is the cross-provider communication and session-control transport used by
+the existing recovery design.
+
+### Install
+
+Preferred when `uv` is available:
 
 ```bash
 uv tool install hcom
 ```
 
-Official alternatives include:
+Python alternative:
 
 ```bash
-# macOS/Linux/Termux/WSL installer
-curl -fsSL https://github.com/aannoo/hcom/releases/latest/download/hcom-installer.sh | sh
-
-# ordinary Python install
-pip install hcom
+python3 -m venv "$HOME/.local/share/hcom-venv"
+"$HOME/.local/share/hcom-venv/bin/python" -m pip install -U hcom
+mkdir -p "$HOME/.local/bin"
+ln -sf "$HOME/.local/share/hcom-venv/bin/hcom" "$HOME/.local/bin/hcom"
 ```
 
-On macOS with Homebrew:
-
-```bash
-brew install aannoo/hcom/hcom
-```
-
-On native Windows PowerShell, hcom publishes a release installer script. See
-its official README before running the current command.
+The old installer used this separate user-local venv pattern. It avoids mixing
+hcom with the project runtime environment.
 
 Verify:
 
 ```bash
+hcom --version
 hcom status
 ```
 
-### Isolate hcom per MAPS project
+### Isolate hcom per project
 
-Before the first project-local hcom launch:
+From the clone root:
 
 ```bash
 export HCOM_DIR="$PWD/.hcom"
 hcom status
 ```
 
-Use the same `HCOM_DIR` for every hcom command for this clone. This prevents one
-project's hcom sessions/hooks/state from becoming another project's transport
-state.
+Use the same `HCOM_DIR` for all hcom commands for this clone.
 
-### Launch Claude and Codex through hcom
+### Claude and Codex
 
-From the repository root with `HCOM_DIR` set:
+With `HCOM_DIR` set:
 
 ```bash
 hcom claude
@@ -381,23 +375,13 @@ export HCOM_DIR="$PWD/.hcom"
 hcom codex
 ```
 
-Then verify hcom can see them:
+Verify:
 
 ```bash
 hcom list
 ```
 
-Open the hcom dashboard with:
-
-```bash
-hcom
-```
-
-Basic direct messaging is available through `hcom send`; use `hcom <command>
---help` for current flags rather than hard-coding undocumented arguments into
-MAPS.
-
-### How MAPS should use hcom
+### MAPS adapter boundary
 
 Put hcom access behind:
 
@@ -405,88 +389,176 @@ Put hcom access behind:
 runtime/communication/hcom_adapter.py
 ```
 
-Expose a small MAPS-facing contract such as:
+Expected operations:
 
 ```text
-send(target, message)
+send(...)
 list_sessions()
-status(session)
-spawn(worker_type, ...)
-resume(session)
-stop(session)
+session_status(...)
+spawn(...)
+resume(...)
+stop(...)
+read_bounded_events_or_transcript(...)
 ```
 
-hcom may provide:
+hcom may supply transport/session facts. It MUST NOT decide:
 
-- cross-provider messages;
-- agent/session identity;
-- liveness/status information;
-- resume/nudge operations used by RnS;
-- bounded transcript/event access when needed for recovery.
+- MAPS task ownership;
+- task completion;
+- review verdict;
+- scope changes;
+- operator approval;
+- destructive-action authority.
 
-hcom must not decide:
+Legacy communication notes explicitly treated hcom message intent/history as
+hcom-owned transport data, not MAP canonical state. Preserve that boundary.
 
-- who owns a MAPS task;
-- whether a task is DONE;
-- whether a review passes;
-- whether scope may change;
-- whether a destructive action is authorized.
+## 5. RnS / recovery
 
-Those remain MAPS/operator decisions backed by the task ledger and durable
-records.
-
-If remote-device relay features are later enabled, treat device enrollment as a
-high-trust security boundary. Do not enable it merely to make local setup work.
-
-## 5. Wire the components together
-
-The intended call path is:
+Preserved recovery source:
 
 ```text
-Markdown project/task record
-          │
-          ▼
-     MAPS runtime
-          │
-     reads task truth
-          ▼
-       SQLite
-          │
-          ▼
-   LangGraph router
-          │
-    recommends route
-          ▼
- MAPS guarded operation
-     │            │
-     │            └── updates SQLite only if valid
-     ▼
-   hcom adapter
-     │
-     └── message / spawn / resume the selected worker
+migration/legacy-runtime-source/scripts/limit_watcher.py
+migration/legacy-runtime-source/scripts/liveness_reaper.py
+migration/legacy-runtime-source/scripts/durable_execution.py
+migration/legacy-runtime-source/scripts/resilience_controls.py
+migration/legacy-runtime-source/scripts/dead_letter_queue.py
+migration/legacy-runtime-source/scripts/agent_loop.py
 ```
 
-For example, assigning a READY task should look conceptually like:
+Keep these behaviors:
+
+- detect explicit provider-reset times when available;
+- detect stale/stopped sessions when no final handoff turn occurs;
+- capped retry/backoff rather than resume spam;
+- durable incident/recovery state;
+- terminal/superseded sessions are not resurrected;
+- expired task claims recover without stealing live work;
+- RnS does not invent, claim, or reassign tasks.
+
+Remove the old hard dependency on:
 
 ```text
-1. Read task + AGI readiness.
-2. Read current SQLite state.
-3. Ask router for next operational route.
-4. If route is claim_or_assign, atomically claim in SQLite.
-5. Only after claim succeeds, send/launch the owner through hcom.
-6. Worker executes the durable task contract.
-7. Submission updates SQLite.
-8. Router sees READY_FOR_REVIEW and selects review.
-9. Independent reviewer verifies evidence.
-10. Guarded review transition marks DONE only after required proof passes.
+hcom r <name> --terminal wezterm-tab --go
 ```
 
-Do not send a worker an implementation assignment first and try to repair task
-ownership afterward.
+Replace terminal choice with an adapter. The recovery contract is:
 
-## 6. Local-state ignore rules
+```text
+session identified
+→ recovery condition true
+→ durable handoff/task state checked
+→ adapter resume/nudge
+→ verify liveness
+→ backoff or close incident
+```
 
-These paths are machine/runtime state and should normally stay out of Git:
+WezTerm is presentation, not recovery authority.
+
+## 6. Local model / Aider helpers
+
+Legacy already contains useful bounded helper wrappers:
+
+```text
+migration/legacy-runtime-source/scripts/local_runner.py
+migration/legacy-runtime-source/scripts/local_assistant_health.py
+migration/legacy-runtime-source/scripts/aider_wrapper.py
+```
+
+Retain the ideas, adapt the task format:
+
+- explicit model/tool;
+- explicit task/scope;
+- explicit output path(s);
+- health check before local execution;
+- Aider target files must fit declared write boundaries;
+- dirty target files block automatic launch;
+- helper result is recorded durably;
+- helper never owns final completion/review/architecture decisions.
+
+HPOM/model-capability routing should decide whether a specific local model is
+fit for a task. Do not hard-code the old approved model list as eternal truth.
+
+## 7. Installer design
+
+Preserved source:
+
+```text
+migration/legacy-runtime-source/install/install-map-system.sh
+migration/legacy-runtime-source/docs/fresh-install.md
+```
+
+Keep:
+
+- dry-run as the safe/default preview path;
+- user-local installation;
+- backup before overwrite;
+- dynamic repo path rather than hard-coded machine path;
+- separate hcom environment;
+- post-install command checks;
+- no credential/API-key automation.
+
+Do not carry forward as requirements:
+
+- WezTerm installation;
+- fixed startup roster;
+- Agent Deck / terminal cockpit;
+- bundled CommandCenterUI installation;
+- mandatory desktop launchers.
+
+A future Lean installer should install only selected runtime dependencies and
+print missing optional workers/tools.
+
+## 8. Fresh-clone implementation order
+
+Use this order:
+
+```text
+1. Python environment
+2. SQLite task store + migrations
+3. port lifecycle tests
+4. AGI READY gate
+5. hcom install + project isolation
+6. hcom adapter
+7. LangGraph + dedicated checkpoint DB
+8. routing/policy adapter
+9. RnS recovery adapter
+10. local helper adapters as needed
+11. fresh-clone smoke suite
+```
+
+Do not wire automated dispatch before the SQLite state/gates pass their tests.
+
+## 9. Required behavioral verification
+
+Before calling the Lean control plane usable:
+
+```text
+[ ] SQLite opens with FK + WAL + busy timeout
+[ ] concurrent claim race has exactly one winner
+[ ] expired lease recovers without stealing live work
+[ ] AGI FAIL cannot transition to READY
+[ ] submission author cannot review own substantive work
+[ ] output-path/write-boundary conflict is rejected
+[ ] review/release gates require expected evidence
+[ ] LangGraph uses separate checkpoint DB
+[ ] router recommendation does not mutate task truth
+[ ] hcom project state is isolated with HCOM_DIR
+[ ] hcom session state never grants task authority
+[ ] RnS resumes/nudges without mandatory WezTerm
+[ ] RnS does not revive terminal/superseded sessions
+[ ] local helper cannot widen scope or self-approve
+[ ] Aider wrapper blocks out-of-scope target files
+[ ] fresh install works without reading legacy/
+```
+
+The focused old tests preserved under
+`migration/legacy-runtime-source/tests/` are migration evidence. Port them into
+the active `tests/` suite as each subsystem is implemented.
+
+## 10. Local-state ignore rules
+
+Normally keep these out of Git:
 
 ```gitignore
 /.venv/
@@ -496,46 +568,19 @@ These paths are machine/runtime state and should normally stay out of Git:
 
 Tracked Markdown remains the durable human-readable project record.
 
-## 7. Fresh-clone verification checklist
-
-A fresh machine is ready for control-plane implementation only when all of these
-pass:
-
-```text
-[ ] python can import sqlite3
-[ ] MAPS can create/open .maps/state/maps.db
-[ ] a guarded claim race has exactly one winner
-[ ] langgraph imports successfully
-[ ] langgraph-checkpoint-sqlite imports successfully
-[ ] LangGraph smoke test creates/resumes a checkpoint thread
-[ ] hcom status succeeds
-[ ] HCOM_DIR is isolated to this repository
-[ ] hcom can launch or attach to the intended Claude/Codex sessions
-[ ] hcom list sees active sessions
-[ ] MAPS task truth never depends on hcom's internal DB
-[ ] LangGraph checkpoint state is separate from maps.db
-```
-
-Before calling the control plane complete, also run the behavioral simulations
-specified by the active project roadmap: atomic claim race, independent-review
-separation, restart persistence, and RnS recovery without a mandatory WezTerm
-cockpit.
-
-## 8. Updates and troubleshooting
+## 11. Troubleshooting
 
 ### hcom
 
 ```bash
 hcom status
 hcom update
+hcom list
 ```
 
-Use `hcom reset all` only when intentionally clearing/archiving hcom local state;
-it is not a routine repair command for MAPS task state.
+Do not use an hcom reset as a repair for MAPS task truth.
 
 ### LangGraph
-
-Record package versions when debugging:
 
 ```bash
 python - <<'PY'
@@ -545,40 +590,24 @@ for pkg in ('langgraph', 'langgraph-checkpoint-sqlite'):
 PY
 ```
 
-If async graph calls fail through `SqliteSaver`, use the documented
-`AsyncSqliteSaver` path instead of bypassing the checkpointer abstraction.
-
 ### SQLite
-
-For manual inspection:
 
 ```bash
 sqlite3 .maps/state/maps.db '.tables'
 sqlite3 .maps/state/maps.db 'PRAGMA journal_mode;'
+sqlite3 .maps/state/maps.db 'PRAGMA foreign_keys;'
 sqlite3 .maps/state/maps.db 'PRAGMA integrity_check;'
 ```
 
-A failed claim is not automatically a database error. It may correctly mean
-another worker claimed the task first.
+A failed claim may be correct contention behavior; re-read state before treating
+it as a DB failure.
 
-## 9. Official sources
+## 12. External source references
 
-Checked 2026-08-14. Re-verify commands before changing installers or dependency
-versions.
+The public dependency commands in this guide were last checked on 2026-08-14.
+Re-verify before changing installer pins or supported command syntax.
 
-- hcom official repository/README:
-  https://github.com/aannoo/hcom
-- LangGraph overview/install:
-  https://docs.langchain.com/oss/python/langgraph/overview
-- LangGraph persistence/checkpointers:
-  https://docs.langchain.com/oss/python/langgraph/persistence
-- LangGraph SQLite checkpointer package/source:
-  https://pypi.org/project/langgraph-checkpoint-sqlite/
-  https://github.com/langchain-ai/langgraph/tree/main/libs/checkpoint-sqlite
-- SQLite quickstart/download:
-  https://www.sqlite.org/quickstart.html
-  https://www.sqlite.org/download.html
-- SQLite transactions/WAL/PRAGMA behavior:
-  https://www.sqlite.org/lang_transaction.html
-  https://www.sqlite.org/wal.html
-  https://www.sqlite.org/pragma.html
+- hcom: `https://github.com/aannoo/hcom`
+- LangGraph: `https://docs.langchain.com/oss/python/langgraph/overview`
+- LangGraph persistence: `https://docs.langchain.com/oss/python/langgraph/persistence`
+- SQLite: `https://www.sqlite.org/`
