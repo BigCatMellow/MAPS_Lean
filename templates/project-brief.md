@@ -3,16 +3,23 @@
 - Owner: <person>
 - Status: `DRAFT | ACTIVE | PAUSED | DONE`
 - Goal: <what we are trying to achieve>
+- User/operator: <who needs the result>
+
+## Current reality
+
+- Checked facts: <what we directly inspected or verified>
+- Important assumptions: <what is still assumed>
 
 ## Definition of DONE
 
 - Finished result: <observable end state>
 - Final proof: <how we will know the project actually succeeded>
 
-## Scope and non-goals
+## Scope and boundaries
 
 - In scope: <items>
-- Not in scope: <items>
+- Not doing: <items>
+- Effort limit: <time, cost, or effort point where we reconsider>
 
 ## Constraints and quality bar
 
@@ -20,7 +27,8 @@
 
 ## Unknowns and risks
 
-- <important assumption, question, dependency, or risk>
+- <important unknown, dependency, or risk>
+- Research/prototype needed first: <none or named work>
 
 ## Decision path
 
@@ -30,4 +38,7 @@
 ## Planning
 
 - Roadmap: <path>
+- Roadmap state: `DRAFT | WORKING`
 - Mission meeting required: `YES | NO`
+- First wave: <first tasks or task group>
+- Reconsider if: <evidence or condition that should trigger re-planning>
