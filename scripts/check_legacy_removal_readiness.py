@@ -3,7 +3,6 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 import re
-import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SELF = Path(__file__).resolve()
@@ -16,7 +15,7 @@ ROOT_FILES = (
     "tox.ini",
     "Makefile",
 )
-TEXT_SUFFIXES = {
+EXECUTABLE_SUFFIXES = {
     ".py",
     ".sh",
     ".bash",
@@ -27,11 +26,11 @@ TEXT_SUFFIXES = {
     ".ini",
     ".cfg",
     ".txt",
-    ".md",
 }
+HISTORICAL_SUFFIXES = EXECUTABLE_SUFFIXES | {".md"}
 
 # These are executable/runtime dependency markers, not a ban on historical
-# discussion of legacy in migration/review documents.
+# discussion of legacy in documentation/review records.
 FORBIDDEN_TEXT = (
     ("legacy path", re.compile(r"(?<![A-Za-z0-9_])legacy/")),
     ("runtime preservation snapshot", re.compile(r"migration/legacy-runtime-source")),
@@ -54,7 +53,11 @@ def active_files() -> list[Path]:
         if not root.exists():
             continue
         for path in root.rglob("*"):
-            if path.is_file() and path.resolve() != SELF and path.suffix.lower() in TEXT_SUFFIXES:
+            if (
+                path.is_file()
+                and path.resolve() != SELF
+                and path.suffix.lower() in EXECUTABLE_SUFFIXES
+            ):
                 files.add(path)
     for name in ROOT_FILES:
         path = ROOT / name
@@ -83,6 +86,17 @@ def python_legacy_imports(path: Path, text: str) -> list[str]:
     return hits
 
 
+def _negative_test_assertion(rel: str, text: str, match_start: int) -> bool:
+    """Allow tests whose only reference is an explicit absence assertion."""
+    if not rel.startswith("tests/"):
+        return False
+    line_start = text.rfind("\n", 0, match_start) + 1
+    line_end = text.find("\n", match_start)
+    if line_end < 0:
+        line_end = len(text)
+    return "assertNotIn(" in text[line_start:line_end]
+
+
 def active_dependency_failures() -> list[str]:
     failures: list[str] = []
     for path in active_files():
@@ -95,6 +109,8 @@ def active_dependency_failures() -> list[str]:
             failures.append(f"{rel}: {detail}")
         for label, pattern in FORBIDDEN_TEXT:
             for match in pattern.finditer(text):
+                if _negative_test_assertion(rel, text, match.start()):
+                    continue
                 line = text.count("\n", 0, match.start()) + 1
                 failures.append(f"{rel}:{line}: {label}: {match.group(0)!r}")
 
@@ -128,9 +144,12 @@ def historical_reference_summary() -> list[str]:
         if not path.is_file() or path.resolve() == SELF:
             continue
         rel = path.relative_to(ROOT).as_posix()
-        if any(rel == prefix.rstrip("/") or rel.startswith(prefix) for prefix in HISTORICAL_EXCLUDES):
+        if any(
+            rel == prefix.rstrip("/") or rel.startswith(prefix)
+            for prefix in HISTORICAL_EXCLUDES
+        ):
             continue
-        if path.suffix.lower() not in TEXT_SUFFIXES:
+        if path.suffix.lower() not in HISTORICAL_SUFFIXES:
             continue
         try:
             text = path.read_text(encoding="utf-8")
@@ -142,12 +161,13 @@ def historical_reference_summary() -> list[str]:
 
 
 def main() -> int:
+    active = active_files()
     failures = active_dependency_failures()
     historical = historical_reference_summary()
 
     print("MAPS legacy-removal dependency gate")
     print("===================================")
-    print(f"active files scanned: {len(active_files())}")
+    print(f"active executable/config files scanned: {len(active)}")
     if failures:
         print("\nACTIVE LEGACY DEPENDENCIES: FAIL")
         for item in failures:
