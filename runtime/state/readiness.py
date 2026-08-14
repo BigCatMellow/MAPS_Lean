@@ -159,7 +159,7 @@ class ReadinessMixin:
                         continue
                     reported.add(key)
                     reasons.append(
-                        f"output scope {output} overlaps {reserved} reserved by "
+                        f"output scope {output} overlaps {reserved} already reserved by "
                         f"{conflict['task_id']}"
                     )
 
