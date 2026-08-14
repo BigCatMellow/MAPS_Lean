@@ -9,6 +9,8 @@ Implemented slices:
   capability envelopes, and durable dispatch halt state.
 - `runtime/routing/` — deterministic route selection wrapped by LangGraph with
   a separate SQLite checkpoint database.
+- `runtime/communication/` — narrow hcom messaging/session adapter with
+  project-local `HCOM_DIR`; transport state never grants MAPS authority.
 
 Active runtime does not import executable code from `legacy/` or `migration/`.
 
@@ -18,10 +20,11 @@ Active runtime does not import executable code from `legacy/` or `migration/`.
 .maps/state/maps.db                    canonical MAPS task truth
 .maps/state/langgraph-checkpoints.db   LangGraph routing/checkpoint memory
 .maps/state/halt.json                  inspectable dispatch halt state
+.hcom/                                 hcom message/session/process state
 ```
 
-All are ignored by Git. **Do not combine the two SQLite databases.** Routing
-checkpoint memory does not grant task authority.
+These stores stay separate. Routing checkpoints and hcom communication state do
+not grant task ownership, completion, review, or approval authority.
 
 ## Task lifecycle
 
@@ -57,8 +60,6 @@ dependencies, and active output-path conflicts. Semantic quality remains a
 shaping/review responsibility.
 
 ## Routing contract
-
-The router does this:
 
 ```text
 read canonical task snapshots
@@ -100,12 +101,9 @@ paid_execution
 ```
 
 If an approval-triggering flag is true, dispatch stops at `policy_gate` until
-operator approval is durably recorded. Reshaping the task clears prior approval
-so approval cannot silently survive a changed contract.
+operator approval is durably recorded. Reshaping the task clears prior approval.
 
 ## Halt modes
-
-`runtime/policy/halt.py` supports:
 
 ```text
 halt_paid_dispatch
@@ -116,16 +114,44 @@ repair_only
 Halts block routing lanes only. They do not rewrite task status, ownership, or
 review records.
 
+## hcom boundary
+
+`runtime/communication/hcom_adapter.py` wraps current hcom CLI operations:
+
+```text
+list_sessions
+read_events
+send
+spawn
+resume
+stop
+```
+
+Machine reads use `hcom list --json` and JSON event records. Side effects use
+argv-based subprocess calls with `shell=False`. The adapter always sets its
+configured project-local `HCOM_DIR` and has no import of the MAPS task store.
+
+Important non-equivalences:
+
+```text
+message sent       != task assigned
+session active     != task owned
+agent says "done"  != task DONE
+hcom intent        != MAPS authority
+```
+
+See `runtime/communication/README.md`.
+
 ## Dependencies
 
 ```bash
 python -m pip install -r runtime/requirements.txt
 ```
 
-LangGraph checkpoints use `.maps/state/langgraph-checkpoints.db`. Current
-`langgraph-checkpoint-sqlite` guidance recommends strict MessagePack loading;
-the runtime defaults `LANGGRAPH_STRICT_MSGPACK=true` unless the operator has
-explicitly set another value.
+LangGraph checkpoints use `.maps/state/langgraph-checkpoints.db`. The runtime
+defaults `LANGGRAPH_STRICT_MSGPACK=true` unless explicitly overridden.
+
+hcom is installed separately; see `docs/CONTROL_PLANE_SETUP.md`.
 
 ## CLI
 
@@ -159,8 +185,6 @@ python -m runtime.routing.cli halt-clear --actor operator --authority operator -
 python -m unittest discover -s tests -v
 ```
 
-The state suite covers AGI promotion, claims, leases, output-path conflicts,
-submission authorship, review separation, rework, task IDs, and SQLite safety.
-The routing suite covers capability profiles, policy gates, approvals,
-independent reviewer selection, and halt behavior. The LangGraph checkpoint
-integration test is dependency-gated and should run on a configured clone.
+State tests cover AGI/claims/leases/review. Routing tests cover capability and
+policy decisions. `tests/test_hcom_adapter.py` uses a fake hcom executable and
+performs no live messaging, spawning, resuming, or killing.
