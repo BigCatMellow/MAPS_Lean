@@ -4,5 +4,11 @@
 # Local editor and Python cache state.
 /.claude/
 /.obsidian/
+/.venv/
 **/__pycache__/
 *.py[cod]
+
+# Local MAPS control-plane state. These are runtime databases/session state,
+# not durable project records.
+/.maps/state/
+/.hcom/
