@@ -25,9 +25,9 @@ multi-agent or consequential change and put reviews, decisions, and handoffs
 in `work/` using the templates.
 
 Setting up the retained runtime on a fresh clone? Follow
-[Control-Plane Setup](docs/CONTROL_PLANE_SETUP.md) for SQLite, LangGraph, and
-hcom installation, smoke tests, local state layout, and implementation
-boundaries.
+[Control-Plane Setup](docs/CONTROL_PLANE_SETUP.md). The SQLite/AGI state slice
+is now active under `runtime/`; LangGraph, hcom, and RnS promotion remain later
+migration work.
 
 ## What is deliberately retained
 
@@ -36,22 +36,22 @@ boundaries.
 - Risk-proportionate evidence and release checks.
 - Compact handoffs and durable decisions when work spans sessions or tools.
 
-## Runtime architecture retained
+## Runtime status
 
-- **SQLite** is the canonical mutable task ledger: atomic claims, leases,
-  submissions, review separation, and task events. It prevents two agents from
-  successfully claiming the same task at once.
-- **LangGraph** is the read-first dispatcher: it evaluates the task graph,
-  policy, availability, helper capacity, and approval gates, then recommends
-  the next route (`review`, `claim_or_assign`, `wait`, or `policy_gate`). Its
-  checkpoint state is kept separately from MAPS task truth. It does not replace
-  the Markdown roadmap or make autonomous product decisions.
-- **RnS (Rise & Shine)** is the deterministic, reboot-safe limit/restart
-  supervisor. Durable handoffs remain its foundation; it resumes or nudges a
-  stopped session after provider limits reset.
-- **hcom** remains the live communication and session-control bus required by
-  the current RnS implementation and useful for cross-provider coordination.
-  hcom's own local state is transport/session state, not MAPS task authority.
+- **SQLite — active:** `runtime/state/` is the canonical mutable task ledger for
+  the promoted slice. It enforces the structural AGI `READY` gate, atomic
+  claims/leases, durable submission authorship, review separation, rework, and
+  task events. Local mutable state defaults to `.maps/state/maps.db`.
+- **LangGraph — retained, not yet promoted:** planned read-first routing over
+  canonical task state. Its checkpoints remain separate from MAPS task truth.
+- **RnS (Rise & Shine) — retained, not yet promoted:** deterministic
+  restart/provider-limit recovery based on durable handoff state.
+- **hcom — retained, not yet promoted:** cross-provider communication/session
+  transport. Its own state is not MAPS task authority.
+
+The active state runtime imports nothing from `legacy/` or migration snapshots.
+Those directories are evidence/reference until the remaining runtime layers are
+promoted and the removal checklist is satisfied.
 
 ## What is deliberately removed from the active default
 
@@ -61,7 +61,7 @@ boundaries.
 - Ceremony for small, low-risk, single-agent edits.
 
 Use native Codex or Claude agent spawning where possible. hcom remains the
-current durable session-control transport; WezTerm is optional presentation.
+retained session-control transport design; WezTerm is optional presentation.
 Neither grants authority.
 
 ## Layout
@@ -69,15 +69,16 @@ Neither grants authority.
 | Path | Purpose |
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | The active operating contract. |
+| `runtime/` | Active provider-neutral runtime; currently SQLite task state + AGI gate. |
+| `tests/` | Active runtime regression tests. |
 | `docs/` | Short workflow, setup, and quality guidance. |
-| `playbook/` | Active reusable methods: project bootstrap, roadmap/checklists, research, risk, discovery, and routing. |
-| `templates/` | Task, review, handoff, and decision records. |
+| `playbook/` | Active reusable methods: project bootstrap, task lifecycle, research, risk, discovery, and routing. |
+| `templates/` | Task, review, handoff, decision, context, and task-contract examples. |
 | [state/CURRENT.md](state/CURRENT.md) | Compact shared continuation context. |
 | `work/` | Active task records and durable outputs. |
-| `legacy/` | Original source, historical evidence, installer, and reference material. |
+| `migration/` | Curated source/evidence retained while active runtime promotion continues. |
+| `legacy/` | Historical original source; not an active runtime dependency. |
 
-The original project working state was copied intact as far as filesystem
-consistency allowed; a transient SQLite temporary file disappeared during the
-copy and is not needed by this lean workflow. `legacy/` is a source library,
-not a dismissal of the original work: the MAP runtime remains retained while
-the startup cockpit is being decoupled from WezTerm.
+`legacy/` is intentionally still present. Delete it only after the migration
+removal checklist confirms that required behavior, tests, provenance, and
+privacy/dependency checks have safe destinations.
