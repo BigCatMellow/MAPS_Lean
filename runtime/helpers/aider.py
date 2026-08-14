@@ -21,29 +21,50 @@ class AiderHelper:
         self.timeout_seconds = timeout_seconds
         self.run_store = run_store or HelperRunStore()
 
-    def _git_changes(self, repo: Path, targets: Sequence[Path] | None = None) -> set[str]:
-        argv = [self.git_executable, "-C", str(repo), "status", "--porcelain"]
-        if targets is not None:
-            argv.extend(("--", *[str(path.relative_to(repo)) for path in targets]))
+    @staticmethod
+    def _parse_porcelain_z(raw: bytes) -> set[str]:
+        """Parse `git status --porcelain=v1 -z` without path quoting ambiguity."""
+        items = raw.split(b"\0")
+        changed: set[str] = set()
+        index = 0
+        while index < len(items):
+            record = items[index]
+            index += 1
+            if not record:
+                continue
+            if len(record) < 4 or record[2:3] != b" ":
+                raise HelperError("unexpected git porcelain record")
+            status = record[:2].decode("ascii", errors="replace")
+            path = record[3:].decode("utf-8", errors="surrogateescape")
+            changed.add(path)
+            if "R" in status or "C" in status:
+                if index >= len(items) or not items[index]:
+                    raise HelperError("git rename/copy record missing source path")
+                source = items[index].decode("utf-8", errors="surrogateescape")
+                index += 1
+                changed.add(source)
+        return changed
+
+    def _git_changes(self, repo: Path) -> set[str]:
         result = subprocess.run(
-            argv,
-            text=True,
+            [
+                self.git_executable,
+                "-C",
+                str(repo),
+                "status",
+                "--porcelain=v1",
+                "-z",
+                "--untracked-files=all",
+            ],
             capture_output=True,
             shell=False,
             timeout=30,
             check=False,
         )
         if result.returncode != 0:
-            raise HelperError(result.stderr.strip() or "git status failed")
-        changed: set[str] = set()
-        for line in result.stdout.splitlines():
-            if not line.strip():
-                continue
-            path = line[3:].strip() if len(line) > 3 else line.strip()
-            if " -> " in path:
-                path = path.split(" -> ", 1)[1]
-            changed.add(path)
-        return changed
+            message = result.stderr.decode("utf-8", errors="replace").strip()
+            raise HelperError(message or "git status failed")
+        return self._parse_porcelain_z(result.stdout)
 
     def run(
         self,
@@ -68,12 +89,16 @@ class AiderHelper:
             for path in targets
         ]
         validate_active_scope(task, resolved, repo=repo_path)
-        dirty_targets = self._git_changes(repo_path, resolved)
-        if dirty_targets:
-            raise HelperError(
-                "Aider target has uncommitted changes: " + ", ".join(sorted(dirty_targets))
-            )
+
+        # Attribution must be provable. With a dirty worktree, a path-set diff
+        # cannot prove that Aider did not modify an already-dirty unrelated file.
+        # Refuse rather than guess or auto-revert someone else's work.
         before_changes = self._git_changes(repo_path)
+        if before_changes:
+            raise HelperError(
+                "Aider helper requires a clean worktree so its changes are attributable; "
+                "existing changes: " + ", ".join(sorted(before_changes))
+            )
 
         # Intentionally no generic extra-args escape hatch. The wrapper fixes
         # the safety-relevant Aider options and exposes only model + message.
@@ -104,11 +129,10 @@ class AiderHelper:
         if result.returncode != 0:
             raise HelperError(result.stderr.strip() or f"aider exit {result.returncode}")
 
-        after_changes = self._git_changes(repo_path)
-        new_changes = sorted(after_changes - before_changes)
-        if new_changes:
+        after_changes = sorted(self._git_changes(repo_path))
+        if after_changes:
             try:
-                validate_active_scope(task, new_changes, repo=repo_path)
+                validate_active_scope(task, after_changes, repo=repo_path)
             except HelperError as exc:
                 raise HelperError(
                     "Aider produced out-of-scope repository changes; do not auto-revert. "
