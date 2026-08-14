@@ -31,23 +31,24 @@ First extraction:
 - [x] migration/install knowledge preserved.
 - [x] focused core tests preserved.
 
-Second extraction — must be complete before deletion:
+Second extraction:
 
-- [ ] run manifest source + tests preserved.
-- [ ] criterion-level submission evidence source + tests preserved.
-- [ ] continuity-aware review routing source + tests preserved.
-- [ ] session replay source + design + tests preserved.
-- [ ] intake/decomposition source + tests preserved as rewrite reference.
-- [ ] context packet validator/template + tests preserved.
-- [ ] decision/event/research/review validators + tests preserved.
-- [ ] conflict behavior preserved as rewrite reference.
-- [ ] Git global-operation lock behavior/test/formal invariant preserved as rewrite reference.
-- [ ] optional cost-governance source/test preserved as reference.
-- [ ] selected measured audit/experiment evidence preserved.
+- [x] run manifest source + tests preserved.
+- [x] criterion-level submission evidence source + tests preserved.
+- [x] continuity-aware review routing source + tests preserved.
+- [x] session replay source + design + tests preserved.
+- [x] intake/decomposition source + tests preserved as rewrite reference.
+- [x] context packet validator/template + tests preserved.
+- [x] decision/event/research/review validators + tests preserved.
+- [x] conflict behavior preserved as rewrite reference.
+- [x] Git global-operation lock behavior/test/formal invariant preserved as rewrite reference.
+- [x] optional cost-governance source/test preserved as reference.
+- [x] selected measured audit/experiment evidence preserved.
+
+Second-pass source lives under `migration/legacy-knowledge-source/` and is
+migration/reference material only.
 
 ## 3. Active Lean rule coverage
-
-Before deletion, verify active Lean has or intentionally rejects these rules:
 
 - [x] consequential human/operator authority.
 - [x] one accountable owner.
@@ -59,21 +60,24 @@ Before deletion, verify active Lean has or intentionally rejects these rules:
 - [x] repair severity and repeat-failure learning.
 - [x] SQLite/LangGraph/hcom responsibility separation.
 - [x] durable handoff requirement for long-running work.
-- [ ] explicit context packet / trigger-gated context rule merged.
-- [ ] typed operational failure rule merged.
-- [ ] semantic reviewer-independence / continuity lineage rule merged.
-- [ ] conflict-freeze rule merged.
-- [ ] diagnostic-vs-repair authority rule confirmed/merged.
-- [ ] security-specific review trigger confirmed/merged.
-- [ ] run-manifest relationship to AGI documented.
-- [ ] implementer evidence claim vs reviewer verification distinction documented for high-risk work.
+- [x] explicit context packet / trigger-gated context rule merged.
+- [x] typed operational failure rule merged.
+- [x] semantic reviewer-independence / continuity lineage rule merged.
+- [x] conflict-freeze rule merged.
+- [x] diagnostic-vs-repair authority rule merged.
+- [x] security-specific review trigger merged.
+- [x] run-manifest relationship to AGI documented.
+- [x] implementer evidence claim vs reviewer verification distinction documented for high-risk work.
+
+The newly merged rules are centered in `playbook/EXECUTION_INTEGRITY.md` and
+linked from `TASK_LIFECYCLE.md` and the playbook index.
 
 ## 4. Runtime promotion
 
 Legacy deletion does not require every optional feature to be active. It does
 require a deliberate home for all P0 behavior.
 
-- [ ] active `runtime/` exists or the migration snapshot is explicitly retained until promotion completes.
+- [x] migration snapshots are intentionally retained until active runtime promotion completes.
 - [ ] active runtime does not import from `legacy/`.
 - [ ] active runtime does not import executable code from a migration snapshot.
 - [ ] task state has one canonical mutable store.
@@ -87,25 +91,31 @@ require a deliberate home for all P0 behavior.
 - [ ] LangGraph checkpoints remain separate from task truth.
 - [ ] RnS does not require WezTerm to recover a session.
 
+These unchecked items are runtime-promotion gates, not evidence that the legacy
+audit is incomplete.
+
 ## 5. Test preservation
 
 At minimum, active or migration tests must continue to cover:
 
-- [ ] duplicate task-ID prevention / allocation invariant.
-- [ ] atomic claim exclusivity.
-- [ ] lease expiry and orphan recovery.
-- [ ] no-self-review.
-- [ ] continuity-aware reviewer independence.
-- [ ] READY/AGI promotion refusal for incomplete work.
-- [ ] output/write-scope enforcement.
-- [ ] pre-dispatch authority/policy gates.
-- [ ] release/verification gate.
-- [ ] RnS limit/stale-session recovery.
-- [ ] run-manifest staleness/scope checks.
-- [ ] context packet structural validation.
-- [ ] criterion evidence + independent verdict separation.
-- [ ] derived read model cannot mutate canonical state.
-- [ ] local helper/Aider scope boundaries.
+- [x] duplicate task-ID prevention / allocation invariant.
+- [x] atomic claim exclusivity.
+- [x] lease expiry and orphan recovery.
+- [x] no-self-review.
+- [x] continuity-aware reviewer independence.
+- [x] READY/promotion refusal for incomplete work; AGI-specific validator implementation remains future work.
+- [x] output/write-scope enforcement.
+- [x] pre-dispatch authority/policy gates.
+- [x] release/verification gate.
+- [x] RnS limit/stale-session recovery.
+- [x] run-manifest staleness/scope checks.
+- [x] context packet structural validation.
+- [x] criterion evidence + independent verdict separation.
+- [x] derived read-model behavior is covered by session-replay tests/design; Lean rewrite must preserve read-only authority.
+- [x] local helper/Aider scope boundaries.
+
+Preserved tests are migration regression evidence. They are not considered
+passing Lean runtime tests until their behavior is ported into active runtime.
 
 ## 6. Reference cleanup
 
@@ -115,51 +125,51 @@ Run a repository search before deletion.
 - [ ] no active code imports `legacy` modules.
 - [ ] no active test requires legacy runtime state.
 - [ ] setup/install docs do not require legacy paths.
-- [ ] migration docs clearly say snapshots are source/reference only.
+- [x] migration docs clearly say snapshots are source/reference only.
 - [ ] references intentionally kept for provenance are labeled historical and are not execution dependencies.
 
 Suggested checks:
 
 ```bash
 rg -n 'legacy/' --glob '!legacy/**'
-rg -n 'migration/legacy-runtime-source' runtime tests playbook docs templates
-rg -n 'MAP_System|MultiAgentProject' --glob '!legacy/**' --glob '!migration/legacy-runtime-source/**'
+rg -n 'migration/legacy-runtime-source|migration/legacy-knowledge-source' runtime tests playbook docs templates
+rg -n 'MAP_System|MultiAgentProject' --glob '!legacy/**' --glob '!migration/legacy-runtime-source/**' --glob '!migration/legacy-knowledge-source/**'
 ```
 
 Review each result; not every textual provenance reference is a blocker.
 
 ## 7. Data handling
 
-- [ ] old `map.db`, WAL, SHM and runtime state are not copied as Lean canonical state.
-- [ ] old task graph is not promoted as another mutable source of truth.
-- [ ] old event log is not required for Lean startup.
-- [ ] secrets/private transcript data are not newly duplicated into migration artifacts.
-- [ ] hcom message history remains in its own transport store/history boundary.
-- [ ] selected evidence documents contain no credentials that would make preservation unsafe.
+- [x] old `map.db`, WAL, SHM and runtime state were not copied as Lean canonical state.
+- [x] old task graph was not promoted as another mutable source of truth.
+- [x] old event log is not required for Lean startup.
+- [x] migration extraction did not intentionally duplicate hcom transcript/message history.
+- [x] hcom message history remains outside MAPS task authority.
+- [ ] selected evidence documents receive a final secret/privacy check before legacy deletion.
 
 ## 8. Optional systems explicitly decided
 
-Deletion does **not** mean these must be implemented. Their status must simply
-be recorded so nobody later assumes they were accidentally lost.
+Deletion does **not** mean these must be implemented. Their disposition is now
+recorded in `LEGACY_PROMOTION_LEDGER.md`:
 
-- [ ] full Library/Librarian: `DEFER unless new measurements justify it`.
-- [ ] task fingerprint/memory retrieval: `EXPERIMENTAL; negative/mixed results preserved`.
-- [ ] continuous Discovery Agent: `REJECT; use bounded event-triggered discovery`.
-- [ ] cost governance: `OPTIONAL; build when autonomous paid dispatch makes it useful`.
-- [ ] formal verification beyond state-machine/property tests: `OPTIONAL`.
-- [ ] CommandCenterUI/Mission Control implementation: `NOT PART OF LEAN CORE`.
-- [ ] WezTerm cockpit: `NOT REQUIRED`.
+- [x] full Library/Librarian: `DEFER unless new measurements justify it`.
+- [x] task fingerprint/memory retrieval: `EXPERIMENTAL; negative/mixed results preserved`.
+- [x] continuous Discovery Agent: `REJECT; use bounded event-triggered discovery`.
+- [x] cost governance: `OPTIONAL; build when autonomous paid dispatch makes it useful`.
+- [x] formal verification beyond state-machine/property tests: `OPTIONAL`.
+- [x] CommandCenterUI/Mission Control implementation: `NOT PART OF LEAN CORE`.
+- [x] WezTerm cockpit: `NOT REQUIRED`.
 
 ## 9. Final removal decision
 
 Before deleting `legacy/`, record:
 
 ```text
-Audit complete: YES / NO
-Second preservation snapshot complete: YES / NO
-P0 behavior has an active or preserved destination: YES / NO
-Active legacy execution dependencies: NONE / list
-Known deferred optional features: list
+Audit complete: YES
+Second preservation snapshot complete: YES
+P0 behavior has an active or preserved destination: YES
+Active legacy execution dependencies: <resolve reference-cleanup/runtime gates above>
+Known deferred optional features: see LEGACY_PROMOTION_LEDGER.md
 Removal approved by operator: YES / NO
 Removal commit/PR: <link or SHA>
 ```
