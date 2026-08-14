@@ -108,7 +108,7 @@ class RuntimeReviewHardeningTests(unittest.TestCase):
         self.assertTrue(self.store.claim_task(tid, worker, lease_seconds=600).ok)
         return tid
 
-    def run(self, task_id, *, worker="worker", **kwargs):
+    def make_run(self, task_id, *, worker="worker", **kwargs):
         result = self.store.create_run_manifest(
             task_id,
             worker,
@@ -289,7 +289,7 @@ class RuntimeReviewHardeningTests(unittest.TestCase):
     def test_git_rename_preserves_forbidden_source_path(self):
         base = self.init_git()
         tid = self.active(outputs=["src"])
-        manifest = self.run(
+        manifest = self.make_run(
             tid,
             writable_paths=["src"],
             forbidden_paths=["secret"],
@@ -314,7 +314,7 @@ class RuntimeReviewHardeningTests(unittest.TestCase):
 
     def test_run_budget_exhausts_at_declared_limit_and_can_write_evidence(self):
         tid = self.active(outputs=["src"])
-        manifest = self.run(
+        manifest = self.make_run(
             tid,
             writable_paths=["src"],
             runtime_limits={"max_attempts": 2, "max_tool_failures": 3},
@@ -343,7 +343,7 @@ class RuntimeReviewHardeningTests(unittest.TestCase):
 
     def test_run_budget_rejects_negative_measurement(self):
         tid = self.active(outputs=["src"])
-        manifest = self.run(tid, writable_paths=["src"])
+        manifest = self.make_run(tid, writable_paths=["src"])
         with self.assertRaises(ValueError):
             check_run_budget(
                 self.store, manifest["run_id"], actual_runtime_seconds=-1
