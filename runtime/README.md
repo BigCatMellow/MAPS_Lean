@@ -1,74 +1,125 @@
 # MAPS Lean Runtime
 
-This directory is the active provider-neutral MAPS runtime.
+This directory is the active provider-neutral MAPS runtime in the current review
+stack.
 
 Implemented slices:
 
-- `runtime/state/` — SQLite task truth plus the structural AGI `READY` gate.
+- `runtime/state/` — SQLite task truth, structural AGI `READY` gate, claims,
+  leases, submission evidence, review, policy, continuity, immutable run
+  manifests, and optional criterion-level evidence.
 - `runtime/policy/` — explicit task policy metadata, operator approvals, worker
   capability envelopes, and durable dispatch halt state.
 - `runtime/routing/` — deterministic route selection wrapped by LangGraph with
   a separate SQLite checkpoint database.
-- `runtime/communication/` — narrow hcom messaging/session adapter with
-  project-local `HCOM_DIR`; transport state never grants MAPS authority.
+- `runtime/communication/` — project-isolated hcom messaging/session adapter;
+  transport state never grants MAPS authority.
+- `runtime/recovery/` — deterministic RnS recovery for known already-active
+  sessions with bounded retry/backoff and no WezTerm requirement.
+- `runtime/helpers/` — bounded Ollama/Aider helper lanes that inherit parent
+  task scope but never parent ownership/review authority.
+- `runtime/integrity/` — execution-time contract/context/scope proof and
+  read-only Git run-scope verification.
 
 Active runtime does not import executable code from `legacy/` or `migration/`.
 
-## Mutable state
+## Responsibility boundaries
+
+```text
+SQLite      task truth / authority / evidence
+LangGraph   route recommendation / checkpoint memory
+hcom        communication / session process control
+RnS         recovery of explicitly known active sessions
+helpers     bounded delegated work
+integrity   frozen run contract + proof; no new authority
+Markdown    durable human-readable record
+WezTerm     optional presentation
+```
+
+A route, message, active session, recovery attempt, helper result, or run
+manifest does not itself change task authority.
+
+## Mutable local state
 
 ```text
 .maps/state/maps.db                    canonical MAPS task truth
 .maps/state/langgraph-checkpoints.db   LangGraph routing/checkpoint memory
-.maps/state/halt.json                  inspectable dispatch halt state
+.maps/state/halt.json                  dispatch halt state
+.maps/state/recovery.json              RnS incident/retry state
+.maps/state/helper-runs.json           helper invocation evidence
 .hcom/                                 hcom message/session/process state
 ```
 
-These stores stay separate. Routing checkpoints and hcom communication state do
-not grant task ownership, completion, review, or approval authority.
+The task DB and LangGraph checkpoint DB remain separate.
 
-## Task lifecycle
+## Lifecycle
 
 ```text
 NEEDS_SHAPING
-    │  AGI structural gate passes
+    │ AGI gate
     ▼
 READY
-    │  route recommendation + guarded atomic claim
+    │ guarded claim
     ▼
 ACTIVE
-    │  submit with evidence
+    │ optional run manifest for high-risk/resumable work
+    │ implementation + evidence
     ▼
 READY_FOR_REVIEW
-    │  route to eligible independent reviewer
+    │ independent review
     ├─ APPROVED ─────────► DONE
     ├─ CHANGES_REQUESTED ► CHANGES_REQUESTED ─► ACTIVE
     └─ BLOCKED ──────────► BLOCKED
 ```
 
-`owner` and `claimed_by` are separate. Recovering an expired lease changes the
-claimant, not the accountable owner.
+There is no universal second `RELEASED` state in Lean. High-risk
+`OPERATOR_VISIBLE_RELEASE_CHECK` work uses the final approved review/completion
+summary as its durable operator-visible release summary. Actual destructive or
+external actions still require explicit policy approval.
 
-## AGI gate
+## AGI and run integrity
 
-`promote_ready()` checks the task contract and changes `NEEDS_SHAPING → READY`
-in the **same `BEGIN IMMEDIATE` transaction**. Output-path reservation is part
-of readiness, so two simultaneous promotions cannot both reserve the same
-active path.
+AGI asks whether the task is sufficiently specified.
 
-The current validator is structural. It checks required AGI fields,
-dependencies, and active output-path conflicts. Semantic quality remains a
-shaping/review responsibility.
+For high-risk, resumable, or drift-sensitive execution, a run manifest freezes
+what a specific worker actually received:
 
-## Routing contract
+- stable task-definition hash;
+- worker/session identity;
+- readable/writable/forbidden scope;
+- context-file hashes;
+- runtime limits;
+- optional Git base revision.
+
+Run manifests/context refs are SQLite-immutable. Staleness and Git-scope checks
+report drift; they never auto-reset, restore, or clean the worktree.
+
+See `runtime/integrity/README.md`.
+
+## Review independence
+
+Submission authorship is durable. Continuity links additionally record when a
+replacement identity inherited the author's in-flight context/obligations.
+
+Independent review rejects the author **and the whole connected continuity
+lineage**. This is enforced by route selection and canonical review transitions,
+including a final re-check at approval time.
+
+## Criterion evidence
+
+Ordinary tasks retain the simple submission-evidence + review-summary path.
+
+If a current submission records criterion claims, it opts into criterion mode:
 
 ```text
-read canonical task snapshots
-→ read explicit worker profiles
-→ read durable halt state
-→ apply deterministic policy gates
-→ choose cheapest competent available envelope
-→ emit one recommendation
+implementer claim: complete / partial / blocked + evidence refs
+reviewer verdict: confirmed / rejected
 ```
+
+Overall `APPROVED` then requires every current acceptance criterion to be
+complete + confirmed. Reviewer verdicts never rewrite implementer claims.
+
+## Routing and policy
 
 Routes:
 
@@ -81,15 +132,10 @@ policy_gate
 wait_or_reconcile
 ```
 
-A recommendation is **not a mutation**. A caller must still use guarded
-`TaskStore` operations such as `claim_task()` or `claim_review()`.
+Worker profiles describe actual capability/availability/cost. Provider names do
+not grant capability or authority.
 
-Worker profiles describe the actual execution envelope rather than provider
-reputation. See `templates/worker-profiles.example.json`.
-
-## Explicit policy flags
-
-Machine routing uses explicit task policy state rather than guessing from prose:
+Explicit policy flags:
 
 ```text
 requires_operator_approval
@@ -100,84 +146,33 @@ broad_architecture
 paid_execution
 ```
 
-If an approval-triggering flag is true, dispatch stops at `policy_gate` until
-operator approval is durably recorded. Reshaping the task clears prior approval.
+Reshaping invalidates a prior operator approval.
 
-## Halt modes
+## Communication, recovery, and helpers
 
-```text
-halt_paid_dispatch
-halt_all_dispatch
-repair_only
-```
+hcom is live transport/session control only. RnS may recover a session only when
+an existing `ACTIVE` task, current claimant, and explicit worker/session binding
+still agree. Helpers require an `ACTIVE` parent task and stay inside its output
+scope.
 
-Halts block routing lanes only. They do not rewrite task status, ownership, or
-review records.
+None of those mechanisms can mark work `DONE`, approve review, or widen task
+authority.
 
-## hcom boundary
+## Setup
 
-`runtime/communication/hcom_adapter.py` wraps current hcom CLI operations:
-
-```text
-list_sessions
-read_events
-send
-spawn
-resume
-stop
-```
-
-Machine reads use `hcom list --json` and JSON event records. Side effects use
-argv-based subprocess calls with `shell=False`. The adapter always sets its
-configured project-local `HCOM_DIR` and has no import of the MAPS task store.
-
-Important non-equivalences:
-
-```text
-message sent       != task assigned
-session active     != task owned
-agent says "done"  != task DONE
-hcom intent        != MAPS authority
-```
-
-See `runtime/communication/README.md`.
-
-## Dependencies
+Preview first:
 
 ```bash
-python -m pip install -r runtime/requirements.txt
+bash scripts/install_maps.sh
 ```
 
-LangGraph checkpoints use `.maps/state/langgraph-checkpoints.db`. The runtime
-defaults `LANGGRAPH_STRICT_MSGPACK=true` unless explicitly overridden.
-
-hcom is installed separately; see `docs/CONTROL_PLANE_SETUP.md`.
-
-## CLI
-
-Task state:
+Apply and smoke:
 
 ```bash
-python -m runtime.cli init
-python -m runtime.cli create --title "Example"
-python -m runtime.cli shape TASK-0001 --contract-json task.json
-python -m runtime.cli check TASK-0001
-python -m runtime.cli promote TASK-0001 --actor shaper
-python -m runtime.cli claim TASK-0001 codex --lease-seconds 900
-python -m runtime.cli submit TASK-0001 codex --evidence "tests: PASS"
-python -m runtime.cli review-claim TASK-0001 claude
-python -m runtime.cli review-record TASK-0001 claude APPROVED --summary "criteria verified"
+bash scripts/install_maps.sh --apply --run-smoke
 ```
 
-Routing/policy:
-
-```bash
-python -m runtime.routing.cli route --workers-json templates/worker-profiles.example.json
-python -m runtime.routing.cli approve TASK-0001 --approved-by operator --note "approved exact action"
-python -m runtime.routing.cli halt-show
-python -m runtime.routing.cli halt-set halt_paid_dispatch --reason provider-limit --actor core --authority core
-python -m runtime.routing.cli halt-clear --actor operator --authority operator --reason resolved
-```
+See `docs/FRESH_INSTALL.md` and `docs/CONTROL_PLANE_SETUP.md`.
 
 ## Tests
 
@@ -185,6 +180,6 @@ python -m runtime.routing.cli halt-clear --actor operator --authority operator -
 python -m unittest discover -s tests -v
 ```
 
-State tests cover AGI/claims/leases/review. Routing tests cover capability and
-policy decisions. `tests/test_hcom_adapter.py` uses a fake hcom executable and
-performs no live messaging, spawning, resuming, or killing.
+Latest stacked verification: GitHub Actions run `31847038026`, **79/79 tests
+passing**, plus disposable SQLite/LangGraph smoke and installer preview/syntax
+checks.
