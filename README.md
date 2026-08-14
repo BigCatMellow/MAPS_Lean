@@ -24,6 +24,11 @@ Once oriented, create a task record from [the task template](templates/task.md) 
 multi-agent or consequential change and put reviews, decisions, and handoffs
 in `work/` using the templates.
 
+Setting up the retained runtime on a fresh clone? Follow
+[Control-Plane Setup](docs/CONTROL_PLANE_SETUP.md) for SQLite, LangGraph, and
+hcom installation, smoke tests, local state layout, and implementation
+boundaries.
+
 ## What is deliberately retained
 
 - A named owner, scope, output paths, and observable acceptance criteria.
@@ -34,17 +39,19 @@ in `work/` using the templates.
 ## Runtime architecture retained
 
 - **SQLite** is the canonical mutable task ledger: atomic claims, leases,
-  submissions, review separation, and durable checkpoints. It prevents two
-  agents from successfully claiming the same task at once.
+  submissions, review separation, and task events. It prevents two agents from
+  successfully claiming the same task at once.
 - **LangGraph** is the read-first dispatcher: it evaluates the task graph,
   policy, availability, helper capacity, and approval gates, then recommends
-  the next route (`review`, `claim_or_assign`, `wait`, or `policy_gate`). It
-  does not replace the Markdown roadmap or make autonomous product decisions.
+  the next route (`review`, `claim_or_assign`, `wait`, or `policy_gate`). Its
+  checkpoint state is kept separately from MAPS task truth. It does not replace
+  the Markdown roadmap or make autonomous product decisions.
 - **RnS (Rise & Shine)** is the deterministic, reboot-safe limit/restart
   supervisor. Durable handoffs remain its foundation; it resumes or nudges a
   stopped session after provider limits reset.
 - **hcom** remains the live communication and session-control bus required by
   the current RnS implementation and useful for cross-provider coordination.
+  hcom's own local state is transport/session state, not MAPS task authority.
 
 ## What is deliberately removed from the active default
 
@@ -62,7 +69,7 @@ Neither grants authority.
 | Path | Purpose |
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | The active operating contract. |
-| `docs/` | Short workflow and quality guidance. |
+| `docs/` | Short workflow, setup, and quality guidance. |
 | `playbook/` | Active reusable methods: project bootstrap, roadmap/checklists, research, risk, discovery, and routing. |
 | `templates/` | Task, review, handoff, and decision records. |
 | [state/CURRENT.md](state/CURRENT.md) | Compact shared continuation context. |
