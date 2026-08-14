@@ -26,6 +26,35 @@ def _nul_paths(raw: bytes) -> set[str]:
     }
 
 
+def _name_status_paths(raw: bytes) -> set[str]:
+    """Parse `git diff --name-status -z`, preserving both sides of renames.
+
+    `--name-only` reports only the destination for a detected rename, which can
+    hide a deletion/move out of a forbidden or otherwise protected scope.
+    """
+    items = raw.split(b"\0")
+    paths: set[str] = set()
+    index = 0
+    while index < len(items):
+        status_raw = items[index]
+        index += 1
+        if not status_raw:
+            continue
+        status = status_raw.decode("ascii", errors="replace")
+        if index >= len(items) or not items[index]:
+            raise RuntimeError("git name-status output ended before path")
+        first = items[index].decode("utf-8", errors="surrogateescape")
+        index += 1
+        paths.add(first)
+        if status[:1] in {"R", "C"}:
+            if index >= len(items) or not items[index]:
+                raise RuntimeError("git rename/copy output ended before destination path")
+            second = items[index].decode("utf-8", errors="surrogateescape")
+            index += 1
+            paths.add(second)
+    return paths
+
+
 def collect_git_changes(
     repo_root: str | Path,
     *,
@@ -43,7 +72,9 @@ def collect_git_changes(
 
     base = base_revision or "HEAD"
     _git(repo, "rev-parse", "--verify", f"{base}^{{commit}}")
-    changed = _nul_paths(_git(repo, "diff", "--name-only", "-z", base, "--"))
+    changed = _name_status_paths(
+        _git(repo, "diff", "--name-status", "-z", base, "--")
+    )
     changed.update(
         _nul_paths(_git(repo, "ls-files", "--others", "--exclude-standard", "-z"))
     )
@@ -64,6 +95,7 @@ def verify_git_run(store: Any, run_id: str, *, repo_root: str | Path) -> dict:
             "reason": "run_not_found",
             "changed_paths": [],
             "out_of_scope": [],
+            "forbidden_changes": [],
         }
     changed = collect_git_changes(
         repo_root,
