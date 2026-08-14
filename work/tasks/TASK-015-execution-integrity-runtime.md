@@ -1,6 +1,6 @@
 # Task: Add run manifests, continuity-aware review, and run-scope proof
 
-- Status: `READY`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `implementation-agent`
@@ -15,7 +15,7 @@
 
 ## Change boundary
 
-- MAY CHANGE: `runtime/state/**`, new `runtime/integrity/**`, routing reviewer eligibility, CLI/tests/docs/checklists, this task record.
+- MAY CHANGE: `runtime/state/**`, `runtime/integrity/**`, routing reviewer eligibility, CLI/tests/docs/checklists, this task record.
 - MUST NOT CHANGE: hcom/RnS/helper authority boundaries, operator approval semantics, legacy/migration source.
 - OPERATOR APPROVAL REQUIRED: none for local implementation; weakening independent review or expanding agent authority requires escalation.
 
@@ -26,27 +26,34 @@
 
 ## Acceptance criteria
 
-- [ ] Run manifest may be created only for an ACTIVE task claimed by that worker.
-- [ ] Manifest immutably records stable task revision, worker/session, readable/writable/forbidden scope, context file hashes, runtime limits, base revision, and timestamp.
-- [ ] Requested writable scope cannot exceed parent task `output_paths`.
-- [ ] Staleness check detects changed task definition, changed/missing context, or missing task.
-- [ ] Git/run-scope verifier reports changes outside frozen writable scope without auto-reverting them.
-- [ ] Continuity links are durable and review claim rejects the submission author plus every connected continuation identity.
-- [ ] Router does not recommend a continuity-disqualified reviewer.
-- [ ] Optional criterion claims preserve implementer evidence separately from reviewer verdicts; reviewer verdict never rewrites original claim.
-- [ ] Integrity code has focused regression tests and full stack remains green.
+- [x] Run manifest may be created only for an ACTIVE task claimed by that worker.
+- [x] Manifest immutably records stable task revision, worker/session, readable/writable/forbidden scope, context file hashes, runtime limits, base revision, and timestamp.
+- [x] Requested writable scope cannot exceed parent task `output_paths`.
+- [x] Staleness check detects changed task definition, changed/missing context, or missing task.
+- [x] Git/run-scope verifier reports changes outside frozen writable scope without auto-reverting them.
+- [x] Continuity links are durable and review claim rejects the submission author plus every connected continuation identity.
+- [x] Router does not recommend a continuity-disqualified reviewer.
+- [x] Optional criterion claims preserve implementer evidence separately from reviewer verdicts; reviewer verdict never rewrites original claim.
+- [x] Integrity code has focused regression tests and full stack remains green.
 
 ## Verification and evidence
 
-- Verification: SQLite/unit tests, temporary Git repo scope tests, full GitHub Actions stack.
+- GitHub Actions run `31847038026`: full active stack PASS on Python 3.12.
+- Current suite count: **79 tests, 79 PASS**, with `ResourceWarning` treated as error.
+- The same run also passed the disposable SQLite/AGI/claim/review/DONE smoke, real LangGraph SQLite checkpoint smoke, and installer syntax/preview checks.
+- Run-manifest regression coverage includes ACTIVE/current-claimant enforcement, task/context revision hashes, writable-scope subset, stale task/context detection, real temporary-Git scope reporting, and no auto-repair.
+- SQLite triggers mechanically reject UPDATE/DELETE of run manifests and UPDATE/DELETE of run context refs; the final CI run includes this raw-SQL immutability test.
+- Continuity coverage includes transitive lineage, claim-time rejection, router filtering, and final-review re-check when continuity evidence appears after review claim.
+- Criterion coverage proves implementer claims and reviewer verdicts remain separate and that opting into criterion mode blocks overall approval until every current criterion is complete + confirmed.
 - Review required: `INDEPENDENT_REVIEW` — saved for later per operator instruction.
 
 ## Conditional execution rules
 
 - Run manifests are required by method for high-risk/resumable work, but this task does not force ceremony onto trivial edits.
-- Out-of-scope verification fails/report-only; it does not auto-revert filesystem state.
-- Criterion-level evidence remains optional unless a future explicit task/risk rule requires it.
-- Continuity lineage affects review independence only; it does not grant task ownership or authority.
+- Out-of-scope verification is report/fail only; it never resets, restores, cleans, or auto-reverts filesystem state.
+- Criterion-level evidence remains optional. If no criterion claims exist for a submission, the existing simpler submission/review path remains unchanged.
+- If criterion claims are used, overall `APPROVED` requires every acceptance criterion's latest claim to be `complete` and its latest reviewer verdict to be `confirmed`.
+- Continuity lineage affects review independence only; it grants no task ownership or authority.
 
 ## Stop / escalate
 
@@ -64,6 +71,7 @@ Stop if implementation would create another mutable task truth source or silentl
 
 ## Completion / handoff
 
-- Completed: task shaped.
-- Not completed: implementation/tests/docs.
-- Next action: add immutable run/continuity/evidence tables and guarded APIs.
+- Completed: immutable run-manifest/context-hash state, stable task revisions, staleness detection, writable-scope proof, read-only Git verifier, continuity graph, continuity-aware router/review transitions, optional criterion claims/verdicts, CLI/docs, focused tests, and integrated CI verification.
+- Not completed: independent review/merge of the stacked runtime; separate-release-gate disposition; final legacy reference/privacy sweep.
+- Last verified result: `79/79 PASS` plus disposable runtime/LangGraph smoke and installer checks in Actions run `31847038026`.
+- Exact next action: keep review deferred; decide whether Lean needs any separate release gate beyond current risk-tiered review/completion, then update legacy-removal disposition accordingly.
