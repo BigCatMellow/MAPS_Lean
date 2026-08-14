@@ -112,3 +112,19 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_one_open
     ON reviews(task_id)
     WHERE completed_at IS NULL;
+
+-- Explicit policy metadata prevents routing authority from being inferred from
+-- provider names or vague task prose. Approval is version-sensitive: shaping a
+-- task clears these approval fields in runtime/state/policy.py.
+CREATE TABLE IF NOT EXISTS task_policy (
+    task_id TEXT PRIMARY KEY REFERENCES tasks(task_id) ON DELETE CASCADE,
+    requires_operator_approval INTEGER NOT NULL DEFAULT 0 CHECK (requires_operator_approval IN (0,1)),
+    destructive_action INTEGER NOT NULL DEFAULT 0 CHECK (destructive_action IN (0,1)),
+    external_side_effect INTEGER NOT NULL DEFAULT 0 CHECK (external_side_effect IN (0,1)),
+    security_sensitive INTEGER NOT NULL DEFAULT 0 CHECK (security_sensitive IN (0,1)),
+    broad_architecture INTEGER NOT NULL DEFAULT 0 CHECK (broad_architecture IN (0,1)),
+    paid_execution INTEGER NOT NULL DEFAULT 1 CHECK (paid_execution IN (0,1)),
+    approved_by TEXT,
+    approved_at TEXT,
+    approval_note TEXT NOT NULL DEFAULT ''
+);
