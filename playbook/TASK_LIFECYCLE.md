@@ -12,17 +12,49 @@ the task should have said.
 
 The task record must state:
 
-- an action-oriented title and concise outcome;
+- an action-oriented title and concise observable outcome;
 - type: implementation, review, architecture, planning, research, maintenance,
   or repair;
 - one accountable owner and risk tier;
-- relevant inputs and every allowed output path;
-- dependencies and boundaries/non-goals;
-- observable, pass/fail acceptance criteria; and
-- verification and review required for that risk tier.
+- relevant inputs and authoritative sources;
+- dependencies and preconditions;
+- every allowed output path and explicit non-goals/boundaries;
+- the owner's bounded decision authority and escalation boundary;
+- observable, pass/fail acceptance criteria;
+- verification and evidence expected;
+- review required for that risk tier; and
+- stop/escalation conditions for material unknowns or changed assumptions.
 
 If these cannot be written without guessing, record the missing decision and
-ask for it. Split work when ownership or output paths overlap.
+shape, research, or escalate before execution. Split work when ownership or
+output paths overlap.
+
+For the formal readiness requirements, use
+[AGI_STANDARD.md](AGI_STANDARD.md). Use
+[the AGI check template](../templates/agi-check.md) when a durable validation
+record is useful.
+
+## AGI gate
+
+A consequential task may enter `READY` only when it is `AGI READY` under the
+MAPS Agent-Grade Instructions standard.
+
+`READY` therefore means:
+
+- the execution contract is sufficiently specified;
+- a suitable fresh agent can act without the original chat;
+- consequential intent, scope, permission, and success do not require guessing;
+- verification and review are defined; and
+- applicable failure/continuation behavior is defined.
+
+AGI readiness is pass/fail, not a percentage score. One missing material
+requirement keeps the task in `NEEDS_SHAPING`, `BLOCKED`, or the appropriate
+research/operator-decision state.
+
+Worker suitability is a separate gate. After AGI passes, use
+[HPOM routing](HPOM_ROUTING.md) and
+[model capability routing](MODEL_CAPABILITY_ROUTING.md) to select a worker that
+can reliably execute the contract.
 
 ## Ownership rules
 
@@ -37,15 +69,40 @@ review, or prepare non-overlapping artifacts; name one integration owner.
 ## State model
 
 ```text
-NEEDS_SHAPING → READY → ACTIVE → READY_FOR_REVIEW → DONE
-                       ↘ BLOCKED
-                 ↖ CHANGES_REQUESTED
+NEEDS_SHAPING --AGI PASS--> READY --> ACTIVE --> READY_FOR_REVIEW --> DONE
+                                      |                    |
+                                      v                    |
+                                   BLOCKED                 |
+                                      ^                    |
+                                      |                    v
+                                CHANGES_REQUESTED <--------
 ```
 
-`READY` means the task is sufficiently specified, not merely desirable.
-`DONE` means the required evidence and proportional review are complete. Do
-not report a task done because time ended or the first implementation attempt
-looks plausible.
+`READY` means `AGI READY`, not merely desirable or assigned.
+
+`ACTIVE` means a suitable worker has legitimately claimed/received the task and
+may act within its contract.
+
+`READY_FOR_REVIEW` means implementation work is complete enough for the
+specified review and required evidence is available.
+
+`DONE` means the acceptance criteria, required verification, and proportional
+review are complete. Do not report a task done because time ended or the first
+implementation attempt looks plausible.
+
+## When the contract changes during execution
+
+If execution discovers a material new requirement, output path, dependency,
+authority question, safety issue, or failed assumption:
+
+1. stop the affected work before crossing the existing boundary;
+2. record the new fact as `VERIFIED`, `REPORTED`, `ASSUMED`, or `UNKNOWN` as
+   appropriate;
+3. amend/re-shape the task or create the required research/decision record;
+4. re-run the applicable AGI readiness check; and
+5. resume only when the task is again ready.
+
+Do not preserve `READY` by silently widening the contract after work starts.
 
 ## Special acceptance checks
 
@@ -54,4 +111,3 @@ looks plausible.
 - For a design port, inspect live data/API fields before inventing new ones.
 - For user-acquired releases, walk the full acquisition/install/launch path,
   not only the development entrypoint.
-
