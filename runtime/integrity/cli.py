@@ -5,7 +5,11 @@ from dataclasses import asdict
 import json
 from pathlib import Path
 
-from runtime.integrity import verify_git_run
+from runtime.integrity import (
+    check_run_budget,
+    verify_git_run,
+    write_budget_escalation,
+)
 from runtime.state import MutationResult, TaskStore
 
 DEFAULT_DB = ".maps/state/maps.db"
@@ -52,6 +56,18 @@ def main(argv: list[str] | None = None) -> int:
     verify = sub.add_parser("run-verify-git")
     verify.add_argument("run_id")
     verify.add_argument("--repo", default=".")
+
+    budget = sub.add_parser("run-budget-check")
+    budget.add_argument("run_id")
+    budget.add_argument("--attempts", type=int)
+    budget.add_argument("--tool-failures", type=int)
+    budget.add_argument("--runtime-seconds", type=int)
+    budget.add_argument(
+        "--write-escalation",
+        action="store_true",
+        help="write a durable JSON artifact only if the declared budget is exhausted",
+    )
+    budget.add_argument("--escalation-dir", default=".maps/state/escalations")
 
     link = sub.add_parser("continuity-link")
     link.add_argument("predecessor_id")
@@ -116,6 +132,22 @@ def main(argv: list[str] | None = None) -> int:
         return emit(value)
     if args.command == "run-verify-git":
         return emit(verify_git_run(store, args.run_id, repo_root=args.repo))
+    if args.command == "run-budget-check":
+        try:
+            value = check_run_budget(
+                store,
+                args.run_id,
+                actual_attempts=args.attempts,
+                actual_tool_failures=args.tool_failures,
+                actual_runtime_seconds=args.runtime_seconds,
+            )
+        except ValueError as exc:
+            return emit({"ok": False, "reason": "invalid_budget_measurement", "error": str(exc)})
+        if args.write_escalation and value.get("reason") == "budget_exhausted":
+            value["escalation_path"] = str(
+                write_budget_escalation(value, out_dir=args.escalation_dir)
+            )
+        return emit(value)
     if args.command == "continuity-link":
         return emit(
             store.record_continuity_link(
