@@ -49,6 +49,8 @@ class HaltRecord:
         if self.state != "clear":
             if not self.halt_id or not self.reason or not self.set_by or not self.set_at:
                 raise ValueError("active halt requires halt_id, reason, set_by, and set_at")
+            if self.scope in {"project", "task"} and not str(self.target or "").strip():
+                raise ValueError(f"{self.scope}-scoped halt requires target")
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -90,7 +92,7 @@ class HaltStore:
             set_by=actor.strip(),
             set_at=utc_now(),
             scope=scope,
-            target=target,
+            target=target.strip() if isinstance(target, str) else target,
             clear_requires=clear_requires,
         )
         record.validate()
