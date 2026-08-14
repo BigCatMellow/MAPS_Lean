@@ -57,7 +57,8 @@ def run_smoke(*, with_langgraph: bool = False, with_hcom: bool = False) -> dict[
 
         created = store.create_task(title="Smoke lifecycle")
         require(created.ok, created.message)
-        task_id = created.data["task_id"]
+        require(created.task is not None, "create_task returned no task payload")
+        task_id = created.task["task_id"]
         shaped = store.update_contract(task_id, smoke_contract())
         require(shaped.ok, shaped.message)
         validated = store.validate_ready(task_id)
