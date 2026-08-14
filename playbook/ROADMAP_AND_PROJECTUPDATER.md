@@ -7,11 +7,13 @@ A roadmap starts with the finished goal, not with a pile of tasks.
 ## Before the roadmap
 
 1. Inspect the current reality: product, code, users, data, constraints, prior
-   attempts, or other direct evidence that matters.
+   attempts, or other direct evidence that matters. Record what was actually
+   checked and separate facts from assumptions.
 2. Define **DONE** in observable terms, especially from the user or operator's
    point of view.
 3. Define the final proof: what test, review, build, release, or user-visible
-   result proves DONE.
+   result proves DONE. The proof must be something an agent or operator can
+   actually perform or inspect.
 4. Set boundaries:
    - what is in scope;
    - what is explicitly not being done;
@@ -22,12 +24,14 @@ A roadmap starts with the finished goal, not with a pile of tasks.
 
 1. Ask what must be true immediately before the final proof can pass.
 2. Keep working backward until the chain reaches the project's current state.
-3. Turn that chain around into forward execution phases.
-4. Mark dependencies, integration points, and work that can safely happen in
+3. If a required condition is unknown, record the unknown and create research,
+   inspection, or prototype work for it. Do not fill gaps with invented facts.
+4. Turn the backward chain around into forward execution phases.
+5. Mark dependencies, integration points, and work that can safely happen in
    parallel.
-5. Keep distant phases broad. Make the current phase and first-wave tasks much
+6. Keep distant phases broad. Make the current phase and first-wave tasks much
    more detailed.
-6. Convert dangerous unknowns into explicit research, inspection, or prototype
+7. Convert dangerous unknowns into explicit research, inspection, or prototype
    steps instead of hiding them inside implementation tasks.
 
 For a multi-agent or consequential project, review this **draft** roadmap in the
@@ -37,9 +41,21 @@ unnecessary scope, and useful parallel work. The accountable owner integrates
 the findings; the operator decides changes that materially affect scope, cost,
 risk, or user-visible behavior.
 
+The mission meeting must leave a durable result containing:
+
+- assumptions accepted, rejected, or still unknown;
+- roadmap changes;
+- unresolved questions and their owners;
+- operator decisions still needed;
+- the first wave of work ready to shape or assign.
+
 After the meeting, revise the draft into the **working roadmap** and assign the
 first wave of work. Do not pretend every future task is knowable in advance.
 Some tasks will only become clear after real work produces new evidence.
+
+Before an implementation task starts, its task record—not the roadmap checkbox
+alone—must define its owner, inputs, allowed outputs, dependencies, pass/fail
+criteria, verification, and required review.
 
 The roadmap is the durable plan, not authority by itself. A checkbox never
 authorizes spending, destructive action, external changes, or a scope change.
@@ -82,12 +98,17 @@ Start from [the roadmap template](../templates/roadmap.md).
   the leaves, not the parent.
 - Keep each leaf concrete, observable, and small enough to be meaningfully
   complete.
+- Once assigned, link or name the task record and owner rather than relying on
+  an unlabeled checkbox to communicate responsibility.
 - Record dependencies when a task cannot safely start before another finishes.
 - Name one integration owner when parallel work must be combined.
 - Prefer a usable end-to-end slice over many disconnected partial pieces when
   that gives earlier proof the plan works.
-- At meaningful checkpoints ask: **continue, change, cut scope, research, or
-  stop?**
+- Require a checkpoint after major phases or usable results, on failed key
+  assumptions, when named risks become real, when the effort limit is reached,
+  and before consequential hard-to-reverse changes.
+- At each checkpoint choose and record: **CONTINUE, CHANGE, CUT SCOPE, RESEARCH,
+  or STOP**, plus the reason and next action.
 - Re-plan when evidence shows the roadmap is wrong; do not keep executing a bad
   plan merely because it was approved earlier.
 - Refine later phases as they approach instead of filling them with guessed
