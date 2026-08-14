@@ -151,6 +151,32 @@ CREATE TABLE IF NOT EXISTS run_context_refs (
     PRIMARY KEY(run_id, path)
 );
 
+-- Run bindings are append-only audit evidence. There is intentionally no
+-- UPDATE/DELETE path, even for internal callers.
+CREATE TRIGGER IF NOT EXISTS trg_run_manifests_no_update
+BEFORE UPDATE ON run_manifests
+BEGIN
+    SELECT RAISE(ABORT, 'run manifests are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_manifests_no_delete
+BEFORE DELETE ON run_manifests
+BEGIN
+    SELECT RAISE(ABORT, 'run manifests are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_context_no_update
+BEFORE UPDATE ON run_context_refs
+BEGIN
+    SELECT RAISE(ABORT, 'run context refs are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_context_no_delete
+BEFORE DELETE ON run_context_refs
+BEGIN
+    SELECT RAISE(ABORT, 'run context refs are immutable');
+END;
+
 -- Continuity is evidence that two worker/session identities share the same
 -- inherited execution context. It disqualifies independent review; it grants
 -- no ownership or task authority.
