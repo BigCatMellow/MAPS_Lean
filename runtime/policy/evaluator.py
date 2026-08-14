@@ -79,6 +79,12 @@ def evaluate_review(task: Mapping[str, Any], worker: WorkerProfile) -> PolicyDec
     if not worker.supports_risk(str(task.get("risk", ""))):
         return PolicyDecision("reject", ("risk_exceeds_worker_profile",))
 
+    disqualified = task.get("review_disqualified_ids", [])
+    if isinstance(disqualified, (list, tuple, set)) and worker.worker_id in disqualified:
+        return PolicyDecision("reject", ("continuity_review_forbidden",))
+
+    # Fallback for task snapshots produced by older callers that do not yet
+    # include continuity-expanded review_disqualified_ids.
     submission = task.get("submission", {})
     author = submission.get("author_id") if isinstance(submission, Mapping) else None
     if author and worker.worker_id == author:
