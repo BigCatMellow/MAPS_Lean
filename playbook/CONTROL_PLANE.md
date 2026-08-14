@@ -3,29 +3,44 @@
 These systems solve coordination problems that native agent windows do not
 fully solve. They are retained. WezTerm is not part of their authority model.
 
+Need to install them on a fresh clone? Follow
+[Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md) for download, local-state
+layout, smoke tests, and implementation boundaries.
+
 ## First-run takeaway
 
-Use this document when your task touches task state, routing, session recovery,
-hcom, or the WezTerm transition. SQLite records the mutable task lifecycle;
+Use this document when your task touches task state, routing, recovery, hcom,
+or the WezTerm transition. SQLite records the mutable task lifecycle;
 LangGraph recommends the next route; RnS recovers stalled sessions through
 hcom; and WezTerm is only an optional presentation surface. Read no deeper
 unless your task needs a specific component.
+
+Keep runtime state separated by responsibility:
+
+```text
+.maps/state/maps.db                  # MAPS task truth
+.maps/state/langgraph-checkpoints.db # LangGraph execution/checkpoint state
+.hcom/                               # hcom communication/session state
+```
+
+Do not merge these stores merely because more than one component uses SQLite.
 
 ## SQLite: the task ledger
 
 SQLite is not a project notes database. Its value is an atomic answer to
 concurrent lifecycle questions:
 
-- Which task is READY, ACTIVE, SUBMITTED, APPROVED, or RELEASED?
+- Which task is NEEDS_SHAPING, READY, ACTIVE, READY_FOR_REVIEW, BLOCKED,
+  CHANGES_REQUESTED, or DONE?
 - Who successfully claimed it?
 - Has the owner’s lease expired, allowing recovery?
 - Who submitted it, so that person cannot review it themselves?
 
 The guarded update means two agents can race to claim a task but only one
 succeeds. Leases and heartbeats prevent abandoned sessions from holding work
-forever. It also stores durable LangGraph checkpoints. Markdown remains the
-human-readable brief, roadmap, decisions, evidence, and artifacts; do not
-create competing manual copies of mutable task truth.
+forever. Markdown remains the human-readable brief, roadmap, decisions,
+evidence, and artifacts; do not create competing manual copies of mutable task
+truth.
 
 ## LangGraph: dispatcher, not product planner
 
@@ -41,6 +56,9 @@ It is deliberately read-first: a route is a recommendation/hint until an
 accountable agent follows the appropriate claim, review, or escalation path.
 This makes roadmaps actionable without letting an automated graph invent
 priority, task scope, or approval.
+
+LangGraph may keep its own persistence/checkpoint state in a dedicated SQLite
+checkpointer database. That database is execution memory, not MAPS task truth.
 
 ## RnS: recovery after limits and restarts
 
