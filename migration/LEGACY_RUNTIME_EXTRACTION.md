@@ -15,10 +15,10 @@ This is not an attempt to keep the old command center. The target remains provid
 
 | Area | Preserved source | Lean target | Action |
 | --- | --- | --- | --- |
-| SQLite task lifecycle | `db/`, `migration/schema.sql` | `runtime/state/` | ADAPT + PORT TESTS |
-| Task allocator/transitions | `scripts/map_task.py`, `promote_task.py`, `release_task.py` | `runtime/state/` + CLI | ADAPT + AGI GATE |
-| Review separation | claims/review authorship + tests | state/review API | PRESERVE INVARIANT |
-| Scope/write boundary | `verify_run_scope.py`, graph validator | AGI/task boundary validator | MERGE WITH AGI |
+| SQLite task lifecycle | `db/`, `migration/schema.sql` | `runtime/state/` | **PROMOTED IN TASK-009** |
+| Task allocator/transitions | `scripts/map_task.py`, `promote_task.py`, `release_task.py` | `runtime/state/` + CLI | **PARTIALLY PROMOTED: STATE/AGI/REVIEW** |
+| Review separation | claims/review authorship + tests | state/review API | **PROMOTED IN TASK-009** |
+| Scope/write boundary | `verify_run_scope.py`, graph validator | AGI/task boundary validator | OUTPUT-PATH RESERVATION ACTIVE; FILESYSTEM RUN-SCOPE ENFORCEMENT PENDING |
 | Pre-dispatch policy | `pre_dispatch_policy.py` | `runtime/policy/` | SIMPLIFY, KEEP HARD GATES |
 | Halt state | `halt_state.py` | `runtime/policy/halt.py` | ADAPT |
 | LangGraph routing | `graph/runner.py`, policy/role config | `runtime/routing/` | ADAPT |
@@ -72,6 +72,25 @@ The staging snapshot includes focused tests for:
 
 Historical task records, UI screenshots, release checklists, command-center prototypes, and fixed-roster artifacts are deliberately not extracted.
 
+## Active state promotion — TASK-009
+
+The first active runtime slice now lives in `runtime/state/` and `runtime/cli.py`.
+It ports the state-layer invariants instead of importing migration code:
+
+- SQLite foreign keys, WAL, and busy timeout;
+- unique task allocation under concurrency;
+- structural AGI validation and READY mutation in one write transaction;
+- active output-path reservation conflicts;
+- atomic task claims and lease recovery;
+- durable owner vs current claimant separation;
+- durable submission evidence/authorship;
+- no-self-review for independent review;
+- `CHANGES_REQUESTED` rework without ownership mutation.
+
+Owner-side active tests currently cover these behaviors with 15 passing cases.
+This is an active equivalent for the **state subset** of P0 tests, not a claim
+that routing, policy, recovery, helper, or install P0 coverage is complete.
+
 ## Known legacy problems not to reproduce
 
 The legacy migration audit already identified several real drift problems:
@@ -90,8 +109,8 @@ Lean should solve these at the boundary rather than preserving the duplication.
 - [x] critical runtime source snapshot exists outside `legacy/`;
 - [x] critical tests exist outside `legacy/`;
 - [x] migration/install references exist outside `legacy/`;
-- [ ] active SQLite/state implementation exists under `runtime/`;
-- [ ] AGI readiness is enforced by the READY transition;
+- [x] active SQLite/state implementation exists under `runtime/`;
+- [x] AGI readiness is enforced by the READY transition;
 - [ ] LangGraph router uses the active task store and separate checkpoint DB;
 - [ ] hcom adapter exists and has no authority side effects;
 - [ ] RnS works without mandatory WezTerm;
