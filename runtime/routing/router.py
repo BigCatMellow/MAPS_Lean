@@ -39,27 +39,37 @@ def recommend_route(
     )
     worker_list = _sorted_workers(workers)
     halt_record = halt or HaltRecord()
+    blocked_fallbacks: list[RouteRecommendation] = []
 
+    # Review work has priority when it is actually routable. A review that is
+    # waiting for an independent reviewer or blocked by policy must not freeze
+    # unrelated tasks that can make progress.
     review_tasks = [
         task
         for task in task_list
         if str(task.get("status", "")).upper() == "READY_FOR_REVIEW"
     ]
     for task in review_tasks:
+        task_id = str(task["task_id"])
         block = halt_block_reason(task, halt_record)
         if block:
+            blocked_fallbacks.append(
+                RouteRecommendation(
+                    "policy_gate", task_id, reasons=(f"halt:{block}",)
+                )
+            )
             continue
         eligible = [
             worker for worker in worker_list if evaluate_review(task, worker).allowed
         ]
         if eligible:
-            return RouteRecommendation(
-                "review", str(task["task_id"]), eligible[0].worker_id
+            return RouteRecommendation("review", task_id, eligible[0].worker_id)
+        blocked_fallbacks.append(
+            RouteRecommendation(
+                "wait_for_agent",
+                task_id,
+                reasons=("no_eligible_independent_reviewer",),
             )
-        return RouteRecommendation(
-            "wait_for_agent",
-            str(task["task_id"]),
-            reasons=("no_eligible_independent_reviewer",),
         )
 
     executable = [
@@ -68,11 +78,15 @@ def recommend_route(
         if str(task.get("status", "")).upper() in {"READY", "CHANGES_REQUESTED"}
     ]
     for task in executable:
+        task_id = str(task["task_id"])
         block = halt_block_reason(task, halt_record)
         if block:
-            return RouteRecommendation(
-                "policy_gate", str(task["task_id"]), reasons=(f"halt:{block}",)
+            blocked_fallbacks.append(
+                RouteRecommendation(
+                    "policy_gate", task_id, reasons=(f"halt:{block}",)
+                )
             )
+            continue
 
         needs_approval, approval_reasons = task_needs_operator_approval(task)
         policy = task.get("policy", {})
@@ -80,9 +94,12 @@ def recommend_route(
             policy.get("approved_by") and policy.get("approved_at")
         )
         if needs_approval and not approved:
-            return RouteRecommendation(
-                "policy_gate", str(task["task_id"]), reasons=approval_reasons
+            blocked_fallbacks.append(
+                RouteRecommendation(
+                    "policy_gate", task_id, reasons=approval_reasons
+                )
             )
+            continue
 
         allowed: list[WorkerProfile] = []
         approval_required: set[str] = set()
@@ -100,19 +117,24 @@ def recommend_route(
                 if selected.worker_class in {"helper", "mechanical"}
                 else "claim_or_assign"
             )
-            return RouteRecommendation(
-                route, str(task["task_id"]), selected.worker_id
-            )
+            return RouteRecommendation(route, task_id, selected.worker_id)
         if approval_required:
-            return RouteRecommendation(
-                "policy_gate",
-                str(task["task_id"]),
-                reasons=tuple(sorted(approval_required)),
+            blocked_fallbacks.append(
+                RouteRecommendation(
+                    "policy_gate",
+                    task_id,
+                    reasons=tuple(sorted(approval_required)),
+                )
             )
-        return RouteRecommendation(
-            "wait_for_agent",
-            str(task["task_id"]),
-            reasons=("no_competent_available_worker",),
+            continue
+        blocked_fallbacks.append(
+            RouteRecommendation(
+                "wait_for_agent",
+                task_id,
+                reasons=("no_competent_available_worker",),
+            )
         )
 
+    if blocked_fallbacks:
+        return blocked_fallbacks[0]
     return RouteRecommendation("wait_or_reconcile", reasons=("no_routable_task",))
