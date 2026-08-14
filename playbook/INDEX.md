@@ -7,6 +7,7 @@ repository; `legacy/` provides the full historical source material.
 | Need | Use | Do not confuse it with |
 | --- | --- | --- |
 | Understand retained runtime controls | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Treating a terminal pane or an agent window as authority. |
+| Install/verify SQLite, LangGraph, and hcom on a fresh clone | [Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md) | Combining their databases or letting transport/routing become task authority. |
 | Decide whether instructions are formally ready for execution | [AGI_STANDARD.md](AGI_STANDARD.md) | Treating a capable model's ability to guess as proof the instruction is good. |
 | Write instructions an agent can execute without guessing | [AGENT_GRADE_INSTRUCTIONS.md](AGENT_GRADE_INSTRUCTIONS.md) | Making prompts longer without making outcomes, boundaries, or proof clearer. |
 | Apply tool/provider-specific operating guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Making MAPS depend on one vendor's UI or commands. |
@@ -28,13 +29,15 @@ repository; `legacy/` provides the full historical source material.
 
 ## Retained control plane and optional presentation
 
-- **SQLite:** canonical mutable task state—atomic claims, leases, submission,
-  independent review records, and LangGraph checkpoints.
+- **SQLite:** canonical mutable task state—atomic claims, leases, submissions,
+  reviews, and task events.
 - **LangGraph:** deterministic route selection from the task graph, policy,
-  availability, helpers, and gates. It recommends; accountable agents act.
+  availability, helpers, and gates. Its checkpoint database is separate from
+  MAPS task truth. It recommends; accountable agents act.
 - **RnS:** deterministic restart/limit recovery. It relies on durable handoffs
   and currently uses hcom for session inspection, resume, and nudging.
-- **hcom:** cross-provider messages, session control, and RnS transport.
+- **hcom:** cross-provider messages, session control, and RnS transport. Its own
+  local state is not MAPS task authority.
 - **WezTerm Command Center:** optional terminal presentation. Replace or omit
   it without removing the above controls.
 
