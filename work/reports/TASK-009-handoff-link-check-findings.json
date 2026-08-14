@@ -1,0 +1,4372 @@
+{
+  "root": "/home/mellow/Projects/MultiAgentProject-Lean",
+  "method": {
+    "read_only": true,
+    "parses": [
+      "Markdown links",
+      "Obsidian wikilinks"
+    ],
+    "active_zone": "all Markdown except legacy/ and archive/",
+    "high_resistance": [
+      "legacy/",
+      "archive/"
+    ],
+    "limitations": [
+      "Link topology is not semantic relevance or truth.",
+      "Bare wikilinks resolve only when the filename is unique.",
+      "External URLs are ignored as graph edges.",
+      "No proposed link is applied automatically."
+    ]
+  },
+  "summary": {
+    "notes": 1502,
+    "active_notes": 66,
+    "links": 636,
+    "resolved_edges": 429,
+    "broken_links": 141,
+    "active_broken_links": 2,
+    "unlinked_file_mentions": 681,
+    "active_unlinked_file_mentions": 278,
+    "active_orphans": 6,
+    "first_run_active_reach": 38,
+    "kinds": {
+      "decision": 1,
+      "guide": 4,
+      "handoff": 7,
+      "legacy": 1436,
+      "method": 15,
+      "review": 12,
+      "root": 7,
+      "state": 1,
+      "task": 9,
+      "template": 10
+    }
+  },
+  "broken_links": [
+    {
+      "source": "legacy/MAP-System/MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+      "target": "decisions",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/DECISION_CLASSES.md",
+      "target": "decisions",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RESEARCH_SYSTEM.md",
+      "target": "decisions",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RESEARCH_SYSTEM.md",
+      "target": "unresolved-questions",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RISK_SYSTEM.md",
+      "target": "RISK_REGISTER",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/SELF_REPAIR_SYSTEM.md",
+      "target": "decisions",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/agents/README.md",
+      "target": "shared/operator-identities",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/map-real-parameter-calibration-results-2026-07-14.md",
+      "target": "shared/operator-identities",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/command-center-ui/mission-control-textual-prototype.md",
+      "target": "artifacts/command-center-ui/README",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-event-trace-schema.md",
+      "target": "events/README",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-protocol-validator-spec.md",
+      "target": "./AGENTS.md",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/tests/task-186-rns-suppression-evidence.md",
+      "target": "emergence/ideas/IDEA-0009-rns-should-ignore-superseded-and-disposable-sessions",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "target": "emergence/README",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "target": "emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "target": "emergence/ideas/IDEA-0004-require-a-second-security-focused-review-pass-for-any-task-that-",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "target": "emergence/ideas/IDEA-0005-add-a-release-path-smoke-checklist-for-user-facing-packages",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "target": "notes/release-path-checklist",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "target": "emergence/ideas/IDEA-0010-add-a-proactive-e-i-operator-friction-scouting-loop-for-commandc",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "target": "notes/task-authoring-guide",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "target": "emergence/ideas/IDEA-0019-promote-debate-to-a-first-class-review-decision-mode-for-conflic",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "target": "emergence/ideas/IDEA-0022-add-an-operational-learning-promotion-loop-from-e-i-into-canonic",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/README.md",
+      "target": "decisions",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/experiments/EXP-0002-pilot-a-local-e-i-sentinel-with-bounded-core-agent-curation.md",
+      "target": "emergence/insights/INS-0024-cdp-parity-gate-for-html-refactors",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/experiments/EXP-0002-pilot-a-local-e-i-sentinel-with-bounded-core-agent-curation.md",
+      "target": "emergence/insights/INS-0027-operational-notes-are-durable-but-not-automatically-promoted-int",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/experiments/EXP-0007-idea-scouting-as-cadence-not-role.md",
+      "target": "emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/experiments/EXP-0007-idea-scouting-as-cadence-not-role.md",
+      "target": "emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/experiments/EXP-0007-idea-scouting-as-cadence-not-role.md",
+      "target": "emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/experiments/EXP-0010-probe-does-a-table-scoped-shared-state-validator-catch-real-drif.md",
+      "target": "emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/experiments/EXP-0010-probe-does-a-table-scoped-shared-state-validator-catch-real-drif.md",
+      "target": "emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0017-atomic-review-claiming-add-claim-review-task-id-reviewer-to-db-c.md",
+      "target": "emergence/insights/INS-0014-systems-with-a-mechanical-release-task-gate-get-genuinely-used-r",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0017-atomic-review-claiming-add-claim-review-task-id-reviewer-to-db-c.md",
+      "target": "emergence/insights/INS-0014-systems-with-a-mechanical-release-task-gate-get-genuinely-used-r",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0018-adopt-a-three-layer-eval-discipline-1-unit-evals-on-discrete-gat.md",
+      "target": "emergence/insights/INS-0021-real-data-contradicts-the-simulation-cut-of-peer-review-reviews-",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0024-a-design-port-task-should-freeze-the-approved-mockup-as-the-acce.md",
+      "target": "emergence/insights/INS-0031-on-visual-fidelity-tasks-verify-by-screenshot-vs-reference-befor",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0025-add-a-reusable-screenshot-at-viewport-verifier-for-browser-app-p.md",
+      "target": "emergence/promotions/PROMO-0012-idea-0024",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0025-add-a-reusable-screenshot-at-viewport-verifier-for-browser-app-p.md",
+      "target": "emergence/insights/INS-0032-promoted-process-rules-stay-ineffective-unless-mechanically-surf",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0026-key-the-no-self-review-guards-on-the-durable-submission-author-n.md",
+      "target": "IDEA-0027",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0027-record-submission-authorship-durably-submit-task-must-emit-a-sub.md",
+      "target": "emergence/insights/INS-0039-both-no-self-review-guards-key-on-tasks-owner-so-owner-claimant-",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0027-record-submission-authorship-durably-submit-task-must-emit-a-sub.md",
+      "target": "emergence/ideas/IDEA-0026-key-the-no-self-review-guards-on-the-durable-submission-author-n",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0027-record-submission-authorship-durably-submit-task-must-emit-a-sub.md",
+      "target": "emergence/ideas/IDEA-0026-key-the-no-self-review-guards-on-the-durable-submission-author-n",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0029-validate-the-designated-active-lane-table-in-current-state-md-ag.md",
+      "target": "emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0030-add-a-bounded-liveness-no-progress-signal-for-hcom-dispatched-no.md",
+      "target": "emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0031-document-that-classifier-blocking-of-remote-map-authority-calls-.md",
+      "target": "AGENTS",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0032-change-the-release-checklist-s-emergence-capture-considered-line.md",
+      "target": "emergence/experiments/EXP-0003-pilot-the-non-forcing-discovery-agent-on-the-completed-clearfron",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0017-turn-by-turn-self-audited-card-game-simulation-naming-every-card.md",
+      "target": "EXP-0008",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0017-turn-by-turn-self-audited-card-game-simulation-naming-every-card.md",
+      "target": "EXP-0010",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0018-when-a-rules-heavy-generative-task-hits-a-genuinely-ambiguous-so.md",
+      "target": "INS-0020",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0019-a-100-line-domain-validator-written-at-the-start-of-a-generative.md",
+      "target": "INS-0040",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md",
+      "target": "emergence/insights/INS-0018-when-a-rules-heavy-generative-task-hits-a-genuinely-ambiguous-so",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md",
+      "target": "emergence/insights/INS-0018-when-a-rules-heavy-generative-task-hits-a-genuinely-ambiguous-so",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md",
+      "target": "EXP-0008",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md",
+      "target": "INS-0018",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0021-real-data-contradicts-the-simulation-cut-of-peer-review-reviews-.md",
+      "target": "artifacts/audits/map-real-parameter-calibration-results-2026-07-14",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0022-obs-map-is-a-supervisor-durable-blackboard-swarm-handoff-hybrid-.md",
+      "target": "emergence/insights/INS-0014-systems-with-a-mechanical-release-task-gate-get-genuinely-used-r",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0028-a-useful-discovery-agent-is-a-visible-bounded-semantic-interpret.md",
+      "target": "emergence/insights/INS-0025-undo-reveals-hidden-info-in-replacement",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0028-a-useful-discovery-agent-is-a-visible-bounded-semantic-interpret.md",
+      "target": "emergence/insights/INS-0026-decomposition-yields-free-headless-engine-seam",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0028-a-useful-discovery-agent-is-a-visible-bounded-semantic-interpret.md",
+      "target": "emergence/insights/INS-0027-operational-notes-are-durable-but-not-automatically-promoted-int",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0032-promoted-process-rules-stay-ineffective-unless-mechanically-surf.md",
+      "target": "emergence/insights/INS-0031-on-visual-fidelity-tasks-verify-by-screenshot-vs-reference-befor",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0032-promoted-process-rules-stay-ineffective-unless-mechanically-surf.md",
+      "target": "emergence/promotions/PROMO-0012-idea-0024",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0034-the-coordination-friction-this-session-keeps-hitting-reviewers-d.md",
+      "target": "artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0034-the-coordination-friction-this-session-keeps-hitting-reviewers-d.md",
+      "target": "emergence/promotions/PROMO-0012-idea-0024",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0035-the-retrieval-chain-s-100-percent-task-recall-is-highly-phrasing.md",
+      "target": "artifacts/experiments/task-memory-paraphrase-robustness-probe-2026-07-20",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0036-hcom-can-auto-derive-wait-records-from-request-metadata.md",
+      "target": "artifacts/experiments/triage-wait-envelope-probe-2026-07-20",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0038-claim-task-writes-sqlite-but-never-syncs-file-mirrors-so-every-t.md",
+      "target": "emergence/synthesis/SYN-0001-two-readers-one-truth",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0039-both-no-self-review-guards-key-on-tasks-owner-so-owner-claimant-.md",
+      "target": "AGENTS",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re.md",
+      "target": "shared/current-state",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re.md",
+      "target": "emergence/synthesis/SYN-0001-two-readers-one-truth",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re.md",
+      "target": "emergence/synthesis/SYN-0001-two-readers-one-truth",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re.md",
+      "target": "artifacts/reviews/task267-review-kiri",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re.md",
+      "target": "INS-0019",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0041-rns-active-session-fallback-tells-a-still-live-session-it-may-ha.md",
+      "target": "emergence/synthesis/SYN-0001-two-readers-one-truth",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0042-output-paths-are-write-once-with-no-unregister-verb-so-a-mis-reg.md",
+      "target": "AGENTS",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0042-output-paths-are-write-once-with-no-unregister-verb-so-a-mis-reg.md",
+      "target": "INS-0039",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0043-an-artifact-marked-proposed-decision-hardened-into-a-binding-gat.md",
+      "target": "artifacts/planning/commandcenterui-boundary-decision",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0043-an-artifact-marked-proposed-decision-hardened-into-a-binding-gat.md",
+      "target": "INS-0039",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0043-an-artifact-marked-proposed-decision-hardened-into-a-binding-gat.md",
+      "target": "shared/decisions",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0044-every-currently-blocked-task-sits-on-a-policy-gate-whose-or-bran.md",
+      "target": "SYN-0005",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0046-i-wrote-both-of-today-s-promotion-records-after-creating-the-tas.md",
+      "target": "emergence/promotions/PROMO-0013-idea-0027",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0046-i-wrote-both-of-today-s-promotion-records-after-creating-the-tas.md",
+      "target": "emergence/promotions/PROMO-0014-idea-0029",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0046-i-wrote-both-of-today-s-promotion-records-after-creating-the-tas.md",
+      "target": "emergence/promotions/PROMO-0013-idea-0027",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0046-i-wrote-both-of-today-s-promotion-records-after-creating-the-tas.md",
+      "target": "emergence/promotions/PROMO-0014-idea-0029",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0047-reassign-owner-validates-the-task-s-status-but-never-the-new-own.md",
+      "target": "emergence/insights/INS-0049-file-extraction-bundle-rewrite-code-needs-path-traversal-validat",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0047-reassign-owner-validates-the-task-s-status-but-never-the-new-own.md",
+      "target": "emergence/insights/INS-0007-emergence-records-need-lifecycle-closeout-not-just-capture",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0048-rns-wakes-idle-truncated-agents.md",
+      "target": "emergence/insights/INS-0029-rns-active-session-fallback-nudges-live-agents",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0049-file-extraction-bundle-rewrite-code-needs-path-traversal-validat.md",
+      "target": "emergence/ideas/IDEA-0004-require-a-second-security-focused-review-pass-for-any-task-that-",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0051-non-core-agent-workers-visible-helpers-haiku-agents-local-pi-mod.md",
+      "target": "haiku-agents-need-no-approval-tasks",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0051-non-core-agent-workers-visible-helpers-haiku-agents-local-pi-mod.md",
+      "target": "artifacts/experiments/pi-local-capability-trial-2026-07-18",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0053-prose-only-rules-get-missed-even-by-the-agent-who-just-built-the.md",
+      "target": "artifacts/reviews/task288-independent-review-task288-review-valo",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0053-prose-only-rules-get-missed-even-by-the-agent-who-just-built-the.md",
+      "target": "artifacts/reviews/task288-rereview-task288-review-valo",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0053-prose-only-rules-get-missed-even-by-the-agent-who-just-built-the.md",
+      "target": "AGENTS",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0053-prose-only-rules-get-missed-even-by-the-agent-who-just-built-the.md",
+      "target": "notes/operator-autonomy-expectation",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0053-prose-only-rules-get-missed-even-by-the-agent-who-just-built-the.md",
+      "target": "notes/command-center-lab-restart-startup",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0053-prose-only-rules-get-missed-even-by-the-agent-who-just-built-the.md",
+      "target": "notes/discovery-agent-guide",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0054-sanctioned-cli-verbs-that-call-the-remote-map-authority-host-are.md",
+      "target": "shared/decisions",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0055-the-mandatory-emergence-capture-considered-release-checkbox-neve.md",
+      "target": "emergence/insights/INS-0032-promoted-process-rules-stay-ineffective-unless-mechanically-surf",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0055-the-mandatory-emergence-capture-considered-release-checkbox-neve.md",
+      "target": "emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0055-the-mandatory-emergence-capture-considered-release-checkbox-neve.md",
+      "target": "emergence/experiments/EXP-0003-pilot-the-non-forcing-discovery-agent-on-the-completed-clearfron",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0055-the-mandatory-emergence-capture-considered-release-checkbox-neve.md",
+      "target": "emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0056-operator-directed-work-explicitly-scoped-outside-map-task-govern.md",
+      "target": "emergence/insights/INS-0013-emergence-insight-capture-was-skipped-entirely-for-an-entire-pro",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0056-operator-directed-work-explicitly-scoped-outside-map-task-govern.md",
+      "target": "emergence/insights/INS-0013-emergence-insight-capture-was-skipped-entirely-for-an-entire-pro",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0058-submission-time-evidence-file-parity-checksums-pilot-metrics-can.md",
+      "target": "artifacts/reviews/task306-review-muza",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0059-cross-host-or-otherwise-privileged-gateway-code-that-mutates-lif.md",
+      "target": "artifacts/reviews/task307-smalls-predeploy-review-codex-lab-vumo",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0059-cross-host-or-otherwise-privileged-gateway-code-that-mutates-lif.md",
+      "target": "artifacts/reviews/task307-smalls-rereview-codex-lab-vumo",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0059-cross-host-or-otherwise-privileged-gateway-code-that-mutates-lif.md",
+      "target": "artifacts/reviews/task307-smalls-rereview3-codex-lab-vumo",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0061-emergence-sentinel-py-s-repeated-rework-signal-records-evidence-.md",
+      "target": "emergence/insights/INS-0050-emergence-sentinel-py-s-repeated-blocker-signal-miscounts-operat",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/insights/INS-0061-emergence-sentinel-py-s-repeated-rework-signal-records-evidence-.md",
+      "target": "emergence/insights/INS-0050-emergence-sentinel-py-s-repeated-blocker-signal-miscounts-operat",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/promotions/PROMO-0009-idea-0019.md",
+      "target": "emergence/ideas/IDEA-0019-promote-debate-to-a-first-class-review-decision-mode-for-conflic",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/promotions/PROMO-0011-idea-0022.md",
+      "target": "emergence/ideas/IDEA-0022-add-an-operational-learning-promotion-loop-from-e-i-into-canonic",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/promotions/PROMO-0012-idea-0024.md",
+      "target": "emergence/insights/INS-0031-on-visual-fidelity-tasks-verify-by-screenshot-vs-reference-befor",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/promotions/PROMO-0013-idea-0027.md",
+      "target": "emergence/ideas/IDEA-0026-key-the-no-self-review-guards-on-the-durable-submission-author-n",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/promotions/PROMO-0013-idea-0027.md",
+      "target": "emergence/insights/INS-0039-both-no-self-review-guards-key-on-tasks-owner-so-owner-claimant-",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/promotions/PROMO-0014-idea-0029.md",
+      "target": "emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/promotions/PROMO-0014-idea-0029.md",
+      "target": "emergence/experiments/EXP-0010-probe-does-a-table-scoped-shared-state-validator-catch-real-drif",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/synthesis/SYN-0001-two-readers-one-truth.md",
+      "target": "emergence/insights/INS-0006-sequential-task-ids-collide-under-concurrent-agents",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/synthesis/SYN-0001-two-readers-one-truth.md",
+      "target": "emergence/insights/INS-0007-emergence-records-need-lifecycle-closeout-not-just-capture",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/synthesis/SYN-0001-two-readers-one-truth.md",
+      "target": "emergence/INDEX",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/synthesis/SYN-0001-two-readers-one-truth.md",
+      "target": "agents/README",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/operator-identities.md",
+      "target": "agents/README",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/notes/ui-redesign-kickoff-2026-07-19.md",
+      "target": "INS-0031",
+      "kind": "wikilink"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides.zip",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/README.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/STATE_AUTHORITY_AND_MAPD.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/DURABLE_EXECUTION_AND_MAP_FLOW.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/AGENT_RUNTIME_AND_ISOLATION.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/SKILLS_CONTEXT_AND_MEMORY.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/SECURITY_POLICY_AND_BUDGETS.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/OBSERVABILITY_EVALS_AND_REFINEMENT.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/INTEROPERABILITY_AND_ADOPTION.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/MIGRATION_RUNBOOK.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/Source/MAP_System/docs/map2/SOURCES.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides/manifest.json",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-MAP-system.md",
+      "target": "sandbox:/mnt/data/MAP_2.0_Implementation_Guides.zip",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-what-is-MAP.md",
+      "target": "sandbox:/mnt/data/MAP_2_Implementation_Package.zip",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-what-is-MAP.md",
+      "target": "sandbox:/mnt/data/MAP_2_Implementation_Package/MAP_2_IMPLEMENTATION_PACKAGE_COMBINED.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-what-is-MAP.md",
+      "target": "sandbox:/mnt/data/MAP_2_Implementation_Package/README.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-what-is-MAP.md",
+      "target": "sandbox:/mnt/data/MAP_2_Implementation_Package/MAP_2_IMPLEMENTATION_MASTER_PLAN.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-what-is-MAP.md",
+      "target": "sandbox:/mnt/data/MAP_2_Implementation_Package/MAP_2_RUNTIME_AUTHORITY_DATA_SPEC.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-what-is-MAP.md",
+      "target": "sandbox:/mnt/data/MAP_2_Implementation_Package/MAP_2_WORKFLOWS_CONTEXT_SECURITY_INTEROP.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-what-is-MAP.md",
+      "target": "sandbox:/mnt/data/MAP_2_Implementation_Package/MAP_2_OBSERVABILITY_EVAL_REFINEMENT.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "legacy/research-snapshots/deep-research-report-what-is-MAP.md",
+      "target": "sandbox:/mnt/data/MAP_2_Implementation_Package/MAP_2_COMPARISONS_AND_SOURCES.md",
+      "kind": "markdown"
+    },
+    {
+      "source": "work/handoffs/2026-08-13-lean-navigation-and-simulation-tuning.md",
+      "target": "../../.obsidian/app.json",
+      "kind": "markdown"
+    },
+    {
+      "source": "work/handoffs/2026-08-13-lean-navigation-and-simulation-tuning.md",
+      "target": "../../.obsidian/graph.json",
+      "kind": "markdown"
+    }
+  ],
+  "unlinked_file_mentions": [
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/Guidelines/llm-communication-rules.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-bedrock-phase-checklist-2026-08-10.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/emergence/IDEA_PROMOTION_RULES.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/emergence/README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/notes/local-model-helper-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/current-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/Projects/ProjectUpdater/AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/docs/agent-quickstart.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/AGENTS.md",
+      "target": "legacy/MAP-System/docs/project-map.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/CLAUDE.md",
+      "target": "legacy/MAP-System/MAP_System/CLAUDE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/CLAUDE.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/CLAUDE.md",
+      "target": "legacy/MAP-System/Projects/ProjectUpdater/AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/6.13/MAP-Simulation-TestDrive.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/README.md",
+      "target": "legacy/MAP-System/Guidelines/MAP_repo_systems_gap_review.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/README.md",
+      "target": "legacy/MAP-System/Guidelines/agent-file-watch-mode-outline.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/README.md",
+      "target": "legacy/MAP-System/Guidelines/ai-improvement-scout-protocol.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/README.md",
+      "target": "legacy/MAP-System/Guidelines/context-pruning.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/README.md",
+      "target": "legacy/MAP-System/Guidelines/laziness-ladder.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/README.md",
+      "target": "legacy/MAP-System/Guidelines/llm-communication-rules.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/README.md",
+      "target": "legacy/MAP-System/Guidelines/phatic-suppression.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/README.md",
+      "target": "legacy/MAP-System/Guidelines/prompt-skeleton.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/README.md",
+      "target": "legacy/MAP-System/Guidelines/schema-pin.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Guidelines/prompt-skeleton.md",
+      "target": "legacy/MAP-System/Guidelines/llm-communication-rules.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/SELF_REPAIR_SYSTEM.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-bedrock-phase-checklist-2026-08-10.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/notes/command-center-lab-restart-startup.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/notes/context-rotation-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/notes/documentation-style-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/notes/git-setup.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/notes/helper-agent-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/canonical-repo.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/context-continuity.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/current-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/requirements.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENTS.md",
+      "target": "legacy/MAP-System/MAP_System/shared/unresolved-questions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/AGENT_PERMISSION_LEVELS.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/ARCHIVE_RETENTION_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/current-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/AGENT_PERMISSION_LEVELS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/CLAUDE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/DECISION_CLASSES.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/DESTRUCTIVE_ACTION_POLICY.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/notes/brain-compaction-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/notes/documentation-style-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/notes/system-improvement-implementation-plan.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/notes/task-authoring-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CLAUDE.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CLAUDE.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CLAUDE.md",
+      "target": "legacy/MAP-System/MAP_System/shared/unresolved-questions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CONTEXT_SYSTEM.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CONTEXT_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/notes/brain-compaction-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CONTEXT_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/notes/review-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CONTEXT_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/constraints.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CONTEXT_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/current-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CONTEXT_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CONTEXT_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/improvement-backlog.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/CONTEXT_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/unresolved-questions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/emergence/README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/notes/review-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/constraints.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/DECISION_CLASSES.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/DESTRUCTIVE_ACTION_POLICY.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/DESTRUCTIVE_ACTION_POLICY.md",
+      "target": "legacy/MAP-System/MAP_System/DECISION_CLASSES.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/HUMAN_INTERFACE_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/command-center-ui/standalone-ui-map-db-repair-2026-07-02.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/HUMAN_INTERFACE_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/emergence/INDEX.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/HUMAN_INTERFACE_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/RISK_REGISTER.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/HUMAN_INTERFACE_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/current-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/HUMAN_INTERFACE_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/DECISION_CLASSES.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/RISK_SYSTEM.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/notes/task-authoring-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/shared/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/shared/requirements.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/shared/unresolved-questions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "legacy/MAP-System/MAP_System/templates/RISK_REGISTER_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/NEW_PROJECT_WIZARD.md",
+      "target": "templates/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/ORCHESTRATION_ENTRYPOINT_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/CHANGE_CONTROL_SYSTEM.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/notes/context-routing-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/requirements.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/unresolved-questions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/templates/RISK_REGISTER_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/templates/project-quality-standards.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/CLAUDE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/architect-agent-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/brain-compaction-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/command-center-later.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/communication-architecture.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/communication-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/context-routing-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/documentation-style-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/helper-agent-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/operations-runbook.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/review-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/state-machine-guardrails.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/task-authoring-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/architecture.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/current-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/memory-map.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RESEARCH_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RESEARCH_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/unresolved-questions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RESEARCH_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/templates/research/RESEARCH_BRIEF_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RETROSPECTIVE_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/notes/task-authoring-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RETROSPECTIVE_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RETROSPECTIVE_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RISK_SYSTEM.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RISK_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/DECISION_CLASSES.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RISK_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/RISK_REGISTER.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/RISK_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/current-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/SECURITY_PERMISSIONS_SYSTEM.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/SELF_REPAIR_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/SELF_REPAIR_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/templates/repairs/HEALTH_CHECK_REPORT_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/SELF_REPAIR_SYSTEM.md",
+      "target": "legacy/MAP-System/MAP_System/templates/repairs/REPAIR_RECORD_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/archive/README.md",
+      "target": "legacy/MAP-System/MAP_System/archive/general-purpose-multi-agent-project-system-v2.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/archive/compactions/compaction-2026-07-14-tasks-147-192.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/archive/general-purpose-multi-agent-project-system-v2.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/command-center-deployment-source-manifest-2026-07-18.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/map-library-viability-measurement-results-2026-07-14.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/map-multi-project-readiness.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/map-real-parameter-calibration-results-2026-07-14.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/map-real-parameter-calibration-results-2026-07-14.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/map-robustness-grading-2026-07-14.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/roles-roadmap-orchestration-final-report.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/audits/map-library-viability-measurement-results-2026-07-14.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/audits/map-roster-composition.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/audits/map-threat-model.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/audits/repo-reference-map-runtime-audit.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/task-130-map-systems-real-usage-evidence.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/audits/task254-untracked-edit-2026-07-21.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/command-center-deployment-source-parity-audit-2026-07-18.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/durable-memory-index-readiness-audit-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/kickoff-v2-confirmation-moku-2026-07-18.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/experiments/kickoff-architecture-contribution-moku-2026-07-18.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/experiments/kickoff-v2-confirmation-moku-2026-07-18.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/experiments/kickoff-v2-confirmation-zero-2026-07-18.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/map-practice-lifecycle-audit-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/orientation-manifest-canonical-control-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/orientation-manifest-control-treatment-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/task-fingerprint-index-pilot-2026-07-19.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/experiments/clearfront-discovery-known-findings-2026-07-17.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/task-memory-capsule-development-2026-07-19.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/task-memory-evidence-verifier-development-2026-07-19.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/task281-run-manifest-pilot.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/experiments/token-efficient-durable-context-audit-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/operations/biggie-smalls-relay-and-ccl-preflight-2026-07-29.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/operations/code-sync-timer-setup-2026-08-03.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/canonical-authority-hierarchy-2026-07-29.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/command-center-ui-serial-batch-reconciliation-2026-07-19.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-bedrock-operating-structure-2026-08-10.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-cost-governance-spec.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-kill-switch-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-decomposer-spec.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-protocol-validator-spec.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-protocol-validator-spec.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-validator-halt-state-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-resilience-controls-spec.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-kill-switch-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-runtime-migration-inventory.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-runtime-migration-inventory.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-613-master-implementation-plan.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-runtime-migration-inventory.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-runtime-migration-plan.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-runtime-migration-plan.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-613-master-implementation-plan.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-runtime-migration-plan.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-runtime-migration-inventory.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-validator-halt-state-spec.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-protocol-validator-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/map-validator-halt-state-spec.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-semantic-validator-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/mission-control-write-control-spec.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/mission-control-write-control-spec.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-liveness-reaper-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/mission-control-write-control-spec.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-protocol-validator-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/mission-control-write-control-spec.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-semantic-validator-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/phase0-baseline-packet-2026-08-10.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/phase1-architecture-decision-packet-2026-08-10.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/pre-dispatch-gate-input-migration.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-runtime-migration-inventory.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/pre-dispatch-gate-input-migration.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-task-tiering-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/release-backlog-triage-2026-07-28.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/release-backlog-triage-2026-07-28.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/map-pre-dispatch-policy-checker-spec.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/release-backlog-triage-2026-07-28.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/planning/roles-system-map-improvement-review.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/planning/roles-system-map-improvement-review.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/recovery/ws1-command-center-consumer-local.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/recovery/ws1-truthful-authority-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/recovery/ws1-path-ownership-prerequisite-review-mimi.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-061-release-checklist.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-078-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-107-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-112-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-142-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-184-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-194-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-223-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-225-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-237-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-269-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-281-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-288-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/releases/task-291-release-checklist.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reports/command-center-runtime-exercise-2026-07-14.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reports/map-system-housekeeping-survey-2026-08-10.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reports/map-system-housekeeping-survey-2026-08-10.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reports/task-140-process-use-audit.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/research/SUMMARY-external-blueprint-gap-review-2026-07-21.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/bootstrap-review.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/bootstrap-review.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/coverage-ledger-review-soba.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task027-review.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task041-decision-log-rereview.md",
+      "target": "templates/decision.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task041-decision-log-review.md",
+      "target": "templates/decision.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task063-map-system-audit.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task063-map-system-audit.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task097-rereview-zaro.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task097-review-zaro.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task107-review-dino.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task112-review-dino.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task129-rereview-dino.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task129-review-dino.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task138-review-vino.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task146-rereview-veto.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task146-review-veto.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task150-review-beni.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task151-review-vida.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task153-review-melo.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task154-review-vida.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task155-review-melo.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task156-review-vida.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task157-review-melo.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task158-second-rereview-mozu.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task159-rereview-melo.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task159-review-melo.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task160-rereview-mozu.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task160-review-mozu.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task161-rereview-mozu.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task161-review-mozu.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task162-rereview-mozu.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task163-review-melo.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task164-review-melo.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task175-review-zera.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task181-review-mira.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task180-review-mira.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task182-review-nivo.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task183-review-mira.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task181-review-mira.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task194-review-toku.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task194-review-zero.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task195-review-toku.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task196-review-zera.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task223-225-batch-final-review-moku.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task223-225-batch-review-moku.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task231-review-rori.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task251-review-rose.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task250-review-lure.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task254-review-kino.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task254-review-lilo.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task254-review-rose.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task255-review-rose.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task256-review-rose.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task262-review-rose.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task267-rereview2-bima.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task267-rereview-bima.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task267-rereview2-bima.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task267-review-kiri.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task277-independent-review-bire.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task277-rereview-muse.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task288-independent-review-task288-review-valo.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task288-independent-review-task288-review-valo.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task288-rereview-task288-review-valo.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task294-independent-rereview-claude-lab-mika.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task294-independent-review-claude-lab-mika.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task294-independent-review-claude-lab-mika.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task294-independent-review-risa.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task314-independent-review-claude-lab-mika.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task316-independent-review-zinu.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task316-317-independent-review-zinu.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task321_security_review.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task321_review.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/reviews/task323-independent-review-fenn.md",
+      "target": "legacy/MAP-System/MAP_System/artifacts/reviews/task315-final-review-helper-review-task315-polo.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/tests/emergence-sentinel-pilot.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/artifacts/tests/task295-retire-verb-delivery-note.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/CREATIVE_REVIEW.md",
+      "target": "legacy/MAP-System/MAP_System/emergence/templates/INSIGHT_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/IDEA_PROMOTION_RULES.md",
+      "target": "legacy/MAP-System/MAP_System/emergence/templates/PROMOTION_RECORD_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/SYNTHESIS_METHODS.md",
+      "target": "legacy/MAP-System/MAP_System/emergence/templates/SYNTHESIS_NOTE_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0008-idle-accountability-heartbeat-for-active-agents.md",
+      "target": "legacy/MAP-System/MAP_System/emergence/ideas/IDEA-0007-declared-idle-checkin-protocol.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-herdr-comparison-2026-07-22.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-index-claim-holdout-2026-07-19.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-orientation-control-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-orientation-manifest-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-pi-vega-issue-lesson-trial-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-pi-vema-policy-gate-trial-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-standing-01.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-265.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-265.md",
+      "target": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-288.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-265.md",
+      "target": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-290.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-281.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-282.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-283.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-285.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-286.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-287.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-288.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-288.md",
+      "target": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-283.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-290.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-290.md",
+      "target": "legacy/MAP-System/MAP_System/inbox/helpers/helper-review-task-288.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/pi-minimal-lifecycle-walkthrough-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/pi-requalification-communication-2026-07-18.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/inbox/helpers/pi-requalification-communication-2026-07-27.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/architect-agent-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/brain-compaction-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/brain-organization-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/command-center-later.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/communication-architecture.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/communication-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/context-routing-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/documentation-style-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/git-setup.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/helper-agent-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/how-to-work-with-codex-and-claude.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/local-model-helper-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/operations-runbook.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/review-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/state-machine-guardrails.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/README.md",
+      "target": "legacy/MAP-System/MAP_System/notes/task-authoring-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/architect-agent-guide.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/biggie-to-smalls.md",
+      "target": "legacy/MAP-System/MAP_System/notes/smalls-to-biggie.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/brain-compaction-guide.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/brain-organization-guide.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/brain-organization-guide.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/command-center-lab-restart-startup.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/command-center-orchestrator-lifecycle.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/communication-architecture.md",
+      "target": "legacy/MAP-System/MAP_System/notes/documentation-style-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/communication-guide.md",
+      "target": "legacy/MAP-System/MAP_System/notes/communication-architecture.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/context-routing-guide.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/context-routing-guide.md",
+      "target": "templates/decision.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/context-routing-guide.md",
+      "target": "templates/review.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/helper-agent-guide.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/helper-agent-guide.md",
+      "target": "legacy/MAP-System/MAP_System/notes/communication-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/helper-agent-guide.md",
+      "target": "legacy/MAP-System/MAP_System/notes/local-model-helper-guide.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/operational-learning-guide.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/pi-agent-communication-guide.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/review-guide.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/review-guide.md",
+      "target": "templates/review.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/smalls-to-biggie.md",
+      "target": "legacy/MAP-System/MAP_System/notes/biggie-to-smalls.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/notes/system-improvement-implementation-plan.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/repairs/HEALTH-0001-map-system-self-application-review.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/repairs/HEALTH-0001-map-system-self-application-review.md",
+      "target": "legacy/MAP-System/MAP_System/repairs/REPAIR-0003-risk-validator-placeholder-regex-false-positive.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/repairs/HEALTH-0001-map-system-self-application-review.md",
+      "target": "legacy/MAP-System/MAP_System/repairs/REPAIR-0004-repair-record-id-collision.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/repairs/REPAIR-0004-repair-record-id-collision.md",
+      "target": "legacy/MAP-System/MAP_System/repairs/HEALTH-0001-map-system-self-application-review.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/repairs/REPAIR-0004-repair-record-id-collision.md",
+      "target": "legacy/MAP-System/MAP_System/repairs/REPAIR-0001-runner-released-dependency-drift.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/repairs/REPAIR-0004-repair-record-id-collision.md",
+      "target": "legacy/MAP-System/MAP_System/repairs/REPAIR-0003-risk-validator-placeholder-regex-false-positive.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/retros/RETRO-0002-projectupdater-commandcenterui-integration-cycle.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/architecture.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/constraints.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/current-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/glossary.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/improvement-backlog.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/memory-map.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/requirements.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/README.md",
+      "target": "legacy/MAP-System/MAP_System/shared/unresolved-questions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/acceptance-criteria.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/agent-rules.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/current-state.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/decisions.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "target": "legacy/MAP-System/MAP_System/shared/agent-capability-matrix.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/improvement-backlog.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/memory-map.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/shared/memory-map.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/templates/README.md",
+      "target": "legacy/MAP-System/MAP_System/templates/CONTEXT_PACKET_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/templates/README.md",
+      "target": "legacy/MAP-System/MAP_System/templates/communication-thread.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/templates/README.md",
+      "target": "legacy/MAP-System/MAP_System/templates/compaction-summary.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/templates/README.md",
+      "target": "legacy/MAP-System/MAP_System/templates/current-state.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/templates/README.md",
+      "target": "legacy/MAP-System/MAP_System/templates/decision.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/templates/README.md",
+      "target": "legacy/MAP-System/MAP_System/templates/handoff.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/templates/README.md",
+      "target": "legacy/MAP-System/MAP_System/templates/inbox-message.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/templates/README.md",
+      "target": "legacy/MAP-System/MAP_System/templates/review.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/MAP_System/templates/research/SOURCE_MAP_TEMPLATE.md",
+      "target": "legacy/MAP-System/MAP_System/templates/research/SOURCE_EVALUATION_TEMPLATE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/AGENTS.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/AGENTS.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/shared/decisions.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/AGENTS.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/source/game-card-combat-effects/clearfront_design_principles.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/AGENTS.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/source/game-card-combat-effects/clearfront_rules.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/README.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/risks/RISK_REGISTER.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/README.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/shared/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/README.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/shared/requirements.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/README.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/source/game-card-combat-effects/clearfront_design_principles.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/README.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/source/game-card-combat-effects/clearfront_rules.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/shared/decisions.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/shared/decisions.md",
+      "target": "legacy/MAP-System/Projects/ClearFront/shared/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ClearFront/shared/project-brief.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ProjectUpdater/AGENTS.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/Projects/ProjectUpdater/README.md",
+      "target": "legacy/MAP-System/Projects/ProjectUpdater/shared/project-brief.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/README.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/README.md",
+      "target": "legacy/MAP-System/MAP_System/README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/README.md",
+      "target": "legacy/MAP-System/docs/agent-quickstart.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/README.md",
+      "target": "legacy/MAP-System/docs/project-map.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/TASKS.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/TASKS.md",
+      "target": "legacy/MAP-System/docs/agent-quickstart.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/TASKS.md",
+      "target": "legacy/MAP-System/docs/project-map.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/docs/agent-quickstart.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/docs/project-map.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/MAP-System/docs/project-map.md",
+      "target": "README.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/README.md",
+      "target": "AGENTS.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "legacy/README.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "legacy"
+    },
+    {
+      "source": "playbook/INDEX.md",
+      "target": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/INDEX.md",
+      "target": "legacy/MAP-System/Projects/ProjectUpdater/shared/steps-outline-guide.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+      "target": "legacy/MAP-System/Projects/ProjectUpdater/shared/steps-outline-guide.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "docs/CHECKS_AND_BALANCES.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "docs/CONTEXT.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/DECISIONS_AND_SAFETY.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/EMERGENCE.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/HELPERS_AND_COMMUNICATION.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/HPOM_ROUTING.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/INFORMATION_LIFECYCLE.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/PROJECT_BOOTSTRAP.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/REPAIR_AND_LEARNING.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/RESEARCH.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/RISK_AND_CHANGE.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "playbook/TASK_LIFECYCLE.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "templates/decision.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "templates/review.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "playbook/SOURCE_CATALOG.md",
+      "target": "templates/task.md",
+      "source_kind": "method"
+    },
+    {
+      "source": "work/handoffs/TASK-001-onboarding-handoff.md",
+      "target": "AGENTS.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-001-onboarding-handoff.md",
+      "target": "README.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-001-onboarding-handoff.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "target": "AGENTS.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "target": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-005-linked-route-selection-handoff.md",
+      "target": "README.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-005-linked-route-selection-handoff.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/handoffs/TASK-005-linked-route-selection-handoff.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "handoff"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "AGENTS.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "README.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "docs/CHECKS_AND_BALANCES.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "docs/CONTEXT.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "docs/WORKFLOW.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "legacy/MAP-System/Projects/ProjectUpdater/shared/steps-outline-guide.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/DECISIONS_AND_SAFETY.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/EMERGENCE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/HELPERS_AND_COMMUNICATION.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/HPOM_ROUTING.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/INFORMATION_LIFECYCLE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/PROJECT_BOOTSTRAP.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/REPAIR_AND_LEARNING.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/RESEARCH.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/RISK_AND_CHANGE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/SOURCE_CATALOG.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "playbook/TASK_LIFECYCLE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/decision.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/project-brief.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/repair-record.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/research-brief.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/retrospective.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/review.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/risk-register.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/roadmap.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "templates/task.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/decisions/DEC-001-target-operating-model-and-wezterm-decoupling.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/handoffs/TASK-001-onboarding-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/reports/TASK-003-digital-fungus-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/reviews/TASK-001-independent-review.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/reviews/TASK-001-onboarding-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/reviews/TASK-002-independent-review.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/tasks/TASK-001-first-run-onboarding-simulation.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/tasks/TASK-002-question-led-onboarding-simulation.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-003-digital-fungus-report.md",
+      "target": "work/tasks/TASK-003-digital-fungus-pilot.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "AGENTS.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "README.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "docs/CHECKS_AND_BALANCES.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "docs/CONTEXT.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "legacy/MAP-System/Projects/ProjectUpdater/shared/steps-outline-guide.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/DECISIONS_AND_SAFETY.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/EMERGENCE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/HELPERS_AND_COMMUNICATION.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/HPOM_ROUTING.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/INFORMATION_LIFECYCLE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/PROJECT_BOOTSTRAP.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/REPAIR_AND_LEARNING.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/RESEARCH.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/RISK_AND_CHANGE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/SOURCE_CATALOG.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "playbook/TASK_LIFECYCLE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/decision.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/project-brief.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/repair-record.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/research-brief.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/retrospective.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/review.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/risk-register.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/roadmap.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "templates/task.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/decisions/DEC-001-target-operating-model-and-wezterm-decoupling.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/handoffs/TASK-001-onboarding-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/reports/TASK-003-digital-fungus-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/reviews/TASK-001-onboarding-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/tasks/TASK-001-first-run-onboarding-simulation.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/tasks/TASK-002-question-led-onboarding-simulation.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/tasks/TASK-003-digital-fungus-pilot.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "target": "work/tasks/TASK-004-link-the-active-navigation-spine.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "AGENTS.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "README.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "docs/CHECKS_AND_BALANCES.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "docs/CONTEXT.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "legacy/MAP-System/Projects/ProjectUpdater/shared/steps-outline-guide.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/DECISIONS_AND_SAFETY.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/EMERGENCE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/HELPERS_AND_COMMUNICATION.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/HPOM_ROUTING.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/INFORMATION_LIFECYCLE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/PROJECT_BOOTSTRAP.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/REPAIR_AND_LEARNING.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/RESEARCH.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/RISK_AND_CHANGE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/SOURCE_CATALOG.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "playbook/TASK_LIFECYCLE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "templates/decision.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "templates/project-brief.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "templates/repair-record.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "templates/research-brief.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "templates/retrospective.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "templates/review.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "templates/roadmap.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "templates/task.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/decisions/DEC-001-target-operating-model-and-wezterm-decoupling.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/handoffs/TASK-001-onboarding-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/handoffs/TASK-005-linked-route-selection-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/handoffs/TASK-007-repair-record-link-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/reports/TASK-003-digital-fungus-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/reviews/TASK-005-linked-route-selection-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/reviews/TASK-007-independent-review.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/reviews/TASK-007-repair-record-link-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/tasks/TASK-003-digital-fungus-pilot.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "target": "work/tasks/TASK-004-link-the-active-navigation-spine.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "AGENTS.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "README.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "docs/CHECKS_AND_BALANCES.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "docs/CONTEXT.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "legacy/MAP-System/MAP_System/shared/hpom.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "legacy/MAP-System/Projects/ProjectUpdater/shared/steps-outline-guide.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/DECISIONS_AND_SAFETY.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/EMERGENCE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/HELPERS_AND_COMMUNICATION.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/HPOM_ROUTING.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/INFORMATION_LIFECYCLE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/PROJECT_BOOTSTRAP.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/REPAIR_AND_LEARNING.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/RESEARCH.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/RISK_AND_CHANGE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/SIMULATION_DESIGN.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/SOURCE_CATALOG.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "playbook/TASK_LIFECYCLE.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "templates/decision.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "templates/project-brief.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "templates/repair-record.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "templates/research-brief.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "templates/retrospective.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "templates/review.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "templates/roadmap.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "templates/task.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/decisions/DEC-001-target-operating-model-and-wezterm-decoupling.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/handoffs/TASK-001-onboarding-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/handoffs/TASK-005-linked-route-selection-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/handoffs/TASK-008-returning-agent-handoff.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/reports/TASK-003-digital-fungus-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/reports/TASK-007-post-repair-fungus-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/reviews/TASK-005-linked-route-selection-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/reviews/TASK-007-repair-record-link-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/reviews/TASK-008-returning-agent-report.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/tasks/TASK-003-digital-fungus-pilot.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "target": "work/tasks/TASK-004-link-the-active-navigation-spine.md",
+      "source_kind": "root"
+    },
+    {
+      "source": "work/reviews/TASK-001-independent-review.md",
+      "target": "README.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-independent-review.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-independent-review.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-independent-review.md",
+      "target": "work/handoffs/TASK-001-onboarding-handoff.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-independent-review.md",
+      "target": "work/reviews/TASK-001-onboarding-report.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "AGENTS.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "README.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "docs/CHECKS_AND_BALANCES.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "docs/CONTEXT.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "docs/WORKFLOW.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "playbook/SOURCE_CATALOG.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "playbook/TASK_LIFECYCLE.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-001-onboarding-report.md",
+      "target": "templates/handoff.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-independent-review.md",
+      "target": "AGENTS.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-independent-review.md",
+      "target": "README.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-independent-review.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-independent-review.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-independent-review.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-independent-review.md",
+      "target": "playbook/RESEARCH.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-independent-review.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "target": "AGENTS.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "target": "README.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "target": "docs/CONTEXT.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "target": "playbook/CONTROL_PLANE.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "target": "playbook/RESEARCH.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "target": "templates/handoff.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "README.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "playbook/INDEX.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "playbook/PROJECT_BOOTSTRAP.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "playbook/RESEARCH.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "playbook/RISK_AND_CHANGE.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "templates/project-brief.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "templates/research-brief.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "templates/risk-register.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-005-independent-review.md",
+      "target": "templates/roadmap.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/reviews/TASK-006-independent-review.md",
+      "target": "templates/repair-record.md",
+      "source_kind": "review"
+    },
+    {
+      "source": "work/tasks/TASK-001-first-run-onboarding-simulation.md",
+      "target": "AGENTS.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-001-first-run-onboarding-simulation.md",
+      "target": "README.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-001-first-run-onboarding-simulation.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-001-first-run-onboarding-simulation.md",
+      "target": "work/handoffs/TASK-001-onboarding-handoff.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-001-first-run-onboarding-simulation.md",
+      "target": "work/reviews/TASK-001-independent-review.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-001-first-run-onboarding-simulation.md",
+      "target": "work/reviews/TASK-001-onboarding-report.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-002-question-led-onboarding-simulation.md",
+      "target": "docs/FIRST_RUN.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-002-question-led-onboarding-simulation.md",
+      "target": "work/handoffs/TASK-002-question-led-onboarding-handoff.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-002-question-led-onboarding-simulation.md",
+      "target": "work/reviews/TASK-002-independent-review.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-002-question-led-onboarding-simulation.md",
+      "target": "work/reviews/TASK-002-question-led-onboarding-report.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-003-digital-fungus-pilot.md",
+      "target": "work/reports/TASK-003-digital-fungus-report.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-004-link-the-active-navigation-spine.md",
+      "target": "AGENTS.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-004-link-the-active-navigation-spine.md",
+      "target": "README.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-004-link-the-active-navigation-spine.md",
+      "target": "obsidian/README.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-004-link-the-active-navigation-spine.md",
+      "target": "state/CURRENT.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-004-link-the-active-navigation-spine.md",
+      "target": "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-005-linked-route-selection-simulation.md",
+      "target": "work/handoffs/TASK-005-linked-route-selection-handoff.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-005-linked-route-selection-simulation.md",
+      "target": "work/reviews/TASK-005-independent-review.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-005-linked-route-selection-simulation.md",
+      "target": "work/reviews/TASK-005-linked-route-selection-report.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-006-incident-triage-route-simulation.md",
+      "target": "work/handoffs/TASK-006-incident-triage-handoff.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-006-incident-triage-route-simulation.md",
+      "target": "work/reviews/TASK-006-incident-triage-report.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-006-incident-triage-route-simulation.md",
+      "target": "work/reviews/TASK-006-independent-review.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-006-incident-triage-route-simulation.md",
+      "target": "work/reviews/TASK-007-independent-review.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-007-repair-record-link-traversal.md",
+      "target": "work/handoffs/TASK-007-repair-record-link-handoff.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-007-repair-record-link-traversal.md",
+      "target": "work/reviews/TASK-007-independent-review.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-007-repair-record-link-traversal.md",
+      "target": "work/reviews/TASK-007-repair-record-link-report.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-008-returning-agent-recovery-simulation.md",
+      "target": "work/handoffs/TASK-008-returning-agent-handoff.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-008-returning-agent-recovery-simulation.md",
+      "target": "work/reviews/TASK-008-independent-review.md",
+      "source_kind": "task"
+    },
+    {
+      "source": "work/tasks/TASK-008-returning-agent-recovery-simulation.md",
+      "target": "work/reviews/TASK-008-returning-agent-report.md",
+      "source_kind": "task"
+    }
+  ],
+  "active_orphans": [
+    "templates/retrospective.md",
+    "work/reports/TASK-003-digital-fungus-report.md",
+    "work/reports/TASK-004-digital-fungus-after-linking-report.md",
+    "work/reports/TASK-007-post-repair-fungus-report.md",
+    "work/tasks/TASK-003-digital-fungus-pilot.md",
+    "work/tasks/TASK-004-link-the-active-navigation-spine.md"
+  ],
+  "hubs": [
+    {
+      "path": "playbook/INDEX.md",
+      "incoming": 7,
+      "outgoing": 16,
+      "kind": "method"
+    },
+    {
+      "path": "work/reviews/TASK-005-linked-route-selection-report.md",
+      "incoming": 1,
+      "outgoing": 14,
+      "kind": "review"
+    },
+    {
+      "path": "work/reviews/TASK-008-returning-agent-report.md",
+      "incoming": 3,
+      "outgoing": 10,
+      "kind": "review"
+    },
+    {
+      "path": "work/handoffs/2026-08-13-lean-navigation-and-simulation-tuning.md",
+      "incoming": 1,
+      "outgoing": 11,
+      "kind": "handoff"
+    },
+    {
+      "path": "AGENTS.md",
+      "incoming": 6,
+      "outgoing": 5,
+      "kind": "root"
+    },
+    {
+      "path": "state/CURRENT.md",
+      "incoming": 8,
+      "outgoing": 2,
+      "kind": "state"
+    },
+    {
+      "path": "docs/FIRST_RUN.md",
+      "incoming": 6,
+      "outgoing": 4,
+      "kind": "guide"
+    },
+    {
+      "path": "README.md",
+      "incoming": 4,
+      "outgoing": 4,
+      "kind": "root"
+    },
+    {
+      "path": "work/reviews/TASK-007-repair-record-link-report.md",
+      "incoming": 2,
+      "outgoing": 6,
+      "kind": "review"
+    },
+    {
+      "path": "playbook/SIMULATION_DESIGN.md",
+      "incoming": 3,
+      "outgoing": 4,
+      "kind": "method"
+    },
+    {
+      "path": "playbook/REPAIR_AND_LEARNING.md",
+      "incoming": 5,
+      "outgoing": 1,
+      "kind": "method"
+    },
+    {
+      "path": "playbook/PROJECT_BOOTSTRAP.md",
+      "incoming": 2,
+      "outgoing": 4,
+      "kind": "method"
+    }
+  ],
+  "first_run_reachability": {
+    "start": "docs/FIRST_RUN.md",
+    "active_notes": [
+      "AGENTS.md",
+      "README.md",
+      "docs/CHECKS_AND_BALANCES.md",
+      "docs/CONTEXT.md",
+      "docs/FIRST_RUN.md",
+      "playbook/CONTROL_PLANE.md",
+      "playbook/DECISIONS_AND_SAFETY.md",
+      "playbook/EMERGENCE.md",
+      "playbook/HELPERS_AND_COMMUNICATION.md",
+      "playbook/HPOM_ROUTING.md",
+      "playbook/INDEX.md",
+      "playbook/INFORMATION_LIFECYCLE.md",
+      "playbook/PROJECT_BOOTSTRAP.md",
+      "playbook/REPAIR_AND_LEARNING.md",
+      "playbook/RESEARCH.md",
+      "playbook/RISK_AND_CHANGE.md",
+      "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+      "playbook/SIMULATION_DESIGN.md",
+      "playbook/SOURCE_CATALOG.md",
+      "playbook/TASK_LIFECYCLE.md",
+      "state/CURRENT.md",
+      "templates/decision.md",
+      "templates/handoff.md",
+      "templates/project-brief.md",
+      "templates/repair-record.md",
+      "templates/research-brief.md",
+      "templates/review.md",
+      "templates/risk-register.md",
+      "templates/roadmap.md",
+      "templates/task.md",
+      "work/decisions/DEC-001-target-operating-model-and-wezterm-decoupling.md",
+      "work/handoffs/2026-08-13-lean-navigation-and-simulation-tuning.md",
+      "work/handoffs/TASK-008-returning-agent-handoff.md",
+      "work/reports/TASK-008-post-simulation-fungus-report.md",
+      "work/reviews/TASK-008-independent-review.md",
+      "work/reviews/TASK-008-returning-agent-report.md",
+      "work/tasks/TASK-008-returning-agent-recovery-simulation.md",
+      "work/tasks/TASK-008-simulated-prior-handoff.md"
+    ]
+  },
+  "resilience": [
+    {
+      "removed": "playbook/INDEX.md",
+      "active_notes_lost": [
+        "playbook/DECISIONS_AND_SAFETY.md",
+        "playbook/EMERGENCE.md",
+        "playbook/HPOM_ROUTING.md",
+        "playbook/INFORMATION_LIFECYCLE.md",
+        "playbook/PROJECT_BOOTSTRAP.md",
+        "playbook/REPAIR_AND_LEARNING.md",
+        "playbook/RESEARCH.md",
+        "playbook/RISK_AND_CHANGE.md",
+        "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+        "playbook/SOURCE_CATALOG.md",
+        "templates/decision.md",
+        "templates/project-brief.md",
+        "templates/repair-record.md",
+        "templates/research-brief.md",
+        "templates/risk-register.md",
+        "templates/roadmap.md"
+      ],
+      "loss_count": 16
+    },
+    {
+      "removed": "state/CURRENT.md",
+      "active_notes_lost": [
+        "README.md",
+        "work/decisions/DEC-001-target-operating-model-and-wezterm-decoupling.md",
+        "work/handoffs/2026-08-13-lean-navigation-and-simulation-tuning.md",
+        "work/handoffs/TASK-008-returning-agent-handoff.md",
+        "work/reports/TASK-008-post-simulation-fungus-report.md",
+        "work/reviews/TASK-008-independent-review.md",
+        "work/reviews/TASK-008-returning-agent-report.md",
+        "work/tasks/TASK-008-returning-agent-recovery-simulation.md",
+        "work/tasks/TASK-008-simulated-prior-handoff.md"
+      ],
+      "loss_count": 9
+    },
+    {
+      "removed": "work/handoffs/2026-08-13-lean-navigation-and-simulation-tuning.md",
+      "active_notes_lost": [
+        "README.md",
+        "work/handoffs/TASK-008-returning-agent-handoff.md",
+        "work/reports/TASK-008-post-simulation-fungus-report.md",
+        "work/reviews/TASK-008-independent-review.md",
+        "work/reviews/TASK-008-returning-agent-report.md",
+        "work/tasks/TASK-008-returning-agent-recovery-simulation.md",
+        "work/tasks/TASK-008-simulated-prior-handoff.md"
+      ],
+      "loss_count": 7
+    },
+    {
+      "removed": "playbook/PROJECT_BOOTSTRAP.md",
+      "active_notes_lost": [
+        "templates/decision.md",
+        "templates/project-brief.md"
+      ],
+      "loss_count": 2
+    },
+    {
+      "removed": "work/reviews/TASK-008-independent-review.md",
+      "active_notes_lost": [
+        "work/handoffs/TASK-008-returning-agent-handoff.md"
+      ],
+      "loss_count": 1
+    },
+    {
+      "removed": "playbook/ROADMAP_AND_PROJECTUPDATER.md",
+      "active_notes_lost": [
+        "templates/roadmap.md"
+      ],
+      "loss_count": 1
+    },
+    {
+      "removed": "playbook/RESEARCH.md",
+      "active_notes_lost": [
+        "templates/research-brief.md"
+      ],
+      "loss_count": 1
+    },
+    {
+      "removed": "playbook/REPAIR_AND_LEARNING.md",
+      "active_notes_lost": [
+        "templates/repair-record.md"
+      ],
+      "loss_count": 1
+    }
+  ]
+}
