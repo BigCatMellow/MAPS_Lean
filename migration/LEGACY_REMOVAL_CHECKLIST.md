@@ -69,8 +69,8 @@ migration/reference material only.
 - [x] run-manifest relationship to AGI documented.
 - [x] implementer evidence claim vs reviewer verification distinction documented for high-risk work.
 
-The newly merged rules are centered in `playbook/EXECUTION_INTEGRITY.md` and
-linked from `TASK_LIFECYCLE.md` and the playbook index.
+The merged rules are centered in `playbook/EXECUTION_INTEGRITY.md` and linked
+from `TASK_LIFECYCLE.md` and the playbook index.
 
 ## 4. Runtime promotion
 
@@ -78,55 +78,55 @@ Legacy deletion does not require every optional feature to be active. It does
 require a deliberate home for all P0 behavior.
 
 - [x] migration snapshots are intentionally retained until active runtime promotion completes.
-- [ ] active runtime does not import from `legacy/`.
-- [ ] active runtime does not import executable code from a migration snapshot.
-- [ ] task state has one canonical mutable store.
-- [ ] atomic claim race has exactly one winner.
-- [ ] owner vs active claimant semantics are preserved.
-- [ ] submission author is durable enough to enforce no-self-review.
-- [ ] required AGI gate protects READY.
-- [ ] review transition requires required evidence/review.
-- [ ] recovery cannot silently steal a live claim.
-- [ ] hcom remains transport, not task authority.
-- [ ] LangGraph checkpoints remain separate from task truth.
-- [ ] RnS does not require WezTerm to recover a session.
+- [x] active state runtime imports nothing from `legacy/`.
+- [x] active state runtime imports no executable code from a migration snapshot.
+- [x] promoted task state has one canonical mutable SQLite store.
+- [x] atomic claim race has exactly one winner in active regression tests.
+- [x] owner vs active claimant semantics are preserved.
+- [x] submission author is durable enough to enforce no-self-review.
+- [x] required structural AGI gate protects READY.
+- [x] review transition requires durable submission evidence and the required review owner.
+- [ ] recovery cannot silently steal a live claim across the full RnS path.
+- [ ] hcom active adapter preserves transport-not-authority boundary.
+- [ ] LangGraph active router uses checkpoints separate from task truth.
+- [ ] RnS active recovery works without mandatory WezTerm.
 
-These unchecked items are runtime-promotion gates, not evidence that the legacy
-audit is incomplete.
+TASK-009 satisfies the state-layer promotion gates. The remaining unchecked
+items belong to later routing/communication/recovery slices.
 
 ## 5. Test preservation
 
 At minimum, active or migration tests must continue to cover:
 
-- [x] duplicate task-ID prevention / allocation invariant.
-- [x] atomic claim exclusivity.
-- [x] lease expiry and orphan recovery.
-- [x] no-self-review.
-- [x] continuity-aware reviewer independence.
-- [x] READY/promotion refusal for incomplete work; AGI-specific validator implementation remains future work.
-- [x] output/write-scope enforcement.
-- [x] pre-dispatch authority/policy gates.
-- [x] release/verification gate.
-- [x] RnS limit/stale-session recovery.
-- [x] run-manifest staleness/scope checks.
-- [x] context packet structural validation.
-- [x] criterion evidence + independent verdict separation.
+- [x] duplicate task-ID prevention / allocation invariant — active state test.
+- [x] atomic claim exclusivity — active state test.
+- [x] lease expiry and claim recovery — active state test; full RnS recovery remains pending.
+- [x] no-self-review — active state test.
+- [x] continuity-aware reviewer independence — preserved migration test; active continuity-lineage port remains later work.
+- [x] AGI READY/promotion refusal for incomplete work — active state test.
+- [x] active output-path reservation conflict — active state test; filesystem run-scope enforcement remains later work.
+- [x] pre-dispatch authority/policy gates — preserved migration tests; active policy port pending.
+- [x] release/verification gate — preserved migration test; active state currently reaches DONE through review rather than a separate release layer.
+- [x] RnS limit/stale-session recovery — preserved migration tests; active port pending.
+- [x] run-manifest staleness/scope checks — preserved migration tests; active port pending.
+- [x] context packet structural validation — preserved migration test/template.
+- [x] criterion evidence + independent verdict separation — preserved source plus active durable submission/review separation.
 - [x] derived read-model behavior is covered by session-replay tests/design; Lean rewrite must preserve read-only authority.
-- [x] local helper/Aider scope boundaries.
+- [x] local helper/Aider scope boundaries — preserved migration tests; active helper port pending.
 
-Preserved tests are migration regression evidence. They are not considered
-passing Lean runtime tests until their behavior is ported into active runtime.
+Preserved tests remain migration regression evidence until their subsystem is
+promoted. The active state subset currently passes 15 focused tests.
 
 ## 6. Reference cleanup
 
 Run a repository search before deletion.
 
-- [ ] no active README/playbook/template points agents to `legacy/` as required reading.
-- [ ] no active code imports `legacy` modules.
-- [ ] no active test requires legacy runtime state.
-- [ ] setup/install docs do not require legacy paths.
+- [x] active README/playbook/template does not require reading `legacy/` for ordinary state-runtime execution.
+- [x] active `runtime/` code imports no `legacy` modules.
+- [x] active state tests require no legacy runtime state.
+- [ ] setup/install docs are fully independent of legacy/migration references for every subsystem.
 - [x] migration docs clearly say snapshots are source/reference only.
-- [ ] references intentionally kept for provenance are labeled historical and are not execution dependencies.
+- [ ] references intentionally kept for provenance receive the final historical/non-execution labeling sweep.
 
 Suggested checks:
 
@@ -168,7 +168,7 @@ Before deleting `legacy/`, record:
 Audit complete: YES
 Second preservation snapshot complete: YES
 P0 behavior has an active or preserved destination: YES
-Active legacy execution dependencies: <resolve reference-cleanup/runtime gates above>
+Active legacy execution dependencies: <resolve remaining runtime/reference gates above>
 Known deferred optional features: see LEGACY_PROMOTION_LEDGER.md
 Removal approved by operator: YES / NO
 Removal commit/PR: <link or SHA>
