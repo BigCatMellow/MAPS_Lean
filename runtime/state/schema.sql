@@ -191,8 +191,8 @@ CREATE TABLE IF NOT EXISTS continuity_links (
 CREATE INDEX IF NOT EXISTS idx_continuity_replacement ON continuity_links(replacement_id);
 
 -- Optional structured evidence. Recording one criterion claim opts the current
--- submission into criterion-level verification; the implementer's claim is
--- append-only and reviewer verdicts live separately.
+-- submission into criterion-level verification; implementer claims and reviewer
+-- verdicts are separate append-only audit records.
 CREATE TABLE IF NOT EXISTS submission_criterion_claims (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
@@ -216,3 +216,27 @@ CREATE TABLE IF NOT EXISTS submission_criterion_verdicts (
     notes TEXT NOT NULL DEFAULT '',
     created_at TEXT NOT NULL
 );
+
+CREATE TRIGGER IF NOT EXISTS trg_criterion_claims_no_update
+BEFORE UPDATE ON submission_criterion_claims
+BEGIN
+    SELECT RAISE(ABORT, 'criterion claims are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_criterion_claims_no_delete
+BEFORE DELETE ON submission_criterion_claims
+BEGIN
+    SELECT RAISE(ABORT, 'criterion claims are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_criterion_verdicts_no_update
+BEFORE UPDATE ON submission_criterion_verdicts
+BEGIN
+    SELECT RAISE(ABORT, 'criterion verdicts are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_criterion_verdicts_no_delete
+BEFORE DELETE ON submission_criterion_verdicts
+BEGIN
+    SELECT RAISE(ABORT, 'criterion verdicts are immutable');
+END;
