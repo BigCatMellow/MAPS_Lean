@@ -11,8 +11,7 @@ It starts with [AGENTS.md](AGENTS.md) and tells you exactly when to read current
 the control plane, and a playbook method. Do not construct a second orientation
 sequence from this README.
 
-Resuming after a session break? Read [Current State](state/CURRENT.md) first;
-it points to the latest durable coordination handoff.
+Resuming after a session break? Read [Current State](state/CURRENT.md) first.
 
 For a project that spans sessions, multiple tasks, or multiple agents, use
 [Project Bootstrap](playbook/PROJECT_BOOTSTRAP.md) before creating the first
@@ -20,14 +19,49 @@ implementation task. It follows a simple planning rule: inspect reality, define
 DONE, plan backward, challenge the draft, then execute forward and adapt from
 evidence.
 
-Once oriented, create a task record from [the task template](templates/task.md) before a
-multi-agent or consequential change and put reviews, decisions, and handoffs
-in `work/` using the templates.
+Once oriented, create a task record from [the task template](templates/task.md)
+before a multi-agent or consequential change and put reviews, decisions, and
+handoffs in `work/` using the templates.
 
-Setting up the retained runtime on a fresh clone? Follow
-[Control-Plane Setup](docs/CONTROL_PLANE_SETUP.md) for SQLite, LangGraph, and
-hcom installation, smoke tests, local state layout, and implementation
-boundaries.
+For a fresh runtime setup, start with [Fresh Clone Setup](docs/FRESH_INSTALL.md).
+For component-level installation and migration details, use
+[Control-Plane Setup](docs/CONTROL_PLANE_SETUP.md).
+
+## Runtime review stack
+
+The current stacked branches implement:
+
+- **SQLite task truth + AGI gate** — canonical task lifecycle, atomic claims,
+  leases, durable submission authorship, review separation, and rework.
+- **LangGraph routing** — read-first recommendations using explicit worker
+  capability profiles and policy gates; checkpoint DB is separate from task truth.
+- **hcom adapter** — project-isolated messaging/session transport; no task authority.
+- **RnS recovery** — deterministic recovery of already-active, explicitly bound
+  sessions with bounded retries and no WezTerm requirement.
+- **Bounded local helpers** — Ollama text/draft work and scoped Aider editing;
+  helpers cannot approve or complete parent tasks.
+- **Fresh-clone setup/smoke** — preview-first installer and disposable end-to-end
+  lifecycle verification.
+
+GitHub Actions has verified the combined stack with **64/64 passing tests** plus
+a disposable SQLite/LangGraph smoke. Independent review and merge are intentionally
+still pending; `main` should not be described as containing this whole stack yet.
+
+## Core responsibility boundaries
+
+```text
+SQLite      = task truth / ownership / evidence
+LangGraph   = routing recommendation + checkpoint memory
+hcom        = communication / session control
+RnS         = recovery of known active sessions
+helpers     = bounded delegated work
+Markdown    = durable human-readable project record
+WezTerm     = optional presentation
+```
+
+Capability never grants authority. A router recommendation, active hcom session,
+helper result, or successful recovery command does not by itself change MAPS task
+truth.
 
 ## What is deliberately retained
 
@@ -36,23 +70,6 @@ boundaries.
 - Risk-proportionate evidence and release checks.
 - Compact handoffs and durable decisions when work spans sessions or tools.
 
-## Runtime architecture retained
-
-- **SQLite** is the canonical mutable task ledger: atomic claims, leases,
-  submissions, review separation, and task events. It prevents two agents from
-  successfully claiming the same task at once.
-- **LangGraph** is the read-first dispatcher: it evaluates the task graph,
-  policy, availability, helper capacity, and approval gates, then recommends
-  the next route (`review`, `claim_or_assign`, `wait`, or `policy_gate`). Its
-  checkpoint state is kept separately from MAPS task truth. It does not replace
-  the Markdown roadmap or make autonomous product decisions.
-- **RnS (Rise & Shine)** is the deterministic, reboot-safe limit/restart
-  supervisor. Durable handoffs remain its foundation; it resumes or nudges a
-  stopped session after provider limits reset.
-- **hcom** remains the live communication and session-control bus required by
-  the current RnS implementation and useful for cross-provider coordination.
-  hcom's own local state is transport/session state, not MAPS task authority.
-
 ## What is deliberately removed from the active default
 
 - A required WezTerm multiplexer and fixed visible startup roster.
@@ -60,24 +77,20 @@ boundaries.
   terminal noise.
 - Ceremony for small, low-risk, single-agent edits.
 
-Use native Codex or Claude agent spawning where possible. hcom remains the
-current durable session-control transport; WezTerm is optional presentation.
-Neither grants authority.
-
 ## Layout
 
 | Path | Purpose |
 | --- | --- |
-| [AGENTS.md](AGENTS.md) | The active operating contract. |
-| `docs/` | Short workflow, setup, and quality guidance. |
-| `playbook/` | Active reusable methods: project bootstrap, roadmap/checklists, research, risk, discovery, and routing. |
-| `templates/` | Task, review, handoff, and decision records. |
-| [state/CURRENT.md](state/CURRENT.md) | Compact shared continuation context. |
+| [AGENTS.md](AGENTS.md) | Active operating contract. |
+| `runtime/` | Provider-neutral runtime implementation. |
+| `tests/` | Active runtime regression tests. |
+| `docs/` | Workflow, setup, and quality guidance. |
+| `playbook/` | Reusable methods: planning, task lifecycle, research, risk, routing, repair. |
+| `templates/` | Task, review, handoff, decision, context, worker/task examples. |
+| [state/CURRENT.md](state/CURRENT.md) | Compact shared continuation state. |
 | `work/` | Active task records and durable outputs. |
-| `legacy/` | Original source, historical evidence, installer, and reference material. |
+| `migration/` | Curated source/evidence retained during promotion. |
+| `legacy/` | Historical original source; not an execution dependency of the new stack. |
 
-The original project working state was copied intact as far as filesystem
-consistency allowed; a transient SQLite temporary file disappeared during the
-copy and is not needed by this lean workflow. `legacy/` is a source library,
-not a dismissal of the original work: the MAP runtime remains retained while
-the startup cockpit is being decoupled from WezTerm.
+`legacy/` is intentionally still present. Delete it only after deferred review/
+merge, the final dependency/privacy sweep, and explicit operator removal approval.

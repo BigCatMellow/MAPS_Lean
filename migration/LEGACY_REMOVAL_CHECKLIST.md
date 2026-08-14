@@ -1,177 +1,164 @@
 # Legacy Removal Checklist
 
-Use this before deleting the top-level `legacy/` directory.
+Use this before deleting top-level `legacy/`.
 
-Removal is allowed only when legacy is no longer required for ordinary MAPS
-execution, migration, or interpretation.
+**Current answer: DO NOT DELETE YET.** The useful runtime/knowledge is preserved,
+the replacement stack is verified, and the current preservation privacy sweep
+passed. Remaining blockers are deferred independent review/merge, the final
+post-merge reference/dependency sweep, and explicit operator deletion approval.
 
-## 1. Knowledge extraction
+## 1. Knowledge and source extraction
 
-- [x] Root policy/system documents reviewed for useful rules.
-- [x] Runtime/control-plane directories reviewed.
-- [x] `scripts/` inventoried and mapped to behavior/tests.
-- [x] `tests/` inventoried; safety-critical regression families identified.
-- [x] `notes/` inventoried; unique operating guides reviewed.
-- [x] representative repairs and retrospectives reviewed for incident-backed lessons.
-- [x] important audits/measurements/experiments reviewed, including negative results.
-- [x] large generated datasets explicitly classified rather than falsely described as line-by-line reads.
-- [x] presentation/UI/WezTerm material separated from authority/runtime behavior.
-- [x] durable findings recorded in `LEGACY_KNOWLEDGE_AUDIT.md`.
-- [x] actionable disposition recorded in `LEGACY_PROMOTION_LEDGER.md`.
+- [x] Root policy/system documents audited.
+- [x] Runtime/control-plane code inventoried and deep-read where behavior was unique.
+- [x] Scripts/tests/notes mapped to useful invariants and regression evidence.
+- [x] Repairs/retros/audits/experiments mined, including negative results.
+- [x] Large historical/generated datasets explicitly classified rather than falsely described as line-by-line reads.
+- [x] Presentation/UI/WezTerm material separated from authority/runtime behavior.
+- [x] Durable findings recorded in `LEGACY_KNOWLEDGE_AUDIT.md`.
+- [x] Dispositions recorded in `LEGACY_PROMOTION_LEDGER.md`.
+- [x] Runtime source preserved under `migration/legacy-runtime-source/`.
+- [x] Second-pass execution-integrity source preserved under `migration/legacy-knowledge-source/`.
 
-## 2. Source preservation
+## 2. Active Lean rule coverage
 
-First extraction:
-
-- [x] SQLite schema / claims / review authorship preserved.
-- [x] LangGraph source preserved.
-- [x] pre-dispatch policy / scope validation preserved.
-- [x] RnS/recovery/resilience source preserved.
-- [x] local Ollama/Aider wrappers preserved.
-- [x] migration/install knowledge preserved.
-- [x] focused core tests preserved.
-
-Second extraction:
-
-- [x] run manifest source + tests preserved.
-- [x] criterion-level submission evidence source + tests preserved.
-- [x] continuity-aware review routing source + tests preserved.
-- [x] session replay source + design + tests preserved.
-- [x] intake/decomposition source + tests preserved as rewrite reference.
-- [x] context packet validator/template + tests preserved.
-- [x] decision/event/research/review validators + tests preserved.
-- [x] conflict behavior preserved as rewrite reference.
-- [x] Git global-operation lock behavior/test/formal invariant preserved as rewrite reference.
-- [x] optional cost-governance source/test preserved as reference.
-- [x] selected measured audit/experiment evidence preserved.
-
-Second-pass source lives under `migration/legacy-knowledge-source/` and is
-migration/reference material only.
-
-## 3. Active Lean rule coverage
-
-- [x] consequential human/operator authority.
+- [x] consequential operator authority.
 - [x] one accountable owner.
-- [x] bounded helpers.
 - [x] AGI `READY` gate.
-- [x] output paths/write boundaries.
-- [x] decision authority separated from technical capability.
+- [x] output/write boundaries.
+- [x] capability != authority.
 - [x] verification/evidence/review/escalation requirements.
-- [x] repair severity and repeat-failure learning.
-- [x] SQLite/LangGraph/hcom responsibility separation.
-- [x] durable handoff requirement for long-running work.
-- [x] explicit context packet / trigger-gated context rule merged.
-- [x] typed operational failure rule merged.
-- [x] semantic reviewer-independence / continuity lineage rule merged.
-- [x] conflict-freeze rule merged.
-- [x] diagnostic-vs-repair authority rule merged.
-- [x] security-specific review trigger merged.
-- [x] run-manifest relationship to AGI documented.
-- [x] implementer evidence claim vs reviewer verification distinction documented for high-risk work.
+- [x] context packet / trigger-gated context.
+- [x] typed failure guidance.
+- [x] conflict freeze.
+- [x] diagnostic vs repair authority.
+- [x] security-specific review trigger.
+- [x] run-manifest relationship to AGI.
+- [x] implementer evidence vs reviewer verification.
+- [x] semantic reviewer-independence/continuity rule.
 
-The newly merged rules are centered in `playbook/EXECUTION_INTEGRITY.md` and
-linked from `TASK_LIFECYCLE.md` and the playbook index.
+## 3. Replacement runtime — current stacked branch
 
-## 4. Runtime promotion
+The PR #9→TASK-015 review stack now contains deliberate Lean homes for the P0
+runtime behavior:
 
-Legacy deletion does not require every optional feature to be active. It does
-require a deliberate home for all P0 behavior.
+- [x] one canonical SQLite task store.
+- [x] atomic claims, leases, owner/claimant separation, and stale-lease recovery.
+- [x] structural AGI gate protects `READY` in the same write transaction.
+- [x] active output paths reserve conflicting task scope.
+- [x] explicit policy flags + operator approval gate consequential dispatch.
+- [x] durable halt state blocks routing lanes without mutating task truth.
+- [x] LangGraph is read-first and checkpoints into a separate SQLite DB.
+- [x] hcom adapter is project-isolated transport with no task-authority dependency.
+- [x] RnS verifies ACTIVE task + current claimant before recovery and cannot steal a claim.
+- [x] RnS has no mandatory WezTerm dependency.
+- [x] Ollama/Aider helpers require ACTIVE parent scope and cannot complete/review/approve parent work.
+- [x] fresh-clone installer/smoke uses only active runtime code.
+- [x] high-risk/resumable runs can freeze immutable task/context/scope manifests.
+- [x] run staleness detects changed task definition and changed/missing context.
+- [x] Git run-scope verification reports out-of-scope changes without auto-reverting them.
+- [x] continuity lineage is enforced by router, review claim, and final review transition.
+- [x] optional criterion-level implementer claims and reviewer verdicts remain separate.
 
-- [x] migration snapshots are intentionally retained until active runtime promotion completes.
-- [ ] active runtime does not import from `legacy/`.
-- [ ] active runtime does not import executable code from a migration snapshot.
-- [ ] task state has one canonical mutable store.
-- [ ] atomic claim race has exactly one winner.
-- [ ] owner vs active claimant semantics are preserved.
-- [ ] submission author is durable enough to enforce no-self-review.
-- [ ] required AGI gate protects READY.
-- [ ] review transition requires required evidence/review.
-- [ ] recovery cannot silently steal a live claim.
-- [ ] hcom remains transport, not task authority.
-- [ ] LangGraph checkpoints remain separate from task truth.
-- [ ] RnS does not require WezTerm to recover a session.
+These checks describe the stacked review branch. They do **not** mean the stack
+is already merged to `main`.
 
-These unchecked items are runtime-promotion gates, not evidence that the legacy
-audit is incomplete.
+## 4. Integrated verification
 
-## 5. Test preservation
+Latest full-stack GitHub Actions run: `31847038026`.
 
-At minimum, active or migration tests must continue to cover:
+- [x] Python 3.12 active dependency install passed.
+- [x] **79/79 tests passed** with `ResourceWarning` treated as error.
+- [x] SQLite concurrency/AGI/claim/review tests passed.
+- [x] real LangGraph SQLite checkpoint integration passed.
+- [x] hcom fake-CLI transport tests passed without live side effects.
+- [x] RnS recovery/backoff/suppression tests passed.
+- [x] bounded Ollama/Aider fake-tool tests passed.
+- [x] run-manifest/context-hash/staleness/scope tests passed.
+- [x] SQLite mechanically rejected run-manifest/context mutation.
+- [x] continuity and criterion-evidence review gates passed.
+- [x] disposable smoke reached `DONE` through guarded lifecycle.
+- [x] disposable smoke verified FK=ON, WAL, 5000ms busy timeout.
+- [x] LangGraph smoke created a DB separate from task truth.
+- [x] installer Bash syntax and preview execution passed.
 
-- [x] duplicate task-ID prevention / allocation invariant.
-- [x] atomic claim exclusivity.
-- [x] lease expiry and orphan recovery.
-- [x] no-self-review.
-- [x] continuity-aware reviewer independence.
-- [x] READY/promotion refusal for incomplete work; AGI-specific validator implementation remains future work.
-- [x] output/write-scope enforcement.
-- [x] pre-dispatch authority/policy gates.
-- [x] release/verification gate.
-- [x] RnS limit/stale-session recovery.
-- [x] run-manifest staleness/scope checks.
-- [x] context packet structural validation.
-- [x] criterion evidence + independent verdict separation.
-- [x] derived read-model behavior is covered by session-replay tests/design; Lean rewrite must preserve read-only authority.
-- [x] local helper/Aider scope boundaries.
+## 5. Execution-integrity disposition
 
-Preserved tests are migration regression evidence. They are not considered
-passing Lean runtime tests until their behavior is ported into active runtime.
+- [x] **Run manifest:** implemented in smaller active form for high-risk/resumable work.
+- [x] **Continuity-lineage reviewer independence:** implemented at routing and canonical review transitions.
+- [x] **General filesystem run scope:** implemented as frozen writable scope + read-only Git verifier.
+- [x] **Criterion evidence:** implemented as an optional mode; ordinary tasks retain the simpler review path.
+- [x] **Separate release state machine:** rejected for Lean core.
 
-## 6. Reference cleanup
+Legacy's `APPROVED → RELEASED` subsystem largely reconciled multiple task/file
+mirrors and an old mandatory checklist. Lean has one task truth and risk-tiered
+review. For `OPERATOR_VISIBLE_RELEASE_CHECK`, the final approved
+review/completion summary is the durable operator-visible release summary.
+Actual destructive/external/security-sensitive actions still require explicit
+operator approval. A real deploy/release operation should be its own task or
+policy-gated action.
 
-Run a repository search before deletion.
+## 6. Current preservation privacy / secret sweep
 
-- [ ] no active README/playbook/template points agents to `legacy/` as required reading.
-- [ ] no active code imports `legacy` modules.
-- [ ] no active test requires legacy runtime state.
-- [ ] setup/install docs do not require legacy paths.
-- [x] migration docs clearly say snapshots are source/reference only.
-- [ ] references intentionally kept for provenance are labeled historical and are not execution dependencies.
+See [`PRESERVATION_PRIVACY_SWEEP.md`](PRESERVATION_PRIVACY_SWEEP.md).
 
-Suggested checks:
+- [x] current indexed repository search found no high-signal OpenAI/Anthropic,
+  GitHub PAT, AWS, Google, Slack, Hugging Face, bearer, or private-key patterns
+  checked by the sweep.
+- [x] no indexed `/home/` or `C:\\Users\\` machine-private home path found.
+- [x] recursive trees for both curated migration snapshots contain no `.env`,
+  private-key file, live `.db`/SQLite sidecar, `.sqlite`, `.jsonl`, `.log`,
+  settings/status/state JSON, PNG/JPG, live transcript, inbox, or message-store
+  artifact identified by the sweep.
+- [x] session-related preserved files are source/design/test material, not live
+  copied hcom transcript/session state.
+
+Scope limitation: this is a current-tree/snapshot audit, **not** a forensic scan
+of every historical Git object or external/local state. If evidence later
+suggests a credential was committed historically, use a dedicated Git-history
+secret scanner and rotate the credential.
+
+## 7. Reference cleanup before legacy deletion
+
+Perform this after the reviewed runtime reaches `main`, so the result reflects
+the actual final active tree:
 
 ```bash
 rg -n 'legacy/' --glob '!legacy/**'
-rg -n 'migration/legacy-runtime-source|migration/legacy-knowledge-source' runtime tests playbook docs templates
+rg -n 'migration/legacy-runtime-source|migration/legacy-knowledge-source' runtime tests playbook docs templates scripts
 rg -n 'MAP_System|MultiAgentProject' --glob '!legacy/**' --glob '!migration/legacy-runtime-source/**' --glob '!migration/legacy-knowledge-source/**'
 ```
 
-Review each result; not every textual provenance reference is a blocker.
+Then confirm:
 
-## 7. Data handling
+- [ ] no active runtime imports `legacy` or migration source.
+- [ ] no active test requires legacy runtime state.
+- [ ] fresh install/setup requires no legacy/migration execution path.
+- [ ] remaining provenance references are clearly historical/non-executable.
 
-- [x] old `map.db`, WAL, SHM and runtime state were not copied as Lean canonical state.
-- [x] old task graph was not promoted as another mutable source of truth.
-- [x] old event log is not required for Lean startup.
-- [x] migration extraction did not intentionally duplicate hcom transcript/message history.
-- [x] hcom message history remains outside MAPS task authority.
-- [ ] selected evidence documents receive a final secret/privacy check before legacy deletion.
+## 8. Optional systems already decided
 
-## 8. Optional systems explicitly decided
+- [x] full Library/Librarian: defer unless new measurements justify it.
+- [x] task fingerprint/memory retrieval: experimental; negative/mixed evidence preserved.
+- [x] continuous paid Discovery Agent: reject; use bounded event-triggered discovery.
+- [x] cost governance: optional when autonomous paid dispatch makes it useful.
+- [x] formal verification beyond focused state/property tests: optional.
+- [x] CommandCenterUI/Mission Control implementation: not Lean core.
+- [x] WezTerm cockpit: not required.
 
-Deletion does **not** mean these must be implemented. Their disposition is now
-recorded in `LEGACY_PROMOTION_LEDGER.md`:
-
-- [x] full Library/Librarian: `DEFER unless new measurements justify it`.
-- [x] task fingerprint/memory retrieval: `EXPERIMENTAL; negative/mixed results preserved`.
-- [x] continuous Discovery Agent: `REJECT; use bounded event-triggered discovery`.
-- [x] cost governance: `OPTIONAL; build when autonomous paid dispatch makes it useful`.
-- [x] formal verification beyond state-machine/property tests: `OPTIONAL`.
-- [x] CommandCenterUI/Mission Control implementation: `NOT PART OF LEAN CORE`.
-- [x] WezTerm cockpit: `NOT REQUIRED`.
-
-## 9. Final removal decision
-
-Before deleting `legacy/`, record:
+## 9. Merge/removal gate
 
 ```text
-Audit complete: YES
-Second preservation snapshot complete: YES
-P0 behavior has an active or preserved destination: YES
-Active legacy execution dependencies: <resolve reference-cleanup/runtime gates above>
-Known deferred optional features: see LEGACY_PROMOTION_LEDGER.md
-Removal approved by operator: YES / NO
-Removal commit/PR: <link or SHA>
+Legacy audit complete: YES
+Useful source/knowledge preserved: YES
+Replacement runtime reviewed: NO — deferred by operator
+Replacement runtime merged to main: NO
+Full integrated verification green: YES — run 31847038026
+Execution-integrity follow-ups disposed: YES
+Current preservation privacy/secret sweep: YES — PASS
+Final dependency/reference sweep: NO — perform after reviewed merge
+Removal approved by operator: NO
+Removal PR/commit: none
 ```
 
-Do not delete `legacy/` while any required answer above is unknown.
+Do not delete `legacy/` while any required `NO` remains.

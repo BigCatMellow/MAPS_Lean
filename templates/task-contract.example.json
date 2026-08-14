@@ -1,0 +1,27 @@
+{
+  "title": "Implement <observable result>",
+  "outcome": "<state that must become true>",
+  "task_type": "IMPLEMENTATION",
+  "owner": "<accountable owner>",
+  "risk": "MEDIUM",
+  "decision_authority": "<implementation choices the owner may make>",
+  "verification": "<named test, command, reproduction, or inspection>",
+  "evidence_expected": "<evidence that must remain>",
+  "review_required": "INDEPENDENT_REVIEW",
+  "escalation": "<conditions requiring stop/research/operator decision>",
+  "inputs": ["<required input>"],
+  "sources": ["<authoritative source>"],
+  "dependencies": [],
+  "output_paths": ["<prospective write path>"],
+  "non_goals": ["<explicit boundary>"],
+  "acceptance_criteria": ["<observable pass/fail criterion>"],
+  "stop_conditions": ["<foreseeable condition that must stop execution>"],
+  "policy": {
+    "requires_operator_approval": false,
+    "destructive_action": false,
+    "external_side_effect": false,
+    "security_sensitive": false,
+    "broad_architecture": false,
+    "paid_execution": true
+  }
+}

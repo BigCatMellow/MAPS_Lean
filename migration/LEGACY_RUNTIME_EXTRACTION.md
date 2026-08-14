@@ -1,6 +1,6 @@
 # Legacy Runtime Extraction Plan
 
-Status: `IN_PROGRESS`
+Status: `PROMOTED_IN_REVIEW_STACK`
 Source commit: `77723d16f77efc5e1fe03a74adab920dc7534f16`
 Source root: `legacy/MAP-System/MAP_System/`
 Staging root: `migration/legacy-runtime-source/`
@@ -9,94 +9,104 @@ Staging root: `migration/legacy-runtime-source/`
 
 Preserve the minimum proven implementation and tests needed to rebuild the MAPS Lean control plane before `legacy/` is removed.
 
-This is not an attempt to keep the old command center. The target remains provider-neutral Lean runtime with SQLite task truth, bounded routing, hcom transport, RnS recovery, AGI readiness gates, and optional local helpers.
+The retained behavior has now been promoted into a provider-neutral **stacked review branch series**. These changes are not yet on `main`; independent review/merge is intentionally deferred by operator instruction.
 
 ## Classification
 
-| Area | Preserved source | Lean target | Action |
-| --- | --- | --- | --- |
-| SQLite task lifecycle | `db/`, `migration/schema.sql` | `runtime/state/` | ADAPT + PORT TESTS |
-| Task allocator/transitions | `scripts/map_task.py`, `promote_task.py`, `release_task.py` | `runtime/state/` + CLI | ADAPT + AGI GATE |
-| Review separation | claims/review authorship + tests | state/review API | PRESERVE INVARIANT |
-| Scope/write boundary | `verify_run_scope.py`, graph validator | AGI/task boundary validator | MERGE WITH AGI |
-| Pre-dispatch policy | `pre_dispatch_policy.py` | `runtime/policy/` | SIMPLIFY, KEEP HARD GATES |
-| Halt state | `halt_state.py` | `runtime/policy/halt.py` | ADAPT |
-| LangGraph routing | `graph/runner.py`, policy/role config | `runtime/routing/` | ADAPT |
-| LangGraph checkpoints | `db/checkpointer.py` | separate checkpoint DB | REIMPLEMENT WITH OFFICIAL SAVER |
-| Agent reconciliation | `reconcile_agents.py` | runtime identity adapter | REDESIGN AROUND ONE DURABLE ID MODEL |
-| RnS / limits | `limit_watcher.py` | `runtime/recovery/` | PRESERVE DETECTION/BACKOFF; REMOVE WEZTERM |
-| Liveness | `liveness_reaper.py` | `runtime/recovery/` | ADAPT |
-| Durable execution | `durable_execution.py` | `runtime/recovery/` | ADAPT |
-| Resilience / DLQ | resilience + dead-letter scripts | `runtime/recovery/` | PORT IF STILL NEEDED |
-| Ollama helper | `local_runner.py` + health | `runtime/helpers/ollama.py` | ADAPT TO HPOM PROFILES |
-| Aider helper | `aider_wrapper.py` | `runtime/helpers/aider.py` | ADAPT TO MARKDOWN TASK CONTRACT |
-| Events/redaction | `event_trace.py`, `redaction.py` | shared runtime utilities | PORT |
-| Installer | old installer + fresh-install guide | Lean installer | REWRITE; KEEP SAFETY PATTERN |
+| Area | Lean target | Current disposition |
+| --- | --- | --- |
+| SQLite task lifecycle | `runtime/state/` | PROMOTED — PR #9 |
+| Task allocator/transitions | `runtime/state/` + CLI | PROMOTED CORE LIFECYCLE — PR #9 |
+| Review separation | state/review API | PROMOTED — PR #9 |
+| Scope/write boundary | AGI + helper/run boundary | PROMOTED — task reservation, helper scope, immutable run scope |
+| Pre-dispatch policy | `runtime/policy/` | PROMOTED — PR #10 |
+| Halt state | `runtime/policy/halt.py` | PROMOTED — PR #10 |
+| LangGraph routing | `runtime/routing/` | PROMOTED — PR #10 |
+| LangGraph checkpoints | dedicated checkpoint DB | PROMOTED USING OFFICIAL SQLITE SAVER — PR #10 |
+| Agent reconciliation | explicit worker/session bindings | OLD FIXED IDENTITY MODEL NOT PROMOTED |
+| RnS / liveness / retry | `runtime/recovery/` | PROMOTED SMALLER FORM — PR #12 |
+| hcom transport | `runtime/communication/` | PROMOTED — PR #11 |
+| Ollama helper | `runtime/helpers/ollama.py` | PROMOTED BOUNDED FORM — PR #13 |
+| Aider helper | `runtime/helpers/aider.py` | PROMOTED BOUNDED FORM — PR #13 |
+| Installer | `scripts/install_maps.sh` | PROMOTED PREVIEW-FIRST FORM — PR #14 |
+| Fresh smoke | `runtime/smoke.py` | PROMOTED + CI VERIFIED — PR #14 |
+| Run manifest / staleness | `runtime/state/integrity.py` | PROMOTED SMALLER FORM — TASK-015 |
+| Git run-scope proof | `runtime/integrity/` | PROMOTED REPORT-ONLY FORM — TASK-015 |
+| Continuity-aware review | state + routing | PROMOTED — TASK-015 |
+| Criterion evidence | state/review | PROMOTED OPTIONAL MODE — TASK-015 |
+| Universal release state | none | REJECTED FOR LEAN CORE; use risk-tiered review summary + explicit policy-gated release/deploy tasks |
 
-## P0 invariants to preserve
-
-These are more important than file-for-file compatibility:
+## P0 invariants preserved
 
 1. **One claim winner.** Concurrent attempts cannot both acquire the same READY task.
 2. **Lease recovery.** Stale claims can recover without stealing live work.
-3. **No self-review.** Submission authorship is distinct from durable ownership and cannot be rewritten by reassignment.
-4. **Explicit promotion gate.** A task cannot become executable just because an agent wants to start it; Lean adds AGI readiness to this gate.
-5. **Write boundary.** A worker cannot silently expand output paths/scope.
-6. **Policy before dispatch.** Destructive, authority-changing, broad, or unsupported work cannot be routed merely because a model can technically perform it.
-7. **Halt is durable and inspectable.** Blocking state must survive agent/session failure and have explicit set/clear authority.
-8. **Routing is not authority.** LangGraph may recommend a route; guarded MAPS operations change task truth.
-9. **Communication is not task truth.** hcom owns transport/session state; MAPS owns project/task authority.
-10. **Recovery does not invent work.** RnS may resume/nudge known sessions and reconcile stale state but must not silently claim/reassign/create tasks.
-11. **Local models are bounded helpers.** Ollama/Aider work must have narrow input/output scope and no final approval authority.
-12. **Installer is reversible.** Dry-run first, user-local writes, backup before overwrite, credentials left to the user.
+3. **No self-review.** Submission authorship is distinct from durable ownership; continuity successors are also disqualified when independent review is required.
+4. **Explicit promotion gate.** AGI validation and READY mutation are one guarded transaction.
+5. **Write boundary.** Active output paths reserve scope; helpers and frozen runs enforce parent output scope.
+6. **Policy before dispatch.** Consequential policy flags route to operator gate until explicit approval exists.
+7. **Halt is durable and inspectable.** Halt state blocks lanes without rewriting task truth.
+8. **Routing is not authority.** LangGraph emits recommendations; guarded TaskStore operations mutate truth.
+9. **Communication is not task truth.** hcom state remains transport/session evidence only.
+10. **Recovery does not invent work.** RnS verifies existing ACTIVE task + claimant + session binding before resume.
+11. **Local models are bounded helpers.** Ollama/Aider cannot approve or complete parent work.
+12. **Installer is reversible.** Preview first, project/user-local writes, no credentials, no WezTerm requirement.
+13. **A run is frozen evidence.** High-risk/resumable execution can bind task revision, context hashes, worker/session, scope, limits, and base revision immutably.
+14. **Verification does not repair silently.** Git scope/staleness checks report drift and never reset/restore/clean user work.
+15. **Evidence claim != independent verification.** Optional criterion mode stores implementer claims and reviewer verdicts separately.
 
-## P0 tests preserved
+## Verification
 
-The staging snapshot includes focused tests for:
+Latest integrated GitHub Actions run: `31847038026`.
 
-- no-self-review;
-- atomic/independent review claims;
-- pre-dispatch policy;
-- task promotion;
-- release gating;
-- runner policy gates;
-- task schema validation;
-- shared-output graph conflicts;
-- task ID allocation and rework;
-- halt state;
-- limit watcher and liveness reaper;
-- durable execution/resilience;
-- local Ollama runner;
-- Aider wrapper;
-- multi-project isolation.
+```text
+79 tests
+79 PASS
+ResourceWarning treated as error
+```
 
-Historical task records, UI screenshots, release checklists, command-center prototypes, and fixed-roster artifacts are deliberately not extracted.
+The configured run installed LangGraph and the SQLite checkpointer and passed the real checkpoint integration test. The disposable smoke passed the full SQLite task lifecycle to `DONE`, verified FK/WAL/busy-timeout settings, and proved LangGraph checkpoints use a separate database. Installer Bash syntax and preview execution also passed.
 
-## Known legacy problems not to reproduce
+TASK-015 additionally verified task/context staleness, temporary-Git run-scope reporting, transitive continuity review rejection, optional criterion verification, and raw-SQL immutability of run manifests/context hashes.
 
-The legacy migration audit already identified several real drift problems:
+## Known legacy problems deliberately not reproduced
 
-- SQLite agent rows, `agents/status.json`, and hcom session state were not one synchronized identity source.
-- SQLite, per-task JSON, and a monolithic `task_graph.json` created multiple mutable task representations.
-- UI was a separate consumer and could drift from runtime state.
-- all projects shared infrastructure while some policies lacked explicit project dimensions.
+- multiple mutable task mirrors;
+- fixed agent/window roster as authority;
+- WezTerm-specific recovery destination;
+- LangGraph checkpoint tables mixed into task truth DB;
+- hcom state treated as task authority;
+- blanket local-helper autonomy;
+- giant legacy runner/policy surfaces where a smaller deterministic rule is sufficient;
+- a universal `APPROVED → RELEASED` state machine that duplicates already-canonical task/review evidence.
 
-Lean should solve these at the boundary rather than preserving the duplication.
+## Execution-integrity disposition
+
+The high-value second-pass items are now deliberately closed:
+
+- immutable run manifest for high-risk/resumable execution — **IMPLEMENTED**;
+- continuity-lineage reviewer independence — **IMPLEMENTED**;
+- general Git run-scope verification — **IMPLEMENTED, REPORT-ONLY**;
+- criterion-level evidence — **IMPLEMENTED AS OPTIONAL MODE**;
+- universal separate release state — **REJECTED FOR LEAN CORE**;
+- optional read models/metrics — **DEFER UNTIL EVIDENCE JUSTIFIES THEM**.
+
+The migration snapshots remain until the reviewed stack reaches `main` and the final reference/privacy sweep is complete.
 
 ## Removal gate for `legacy/`
 
-`legacy/` can be removed from the active repository once all of the following are true:
+On the **current stacked branch**, the primary runtime homes now exist:
 
 - [x] critical runtime source snapshot exists outside `legacy/`;
 - [x] critical tests exist outside `legacy/`;
 - [x] migration/install references exist outside `legacy/`;
-- [ ] active SQLite/state implementation exists under `runtime/`;
-- [ ] AGI readiness is enforced by the READY transition;
-- [ ] LangGraph router uses the active task store and separate checkpoint DB;
-- [ ] hcom adapter exists and has no authority side effects;
-- [ ] RnS works without mandatory WezTerm;
-- [ ] local helper wrappers are adapted to Lean task records/HPOM;
-- [ ] preserved P0 tests have active equivalents and pass;
-- [ ] fresh-clone installer/smoke path works without reading `legacy/`.
+- [x] active SQLite/state implementation exists under `runtime/`;
+- [x] AGI readiness is enforced by the READY transition;
+- [x] LangGraph router uses the active task store and separate checkpoint DB;
+- [x] hcom adapter exists and has no authority side effects;
+- [x] RnS works without mandatory WezTerm;
+- [x] local helper wrappers are adapted to Lean task records/HPOM boundaries;
+- [x] execution-integrity P0 behavior has active homes;
+- [x] promoted regression equivalents pass as one integrated stack;
+- [x] fresh-clone installer/smoke path executes without reading `legacy/` or migration source.
 
-Removing `legacy/` before the unchecked items are complete is allowed only if the staging snapshot remains until those migrations finish.
+**Do not delete `legacy/` yet.** These boxes describe the stacked branch, not reviewed/merged `main`. Deletion still requires deferred independent review/merge, final reference/privacy sweep, and explicit operator removal approval.

@@ -1,0 +1,57 @@
+name: Runtime stack tests
+
+on:
+  push:
+    branches:
+      - agent/fresh-clone-install-smoke
+      - agent/execution-integrity-runtime
+      - agent/runtime-integration-review
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install active runtime dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r runtime/requirements.txt
+          python -m pip install ruff bandit
+
+      - name: Compile active runtime and tests
+        run: python -m compileall -q runtime tests
+
+      - name: Run fatal-error lint checks
+        run: ruff check runtime tests --select E9,F63,F7,F82
+
+      - name: Run medium/high security static analysis
+        # B608 is separately reviewed: dynamic SQL identifiers come only from
+        # hardcoded internal allowlists; externally supplied values use ? params.
+        run: bandit -q -r runtime -ll -s B608
+
+      - name: Verify dependency consistency
+        run: python -m pip check
+
+      - name: Run active tests
+        env:
+          PYTHONWARNINGS: error::ResourceWarning
+        run: python -m unittest discover -s tests -v
+
+      - name: Run disposable smoke with LangGraph
+        run: python -m runtime.smoke --with-langgraph
+
+      - name: Validate installer syntax and preview
+        run: |
+          bash -n scripts/install_maps.sh
+          bash scripts/install_maps.sh
