@@ -1,6 +1,6 @@
 # Task: Add hcom transport/session adapter
 
-- Status: `READY`
+- Status: `ACTIVE`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `implementation-agent`
@@ -11,7 +11,7 @@
 
 - Inputs: current hcom README/source, `docs/CONTROL_PLANE_SETUP.md`, `migration/legacy-runtime-source/notes/communication-architecture.md`, active runtime boundaries.
 - Authoritative sources: active Lean rules for authority; current upstream hcom CLI/source for command syntax.
-- Dependencies / preconditions: stacked runtime branch contains SQLite and routing slices; adapter itself must not depend on task-state mutations.
+- Dependencies / preconditions: stacked runtime branch contains SQLite and routing slices; adapter itself does not depend on task-state mutations.
 
 ## Change boundary
 
@@ -27,17 +27,18 @@
 
 ## Acceptance criteria
 
-- [ ] Adapter always sets project-local `HCOM_DIR` and uses argv/subprocess without `shell=True`.
-- [ ] `list_sessions()` parses `hcom list --json` into typed/session dictionaries.
-- [ ] `read_events()` parses bounded hcom event JSON records and never copies them into MAPS canonical state.
-- [ ] `send()`, `spawn()`, `resume()`, and `stop()` produce/execute only explicit hcom CLI operations.
-- [ ] No module under `runtime/communication/` imports `runtime.state` or mutates MAPS task state.
-- [ ] Tests use a fake hcom executable; they do not require or alter a real hcom installation.
-- [ ] No WezTerm-specific terminal choice is required.
+- [x] Adapter always sets project-local `HCOM_DIR` and uses argv/subprocess with `shell=False`.
+- [x] `list_sessions()` parses `hcom list --json` into session dictionaries.
+- [x] `read_events()` parses bounded hcom JSON event records and never copies them into MAPS canonical state.
+- [x] `send()`, `spawn()`, `resume()`, and `stop()` execute only explicit hcom CLI operations.
+- [x] No module under `runtime/communication/` imports `runtime.state` or mutates MAPS task state.
+- [x] Tests use a fake hcom executable; they do not require or alter a real hcom installation.
+- [x] No WezTerm-specific terminal choice is required.
+- [ ] Fake-CLI suite executed on a configured checkout.
 
 ## Verification and evidence
 
-- Verification: unit tests against fake executable, syntax checks, source-boundary assertion.
+- Verification: `tests/test_hcom_adapter.py` uses a generated fake executable and includes a source-boundary assertion.
 - Evidence to preserve: test output and PR diff.
 - Review required: `INDEPENDENT_REVIEW`
 
@@ -45,7 +46,7 @@
 
 - Environment / target: Python 3.10+; current hcom CLI.
 - Ordered procedure: verify upstream machine-readable commands → implement narrow adapter → fake-CLI tests → docs.
-- Failure branches: IF upstream output is not valid JSON where machine parsing is required THEN return typed protocol error; do not scrape human TUI output.
+- Failure branches: invalid JSON from machine-readable commands returns `HcomProtocolError`; command nonzero exits return `HcomCommandError`; missing binary/timeouts return `HcomError`.
 - Rollback / recovery: remove `runtime/communication/`; no SQLite task migration involved.
 - Security / privacy controls: no credentials logged; message/transcript/event content remains hcom transport data unless explicitly promoted by a separate authorized MAPS operation.
 - External side effects: production adapter methods may launch/send/kill agents when explicitly called; tests do not.
@@ -73,12 +74,14 @@ Escalate to: operator for authority/architecture changes.
 
 ## Notes / decisions
 
+- Current upstream source verifies `hcom list --json`, JSON event querying, `hcom send`, `hcom r`, and `hcom kill` command contracts.
 - hcom transport is useful for live coordination; durable outcomes still belong in MAPS task/decision/review/handoff records.
 - hcom `intent` is optional metadata and must not be treated as durable authority.
+- Attempted configured-checkout execution was blocked because this sandbox cannot resolve GitHub; no test pass is claimed.
 
 ## Completion / handoff
 
-- Completed: task shaped.
-- Not completed: adapter/tests/docs.
-- Current blocker: none.
-- Next action if not DONE: implement fakeable subprocess adapter.
+- Completed: adapter, public boundary docs, fake-CLI regression suite, current upstream command verification.
+- Not completed: configured-checkout test execution and independent review.
+- Current blocker: current execution sandbox cannot clone/fetch the branch over the network.
+- Next action if not DONE: run `python -m unittest tests.test_hcom_adapter -v` on a configured checkout; continue RnS separately.
