@@ -113,9 +113,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_one_open
     ON reviews(task_id)
     WHERE completed_at IS NULL;
 
--- Explicit policy metadata prevents routing authority from being inferred from
--- provider names or vague task prose. Approval is version-sensitive: shaping a
--- task clears these approval fields in runtime/state/policy.py.
 CREATE TABLE IF NOT EXISTS task_policy (
     task_id TEXT PRIMARY KEY REFERENCES tasks(task_id) ON DELETE CASCADE,
     requires_operator_approval INTEGER NOT NULL DEFAULT 0 CHECK (requires_operator_approval IN (0,1)),
@@ -127,4 +124,69 @@ CREATE TABLE IF NOT EXISTS task_policy (
     approved_by TEXT,
     approved_at TEXT,
     approval_note TEXT NOT NULL DEFAULT ''
+);
+
+-- Immutable execution binding. Full context is not copied; file references are
+-- hashed separately. Task revision excludes lifecycle churn.
+CREATE TABLE IF NOT EXISTS run_manifests (
+    run_id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
+    task_revision TEXT NOT NULL,
+    worker_id TEXT NOT NULL,
+    session_id TEXT,
+    readable_scope TEXT NOT NULL DEFAULT '[]',
+    writable_scope TEXT NOT NULL DEFAULT '[]',
+    forbidden_scope TEXT NOT NULL DEFAULT '[]',
+    runtime_limits TEXT NOT NULL DEFAULT '{}',
+    base_revision TEXT,
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_run_manifests_task ON run_manifests(task_id, created_at);
+
+CREATE TABLE IF NOT EXISTS run_context_refs (
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    path TEXT NOT NULL,
+    sha256 TEXT NOT NULL,
+    PRIMARY KEY(run_id, path)
+);
+
+-- Continuity is evidence that two worker/session identities share the same
+-- inherited execution context. It disqualifies independent review; it grants
+-- no ownership or task authority.
+CREATE TABLE IF NOT EXISTS continuity_links (
+    predecessor_id TEXT NOT NULL,
+    replacement_id TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY(predecessor_id, replacement_id),
+    CHECK(predecessor_id <> replacement_id)
+);
+CREATE INDEX IF NOT EXISTS idx_continuity_replacement ON continuity_links(replacement_id);
+
+-- Optional structured evidence. Recording one criterion claim opts the current
+-- submission into criterion-level verification; the implementer's claim is
+-- append-only and reviewer verdicts live separately.
+CREATE TABLE IF NOT EXISTS submission_criterion_claims (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
+    submission_count INTEGER NOT NULL CHECK (submission_count > 0),
+    criterion_id INTEGER NOT NULL REFERENCES task_acceptance_criteria(id) ON DELETE CASCADE,
+    claimed_status TEXT NOT NULL CHECK (claimed_status IN ('complete','partial','blocked')),
+    evidence_refs TEXT NOT NULL DEFAULT '[]',
+    task_revision TEXT NOT NULL,
+    run_id TEXT REFERENCES run_manifests(run_id),
+    author_id TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_criterion_claims_submission
+    ON submission_criterion_claims(task_id, submission_count, criterion_id, id);
+
+CREATE TABLE IF NOT EXISTS submission_criterion_verdicts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    claim_id INTEGER NOT NULL REFERENCES submission_criterion_claims(id) ON DELETE CASCADE,
+    verified_status TEXT NOT NULL CHECK (verified_status IN ('confirmed','rejected')),
+    reviewer_id TEXT NOT NULL,
+    notes TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL
 );
