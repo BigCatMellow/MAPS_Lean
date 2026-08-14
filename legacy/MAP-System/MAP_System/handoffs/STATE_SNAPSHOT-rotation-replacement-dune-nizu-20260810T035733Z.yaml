@@ -1,0 +1,120 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-10T03:57:33Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-dune-nizu
+session_id: 019fe9c3-96fe-7dd1-9c4d-a07f4f55cfa6
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+  - TASK-321
+  recent_events:
+  - event_type: CONTEXT_ROTATION_FINALIZED
+    task_id: TASK-321
+    summary: rotation-replacement-fela-dune transferred checksum-bound continuity
+      to rotation-replacement-dune-nizu.
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-321
+    summary: Security review required writer probe source visibility after confirming
+      the current-UID cgroup-root finding.
+  - event_type: PROGRESS
+    task_id: TASK-321
+    summary: Added writer_service_probe_source status evidence; 59 focused tests pass.
+  - event_type: APPROVED
+    task_id: TASK-321
+    summary: Distinct security rereview and Smalls core exact-commit review both approved
+      commit 3f950043811ee3bdff393e39ec6adaa679406489 with no current BLOCKER/REQUIRED.
+  - event_type: PROGRESS
+    task_id: TASK-321
+    summary: Operator-authorized PR 4 merged to main as eb23124b814ff9b3f8180ebb029bead250245288;
+      Smalls activation and canonical approval are in progress with codex-lab-rani.
+  touched_paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/tests/test_map_authority.py
+  - MAP_System/artifacts/recovery/map2-phase0-trustworthy-baseline-2026-08-10.md
+  - MAP_System/artifacts/reviews/task321_security_rereview.md
+  - MAP_System/artifacts/releases/task-321-release-checklist.md
+  - MAP_System/inbox/helpers/helper-security-task321-rereview.md
+active_constraints:
+- scope: safety
+  rule: Smalls remains the sole writable lifecycle authority; Biggie remains a read-only
+    mirror and lifecycle mutations use map-authority.
+  source: TASK-321 and MAP_System/AGENTS.md
+- scope: task
+  rule: TASK-321 remains SUBMITTED until Smalls activates merged main, Rani writes a
+    validator-complete core review record, and canonical approval succeeds.
+  source: live map-authority task show and hcom task321-security thread
+- scope: task
+  rule: Do not edit TASK-321 implementation unless a new BLOCKER/REQUIRED finding appears.
+  source: operator handoff instruction
+- scope: safety
+  rule: Do not self-review or self-approve TASK-321; Rani owns the final core review/approval.
+  source: MAP_System/AGENTS.md
+- scope: communication
+  rule: Report final approval/release outcome to @fela and @dune through hcom.
+  source: operator handoff instruction
+forward_tasks:
+- task_id: TASK-321
+  next_action: wait
+  owner: rotation-replacement-dune-nizu
+  reason: Wait for codex-lab-rani to fast-forward Smalls main to merge eb23124b, verify
+    hashes/tests, write the validator-complete core review record, and canonically approve.
+    Then run the prepared release checklist through map-authority, validate mirrors/status,
+    and report final result to @fela/@dune.
+  paths:
+  - MAP_System/artifacts/releases/task-321-release-checklist.md
+  - MAP_System/artifacts/reviews/task321_security_rereview.md
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/tests/test_map_authority.py
+blockers: []
+failed_approaches:
+- The original Claude security reviewer confirmed the first remediation but hit its provider
+  spend limit before finalizing; a visible Codex security helper completed the bounded pass.
+- A first Smalls approval request correctly stopped because Smalls had stale source bytes;
+  the reviewed scope was isolated, committed, pushed, reviewed on Smalls, and merged through
+  operator-authorized PR 4 instead of copying over the live tree.
+decisions:
+- Addressed only security REQUIRED-2 by surfacing writer_service_probe_source; retained
+  INFO-1 and INFO-2 as non-blocking observations.
+- Published exactly seven TASK-321 code/evidence files from an isolated origin/main worktree;
+  unrelated dirty-worktree changes and eleven unrelated convergence-branch commits were excluded.
+- Operator explicitly authorized merging PR 4 into default main.
+lexicon:
+  Biggie: This PC and read-only MAP mirror.
+  Smalls: Remote PC and sole writable MAP lifecycle authority.
+  writer_probe_source: Status evidence naming systemctl, cgroup_v2_fallback, unavailable,
+    or provided.
+  security_pass: Distinct security-framed TASK-321 review; current exact bytes are approved.
+resume_commands:
+- cd /home/mellow/Projects/MultiAgentProject/Source
+- hcom list --json --name <replacement-short-name>
+- map-authority task show TASK-321
+- gh pr view 4 --json state,mergeCommit,url
+- sed -n '1,240p' MAP_System/artifacts/reviews/task321_security_rereview.md
+- sed -n '1,220p' MAP_System/artifacts/releases/task-321-release-checklist.md
+- MAP_System/.venv/bin/python -m unittest MAP_System.tests.test_map_authority MAP_System.tests.test_map_authority_notify
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_mirrors.py
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+validation:
+- Snapshot predecessor SHA-256 7057ff98480b55fc9e2ca7a7dd29efc8b7fb23a525f6a67fa8e199f41a1d661e
+  was verified and rotation ACK/finalize completed.
+- Current hashes are map_authority.py 784f3b1dce966bfcd29c6c69e7d68ba9a8278c33073a3e5197ac39b6e2003a3d,
+  test_map_authority.py 38a1f55026f75e5fdcefc9031988b0af23aa39735d143476cc09b7c8e6616537,
+  baseline 859a8371ec64b00b1c51b76778b51ccd29d8c41868c7fcf70f9a452a717dcc10.
+- 59 focused tests, py_compile, task-mirror validation, shared-state validation, local FRESH
+  topology, security rereview, and Smalls exact-commit core review all pass.
+- PR 4 merged to main at eb23124b814ff9b3f8180ebb029bead250245288 after explicit operator approval.
+- TASK-321 remains SUBMITTED on Smalls pending Rani activation and canonical approval.
+rotation:
+  reason: threshold
+  summary: Took over verified continuity, completed REQUIRED-2 probe-source auditability,
+    obtained distinct security and Smalls core exact-commit approval, isolated the reviewed
+    scope, published PR 4, and merged it with explicit operator authorization. TASK-321 is
+    still SUBMITTED only while Smalls activates merged main and records canonical approval.
+  next_action: Receive Rani's Smalls activation/canonical approval result, release TASK-321
+    through the prepared checklist, validate final state, and report to @fela/@dune.
+  used_tokens: 207769
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens

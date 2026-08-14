@@ -1,0 +1,649 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-06T16:07:04Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-gino-rina
+session_id: 4aa206f1-511f-417c-9cc6-e67b070d4e2a
+status: handing_off
+task_context:
+  current_task: TASK-318
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Acked context rotation from rotation-replacement-gino-kava (prior snapshot
+
+      STATE_SNAPSHOT-rotation-replacement-gino-kava-20260806T155315Z.yaml) via
+
+      context_rotation.py ack. Checked hcom for any operator reply on kava''s
+
+      already-delivered war-room-to-battle-tab report - none had landed there
+
+      (only kava''s own rotation-prep events). Noted this session has no
+
+      visibility into the separate direct-chat channel the operator actually
+
+      used for that report. Sent the ack confirmation back to kava via hcom.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Operator asked in normal chat (not hcom), building further on the
+
+      already-shipped war-room-to-battle-tab connection: "the war room needs
+
+      an export so you can print the map and mission in the same style as the
+
+      army sheet." Read this as wanting a new printable HTML export from War
+
+      Room (Missions.dc.html), visually matching exportArmySheet''s print
+
+      style in Test Army.dc.html (same print CSS variables, fonts, table and
+
+      phase-tag classes), not the existing plain-text "Briefing" export
+
+      (openExport/exportText), which already existed and was left untouched.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Implemented and verified live. Missions.dc.html only (Test Army.dc.html
+
+      was read for reference but not modified this session - confirmed via
+
+      git diff --stat after the work). Added six new Component methods:
+
+      printEsc (HTML escaping, same as Test Army''s), printMapSvgString
+
+      (rebuilds the on-screen mapSvg() grid/zones/markers logic as a raw SVG
+
+      string instead of React elements, since no ReactDOMServer is loaded in
+
+      this app - confirmed by grepping for renderToStaticMarkup/renderToString
+
+      across support.js and all .dc.html files, found none), printMissionHtml
+
+      (parameters/scoring as bulleted lists, additionalRules as a table with
+
+      phase-tag badges when present, special rule as a callout box),
+
+      printMapHtml (embeds the printMapSvgString output, a red/blue/marker
+
+      legend, red/blue setup instructions as bulleted lists, a marker
+
+      placement table, and notes), printSheetCss (a new method - not shared
+
+      code with Test Army''s printSheetCss, but deliberately copies the same
+
+      CSS custom properties, fonts (Source Sans 3 / Source Code Pro), and
+
+      page-header/section-header/sheet-table/phase-tag class rules verbatim
+
+      for visual consistency, plus adds sheet-specific classes: brief-meta,
+
+      brief-list, special-box, map-print-wrap, map-legend, legend-item,
+
+      legend-swatch, notes-italic), and exportBattleSheet (assembles the full
+
+      HTML document and opens it via the same
+
+      Blob-plus-URL.createObjectURL-plus-window.open-plus-30s-revoke pattern
+
+      as exportArmySheet). Wired a new "Print Sheet" button into the Setup
+
+      tab template next to the existing "Briefing" button, inside the same
+
+      sc-if hasAnyPick block (so it only shows once a mission or map is
+
+      selected), and exposed printBattleSheet in renderVals() as
+
+      "() => this.exportBattleSheet()".'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Verified live in-browser at localhost:8934 using the established
+
+      monkey-patch blob-capture technique (patch URL.createObjectURL plus a
+
+      no-op window.open, read window.__capturedHtml as a string, inject it
+
+      into a same-origin srcdoc iframe for visual screenshots, always restore
+
+      both globals afterward). Captured successfully on the first click both
+
+      times this session - no repeat of the previously-noted double-click
+
+      quirk. Tested twice: once with the pre-existing selection (mission
+
+      "Supply Drop", which has no additionalRules, plus map "Gauntlet"), and
+
+      once after switching the selection via direct localStorage write (both
+
+      sctmg_play and the builder''s own persisted state key) to mission
+
+      "Gather the Resources", which does have an additionalRules entry, to
+
+      confirm that table renders correctly with its phase-tag badge. Both
+
+      captures visually matched the Army Sheet''s print styling (headers,
+
+      section dividers, table borders, phase-tag colors) and the map SVG
+
+      correctly reproduced the on-screen deploy zones and numbered markers.
+
+      After verification, restored the mission selection back to the original
+
+      "Supply Drop" via the same localStorage-write-plus-reload approach and
+
+      confirmed via screenshot that Setup tab shows Supply Drop / Gauntlet
+
+      again, matching the pre-session state. Confirmed via git status/diff
+
+      --stat that only Missions.dc.html changed this session.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Reported the completed Print Sheet feature back to the operator in
+
+      chat (not hcom) before this checkpoint_due rotation fired - description
+
+      of the button placement, what the printable sheet contains for both
+
+      mission and map, and the verification steps taken. No operator reply
+
+      to that report yet as of this snapshot; unlike some prior rotations,
+
+      nothing was left mid-report this time.'
+  touched_paths:
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Missions.dc.html
+    note: 'live, UNCOMMITTED - this session added the Print Sheet export (six new
+
+      methods plus the button wiring described above) on top of the prior
+
+      session''s missionId/mapId merge and tab-param override. This is the
+
+      only file this session modified.'
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+      Army.dc.html
+    note: 'live, UNCOMMITTED, NOT modified this session (read-only reference for
+
+      the exportArmySheet/printSheetCss pattern). Still carries the same
+
+      THREE independent uncommitted layers from prior sessions - see
+
+      active_constraints below.'
+  - path: MAP_System/handoffs/
+    note: this workspace's repo; ack of inherited rotation, and this snapshot
+active_constraints:
+- scope: task
+  rule: 'TASK-318''s output_path is entirely outside this git repo, at
+
+    "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion
+
+    Design". All read/write file work for this task happens there, not
+
+    under MAP_System/ or Projects/. That folder has its own local
+
+    (non-global) git identity. Current diff (checked this session): Test
+
+    Army.dc.html AND Missions.dc.html, both uncommitted. Do not run any git
+
+    commands there without operator approval - same as always.'
+  source: inherited across multiple prior snapshots, still true
+- scope: task
+  rule: 'THREE independent layers of uncommitted change still sit in Test
+
+    Army.dc.html, unchanged this session - do not conflate them when
+
+    reporting or committing. LAYER 1 (oldest, awaiting review): the
+
+    Abilities/Upgrades table redesign in printAbilityRows, printUpgradeRows,
+
+    and printSheetCss - operator asked "take a look?" long ago and never
+
+    explicitly replied; still treat as open, not superseded. LAYER 2 (older
+
+    session): the mission-follows-supply feature (missionId sync,
+
+    bumpBattleSupply override, Battle tab supply math, exportArmySheet
+
+    MISSION line) - operator has seen and implicitly approved this. LAYER 3
+
+    (prior session): mapId sync, selectedMap(), the combined warRoomLabel and
+
+    warRoomActive values, the one-line badge, the tab=setup link, and the
+
+    exportArmySheet MAP line - operator gave one round of UI feedback,
+
+    implemented and verified, then the final iteration was reported right
+
+    before the prior rotation fired; still no explicit final reply as of this
+
+    snapshot. All three layers are independently verified working in-browser
+
+    but only layers 2 and 3 have any operator engagement; layer 1 remains
+
+    completely unreviewed.'
+  source: carried forward unchanged from prior snapshot, this session did not touch
+    Test Army.dc.html
+- scope: task
+  rule: 'NEW this session, separate from the three Test Army.dc.html layers
+
+    above: Missions.dc.html now also has an uncommitted "Print Sheet" export
+
+    (printEsc, printMapSvgString, printMissionHtml, printMapHtml,
+
+    printSheetCss, exportBattleSheet, plus the button and renderVals wiring).
+
+    This was requested and reported in the same direct-chat thread as the
+
+    war-room-to-battle-tab connection, but is a distinct, separately
+
+    reportable diff - do not describe it as part of that earlier feature if
+
+    asked to summarize. Verified live in-browser this session (see recent
+
+    PROGRESS events for exact steps) but has not yet received any operator
+
+    reply.'
+  source: this session
+- scope: task
+  rule: 'Do NOT commit Test Army.dc.html or Missions.dc.html yet. If and when the
+
+    operator approves porting the war-room-connection feature (mission and
+
+    map sync, badge, exportArmySheet lines), the SAME pattern needs to go
+
+    into Terran Army.dc.html, Zerg Army.dc.html, and Protoss Army.dc.html -
+
+    reading missionId and mapId from their OWN sctmg_play key (same key they
+
+    already use for round, phase, VP). If and when the table-redesign layer
+
+    (LAYER 1 above) is approved, port printWeaponRows, printAbilityRows,
+
+    printUpgradeRows, and printSheetCss per the verbatim code in
+
+    STATE_SNAPSHOT-rotation-replacement-gino-rita-20260806T150754Z.yaml''s
+
+    active_constraints. If and when the new Print Sheet export is approved,
+
+    it is War-Room-only by design (mission and map are shared/global
+
+    concepts, not per-army-instance) and does NOT need porting to the three
+
+    real faction files at all - only Missions.dc.html would ever need it.
+
+    These are three separate porting/no-porting jobs targeting different
+
+    scopes; track as distinct diffs, do not bundle.'
+  source: carried forward and extended this session
+- scope: reference
+  rule: 'Exact mechanism for the new Print Sheet export, for anyone continuing
+
+    this feature. Missions.dc.html''s printMapSvgString(map) rebuilds the same
+
+    grid-plus-zones-plus-markers logic as the existing on-screen mapSvg()
+
+    method (same scale of 6, same 36px grid lines every 6 game units, same
+
+    redZones/blueZones/markers fields from window.SCTMG_MISSIONS.MAPS), but
+
+    emits a plain SVG string instead of React elements, because this app
+
+    loads no ReactDOMServer (renderToStaticMarkup/renderToString) anywhere -
+
+    confirmed by grep this session. printMissionHtml and printMapHtml build
+
+    HTML fragment strings from the same MISSIONS/MAPS objects that
+
+    exportText() already reads (m.parameters, m.scoring, m.additionalRules,
+
+    m.special; mp.redSetup, mp.blueSetup, mp.markerSetup, mp.notes).
+
+    printSheetCss() is Missions.dc.html''s own copy of the visual language
+
+    from Test Army.dc.html''s printSheetCss() (same CSS variables, same
+
+    Google Fonts, same page-header/section-header/sheet-table/phase-tag
+
+    rules) plus new sheet-specific classes for the mission bullet lists, the
+
+    special-rule callout box, and the map legend/SVG wrapper - the two
+
+    printSheetCss() methods are NOT shared code, they are independently
+
+    maintained copies that happen to produce matching output; a future
+
+    visual change to one will need to be manually mirrored to the other if
+
+    consistency is to be preserved. exportBattleSheet() assembles page-header
+
+    plus a Mission section (purple underline, matching Test Army''s default
+
+    section-header color) plus a Map section (blue underline, #4f8df9) and
+
+    opens it via the same Blob/createObjectURL/window.open/30s-revoke pattern
+
+    as exportArmySheet. The "Print Sheet" button lives in the Setup tab next
+
+    to "Briefing", inside the same hasAnyPick sc-if, so both only appear once
+
+    a mission or map is selected.'
+  source: this session
+- scope: task
+  rule: 'Two side-topics remain UNSTARTED, still true. First, exportArmySheet''s
+
+    (and now also exportBattleSheet''s) blob URL self-revokes after 30 seconds
+
+    and cannot be saved - operator said to skip it for now, carried forward
+
+    across many snapshots. Second, LAYER 1 table redesign (see above) is
+
+    still fully unreviewed - do not assume dropped just because the operator
+
+    has moved through several other topics since asking "take a look?".'
+  source: carried forward, still true
+- scope: tool
+  rule: 'claude-in-chrome cannot screenshot or run javascript_tool against blob
+
+    URLs directly - use the monkey-patch-capture technique on the normal
+
+    http tab (patch URL.createObjectURL to capture blob.text() into
+
+    window.__capturedHtml, patch window.open to no-op, click the export
+
+    button, then either read window.__capturedHtml directly as a string, or
+
+    inject a same-origin iframe with srcdoc for visual screenshots - this
+
+    session used the iframe-srcdoc approach for the new Print Sheet feature
+
+    specifically to visually confirm the map SVG and table styling, not just
+
+    read the string). Always restore window.__origCreateObjectURL and
+
+    window.__origOpen afterward. The previously-noted "sometimes needs two
+
+    clicks" quirk did not reproduce this session - both captures succeeded
+
+    on the first click.'
+  source: discovered in a prior session this rotation lineage, refined this session
+    with the iframe-srcdoc visual-verification detail
+- scope: task
+  rule: 'TASK-318 shows SUBMITTED in MAP''s canonical task state with
+
+    owner=claude-lab-gina in the local task JSON mirror, but the real work
+
+    has continued informally in direct operator chat across many agent
+
+    identities with no new MAP claim opened. MAP''s task tracking does not
+
+    reflect the real state of the work. Keep treating this as informal
+
+    direct-chat iteration outside MAP unless the operator says otherwise -
+
+    do not re-claim or re-submit TASK-318.'
+  source: inherited, still true
+- scope: tool
+  rule: 'This host is confirmed read-only for MAP lifecycle writes: map_task.py
+
+    show raises RemoteAuthorityRequired pointing to map-authority on
+
+    100.127.80.108. Read task state via the local JSON mirrors in
+
+    MAP_System/tasks/*.json instead.'
+  source: inherited, not re-verified this session
+- scope: repo
+  rule: 'Prior orientation thread (36-item emergence backlog triage) is still
+
+    explicitly on hold per operator instruction carried forward across
+
+    multiple snapshots. Do not resume it until the operator raises it again.'
+  source: operator instruction, carried forward from earlier snapshots
+active_constraints_note: 'This session acked the inherited rotation from kava, checked
+  hcom (no
+
+  operator reply visible there) and reported that back to kava, then
+
+  received and implemented a new operator request in direct chat (a
+
+  print-style export for War Room''s mission and map, matching the Army
+
+  Sheet''s visual style), verified it live in-browser twice (with and without
+
+  a mission that has additionalRules), restored the pre-session selection
+
+  state, and reported the finished feature back to the operator in chat -
+
+  all before this checkpoint_due rotation fired. The open item is simply
+
+  that the operator has not yet replied to that report, and the much older
+
+  LAYER 1 table-redesign thread remains unanswered underneath everything
+
+  else.'
+forward_tasks:
+- task_id: TASK-318
+  next_action: await_operator_feedback
+  owner: null
+  reason: 'The new Print Sheet export (mission plus map, styled like the Army
+
+    Sheet) is implemented, verified live, and has already been reported to
+
+    the operator - there is no interrupted report to deliver. Next session''s
+
+    first action should be checking hcom/chat for any operator reply or
+
+    feedback on this latest report (remembering this session has no
+
+    visibility into the separate direct-chat channel where the actual report
+
+    landed - hcom alone cannot confirm operator engagement). Also keep in
+
+    mind the still-open LAYER 1 "take a look?" table-redesign thread, and the
+
+    still-unconfirmed final iteration of the war-room-to-battle-tab
+
+    connection from the prior rotation. Do not commit or port anything to
+
+    the 3 real faction files without explicit approval. If the operator
+
+    approves porting the war-room-connection feature, follow the
+
+    reference-scope active_constraint above; the new Print Sheet export is
+
+    War-Room-only and does not need porting at all.'
+  paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Missions.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html
+blockers: []
+lexicon:
+  StarCraftCA / SCTMG / "StarCraft RPG Companion Design": 'The operator''s personal,
+    non-MAP creative project - a tabletop-game
+
+    companion web app (plain .dc.html component files plus a small Node
+
+    build pipeline that regenerates *-data.js from uploads/*.html rules and
+
+    unit source). Lives entirely outside this git repo at
+
+    /home/mellow/Documents/Projects/StarCraftCA/.'
+  .dc.html: 'This project''s own single-file component convention - each top-level
+
+    screen is one file using dc-import to embed sub-components like
+
+    UnitDetail. No native browser dialogs (alert, confirm, prompt) are used
+
+    anywhere in this app. Screens navigate via plain anchor links to other
+
+    .dc.html files, not an SPA router - so cross-screen state only survives
+
+    via localStorage, read fresh on each page''s componentDidMount. Templates
+
+    only support plain double-brace variable substitution - all conditional
+
+    text or values must be precomputed in render() and exposed as plain
+
+    named fields, never inlined as expressions in the template markup.'
+  War Room: 'Missions.dc.html''s on-screen label. Lets the operator pick battle size,
+
+    a mission, and a map. Shares round, phase, and VP state (the sctmg_play
+
+    localStorage key) with Command Center.dc.html and the 3 REAL faction
+
+    Army files (Terran, Zerg, Protoss), and also writes missionId/mapId into
+
+    that key. Accepts an optional tab URL param (setup, missions, or maps)
+
+    to force which of its own three sub-tabs it opens on. As of this session
+
+    also has a "Print Sheet" button (Setup tab, next to "Briefing") that
+
+    opens a standalone printable HTML document styled like the Army Sheet,
+
+    containing the selected mission''s parameters/scoring/rules and the
+
+    selected map''s zones/markers/setup instructions - separate from the
+
+    existing plain-text "Briefing" export (openExport/exportText/copy to
+
+    clipboard), which is unchanged.'
+  Battle tab: 'A tab within each Army .dc.html file''s own bottom nav (Roster, Battle,
+
+    Codex for Test Army; similar for the real files) - tracks per-unit model
+
+    losses and deployment status during actual play. Shows a single-line
+
+    badge (mission plus map combined) that links back to War Room''s Setup
+
+    tab. Unrelated to and unchanged by this session''s Print Sheet work.'
+  Export Army Sheet: 'A button on the Roster tab (Test Army.dc.html) that calls
+
+    exportArmySheet(), building a standalone printable HTML document (own
+
+    inline CSS via printSheetCss(), no external stylesheet) as a Blob,
+
+    opened via URL.createObjectURL plus window.open. Header includes MISSION
+
+    and MAP when selected. This session''s new Print Sheet export in
+
+    Missions.dc.html deliberately mirrors this document''s visual style (same
+
+    CSS variables/fonts/table classes) but is an independent copy, not
+
+    shared code, and lives in a different file.'
+  Print Sheet (NEW this session): 'A button on War Room''s Setup tab, next to "Briefing",
+    visible whenever a
+
+    mission or map is selected. Calls exportBattleSheet(), which opens a
+
+    standalone printable HTML document styled like the Army Sheet, with a
+
+    Mission section (parameters, scoring, additional rules if any, special
+
+    rule callout) and a Map section (rendered SVG of deploy zones and
+
+    markers, legend, red/blue setup instructions, marker placement table,
+
+    notes). Uses the same Blob/createObjectURL/window.open/30s-auto-revoke
+
+    pattern as Export Army Sheet.'
+  missions-data.js / window.SCTMG_MISSIONS: 'Exposes MISSIONS and MAPS arrays - mission
+    objects have id, name, type,
+
+    supply, perRound, gameLength, parameters, scoring, special, and an
+
+    optional additionalRules array (phase/name/description); map objects
+
+    have id, name, size, type, width, height, blueZones, redZones, markers,
+
+    redSetup, blueSetup, markerSetup, notes.'
+  Test Army.dc.html: 'The operator''s sandbox/test file for this project - NOT linked
+    from
+
+    Command Center, uses an isolated sctmg_play_test localStorage key for
+
+    its own round tracker, but reads missionId and mapId from the shared
+
+    sctmg_play key. Not modified this session; read-only reference for the
+
+    Print Sheet work.'
+  dev server: python3 -m http.server 8934, served from inside the external project
+    folder. Confirmed running and responsive this session (localhost:8934).
+resume_commands:
+- 'curl -sf http://localhost:8934/ >/dev/null && echo "dev server still up" || echo
+  "restart: cd ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion
+  Design'' && python3 -m http.server 8934"'
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git status --short && git diff --stat
+rotation:
+  reason: checkpoint_due
+  summary: 'Automated advisory from limit_watcher: current estimate ~135252 tokens
+
+    against soft=120000 / rotate=150000 thresholds. Rotating after
+
+    implementing, verifying, and reporting a new War Room "Print Sheet"
+
+    export (mission plus map, styled like the Army Sheet) - the operator has
+
+    not yet replied to that report as of this snapshot.'
+  next_action: 'Next session''s first action should be checking hcom/chat for any
+
+    operator reply to the just-delivered Print Sheet report, keeping in
+
+    mind that this session (like the prior one) has no visibility into the
+
+    separate direct-chat channel where the operator''s actual replies land -
+
+    only hcom-side signals are checkable here. Also keep the still-open
+
+    LAYER 1 table-redesign thread and the not-yet-confirmed final iteration
+
+    of the war-room-to-battle-tab connection in mind. No re-verification
+
+    needed unless something looks off - everything in this snapshot was
+
+    verified live this session.'
+  used_tokens: 135252
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-06T16:07:04Z'
+  canonical_tasks:
+  - task_id: TASK-318
+    status: SUBMITTED
+    owner: claude-lab-gina
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-05 18:50:39'
+  canonical_tasks_sha256: a9bd814dc3ad8558e1975f31366f8d01bda2ce6fcb252baa9814e6258ee7f68f
+  touched_paths:
+  - path: '{''path'': ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG
+      Companion Design/Missions.dc.html'', ''note'': "live, UNCOMMITTED - this session
+      added the Print Sheet export (six new\nmethods plus the button wiring described
+      above) on top of the prior\nsession''s missionId/mapId merge and tab-param override.
+      This is the\nonly file this session modified."}'
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  - path: '{''path'': ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG
+      Companion Design/Test Army.dc.html'', ''note'': ''live, UNCOMMITTED, NOT modified
+      this session (read-only reference for\nthe exportArmySheet/printSheetCss pattern).
+      Still carries the same\nTHREE independent uncommitted layers from prior sessions
+      - see\nactive_constraints below.''}'
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  - path: '{''path'': ''MAP_System/handoffs/'', ''note'': "this workspace''s repo;
+      ack of inherited rotation, and this snapshot"}'
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  touched_paths_sha256: d0bea8f1a5311a37055e88436ee321bad9aeac603bf7d80919ca85b1654d9cf1

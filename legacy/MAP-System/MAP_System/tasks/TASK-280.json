@@ -1,0 +1,43 @@
+{
+  "task_id": "TASK-280",
+  "title": "Normalize MAP role IDs with contracts and historical compatibility",
+  "task_type": "implementation",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-277"
+  ],
+  "owner": "command-center",
+  "description": "Implement the approved TASK-277 role-semantics slice without rewriting history. Define a small stable role vocabulary and compact authority contracts, validate new tasks against it, map historical free-form values through compatibility mode, and make routing consume normalized roles instead of provider names or incidental prose.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task280-role-registry-delivery-note.md",
+    "MAP_System/graph/runner.py",
+    "MAP_System/notes/role-contracts.md",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/scripts/validate_task_schema.py",
+    "MAP_System/tests/test_role_registry.py",
+    "MAP_System/workflow/role_registry.yaml"
+  ],
+  "acceptance_criteria": [
+    "A registry defines five to seven stable role IDs with Mission, Owns, May, Must, Must not, Required input and output, Escalate, and Complete when contracts.",
+    "New task creation and schema validation reject unknown role IDs with a clear diagnostic.",
+    "Historical tasks remain loadable through an explicit compatibility mapping without rewriting their stored role history.",
+    "Runner decisions consume normalized roles and keep provider, model tier, worker identity, and capability requirements separate.",
+    "Focused compatibility and routing tests pass and the delivery note states why role normalization does not enforce review independence."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-213",
+  "title": "ClearFront: close replacement undo hidden-information exploit",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-211"
+  ],
+  "owner": "codex-lab-lilo",
+  "description": "Implement approved PROMO-0010/INS-0025 in the editable app only: replacement must reveal its new card without leaving a reversible snapshot; preserve ordinary one-step undo for reversible actions. No refactor, balance, source, or baseline changes.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/app/index.html",
+    "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md"
+  ],
+  "acceptance_criteria": [
+    "After the player replaces a card and sees the drawn replacement, Undo is unavailable and cannot restore the pre-replacement hand.",
+    "At least one ordinary reversible action still creates a working one-step undo snapshot.",
+    "Replacement still discards one card, draws one card when available, does not increment cardsPlayed, and remains limited to once per turn.",
+    "Source and baseline remain byte-unchanged; the app remains file:// compatible and focused browser/static regression evidence is recorded.",
+    "Only app/index.html and task-specific test evidence are modified; no decomposition, rules, or balance change is mixed into this task."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

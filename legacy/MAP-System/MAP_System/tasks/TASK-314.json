@@ -1,0 +1,43 @@
+{
+  "task_id": "TASK-314",
+  "title": "WS-1: Command Center authority-freshness display (local/template only)",
+  "task_type": "implementation",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "rotation-replacement-mimi-koda",
+  "description": "Split from retired TASK-306 per DEC-040 (operator-authorized 2026-07-30). Implement the Command Center authority-freshness display -- the 4th WS-1 Required Consumer (map-authority status/route/current-state.md already done under TASK-310) -- entirely in local template/source files, no remote Smalls write. Completes TASK-310's Command Center consumer without the cross-PC deployment risk; that work is deferred to a separate WS-6 task created when that workstream begins.",
+  "input_paths": [],
+  "output_paths": [
+    "/home/mellow/Projects/CommandCenterUI/app/server.py",
+    "/home/mellow/Projects/CommandCenterUI/src/orchestrator.css",
+    "/home/mellow/Projects/CommandCenterUI/src/orchestrator.html",
+    "/home/mellow/Projects/CommandCenterUI/src/orchestrator.js",
+    "MAP_System/artifacts/recovery/ws1-command-center-consumer-local.md",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/templates/install/command-center-ui/app/server.py",
+    "MAP_System/templates/install/command-center-ui/src/orchestrator.css",
+    "MAP_System/templates/install/command-center-ui/src/orchestrator.html",
+    "MAP_System/templates/install/command-center-ui/src/orchestrator.js",
+    "MAP_System/templates/install/command-center-ui/version.json",
+    "MAP_System/tests/test_command_center_authority_freshness.py"
+  ],
+  "acceptance_criteria": [
+    "Command Center UI displays authority host, authority revision, last successful sync time, and freshness classification (fresh/stale/unavailable), sourced from local template/server code only.",
+    "No remote write to Smalls; Smalls cross-PC deployment and parity verification are explicitly out of scope, deferred to a separate WS-6 task.",
+    "Focused tests cover fresh/stale/unavailable display states; independent core agent review before approval."
+  ],
+  "decision_class": "SCOPE",
+  "risk_class": "PROCESS",
+  "risk_severity": "BLOCKING",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

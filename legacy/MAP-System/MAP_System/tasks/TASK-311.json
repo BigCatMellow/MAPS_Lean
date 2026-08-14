@@ -1,0 +1,35 @@
+{
+  "task_id": "TASK-311",
+  "title": "WS-2: Resolve active MAP output ownership collisions",
+  "task_type": "governance-repair",
+  "role": "state-steward",
+  "status": "APPROVED",
+  "dependencies": [
+    "TASK-310"
+  ],
+  "owner": "rotation-replacement-kite-veni",
+  "description": "Child of TASK-309, gated on TASK-310. On Smalls authority, reconcile the nine active output-path collisions identified in the approved recovery evidence. Preserve history, use only sanctioned lifecycle verbs, retire or re-scope superseded work with reasons, and leave exactly one active owner per output. Do not add new lifecycle verbs or bypass policy gates.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/recovery/ws2-output-collision-resolution.md"
+  ],
+  "acceptance_criteria": [
+    "All nine baseline active collision groups are listed with authoritative before state, decision, actor, sanctioned command, and after state.",
+    "Every active output path has exactly one nonterminal owner; historical task and review evidence remains intact.",
+    "TASK-297, TASK-304, and TASK-308 remain gated unless their exact pre-existing approval requirements are independently satisfied.",
+    "Collision validators and mirror validation pass, with independent review by an agent other than the owner."
+  ],
+  "decision_class": "OWNERSHIP",
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

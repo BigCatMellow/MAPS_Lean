@@ -1,0 +1,46 @@
+{
+  "_comment": "TASK-282. Documents the shape produced by `MAP_System/scripts/submission_records.py show --task-id TASK-NNN`. Records live in the submission_criterion_claims/submission_criterion_verdicts SQLite tables (migration/submission_record_schema.sql); this file is documentation, not a canonical source. Never a competing task authority: tasks.status remains the sole lifecycle source of truth.",
+  "claim_schema": {
+    "id": "integer, primary key, stable claim identifier",
+    "task_id": "string, references tasks.task_id",
+    "submission_count": "integer; which submission attempt this claim belongs to (from task_submission_authorship, TASK-278). A new submission_count after rework produces new claim rows -- prior rows are never mutated",
+    "criterion_id": "integer, references task_acceptance_criteria.id -- the stable identifier acceptance criterion 1 requires",
+    "claimed_status": "'complete', 'partial', or 'blocked'",
+    "evidence_refs": "array of repo-relative paths; existence-checked at claim time when claimed_status is 'complete' -- a criterion cannot be claimed complete with missing or zero evidence",
+    "task_revision": "string or null; TASK-281 run-manifest task_revision hash this claim corresponds to, when available",
+    "run_id": "string or null; TASK-281 run_id this claim corresponds to, when available",
+    "author_id": "string, references agents.agent_id; must equal the canonical submission author (task_submission_authorship.author_id) for this task -- never an artifact-supplied or self-declared identity",
+    "created_at": "ISO8601 UTC timestamp",
+    "verdicts": "array of verdict records for this claim, oldest first; empty until a reviewer records one"
+  },
+  "verdict_schema": {
+    "id": "integer, primary key",
+    "claim_id": "integer, references submission_criterion_claims.id",
+    "verified_status": "'confirmed' or 'rejected'",
+    "reviewer_id": "string, references agents.agent_id; must differ from the claim's author_id (self-review is rejected at record time, mirroring TASK-278's no-self-review guard)",
+    "notes": "string or null",
+    "created_at": "ISO8601 UTC timestamp"
+  },
+  "example": {
+    "id": 1,
+    "task_id": "TASK-999",
+    "submission_count": 1,
+    "criterion_id": 42,
+    "claimed_status": "complete",
+    "evidence_refs": ["MAP_System/tests/test_example.py"],
+    "task_revision": "3f9a...",
+    "run_id": "RUN-TASK-999-01",
+    "author_id": "codex-lab-example",
+    "created_at": "2026-07-27T13:00:00Z",
+    "verdicts": [
+      {
+        "id": 1,
+        "claim_id": 1,
+        "verified_status": "confirmed",
+        "reviewer_id": "claude-lab-example",
+        "notes": null,
+        "created_at": "2026-07-27T14:00:00Z"
+      }
+    ]
+  }
+}

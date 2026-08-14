@@ -1,0 +1,40 @@
+{
+  "task_id": "TASK-281",
+  "title": "Pilot immutable task revisions and minimal run manifests",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-280"
+  ],
+  "owner": "command-center",
+  "description": "Implement the approved TASK-277 bounded run-manifest experiment after normalized role IDs exist. At dispatch, bind one immutable task revision to a run ID and record worker and session identity, role ID, selected skills, context references with hashes, writable scope, runtime limits, and base revision where applicable. Store references and hashes rather than copied context. Output sequencing: shared base schema paths must be registered only after predecessor ownership clears; begin with the task-specific migration output.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task281-run-manifest-pilot.md",
+    "MAP_System/migration/run_manifest_schema.sql",
+    "MAP_System/scripts/run_manifest.py",
+    "MAP_System/tests/test_run_manifest.py",
+    "MAP_System/workflow/templates/run_manifest.json"
+  ],
+  "acceptance_criteria": [
+    "Dispatch creates an immutable task revision or hash and unique run ID before work begins.",
+    "The minimal manifest records worker and session, normalized role, selected skills, context references and hashes, writable scope, runtime limits, and applicable base revision without copying full source context.",
+    "A reviewer can reproduce which task and context revision a run used, and stale task or context changes are detected.",
+    "Document-only or non-Git work does not require a meaningless commit revision, while Git-backed work records applicable base and result provenance.",
+    "A bounded pilot compares manifest size and safety-fact retention against EXP-0005 and does not authorize global production rollout without independent review."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "KNOWLEDGE",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

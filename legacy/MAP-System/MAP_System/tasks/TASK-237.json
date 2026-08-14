@@ -1,0 +1,39 @@
+{
+  "task_id": "TASK-237",
+  "title": "Add operator reply popup queue to CommandCenterUI",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Add a keyboard-accessible AIM-style overlay that presents only new unanswered operator-directed hcom requests, approval gates, and terminal prompts. Preserve existing attention inbox and reply_to behavior. The operator must explicitly choose reply, open, snooze, dismiss, approve, or reject; no action may be automatic.",
+  "input_paths": [],
+  "output_paths": [
+    "../CommandCenterUI/src/chat.css",
+    "../CommandCenterUI/src/chat.html",
+    "../CommandCenterUI/src/chat.js",
+    "MAP_System/artifacts/tests/task237-attention-popup.md",
+    "MAP_System/templates/install/command-center-ui/src/chat.css",
+    "MAP_System/templates/install/command-center-ui/src/chat.html",
+    "MAP_System/templates/install/command-center-ui/src/chat.js",
+    "MAP_System/tests/test_command_center_attention_popup.py"
+  ],
+  "acceptance_criteria": [
+    "New unanswered request messages, approval gates, and terminal prompts are queued into one operator-visible popup at a time without duplicating a popup for an item already seen.",
+    "Popup actions explicitly route to reply or open paths, persist snooze or dismissal locally, and retain the existing inbox; approval decisions remain explicit.",
+    "Focused UI checks verify popup markup, queue behavior, action wiring, and no automatic approval or send behavior."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

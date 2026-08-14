@@ -1,0 +1,1946 @@
+{
+  "corpus_count": 37,
+  "experiment": "TASK-256",
+  "fingerprints": [
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/artifacts/tests/task-extraction-parity.md",
+        "Projects/ClearFront/baseline/",
+        "Projects/ClearFront/scripts/extract_bundle.py",
+        "Projects/ClearFront/scripts/test_extract_bundle.py",
+        "Projects/ClearFront/source/SHA256SUMS.txt"
+      ],
+      "concepts": [
+        "reproducible extraction",
+        "source preservation",
+        "hash manifest",
+        "baseline parity",
+        "browser refactor"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Operator directive hcom #311 (2026-07-16): take over ClearFront trading card game via MAP. First step per Lilo's intake handoff (MAP_System/handoffs/HANDOFF-CLEARFRONT-intake-codex-lab-lilo-to-claude-lab-gome.md): the original Clearfront.html is a generated self-extracting artifact-bundler HTML (JSON __bundler/manifest of UUID-keyed base64/gzip assets + JSON __bundler/template with UUID placeholders), not editable source. Original preserved+hashed under Projects/ClearFront/source/ (done). Write a reproducible Python extractor that\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "Preserved and hashed the generated bundle, extracted it reproducibly, and established an editable baseline before refactoring.",
+      "semantic_word_count": 94,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-207.json": "ca5f7d80b301cdd0c8bb1fd65052fa52e013b2cdbb5f7e7198c4ff3cf4cf80ce",
+        "Projects/ClearFront/artifacts/tests/task-extraction-parity.md": "69995ab8080bb54c6f0e5f5cfffd18a792ebf95b2e014b7269449cb629dfd0eb",
+        "Projects/ClearFront/scripts/extract_bundle.py": "6ee3ed9987a9259699ec6dccc474e216701d3afb98d2a801836a17d9100a97df",
+        "Projects/ClearFront/scripts/test_extract_bundle.py": "57d0fb2dc776a132483426f4492aabd4a84b75d6521dbf6d4016f6f7ed66cfd4",
+        "Projects/ClearFront/source/SHA256SUMS.txt": "5ef045fd0c0dd7000fd47ec6b03943f8d1cf197bd8ca85890b78c8b87602c239"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-207.json",
+        "Projects/ClearFront/artifacts/tests/task-extraction-parity.md",
+        "Projects/ClearFront/baseline",
+        "Projects/ClearFront/scripts/extract_bundle.py",
+        "Projects/ClearFront/scripts/test_extract_bundle.py",
+        "Projects/ClearFront/source/SHA256SUMS.txt"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-207",
+      "title": "ClearFront: reproducible bundle extraction to editable baseline",
+      "unexpected": "The original HTML was a self-extracting artifact bundle rather than ordinary editable source.",
+      "workstream": "clearfront-delivery"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/app/assets/",
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/data.js",
+        "Projects/ClearFront/app/styles/clearfront.css",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-app-after-champion-click.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-baseline-after-champion-click.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-baseline-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/task-208-skeleton-parity.md",
+        "Projects/ClearFront/artifacts/tests/task208-cdp-smoke.mjs"
+      ],
+      "concepts": [
+        "multi-file extraction",
+        "screenshot parity",
+        "CDP interaction",
+        "file URL",
+        "CSS data split"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Follow-on to TASK-207 (baseline extraction, APPROVED-pending-review). Per DEC-CF-002/DEC-CF-003 (Projects/ClearFront/shared/decisions.md) and the module map (Projects/ClearFront/artifacts/planning/clearfront-module-map-2026-07-16.md): split Projects/ClearFront/baseline/index.html into a directly-editable multi-file skeleton, starting with the lowest-risk pieces. (1) Move the <style> block (lines 10-1399) to Projects/ClearFront/app/styles/clearfront.css, linked via <link rel=stylesheet>. (2) Move constants + CARD_LIBRARY + PLAYER_DECKLIST/AI_DECKLIST/DECKS/FACTION_POOLS/HERO_NAMES (lines 1655-1799) to Projects/ClearFront/app/js/data.js, attached to a shared window.CF\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "Established the first multi-file app skeleton and paired screenshots with a dependency-free CDP interaction smoke check.",
+      "semantic_word_count": 94,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-208.json": "794489a15da322e981187d7fffdeae1999d2ef339ac228448809562a811222f5",
+        "Projects/ClearFront/app/index.html": "491570c3e130204b480bff8c563a31610cb494b108ed2d510a7b2ec4277db295",
+        "Projects/ClearFront/app/js/data.js": "46b8a25493e24a62e691dc4b33ff3a512e4edd022a59beefd2c3636a3142c4f8",
+        "Projects/ClearFront/app/styles/clearfront.css": "b88a6f413a2939085e1f74711b8ebb6bdb24877f6293a6d440f0280b5a4c6c8a",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-app-after-champion-click.png": "92a0de4705ac14d53abafc75d38ce20aac2de6ae88949ee9c864298b06f6db70",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-app-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-baseline-after-champion-click.png": "78b68c2ba69f3db5aef8bc464cbe5d484bb1b03e77e9b3d4cad1f596eb638347",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-baseline-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/task-208-skeleton-parity.md": "91285716f65a0ad8c4c9ce7df8fba560ac8d4e7870b350dc89ac9ed557dc372a",
+        "Projects/ClearFront/artifacts/tests/task208-cdp-smoke.mjs": "1fba0c73dbfa38b379884bda1b640fc7d9b07cdfe4f1264ecc414828a9779df0"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-208.json",
+        "Projects/ClearFront/app/assets",
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/data.js",
+        "Projects/ClearFront/app/styles/clearfront.css",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-app-after-champion-click.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-baseline-after-champion-click.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task208-baseline-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/task-208-skeleton-parity.md",
+        "Projects/ClearFront/artifacts/tests/task208-cdp-smoke.mjs"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-208",
+      "title": "ClearFront: extract CSS+data module, establish multi-file skeleton",
+      "unexpected": "The cheap screenshot-plus-interaction gate became reusable evidence for later HTML extraction work.",
+      "workstream": "clearfront-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/artifacts/research/rules-conformance-audit.md"
+      ],
+      "concepts": [
+        "rules conformance",
+        "hidden information",
+        "card replacement",
+        "undo exploit",
+        "read-only audit"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Replaces TASK-209 (superseded -- see events.jsonl BLOCKED entry; TASK-209 was misclassified role=reviewer, which trips the self-review claim gate for any owner, and its original delegate pi-lab-puma could not complete it and is now unavailable per operator). Phase-1 completion condition from Projects/ClearFront/shared/project-brief.md: an audit comparing the governing playtest ruleset (Projects/ClearFront/source/game-card-combat-effects/clearfront_rules.md) against the parity-proven implementation (Projects/ClearFront/baseline/index.html, readable\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "Audited rules against the parity-proven implementation and identified the replacement undo hidden-information exploit among the deviations.",
+      "semantic_word_count": 95,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-211.json": "d5f743ca850049e4436109c3d10ee70efbde03a7f80c3d58c72dc0e80161c26e",
+        "Projects/ClearFront/artifacts/research/rules-conformance-audit.md": "1a44ee076b00ea76dad77042e645cf346487895fe127d0ee29b29d32f271cb81"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-211.json",
+        "Projects/ClearFront/artifacts/research/rules-conformance-audit.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-211",
+      "title": "ClearFront: rules-to-implementation conformance audit",
+      "unexpected": "Undo saved state before revealing a random replacement, allowing a free peek and reversal.",
+      "workstream": "clearfront-engine"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/state.js",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-app-fullturn.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-pre212-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-pre212-fullturn.png",
+        "Projects/ClearFront/artifacts/tests/task-212-owner-verification-gome.md",
+        "Projects/ClearFront/artifacts/tests/task-212-state-parity.md",
+        "Projects/ClearFront/artifacts/tests/task212-cdp-fullturn.mjs",
+        "Projects/ClearFront/artifacts/tests/task212-run-app-seed42.log",
+        "Projects/ClearFront/artifacts/tests/task212-run-pre212-seed42.log",
+        "Projects/ClearFront/artifacts/tests/task212-undo-check.mjs"
+      ],
+      "concepts": [
+        "clearfront",
+        "state",
+        "js",
+        "projects",
+        "artifacts",
+        "tests",
+        "app",
+        "task212"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "First engine-layer decomposition slice per DEC-CF-004 (Projects/ClearFront/shared/decisions.md). Extract from app/index.html's remaining inline IIFE into Projects/ClearFront/app/js/state.js: buildDecklist, applyDeckIdentity, showDeckSelect, makeCard, shuffle, createSide, resetGame, sideOf, otherSide, controllerLabel, championDef, resetChampionTurnFlags, championDeployReason, deployChampion, returnChampionToSlot, saveUndo, clearUndo, canUndo, undoLastAction, aiConsiderChampion, addLog, dealStartingHand, drawCard, refillHand, replaceCard, startTurn. These functions read/write the shared mutable state object (state, clashTimers, undoRecord) that stays declared\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "RELEASED: ClearFront: extract js/state.js (deck/side/game-state setup).",
+      "semantic_word_count": 69,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-212.json": "b17a2452a2822f44721900198ad4b652c48a2f59baf77c33ed95089ddaa000bd",
+        "Projects/ClearFront/app/index.html": "491570c3e130204b480bff8c563a31610cb494b108ed2d510a7b2ec4277db295",
+        "Projects/ClearFront/app/js/state.js": "700fb9f6f381600e4a7fb9045c2e784df5336ff1de00e35a79db701e5f7365d7",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-app-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-app-fullturn.png": "ff63702d7cdbe3bbc6538e99dc851244e37ab7cd21c25fd197b818b717a30461",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-pre212-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-pre212-fullturn.png": "6277cd528573033beea84c4bb6cf1af777dc80e325400da66eb02abc1db718d2",
+        "Projects/ClearFront/artifacts/tests/task-212-owner-verification-gome.md": "d0192160be2bf35c647e06d5c9c867f4126aadd63818e9c02cd84b5aa2e63815",
+        "Projects/ClearFront/artifacts/tests/task-212-state-parity.md": "1d80550532bb5f34846eeaa698ab1bf37d4ae6542dad0559b2dad4c84dca94b8",
+        "Projects/ClearFront/artifacts/tests/task212-cdp-fullturn.mjs": "6331d856e890d28f7a022c83620217072bf084bc17011ac7d567e74de180c15a",
+        "Projects/ClearFront/artifacts/tests/task212-run-app-seed42.log": "e6084249ec31d497acde8e3eb9a9d8b3e7cb5fb4700b17d57640caf406dee16c",
+        "Projects/ClearFront/artifacts/tests/task212-run-pre212-seed42.log": "e6084249ec31d497acde8e3eb9a9d8b3e7cb5fb4700b17d57640caf406dee16c",
+        "Projects/ClearFront/artifacts/tests/task212-undo-check.mjs": "b4a13d5fee75d74e617f01e15617b62a8f125c9062256e3009fb2bd117e7bfc1"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-212.json",
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/state.js",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-app-fullturn.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-pre212-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task212-pre212-fullturn.png",
+        "Projects/ClearFront/artifacts/tests/task-212-owner-verification-gome.md",
+        "Projects/ClearFront/artifacts/tests/task-212-state-parity.md",
+        "Projects/ClearFront/artifacts/tests/task212-cdp-fullturn.mjs",
+        "Projects/ClearFront/artifacts/tests/task212-run-app-seed42.log",
+        "Projects/ClearFront/artifacts/tests/task212-run-pre212-seed42.log",
+        "Projects/ClearFront/artifacts/tests/task212-undo-check.mjs"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-212",
+      "title": "ClearFront: extract js/state.js (deck/side/game-state setup)",
+      "unexpected": "",
+      "workstream": "clearfront-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md"
+      ],
+      "concepts": [
+        "replacement undo",
+        "hidden information",
+        "regression test",
+        "reversible action",
+        "game rules"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Implement approved PROMO-0010/INS-0025 in the editable app only: replacement must reveal its new card without leaving a reversible snapshot; preserve ordinary one-step undo for reversible actions. No refactor, balance, source, or baseline changes.",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "Removed undo availability from the hidden-information replacement branch while preserving ordinary reversible undo and added focused regression evidence.",
+      "semantic_word_count": 74,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-213.json": "eec6c7bb5e04c2ef80ccb206925716268e0da97455a66387c57d02089f135865",
+        "Projects/ClearFront/app/index.html": "491570c3e130204b480bff8c563a31610cb494b108ed2d510a7b2ec4277db295",
+        "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md": "50c7b7acd7553fadc4eb97a2b672e90f41f1db78d7c0e3cccba19d8a91534555"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-213.json",
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-213",
+      "title": "ClearFront: close replacement undo hidden-information exploit",
+      "unexpected": "A narrow behavior fix closed the exploit without changing the broader undo system.",
+      "workstream": "clearfront-engine"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/combat.js",
+        "Projects/ClearFront/app/js/state.js",
+        "Projects/ClearFront/artifacts/tests/screenshots/task214-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task214-pre214-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md",
+        "Projects/ClearFront/artifacts/tests/task-214-owner-verification-gome.md",
+        "Projects/ClearFront/artifacts/tests/task214-cdp-fullturn.mjs",
+        "Projects/ClearFront/artifacts/tests/task214-run-app-seed42.log",
+        "Projects/ClearFront/artifacts/tests/task214-run-app-seed7.log",
+        "Projects/ClearFront/artifacts/tests/task214-run-pre214-seed42.log",
+        "Projects/ClearFront/artifacts/tests/task214-run-pre214-seed7.log"
+      ],
+      "concepts": [
+        "combat extraction",
+        "ctx accessors",
+        "window CF",
+        "headless seam",
+        "seeded parity"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Second and highest-risk engine-layer decomposition slice (RISK-CF-0001), scoped precisely in DEC-CF-005 (Projects/ClearFront/shared/decisions.md) after inspecting post-TASK-212 app/index.html directly (not the pre-207 module map, which predates the ctx/window.CF mechanism). Extract these 37 functions verbatim into Projects/ClearFront/app/js/combat.js, published via CF.installCombatModule(ctx) mirroring TASK-212's CF.installStateModule(ctx) pattern exactly: cardAttack, effectiveCost, isDamageCard, isDamageSpell, damageHero, getCardCondition, canAttack, usesCompactLayout, scrollZoneIntoView, scrollToTargets, handleHandCard, getTargetInfo, isCardPlayable\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "Extracted the combat engine behind a ctx and window.CF installation contract while retaining seeded browser parity evidence.",
+      "semantic_word_count": 95,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-214.json": "d18f73c9ee2abf6519afabc2139001725f0b055a1f52ce2678b27a8d5d18a396",
+        "Projects/ClearFront/app/index.html": "491570c3e130204b480bff8c563a31610cb494b108ed2d510a7b2ec4277db295",
+        "Projects/ClearFront/app/js/combat.js": "27ef5213c0fcab3e564067c3cb4bf4361ce8c3fdd4873a2c4aa31d7715c9dffe",
+        "Projects/ClearFront/app/js/state.js": "700fb9f6f381600e4a7fb9045c2e784df5336ff1de00e35a79db701e5f7365d7",
+        "Projects/ClearFront/artifacts/tests/screenshots/task214-app-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/screenshots/task214-pre214-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md": "12a9dff284b067a4b20cbe082540c705013fe87d1e63d366046965b2eb57491f",
+        "Projects/ClearFront/artifacts/tests/task-214-owner-verification-gome.md": "4fa27363dc3c571d67a402da4772eebd01d9e139f9358ac46671367b27aed5d4",
+        "Projects/ClearFront/artifacts/tests/task214-cdp-fullturn.mjs": "e7a539533c2c2aafbb6add7f268e076944e6d7d65b2872904e37ed74621a7650",
+        "Projects/ClearFront/artifacts/tests/task214-run-app-seed42.log": "88cb51eabd33327c0acfadefb2cc42a5b0d4c843087ef29bbe3363a9b0f5f4ae",
+        "Projects/ClearFront/artifacts/tests/task214-run-app-seed7.log": "ed453c240ed2b98a8f399847a7a382bb173fc1cfd72e355b65e0907709f368cb",
+        "Projects/ClearFront/artifacts/tests/task214-run-pre214-seed42.log": "88cb51eabd33327c0acfadefb2cc42a5b0d4c843087ef29bbe3363a9b0f5f4ae",
+        "Projects/ClearFront/artifacts/tests/task214-run-pre214-seed7.log": "ed453c240ed2b98a8f399847a7a382bb173fc1cfd72e355b65e0907709f368cb"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-214.json",
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/combat.js",
+        "Projects/ClearFront/app/js/state.js",
+        "Projects/ClearFront/artifacts/tests/screenshots/task214-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task214-pre214-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md",
+        "Projects/ClearFront/artifacts/tests/task-214-owner-verification-gome.md",
+        "Projects/ClearFront/artifacts/tests/task214-cdp-fullturn.mjs",
+        "Projects/ClearFront/artifacts/tests/task214-run-app-seed42.log",
+        "Projects/ClearFront/artifacts/tests/task214-run-app-seed7.log",
+        "Projects/ClearFront/artifacts/tests/task214-run-pre214-seed42.log",
+        "Projects/ClearFront/artifacts/tests/task214-run-pre214-seed7.log"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-214",
+      "title": "ClearFront: extract js/combat.js (card play, combat, end-turn, AI)",
+      "unexpected": "The module boundary made the unchanged engine loadable under a small non-DOM host.",
+      "workstream": "clearfront-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/combat.js",
+        "Projects/ClearFront/app/js/render.js",
+        "Projects/ClearFront/app/js/state.js",
+        "Projects/ClearFront/artifacts/tests/screenshots/task215-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task215-baseline-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/task-215-render-parity.md",
+        "Projects/ClearFront/artifacts/tests/task215-run-app-seed42.json",
+        "Projects/ClearFront/artifacts/tests/task215-run-app-seed7.json",
+        "Projects/ClearFront/artifacts/tests/task215-run-baseline-seed42.json",
+        "Projects/ClearFront/artifacts/tests/task215-run-baseline-seed7.json",
+        "Projects/ClearFront/artifacts/tests/task215-seeded-replay.mjs"
+      ],
+      "concepts": [
+        "js",
+        "cf",
+        "clearfront",
+        "render",
+        "projects",
+        "app",
+        "artifacts",
+        "tests"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Third engine-layer decomposition slice, scoped precisely in DEC-CF-006 (Projects/ClearFront/shared/decisions.md) by direct inspection of post-TASK-214 app/index.html. Extract these 28 functions verbatim into Projects/ClearFront/app/js/render.js, published via CF.installRenderModule(ctx) mirroring the installStateModule/installCombatModule pattern: clashDelay, buildClashCard, buildClashFx, spawnClashNumber, showClashHit, flagClashCard, stageImpact, runBlockedClash, runHeroClash, playClashSequence, updateBoardScrollIndicator, updateBoardScrollbars, bindBoardScrollbar, render, renderEnemyHand, renderRelics, renderChampionSlot, renderBoard, renderHand, createCardElement, renderCardCatalog, getBlockingSnapshot, predictCombat, renderBlockReview, renderCombatReport, renderPhase\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "RELEASED: ClearFront: extract js/render.js (rendering + clash animation).",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-215.json": "68769f60f77c88d60476026f306202f35956374f3a682d30e0e1e75b2ade626a",
+        "Projects/ClearFront/app/index.html": "491570c3e130204b480bff8c563a31610cb494b108ed2d510a7b2ec4277db295",
+        "Projects/ClearFront/app/js/combat.js": "27ef5213c0fcab3e564067c3cb4bf4361ce8c3fdd4873a2c4aa31d7715c9dffe",
+        "Projects/ClearFront/app/js/render.js": "a5f8bf99036c120de9b6b22fc8a3469287dc48f17a61bb39698d08efef0467e6",
+        "Projects/ClearFront/app/js/state.js": "700fb9f6f381600e4a7fb9045c2e784df5336ff1de00e35a79db701e5f7365d7",
+        "Projects/ClearFront/artifacts/tests/screenshots/task215-app-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/screenshots/task215-baseline-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/task-215-render-parity.md": "82eeefba8d38b85f2d50d950514daefd7c3a92c391afce59bdfe60c7e068f22d",
+        "Projects/ClearFront/artifacts/tests/task215-run-app-seed42.json": "1f2292e49a83d599469847dd899265ed90e60dbd64dd31566694a2a00272e865",
+        "Projects/ClearFront/artifacts/tests/task215-run-app-seed7.json": "9da81432b86b2e754ee4005c35f9ff6111e455ae769d4d0f5fbad0918519ca23",
+        "Projects/ClearFront/artifacts/tests/task215-run-baseline-seed42.json": "1f2292e49a83d599469847dd899265ed90e60dbd64dd31566694a2a00272e865",
+        "Projects/ClearFront/artifacts/tests/task215-run-baseline-seed7.json": "9da81432b86b2e754ee4005c35f9ff6111e455ae769d4d0f5fbad0918519ca23",
+        "Projects/ClearFront/artifacts/tests/task215-seeded-replay.mjs": "bb2d8b66f598054d92cb9c42cb419abe435fc7bd1baa50c9b38a271e39350b7e",
+        "Projects/ClearFront/artifacts/tests/task215-undo-check.mjs": "1510f8171dd101d5ab4005c128d529b5a54698e3e597ec5de95b2c4e44f3fa95"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-215.json",
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/combat.js",
+        "Projects/ClearFront/app/js/render.js",
+        "Projects/ClearFront/app/js/state.js",
+        "Projects/ClearFront/artifacts/tests/screenshots/task215-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task215-baseline-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/task-215-render-parity.md",
+        "Projects/ClearFront/artifacts/tests/task215-run-app-seed42.json",
+        "Projects/ClearFront/artifacts/tests/task215-run-app-seed7.json",
+        "Projects/ClearFront/artifacts/tests/task215-run-baseline-seed42.json",
+        "Projects/ClearFront/artifacts/tests/task215-run-baseline-seed7.json",
+        "Projects/ClearFront/artifacts/tests/task215-seeded-replay.mjs",
+        "Projects/ClearFront/artifacts/tests/task215-undo-check.mjs"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-215",
+      "title": "ClearFront: extract js/render.js (rendering + clash animation)",
+      "unexpected": "",
+      "workstream": "clearfront-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/input.js",
+        "Projects/ClearFront/artifacts/tests/screenshots/task216-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task216-pre216-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/task-216-input-parity.md",
+        "Projects/ClearFront/artifacts/tests/task216-input-check.mjs",
+        "Projects/ClearFront/shared/decisions.md"
+      ],
+      "concepts": [
+        "js",
+        "clearfront",
+        "input",
+        "projects",
+        "preview",
+        "extract",
+        "card",
+        "gestures"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Final decomposition slice per DEC-CF-007. Move only the self-contained initCardPeek hover/touch preview IIFE into app/js/input.js behind CF.installInputModule(), invoked at the same inline-host ordering point. Keep host action/modal/scrollbar wiring and bootstrap inline. No rules, balance, source, or baseline changes.",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "RELEASED: ClearFront: extract js/input.js (card preview gestures).",
+      "semantic_word_count": 53,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-216.json": "41e7c41a40fc772d581dd2cb0c8543a95dd3fd861e617a9966f571101e77c71e",
+        "Projects/ClearFront/app/index.html": "491570c3e130204b480bff8c563a31610cb494b108ed2d510a7b2ec4277db295",
+        "Projects/ClearFront/app/js/input.js": "9f3a54bdec9b86e46053c5014cd694762f7f83c8f12c9dfc0ca049c275c70619",
+        "Projects/ClearFront/artifacts/tests/screenshots/task216-app-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/screenshots/task216-pre216-champion-select.png": "de6606021e0528085151e85c6621c1a675b2a75d3c00ecdb8bb67497da651c5f",
+        "Projects/ClearFront/artifacts/tests/task-216-input-parity.md": "747ccf6d7b702678ec9c08e7a212e9b9f78df6c61392d31af363ef66a0098b89",
+        "Projects/ClearFront/artifacts/tests/task216-input-check.mjs": "48b94a4a871449a1f9d654ee9bf51e321443ee3a55017e5646ce0886ba5c2f8a",
+        "Projects/ClearFront/shared/decisions.md": "9076c99678a7e84b846d4f6af376a85b9cc73dee071e748c6ce6820310773a64"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-216.json",
+        "Projects/ClearFront/app/index.html",
+        "Projects/ClearFront/app/js/input.js",
+        "Projects/ClearFront/artifacts/tests/screenshots/task216-app-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task216-pre216-champion-select.png",
+        "Projects/ClearFront/artifacts/tests/task-216-input-parity.md",
+        "Projects/ClearFront/artifacts/tests/task216-input-check.mjs",
+        "Projects/ClearFront/shared/decisions.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-216",
+      "title": "ClearFront: extract js/input.js (card preview gestures)",
+      "unexpected": "",
+      "workstream": "clearfront-engine"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/app/assets/card-relic.png",
+        "Projects/ClearFront/app/assets/card-spell.png",
+        "Projects/ClearFront/app/assets/card-unit.png",
+        "Projects/ClearFront/app/js/render.js",
+        "Projects/ClearFront/app/styles/clearfront.css",
+        "Projects/ClearFront/artifacts/tests/screenshots/task217-card-face.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task217-card-hover.png",
+        "Projects/ClearFront/artifacts/tests/task-217-card-art-preview.md",
+        "Projects/ClearFront/artifacts/tests/task217-card-art-check.mjs"
+      ],
+      "concepts": [
+        "clearfront",
+        "card",
+        "projects",
+        "category",
+        "preview",
+        "faces",
+        "app",
+        "png"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Operator-requested presentation improvement after decomposition. Generate three original bitmap category artworks (Unit, Spell, Relic). Compact card faces show cost/name/art/category/stats while full rules text, keywords, and conditions appear in existing hover/touch previews. No card rules, balance, or state behavior changes. Design checklist: improves clarity/readability, adds no mechanic or tracking state, and reuses one image per category\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "RELEASED: ClearFront: add category artwork and detail-on-preview card faces.",
+      "semantic_word_count": 72,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-217.json": "60db9b085c75cf4056be6e58890b6053ed82caea54b1efc0dbd9146014386e05",
+        "Projects/ClearFront/app/assets/card-relic.png": "2805d4145787591a0222140824415c86bf7c6e38087ecfd01b145a3304f0c717",
+        "Projects/ClearFront/app/assets/card-spell.png": "9d173af3f847d29ff5d1703466c8f26e8e83492d11225d275113f4bfa9cf9dae",
+        "Projects/ClearFront/app/assets/card-unit.png": "1da4ccf9def57fe115d06ae66f61fef6d81553df4ed0b33de65d22128ae102f7",
+        "Projects/ClearFront/app/js/render.js": "a5f8bf99036c120de9b6b22fc8a3469287dc48f17a61bb39698d08efef0467e6",
+        "Projects/ClearFront/app/styles/clearfront.css": "b88a6f413a2939085e1f74711b8ebb6bdb24877f6293a6d440f0280b5a4c6c8a",
+        "Projects/ClearFront/artifacts/tests/screenshots/task217-card-face.png": "ebd6fbee9fb16ff681639e88685733d4a8c54fec6e0adaec9318e6b2e22942bb",
+        "Projects/ClearFront/artifacts/tests/screenshots/task217-card-hover.png": "82b49823967c5efc2b90e345ccb059c9e8010d1ef8ed5bc27721aa817f39713b",
+        "Projects/ClearFront/artifacts/tests/task-217-card-art-preview.md": "5318288758da7195acb143b09ad1138b41f37b6ee82d1d19f163456d0e18f0c3",
+        "Projects/ClearFront/artifacts/tests/task217-card-art-check.mjs": "352ac80ae6b4bb3e61aa6d4aff160536cef145e713fa53d9b7c33ab08c47c61b"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-217.json",
+        "Projects/ClearFront/app/assets/card-relic.png",
+        "Projects/ClearFront/app/assets/card-spell.png",
+        "Projects/ClearFront/app/assets/card-unit.png",
+        "Projects/ClearFront/app/js/render.js",
+        "Projects/ClearFront/app/styles/clearfront.css",
+        "Projects/ClearFront/artifacts/tests/screenshots/task217-card-face.png",
+        "Projects/ClearFront/artifacts/tests/screenshots/task217-card-hover.png",
+        "Projects/ClearFront/artifacts/tests/task-217-card-art-preview.md",
+        "Projects/ClearFront/artifacts/tests/task217-card-art-check.mjs"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-217",
+      "title": "ClearFront: add category artwork and detail-on-preview card faces",
+      "unexpected": "",
+      "workstream": "clearfront-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/notes/review-guide.md"
+      ],
+      "concepts": [
+        "clearfront",
+        "map",
+        "review",
+        "risk",
+        "audit",
+        "tiered",
+        "convention",
+        "document"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Reusable MAP-level half of the ClearFront process-improvement batch (operator-directed, hcom thread clearfront-map #1851, following the independent audit at Projects/ClearFront/artifacts/reviews/clearfront-independent-delivery-audit-2026-07-17.md). Add a Risk-Tiered Review section to MAP_System/notes/review-guide.md: three lanes (high/medium/low) with concrete criteria for what each requires, so any MAP project -- not just ClearFront -- can calibrate review/release ceremony to actual risk instead of applying\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "RELEASED: MAP: document risk-tiered review convention (from ClearFront audit).",
+      "semantic_word_count": 72,
+      "source_hashes": {
+        "MAP_System/notes/review-guide.md": "f90e80cd4d06cb6a1613625e330ab9e89c9eb88c5b1bca4b4f3a040ae6dd9a4b",
+        "MAP_System/tasks/TASK-218.json": "06b117a49b7e073f33a19d0d4a7a8b679241fc49a936bb9cf22a0d9a59475917"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-218.json",
+        "MAP_System/notes/review-guide.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-218",
+      "title": "MAP: document risk-tiered review convention (from ClearFront audit)",
+      "unexpected": "",
+      "workstream": "clearfront-delivery"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/scripts/test_all.mjs",
+        "Projects/ClearFront/templates/delivery-note-template.md"
+      ],
+      "concepts": [
+        "clearfront",
+        "template",
+        "test",
+        "one",
+        "evidence",
+        "projects",
+        "command",
+        "runner"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "ClearFront-local half of the process-improvement batch (operator-directed, hcom thread clearfront-map #1851, per Projects/ClearFront/artifacts/reviews/clearfront-independent-delivery-audit-2026-07-17.md P1 findings and DEC-CF-008). Medium-risk tier per DEC-CF-008 (tooling/process, no game rules/engine change): one review at completion, no per-file ceremony. Two parts: (1) Projects/ClearFront/scripts/test_all.mjs (or equivalent single entrypoint): runs node --check across all app/js/*.js, runs scripts/test_extract_bundle.py, manages its own headless Chromium lifecycle\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "RELEASED: ClearFront: one-command test runner + evidence consolidation template.",
+      "semantic_word_count": 72,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-219.json": "f8b6a2a988242403eff7ffe616eef638e00b21be735f111a4b0a20c3c924f29e",
+        "Projects/ClearFront/scripts/test_all.mjs": "a452de1f8853d4712e017bcc0e6b4888f437d2a4f48ae57670b044d623397787",
+        "Projects/ClearFront/templates/delivery-note-template.md": "1bd90af9f377883f2dc293824c873e5e2c324d6740c85367b0e966e6b50dfcdb"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-219.json",
+        "Projects/ClearFront/scripts/test_all.mjs",
+        "Projects/ClearFront/templates/delivery-note-template.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-219",
+      "title": "ClearFront: one-command test runner + evidence consolidation template",
+      "unexpected": "",
+      "workstream": "clearfront-engine"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/artifacts/tests/task-220-delivery-note.md",
+        "Projects/ClearFront/scripts/test_all.mjs",
+        "Projects/ClearFront/tests/engine/engine-host.mjs",
+        "Projects/ClearFront/tests/engine/rules.cases.mjs",
+        "Projects/ClearFront/tests/engine/run-rules.mjs"
+      ],
+      "concepts": [
+        "headless engine",
+        "deterministic matrix",
+        "Node vm",
+        "below DOM",
+        "ctx host",
+        "rules regression"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Implements the audit's second P0 (rule-engine regression evidence too narrow for future gameplay changes) using the seam proven by INS-0026: data.js+state.js+combat.js load unmodified in Node via node:vm with a ~50-line host stub (window.CF, __resources proxy, setTimeout->manual-drain queue, matchMedia stub, refs Proxy, 3-function render stub with playClashSequence completing synchronously). Deliverables: (1) Projects/ClearFront/tests/engine/engine-host.mjs -- the reusable headless\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "Built a deterministic Node-based rule-engine matrix below the DOM using the extraction seam, real modules, a small host stub, and deviation-tagged cases.",
+      "semantic_word_count": 99,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-220.json": "1cf3675ae32a81f1f465384c0524be74a6deb585835f16b672a38aadc95a24a0",
+        "Projects/ClearFront/artifacts/tests/task-220-delivery-note.md": "677282a31d5d00eba687f7b786c6830320c961be2e23f7a8bc6e364ec27c1853",
+        "Projects/ClearFront/scripts/test_all.mjs": "a452de1f8853d4712e017bcc0e6b4888f437d2a4f48ae57670b044d623397787",
+        "Projects/ClearFront/tests/engine/engine-host.mjs": "78aab09de0f87399eee853b5b7dadbb015d0579a6485efa1958c0b093ba3bed2",
+        "Projects/ClearFront/tests/engine/rules.cases.mjs": "67832696937d632a1313c1f3e68417f402ae2f2716539bccf3fc32db4700d10b",
+        "Projects/ClearFront/tests/engine/run-rules.mjs": "e78893ca1c5a3b52c03046c35404fd5c2fdce174caf4c25941c12780cf882d4f"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-220.json",
+        "Projects/ClearFront/artifacts/tests/task-220-delivery-note.md",
+        "Projects/ClearFront/scripts/test_all.mjs",
+        "Projects/ClearFront/tests/engine/engine-host.mjs",
+        "Projects/ClearFront/tests/engine/rules.cases.mjs",
+        "Projects/ClearFront/tests/engine/run-rules.mjs"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-220",
+      "title": "ClearFront: deterministic rule-engine test matrix (headless, below the DOM)",
+      "unexpected": "The existing modules required no application-code changes to run headlessly.",
+      "workstream": "clearfront-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/tests/rns-persistent-supervisor.md",
+        "MAP_System/notes/limit-exhaustion-protocol.md",
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/scripts/start-limit-watcher.sh",
+        "MAP_System/templates/install/systemd/map-rns-watcher.service",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "concepts": [
+        "limit",
+        "rns",
+        "map",
+        "session",
+        "system",
+        "persistent",
+        "local",
+        "supervisor"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Operator-directed hardening after the 2026-07-17 Claude limit incident: make the existing deterministic RnS watcher self-sufficient when every cloud agent is exhausted. Detect fresh session-limit/reset messages from live hcom transcript tails without waiting for the session to disappear, persist standby/out_of_tokens + ISO resume_after through the canonical SQLite/export path, nudge only due agents, retain bounded retry behavior\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: RnS: persistent local session-limit supervisor.",
+      "semantic_word_count": 69,
+      "source_hashes": {
+        "MAP_System/artifacts/tests/rns-persistent-supervisor.md": "471b440bb9aee50517b9c8b0eb95c738fce4ac6fc6790ca40999ee810bf2ccc5",
+        "MAP_System/notes/limit-exhaustion-protocol.md": "d5148a817b64705009a44e64070abed240698adb96780451b6994a07d7e84ed8",
+        "MAP_System/scripts/limit_watcher.py": "8c862199c73ec46782b8afcf4178090d0c88f3646eeab3ceb5bf6f59a517a418",
+        "MAP_System/scripts/start-limit-watcher.sh": "1990a53ed9acf135a37b88ac700c541bef62fcf7f0b4caf547cddd71cfebc843",
+        "MAP_System/tasks/TASK-221.json": "74130ac4fd2172022784f1df21b3698887593436e0bb745f939f55d874e33b53",
+        "MAP_System/templates/install/systemd/map-rns-watcher.service": "1e7907fd6f5fa22191e4f3f701e5859bf384ed89a7dd34a9ce6f161b2baa1a29",
+        "MAP_System/tests/test_limit_watcher.py": "561d8ab961ea85c0cf0cfd66785d5c4227f1847304bf91426f7f0daa61e16acc"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-221.json",
+        "MAP_System/artifacts/tests/rns-persistent-supervisor.md",
+        "MAP_System/notes/limit-exhaustion-protocol.md",
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/scripts/start-limit-watcher.sh",
+        "MAP_System/templates/install/systemd/map-rns-watcher.service",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-221",
+      "title": "RnS: persistent local session-limit supervisor",
+      "unexpected": "",
+      "workstream": "agent-liveness-and-helpers"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/research/SUMMARY-clearfront-delivery-systems-comparative-study-2026-07-17.md"
+      ],
+      "concepts": [
+        "delivery",
+        "clearfront",
+        "evidence",
+        "research",
+        "agent",
+        "efficient",
+        "multi",
+        "comparative"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Operator-directed comparative study of how ClearFront was handled, focused on process rather than another product/code audit. Use the project task/event/artifact/hcom record as empirical evidence; compare it with current primary-source guidance and published evidence on AI-agent orchestration, software delivery performance, lean flow, incident response, high-reliability operations, and organizational coordination. Identify what MAP does well, where it\u2026",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "APPROVED: Research efficient multi-agent delivery from ClearFront evidence.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/artifacts/research/SUMMARY-clearfront-delivery-systems-comparative-study-2026-07-17.md": "f0c0dfed907deeb397d60ad6f924d88a0679cbc7851807b55a5dbc61cfb14b9f",
+        "MAP_System/tasks/TASK-222.json": "0a08c6fbbaacb5282c1d9c47f207f92a0b99740f52efdb60806b98ade1269ac6"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-222.json",
+        "MAP_System/artifacts/research/SUMMARY-clearfront-delivery-systems-comparative-study-2026-07-17.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-222",
+      "title": "Research efficient multi-agent delivery from ClearFront evidence",
+      "unexpected": "",
+      "workstream": "clearfront-delivery"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/agents/operational-lessons.json",
+        "MAP_System/notes/command-center-lab-restart-startup.md",
+        "MAP_System/notes/operational-learning-guide.md",
+        "MAP_System/scripts/operational_lessons.py",
+        "MAP_System/templates/install/bin/ai-command-center-lab-claude",
+        "MAP_System/templates/install/bin/ai-command-center-lab-codex",
+        "MAP_System/tests/test_operational_lessons.py"
+      ],
+      "concepts": [
+        "operational",
+        "startup",
+        "map",
+        "system",
+        "learning",
+        "promotion",
+        "orientation",
+        "lessons"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Implement IDEA-0022/PROMO-0011: convert incident-derived operational notes into selectively promoted, canonical, scope-matched startup guidance. Reuse E/I as the capture and promotion funnel; do not create a second task authority or load raw emergence history into every session. Active lessons need provenance, scope, status, expiry/review trigger, and supersession. Startup orientation must surface relevant active lessons automatically, with\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Operational learning promotion loop for startup orientation.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/agents/operational-lessons.json": "ae839f9887d0c4283dd7177a771422e01435ccdb565e75b6901f299546f75385",
+        "MAP_System/notes/command-center-lab-restart-startup.md": "c94c22da5662ccc1561466ed3db9f5c0b758c68fd7f3be873d11270e379144ba",
+        "MAP_System/notes/operational-learning-guide.md": "6a094da1abee450742ff95620b13f290b5dd668f0a39a66d326d63097c5d07c0",
+        "MAP_System/scripts/operational_lessons.py": "41d07273e7d05fba9c2e834d2a333ffb6a00b886a9d97ddf046ec602dd7df216",
+        "MAP_System/tasks/TASK-223.json": "30ed51ac8514b111766b47312bb341d615b0a85c4387c208105b00c2eb2e675c",
+        "MAP_System/templates/install/bin/ai-command-center-lab-claude": "4636b9a40988846ce575373e968a1e91285b58ad0a6f9c3350e20c6ee31042cd",
+        "MAP_System/templates/install/bin/ai-command-center-lab-codex": "08308a83d87e9ca3eee9b7f05a5e2b3c025f85993e158c8e31872ecb91e94aa6",
+        "MAP_System/tests/test_operational_lessons.py": "f222d7231169b33dbd3a07a3df8524701c8618b866f5f6471afb862c99ddebd5"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-223.json",
+        "MAP_System/agents/operational-lessons.json",
+        "MAP_System/notes/command-center-lab-restart-startup.md",
+        "MAP_System/notes/operational-learning-guide.md",
+        "MAP_System/scripts/operational_lessons.py",
+        "MAP_System/templates/install/bin/ai-command-center-lab-claude",
+        "MAP_System/templates/install/bin/ai-command-center-lab-codex",
+        "MAP_System/tests/test_operational_lessons.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-223",
+      "title": "Operational learning promotion loop for startup orientation",
+      "unexpected": "",
+      "workstream": "emergence-and-learning"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/agents/emergence-sentinel-state.json",
+        "MAP_System/artifacts/tests/emergence-sentinel-pilot.md",
+        "MAP_System/emergence/candidates/README.md",
+        "MAP_System/scripts/emergence_sentinel.py",
+        "MAP_System/tests/test_emergence_sentinel.py"
+      ],
+      "concepts": [
+        "E/I sentinel",
+        "recall 25 percent",
+        "positive discovery",
+        "operator correction",
+        "candidate queue"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "Transition-only signals missed positive architecture discoveries and corrections not encoded as typed durable events.",
+      "goal": "Implement EXP-0002 from reopened IDEA-0013. Build a token-free deterministic sentinel that reads durable MAP signals and writes non-promoted E/I candidates to a review queue. Its status, last run, outputs, errors, and stop control must be visible in Command Center; it is not a hidden agent. Add a bounded core-agent curation command/report that runs only in\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "Built a deterministic proposal-only E/I sentinel, but retrospective recall was only one of four known insights.",
+      "semantic_word_count": 96,
+      "source_hashes": {
+        "MAP_System/agents/emergence-sentinel-state.json": "978374dffc05539e08f39b01eb17c86631e5935535048a1df62a409f5617d1aa",
+        "MAP_System/artifacts/tests/emergence-sentinel-pilot.md": "8152770d7c473fe20537118cd0e4cd9591ea8f943ff0086343b2f22049fd810b",
+        "MAP_System/emergence/candidates/README.md": "7df4eaacdd82bcf12be4f71fcc59999c4dfd07be02083c5975afbb5905752f90",
+        "MAP_System/scripts/emergence_sentinel.py": "5ff901555a4eca44f914ff957bdc55a837780a070b9205edb973eb6761ae6aad",
+        "MAP_System/tasks/TASK-224.json": "491cf93a40295fbd707fb6007f8777ce1ed08953ab9d032e24b33c6661185e17",
+        "MAP_System/tests/test_emergence_sentinel.py": "9a0456d500dca2fd98f2fc4fac0de4ffb938d8216a46fdb9caad07f70ca8b5c1"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-224.json",
+        "MAP_System/agents/emergence-sentinel-state.json",
+        "MAP_System/artifacts/tests/emergence-sentinel-pilot.md",
+        "MAP_System/emergence/candidates/README.md",
+        "MAP_System/scripts/emergence_sentinel.py",
+        "MAP_System/tests/test_emergence_sentinel.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-224",
+      "title": "Pilot local E/I sentinel and bounded curator queue",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/agents/map-steward-state.json",
+        "MAP_System/artifacts/command-center-ui/map-steward.md",
+        "MAP_System/scripts/map_steward.py",
+        "MAP_System/templates/install/command-center-ui/app/server.py",
+        "MAP_System/templates/install/command-center-ui/src/chat.css",
+        "MAP_System/templates/install/command-center-ui/src/chat.html",
+        "MAP_System/templates/install/command-center-ui/src/chat.js",
+        "MAP_System/tests/test_map_steward.py"
+      ],
+      "concepts": [
+        "map",
+        "steward",
+        "system",
+        "local",
+        "command",
+        "center",
+        "ui",
+        "build"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Build the operator-approved local Jarvis-style MAP Steward. Combine deterministic health/task/RnS/E-I/lesson signals into a read-only attention packet, optionally ask local Ollama qwen3.5:4b to summarize that bounded packet, and expose status, last run, recommendations, errors, model use, and controls through the Command Center UI. The steward is advisory: it cannot edit code/policy, approve/promote, claim tasks, message the\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Build visible local MAP Steward attention assistant.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/agents/map-steward-state.json": "fdc4fc3751301145f421fa83d1a842fd7123724baeae364d9032c59925f673cc",
+        "MAP_System/artifacts/command-center-ui/map-steward.md": "a25833a0bd9db6707ed2af11573a5752ac1629d1cf17f9ce8eac0d55de681109",
+        "MAP_System/scripts/map_steward.py": "eb7dad8bf82bdf7eff1e878bb660b35bb10443648648d3e530c382111e2c8834",
+        "MAP_System/tasks/TASK-225.json": "1575bf14b1f87db630ab7ece2fbb5d9589432af8b947a8a06cb0a234d6cb2697",
+        "MAP_System/templates/install/command-center-ui/app/server.py": "3881cdb17f86963ddb1c5ef872b0701245e13a19790b71448eefcac0459ef291",
+        "MAP_System/templates/install/command-center-ui/src/chat.css": "5c9036fe1faf285a33d7240372a83037027c38a0888b55e096e0aad9938fa272",
+        "MAP_System/templates/install/command-center-ui/src/chat.html": "8fff4ec871825c832ee78e671e0a173ac123fcfc85bce01b765cc1c503267cd5",
+        "MAP_System/templates/install/command-center-ui/src/chat.js": "53651874f7886952f1c1f427bdfa80444e456805aa1eae95a945c2f969c3d597",
+        "MAP_System/tests/test_map_steward.py": "2c167468ab5159082d052cabf73146b4c640bddd23081d095b2e9c8d56075342"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-225.json",
+        "MAP_System/agents/map-steward-state.json",
+        "MAP_System/artifacts/command-center-ui/map-steward.md",
+        "MAP_System/scripts/map_steward.py",
+        "MAP_System/templates/install/command-center-ui/app/server.py",
+        "MAP_System/templates/install/command-center-ui/src/chat.css",
+        "MAP_System/templates/install/command-center-ui/src/chat.html",
+        "MAP_System/templates/install/command-center-ui/src/chat.js",
+        "MAP_System/tests/test_map_steward.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-225",
+      "title": "Build visible local MAP Steward attention assistant",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/experiments/clearfront-discovery-agent-adjudication-2026-07-17.md",
+        "MAP_System/artifacts/experiments/clearfront-discovery-agent-pilot-2026-07-17.md",
+        "MAP_System/artifacts/experiments/clearfront-discovery-known-findings-2026-07-17.md",
+        "MAP_System/notes/discovery-agent-guide.md"
+      ],
+      "concepts": [
+        "discovery truth set",
+        "frozen findings",
+        "semantic discovery",
+        "ClearFront retrospective",
+        "proposal only"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Execute EXP-0003 using the operator-provided seven-pass, non-forcing Discovery Agent method. A new visible Codex helper performs proposal-only discovery over the completed ClearFront decomposition phase. Freeze the known-findings set before receiving helper output. Adjudicate each finding as known duplicate, useful refinement, genuinely new useful finding, weak/speculative, or scope drift. Do not implement or automatically promote findings.",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "Ran a visible Discovery Agent against a pre-frozen ClearFront truth set and preserved known, refined, novel, weak, and drift classifications.",
+      "semantic_word_count": 99,
+      "source_hashes": {
+        "MAP_System/artifacts/experiments/clearfront-discovery-agent-adjudication-2026-07-17.md": "ffa7d6fa0357356278dece824273620a7518822a56f648c439b1503e3c3966d6",
+        "MAP_System/artifacts/experiments/clearfront-discovery-agent-pilot-2026-07-17.md": "6688bf4e022396db9355ec115359df37ac062b0c1372a3b048e112a3e07ff1af",
+        "MAP_System/artifacts/experiments/clearfront-discovery-known-findings-2026-07-17.md": "54360d14071179d2ff249c6324c008a7374649e7f56222fd03a08676133a4757",
+        "MAP_System/notes/discovery-agent-guide.md": "f83f19980ba49cdc94e05552189dc6f8384051db3d76758a74542fa405572243",
+        "MAP_System/tasks/TASK-226.json": "5992d4a8b13c0b298917c4c773d1c47586236e94d8a77a3fdd2bc276e976e0f1"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-226.json",
+        "MAP_System/artifacts/experiments/clearfront-discovery-agent-adjudication-2026-07-17.md",
+        "MAP_System/artifacts/experiments/clearfront-discovery-agent-pilot-2026-07-17.md",
+        "MAP_System/artifacts/experiments/clearfront-discovery-known-findings-2026-07-17.md",
+        "MAP_System/notes/discovery-agent-guide.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-226",
+      "title": "Discovery Agent pilot on completed ClearFront phase",
+      "unexpected": "The truth set supplies positive findings that deterministic failure-transition scanning could not see.",
+      "workstream": "clearfront-delivery"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/notes/system-improvement-implementation-plan.md"
+      ],
+      "concepts": [
+        "system",
+        "plan",
+        "improvement",
+        "implementation",
+        "kickoff",
+        "turn",
+        "map",
+        "use"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Use the durable kickoff note and book-derived system lessons to produce an implementation-ready plan for the recent MAP system-improvement work. The plan should separate high-priority workstreams from backlog items, name concrete next actions, and preserve the design spine that MAP is a coordination system with AI workers.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Turn system-improvement kickoff into implementation plan.",
+      "semantic_word_count": 62,
+      "source_hashes": {
+        "MAP_System/notes/system-improvement-implementation-plan.md": "f920a3c8352347e2251fd1646e8752732f346db8fa31c29d6292eeea47561ff1",
+        "MAP_System/tasks/TASK-227.json": "b8bb0c6d733b0d446d0aff2c819bbb94575f12f91a678f5bd38349228649874e"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-227.json",
+        "MAP_System/notes/system-improvement-implementation-plan.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-227",
+      "title": "Turn system-improvement kickoff into implementation plan",
+      "unexpected": "",
+      "workstream": "map-improvement"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/releases/task-228-release-checklist.md",
+        "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md",
+        "MAP_System/notes/local-model-helper-guide.md",
+        "MAP_System/scripts/local_assistant_health.py",
+        "MAP_System/scripts/local_runner.py",
+        "MAP_System/scripts/map_steward.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/shared/agent-capability-matrix.md",
+        "MAP_System/templates/install/bin/ai-command-center-ollama-model",
+        "MAP_System/templates/install/command-center-ui/app/server.py",
+        "MAP_System/tests/test_local_ollama_lane.py",
+        "MAP_System/tests/test_local_runner.py"
+      ],
+      "concepts": [
+        "map",
+        "system",
+        "local",
+        "ollama",
+        "visible",
+        "lane",
+        "py",
+        "repair"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Implement the bounded repair evidenced by artifacts/experiments/local-ollama-lane-inventory-2026-07-18.md. Do not download models and do not re-enable Pi. Reconcile health/allowlist/documentation with installed locally tested qwen3.5:4b; provide the missing visible generic Ollama launcher; keep models draft-only, core-reviewed, and visible. Do not invoke a model from a hidden process: any model drill must use the Command Center visible terminal\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Repair visible non-Pi local Ollama advisory lane.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/artifacts/releases/task-228-release-checklist.md": "3e39732df514fd2f21d4dad49bb11a3135504c44ff72135c12697c63208905a7",
+        "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md": "7a356737f43b6e98856cfcc7af27648d4faa9b28ad438936cfd5f40beffb342c",
+        "MAP_System/notes/local-model-helper-guide.md": "952ae96cdadc5ef866adf2005a4f254cf486fe3c2887485725461876386255e2",
+        "MAP_System/scripts/local_assistant_health.py": "03fbeefb7f559edd9a146dac716fa9c954a34adeb364913584642ce86575f5c6",
+        "MAP_System/scripts/local_runner.py": "b4d921d2345fff6a0390a04039d4eaa67a63f8085ada2b84f18660aefe11e8df",
+        "MAP_System/scripts/map_steward.py": "eb7dad8bf82bdf7eff1e878bb660b35bb10443648648d3e530c382111e2c8834",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/shared/agent-capability-matrix.md": "4c1ff13909458755270a7bfb417ec6485cbde4411f78a3401470e89bfe05429f",
+        "MAP_System/tasks/TASK-228.json": "b7dae6ab621bb25505ebe49da79245ce427c548225fedcd7c76c7396396d8dc5",
+        "MAP_System/templates/install/bin/ai-command-center-ollama-model": "bd096cb32fc130a894f12499eb8cf7eac6dd9f8c8b7b44624ef6568328588f88",
+        "MAP_System/templates/install/command-center-ui/app/server.py": "3881cdb17f86963ddb1c5ef872b0701245e13a19790b71448eefcac0459ef291",
+        "MAP_System/tests/test_local_ollama_lane.py": "25a5cc6f41e50a1f94cbb383162b919397aa4ed4d3c976d40f3005082f6e24a1",
+        "MAP_System/tests/test_local_runner.py": "6596469985c167db4f21d2abf256c76a653f219953a51d4e59033e85af16abfb",
+        "install-map-system.sh": "86d9e34a94812110ccbf8b629c1e3529e21bc3b867273020ebedc226b32e863a"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-228.json",
+        "MAP_System/artifacts/releases/task-228-release-checklist.md",
+        "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md",
+        "MAP_System/notes/local-model-helper-guide.md",
+        "MAP_System/scripts/local_assistant_health.py",
+        "MAP_System/scripts/local_runner.py",
+        "MAP_System/scripts/map_steward.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/shared/agent-capability-matrix.md",
+        "MAP_System/templates/install/bin/ai-command-center-ollama-model",
+        "MAP_System/templates/install/command-center-ui/app/server.py",
+        "MAP_System/tests/test_local_ollama_lane.py",
+        "MAP_System/tests/test_local_runner.py",
+        "install-map-system.sh"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-228",
+      "title": "Repair visible non-Pi local Ollama advisory lane",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md",
+        "MAP_System/artifacts/releases/task-229-release-checklist.md",
+        "MAP_System/artifacts/reports/system-improvement-iteration-2026-07-18.md",
+        "MAP_System/inbox/helpers/pi-requalification-communication-2026-07-18.md",
+        "MAP_System/notes/local-model-helper-guide.md",
+        "MAP_System/notes/pi-agent-communication-guide.md",
+        "MAP_System/shared/agent-capability-matrix.md",
+        "MAP_System/shared/current-state.md"
+      ],
+      "concepts": [
+        "Pi",
+        "hcom acknowledgement",
+        "malformed delivery claim",
+        "coordination boundary",
+        "local model"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "The terminal implied delivery without an observed outbound hcom acknowledgement.",
+      "goal": "Record the operator-authorized visible Pi qwen2.5-coder:7b-16k no-write communication requalification. Preserve the observed failure (no exact hcom acknowledgement and malformed terminal delivery claim), keep Pi excluded from operational tasks/reviews/handoffs/capacity, and align durable current-state/iteration reporting with the new local-only default. Do not retry Pi or expand its authority.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "Recorded Pi's failed no-write communication requalification and kept it excluded from operational coordination and capacity.",
+      "semantic_word_count": 81,
+      "source_hashes": {
+        "MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md": "611b6a9c38f27d12d316934621e3862a9f10e1f0494576d421642970e2bbc3c7",
+        "MAP_System/artifacts/releases/task-229-release-checklist.md": "9e1da9a4c7b3101a9b45d3773e92c58791c5db38eb0838f03d7dcc16d565aa9c",
+        "MAP_System/artifacts/reports/system-improvement-iteration-2026-07-18.md": "f13a1b633a616bba304e2d5741fef87fb7d1a91065c29c1304faf0a4a013b14c",
+        "MAP_System/inbox/helpers/pi-requalification-communication-2026-07-18.md": "2f6af0bdb6d37f28fd6118fd169a5f007f7d1dfcd81f0b9d7d83475f49ad5823",
+        "MAP_System/notes/local-model-helper-guide.md": "952ae96cdadc5ef866adf2005a4f254cf486fe3c2887485725461876386255e2",
+        "MAP_System/notes/pi-agent-communication-guide.md": "8f4c4e5d95f4c5cedaae2a90f064176ca72fb3448747dfce120082a0dd4dc08d",
+        "MAP_System/shared/agent-capability-matrix.md": "4c1ff13909458755270a7bfb417ec6485cbde4411f78a3401470e89bfe05429f",
+        "MAP_System/shared/current-state.md": "0bd881cffb3786b3fdcec27675e189acd5a681eb5e09e6cb14dba1624f350851",
+        "MAP_System/tasks/TASK-229.json": "d6beb4cbdfcb036ed2c238c4f02762000815dc3e281764f8aaeecdbdc53cf605"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-229.json",
+        "MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md",
+        "MAP_System/artifacts/releases/task-229-release-checklist.md",
+        "MAP_System/artifacts/reports/system-improvement-iteration-2026-07-18.md",
+        "MAP_System/inbox/helpers/pi-requalification-communication-2026-07-18.md",
+        "MAP_System/notes/local-model-helper-guide.md",
+        "MAP_System/notes/pi-agent-communication-guide.md",
+        "MAP_System/shared/agent-capability-matrix.md",
+        "MAP_System/shared/current-state.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-229",
+      "title": "Record Pi 7B-16K requalification result and preserve capacity boundary",
+      "unexpected": "",
+      "workstream": "agent-liveness-and-helpers"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md",
+        "MAP_System/artifacts/releases/task-230-release-checklist.md",
+        "MAP_System/inbox/helpers/pi-healthcheck-vema-2026-07-18.md",
+        "MAP_System/notes/pi-agent-communication-guide.md"
+      ],
+      "concepts": [
+        "Pi health check",
+        "terminal versus hcom",
+        "message event",
+        "communication failure",
+        "coordination exclusion"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "Visible terminal output was not equivalent to agent-to-agent delivery.",
+      "goal": "Record the operator-authorized minimal health check against fresh visible Pi vema using qwen2.5-coder:7b-16k. The model displayed the exact acknowledgement in its terminal, but hcom emitted no outbound message event. Preserve the distinction and keep Pi excluded from coordination.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "Confirmed that exact acknowledgement text appearing in Pi's terminal did not produce an outbound hcom message event.",
+      "semantic_word_count": 76,
+      "source_hashes": {
+        "MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md": "611b6a9c38f27d12d316934621e3862a9f10e1f0494576d421642970e2bbc3c7",
+        "MAP_System/artifacts/releases/task-230-release-checklist.md": "eae62e1ee3068a1c5b649133be0210fdf6c3e9ec44f14df40bf879c70738b2f2",
+        "MAP_System/inbox/helpers/pi-healthcheck-vema-2026-07-18.md": "f8cc387136c7830603cd4d70190c7201b769e9059b84375a0c23fc7c8ede325f",
+        "MAP_System/notes/pi-agent-communication-guide.md": "8f4c4e5d95f4c5cedaae2a90f064176ca72fb3448747dfce120082a0dd4dc08d",
+        "MAP_System/tasks/TASK-230.json": "cb5d61ccc609af65c7f96335d97690c234da1d37cf10528b1964e18c42f7da96"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-230.json",
+        "MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md",
+        "MAP_System/artifacts/releases/task-230-release-checklist.md",
+        "MAP_System/inbox/helpers/pi-healthcheck-vema-2026-07-18.md",
+        "MAP_System/notes/pi-agent-communication-guide.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-230",
+      "title": "Record Pi health-check terminal-versus-hcom result",
+      "unexpected": "",
+      "workstream": "agent-liveness-and-helpers"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/AGENTS.md",
+        "MAP_System/graph/README.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_runner_helper_notes.py"
+      ],
+      "concepts": [
+        "helper",
+        "note",
+        "metadata",
+        "make",
+        "activity",
+        "explicit",
+        "testable",
+        "map"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "A visible, active helper assignment was silently excluded from LangGraph helper capacity because its durable note used display-only status text rather than the runner-parsed bullet metadata. Define the canonical manual-helper note metadata and add a focused regression test so active helper capacity stays truthful.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Make helper-note activity metadata explicit and testable.",
+      "semantic_word_count": 60,
+      "source_hashes": {
+        "MAP_System/AGENTS.md": "2ae3f82bd279e9f103924e9e9f64367463fe8284ae7619744597b3c3f9e4da4c",
+        "MAP_System/graph/README.md": "abd6730034c7ce888b772429208b8de4c7362f4da164f6e223200200a5206908",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/tasks/TASK-231.json": "44d08fb9a1d0d5766173cf8a7b12c6f1f891182c3ad4de6faa541dfa096bf4a2",
+        "MAP_System/tests/test_runner_helper_notes.py": "6fb2406fc771a11073828297a13574cd7ec0eb5416c1f51c3e5c40a6250d2fa5"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-231.json",
+        "MAP_System/AGENTS.md",
+        "MAP_System/graph/README.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_runner_helper_notes.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-231",
+      "title": "Make helper-note activity metadata explicit and testable",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/research/SUMMARY-HPOM-OPERATING-MODELS-2026-07-18.md",
+        "MAP_System/emergence/synthesis/SYN-0002-a-goal-first-evidence-budgeted-practice-loop-makes-map-coordinat.md"
+      ],
+      "concepts": [
+        "research",
+        "hpom",
+        "comparative",
+        "artifact",
+        "normalize",
+        "system",
+        "summary",
+        "map"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "The only current full-suite failure is an advisory HPOM comparative research report placed under artifacts/research with an unrecognized filename and no Research System summary shape. Preserve its findings and source links while moving it to a validator-recognized SUMMARY artifact, updating current synthesis navigation only.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Normalize the HPOM comparative research artifact.",
+      "semantic_word_count": 59,
+      "source_hashes": {
+        "MAP_System/artifacts/research/SUMMARY-HPOM-OPERATING-MODELS-2026-07-18.md": "3eed76a61e4db73c3da2bda2eda09e7acae2336b0d9a95868b7e595a65896846",
+        "MAP_System/emergence/synthesis/SYN-0002-a-goal-first-evidence-budgeted-practice-loop-makes-map-coordinat.md": "2666817b126e19162d14fd4ba6c3b6876de18ff46074f99582653e0fc996ec18",
+        "MAP_System/tasks/TASK-232.json": "a267be51c5de6a8bdf2181f45bc34fc2dd6abee03680a5c5bf7220fba3052dc4"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-232.json",
+        "MAP_System/artifacts/research/SUMMARY-HPOM-OPERATING-MODELS-2026-07-18.md",
+        "MAP_System/emergence/synthesis/SYN-0002-a-goal-first-evidence-budgeted-practice-loop-makes-map-coordinat.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-232",
+      "title": "Normalize the HPOM comparative research artifact",
+      "unexpected": "",
+      "workstream": "emergence-and-learning"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+      ],
+      "concepts": [
+        "map",
+        "kickoff",
+        "scenario",
+        "measured",
+        "alignment",
+        "run",
+        "practice",
+        "system"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Exercise MAP from a project kickoff through an implementation-ready brief without changing product code or policy. Use a realistic coordination-surface scenario, distinct visible participant roles, durable kickoff material, and measured friction so the system can improve based on evidence rather than ceremony.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Run a measured MAP kickoff-alignment practice scenario.",
+      "semantic_word_count": 58,
+      "source_hashes": {
+        "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md": "147a3e9260d81301c4828e3c27d08ba740eb975e105266ae2236b0b4f2d8e614",
+        "MAP_System/tasks/TASK-233.json": "c101a8222ff6bd1d161362c76c5d575257c16dab3d3bfbdbbee7543955ea2ef3"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-233.json",
+        "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-233",
+      "title": "Run a measured MAP kickoff-alignment practice scenario",
+      "unexpected": "",
+      "workstream": "map-improvement"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/experiments/command-center-deployment-source-parity-audit-2026-07-18.md"
+      ],
+      "concepts": [
+        "Command Center",
+        "deployment source parity",
+        "installed copy",
+        "template",
+        "read-only audit"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Run the read-only, evidence-bounded deployment-source parity audit recommended by KICK-01. Establish which checkout or installer template actually updates the operator Command Center, identify any unavailable source boundary or mismatch, and shape a later UI task only after the evidence is sufficient. Do not edit UI, deployment state, policy, authority, or TASK-227.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "Audited which Command Center checkout and template could update the operator-visible application before authorizing UI implementation.",
+      "semantic_word_count": 88,
+      "source_hashes": {
+        "MAP_System/artifacts/experiments/command-center-deployment-source-parity-audit-2026-07-18.md": "977a88653285d92c315507e46f3aa6b2bcd4c18219e469a05572965925cadc1f",
+        "MAP_System/tasks/TASK-234.json": "ee3a27345ef69d66fe223fa2777c5cb037690b80d5351b01a118ff2d55d7154a"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-234.json",
+        "MAP_System/artifacts/experiments/command-center-deployment-source-parity-audit-2026-07-18.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-234",
+      "title": "Audit CommandCenter deployment-source parity before coordination-card implementation",
+      "unexpected": "A correct template edit could still miss the operator-visible installed source.",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/audits/command-center-deployment-source-manifest-2026-07-18.md"
+      ],
+      "concepts": [
+        "deployment manifest",
+        "runtime provenance",
+        "installed drift",
+        "launcher chain",
+        "Command Center"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Turn TASK-234 parity evidence into a durable, read-only deployment-source manifest and repeatable runtime-provenance check. Preserve historical records as provenance, but make the current configured launcher, installed-copy drift, and listener-identity uncertainty discoverable before any future UI task. Do not edit CommandCenterUI, run the installer, restart services, alter policy/authority, or change TASK-227.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "Created a durable deployment-source manifest and repeatable provenance check for launcher, installed-copy drift, and listener uncertainty.",
+      "semantic_word_count": 87,
+      "source_hashes": {
+        "MAP_System/artifacts/audits/command-center-deployment-source-manifest-2026-07-18.md": "87ae185fca96ada845c99f2373ae6038c3de759de004c9e1017c2d4d4762e6e5",
+        "MAP_System/tasks/TASK-235.json": "2c277b09ebb0b8a24aee1490b793b431260cbbe8f3618514d2dee4482494fabd"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-235.json",
+        "MAP_System/artifacts/audits/command-center-deployment-source-manifest-2026-07-18.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-235",
+      "title": "Create a current CommandCenter deployment-source manifest and provenance check",
+      "unexpected": "Configured target identity and a currently running listener are distinct facts.",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/tests/task-advisory-monitor-delivery-note.md",
+        "MAP_System/scripts/advisory_monitor.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_advisory_monitor.py"
+      ],
+      "concepts": [
+        "monitor",
+        "advisory",
+        "real",
+        "time",
+        "map",
+        "only",
+        "system",
+        "proposal"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Operator directive 2026-07-18: the self-heal/E-I loop exists but is reactive/batch -- mistakes are caught by later code review or a project-end retrospective, not while work happens. Build a STANDING observer that flags 'this looks wrong' and 'this is a candidate idea' in real time, proposal-only, visible, no hidden authority. Deterministic core is already built and\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "CHANGES_REQUESTED: Real-time advisory monitor + continuous E/I capture (proposal-only).",
+      "semantic_word_count": 72,
+      "source_hashes": {
+        "MAP_System/artifacts/tests/task-advisory-monitor-delivery-note.md": "2148a12809c90851fff72ea9fd4162dcde36378d772c1d45f53864b63e5e4213",
+        "MAP_System/scripts/advisory_monitor.py": "f2a897788d7c495720935571501bf035010749b7e3e87ef8390bcd134f250a1a",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/tasks/TASK-236.json": "dc161bc9097b0d7bc30c98d1a559e937f6862e8fbb4363c43cec4b0778d13da0",
+        "MAP_System/tests/test_advisory_monitor.py": "d6920d8508abf50171c95eec48ccd23c5be3d9a5b928fed8a4a19df311f0611b"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-236.json",
+        "MAP_System/artifacts/tests/task-advisory-monitor-delivery-note.md",
+        "MAP_System/scripts/advisory_monitor.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_advisory_monitor.py"
+      ],
+      "status": "CHANGES_REQUESTED",
+      "task_id": "TASK-236",
+      "title": "Real-time advisory monitor + continuous E/I capture (proposal-only)",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [
+        "../CommandCenterUI/src/chat.css",
+        "../CommandCenterUI/src/chat.html",
+        "../CommandCenterUI/src/chat.js"
+      ],
+      "changed_paths": [
+        "../CommandCenterUI/src/chat.css",
+        "../CommandCenterUI/src/chat.html",
+        "../CommandCenterUI/src/chat.js",
+        "MAP_System/artifacts/tests/task237-attention-popup.md",
+        "MAP_System/templates/install/command-center-ui/src/chat.css",
+        "MAP_System/templates/install/command-center-ui/src/chat.html",
+        "MAP_System/templates/install/command-center-ui/src/chat.js",
+        "MAP_System/tests/test_command_center_attention_popup.py"
+      ],
+      "concepts": [
+        "commandcenterui",
+        "operator",
+        "reply",
+        "popup",
+        "src",
+        "chat",
+        "add",
+        "map"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Add a keyboard-accessible AIM-style overlay that presents only new unanswered operator-directed hcom requests, approval gates, and terminal prompts. Preserve existing attention inbox and reply_to behavior. The operator must explicitly choose reply, open, snooze, dismiss, approve, or reject; no action may be automatic.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Add operator reply popup queue to CommandCenterUI.",
+      "semantic_word_count": 58,
+      "source_hashes": {
+        "MAP_System/artifacts/tests/task237-attention-popup.md": "f9fe99c2f06bc0366ba83bd493565d8f7e2afcef9a95fee070e0d48020111d8e",
+        "MAP_System/tasks/TASK-237.json": "e205ccdde60193d618b020ddc002548e6131d3a8e5ef647a5e4d2a2024c1bee8",
+        "MAP_System/templates/install/command-center-ui/src/chat.css": "5c9036fe1faf285a33d7240372a83037027c38a0888b55e096e0aad9938fa272",
+        "MAP_System/templates/install/command-center-ui/src/chat.html": "8fff4ec871825c832ee78e671e0a173ac123fcfc85bce01b765cc1c503267cd5",
+        "MAP_System/templates/install/command-center-ui/src/chat.js": "53651874f7886952f1c1f427bdfa80444e456805aa1eae95a945c2f969c3d597",
+        "MAP_System/tests/test_command_center_attention_popup.py": "5cdcf0fed6df2dc81d0d5239d828195c7e7d035ca8c983de81fd2a3ba6899479"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-237.json",
+        "MAP_System/artifacts/tests/task237-attention-popup.md",
+        "MAP_System/templates/install/command-center-ui/src/chat.css",
+        "MAP_System/templates/install/command-center-ui/src/chat.html",
+        "MAP_System/templates/install/command-center-ui/src/chat.js",
+        "MAP_System/tests/test_command_center_attention_popup.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-237",
+      "title": "Add operator reply popup queue to CommandCenterUI",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/librarian.py"
+      ],
+      "concepts": [
+        "top",
+        "level",
+        "stem",
+        "root",
+        "librarian",
+        "fix",
+        "resolver",
+        "disambiguation"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "librarian.py cannot disambiguate a ROOT-top-level markdown file whose stem collides with a nested file. resolve_wikilink() does stem lookup before the path branch and only takes the direct-path branch when the name contains '/'; a top-level file's relative_to(root) has no slash. add_wikilinks_to_related_section() therefore emits the bare ambiguous form (e.g. [[AGENTS]]) for MAP_System/AGENTS.md, which validate then flags\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Fix librarian autofix/resolver disambiguation for ROOT-top-level files sharing a stem.",
+      "semantic_word_count": 74,
+      "source_hashes": {
+        "MAP_System/scripts/librarian.py": "72673d54895b27c4d9cd2f5e2b7163b2f1acf0468ab615e6399c77269bf64515",
+        "MAP_System/tasks/TASK-238.json": "fe6b19e96dac3e056281538a2134a96d03c1cc77b9f8fc6454cea75c5fe8c6b2"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-238.json",
+        "MAP_System/scripts/librarian.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-238",
+      "title": "Fix librarian autofix/resolver disambiguation for ROOT-top-level files sharing a stem",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/planning/map-practice-scenario-queue-2026-07-18.md",
+        "MAP_System/notes/practice-scenario-runbook.md"
+      ],
+      "concepts": [
+        "map",
+        "practice",
+        "scenario",
+        "queue",
+        "create",
+        "repeatable",
+        "runbook",
+        "planning"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Create planning-only groundwork for recurring, operator-visible MAP practice scenarios with Claude. Define a repeatable lifecycle exercise, bounded roles, evidence packet, measures, stop rules, independent review, tuning loop, and a prioritized scenario queue. Preserve normal task/approval authority; do not edit TASK-227 implementation plan, agent permissions, startup policy, or runtime services.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Create repeatable MAP practice-scenario runbook and queue.",
+      "semantic_word_count": 65,
+      "source_hashes": {
+        "MAP_System/artifacts/planning/map-practice-scenario-queue-2026-07-18.md": "03176d18418b78f5a305c583a3f2f305994b2d35cd75f67a13611ce3be9998d6",
+        "MAP_System/notes/practice-scenario-runbook.md": "d16d97c75c7d94143e385632ba1feb2ce1c2d6b54f3ceb2195821c5f8fcca139",
+        "MAP_System/tasks/TASK-239.json": "734dde24b9229c72e18e194d305182999c72c06edd96014754b565872b297563"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-239.json",
+        "MAP_System/artifacts/planning/map-practice-scenario-queue-2026-07-18.md",
+        "MAP_System/notes/practice-scenario-runbook.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-239",
+      "title": "Create repeatable MAP practice-scenario runbook and queue",
+      "unexpected": "",
+      "workstream": "map-improvement"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "../../CommandCenterUI/src/chat.css",
+        "../../CommandCenterUI/src/chat.js",
+        "MAP_System/templates/install/command-center-ui/src/chat.css",
+        "MAP_System/templates/install/command-center-ui/src/chat.js",
+        "MAP_System/tests/test_command_center_popup_formatting.py"
+      ],
+      "concepts": [
+        "commandcenterui",
+        "popup",
+        "improve",
+        "attention",
+        "message",
+        "formatting",
+        "src",
+        "chat"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Improve the operator attention popup readability by preserving authored line breaks and visually separating structured request fields such as Issue, Options, Recommendation, and Needed. Apply the same behavior to the live CommandCenterUI copy and installer template. Do not alter message meaning, reply routing, or approval authority.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Improve CommandCenterUI attention popup message formatting.",
+      "semantic_word_count": 61,
+      "source_hashes": {
+        "../../CommandCenterUI/src/chat.css": "5c9036fe1faf285a33d7240372a83037027c38a0888b55e096e0aad9938fa272",
+        "../../CommandCenterUI/src/chat.js": "53651874f7886952f1c1f427bdfa80444e456805aa1eae95a945c2f969c3d597",
+        "MAP_System/tasks/TASK-240.json": "b7462d155bb0c27a52a72b13156f0b0162123ac681b39e6149a19f8d63e1cba6",
+        "MAP_System/templates/install/command-center-ui/src/chat.css": "5c9036fe1faf285a33d7240372a83037027c38a0888b55e096e0aad9938fa272",
+        "MAP_System/templates/install/command-center-ui/src/chat.js": "53651874f7886952f1c1f427bdfa80444e456805aa1eae95a945c2f969c3d597",
+        "MAP_System/tests/test_command_center_popup_formatting.py": "8e3901145bdec1f26e47afd26a2f920f17748bbd5e0a12653f3ebecdae833b41"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-240.json",
+        "../../CommandCenterUI/src/chat.css",
+        "../../CommandCenterUI/src/chat.js",
+        "MAP_System/templates/install/command-center-ui/src/chat.css",
+        "MAP_System/templates/install/command-center-ui/src/chat.js",
+        "MAP_System/tests/test_command_center_popup_formatting.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-240",
+      "title": "Improve CommandCenterUI attention popup message formatting",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/pre_dispatch_policy.py",
+        "MAP_System/tests/test_pre_dispatch_policy.py"
+      ],
+      "concepts": [
+        "pre-dispatch",
+        "false positive",
+        "prohibition clause",
+        "negation aware",
+        "destructive classifier"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "A read-only task was blocked because its safety guardrail named actions it explicitly prohibited.",
+      "goal": "evaluate_pre_dispatch flagged read-only tasks as core-destructive because is_destructive() substring-matched hard-stop phrases even inside a prohibition. TASK-235 (read-only manifest) was blocked at claim because its guardrail named forbidden actions. Fix: added clause-scoped negation-aware contains_unnegated(); a hard-stop phrase named only inside a negated clause no longer counts, while an imperative after a clause boundary still does (safety\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "Made destructive-phrase matching clause-aware so prohibitions no longer classify safe read-only work as destructive while preserving imperative detection.",
+      "semantic_word_count": 96,
+      "source_hashes": {
+        "MAP_System/scripts/pre_dispatch_policy.py": "e9671e5b9230bd7fa34fb9039cc561d3ce03854729f9b7926b06fb76e683d2b0",
+        "MAP_System/tasks/TASK-249.json": "f7124b6dec2a9076b22cb1eaea81a545df4eabbb88ff508bc4dc3efea7fb1cc7",
+        "MAP_System/tests/test_pre_dispatch_policy.py": "60f22a61e7fd3d69d208f1a66e9d63994e3b6320c7cc5d6ba52ebccd41ef1c5a"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-249.json",
+        "MAP_System/scripts/pre_dispatch_policy.py",
+        "MAP_System/tests/test_pre_dispatch_policy.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-249",
+      "title": "Fix pre-dispatch is_destructive false positive on prohibition clauses",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/app/assets/glyph-relic.png",
+        "Projects/ClearFront/app/assets/glyph-spell.png",
+        "Projects/ClearFront/app/assets/glyph-unit.png"
+      ],
+      "concepts": [
+        "clearfront",
+        "collapsed",
+        "card",
+        "type",
+        "glyphs",
+        "create",
+        "accessible",
+        "g1"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Generate exactly three square transparent PNG type glyphs for ClearFront collapsed cards: Unit, Spell, and Relic. Maintain a consistent ClearFront fantasy-card visual family, strong silhouettes at 24-32px, and accessibility through shape rather than color. Do not edit ClearFront code, source provenance, rules, or any file outside the three registered assets.",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "RELEASED: Create accessible collapsed-card type glyphs for ClearFront G1.",
+      "semantic_word_count": 67,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-252.json": "fd6dc14cbeeff7cce1ef1dbcd14d6c5717d3668b6d9adb85f275c8cd9ac38230",
+        "Projects/ClearFront/app/assets/glyph-relic.png": "14a37e673586f78e799d3ecdeea29909d9086242dbcc44eaf33b24aa6520398b",
+        "Projects/ClearFront/app/assets/glyph-spell.png": "89c43eef0e601e318644c7cfc2093e33710111533088ca3503e278d6848bb62d",
+        "Projects/ClearFront/app/assets/glyph-unit.png": "05fe834467518d670f6fcf5b77263d8e90ed892bf85bd4b82655d0819ba6e74f"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-252.json",
+        "Projects/ClearFront/app/assets/glyph-relic.png",
+        "Projects/ClearFront/app/assets/glyph-spell.png",
+        "Projects/ClearFront/app/assets/glyph-unit.png"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-252",
+      "title": "Create accessible collapsed-card type glyphs for ClearFront G1",
+      "unexpected": "",
+      "workstream": "clearfront-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ClearFront/notes/ui-redesign-continuity-qa-2026-07-19.md",
+        "Projects/ClearFront/prototypes/clearfront-side-rails-2026-07-19.html"
+      ],
+      "concepts": [
+        "side rails",
+        "prototype continuity",
+        "static stats",
+        "baked checkerboard",
+        "asset readiness",
+        "ClearFront UI"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Preserve Claude\u2019s current ClearFront side-rails prototype outside volatile scratch storage and create a durable continuity/QA packet covering locked operator feedback, prototype state, user-supplied asset readiness, baseline evidence, post-integration checks, and a collision-free handback. Do not modify ClearFront production HTML, CSS, JavaScript, game mechanics, or source provenance.",
+      "outcome": "unknown",
+      "project": "ClearFront",
+      "result": "Preserved the ClearFront side-rails prototype and documented continuity, canonical-stat mismatches, validation steps, and asset-readiness hazards without touching production.",
+      "semantic_word_count": 93,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-253.json": "84e6c4d36a2e30a72f1d038f432d12e6ca296b985a099837e4560d69b357261b",
+        "Projects/ClearFront/notes/ui-redesign-continuity-qa-2026-07-19.md": "e9a3a8d161fa24a257dc86f445e0c4108a75fa57e9ed6fc1bb7aa411c7dc5211",
+        "Projects/ClearFront/prototypes/clearfront-side-rails-2026-07-19.html": "d98427f3772ca8f6215cef852ed9baffc1715e9e59e43904ce28beb862cfbde7"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-253.json",
+        "Projects/ClearFront/notes/ui-redesign-continuity-qa-2026-07-19.md",
+        "Projects/ClearFront/prototypes/clearfront-side-rails-2026-07-19.html"
+      ],
+      "status": "SUBMITTED",
+      "task_id": "TASK-253",
+      "title": "Preserve ClearFront UI prototype and prepare continuity QA packet",
+      "unexpected": "Most square user assets were RGB images with checkerboards baked into the pixels rather than transparent RGBA.",
+      "workstream": "clearfront-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "../../CommandCenterUI/src/chat.css",
+        "../../CommandCenterUI/src/chat.html",
+        "../../CommandCenterUI/src/chat.js",
+        "MAP_System/artifacts/planning/command-center-ui-serial-batch-reconciliation-2026-07-19.md",
+        "MAP_System/templates/install/command-center-ui/src/chat.css",
+        "MAP_System/templates/install/command-center-ui/src/chat.html",
+        "MAP_System/templates/install/command-center-ui/src/chat.js",
+        "MAP_System/tests/test_command_center_agent_identity.py",
+        "MAP_System/tests/test_command_center_attention_history.py",
+        "MAP_System/tests/test_command_center_composer_alignment.py",
+        "MAP_System/tests/test_command_center_message_intent_copy.py"
+      ],
+      "concepts": [
+        "rapid UI feedback",
+        "task consolidation",
+        "final-state review",
+        "output collision",
+        "Command Center"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "One continuous feedback conversation had been represented as overlapping tasks owning the same files.",
+      "goal": "Reconcile the serial operator-feedback implementations recorded as TASK-241 through TASK-248 into one independently reviewable final-state batch. Preserve each original timeline, retire the overwritten snapshot cards as superseded, establish one active owner for the shared live/template UI files and focused tests, verify the combined requirements and parity, and make no UI behavior change during reconciliation.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "Retired eight serial UI snapshot tasks in favor of one final-state Command Center review boundary with combined focused tests and live-template parity.",
+      "semantic_word_count": 101,
+      "source_hashes": {
+        "../../CommandCenterUI/src/chat.css": "5c9036fe1faf285a33d7240372a83037027c38a0888b55e096e0aad9938fa272",
+        "../../CommandCenterUI/src/chat.html": "8fff4ec871825c832ee78e671e0a173ac123fcfc85bce01b765cc1c503267cd5",
+        "../../CommandCenterUI/src/chat.js": "53651874f7886952f1c1f427bdfa80444e456805aa1eae95a945c2f969c3d597",
+        "MAP_System/artifacts/planning/command-center-ui-serial-batch-reconciliation-2026-07-19.md": "02a789b6cf6da42b6a5ba8d8ed692e5ba7ff0f067064e95d3dcdc4483a9ab3f5",
+        "MAP_System/tasks/TASK-254.json": "5aee8b3e514d32587aae78272ce3f75e1fd14fc8c66d4f19d74f73e1d2e1dc45",
+        "MAP_System/templates/install/command-center-ui/src/chat.css": "5c9036fe1faf285a33d7240372a83037027c38a0888b55e096e0aad9938fa272",
+        "MAP_System/templates/install/command-center-ui/src/chat.html": "8fff4ec871825c832ee78e671e0a173ac123fcfc85bce01b765cc1c503267cd5",
+        "MAP_System/templates/install/command-center-ui/src/chat.js": "53651874f7886952f1c1f427bdfa80444e456805aa1eae95a945c2f969c3d597",
+        "MAP_System/tests/test_command_center_agent_identity.py": "84418655ff6c218428d2556e1215c237e3a7d9a329259dbb7269123dbcd2ebbd",
+        "MAP_System/tests/test_command_center_attention_history.py": "5a458bce99366b97b676616dbf4fd8e2ac9538d49d11036b32d5fc6f630bf1ab",
+        "MAP_System/tests/test_command_center_composer_alignment.py": "c1a586761ae4b539ce74619dfe02867504cb1b4989f30eb521ef5a6b26102782",
+        "MAP_System/tests/test_command_center_message_intent_copy.py": "bb99111c4d54d3d6a4b2e78897732988f589fac89140a368603cc5aaabbd251e"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-254.json",
+        "../../CommandCenterUI/src/chat.css",
+        "../../CommandCenterUI/src/chat.html",
+        "../../CommandCenterUI/src/chat.js",
+        "MAP_System/artifacts/planning/command-center-ui-serial-batch-reconciliation-2026-07-19.md",
+        "MAP_System/templates/install/command-center-ui/src/chat.css",
+        "MAP_System/templates/install/command-center-ui/src/chat.html",
+        "MAP_System/templates/install/command-center-ui/src/chat.js",
+        "MAP_System/tests/test_command_center_agent_identity.py",
+        "MAP_System/tests/test_command_center_attention_history.py",
+        "MAP_System/tests/test_command_center_composer_alignment.py",
+        "MAP_System/tests/test_command_center_message_intent_copy.py"
+      ],
+      "status": "SUBMITTED",
+      "task_id": "TASK-254",
+      "title": "Consolidate CommandCenterUI rapid-feedback edits into one reviewable final state",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md"
+      ],
+      "concepts": [
+        "task fingerprint",
+        "workstream digest",
+        "token budget",
+        "historical retrieval",
+        "navigation authority",
+        "explainable wait"
+      ],
+      "curation": "frozen_owner_curation",
+      "friction": "",
+      "goal": "Assess the operator-provided conversation_notes.md against MAP current architecture. Separate existing capabilities from genuine gaps, propose bounded experiments for task fingerprints, workstream digests, explainable wait and incident records, and improved E/I retrieval, and explicitly defer duplicate agents, autonomous authority expansion, and external GitHub integration pending evidence and operator decisions.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "Separated governing-document navigation from generated historical retrieval and proposed token-bounded fingerprints, digests, and explainable waits.",
+      "semantic_word_count": 94,
+      "source_hashes": {
+        "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md": "28dec3a13631ba0ddc91480c44767c5d149382b8b0aba96d560596436b181ffc",
+        "MAP_System/tasks/TASK-255.json": "213201b0e8276a93e36d12b178a325261d45d384fc60f5dfe9b3ac8f21a64b66"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-255.json",
+        "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md"
+      ],
+      "status": "SUBMITTED",
+      "task_id": "TASK-255",
+      "title": "Map conversation notes into existing E/I and triage architecture",
+      "unexpected": "MAP already had most storage and governance substrate; the missing layer was compact ranked retrieval rather than another agent.",
+      "workstream": "emergence-and-learning"
+    }
+  ],
+  "full_packet_estimated_tokens": 10794,
+  "generated_at": "2026-07-19T13:45:00-04:00",
+  "missing_task_ids": [],
+  "pilot_metrics_before_helper": {
+    "critical_miss_count": 0,
+    "hits": 16,
+    "per_query": [
+      {
+        "expected": [
+          "TASK-211",
+          "TASK-213"
+        ],
+        "found": [
+          "TASK-211",
+          "TASK-213"
+        ],
+        "id": "Q1",
+        "missing": [],
+        "returned": [
+          "TASK-213",
+          "TASK-211",
+          "TASK-217",
+          "TASK-222",
+          "TASK-252",
+          "TASK-216"
+        ]
+      },
+      {
+        "expected": [
+          "TASK-207",
+          "TASK-208"
+        ],
+        "found": [
+          "TASK-207",
+          "TASK-208"
+        ],
+        "id": "Q2",
+        "missing": [],
+        "returned": [
+          "TASK-208",
+          "TASK-207",
+          "TASK-254",
+          "TASK-214",
+          "TASK-219",
+          "TASK-212"
+        ]
+      },
+      {
+        "expected": [
+          "TASK-220",
+          "TASK-214"
+        ],
+        "found": [
+          "TASK-220",
+          "TASK-214"
+        ],
+        "id": "Q3",
+        "missing": [],
+        "returned": [
+          "TASK-220",
+          "TASK-214",
+          "TASK-212",
+          "TASK-207",
+          "TASK-208",
+          "TASK-215"
+        ]
+      },
+      {
+        "expected": [
+          "TASK-229",
+          "TASK-230"
+        ],
+        "found": [
+          "TASK-229",
+          "TASK-230"
+        ],
+        "id": "Q4",
+        "missing": [],
+        "returned": [
+          "TASK-230",
+          "TASK-229",
+          "TASK-228",
+          "TASK-222",
+          "TASK-231",
+          "TASK-219"
+        ]
+      },
+      {
+        "expected": [
+          "TASK-224",
+          "TASK-226"
+        ],
+        "found": [
+          "TASK-224",
+          "TASK-226"
+        ],
+        "id": "Q5",
+        "missing": [],
+        "returned": [
+          "TASK-226",
+          "TASK-224",
+          "TASK-237",
+          "TASK-249",
+          "TASK-234",
+          "TASK-255"
+        ]
+      },
+      {
+        "expected": [
+          "TASK-234",
+          "TASK-235"
+        ],
+        "found": [
+          "TASK-234",
+          "TASK-235"
+        ],
+        "id": "Q6",
+        "missing": [],
+        "returned": [
+          "TASK-234",
+          "TASK-235",
+          "TASK-254",
+          "TASK-225",
+          "TASK-228",
+          "TASK-237"
+        ]
+      },
+      {
+        "expected": [
+          "TASK-249"
+        ],
+        "found": [
+          "TASK-249"
+        ],
+        "id": "Q7",
+        "missing": [],
+        "returned": [
+          "TASK-249",
+          "TASK-224",
+          "TASK-236",
+          "TASK-238",
+          "TASK-234",
+          "TASK-211"
+        ]
+      },
+      {
+        "expected": [
+          "TASK-254"
+        ],
+        "found": [
+          "TASK-254"
+        ],
+        "id": "Q8",
+        "missing": [],
+        "returned": [
+          "TASK-254",
+          "TASK-234",
+          "TASK-225",
+          "TASK-219",
+          "TASK-235",
+          "TASK-253"
+        ]
+      },
+      {
+        "expected": [
+          "TASK-253"
+        ],
+        "found": [
+          "TASK-253"
+        ],
+        "id": "Q9",
+        "missing": [],
+        "returned": [
+          "TASK-253",
+          "TASK-212",
+          "TASK-226",
+          "TASK-252",
+          "TASK-217",
+          "TASK-215"
+        ]
+      },
+      {
+        "expected": [
+          "TASK-255"
+        ],
+        "found": [
+          "TASK-255"
+        ],
+        "id": "Q10",
+        "missing": [],
+        "returned": [
+          "TASK-255",
+          "TASK-226",
+          "TASK-227",
+          "TASK-224",
+          "TASK-207",
+          "TASK-235"
+        ]
+      }
+    ],
+    "recall_at_6": 1.0,
+    "total_expected": 16
+  },
+  "projection_authority": "none; generated retrieval aid only",
+  "query_packet_estimated_tokens": {
+    "Q1": 963,
+    "Q10": 1067,
+    "Q2": 1053,
+    "Q3": 1049,
+    "Q4": 951,
+    "Q5": 1103,
+    "Q6": 1117,
+    "Q7": 977,
+    "Q8": 1097,
+    "Q9": 1103
+  },
+  "schema_version": 1,
+  "source_spec": "MAP_System/artifacts/experiments/task-fingerprint-index-pilot-queries-2026-07-19.json"
+}

@@ -1,0 +1,41 @@
+{
+  "task_id": "TASK-002",
+  "title": "Implement minimal LangGraph runner",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "DONE",
+  "dependencies": [
+    "TASK-001"
+  ],
+  "owner": "codex",
+  "description": "Implement the first executable LangGraph flow around the file-backed task graph.",
+  "input_paths": [
+    "workflow/task_graph.json",
+    "langgraph/README.md",
+    "langgraph/graph.py"
+  ],
+  "output_paths": [
+    "artifacts/tests/langgraph-runner-test.md",
+    "artifacts/tests/langgraph_runner_test.md",
+    "langgraph/runner.py"
+  ],
+  "acceptance_criteria": [
+    "Loads workflow/task_graph.json",
+    "Selects ready tasks whose dependencies are satisfied",
+    "Routes submitted tasks to review",
+    "Does not treat LangGraph state as canonical project storage"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

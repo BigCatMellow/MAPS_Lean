@@ -1,0 +1,48 @@
+{
+  "task_id": "TASK-214",
+  "title": "ClearFront: extract js/combat.js (card play, combat, end-turn, AI)",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-212"
+  ],
+  "owner": "claude-lab-gome",
+  "description": "Second and highest-risk engine-layer decomposition slice (RISK-CF-0001), scoped precisely in DEC-CF-005 (Projects/ClearFront/shared/decisions.md) after inspecting post-TASK-212 app/index.html directly (not the pre-207 module map, which predates the ctx/window.CF mechanism). Extract these 37 functions verbatim into Projects/ClearFront/app/js/combat.js, published via CF.installCombatModule(ctx) mirroring TASK-212's CF.installStateModule(ctx) pattern exactly: cardAttack, effectiveCost, isDamageCard, isDamageSpell, damageHero, getCardCondition, canAttack, usesCompactLayout, scrollZoneIntoView, scrollToTargets, handleHandCard, getTargetInfo, isCardPlayable, handUnavailableReason, handleUnitTarget, blockTargetReason, assignBlock, playCard, resolveEffect, gainUnitHealth, buffUnit, dealDamage, removeDeadUnits, beginPlayerAttack, aiChooseBlocks, triggerCombatSurvival, resolveCombat, dealCombatDamage, resolveEndTurnEffects, endPlayerTurn, endEnemyTurn, scoreAiCardBase, scoreAiCard, aiMainPhase, chooseAiTarget, aiDeclareAttackers, resolvePlayerBlocks, checkGameOver. DO NOT move the clash-animation cluster (clashDelay, clashTimers, buildClashCard, buildClashFx, spawnClashNumber, showClashHit, flagClashCard, stageImpact, runBlockedClash, runHeroClash, playClashSequence) -- DEC-CF-005 confirms these stay inline pending a future render.js task; resolveCombat calls playClashSequence exactly once as a clean hand-off. ctx contract changes (DEC-CF-005 point 3): KEEP render as a forwarded host binding (called 20+ times in this function set); ADD playClashSequence as a new forwarded host binding; REMOVE checkGameOver, removeDeadUnits, damageHero, aiMainPhase from ctx since those four move into combat.js itself in this task (referencing them via ctx afterward would dangle) -- anything needing them calls CF.checkGameOver(...) etc. directly, same as any other window.CF-published function. The 5 mutable accessors (state/undoRecord/uidCounter/playerDeckChoice/enemyDeckChoice) are unchanged. combat.js functions call several state.js functions (addLog, drawCard, refillHand, deployChampion, saveUndo, clearUndo, canUndo, startTurn, etc.) via CF.functionName(...), not through ctx -- ctx is only for the raw mutable bindings needing cross-file reassignment. Load order: data.js -> state.js -> combat.js -> inline script. No ES modules, no build step, no server (DEC-CF-002). Do not touch source/ or baseline/.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/app/index.html",
+    "Projects/ClearFront/app/js/combat.js",
+    "Projects/ClearFront/app/js/state.js",
+    "Projects/ClearFront/artifacts/tests/screenshots/task214-app-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task214-pre214-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md",
+    "Projects/ClearFront/artifacts/tests/task-214-owner-verification-gome.md",
+    "Projects/ClearFront/artifacts/tests/task214-cdp-fullturn.mjs",
+    "Projects/ClearFront/artifacts/tests/task214-run-app-seed42.log",
+    "Projects/ClearFront/artifacts/tests/task214-run-app-seed7.log",
+    "Projects/ClearFront/artifacts/tests/task214-run-pre214-seed42.log",
+    "Projects/ClearFront/artifacts/tests/task214-run-pre214-seed7.log"
+  ],
+  "acceptance_criteria": [
+    "All 37 listed functions moved verbatim (logic unchanged, same verbatim-move-proof standard as TASK-212: disclose and justify every non-mechanical-prefix diff) into app/js/combat.js.",
+    "ctx contract updated exactly per DEC-CF-005 point 3: render kept, playClashSequence added, checkGameOver/removeDeadUnits/damageHero/aiMainPhase removed from ctx (moved into combat.js). Document the final ctx shape (list every key) in the parity report.",
+    "app/index.html opens directly via file:// and is visually + functionally identical to the pre-TASK-214 app/index.html: byte-identical champion-select screenshot, and a deterministic seeded-replay CDP test (reuse/extend TASK-212's seeded-Math.random technique) covering card play, attacking, blocking, combat resolution, end turn, and at least one full AI turn, with zero console errors/exceptions.",
+    "TASK-213's undo hidden-information fix and TASK-212's cross-file undo trio both still function correctly (reuse/extend task212-undo-check.mjs).",
+    "node --check passes on combat.js and the remaining inline script.",
+    "source/ and baseline/ untouched, hashes independently reproduced in the parity report (not just asserted)."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

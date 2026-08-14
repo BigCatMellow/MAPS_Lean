@@ -1,0 +1,39 @@
+{
+  "task_id": "TASK-221",
+  "title": "RnS: persistent local session-limit supervisor",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "Operator-directed hardening after the 2026-07-17 Claude limit incident: make the existing deterministic RnS watcher self-sufficient when every cloud agent is exhausted. Detect fresh session-limit/reset messages from live hcom transcript tails without waiting for the session to disappear, persist standby/out_of_tokens + ISO resume_after through the canonical SQLite/export path, nudge only due agents, retain bounded retry behavior, and deploy a reboot-safe user service at a modest interval (300s, not 30s polling). No local or cloud LLM is required.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/rns-persistent-supervisor.md",
+    "MAP_System/notes/limit-exhaustion-protocol.md",
+    "MAP_System/scripts/limit_watcher.py",
+    "MAP_System/scripts/start-limit-watcher.sh",
+    "MAP_System/templates/install/systemd/map-rns-watcher.service",
+    "MAP_System/tests/test_limit_watcher.py"
+  ],
+  "acceptance_criteria": [
+    "Fresh transcript limit messages on live sessions are detected once, their reset time is parsed, and the durable agent record becomes standby/out_of_tokens with an ISO resume_after without model participation.",
+    "The supervisor does not treat historical/stale transcript limit messages as fresh incidents and does not nudge available agents before a due reset.",
+    "A due recorded agent receives the normal RnS path with bounded retry; status/mirror consistency is preserved.",
+    "The installed user service is enabled, reboot-safe, uses a 300-second interval, and is verified active; no repeating 30-second poller or Ollama/cloud helper is used.",
+    "Focused RnS tests and the full MAP test suite pass; evidence documents live service and failure-path verification."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

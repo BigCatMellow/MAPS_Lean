@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+
+printf 'Antigravity has been retired from the AI Command Center by operator decision (TASK-320).\n' >&2
+printf 'Generic provider tooling outside the Command Center is unchanged.\n' >&2
+exit 2

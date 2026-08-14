@@ -1,0 +1,2231 @@
+{
+  "authoring_cost": {
+    "authoring_effort": "zero manual authoring per card; all cards are mechanically derived from existing task JSON, source files, and events.jsonl at build time",
+    "cards_by_anchor_type": {
+      "code_symbol": 576,
+      "markdown_heading": 816
+    },
+    "cards_by_attribution_method": {
+      "acceptance_criteria_match": 224,
+      "inline_tag": 19,
+      "undifferentiated_fallback": 152,
+      "unique_link": 951,
+      "version_header_match": 46
+    },
+    "claim_cards_total": 1392
+  },
+  "authority": "none; disposable experiment evidence only. Does not change production retrieval, startup, routing, or canonical policy.",
+  "baselines_to_beat": {
+    "capsule_exact_source": "18/20",
+    "task_recall": "12/12"
+  },
+  "blind_evaluation_disclosure": "This run was scored by the treatment implementer (claude-lab-lili), not by a separate blind evaluator. `soba` was reserved as blind evaluator in prior TASK-263 handoffs but is not a currently-registered agent. No second agent scored blinded output this session. The scorer itself is fully mechanical (exact string/path comparison against the frozen holdout's recorded fields) with no subjective judgment calls, but this does not substitute for independent execution. The independent TASK-263 reviewer should re-run this script (deterministic, reproducible) and treat these numbers as implementer-reported pending that re-run.",
+  "build": {
+    "claim_card_count": 1392,
+    "corpus_tasks_loaded": 94,
+    "corpus_tasks_requested": 94,
+    "linked_paths": 247,
+    "missing_tasks": [],
+    "skipped_paths": [
+      {
+        "path": "/home/home/.local/bin/ai",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab-claude",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab-codex",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab-health",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab-shell",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.themes/Mellow-Dark",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/AI Command Center/AGENTS.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/AI Command Center/Command Center UI/AI command center UI",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/CommandCenterUI.desktop",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/README.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/app/server.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/app/window.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/run-command-center-app.sh",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/src/chat.css",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/src/chat.html",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/src/chat.js",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/Onion-workbench/claude-code-comms/COORDINATION_BRIDGE.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Agent Deck.desktop",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/.locks/git-operation.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/agents/limit-watcher-state.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/agents/status.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/agent_loop_lock_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/agent_loop_retry_cooldown_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/integration_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/map_status_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/map_task_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/run_tests_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/db/migration",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/emergence",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/emergence/synthesis",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/events/events.jsonl",
+        "reason": "unsupported_suffix:.jsonl"
+      },
+      {
+        "path": "MAP_System/migration/schema.sql",
+        "reason": "unsupported_suffix:.sql"
+      },
+      {
+        "path": "MAP_System/scripts/run_tests.sh",
+        "reason": "unsupported_suffix:.sh"
+      },
+      {
+        "path": "MAP_System/scripts/start-limit-watcher.sh",
+        "reason": "unsupported_suffix:.sh"
+      },
+      {
+        "path": "MAP_System/shared",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/shared/unresolved_questions.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/tasks/TASK-063.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/tasks/TASK-064.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/tasks/TASK-096.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/workflow/task_graph.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/workflow/templates/state_snapshot.yaml",
+        "reason": "unsupported_suffix:.yaml"
+      },
+      {
+        "path": "Projects/ClearFront/app/assets/glyph-relic.png",
+        "reason": "unsupported_suffix:.png"
+      },
+      {
+        "path": "Projects/ClearFront/app/assets/glyph-spell.png",
+        "reason": "unsupported_suffix:.png"
+      },
+      {
+        "path": "Projects/ClearFront/app/assets/glyph-unit.png",
+        "reason": "unsupported_suffix:.png"
+      },
+      {
+        "path": "Projects/ClearFront/prototypes/clearfront-side-rails-2026-07-19.html",
+        "reason": "unsupported_suffix:.html"
+      },
+      {
+        "path": "Projects/CommandCenterUI",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/CommandCenterUI/app/server.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/CommandCenterUI/artifacts/task060-validation.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/artifacts/package-review-2026-07-01.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/artifacts/task061-validation.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/artifacts/task062-validation.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/repo",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/repo/install-mellow-dark.sh",
+        "reason": "not_found"
+      },
+      {
+        "path": "agents/README.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "agents/status.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/autonomous-claim-loop.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/autonomous_claim_loop.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/hpom-scope-definition.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/sqlite-task-board.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/sqlite_task_board.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/reviews/bootstrap-review.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/reviews/bootstrap_review.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/agent-loop-lock-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/agent-loop-retry-cooldown-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/agent-loop-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/agent_loop_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/checkpointer-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/checkpointer_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/claims-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/claims_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/export-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/export_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/integration-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/langgraph-runner-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/langgraph_runner_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/local-assistant-health-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/map-status-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/map-task-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/promote-task-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/reconcile-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/reconcile_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/run-tests-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/runner-sqlite-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/runner_sqlite_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/sqlite-seed-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/sqlite_seed_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "db/__init__.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "db/checkpointer.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "db/claims.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "graph/runner.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "https:/github.com/BigCatMellow/Dark_Mellow",
+        "reason": "not_found"
+      },
+      {
+        "path": "inbox/helpers/README.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "langgraph/README.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "langgraph/runner.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "migration/export_to_files.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "migration/schema.sql",
+        "reason": "not_found"
+      },
+      {
+        "path": "migration/seed_from_files.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/agent-deck",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/agent_loop.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/ai-command-center-antigravity",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/ai-command-center-cli",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/ai-command-center-shell",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/antigravity-wrapper",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/integration_test.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/local_assistant_health.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/map_status.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/map_task.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/multigate_regression_test.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/promote_task.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/reconcile.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/run_tests.sh",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/validate_task_graph.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/agent-capability-matrix.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/architecture.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/current-state.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/decisions.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/hpom.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/requirements.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/unresolved-questions.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-005.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-006.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-007.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-008.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-009.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-010.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-011.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-012.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-035.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-036.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-037.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tests/test_promote_task.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "workflow/runtime_policy.yaml",
+        "reason": "not_found"
+      },
+      {
+        "path": "workflow/task_graph.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "workflow/templates/software_project.yaml",
+        "reason": "not_found"
+      },
+      {
+        "path": "workflow/templates/state_snapshot.yaml",
+        "reason": "not_found"
+      }
+    ]
+  },
+  "experiment": "EXP-0006 / TASK-263",
+  "holdout_sha256_verified": "635aa5f0b41bdded414fac6b6a7cf82cb2841395751813ad6213619eb0f75e3f",
+  "holdout_source": "MAP_System/artifacts/experiments/task-memory-claim-evidence-holdout-2026-07-19.json",
+  "median_packet_words_per_query": 26,
+  "metrics": {
+    "abstention_false_positives": 3,
+    "abstention_precision_recall": "2/5",
+    "acceptable_substitute_hits_on_missed_queries": 1,
+    "anchored_evidence_accuracy": "7/41",
+    "anchored_evidence_ratio": 0.1707,
+    "exact_source_accuracy": "17/41",
+    "exact_source_ratio": 0.4146,
+    "historical_version_correctness": "2/3",
+    "median_selection_ms": 8.5908,
+    "per_query": [
+      {
+        "anchor_hits": 1,
+        "anchor_total": 2,
+        "exact_source_hits": [
+          "MAP_System/scripts/agent_loop.py",
+          "MAP_System/scripts/agent_loop.py"
+        ],
+        "exact_source_misses": [],
+        "id": "P01",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match",
+            "undifferentiated_fallback"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "LeaseRevoked",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/agent_loop.py"
+            },
+            {
+              "anchor": "acquire_loop_lock",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/agent_loop.py"
+            },
+            {
+              "anchor": "parse_args",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/agent_loop.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-024"
+          ],
+          "task_score": 23.874
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 1,
+        "exact_source_hits": [
+          "MAP_System/graph/runner.py"
+        ],
+        "exact_source_misses": [],
+        "id": "P02",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "check_approval_gates",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/graph/runner.py"
+            },
+            {
+              "anchor": "load_all_approval_gates",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/graph/runner.py"
+            },
+            {
+              "anchor": "_record_gate_decision",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/graph/runner.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-030"
+          ],
+          "task_score": 27.3
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/scripts/release_task.py",
+          "MAP_System/templates/release-checklist.md"
+        ],
+        "id": "P03",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/scripts/release_task.py",
+          "MAP_System/templates/release-checklist.md"
+        ],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match",
+            "undifferentiated_fallback"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "build_loop_graph",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/agent_loop.py"
+            },
+            {
+              "anchor": "claim_node",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/agent_loop.py"
+            },
+            {
+              "anchor": "reached_iteration_cap",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/agent_loop.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-024"
+          ],
+          "task_score": 17.2873
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/scripts/flag_conflict.py",
+          "MAP_System/templates/conflict.md"
+        ],
+        "id": "P04",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/scripts/flag_conflict.py",
+          "MAP_System/templates/conflict.md"
+        ],
+        "predicted": {
+          "abstained": true,
+          "predicted_sources": [],
+          "predicted_task_ids": [],
+          "reason": "low_coverage:0.28<0.3"
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 1,
+        "anchor_total": 2,
+        "exact_source_hits": [
+          "MAP_System/scripts/validate_decisions.py",
+          "MAP_System/scripts/validate_decisions.py"
+        ],
+        "exact_source_misses": [],
+        "id": "P05",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "check_decision_conflicts",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/validate_decisions.py"
+            },
+            {
+              "anchor": "subject_terms",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/validate_decisions.py"
+            },
+            {
+              "anchor": "Decision Entry Template",
+              "anchor_type": "markdown_heading",
+              "path": "MAP_System/templates/decision.md"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-041"
+          ],
+          "task_score": 27.7847
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 1,
+        "anchor_total": 2,
+        "exact_source_hits": [
+          "MAP_System/db/claims.py",
+          "MAP_System/tests/test_no_self_review.py"
+        ],
+        "exact_source_misses": [],
+        "id": "P06",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "connect",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/db/claims.py"
+            },
+            {
+              "anchor": "claim_block_reason",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/db/claims.py"
+            },
+            {
+              "anchor": "test_different_agent_allowed",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_no_self_review.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-044"
+          ],
+          "task_score": 23.3897
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [
+          "MAP_System/migration/export_to_files.py",
+          "MAP_System/tests/test_exporter_hpom_fields.py"
+        ],
+        "exact_source_misses": [],
+        "id": "P07",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match",
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "write_existing_task",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_exporter_hpom_fields.py"
+            },
+            {
+              "anchor": "init_db",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_exporter_hpom_fields.py"
+            },
+            {
+              "anchor": "graph_payload",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/migration/export_to_files.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-045"
+          ],
+          "task_score": 16.8651
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/scripts/validate_review.py",
+          "MAP_System/templates/review-record.md"
+        ],
+        "id": "P08",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/scripts/validate_review.py",
+          "MAP_System/templates/review-record.md"
+        ],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match",
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "test_release_task_marks_released_with_record",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_release_gate.py"
+            },
+            {
+              "anchor": "set_review_state",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/map_task.py"
+            },
+            {
+              "anchor": "test_high_risk_severity_forces_full_checklist_without_canonical_path",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_release_gate.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-038"
+          ],
+          "task_score": 13.7585
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_runner.py"
+        ],
+        "id": "P09",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_runner.py"
+        ],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "eligible",
+              "anchor_type": "code_symbol",
+              "path": "/home/mellow/Projects/CommandCenterUI/app/server.py"
+            },
+            {
+              "anchor": "ollama_models",
+              "anchor_type": "code_symbol",
+              "path": "/home/mellow/Projects/CommandCenterUI/app/server.py"
+            },
+            {
+              "anchor": "provider_usage_summary",
+              "anchor_type": "code_symbol",
+              "path": "/home/mellow/Projects/CommandCenterUI/app/server.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-264"
+          ],
+          "task_score": 23.0859
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [
+          "MAP_System/scripts/map_emergence.py"
+        ],
+        "exact_source_misses": [
+          "MAP_System/emergence/README.md"
+        ],
+        "id": "P10",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/emergence/README.md"
+        ],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "undifferentiated_fallback",
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "compact_record_section",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/map_emergence.py"
+            },
+            {
+              "anchor": "mark_reviewed",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/map_emergence.py"
+            },
+            {
+              "anchor": "test_rebuild_index_compacts_resolvable_emergence_references",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_map_emergence.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-052"
+          ],
+          "task_score": 17.6761
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [
+          "MAP_System/scripts/limit_watcher.py"
+        ],
+        "exact_source_misses": [
+          "MAP_System/notes/limit-exhaustion-protocol.md"
+        ],
+        "id": "P11",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/notes/limit-exhaustion-protocol.md"
+        ],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match",
+            "version_header_match"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "clear_recorded_reset_status",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/limit_watcher.py"
+            },
+            {
+              "anchor": "test_durable_lifecycle_overlay_only_marks_genuinely_terminal",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            },
+            {
+              "anchor": "test_silent_stop_detection",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-080"
+          ],
+          "task_score": 23.2768
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/notes/limit-exhaustion-protocol.md"
+        ],
+        "id": "P12",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/notes/limit-exhaustion-protocol.md"
+        ],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match",
+            "inline_tag"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "test_overnight_incident_shape",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            },
+            {
+              "anchor": "test_prune_absent_session_tracking_removes_historical_helpers",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            },
+            {
+              "anchor": "test_probe_backoff_schedule",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-083"
+          ],
+          "task_score": 38.3197
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/migration/export_to_files.py",
+          "MAP_System/agents/README.md"
+        ],
+        "id": "P13",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/migration/export_to_files.py",
+          "MAP_System/agents/README.md"
+        ],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match",
+            "version_header_match"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "test_prune_absent_session_tracking_removes_historical_helpers",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            },
+            {
+              "anchor": "prune_absent_session_tracking",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/limit_watcher.py"
+            },
+            {
+              "anchor": "test_failed_recorded_reset_retry_throttle",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-083"
+          ],
+          "task_score": 25.3931
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 1,
+        "anchor_total": 1,
+        "exact_source_hits": [
+          "MAP_System/scripts/integration_test.py"
+        ],
+        "exact_source_misses": [],
+        "id": "P14",
+        "kind": "positive",
+        "matched_substitutes": [
+          [
+            "MAP_System/scripts/integration_test.py",
+            "build_handler"
+          ]
+        ],
+        "missed_expected_paths": [],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "undifferentiated_fallback",
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "build_handler",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/integration_test.py"
+            },
+            {
+              "anchor": "run_agent_loop",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/integration_test.py"
+            },
+            {
+              "anchor": "choose_route",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/graph/runner.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-023"
+          ],
+          "task_score": 18.0624
+        },
+        "substitute_hit": true,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 1,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/scripts/map_status.py"
+        ],
+        "id": "P15",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/scripts/map_status.py"
+        ],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "read_approvals",
+              "anchor_type": "code_symbol",
+              "path": "/home/mellow/Projects/CommandCenterUI/app/server.py"
+            },
+            {
+              "anchor": "cost_yield_health",
+              "anchor_type": "code_symbol",
+              "path": "/home/mellow/Projects/CommandCenterUI/app/server.py"
+            },
+            {
+              "anchor": "outcomes_health",
+              "anchor_type": "code_symbol",
+              "path": "/home/mellow/Projects/CommandCenterUI/app/server.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-264"
+          ],
+          "task_score": 19.5624
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/scripts/map_metrics.py",
+          "MAP_System/tests/test_map_metrics.py"
+        ],
+        "id": "P16",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/scripts/map_metrics.py",
+          "MAP_System/tests/test_map_metrics.py"
+        ],
+        "predicted": {
+          "abstained": true,
+          "predicted_sources": [],
+          "predicted_task_ids": [],
+          "reason": "low_coverage:0.26<0.3"
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/scripts/git_operation_lock.py",
+          "MAP_System/tests/test_git_operation_lock.py"
+        ],
+        "id": "P17",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/scripts/git_operation_lock.py",
+          "MAP_System/tests/test_git_operation_lock.py"
+        ],
+        "predicted": {
+          "abstained": true,
+          "predicted_sources": [],
+          "predicted_task_ids": [],
+          "reason": "low_coverage:0.21<0.3"
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 1,
+        "anchor_total": 1,
+        "exact_source_hits": [
+          "MAP_System/notes/map-system-deep-dive.md"
+        ],
+        "exact_source_misses": [],
+        "id": "P18",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "1.3 Capability and authority are different things",
+              "anchor_type": "markdown_heading",
+              "path": "MAP_System/notes/map-system-deep-dive.md"
+            },
+            {
+              "anchor": "13.1 Risk is standing exposure, not merely a problem that already happened",
+              "anchor_type": "markdown_heading",
+              "path": "MAP_System/notes/map-system-deep-dive.md"
+            },
+            {
+              "anchor": "17. Project bootstrapping and reuse",
+              "anchor_type": "markdown_heading",
+              "path": "MAP_System/notes/map-system-deep-dive.md"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-250"
+          ],
+          "task_score": 17.8672
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 1,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/artifacts/planning/map-project-improvement-kickoff-2026-07-19.md"
+        ],
+        "id": "P19",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/artifacts/planning/map-project-improvement-kickoff-2026-07-19.md"
+        ],
+        "predicted": {
+          "abstained": true,
+          "predicted_sources": [],
+          "predicted_task_ids": [],
+          "reason": "low_coverage:0.22<0.3"
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md",
+          "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md"
+        ],
+        "id": "P20",
+        "kind": "positive",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md",
+          "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md"
+        ],
+        "predicted": {
+          "abstained": true,
+          "predicted_sources": [],
+          "predicted_task_ids": [],
+          "reason": "low_coverage:0.29<0.3"
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 0,
+        "anchor_total": 2,
+        "exact_source_hits": [],
+        "exact_source_misses": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/notes/limit-exhaustion-protocol.md"
+        ],
+        "historical_correct": false,
+        "historical_trap_hit": true,
+        "id": "H01",
+        "kind": "historical",
+        "matched_substitutes": [],
+        "missed_expected_paths": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/notes/limit-exhaustion-protocol.md"
+        ],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "test_reset_time_parsing",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            },
+            {
+              "anchor": "test_live_due_recorded_reset_is_clearable",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            },
+            {
+              "anchor": "test_live_due_recorded_reset_retry_is_throttled",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_limit_watcher.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-083"
+          ],
+          "task_score": 33.9936
+        },
+        "substitute_hit": false,
+        "task_recall_hit": false
+      },
+      {
+        "anchor_hits": 1,
+        "anchor_total": 2,
+        "exact_source_hits": [
+          "MAP_System/db/claims.py",
+          "MAP_System/tests/test_no_self_review.py"
+        ],
+        "exact_source_misses": [],
+        "historical_correct": true,
+        "historical_trap_hit": false,
+        "id": "H02",
+        "kind": "historical",
+        "matched_substitutes": [],
+        "missed_expected_paths": [],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "claim_block_reason",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/db/claims.py"
+            },
+            {
+              "anchor": "init_db",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_no_self_review.py"
+            },
+            {
+              "anchor": "claim_review",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/db/claims.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-044"
+          ],
+          "task_score": 21.0905
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "anchor_hits": 1,
+        "anchor_total": 2,
+        "exact_source_hits": [
+          "MAP_System/scripts/map_emergence.py",
+          "MAP_System/emergence/README.md"
+        ],
+        "exact_source_misses": [],
+        "historical_correct": true,
+        "historical_trap_hit": false,
+        "id": "H03",
+        "kind": "historical",
+        "matched_substitutes": [],
+        "missed_expected_paths": [],
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match",
+            "undifferentiated_fallback",
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "Command-line capture",
+              "anchor_type": "markdown_heading",
+              "path": "MAP_System/emergence/README.md"
+            },
+            {
+              "anchor": "compact_record_text",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/map_emergence.py"
+            },
+            {
+              "anchor": "mark_reviewed",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/map_emergence.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-052"
+          ],
+          "task_score": 12.634
+        },
+        "substitute_hit": false,
+        "task_recall_hit": true
+      },
+      {
+        "abstained_correctly": true,
+        "id": "N01",
+        "kind": "negative",
+        "predicted": {
+          "abstained": true,
+          "predicted_sources": [],
+          "predicted_task_ids": [],
+          "reason": "low_coverage:0.18<0.3"
+        }
+      },
+      {
+        "abstained_correctly": false,
+        "id": "N02",
+        "kind": "negative",
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "5. User-supplied asset inventory",
+              "anchor_type": "markdown_heading",
+              "path": "Projects/ClearFront/notes/ui-redesign-continuity-qa-2026-07-19.md"
+            },
+            {
+              "anchor": "4.3 Latest operator correction not yet applied",
+              "anchor_type": "markdown_heading",
+              "path": "Projects/ClearFront/notes/ui-redesign-continuity-qa-2026-07-19.md"
+            },
+            {
+              "anchor": "1. Purpose and boundary",
+              "anchor_type": "markdown_heading",
+              "path": "Projects/ClearFront/notes/ui-redesign-continuity-qa-2026-07-19.md"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-253"
+          ],
+          "task_score": 13.7926
+        }
+      },
+      {
+        "abstained_correctly": false,
+        "id": "N03",
+        "kind": "negative",
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "acceptance_criteria_match",
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "main",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_local_runner.py"
+            },
+            {
+              "anchor": "test_runner_forces_local_ollama_host",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/tests/test_local_runner.py"
+            },
+            {
+              "anchor": "append_event",
+              "anchor_type": "code_symbol",
+              "path": "MAP_System/scripts/local_runner.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-048"
+          ],
+          "task_score": 23.3374
+        }
+      },
+      {
+        "abstained_correctly": true,
+        "id": "N04",
+        "kind": "negative",
+        "predicted": {
+          "abstained": true,
+          "predicted_sources": [],
+          "predicted_task_ids": [],
+          "reason": "polarity_mismatch:enable_query_block_evidence"
+        }
+      },
+      {
+        "abstained_correctly": false,
+        "id": "N05",
+        "kind": "negative",
+        "predicted": {
+          "abstained": false,
+          "attribution_methods": [
+            "unique_link"
+          ],
+          "predicted_sources": [
+            {
+              "anchor": "read_json",
+              "anchor_type": "code_symbol",
+              "path": "/home/mellow/Projects/CommandCenterUI/app/server.py"
+            },
+            {
+              "anchor": "__init__",
+              "anchor_type": "code_symbol",
+              "path": "/home/mellow/Projects/CommandCenterUI/app/server.py"
+            },
+            {
+              "anchor": "plain_prompt_text",
+              "anchor_type": "code_symbol",
+              "path": "/home/mellow/Projects/CommandCenterUI/app/server.py"
+            }
+          ],
+          "predicted_task_ids": [
+            "TASK-264"
+          ],
+          "task_score": 18.0969
+        }
+      }
+    ],
+    "task_recall": "12/23",
+    "task_recall_ratio": 0.5217
+  },
+  "min_task_score_threshold": 6.0,
+  "parser_coverage": {
+    "cards_by_source_suffix": {
+      ".md": 816,
+      ".py": 576
+    },
+    "linked_paths": 247,
+    "note": "Only .py (code_symbol via ast) and .md/.markdown (markdown_heading via '#' line scan) are parsed; other linked suffixes are skipped and listed in skipped_paths, so parser coverage is partial by design.",
+    "skipped_paths": [
+      {
+        "path": "/home/home/.local/bin/ai",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab-claude",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab-codex",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab-health",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.local/bin/ai-command-center-lab-shell",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/.themes/Mellow-Dark",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/AI Command Center/AGENTS.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/AI Command Center/Command Center UI/AI command center UI",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/CommandCenterUI.desktop",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/README.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/app/server.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/app/window.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/run-command-center-app.sh",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/src/chat.css",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/src/chat.html",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/CommandCenterUI/src/chat.js",
+        "reason": "not_found"
+      },
+      {
+        "path": "/home/home/Projects/Onion-workbench/claude-code-comms/COORDINATION_BRIDGE.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Agent Deck.desktop",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/.locks/git-operation.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/agents/limit-watcher-state.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/agents/status.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/agent_loop_lock_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/agent_loop_retry_cooldown_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/integration_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/map_status_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/map_task_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/artifacts/tests/run_tests_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/db/migration",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/emergence",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/emergence/synthesis",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/events/events.jsonl",
+        "reason": "unsupported_suffix:.jsonl"
+      },
+      {
+        "path": "MAP_System/migration/schema.sql",
+        "reason": "unsupported_suffix:.sql"
+      },
+      {
+        "path": "MAP_System/scripts/run_tests.sh",
+        "reason": "unsupported_suffix:.sh"
+      },
+      {
+        "path": "MAP_System/scripts/start-limit-watcher.sh",
+        "reason": "unsupported_suffix:.sh"
+      },
+      {
+        "path": "MAP_System/shared",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/shared/unresolved_questions.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "MAP_System/tasks/TASK-063.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/tasks/TASK-064.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/tasks/TASK-096.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/workflow/task_graph.json",
+        "reason": "unsupported_suffix:.json"
+      },
+      {
+        "path": "MAP_System/workflow/templates/state_snapshot.yaml",
+        "reason": "unsupported_suffix:.yaml"
+      },
+      {
+        "path": "Projects/ClearFront/app/assets/glyph-relic.png",
+        "reason": "unsupported_suffix:.png"
+      },
+      {
+        "path": "Projects/ClearFront/app/assets/glyph-spell.png",
+        "reason": "unsupported_suffix:.png"
+      },
+      {
+        "path": "Projects/ClearFront/app/assets/glyph-unit.png",
+        "reason": "unsupported_suffix:.png"
+      },
+      {
+        "path": "Projects/ClearFront/prototypes/clearfront-side-rails-2026-07-19.html",
+        "reason": "unsupported_suffix:.html"
+      },
+      {
+        "path": "Projects/CommandCenterUI",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/CommandCenterUI/app/server.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/CommandCenterUI/artifacts/task060-validation.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/artifacts/package-review-2026-07-01.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/artifacts/task061-validation.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/artifacts/task062-validation.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/repo",
+        "reason": "not_found"
+      },
+      {
+        "path": "Projects/DarkMellow/repo/install-mellow-dark.sh",
+        "reason": "not_found"
+      },
+      {
+        "path": "agents/README.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "agents/status.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/autonomous-claim-loop.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/autonomous_claim_loop.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/hpom-scope-definition.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/sqlite-task-board.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/planning/sqlite_task_board.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/reviews/bootstrap-review.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/reviews/bootstrap_review.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/agent-loop-lock-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/agent-loop-retry-cooldown-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/agent-loop-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/agent_loop_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/checkpointer-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/checkpointer_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/claims-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/claims_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/export-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/export_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/integration-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/langgraph-runner-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/langgraph_runner_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/local-assistant-health-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/map-status-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/map-task-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/promote-task-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/reconcile-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/reconcile_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/run-tests-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/runner-sqlite-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/runner_sqlite_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/sqlite-seed-test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "artifacts/tests/sqlite_seed_test.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "db/__init__.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "db/checkpointer.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "db/claims.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "graph/runner.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "https:/github.com/BigCatMellow/Dark_Mellow",
+        "reason": "not_found"
+      },
+      {
+        "path": "inbox/helpers/README.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "langgraph/README.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "langgraph/runner.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "migration/export_to_files.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "migration/schema.sql",
+        "reason": "not_found"
+      },
+      {
+        "path": "migration/seed_from_files.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/agent-deck",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/agent_loop.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/ai-command-center-antigravity",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/ai-command-center-cli",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/ai-command-center-shell",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/antigravity-wrapper",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/integration_test.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/local_assistant_health.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/map_status.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/map_task.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/multigate_regression_test.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/promote_task.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/reconcile.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/run_tests.sh",
+        "reason": "not_found"
+      },
+      {
+        "path": "scripts/validate_task_graph.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/agent-capability-matrix.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/architecture.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/current-state.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/decisions.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/hpom.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/requirements.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "shared/unresolved-questions.md",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-005.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-006.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-007.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-008.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-009.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-010.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-011.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-012.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-035.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-036.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tasks/TASK-037.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "tests/test_promote_task.py",
+        "reason": "not_found"
+      },
+      {
+        "path": "workflow/runtime_policy.yaml",
+        "reason": "not_found"
+      },
+      {
+        "path": "workflow/task_graph.json",
+        "reason": "not_found"
+      },
+      {
+        "path": "workflow/templates/software_project.yaml",
+        "reason": "not_found"
+      },
+      {
+        "path": "workflow/templates/state_snapshot.yaml",
+        "reason": "not_found"
+      }
+    ]
+  },
+  "source_budget": 3,
+  "source_hash_drift": {
+    "checked": 29,
+    "clean": false,
+    "drifted": [
+      {
+        "current_sha256": "c7088433f6de8e1ad6e6e4bcaa1043a1efb0a64bd10990613a77be470a91e032",
+        "frozen_sha256": "05dee09e84d42e3612962441ddcf56e15d9299d1ef5f8ce7da375216a1ecac7f",
+        "path": "MAP_System/db/claims.py"
+      },
+      {
+        "current_sha256": "3a00a6e936148e199d8a43b4e471296beb9d9103ad2a23673fe1a98d979e30be",
+        "frozen_sha256": "9239a58a0fc584665e86a0a639e6860763caaed660c4d0bc5cc5c61839c7aaab",
+        "path": "MAP_System/graph/runner.py"
+      },
+      {
+        "current_sha256": "5df0ff5f53945a0f798498010eb636df9ba39899c7b068d490fbf9ff4bf39cfb",
+        "frozen_sha256": "1fe6c65166ca13f03933bc46f6e2b742c733272b9de8fba44f6b0da201f1fcd3",
+        "path": "MAP_System/scripts/limit_watcher.py"
+      },
+      {
+        "current_sha256": "8120988c22e786581b439456f272bfb6253535bf1f7014d58433028b3cb8412b",
+        "frozen_sha256": "f945fda6164726a9f709638b271f5d033f206b1587045baa10f03f912b518f44",
+        "path": "MAP_System/scripts/release_task.py"
+      },
+      {
+        "current_sha256": "99a673abcde7582e1c395c8cf96e4cc30a962ae5908b210ea8e795fc16fbfe71",
+        "frozen_sha256": "60acd533a86da2396b761bea969f7c3b78d1be5ecb6606c28915f0ad8c331de0",
+        "path": "MAP_System/scripts/validate_review.py"
+      }
+    ],
+    "missing": [],
+    "note": "Drift does not invalidate a retrieved anchor, but it does mean the anchor was frozen against different bytes than are being read now. Reported, never silently absorbed.",
+    "unchanged": 24
+  },
+  "treatment_author": "claude-lab-lili"
+}

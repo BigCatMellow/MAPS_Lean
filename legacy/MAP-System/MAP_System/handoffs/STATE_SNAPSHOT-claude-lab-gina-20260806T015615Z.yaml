@@ -1,0 +1,267 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-06T01:56:15Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-gina
+session_id: 88e31cd8-015e-4a3a-ab55-347468dd8d0e
+status: handing_off
+task_context:
+  current_task: TASK-318
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'ACKed context rotation from claude-lab-ravo, resumed TASK-318. Verified
+      criterion 5 (unit-detail-card expand) is designed behavior, not a bug. Then
+      implemented and verified all remaining criteria: shared-styles.css centralizing
+      non-color layout primitives across all 7 .dc.html pages, per-army colors left
+      untouched. Committed f4a5de3.'
+  - event_type: SUBMISSION
+    task_id: TASK-318
+    summary: TASK-318 submitted via map_authority.py (remote authority), all 5 original
+      acceptance criteria met. Status is SUBMITTED as of this snapshot.
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Substantial additional feature work happened AFTER submission, driven
+      directly by the operator in chat (not through a new MAP claim/task). None of
+      this is tracked as a MAP task - see active_constraints below. Commits, newest
+      first: 463a896 (battle card model-bar opacity/portrait bleed-through), a3910c8
+      (Battle tab cards reuse Roster''s portrait/stats/expand treatment), d348767+996701c
+      (resource strip hidden on Battle tab only, after an overcorrection that removed
+      it everywhere), cd7773c (Battle tab shows the round tracker expanded inline
+      instead of collapsed), aa473da (new Battle tab prototype in Test Army.dc.html:
+      per-unit model-loss tracking with live tier-bracket/supply recalculation, deploy/reserves
+      toggle with affordability check, tactical-card tap/ready state), 8675a1c (Test
+      Army.dc.html sandbox copy of Terran with isolated localStorage keys), 26bef64
+      (stopped auto-jump to Roster tab after adding a unit - was interrupting Library
+      browsing), 4c390f9 (round-tracker modal anchored to top of screen not bottom,
+      matching where the HUD bar and the eye already are), 3d11f09 (Export Army Sheet:
+      clean print-style roster reference opened via Blob URL in a new tab, matching
+      the operator''s existing army_sheet example.html), 5d8997f (round/phase/VP tracker
+      converted from an inline dropdown to the app''s existing bottom-sheet modal
+      convention), d494065 (added portrait art for 20 non-hero units across all 3
+      factions), bc190f5 (fixed 2 pre-existing cosmetic bugs: Protoss button border
+      width, UnitDetail hardcoded Zerg-purple bleeding into other factions).'
+  touched_paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design (all
+    work; see git log be1e49e..HEAD in that repo for the full diff, 14 commits)
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/shared-styles.css
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Missions.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Rules.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/UnitDetail.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/portraits/
+    (new folder, 20 PNGs)
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html (new sandbox file, most active file right now)
+  - MAP_System/events/events.jsonl (PROGRESS/SUBMISSION/BLOCKED entries for TASK-318)
+active_constraints:
+- scope: task
+  rule: TASK-318's output_path is entirely outside this git repo, at "/home/mellow/Documents/Projects/StarCraftCA/StarCraft
+    RPG Companion Design". All read/write file work for this task happens there, not
+    under MAP_System/ or Projects/. That folder has its own local (non-global) git
+    identity and a baseline commit be1e49e - diff against that commit to see the full
+    session's changes.
+  source: inherited from claude-lab-ravo's snapshot, still true
+- scope: task
+  rule: TASK-318 shows SUBMITTED in MAP's canonical task state, but substantial feature
+    work (portraits, round-tracker modal, Export Army Sheet, and a whole Battle-tab
+    prototype in a new Test Army.dc.html sandbox) happened afterward, driven directly
+    by the operator in chat, with no new MAP claim opened. MAP's task tracking does
+    not reflect the real state of the work. Next session/operator should decide whether
+    to open a new task to formally track the Battle-tab work (still sandbox-only,
+    not on the real Terran/Zerg/Protoss pages) or keep treating this as informal direct-chat
+    iteration outside MAP.
+  source: this session
+- scope: tool
+  rule: 'MAP mirror sync (map_authority.py sync) is currently failing with: ''local
+    writer services must be disabled before mirror sync: map-rns-watcher.service''.
+    Unrelated to TASK-318, not fixed (didn''t touch the watcher service). Local task
+    JSON/task_graph.json mirrors may be stale until someone resolves this.'
+  source: this session
+- scope: tool
+  rule: context_rotation.py advise failed for this session ("agent not found in live
+    token status") - the automated token-tracking daemon doesn't have a record for
+    claude-lab-gina. This rotation is operator-requested ("almost at 1M tokens"),
+    not threshold-triggered by the automated advisory, since that metric wasn't available.
+  source: this session
+- scope: repo
+  rule: Prior orientation thread (36-item emergence backlog triage) is still explicitly
+    on hold per operator instruction carried forward across multiple snapshots. Do
+    not resume it until the operator raises it again.
+  source: operator instruction, carried forward from earlier snapshots
+active_constraints_note: TASK-318's original 5 acceptance criteria are on the task
+  record itself (map_task.py show TASK-318, or read MAP_System/tasks/TASK-318.json
+  directly since remote show is unavailable from this read-only mirror) - all 5 are
+  DONE and the task is SUBMITTED. Everything in this snapshot past that point is additional
+  operator-directed work with no formal acceptance criteria of its own.
+forward_tasks:
+- task_id: TASK-318
+  next_action: continue
+  owner: claude-lab-gina
+  reason: 'Operator is actively iterating on the Battle tab feature (in-game tracking:
+    model losses, deploy/reserves, tactical card tap state, supply recalculation)
+    inside the Test Army.dc.html sandbox only. The real Terran/Zerg/Protoss/Missions/Rules
+    pages already have the earlier round-tracker-modal, portrait, and Export-Army-Sheet
+    work merged and stable. Next session should pick up wherever the operator''s next
+    request in chat points - likely more Battle-tab refinement, or eventually porting
+    the proven Battle tab from Test Army.dc.html to the real faction pages once the
+    operator is happy with it.'
+  paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html
+blockers: []
+lexicon:
+  StarCraftCA / SCTMG / "StarCraft RPG Companion Design": The operator's personal,
+    non-MAP creative project - a tabletop-game companion web app (plain .dc.html component
+    files + a small Node build pipeline that regenerates *-data.js from uploads/*.html
+    rules/unit source). Lives entirely outside this git repo at /home/mellow/Documents/Projects/StarCraftCA/.
+  .dc.html: This project's own single-file component convention - each top-level screen
+    is one file using <dc-import> to embed sub-components like UnitDetail.
+  Test Army.dc.html: A sandbox copy of Terran Army.dc.html with its own isolated localStorage
+    keys (sctmg_test_v1, sctmg_play_test) so it can be broken freely without touching
+    the real Terran roster or the shared round tracker. Header reads 'Sandbox - Not
+    Live Data'. This is where all Battle-tab prototyping is happening; not linked
+    from Command Center or anywhere else in the app nav - reach it by direct URL only.
+  Battle tab: New 6th tab (flag icon), sandbox-only so far. Tracks live-game state
+    on top of the roster you already built - per-unit model losses (with automatic
+    tier-bracket/supply recalculation as a unit shrinks), a Deployed/In-Reserves toggle
+    per unit gated against a manually-steppered Deployment Supply pool, and a Tapped/Ready
+    toggle for equipped tactical cards. Shows the round/phase/VP tracker fully expanded
+    inline (not the tap-to-open bar every other tab uses) since that's the whole point
+    of being on that tab.
+  dev server: python3 -m http.server 8934, served from inside the external project
+    folder. Confirmed running at end of this session. If it's down, cd into that folder
+    and restart it.
+  TASK-318: The MAP task that originally scoped the CSS-consolidation work; see map_task.py
+    show TASK-318 for the original 5 acceptance criteria (all DONE, task SUBMITTED).
+    Everything since is informal follow-on work under the same hcom hand-off chain,
+    not a new formal task.
+resume_commands:
+- 'curl -sf http://localhost:8934/ >/dev/null && echo "dev server still up" || echo
+  "restart: cd ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion
+  Design'' && python3 -m http.server 8934"'
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git log --oneline be1e49e..HEAD
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git status
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py heartbeat TASK-318
+  claude-lab-gina
+validation:
+- git log in the external repo shows 14 commits on top of baseline be1e49e, working
+  tree clean (verified via git status --short at snapshot time).
+- Dev server confirmed responding on :8934 at snapshot time.
+- TASK-318 confirmed status=SUBMITTED, owner=claude-lab-gina in the local task JSON
+  mirror (MAP_System/tasks/TASK-318.json) - mirror sync is currently blocked (see
+  active_constraints), so this reflects the last successful sync, not necessarily
+  this exact instant, but no lifecycle-mutating MAP calls were made after the SUBMISSION
+  event logged above.
+- Battle tab feature manually tested end-to-end in-browser this session across multiple
+  turns - model loss recalculating supply/tier brackets, deploy affordability blocking/unblocking
+  live, tactical tap/refresh, portrait-rich cards, inline expanded tracker, and the
+  resource-strip visibility fix - each confirmed via screenshot before committing.
+rotation:
+  reason: operator_request
+  summary: 'Operator said "we are almost at 1m tokens here" and asked directly for
+    a handoff + rotation prep. No automated context-rotation advisory was available
+    for this session (context_rotation.py advise errored: agent not registered in
+    live token status), so this is not a threshold-triggered rotation - it''s operator-paced.
+    No destructive or half-applied edits in flight: every commit this session was
+    individually tested in-browser and committed before moving to the next change,
+    so there is no uncommitted work to lose.'
+  next_action: Wait for the operator's next request. If they don't have one ready,
+    a reasonable default is to keep iterating on the Battle tab in Test Army.dc.html
+    (e.g. ask whether ability/status-effect tracking - explicitly deferred as a bigger,
+    fuzzier design question in an earlier turn - is worth tackling next), or ask whether
+    the proven Battle tab should be ported from the sandbox to the real Terran/Zerg/Protoss
+    pages yet.
+  used_tokens: 150000
+  threshold_tokens: 150000
+  metric_source: operator_reported_cumulative_not_context_window_estimate
+integrity:
+  prepared_at: '2026-08-06T01:56:15Z'
+  canonical_tasks:
+  - task_id: TASK-318
+    status: SUBMITTED
+    owner: claude-lab-gina
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-05 18:50:39'
+  canonical_tasks_sha256: a9bd814dc3ad8558e1975f31366f8d01bda2ce6fcb252baa9814e6258ee7f68f
+  touched_paths:
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design
+      (all work; see git log be1e49e..HEAD in that repo for the full diff, 14 commits)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Missions.dc.html
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+      Army.dc.html
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Rules.dc.html
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+      Army.dc.html
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+      Army.dc.html (new sandbox file, most active file right now)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/UnitDetail.dc.html
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+      Army.dc.html
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/portraits/
+      (new folder, 20 PNGs)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/shared-styles.css
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: MAP_System/events/events.jsonl (PROGRESS/SUBMISSION/BLOCKED entries for
+      TASK-318)
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  touched_paths_sha256: ca2904e9055c223a05733574a01ab29953cb77e5992c9c119820c1f8df0e7012

@@ -1,0 +1,47 @@
+{
+  "task_id": "TASK-005",
+  "title": "Add command-center helper agent policy",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "DONE",
+  "dependencies": [],
+  "owner": "codex",
+  "description": "Allow the AI Command Center to use temporary named helper agents while keeping core and manually coordinated agents explicit in runtime policy.",
+  "input_paths": [
+    "MAP_System/AGENTS.md",
+    "MAP_System/shared/requirements.md",
+    "MAP_System/shared/decisions.md",
+    "MAP_System/workflow/runtime_policy.yaml",
+    "MAP_System/scripts/ai-command-center-shell",
+    "/home/home/.local/bin/ai"
+  ],
+  "output_paths": [
+    "/home/home/.local/bin/ai",
+    "AGENTS.md",
+    "inbox/helpers/README.md",
+    "scripts/ai-command-center-cli",
+    "scripts/ai-command-center-shell",
+    "shared/decisions.md",
+    "shared/requirements.md",
+    "workflow/runtime_policy.yaml"
+  ],
+  "acceptance_criteria": [
+    "Policy keeps command-center core and manually coordinated agent roles explicit",
+    "Temporary helpers have stable helper tags and durable notes",
+    "Command-center CLI can start, message, note, list, and stop helpers",
+    "Existing ai commands continue to be documented"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

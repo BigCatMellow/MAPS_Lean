@@ -1,10 +1,7 @@
-# Superseded material retained locally for reference only.
-/legacy/
-
 # Local editor and Python cache state.
 /.claude/
 /.obsidian/
-/.venv/
+**/.venv/
 **/__pycache__/
 *.py[cod]
 

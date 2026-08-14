@@ -1,0 +1,17 @@
+{
+  "candidate_id": "CAND-7ECCE43893F43B81",
+  "status": "accepted",
+  "signal_type": "repeated_rework",
+  "subject": "TASK-307",
+  "summary": "TASK-307 received 2 changes-requested events; inspect for a reusable prevention lesson.",
+  "evidence_refs": [
+    "MAP_System/events/events.jsonl:4731",
+    "MAP_System/events/events.jsonl:4753"
+  ],
+  "dedup_key": "7ecce43893f43b81",
+  "detected_at": "2026-07-30T13:16:05Z",
+  "curated_at": "2026-07-30T13:19:02Z",
+  "curated_by": "claude-lab-mimi",
+  "resolution_reason": "Genuine reusable pattern: two of three TASK-307 rework rounds each caught a real security-shaped defect (arbitrary-row-restore risk, non-atomic rollback snapshot) that functional review alone would likely have missed. Captured as INS-0059.",
+  "resolution_ref": "MAP_System/emergence/insights/INS-0059-cross-host-or-otherwise-privileged-gateway-code-that-mutates-lif.md"
+}

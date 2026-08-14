@@ -1,0 +1,250 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T14:41:45Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-replacement-valo
+session_id: 019fae17-51ae-7a32-9072-e86ef1243d45
+status: handing_off
+task_context:
+  current_task: TASK-305
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: SUBMISSION
+    task_id: TASK-305
+    summary: TASK-305 was reworked, verified, and resubmitted by codex-lab-replacement-valo;
+      RUKI remains SUBMITTED with no claimant, lease, or heartbeat.
+  - event_type: INDEPENDENT_REVIEW
+    task_id: TASK-305
+    summary: claude-lab-nene completed rereview with APPROVED verdict; 12 release-gate
+      tests, emergence validation for 124 artifacts, py_compile, and diff-check all
+      passed.
+  - event_type: APPROVAL_BLOCKED
+    task_id: TASK-305
+    summary: The canonical approve command failed before task mutation because the
+      KUDU-authored review artifact is not present at the identical path on RUKI.
+  - event_type: OPERATOR_AUTHORIZATION_PENDING
+    task_id: TASK-305
+    summary: codex-lab-mebo requested bigboss authorization for one checksum-verified
+      review-artifact copy to RUKI; no transfer or approve retry is authorized yet.
+  touched_paths:
+  - MAP_System/AGENTS.md
+  - MAP_System/CHANGE_CONTROL_SYSTEM.md
+  - MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+  - MAP_System/artifacts/tests/ins0054-0057-integration-delivery-note.md
+  - MAP_System/emergence/INDEX.md
+  - MAP_System/emergence/README.md
+  - MAP_System/emergence/ideas/IDEA-0031-document-that-classifier-blocking-of-remote-map-authority-calls-.md
+  - MAP_System/emergence/ideas/IDEA-0032-change-the-release-checklist-s-emergence-capture-considered-line.md
+  - MAP_System/emergence/ideas/IDEA-0033-document-lightweight-emergence-capture-outside-task-governance.md
+  - MAP_System/emergence/ideas/IDEA-0034-add-live-backend-integration-hygiene-to-design-port-guidance.md
+  - MAP_System/emergence/insights/INS-0054-sanctioned-cli-verbs-that-call-the-remote-map-authority-host-are.md
+  - MAP_System/emergence/insights/INS-0055-the-mandatory-emergence-capture-considered-release-checkbox-neve.md
+  - MAP_System/emergence/insights/INS-0056-operator-directed-work-explicitly-scoped-outside-map-task-govern.md
+  - MAP_System/emergence/insights/INS-0057-mockup-to-real-backend-ui-porting-lessons-from-the-live-commandc.md
+  - MAP_System/emergence/promotions/PROMO-0012-idea-0024.md
+  - MAP_System/emergence/promotions/PROMO-0015-idea-0031.md
+  - MAP_System/emergence/promotions/PROMO-0016-idea-0032.md
+  - MAP_System/emergence/promotions/PROMO-0017-idea-0033.md
+  - MAP_System/emergence/promotions/PROMO-0018-idea-0034.md
+  - MAP_System/notes/task-authoring-guide.md
+  - MAP_System/scripts/release_task.py
+  - MAP_System/templates/release-checklist.md
+  - MAP_System/tests/test_release_gate.py
+active_constraints:
+- scope: repo
+  rule: KUDU is a read-only MAP database mirror; all lifecycle mutations use map-authority
+    and local MAP_System/map.db must never be mutated.
+  source: MAP_System/notes/cross-pc-map-authority.md
+- scope: task
+  rule: Preserve TASK-305 as SUBMITTED and unclaimed while approval evidence is unavailable
+    on RUKI.
+  source: authoritative map-authority task show TASK-305 at 2026-07-29T14:40Z
+- scope: safety
+  rule: Do not retry approve, omit --review-record, weaken HPOM-004, or transfer the
+    review artifact through an unapproved channel.
+  source: MAP_System/AGENTS.md and hcom from codex-lab-mebo
+- scope: file
+  rule: The approved review artifact has SHA-256 2f42ef1477087c5f290d81a894366cecb277e8fde2873ae7f74d5af577074c7c.
+  source: sha256sum on KUDU at 2026-07-29T14:40Z
+- scope: communication
+  rule: Await bigboss authorization requested by codex-lab-mebo before any artifact
+    transfer or canonical approve retry.
+  source: hcom
+forward_tasks:
+- task_id: TASK-305
+  next_action: ask_operator
+  owner: codex-lab-replacement-valo
+  reason: Implementation and independent rereview are complete. Approval is blocked
+    only because RUKI cannot read the KUDU-local review record. Await operator authorization
+    for the smallest safe checksum-verified copy to the identical RUKI path; after
+    verified placement, claude-lab-nene must rerun the exact approve command.
+  paths:
+  - MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+  - MAP_System/tasks/TASK-305.json
+  - MAP_System/workflow/task_graph.json
+blockers:
+- kind: approval
+  detail: RUKI lacks the approved review artifact required by validate_review.py;
+    task status is SUBMITTED even though rereview verdict is APPROVED.
+  unblock_by: bigboss authorizes a checksum-verified copy to the identical RUKI path,
+    or a visible RUKI reviewer writes equivalent durable evidence there.
+lexicon:
+  KUDU: This read-only mirror host where implementation and review artifacts exist.
+  RUKI: Sole writable MAP lifecycle authority and host that must validate the review
+    artifact.
+  HPOM-004: Approval gate requiring a valid durable review record and independent
+    reviewer.
+  review_artifact_sha256: 2f42ef1477087c5f290d81a894366cecb277e8fde2873ae7f74d5af577074c7c
+resume_commands:
+- map-authority task show TASK-305
+- map-authority get-open-review TASK-305
+- sha256sum MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+validation:
+- 'Authoritative RUKI state: TASK-305 SUBMITTED, owner codex-lab-replacement-valo,
+  claimed_by null, lease/heartbeat null, updated 2026-07-29 14:33:40.'
+- claude-lab-nene rereview verdict APPROVED; open review claim is null.
+- 12/12 focused release-gate tests passed independently by owner and reviewer.
+- map_emergence.py validate passed for 124 artifacts.
+- py_compile and map-git diff --check passed independently by owner and reviewer.
+- Review artifact SHA-256 is 2f42ef1477087c5f290d81a894366cecb277e8fde2873ae7f74d5af577074c7c.
+rotation:
+  reason: threshold
+  summary: TASK-305 implementation and independent rereview are complete. The task
+    remains SUBMITTED because RUKI cannot see the KUDU-local review artifact required
+    by HPOM-004. bigboss authorization for one checksum-verified artifact copy is
+    pending. No task claim is live and no approval retry or transfer is authorized.
+  next_action: Verify RUKI still shows TASK-305 SUBMITTED and await bigboss authorization;
+    do not mutate, transfer, or retry approval beforehand.
+  used_tokens: 153513
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-29T14:41:45Z'
+  canonical_tasks:
+  - task_id: TASK-305
+    status: IN_PROGRESS
+    owner: codex-lab-mebo
+    claimed_by: codex-lab-mebo
+    lease_expires_at: '2026-07-29 14:00:47'
+    heartbeat_at: '2026-07-29 13:30:47'
+    updated_at: '2026-07-29 13:30:47'
+  canonical_tasks_sha256: fce54c9e6103de38610d2e06de07e74da51d9b8ac0815a7330d9ac8ef824a53f
+  touched_paths:
+  - path: MAP_System/AGENTS.md
+    scope: workspace
+    sha256: de1f267c564c729b38eccd8fa8ad473eff28cc74ae9a86ae631c8be76798ec90
+    size: 24436
+    state: file
+  - path: MAP_System/CHANGE_CONTROL_SYSTEM.md
+    scope: workspace
+    sha256: 48893bb55bc430e8ef202375a50f6b36d3ce512e88e9c64fba62aebb2e9027be
+    size: 12265
+    state: file
+  - path: MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+    scope: workspace
+    sha256: 2f42ef1477087c5f290d81a894366cecb277e8fde2873ae7f74d5af577074c7c
+    size: 8782
+    state: file
+  - path: MAP_System/artifacts/tests/ins0054-0057-integration-delivery-note.md
+    scope: workspace
+    sha256: a5c98af1a467413ca8e333ffa8b72d919ac498892ff80a92b0e02f6ca9b88bc1
+    size: 3035
+    state: file
+  - path: MAP_System/emergence/INDEX.md
+    scope: workspace
+    sha256: ebfdf529e803950f5de5d1e771cbfce2b2902077021d05be09b0f1ffe58f811d
+    size: 33677
+    state: file
+  - path: MAP_System/emergence/README.md
+    scope: workspace
+    sha256: be901c50966ed9d2e7d1e8371234f4b3a4e683bca0a4d659cc42d2ee14cd3057
+    size: 7321
+    state: file
+  - path: MAP_System/emergence/ideas/IDEA-0031-document-that-classifier-blocking-of-remote-map-authority-calls-.md
+    scope: workspace
+    sha256: ed1e0249f366697d55debbfb54163e5dc544b93579bc06ade03775e1c842b293
+    size: 1437
+    state: file
+  - path: MAP_System/emergence/ideas/IDEA-0032-change-the-release-checklist-s-emergence-capture-considered-line.md
+    scope: workspace
+    sha256: d77f3a7638af7e069a568e1dc158410b74f85225964d245ce6b49a86f7de87d0
+    size: 1451
+    state: file
+  - path: MAP_System/emergence/ideas/IDEA-0033-document-lightweight-emergence-capture-outside-task-governance.md
+    scope: workspace
+    sha256: eaa606fdc3b48d965012e58f81fc936d496f3fa874861026791c74c8e04252b8
+    size: 1334
+    state: file
+  - path: MAP_System/emergence/ideas/IDEA-0034-add-live-backend-integration-hygiene-to-design-port-guidance.md
+    scope: workspace
+    sha256: ba40c4bcff5bd452320f904182284dd8a538de50c395696c3304fec529029965
+    size: 1474
+    state: file
+  - path: MAP_System/emergence/insights/INS-0054-sanctioned-cli-verbs-that-call-the-remote-map-authority-host-are.md
+    scope: workspace
+    sha256: 6f896e1be9165557e904056054059ece4cb71785a22671284fa67831c775b5a6
+    size: 1979
+    state: file
+  - path: MAP_System/emergence/insights/INS-0055-the-mandatory-emergence-capture-considered-release-checkbox-neve.md
+    scope: workspace
+    sha256: 13bf9c28dcf004172931e29846695a16de2bb0519f4b7673b73bafd73d4f0e33
+    size: 2115
+    state: file
+  - path: MAP_System/emergence/insights/INS-0056-operator-directed-work-explicitly-scoped-outside-map-task-govern.md
+    scope: workspace
+    sha256: 6511345029802d8fcf0a904ac4f9b4ae6cb4f0a91dafa594bddf19217620eef6
+    size: 2024
+    state: file
+  - path: MAP_System/emergence/insights/INS-0057-mockup-to-real-backend-ui-porting-lessons-from-the-live-commandc.md
+    scope: workspace
+    sha256: d83faafbfc7795736a42fa4d1778b17d7badb4439da8bd08a959d70f4611670b
+    size: 2024
+    state: file
+  - path: MAP_System/emergence/promotions/PROMO-0012-idea-0024.md
+    scope: workspace
+    sha256: 1c56304bf16e858fa9b7fcee73dff56f3431113f18899d098302481722f199ad
+    size: 2347
+    state: file
+  - path: MAP_System/emergence/promotions/PROMO-0015-idea-0031.md
+    scope: workspace
+    sha256: 088ab5fd8671f67d1e77aef96bb0107094f95f4cc30fae7c2cf9ee7117b98d6a
+    size: 1148
+    state: file
+  - path: MAP_System/emergence/promotions/PROMO-0016-idea-0032.md
+    scope: workspace
+    sha256: 89abe00ecc8b203a324b0888fd273c27a35568341b3ee9f469b212a902e51e2b
+    size: 1066
+    state: file
+  - path: MAP_System/emergence/promotions/PROMO-0017-idea-0033.md
+    scope: workspace
+    sha256: 17808e06de6216b0a652471aa98efd8708655f0f6c6c9df79ec618aeceea1e19
+    size: 1105
+    state: file
+  - path: MAP_System/emergence/promotions/PROMO-0018-idea-0034.md
+    scope: workspace
+    sha256: d14bef7ce63014679326254aadfe4c810a7d41e8bd48037a1f570f501984e1b3
+    size: 1073
+    state: file
+  - path: MAP_System/notes/task-authoring-guide.md
+    scope: workspace
+    sha256: 5f6f4710869b99d93b5cf08e4b1094cf276971684357453745ce0bb722444822
+    size: 4286
+    state: file
+  - path: MAP_System/scripts/release_task.py
+    scope: workspace
+    sha256: bef32810f6894b2f338d1abf41fe687d1ac60e072200af0fb8cd356ed4c84d2e
+    size: 13728
+    state: file
+  - path: MAP_System/templates/release-checklist.md
+    scope: workspace
+    sha256: af922e822d4ed4c2e8b2d30f388912dda086226ca780f07121ebc343b6468e5d
+    size: 886
+    state: file
+  - path: MAP_System/tests/test_release_gate.py
+    scope: workspace
+    sha256: cfaa9b746dcb16464fc3f5848c1490d6f1246c35444bf8efc31ce80a446ec931
+    size: 15288
+    state: file
+  touched_paths_sha256: 489225875768eb2e541d90a8215564ed29a750379cca4856034a39c719ca74bf

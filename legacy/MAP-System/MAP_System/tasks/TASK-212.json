@@ -1,0 +1,48 @@
+{
+  "task_id": "TASK-212",
+  "title": "ClearFront: extract js/state.js (deck/side/game-state setup)",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-208",
+    "TASK-213"
+  ],
+  "owner": "claude-lab-gome",
+  "description": "First engine-layer decomposition slice per DEC-CF-004 (Projects/ClearFront/shared/decisions.md). Extract from app/index.html's remaining inline IIFE into Projects/ClearFront/app/js/state.js: buildDecklist, applyDeckIdentity, showDeckSelect, makeCard, shuffle, createSide, resetGame, sideOf, otherSide, controllerLabel, championDef, resetChampionTurnFlags, championDeployReason, deployChampion, returnChampionToSlot, saveUndo, clearUndo, canUndo, undoLastAction, aiConsiderChampion, addLog, dealStartingHand, drawCard, refillHand, replaceCard, startTurn. These functions read/write the shared mutable state object (state, clashTimers, undoRecord) that stays declared once in app/index.html's remaining inline script -- decide and document the exact sharing mechanism (e.g. functions attached to window.CF that close over a state reference passed in, or state itself hoisted onto window.CF so state.js's functions can read/write it directly) since this is the first slice moving MUTABLE state access across a file boundary, not just pure data (TASK-208 only moved static data). Do not move combat/AI functions (js/combat.js is a separate later task, TASK-213+) or render functions. No ES modules, no build step, no server (DEC-CF-002). Do not touch source/ or baseline/.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/app/index.html",
+    "Projects/ClearFront/app/js/state.js",
+    "Projects/ClearFront/artifacts/tests/screenshots/task212-app-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task212-app-fullturn.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task212-pre212-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task212-pre212-fullturn.png",
+    "Projects/ClearFront/artifacts/tests/task-212-owner-verification-gome.md",
+    "Projects/ClearFront/artifacts/tests/task-212-state-parity.md",
+    "Projects/ClearFront/artifacts/tests/task212-cdp-fullturn.mjs",
+    "Projects/ClearFront/artifacts/tests/task212-run-app-seed42.log",
+    "Projects/ClearFront/artifacts/tests/task212-run-pre212-seed42.log",
+    "Projects/ClearFront/artifacts/tests/task212-undo-check.mjs"
+  ],
+  "acceptance_criteria": [
+    "All 25 listed functions are moved verbatim (logic unchanged) into app/js/state.js.",
+    "The mutable-state-sharing mechanism is explicit and documented in the parity report (not just 'it worked'), since combat.js will depend on the same pattern in TASK-213+.",
+    "app/index.html opens directly via file:// and is visually + functionally identical to the pre-TASK-212 app/index.html: byte-identical champion-select screenshot, and a CDP interaction test through at least one full turn (play a card, attack, end turn) with zero console errors/exceptions.",
+    "node --check passes on state.js and the remaining inline script.",
+    "source/ and baseline/ untouched."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

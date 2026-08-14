@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-250",
+  "title": "Write a plain-English academic deep dive to the MAP system",
+  "task_type": "documentation",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Create a durable, current, high-level academic explanation of MAP that develops understanding rather than merely summarizing features. Explain the system model, authority boundaries, state and memory, task lifecycle, orchestration, communication, review and release, helpers, recovery, Command Center, observability, emergence/improvement loops, current limitations, and how the pieces interact. Use plain English, concrete examples, and compact diagrams.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/notes/map-system-deep-dive.md"
+  ],
+  "acceptance_criteria": [
+    "The guide explains MAP as an integrated socio-technical system, including why each major subsystem exists, what inputs and outputs it has, and how it relates to the rest.",
+    "The guide covers current task/state authority, HPOM, routing, hcom, review/release, helpers/local models, recovery, UI/observability, RnS, emergence, practice scenarios, and known limitations without presenting stale behavior as current.",
+    "The guide uses plain English, concrete end-to-end examples, diagrams, and distinguishes system facts from interpretation or design tradeoffs.",
+    "References point to current canonical MAP documents and the task graph validates after export."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

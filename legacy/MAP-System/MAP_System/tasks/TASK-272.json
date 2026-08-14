@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-272",
+  "title": "Add context continuity checks to startup planning",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-veto",
+  "description": "Operator-authorized follow-up to TASK-271. Make every AI Command Center Lab startup orientation validate the continuity ledger, run current-agent context advice, and include checkpoint/rotation state in the single startup status/resume-plan message. Update durable startup policy, launcher prompt templates, and focused tests without changing the verified rotation protocol.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/AGENTS.md",
+    "MAP_System/notes/command-center-lab-restart-startup.md",
+    "MAP_System/templates/install/bin/ai-command-center-lab-claude",
+    "MAP_System/templates/install/bin/ai-command-center-lab-codex",
+    "MAP_System/tests/test_startup_context_rotation.py"
+  ],
+  "acceptance_criteria": [
+    "Both installed lab launcher prompts require startup orientation to run context_rotation.py validate and advise for the exact current hcom identity before routing work.",
+    "The one startup hcom message to bigboss includes continuity validation state and the current checkpoint/rotation recommendation alongside the resume plan or priorities request.",
+    "Startup documentation and MAP_System/AGENTS.md state the same ordering and safe behavior: startup checks advise/validate only and never supersede or clear a session automatically.",
+    "Focused tests parse both launcher templates and fail if either startup contract omits validate, advise, continuity ledger, or plan-reporting language."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

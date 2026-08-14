@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "description": "Human-authored active-lane selection, order, rationale, and gate text. Lifecycle fields are always read from map.db.",
+  "lanes": {
+    "TASK-263": {
+      "order": 1,
+      "rationale": "Frozen claim-evidence retrieval experiment (EXP-0006); the last unreviewed submission in the queue.",
+      "gate": "Submitted by claude-lab-lili at attempt 3/3 while codex was offline. Under independent review; implementer and freeze author are both disqualified from reviewing. Implementer self-scored because no blind evaluator was live -- disclosed, not hidden, and explicitly referred to the reviewer for judgment."
+    }
+  }
+}

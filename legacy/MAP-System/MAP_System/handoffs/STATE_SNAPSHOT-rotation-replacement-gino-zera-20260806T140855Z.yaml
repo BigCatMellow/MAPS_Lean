@@ -1,0 +1,248 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-06T14:08:55Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-gino-zera
+session_id: 5ab591f3-349a-4d04-a39f-e1e77e06e042
+status: handing_off
+task_context:
+  current_task: TASK-318
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: Acked context rotation from rotation-replacement-tuna-gino (prior snapshot
+      STATE_SNAPSHOT-rotation-replacement-tuna-gino-20260806T054006Z.yaml). Reported
+      handoff completion to operator via hcom. No forward work was queued at that
+      point; then the operator opened a new, unrelated request in direct chat (see
+      next events) - this is the informal-follow-on pattern already documented in
+      inherited constraints, not a MAP claim.
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Operator asked to improve the Export Army Sheet output''s Abilities
+      section formatting: "abilities looks a bit chaotic just being lines of text"
+      and asked to test on Test Army.dc.html first before porting to the other three
+      faction files. Investigated MAP_System/AGENTS.md-style code exploration (not
+      MAP work, external repo): the sheet HTML is generated client-side by exportArmySheet()
+      / printAbilityRows() / printSheetCss() inside each *.dc.html file''s <script>
+      Component class (same method duplicated per file, not shared). Original CSS
+      used display:flex with no fixed column widths, so the ability-name span sized
+      to its own text and every row''s "— description" started at a different x position
+      depending on name length - that was the reported chaos.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Iterated the fix through four rounds of operator feedback, each verified
+      live in-browser via claude-in-chrome against the dev server (localhost:8934),
+      changing only Test Army.dc.html''s printSheetCss() ability-row/-phase/-type/-name/-desc
+      rules each time (see touched_paths for the exact current CSS). Round 1: switched
+      .ability-row from flex to a 4-column CSS grid (54px phase / 62px type / 112px
+      name / 1fr desc) with name right-aligned - operator saw this as "connected"
+      to the definition (name text butted against the dash). Round 2: changed ability-name
+      text-align from right to left. Round 3: operator asked to merge phase+type into
+      a single stacked two-line column next to the name (was previously two separate
+      side-by-side columns, and the long type string "Active (1 Command Point)" was
+      wrapping ugly in a narrow 62px column) - restructured to a 3-column grid (92px
+      phase/type-stacked column using grid-row 1 and 2 / 112px name spanning both
+      rows / 1fr desc spanning both rows). Round 4 (most recent, still awaiting operator
+      review): operator said there was too much gap between the phase/type column
+      and the name, and wanted the name pulled closer to the phase - shrank the first
+      grid column from 92px to 76px, cut column-gap from 8px to 4px (uniform across
+      all column boundaries, which would also have tightened name-to-desc spacing),
+      and added a compensating 4px margin-left on .ability-desc so the name-to-description
+      spacing stayed roughly what it was before. This round''s result was verified
+      in-browser and screenshotted but the operator has not yet responded to it -
+      last message from this session asked "anything else to adjust, or should this
+      be good to port" and rotation triggered before an answer arrived.'
+  touched_paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html (live, UNCOMMITTED this session - only the exported-sheet CSS for
+    the Abilities block; see active_constraints for exact current rule text. No other
+    files touched this session.)
+  - MAP_System/handoffs/ (this workspace's repo; ack of inherited rotation, and this
+    snapshot)
+active_constraints:
+- scope: task
+  rule: TASK-318's output_path is entirely outside this git repo, at "/home/mellow/Documents/Projects/StarCraftCA/StarCraft
+    RPG Companion Design". All read/write file work for this task happens there, not
+    under MAP_System/ or Projects/. That folder has its own local (non-global) git
+    identity, currently at commit acf8777 with ONE uncommitted modified file (Test
+    Army.dc.html) - diff is CSS-only, in printSheetCss() around the .ability-row/-phase/-type/-name/-desc
+    rules.
+  source: inherited across multiple prior snapshots, still true
+- scope: task
+  rule: Do NOT commit the current Test Army.dc.html change yet. The operator asked
+    to iterate on Test first and "see how it goes" before porting to Terran/Zerg/Protoss
+    - they have gone through 4 rounds of visual feedback on the abilities-row layout
+    and the most recent round (tightened phase/name gap) has not been reviewed/approved
+    yet. Next session should first check hcom/chat for the operator's reply to the
+    pending "anything else to adjust, or should this be good to port" question before
+    committing or porting anything. If they ask for more tweaks, keep iterating on
+    Test Army.dc.html only. If they approve, commit Test Army.dc.html, then apply
+    the identical CSS block (see exact current rule text below) to the equivalent
+    printSheetCss() location in Terran Army.dc.html, Zerg Army.dc.html, and Protoss
+    Army.dc.html (all currently still on the OLD flex-based ability-row CSS from before
+    this session - Terran is actually the most behind since it was never touched even
+    in round 1), then commit each.
+  source: this session, operator-directed
+- scope: reference
+  rule: 'Exact current (uncommitted) CSS for the ability-row block in Test Army.dc.html''s
+    printSheetCss(), to copy verbatim into the other three files when porting: .ability-list{margin:2px
+    0}.ability-row{display:grid;grid-template-columns:76px 108px 1fr;grid-template-rows:auto
+    auto;column-gap:4px;row-gap:2px;align-items:start;padding:3px 0;border-bottom:1px
+    solid var(--border-light);font-size:8.5pt} / .ability-row:last-child{border-bottom:none}
+    / .ability-phase{grid-column:1;grid-row:1;justify-self:start;font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:1px
+    5px;border-radius:2px;white-space:nowrap;margin-top:1px} (the four .ability-phase.<phase>
+    color rules are unchanged from before this session) / .ability-type{grid-column:1;grid-row:2;font-family:''Source
+    Code Pro'',monospace;font-size:6.5pt;color:var(--faint);margin-top:1px} / .ability-name{grid-column:2;grid-row:1
+    / 3;font-weight:600;text-align:left;margin-top:1px} / .ability-desc{grid-column:3;grid-row:1
+    / 3;color:var(--muted);min-width:0;margin-left:4px}. This lives inside the string-concatenation
+    printSheetCss() method (search that method name), NOT in a separate .css file
+    - each of the four *.dc.html files has its own independent copy of this whole
+    method.'
+  source: this session
+- scope: task
+  rule: The Upgrades section directly below Abilities in the exported sheet (.upgrade-row
+    etc, in the same printSheetCss()) has the exact same "chaotic ragged name column"
+    problem the operator originally complained about for Abilities, visibly so in
+    every screenshot taken this session - but the operator has only ever asked about
+    Abilities. Flagged to the operator once already (offered to fix Upgrades too);
+    they have not responded to that offer either. Do not change Upgrades without the
+    operator explicitly asking.
+  source: this session, operator has not yet responded
+- scope: tool
+  rule: 'claude-in-chrome cannot screenshot or run javascript_tool against blob: URLs
+    at all (hard error: "Can''t interact with browser-internal or unparseable URLs")
+    - this blocks the direct/obvious way of previewing exportArmySheet()''s output,
+    since that method literally does URL.createObjectURL + window.open to show the
+    sheet. Working technique discovered/used repeatedly this session: on the NORMAL
+    http:// tab (not the blob tab), monkey-patch both URL.createObjectURL (to capture
+    blob.text() into window.__capturedHtml) and window.open (to no-op it, since a
+    real new blob tab is unusable anyway) BEFORE clicking "Export Army Sheet", then
+    after the click, inject a same-origin <iframe id="__preview_frame"> with srcdoc
+    = window.__capturedHtml directly into the http:// page (position:fixed covering
+    the viewport) and screenshot that - the iframe content is NOT a blob: URL so it
+    screenshots fine. Always remove the iframe and restore the two patched globals
+    afterward with window.__origCreateObjectURL / window.__origOpen. Note the export
+    button click was flaky this session (silently no-op''d roughly half the time,
+    no error, window.__capturedHtml just stays null) - always verify capture succeeded
+    (check window.__capturedHtml length) before proceeding, and just re-click if it
+    didn''t fire; root cause not investigated (page focus/timing right after navigate,
+    most likely).'
+  source: discovered this session
+- scope: task
+  rule: TASK-318 shows SUBMITTED in MAP's canonical task state with owner=claude-lab-gina
+    in the local task JSON mirror, but the real work has continued informally in direct
+    operator chat across many agent identities with no new MAP claim opened. MAP's
+    task tracking does not reflect the real state of the work. Keep treating this
+    as informal direct-chat iteration outside MAP unless the operator says otherwise
+    - do not re-claim or re-submit TASK-318.
+  source: inherited, still true
+- scope: tool
+  rule: 'This host is confirmed read-only for MAP lifecycle writes: map_task.py show
+    (and presumably other mutating/show commands) raises RemoteAuthorityRequired pointing
+    to map-authority on 100.127.80.108. Read task state via the local JSON mirrors
+    in MAP_System/tasks/*.json instead of map_task.py show.'
+  source: inherited, not re-verified this session
+- scope: repo
+  rule: Prior orientation thread (36-item emergence backlog triage) is still explicitly
+    on hold per operator instruction carried forward across multiple snapshots. Do
+    not resume it until the operator raises it again.
+  source: operator instruction, carried forward from earlier snapshots
+active_constraints_note: This session did two unrelated things - (1) acked an inherited
+  context rotation from rotation-replacement-tuna-gino (done, reported, no forward
+  work resulted from it), then (2) picked up a brand-new operator request in direct
+  chat to reformat the Export Army Sheet's Abilities layout in Test Army.dc.html,
+  which is still IN PROGRESS/under operator review, not complete. Do not treat this
+  as a continuation of the Saved Rosters work from prior snapshots - that is done
+  and unrelated.
+forward_tasks:
+- task_id: TASK-318
+  next_action: check_operator_reply_then_continue_or_port
+  owner: null
+  reason: Waiting on the operator's answer to whether the round-4 ability-row spacing
+    tweak in Test Army.dc.html is good enough. If they want more adjustment, keep
+    iterating CSS in printSheetCss() in Test Army.dc.html only using the blob-capture-to-iframe
+    technique documented in active_constraints to verify each change visually before
+    reporting back. If they approve, commit Test Army.dc.html (currently uncommitted),
+    then copy the exact CSS block documented in active_constraints into the equivalent
+    ability-row rules inside Terran Army.dc.html, Zerg Army.dc.html, and Protoss Army.dc.html's
+    own printSheetCss() methods, verify each in-browser the same way, and commit each
+    separately (matching this project's established one-commit-per-file convention
+    from the Saved Rosters port).
+  paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html
+blockers: []
+lexicon:
+  StarCraftCA / SCTMG / "StarCraft RPG Companion Design": The operator's personal,
+    non-MAP creative project - a tabletop-game companion web app (plain .dc.html component
+    files + a small Node build pipeline that regenerates *-data.js from uploads/*.html
+    rules/unit source). Lives entirely outside this git repo at /home/mellow/Documents/Projects/StarCraftCA/.
+  .dc.html: This project's own single-file component convention - each top-level screen
+    is one file using <dc-import> to embed sub-components like UnitDetail. No native
+    browser dialogs (alert/confirm/prompt) are used anywhere in this app.
+  Export Army Sheet: A button on the Roster tab that calls exportArmySheet(), which
+    builds a standalone printable HTML document (own inline CSS via printSheetCss(),
+    no external stylesheet) as a Blob and opens it via URL.createObjectURL + window.open.
+    Shows the faction card, all mustered units (stats/weapons/abilities/upgrades),
+    and tactical cards, laid out for print. This session's work is entirely about
+    the visual formatting of the Abilities rows within that generated sheet, in Test
+    Army.dc.html only so far.
+  dev server: python3 -m http.server 8934, served from inside the external project
+    folder. Confirmed running at snapshot time (curl check passed).
+resume_commands:
+- 'curl -sf http://localhost:8934/ >/dev/null && echo "dev server still up" || echo
+  "restart: cd ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion
+  Design'' && python3 -m http.server 8934"'
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git status --short && git diff -- "Test Army.dc.html"
+rotation:
+  reason: checkpoint_due
+  summary: 'Automated advisory from limit_watcher: current estimate ~127306 tokens
+    against soft=120000 / rotate=150000 thresholds, sent as an inform requesting a
+    snapshot+prepare+fresh-session rotation now. Rotating mid-task at the operator''s
+    request boundary: the last visible action was a question to the operator ("anything
+    else to adjust, or should this be good to port") that has not been answered yet,
+    so there is no partial file edit in flight, but the task itself is NOT complete
+    - do not report this as done.'
+  next_action: Next session should ack this rotation, then check hcom/chat for whether
+    the operator has replied to the pending question, and proceed per forward_tasks.
+    Do not assume approval - if there's no reply yet, it's fine to just wait for one
+    (per operator preference for terse, non-presumptuous handoffs).
+  used_tokens: 127306
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-06T14:08:55Z'
+  canonical_tasks:
+  - task_id: TASK-318
+    status: SUBMITTED
+    owner: claude-lab-gina
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-05 18:50:39'
+  canonical_tasks_sha256: a9bd814dc3ad8558e1975f31366f8d01bda2ce6fcb252baa9814e6258ee7f68f
+  touched_paths:
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+      Army.dc.html (live, UNCOMMITTED this session - only the exported-sheet CSS for
+      the Abilities block; see active_constraints for exact current rule text. No
+      other files touched this session.)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: MAP_System/handoffs/ (this workspace's repo; ack of inherited rotation,
+      and this snapshot)
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  touched_paths_sha256: 1203c822a80aa32b0693d52ab5af2bf731ddda35593261522a02deecbf452811

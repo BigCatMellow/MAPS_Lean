@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-061",
+  "title": "Fix Dark_Mellow stale release artifacts",
+  "task_type": "fix",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "bigboss",
+  "description": "Resolve TASK-059 required package review findings by removing or regenerating the stale root ZIP, replacing the contradictory legacy README.txt, and updating package docs so all user-visible install paths point to the current wallpaper-capable installer.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/DarkMellow/artifacts/task061-validation.md",
+    "Projects/DarkMellow/repo"
+  ],
+  "acceptance_criteria": [
+    "The visible dated ZIP no longer ships the old installer without wallpaper handling",
+    "README.txt no longer contradicts README.md or current package contents",
+    "README.md clearly identifies the recommended install path and avoids pointing users at stale artifacts",
+    "Validation records archive contents or removal decision plus shell syntax checks"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

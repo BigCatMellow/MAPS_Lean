@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-239",
+  "title": "Create repeatable MAP practice-scenario runbook and queue",
+  "task_type": "planning",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Create planning-only groundwork for recurring, operator-visible MAP practice scenarios with Claude. Define a repeatable lifecycle exercise, bounded roles, evidence packet, measures, stop rules, independent review, tuning loop, and a prioritized scenario queue. Preserve normal task/approval authority; do not edit TASK-227 implementation plan, agent permissions, startup policy, or runtime services.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/planning/map-practice-scenario-queue-2026-07-18.md",
+    "MAP_System/notes/practice-scenario-runbook.md"
+  ],
+  "acceptance_criteria": [
+    "The runbook defines a reusable scenario packet, role boundaries, lifecycle stages, explicit operator decision points, evidence locations, stop conditions, and independent-review requirement without creating a new authority path.",
+    "The scorecard measures first-valid-action correctness, time/order, retrieval paths, handoff/fallback friction, operator attention burden, review/release outcome, interruption/recovery, and a negative-result rule.",
+    "The queue names at least three bounded next scenarios derived from KICK-01/current MAP constraints, each with hypothesis, minimum evidence, non-goals, and an admission gate.",
+    "The work records how a completed run becomes either a narrowly scoped task/decision candidate or a preserved negative result; it does not auto-promote findings."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

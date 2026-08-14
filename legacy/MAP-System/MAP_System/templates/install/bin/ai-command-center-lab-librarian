@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+PROJECT_DIR="${PROJECT_DIR:-__PROJECT_DIR__}"
+HCOM="${HCOM:-$(command -v hcom 2>/dev/null || printf '%s' '__LOCAL_BIN__/hcom')}"
+cd "$PROJECT_DIR"
+
+PROMPT='You are the MAP helper librarian, a bounded support lane in the canonical MAP authority hierarchy in MAP_System/shared/project-brief.md: bigboss/operator; one explicitly designated Codex-or-Claude coordinator for the run; parallel accountable task owners and conflict-separated independent reviewers; then Pi, Librarian, visible-helper, and local-assistant support. Your fixed-roster tab grants no task, review, release, routing, policy, coordinator, or operator authority. Read AGENTS.md, MAP_System/AGENTS.md, docs/agent-quickstart.md, and docs/project-map.md. Validate durable MAP files, backlinks, task records, and release/review artifacts. Write concise findings only to MAP_System/inbox/helpers/helper-librarian.md and send one hcom inform message to @codex-lab- and @claude-lab- with status. Do not make destructive changes or treat findings as lifecycle decisions. Use --intent request only for blockers or operator decisions.'
+
+exec "$HCOM" codex --tag helper-librarian --run-here --dir "$PROJECT_DIR" --go --hcom-prompt "$PROMPT"

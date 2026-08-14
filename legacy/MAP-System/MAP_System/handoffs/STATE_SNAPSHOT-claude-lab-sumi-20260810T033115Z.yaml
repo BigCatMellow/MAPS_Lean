@@ -1,0 +1,216 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-10T03:31:15Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-sumi
+session_id: 501add5f-ab41-47a1-adde-9e3fb3355018
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+  - TASK-321
+  recent_events:
+  - event_type: PROGRESS
+    task_id: null
+    summary: Startup orientation completed clean - continuity ledger validate/advise
+      run, current-state.md verified against map.db, emergence sentinel confirmed
+      0 pending candidates. Reported to bigboss requesting priorities.
+  - event_type: ANSWER
+    task_id: null
+    summary: Operator asked who was implementing "the project"; clarified it means
+      MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md
+      (status reviewed_ready_for_operator_decision, operator approval for phases still
+      pending per the plan's own D0-D7 gates). Read the full plan.
+  - event_type: PROGRESS
+    task_id: TASK-321
+    summary: Confirmed TASK-321 (Phase 0 of the map-2 program) already claimed and
+      actively worked by rotation-replacement-miro-fela - did not duplicate. Logged
+      operator's "implement the project" directive via command_center_intake.py. That
+      intake run's own runner check surfaced a live authority freshness=STALE condition,
+      error text "local writer services must be disabled before mirror sync, service
+      map-rns-watcher.service", confirmed real and exactly matching fela's P0.1 scope
+      - not something for me to fix, reported to fela and held off any authority-affecting
+      action myself.
+  - event_type: HANDOFF
+    task_id: TASK-321
+    summary: Synced with rotation-replacement-miro-fela over hcom - informed them
+      of the confirmed live blocker match to their P0.1 scope, proposed taking the
+      program coordinator/architecture-lead role per the plan sec 5.1 recommendation
+      (Codex is implementation lead, Claude is coordinator), asked for their P0.1/P0.2/P0.3
+      status. Fela replied - P0.1 implemented (55/55 focused tests, sandbox no-bus-error
+      probe done, collision gate re-verified), P0.2 done (their own context-rotation
+      finalized cleanly, Smalls/Biggie mirrors repaired and validated), P0.3 (evidence
+      packet) in progress, will route for functional and security review once the
+      baseline is clean.
+  - event_type: QUESTION
+    task_id: null
+    summary: Sent bigboss an --intent request asking them to confirm D0 (program coordinator
+      designation, required by the plan before Phase 1 can start) - proposed myself
+      as coordinator/architecture-lead. No reply received yet as of this snapshot.
+  - event_type: REVIEW_REQUESTED
+    task_id: TASK-321
+    summary: 'rotation-replacement-miro-fela submitted TASK-321 (hcom request #19300)
+      and asked for independent functional review of map_authority.py, test_map_authority.py,
+      and the recovery artifact, plus a distinct visible security-framed reviewer/pass
+      covering cgroup path trust, malformed/unreadable evidence, timer/service coverage,
+      error classification, and the retained writer/15s collision gates. I acked receipt
+      only (reply-to 19300) and explicitly declined to start the review mid-rotation
+      - handed it to this snapshot''s replacement as the first action instead. review
+      NOT yet performed by me.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: First prepare attempt (snapshot 20260810T032558Z) hit canonical_task_drift
+      on ack - it froze TASK-321 as IN_PROGRESS/fela but live map.db had already flipped
+      to SUBMITTED by the time replacement rotation-replacement-sumi-mige checked.
+      Ran context_rotation.py abandon --old-agent claude-lab-sumi per the documented
+      Failure Recovery path, then re-prepared this fresh snapshot. Old session remains
+      recoverable throughout; nothing was finalized.
+  touched_paths:
+  - MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-sumi-20260810T032322Z.yaml
+  - MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-sumi-20260810T032558Z.yaml
+active_constraints:
+- scope: task
+  rule: TASK-321 (map-2 program Phase 0) is SUBMITTED by rotation-replacement-miro-fela,
+    review-requested (hcom request 19300). Do not edit its output paths (MAP_System/scripts/map_authority.py,
+    map_authority_notify.py, tests/test_map_authority.py, tests/test_map_authority_notify.py,
+    artifacts/recovery/map2-phase0-trustworthy-baseline-2026-08-10.md). I am the designated
+    functional and security reviewer per the plan's review-separation matrix (sec
+    5.3) - do not self-review, do not let a same-side agent review it either.
+  source: MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md
+    sec 5.1/5.3; this session's hcom sync with rotation-replacement-miro-fela
+- scope: repo
+  rule: Program-level stop condition is currently live and correctly respected - authority
+    freshness was STALE (map-rns-watcher.service blocking mirror sync) at last check.
+    Do not dispatch or claim new map-2 phases or treat mirror state as authoritative
+    until freshness clears - re-check via graph/runner.py before assuming this has
+    resolved.
+  source: map-2-research-adoption-implementation-program-2026-08-09.md sec 22 (Stop
+    conditions); MAP_System/graph/runner.py authority block observed this session
+- scope: task
+  rule: D0 (program coordinator designation) is an explicit operator decision gate
+    per the plan (sec 20) and is NOT yet confirmed by bigboss. I proposed myself as
+    coordinator/architecture-lead but must not act with coordinator authority (routing
+    or gating other agents' work) until bigboss explicitly confirms - draft/prep work
+    such as the P1.1 architecture packet is fine in the meantime, binding coordination
+    decisions are not.
+  source: map-2-research-adoption-implementation-program-2026-08-09.md sec 20 (D0);
+    this session's unanswered request to bigboss
+- scope: communication
+  rule: Operator explicitly re-flagged (2026-08-09) that responses were not concise
+    enough - sacrifice grammar for brevity in all reports and hcom sends, not just
+    final summaries. MAP_System/AGENTS.md Communication section requires the same
+    for hcom.
+  source: operator, this session; MAP_System/AGENTS.md
+forward_tasks:
+- task_id: null
+  next_action: wait
+  owner: bigboss
+  reason: D0 (coordinator designation) requested via hcom --intent request, unanswered
+    as of this snapshot. Check hcom transcript with bigboss first on resume.
+  paths: []
+- task_id: TASK-321
+  next_action: review
+  owner: rotation-replacement-miro-fela
+  reason: 'SUBMITTED and review-requested (hcom request #19300) as of this snapshot
+    - this is the immediate first action for the replacement session. Perform independent
+    functional review of map_authority.py, test_map_authority.py, and the recovery
+    artifact. Separately, route/spawn a distinct visible security-framed reviewer/pass
+    (do not do both functional and security review yourself) covering: cgroup path
+    trust, malformed/unreadable evidence, timer/service coverage, error classification,
+    and the retained writer/15s collision gates. Report BLOCKER/REQUIRED findings
+    back to fela. Do not self-review fela''s work as fela, and do not let the functional
+    and security passes be the same reviewer.'
+  paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/map_authority_notify.py
+  - MAP_System/tests/test_map_authority.py
+  - MAP_System/tests/test_map_authority_notify.py
+  - MAP_System/artifacts/recovery/map2-phase0-trustworthy-baseline-2026-08-10.md
+- task_id: null
+  next_action: continue
+  owner: claude-lab-sumi-replacement
+  reason: Was about to start drafting the Phase 1 architecture decision packet (P1.1)
+    as prep work while Phase 0 finishes, per the plan sec 8 (P1.1 decides the authority/projection/event
+    contract before Phase 2 implementation starts). Not yet started - no draft exists
+    yet, this is a clean pickup point, not a resume-mid-file. Lower priority than
+    the TASK-321 review above.
+  paths:
+  - MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md
+blockers:
+- kind: approval
+  detail: D0 program-coordinator designation is unconfirmed by bigboss.
+  unblock_by: bigboss hcom reply confirming or reassigning coordinator/architecture-lead
+    role.
+- kind: dependency
+  detail: Phase 1 work (including the P1.1 architecture packet, even in draft form)
+    should treat Phase 0 as not yet exited - TASK-321 is SUBMITTED but independent
+    functional review AND a separate security-framed pass are still outstanding (see
+    forward_tasks), and authority freshness was STALE at last check.
+  unblock_by: Completing the functional review, routing/completing the separate security-framed
+    pass, and a clean graph/runner.py authority freshness read.
+lexicon:
+  map-2 program: Shorthand this session used for MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md,
+    the reviewed-ready-for-operator-decision incremental infrastructure program the
+    operator asked to have implemented.
+  Biggie / Smalls: Biggie is this read-only mirror PC/host; Smalls is the writable
+    authority PC/host. Naming confirmed live by codex-lab-miro earlier this session.
+  D0-D7: The plan's numbered operator decision gates (sec 20). D0 is coordinator designation,
+    the one currently open and blocking Phase 1.
+  canonical_task_drift: This session's own near-miss - a prepared rotation snapshot
+    can go stale if a task's live status changes between prepare and ack. Recovery
+    path is abandon (old agent) then re-prepare fresh, not force/bypass.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- hcom transcript bigboss --last 15 --name <replacement-name>
+- hcom transcript rotation-replacement-miro-fela --last 15 --name <replacement-name>
+- cat MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md
+validation:
+- No files under MAP_System output_paths were edited this session other than snapshots
+  and hcom sends; TASK-321's owned paths were not touched, confirmed via hcom sync
+  with fela rather than direct file inspection of their in-progress work.
+rotation:
+  reason: threshold
+  summary: Fresh-session startup orientation (continuity/current-state/emergence checks,
+    all clean) followed by operator clarifying "the project" means the map-2 research-adoption
+    program. Confirmed TASK-321/Phase 0 already owned by rotation-replacement-miro-fela
+    (not duplicated), logged the operator directive via command_center_intake.py,
+    and that check surfaced a real live authority-freshness STALE condition matching
+    fela's own P0.1 scope exactly - reported, not touched. Proposed self as program
+    coordinator/architecture-lead (D0), pending bigboss confirmation. Synced with
+    fela; TASK-321 reached SUBMITTED with a review request mid-rotation. First prepare
+    attempt drifted on that exact transition and was abandoned per protocol; this
+    is the re-prepared fresh snapshot. No MAP task claimed or edited by this session;
+    no code changed.
+  next_action: On resume, first check hcom transcripts with bigboss (D0 answer?),
+    then immediately perform the TASK-321 functional review and route the separate
+    security-framed pass - that request (hcom request 19300) is time-sensitive and
+    already acked. Only after that, if D0 is confirmed, begin drafting the P1.1 architecture
+    packet as prep work - do not treat Phase 1 as authorized to implement until the
+    combined Phase 0 exit gate (P0.1+P0.2+P0.3 together, plan sec 7) actually passes.
+  used_tokens: 157341
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-10T03:31:15Z'
+  canonical_tasks:
+  - task_id: TASK-321
+    status: SUBMITTED
+    owner: rotation-replacement-miro-fela
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-10 03:24:38'
+  canonical_tasks_sha256: 3c9f5f803e43ce0305276817d8f968f6a5ed5858bc7f289a4990bedd927d79ec
+  touched_paths:
+  - path: MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-sumi-20260810T032322Z.yaml
+    scope: workspace
+    sha256: 4b2f542ac56f268d11b59ef858f25d2f589890e84481a400b99da62be5fd99b1
+    size: 11182
+    state: file
+  - path: MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-sumi-20260810T032558Z.yaml
+    scope: workspace
+    sha256: 4a396ff857ccf3d953f873c248d02cce0a17b19c5c421b4b547a73f3ed80bcfd
+    size: 11632
+    state: file
+  touched_paths_sha256: 5cc700e0b8b82ea7a43457d032d973a7dd32fc6e1179c10284834196616b422e

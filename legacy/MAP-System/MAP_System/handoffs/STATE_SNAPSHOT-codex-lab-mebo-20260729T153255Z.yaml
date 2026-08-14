@@ -1,0 +1,290 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T15:32:55Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-mebo
+session_id: 019fac42-bb78-7461-8200-31b9dd9a25d1
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: SUBMISSION
+    task_id: TASK-306
+    summary: claude-lab-nene submitted the locally versioned Biggie Command Center
+      Lab source for independent functional and security review.
+  - event_type: REVIEW_CLAIM
+    task_id: TASK-306
+    summary: claude-lab-muza claimed the independent review at 2026-07-29T15:26:14Z.
+  - event_type: POST_SUBMISSION_DRIFT
+    task_id: TASK-306
+    summary: A later operator-directed RECAP-card edit changed Biggie live orchestrator.js
+      and orchestrator.css, so submitted live/template manifest parity now fails.
+      Nene stopped edits and awaits the reviewer verdict.
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-306
+    summary: Muza independently reproduced the two-file parity drift and required
+      version/template regeneration plus durable registration of test_command_center_deployment_parity.py
+      in run_tests.sh.
+  - event_type: RELAY_RECOVERY
+    task_id: null
+    summary: Biggie hcom relay was restored to connected after the corrupt PID marker
+      containing host kernel PID 8 was quarantined at /tmp/hcom-relay.pid.stale-20260729T1505Z
+      and the user service restarted.
+  touched_paths:
+  - MAP_System/tasks/TASK-306.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+  - MAP_System/notes/command-center-cross-pc-sync.md
+  - MAP_System/scripts/command_center_version.py
+  - MAP_System/templates/install/command-center-ui/README.md
+  - MAP_System/templates/install/command-center-ui/app/server.py
+  - MAP_System/templates/install/command-center-ui/src/bcmagent.svg
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.css
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.html
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.js
+  - MAP_System/templates/install/command-center-ui/version.json
+  - MAP_System/tests/test_command_center_agent_identity.py
+  - MAP_System/tests/test_command_center_attention_history.py
+  - MAP_System/tests/test_command_center_composer_alignment.py
+  - MAP_System/tests/test_command_center_deployment_parity.py
+  - MAP_System/tests/test_command_center_message_intent_copy.py
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/artifacts/reviews/task306-review-muza.md
+active_constraints:
+- scope: repo
+  rule: Biggie/KUDU is a read-only MAP database mirror. All lifecycle reads and writes
+    route through map-authority to RUKI; never mutate local MAP_System/map.db.
+  source: MAP_System/AGENTS.md and MAP_System/notes/cross-pc-map-authority.md
+- scope: task
+  rule: TASK-306 is CHANGES_REQUESTED, owned by claude-lab-nene, with no open review.
+    Mebo owns no task and must not edit or approve the deliverable.
+  source: authoritative map-authority task show/get-open-review at 2026-07-29T15:32Z
+- scope: file
+  rule: Biggie live /home/mellow/Projects/CommandCenterUI/src/orchestrator.js and
+    orchestrator.css changed after TASK-306 submission; command_center_version.py
+    verify now fails and review evidence is stale.
+  source: hcom events 1778-1783 and claude-lab-nene inform 1820
+- scope: safety
+  rule: Do not deploy to or modify Smalls until its exact hostname/IP, SSH user, and
+    hcom device identity are confirmed and the documented dry-run/backup/staging checks
+    pass.
+  source: TASK-306 acceptance criteria and MAP_System/notes/command-center-cross-pc-sync.md
+- scope: safety
+  rule: Do not treat RUKI/MediaCenter as Smalls without operator confirmation, and
+    never change RUKI MAP authority topology as part of CCL synchronization.
+  source: operator identity request pending with bigboss
+- scope: task
+  rule: TASK-305 remains SUBMITTED despite APPROVED rereview because its KUDU-only
+    review artifact is unavailable to RUKI validation. Do not retry approval or transfer
+    the artifact without operator authorization.
+  source: MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+    and prior bigboss request
+- scope: tool
+  rule: Context rotation ACK is known to fail because RUKI does not expose the local
+    register-agent operation. Never finalize or supersede without checksum-bound ACK.
+  source: failed rotations for mebo, valo, nene, and kobe on 2026-07-29
+forward_tasks:
+- task_id: TASK-306
+  next_action: fix
+  owner: claude-lab-nene
+  reason: 'Apply Muza''s two REQUIRED findings: port the current live RECAP-card JS/CSS
+    into the template, regenerate version.json and parity evidence as the final pre-submit
+    step, and register test_command_center_deployment_parity.py in run_tests.sh before
+    revalidating and resubmitting.'
+  paths:
+  - MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+  - MAP_System/notes/command-center-cross-pc-sync.md
+  - MAP_System/scripts/command_center_version.py
+  - MAP_System/templates/install/command-center-ui/
+  - MAP_System/tests/test_command_center_deployment_parity.py
+- task_id: TASK-306
+  next_action: ask_operator
+  owner: claude-lab-nene
+  reason: After any required rework and approval of the local source, obtain the exact
+    Smalls endpoint/device identity before the remote dry-run and deployment phase.
+  paths:
+  - MAP_System/notes/command-center-cross-pc-sync.md
+  - MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+- task_id: TASK-305
+  next_action: ask_operator
+  owner: codex-lab-replacement-valo
+  reason: Await operator authorization for a checksum-verified placement of the approved
+    review artifact on RUKI, then have claude-lab-nene rerun the exact approve command.
+  paths:
+  - MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+blockers:
+- kind: missing_context
+  detail: Smalls is not visible in Biggie DNS/mDNS/SSH discovery or the hcom relay
+    roster. Only offline RUKI is registered.
+  unblock_by: bigboss provides or confirms Smalls hostname/IP, SSH user, and hcom
+    device label.
+- kind: dependency
+  detail: TASK-306 is CHANGES_REQUESTED because live RECAP-card changes invalidated
+    two manifest hashes and the new parity test was not registered in run_tests.sh.
+  unblock_by: claude-lab-nene completes Muza's two REQUIRED fixes, revalidates as
+    the final pre-submit step, and resubmits for independent rereview.
+- kind: tool_failure
+  detail: RUKI forced-command gateway lacks register-agent, so verified context rotation
+    ACK is structurally blocked.
+  unblock_by: operator-approved, independently reviewed RUKI gateway deployment or
+    another approved continuity path.
+- kind: approval
+  detail: TASK-305 approval requires its approved review artifact to exist at the
+    identical RUKI path.
+  unblock_by: operator authorizes a checksum-verified one-file transfer or provides
+    another reviewed artifact-placement path.
+lexicon:
+  Biggie: Local hostname and operator-designated source for the newest Command Center
+    Lab UI.
+  Smalls: Intended destination PC; exact technical identity remains unconfirmed.
+  KUDU: Biggie's hcom device label and read-only MAP mirror role.
+  RUKI: Offline hcom device label and sole writable MAP authority at MediaCenter/192.168.1.153;
+    not proven to be Smalls.
+  CCL: AI Command Center Lab and its installed CommandCenterUI surface.
+  RECAP: Client-side highlighted card for inform messages whose text begins with RECAP.
+resume_commands:
+- map-authority task show TASK-306
+- map-authority get-open-review TASK-306
+- MAP_System/.venv/bin/python MAP_System/scripts/command_center_version.py verify
+  --source MAP_System/templates/install/command-center-ui --installed /home/mellow/Projects/CommandCenterUI
+- hcom relay --name mebo
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+validation:
+- Authoritative TASK-306 state is CHANGES_REQUESTED, owner claude-lab-nene, unclaimed,
+  attempt 1, updated 2026-07-29 15:31:47.
+- TASK-306 has no open review; Muza's durable CHANGES_REQUESTED artifact SHA-256 is
+  87fca4bc7ad8be5d0a5d46cec49e49c961c4e33cc613bd5695474c3a7f74b86e.
+- Biggie hcom relay reported connected after stale PID quarantine and service restart.
+- No Smalls or RUKI CCL files were modified during TASK-306 local implementation.
+- Nene independently confirmed command_center_version.py verify fails on orchestrator.js
+  and orchestrator.css after the post-submission edit.
+rotation:
+  reason: threshold
+  summary: Routed operator-directed cross-PC CCL alignment into TASK-306, repaired
+    Biggie hcom relay, confirmed Biggie live UI as desired source, and preserved remote
+    safety gates. TASK-306 is CHANGES_REQUESTED after a RECAP-card edit changed live
+    JS/CSS post-submission and review found the parity test absent from run_tests.sh.
+    Nene owns the two bounded fixes. Smalls identity and RUKI rotation/artifact paths
+    remain blocked on operator direction.
+  next_action: Let Nene rework TASK-306 against Muza's two REQUIRED findings; do not
+    edit, deploy, finalize rotation, or infer Smalls identity.
+  used_tokens: 153838
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-29T15:32:55Z'
+  canonical_tasks:
+  - task_id: TASK-305
+    status: SUBMITTED
+    owner: codex-lab-replacement-valo
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-29 14:33:40'
+  - task_id: TASK-306
+    status: CHANGES_REQUESTED
+    owner: claude-lab-nene
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-29 15:31:47'
+  canonical_tasks_sha256: 9dbb464b4414db2653e032ace724c0e8b5b1b97a48afff2d387ac6ebd1beb9e8
+  touched_paths:
+  - path: MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+    scope: workspace
+    sha256: 266810829de5ffaca3363cc62ff91f96859de1eaacd98b943f11331a713871cf
+    size: 7761
+    state: file
+  - path: MAP_System/artifacts/reviews/task306-review-muza.md
+    scope: workspace
+    sha256: 87fca4bc7ad8be5d0a5d46cec49e49c961c4e33cc613bd5695474c3a7f74b86e
+    size: 8906
+    state: file
+  - path: MAP_System/notes/command-center-cross-pc-sync.md
+    scope: workspace
+    sha256: 73c20fe08372e6f8ac04e0b2d0ef9e320cea4c3b1f44a46781f20b02ff64fcd6
+    size: 5757
+    state: file
+  - path: MAP_System/scripts/command_center_version.py
+    scope: workspace
+    sha256: de9747595d8b7c91c0b164a71964ec9a444c0186cf9f92cd4e7975725e8678cd
+    size: 10117
+    state: file
+  - path: MAP_System/scripts/run_tests.sh
+    scope: workspace
+    sha256: bcd309f6cad4fa39271b12f685c3f0e32d1df1cc22e2d31dc47d26f11e071511
+    size: 7877
+    state: file
+  - path: MAP_System/tasks/TASK-306.json
+    scope: workspace
+    sha256: 0e39dd2d0967be702e2c9d756d76ba4b788a14cf9a473bcdb93d68577fcc1025
+    size: 3634
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/README.md
+    scope: workspace
+    sha256: 354ba0a4e003cc2516b591189eff5b0a5003cb1816ae7ba0da1b4eba5acdde59
+    size: 2121
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/app/server.py
+    scope: workspace
+    sha256: b148f4e1d10ba5de6d85e6a8401a6caa7309305c13bd2c9ca0312cc3a463353d
+    size: 95541
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/src/bcmagent.svg
+    scope: workspace
+    sha256: 6e702aaef040541e258f746f4ca811b64f24f8f854e3ea689bc2c40d4bb9a4f3
+    size: 10171
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/src/orchestrator.css
+    scope: workspace
+    sha256: 77a28792d86e3c046b87f435e5d2018fe2725687832026b204821e8faed188bb
+    size: 11837
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/src/orchestrator.html
+    scope: workspace
+    sha256: 0c006894279f6589c4c135b5d3bc02989979f0bbeb4d903dfd925c7474506282
+    size: 4628
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/src/orchestrator.js
+    scope: workspace
+    sha256: 8a63cd0b0b66896381ac5792ebce616a09a9a36514bed2d495dd1bcf31590878
+    size: 21565
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/version.json
+    scope: workspace
+    sha256: 6299b6a0b665ff54097955d375cea1e85e2259294a5f7c67d4d69497ae4972a7
+    size: 2438
+    state: file
+  - path: MAP_System/tests/test_command_center_agent_identity.py
+    scope: workspace
+    sha256: 51c0b7d530dd3e7bef4a256e855adf134376109ee72914b254d44eead761b6d9
+    size: 1952
+    state: file
+  - path: MAP_System/tests/test_command_center_attention_history.py
+    scope: workspace
+    sha256: a148246056ec0015f84c087ecc4ba3127a55081b137a15c870d608c888799f82
+    size: 1939
+    state: file
+  - path: MAP_System/tests/test_command_center_composer_alignment.py
+    scope: workspace
+    sha256: f987a8c25dd93e9f90494b35175e6f4604e65825f2e05de67afe7375f8cac3f8
+    size: 1272
+    state: file
+  - path: MAP_System/tests/test_command_center_deployment_parity.py
+    scope: workspace
+    sha256: ef922d02e0c12d28f7c1ab3e98fc6b84e0c153ca6681ac1f30bc24aa08b24450
+    size: 5784
+    state: file
+  - path: MAP_System/tests/test_command_center_message_intent_copy.py
+    scope: workspace
+    sha256: 67baaccc6cbfd76168f18c6ad03669c88ba561c6791e0253790c4419b0d3ae02
+    size: 2023
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 96414e437f5d37933e6c5b0f9caff90a98528705b1cb7a20addb9dc5b7e1de1c
+    size: 488793
+    state: file
+  touched_paths_sha256: 2343f475ca99c7d0b7072191b24d22550de5789ae51253ffebeea16644485617

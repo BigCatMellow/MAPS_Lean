@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-264",
+  "title": "Restore CommandCenterUI local-model security hardening reverted by the untracked 2026-07-21 edit",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-niko",
+  "description": "The untracked 2026-07-21 edit to /home/mellow/Projects/CommandCenterUI/app/server.py (see artifacts/audits/task254-untracked-edit-2026-07-21.md) was built from a stale base and silently reverted three local-model security controls that the template still carries. Restore all three in the live file WITHOUT discarding the genuine feature work the same edit introduced. 1) ollama_models() lost the loopback env pin, so Ollama discovery now inherits an ambient remote OLLAMA_HOST. 2) SUMMARY_MODEL default flipped from None to gemma3:4b, enabling the background summarizer by default. 3) The SUMMARY_MODEL is-None guards on the worker-thread start and on enqueue() were deleted, so the summarizer runs even when no model is configured. Combined effect: agent message content is auto-summarised by a local model and, with the loopback pin gone, could be sent to a remote Ollama host. The running process still holds the old hardened constants in memory; a restart picks up the regression.",
+  "input_paths": [],
+  "output_paths": [
+    "/home/mellow/Projects/CommandCenterUI/app/server.py"
+  ],
+  "acceptance_criteria": [
+    "ollama_models() pins env OLLAMA_HOST=127.0.0.1:11434 for the ollama list subprocess, matching the template rationale that discovery and launch must use the same loopback-only endpoint.",
+    "SUMMARY_MODEL defaults to None so the background summarizer is opt-in; enabling it requires an explicit COMMAND_CENTER_UI_SUMMARY_MODEL value.",
+    "The SUMMARY_MODEL is-None guards are restored on both the worker-thread start and enqueue(), so SUMMARY_MODEL=None genuinely disables the summarizer rather than only unsetting a label.",
+    "Feature work from the same edit is preserved, specifically the quoted-summary extraction in the summary post-processing; python3 -m py_compile passes on the live file."
+  ],
+  "decision_class": null,
+  "risk_class": "SECURITY",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,183 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T17:07:22Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-mebo
+session_id: 019fac42-bb78-7461-8200-31b9dd9a25d1
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+  - TASK-307
+  recent_events:
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-306
+    summary: Muza corrected the verdict because Smalls deployment/parity remains unmet;
+      local versioning and protocol checks are sound.
+  - event_type: SUBMISSION
+    task_id: TASK-307
+    summary: Nene revalidated the unchanged Damo-Nivo gateway patch and submitted
+      it for distinct functional and security pre-deploy review.
+  - event_type: REVIEW_CLAIM
+    task_id: TASK-307
+    summary: Muza claimed canonical pre-deploy review at 2026-07-29T15:45:50Z.
+  - event_type: IDENTITY_CONFIRMED
+    task_id: TASK-306
+    summary: Operator-approved action plan confirms Biggie=KUDU 192.168.1.177 and
+      Smalls=RUKI/MediaCenter 192.168.1.153.
+  - event_type: ROTATION_ABANDONED
+    task_id: null
+    summary: Ravi verified prior snapshot 99dacf... but ACK failed safely on touched-path
+      drift; attempt was durably abandoned without finalize or supersession.
+  touched_paths: []
+active_constraints:
+- scope: repo
+  rule: Biggie/KUDU is a read-only MAP database mirror; all lifecycle operations route
+    through map-authority to Smalls/RUKI. Never mutate local MAP_System/map.db.
+  source: MAP_System/AGENTS.md and Biggie/Smalls action plan
+- scope: task
+  rule: TASK-307 is SUBMITTED, owner claude-lab-nene, review-claimed by claude-lab-muza
+    for two distinct pre-deploy passes. No deployment occurs before both passes approve.
+  source: authoritative map-authority task show/get-open-review at 2026-07-29T17:06Z
+- scope: task
+  rule: On pre-deploy PASS, Muza releases the review claim APPROVED without calling
+    task approve. Nene then canonically reworks/reclaims, deploys exact reviewed checksums,
+    verifies live operations, and resubmits for final review.
+  source: hcom routing decision for TASK-307
+- scope: safety
+  rule: TASK-307 excludes review-artifact transport, manual TASK-305/306 transitions,
+    direct SQL, and deploy-before-review.
+  source: TASK-307 acceptance criteria
+- scope: task
+  rule: TASK-306 remains CHANGES_REQUESTED until action-plan prerequisites and its
+    Smalls deployment/parity criteria are completed.
+  source: authoritative map-authority task show TASK-306
+- scope: safety
+  rule: TASK-305 remains SUBMITTED with approved rereview because its review artifact
+    exists only on Biggie; do not retry approval or transfer it without an approved
+    artifact-availability path.
+  source: task305 independent review and prior operator request
+- scope: safety
+  rule: Biggie/Smalls action-plan step 2 requires operator-only password rotation
+    confirmation; never request, handle, or echo the password.
+  source: MAP_System/artifacts/planning/biggie-smalls-orchestration-action-plan-2026-07-29.md
+- scope: tool
+  rule: Context rotation register-agent cannot succeed until TASK-307's reviewed patch
+    is deployed to Smalls. Never finalize or supersede without checksum-bound ACK.
+  source: TASK-307 and prior failed ACKs
+forward_tasks:
+- task_id: TASK-307
+  next_action: review
+  owner: claude-lab-muza
+  reason: Complete distinct functional and security-framed pre-deploy passes. On PASS,
+    release-review APPROVED only; do not approve the incomplete task or deploy.
+  paths:
+  - MAP_System/artifacts/operations/gateway-rotation-ops-deployment-2026-07-29.md
+  - MAP_System/db/claims.py
+  - MAP_System/scripts/context_rotation.py
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/tests/test_context_rotation.py
+- task_id: TASK-307
+  next_action: continue
+  owner: claude-lab-nene
+  reason: After pre-deploy review PASS, rework/reclaim, checksum-stage and deploy
+    exactly reviewed files to Smalls, verify register-agent/rotation-transfer/rotation-restore
+    end to end, update evidence, and resubmit. Nene is temporarily inactive due rate_limit
+    and may require a normal owner handoff if it persists.
+  paths:
+  - MAP_System/artifacts/operations/gateway-rotation-ops-deployment-2026-07-29.md
+- task_id: TASK-306
+  next_action: wait
+  owner: claude-lab-nene
+  reason: Resume only after gateway repair, password-rotation confirmation, and WP-1
+    approval; then execute documented Smalls dry-run/deployment/parity phase.
+  paths:
+  - MAP_System/notes/command-center-cross-pc-sync.md
+- task_id: TASK-305
+  next_action: ask_operator
+  owner: codex-lab-replacement-valo
+  reason: Review-artifact availability is separate from TASK-307; await approved transport/review-on-Smalls
+    design before any exact approval retry.
+  paths:
+  - MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+blockers:
+- kind: tool_failure
+  detail: Smalls gateway lacks register-agent/rotation-transfer/rotation-restore;
+    verified context rotation cannot ACK until TASK-307 is reviewed and deployed.
+  unblock_by: TASK-307 pre-deploy reviews pass and exact reviewed checksums are deployed
+    and verified on Smalls.
+- kind: approval
+  detail: Smalls account password rotation is unconfirmed.
+  unblock_by: bigboss reports only completion/time, never the password.
+- kind: dependency
+  detail: TASK-306 remote deployment waits on action-plan steps 1-3 and its own documented
+    preconditions.
+  unblock_by: Complete gateway repair, password confirmation, WP-1 approval, then
+    TASK-306 deployment/parity.
+- kind: tool_failure
+  detail: RUKI cannot validate Biggie-only review artifacts for TASK-305/306 approval.
+  unblock_by: A separately reviewed artifact-availability mechanism or equivalent
+    reviewer evidence on Smalls.
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror.
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and writable MAP authority.
+  pre-deploy review: Functional plus explicit security review of exact patch checksums
+    before any Smalls write; not final task approval.
+  review-artifact availability: Separate cross-host problem where Smalls cannot read
+    review files that exist only on Biggie.
+resume_commands:
+- map-authority task show TASK-307
+- map-authority get-open-review TASK-307
+- map-authority task show TASK-306
+- hcom list -v --json --name mebo
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+validation:
+- TASK-307 authoritative state SUBMITTED, owner claude-lab-nene, unclaimed, attempt
+  1, updated 2026-07-29 15:45:22.
+- TASK-307 open review REV-TASK-307-claude-lab-muza-b11dac12.
+- TASK-306 authoritative state CHANGES_REQUESTED with no claim.
+- TASK-307 patch checksums match the Damo-Nivo frozen snapshot and 20/20 context-rotation,
+  17/17 map-authority, and 6/6 notify tests passed before submission.
+- No Smalls deployment occurred.
+rotation:
+  reason: threshold
+  summary: Established Biggie/Smalls identities and governed CCL alignment through
+    TASK-306, repaired Biggie's hcom relay, corrected TASK-306 to CHANGES_REQUESTED
+    because remote parity is incomplete, split gateway deployment into security-gated
+    TASK-307, and routed its stable patch for functional/security pre-deploy review.
+    Review-artifact availability and password rotation remain separate blockers. No
+    Smalls deployment or manual task transition occurred.
+  next_action: Let Muza complete TASK-307 pre-deploy review. Do not deploy, approve
+    incomplete tasks, retry artifact-blocked approvals, or supersede Mebo without
+    checksum-bound ACK.
+  used_tokens: 209163
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-29T17:07:22Z'
+  canonical_tasks:
+  - task_id: TASK-305
+    status: SUBMITTED
+    owner: codex-lab-replacement-valo
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-29 14:33:40'
+  - task_id: TASK-306
+    status: CHANGES_REQUESTED
+    owner: claude-lab-nene
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-29 15:40:10'
+  - task_id: TASK-307
+    status: SUBMITTED
+    owner: claude-lab-nene
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-29 15:45:22'
+  canonical_tasks_sha256: 3de6e7c48b495a413a6a3df0d435d94bde45abe64c3b1a453923079b591be254
+  touched_paths: []
+  touched_paths_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945

@@ -1,0 +1,38 @@
+{
+  "task_id": "TASK-241",
+  "title": "Clarify CommandCenterUI message intent choices",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RETIRED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Replace protocol-jargon-only Send as choices with plain-language labels and concise contextual help in both the deployed CommandCenterUI and installer template. Preserve the existing inform/request/ack values and send validation behavior. Superseded by TASK-254, which owns independent review and release of the combined final UI state because later serial edits overwrote the earlier worktree snapshots.",
+  "input_paths": [],
+  "output_paths": [
+    "../../CommandCenterUI/src/chat.css",
+    "../../CommandCenterUI/src/chat.html",
+    "../../CommandCenterUI/src/chat.js",
+    "MAP_System/templates/install/command-center-ui/src/chat.css",
+    "MAP_System/templates/install/command-center-ui/src/chat.html",
+    "MAP_System/templates/install/command-center-ui/src/chat.js",
+    "MAP_System/tests/test_command_center_message_intent_copy.py"
+  ],
+  "acceptance_criteria": [
+    "The Send as control presents understandable plain-language choices for update, reply-needed request, and acknowledgment while retaining the existing protocol values.",
+    "The selected choice has concise explanatory help, including when a reply is expected.",
+    "Live and installer composer code remains equivalent and focused checks pass."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

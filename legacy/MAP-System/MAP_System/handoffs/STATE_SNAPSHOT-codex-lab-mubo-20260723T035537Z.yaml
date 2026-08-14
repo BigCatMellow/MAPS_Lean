@@ -1,0 +1,129 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-23T03:55:37Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-mubo
+session_id: 019f8d14-6b4a-7162-89b5-64e56f9709eb
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+  - TASK-273
+  recent_events:
+  - event_type: RELEASED
+    task_id: TASK-236
+    summary: Independently re-reviewed and released the proposal-only advisory
+      monitor after verifying the busy-owner correction and bounded roster limitation.
+  - event_type: SUBMISSION
+    task_id: TASK-273
+    summary: Implemented and submitted sanctioned task-owner reassignment with
+      focused and full-suite verification.
+  touched_paths:
+  - MAP_System/artifacts/releases/task-236-release-checklist.md
+  - MAP_System/artifacts/reviews/task236-rereview-mubo.md
+  - MAP_System/db/claims.py
+  - MAP_System/events/events.jsonl
+  - MAP_System/scripts/map_task.py
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/tasks/TASK-236.json
+  - MAP_System/tasks/TASK-273.json
+  - MAP_System/tests/test_reassign_owner.py
+  - MAP_System/workflow/task_graph.json
+failed_approaches:
+- TASK-236 live monitor output was initially summarized with the wrong JSON
+  shape; direct inspection confirmed the expected 23 findings and correct split.
+- TASK-236's delivery note changed after submission and again after approval.
+  Each change was disclosed, reloaded, hash-checked, and incorporated into the
+  independent review/release evidence; future submissions must stay frozen.
+- TASK-273 cannot use a map_task synchronized submit verb yet because that is
+  TASK-268's sequenced scope; submission used the existing low-level submit_task
+  plus canonical event and mirror export.
+active_constraints:
+- scope: repo
+  rule: Preserve the unrelated dirty worktree and use MAP_System/scripts/map-git
+    for Git inspection.
+  source: AGENTS.md
+- scope: task
+  rule: TASK-273 is SUBMITTED and requires independent review before release.
+    Do not self-review or mutate its submitted outputs.
+  source: TASK-273 and MAP_System/AGENTS.md
+- scope: task
+  rule: TASK-268 shares claims.py, map_task.py, and run_tests.sh and must remain
+    unclaimed until TASK-273 is reviewed and released.
+  source: task output paths and task-graph collision gate
+- scope: task
+  rule: INS-0039/no-self-review implementation is separately scoped and sequenced
+    behind TASK-273 and TASK-268.
+  source: TASK-273 acceptance criteria and zaro hcom coordination
+- scope: communication
+  rule: Use hcom request only for decisions, approvals, blockers, conflicts,
+    privacy/scope risks, or questions; routine progress is inform.
+  source: operator startup directive
+- scope: tool
+  rule: Any hcom-spawned agent or helper must use --terminal wezterm-tab and must
+    not use --headless.
+  source: MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-273
+  next_action: review
+  owner: claude-lab-zaro
+  reason: Submitted with independent review requested; focused 5/5 and full suite
+    72 pass / 3 disclosed baseline failures.
+  paths:
+  - MAP_System/db/claims.py
+  - MAP_System/scripts/map_task.py
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/tests/test_reassign_owner.py
+- task_id: TASK-268
+  next_action: wait
+  owner: command-center
+  reason: Wait for TASK-273 release, then claim and register the overlapping
+    synchronized submission/review-identity outputs.
+  paths:
+  - MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+- task_id: TASK-265
+  next_action: ask_operator
+  owner: command-center
+  reason: Still policy-gated on security/structural approval and authority decisions.
+  paths:
+  - MAP_System/templates/install/command-center-ui/app/server.py
+blockers:
+- kind: dependency
+  detail: TASK-268 overlaps TASK-273's lifecycle files.
+  unblock_by: Independently approve and release TASK-273.
+- kind: approval
+  detail: TASK-265 requires command-center security/structural approval and authority decisions.
+  unblock_by: Operator records the decisions and satisfies the policy gate.
+lexicon:
+  HPOM: Human-Paced Orchestration Model for worker fit and authority routing.
+  MAP: File-backed multi-agent delivery system with SQLite claim coordination.
+  MATOCP: Compact agent communication tokens such as !ACK, !REQ, and !LGTM.
+  TASK-273: Sanctioned task-owner reassignment verb, now submitted for review.
+  TASK-268: Synchronized submission lifecycle verb, sequenced after TASK-273 release.
+  INS-0039: Separate no-self-review authority defect; do not fold into TASK-273.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-273
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-268
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- MAP_System/scripts/map-git status --short
+validation:
+- TASK-236 focused suite passed 25/25; full suite reproduced 71/3 baseline;
+  independent review validated; task released; mirrors and graph passed.
+- TASK-273 focused suite passed 5/5; no-self-review tests passed 2/2 and review
+  claim tests passed 12/12; full suite passed 72 with the same 3 baseline failures.
+- TASK-273 task mirrors, graph, schema, py_compile, and scoped diff-check passed.
+rotation:
+  reason: threshold
+  summary: Replaced Lori through a verified rotation, independently reviewed and
+    released TASK-236, then implemented and submitted TASK-273. Owner reassignment
+    now has a sanctioned function and CLI, identity registration, auditable events,
+    terminal refusal, and exact adjacent-field preservation. TASK-273 awaits Zaro
+    review; TASK-268 and INS-0039 remain sequenced behind its release.
+  next_action: Validate continuity, inspect Zaro's TASK-273 review status, release
+    if independently approved, then claim TASK-268 and register its overlapping
+    implementation outputs before editing.
+  used_tokens: 131164
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens

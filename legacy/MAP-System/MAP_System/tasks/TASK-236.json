@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-236",
+  "title": "Real-time advisory monitor + continuous E/I capture (proposal-only)",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-gome",
+  "description": "Operator directive 2026-07-18: the self-heal/E-I loop exists but is reactive/batch -- mistakes are caught by later code review or a project-end retrospective, not while work happens. Build a STANDING observer that flags 'this looks wrong' and 'this is a candidate idea' in real time, proposal-only, visible, no hidden authority. Deterministic core is already built and demonstrated: MAP_System/scripts/advisory_monitor.py -- read-only (map.db ro-mode, events.jsonl, status.json), zero model calls in the mechanical path, emits OBSERVED/IMPACT/SUGGESTION candidate findings, exit 1 when findings exist. On first run it caught TASK-186 (orphaned IN_PROGRESS ~3 days, owner claude-lab-mira gone, no lease/heartbeat) with no code review needed. Current checks: orphaned/expired claims, aging SUBMITTED/CHANGES_REQUESTED, agent mirror drift, event-log validation health (the exact 2026-07-18 miss). Increments this task adds: (1) a focused test (MAP_System/tests/test_advisory_monitor.py) with fixtures per check incl. a clean-state no-findings case; (2) the STANDING/real-time deployment decision -- event-triggered vs visible interval, where output surfaces (Command Center; overlaps TASK-227 1a coordination surface), and who owns running it -- routed to command-center as it is a standing-process/visibility choice, NOT decided unilaterally; (3) the real-time E/I layer: a recurrence/novelty pass that emits candidate E/I insights when a finding-signature repeats, a core agent promotes (never auto-promote). Model-assisted novelty judgment may layer on top but never in the deterministic path (no unreviewed control plane). Do not let this monitor claim/edit/approve/mutate anything.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task-advisory-monitor-delivery-note.md",
+    "MAP_System/scripts/advisory_monitor.py",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/tests/test_advisory_monitor.py"
+  ],
+  "acceptance_criteria": [
+    "advisory_monitor.py runs read-only against map.db/events/status.json, emits structured proposal-only findings, exits 1 iff findings exist, and mutates nothing (verify via ro-mode connection + no write calls).",
+    "Focused tests cover each check (orphaned/expired claim, aging transition, mirror drift, event-log health) plus a clean-state no-findings case; registered in run_tests.sh.",
+    "The standing/real-time deployment choice (trigger, output surface, owner) is written as a command-center decision request, not implemented unilaterally.",
+    "The real-time E/I layer is specified: a repeated finding-signature emits a candidate insight for core-agent promotion; nothing auto-promotes; any model assistance stays out of the deterministic path.",
+    "Evidence via the TASK-219 delivery-note template; the TASK-186 first-run catch is recorded as the worked example."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

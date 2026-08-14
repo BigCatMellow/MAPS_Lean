@@ -1,0 +1,38 @@
+{
+  "created": "2026-07-28T00:00:00-04:00",
+  "updated": "2026-07-28T00:00:00-04:00",
+  "name": "map-kudu-ruki-ssh",
+  "enabled": true,
+  "precedence": true,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "list",
+    "operand": "list",
+    "sensitive": false,
+    "data": "[{\"type\":\"simple\",\"operand\":\"process.path\",\"data\":\"/usr/bin/ssh\",\"sensitive\":false},{\"type\":\"simple\",\"operand\":\"dest.ip\",\"data\":\"192.168.1.153\",\"sensitive\":false},{\"type\":\"simple\",\"operand\":\"dest.port\",\"data\":\"22\",\"sensitive\":false}]",
+    "list": [
+      {
+        "type": "simple",
+        "operand": "process.path",
+        "sensitive": false,
+        "data": "/usr/bin/ssh",
+        "list": []
+      },
+      {
+        "type": "simple",
+        "operand": "dest.ip",
+        "sensitive": false,
+        "data": "192.168.1.153",
+        "list": []
+      },
+      {
+        "type": "simple",
+        "operand": "dest.port",
+        "sensitive": false,
+        "data": "22",
+        "list": []
+      }
+    ]
+  }
+}

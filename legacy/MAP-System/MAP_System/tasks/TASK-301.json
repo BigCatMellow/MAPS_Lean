@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-301",
+  "title": "Keep cross-PC MAP links allowed by OpenSnitch",
+  "task_type": "infrastructure",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-live",
+  "description": "Add narrow, auditable OpenSnitch allow rules and an idempotent installer for KUDU cross-PC SSH authority and hcom relay traffic; preserve existing user rules, avoid opening inbound ports, and record verification.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/operations/opensnitch-cross-pc-2026-07-28.md",
+    "MAP_System/scripts/install_opensnitch_rules.py",
+    "MAP_System/templates/install/opensnitch/map-kudu-hcom-relay.json",
+    "MAP_System/templates/install/opensnitch/map-kudu-ruki-ssh.json",
+    "MAP_System/tests/test_install_opensnitch_rules.py"
+  ],
+  "acceptance_criteria": [
+    "The SSH rule allows only /usr/bin/ssh traffic to RUKI at 192.168.1.153 and does not create an inbound firewall opening.",
+    "The hcom rule allows the exact installed hcom executable while accommodating dynamic relay broker addresses.",
+    "Installation is idempotent, preserves every unrelated OpenSnitch rule, and validates JSON before deployment.",
+    "OpenSnitch reloads the installed rules and both the MAP authority SSH path and hcom relay remain connected."
+  ],
+  "decision_class": null,
+  "risk_class": "SECURITY",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

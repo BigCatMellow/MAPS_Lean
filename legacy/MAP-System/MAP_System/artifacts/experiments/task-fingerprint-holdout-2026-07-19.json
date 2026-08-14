@@ -1,0 +1,2448 @@
+{
+  "combined_packet_estimated_tokens": 8992,
+  "corpus_count": 45,
+  "experiment": "TASK-257",
+  "fingerprint_mode": "deterministic_task_record_only; no semantic curation",
+  "fingerprints": [
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/command-center-ui/mission-control-textual-prototype.md",
+        "MAP_System/scripts/_mission_control_app.py",
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/tests/test_mission_control_tui.py"
+      ],
+      "concepts": [
+        "map",
+        "mission",
+        "control",
+        "only",
+        "tui",
+        "read",
+        "prototype",
+        "spec"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Build the first read-only mission-control prototype from mission-control-tui-spec.md using Python Textual, k9s-style. Read-only only: vitals bar, roster panel (using TASK-158's liveness state), flight board, attention queue, event stream, drill-down views. All data sourced from durable MAP state (map.db, task files, workflow/task_graph.json, events/events.jsonl, agents/status.json) plus hcom list/events -- never a second source of truth. Intervention keybindings\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: MAP 6.13: Build read-only mission-control TUI prototype (from TASK-150 spec).",
+      "semantic_word_count": 74,
+      "source_hashes": {
+        "MAP_System/artifacts/command-center-ui/mission-control-textual-prototype.md": "0ca64a5fb98fa01605fc572e370d4772faa9ec6c6068f991805fe6dee5c03d12",
+        "MAP_System/scripts/_mission_control_app.py": "243f7f4076e545c1f2998171cd8631e60febe8e7643572a165fc4ac2795dfe4d",
+        "MAP_System/scripts/mission_control_tui.py": "8c0e898d4b609d6a99d3260fdc1b4045d69d977e041dc0f7ec3aaf8eccf546d8",
+        "MAP_System/tasks/TASK-160.json": "6c1a90b78e2474a8502f19365494a990fed5f475cc39af40735e646c52e74468",
+        "MAP_System/tests/test_mission_control_tui.py": "37b36bda84f8aaedefc0524f2bff984ae0caa36313f4d65d00a068bb81a48630"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-160.json",
+        "MAP_System/artifacts/command-center-ui/mission-control-textual-prototype.md",
+        "MAP_System/scripts/_mission_control_app.py",
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/tests/test_mission_control_tui.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-160",
+      "title": "MAP 6.13: Build read-only mission-control TUI prototype (from TASK-150 spec)",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/dead_letter_queue.py",
+        "MAP_System/scripts/durable_execution.py",
+        "MAP_System/scripts/resilience_controls.py",
+        "MAP_System/tests/test_chaos_resilience.py",
+        "MAP_System/tests/test_durable_execution.py",
+        "MAP_System/tests/test_resilience_controls.py"
+      ],
+      "concepts": [
+        "map",
+        "resilience",
+        "controls",
+        "chaos",
+        "system",
+        "py",
+        "probes",
+        "13"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Implementation task for approved TASK-155 resilience and chaos specs. Build the first executable resilience controls: idempotency, dead letters, durable checkpoints/resume, scoped breaker/quarantine behavior, and chaos probes. Reuse TASK-159 halt-state storage for global/repair-only halts instead of inventing a parallel halt table.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: MAP 6.13: Implement resilience controls and chaos probes.",
+      "semantic_word_count": 57,
+      "source_hashes": {
+        "MAP_System/scripts/dead_letter_queue.py": "a972b2ae7b7ad5b392fb625cd2bfcc82e6cfefba737b5444b99790ab5409ffbb",
+        "MAP_System/scripts/durable_execution.py": "29668cbc417dd6cfe238e65fb81a7dffa5aedbc79638b50f0044d9111dad3637",
+        "MAP_System/scripts/resilience_controls.py": "fe8f1facce19bb72c8ad8a6e336bbd4201c89ddaeeb9267d8d866cc7509bdbea",
+        "MAP_System/tasks/TASK-161.json": "90212408edec56bf7186d880dff919ea8fbdbdaefd14736162cf25b2c8db1c11",
+        "MAP_System/tests/test_chaos_resilience.py": "7fb9537ea5d34c1e4a53f3e76006f6a37823a3ad823e7eb47737c0c328a98fa1",
+        "MAP_System/tests/test_durable_execution.py": "ed708b2e5d5a8bc10981a9faaaf5816132b3f4c0b8c3c868fb1b406243308983",
+        "MAP_System/tests/test_resilience_controls.py": "67c14c7d7e37e0971db05a38a639c08412c4fd041fae15ae685d168b6ddf5b24"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-161.json",
+        "MAP_System/scripts/dead_letter_queue.py",
+        "MAP_System/scripts/durable_execution.py",
+        "MAP_System/scripts/resilience_controls.py",
+        "MAP_System/tests/test_chaos_resilience.py",
+        "MAP_System/tests/test_durable_execution.py",
+        "MAP_System/tests/test_resilience_controls.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-161",
+      "title": "MAP 6.13: Implement resilience controls and chaos probes",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/validate_layer1.py",
+        "MAP_System/scripts/validate_protocol.py",
+        "MAP_System/tests/test_validate_layer1.py",
+        "MAP_System/tests/test_validate_protocol.py"
+      ],
+      "concepts": [
+        "map",
+        "validator",
+        "py",
+        "halt",
+        "protocol",
+        "validate",
+        "md",
+        "spec"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Implementation task for approved TASK-152 specs. Wire the Layer-1 deterministic validator cascade (aggregating existing validate_task_mirrors.py/validate_events.py/validate_task_graph.py/validate_shared_state.py/validate_decisions.py/validate_review.py per map-semantic-validator-spec.md) into one callable check, and wire protocol-validator checks (hcom intent presence, MATOCP token-form shape per AGENTS.md's 6-token subset -- NOT the fuller llm-communication-rules.md spec, per map-protocol-validator-spec.md's explicit scope decision) per map-protocol-validator-spec.md. On a BLOCKING/STRUCTURAL finding, write into TASK-159's\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: MAP 6.13: Implement protocol/semantic validator L1 wiring and halt-store integration.",
+      "semantic_word_count": 74,
+      "source_hashes": {
+        "MAP_System/scripts/validate_layer1.py": "0dea7ecd960042e7b31f7d04373aaf7837b0c43389aa1cea6d6686b3b71e430f",
+        "MAP_System/scripts/validate_protocol.py": "ee40480d91ac978def217538f1a1e5d3c297d3f43ab3f27b58ebd07df322aa07",
+        "MAP_System/tasks/TASK-162.json": "e033946649edbdbff89f7b6f87e9a804be40a13030e750155efc09dec170e205",
+        "MAP_System/tests/test_validate_layer1.py": "4bf9f04f9b4150b0c7cc4b6e4d4d846871d435bfc0e01161dc179ddb9d09ee6c",
+        "MAP_System/tests/test_validate_protocol.py": "057b6760bdc6fefbae229496ceea4e2832c81e4f6d03d0f325e15acd09558d79"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-162.json",
+        "MAP_System/scripts/validate_layer1.py",
+        "MAP_System/scripts/validate_protocol.py",
+        "MAP_System/tests/test_validate_layer1.py",
+        "MAP_System/tests/test_validate_protocol.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-162",
+      "title": "MAP 6.13: Implement protocol/semantic validator L1 wiring and halt-store integration",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/pre_dispatch_policy.py",
+        "MAP_System/tests/test_capability_whitelist.py",
+        "MAP_System/tests/test_pre_dispatch_policy.py",
+        "MAP_System/tests/test_runner_policy_gate.py"
+      ],
+      "concepts": [
+        "map",
+        "policy",
+        "pre",
+        "dispatch",
+        "capability",
+        "checker",
+        "gates",
+        "13"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Implementation task for approved TASK-153 and TASK-156 specs. Build the executable pre-dispatch policy checker and capability whitelist gates described by map-task-tiering-spec.md, map-pre-dispatch-policy-checker-spec.md, map-capability-whitelist-test-plan.md, and map-threat-model.md.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: MAP 6.13: Implement pre-dispatch policy checker and capability gates.",
+      "semantic_word_count": 43,
+      "source_hashes": {
+        "MAP_System/scripts/pre_dispatch_policy.py": "e9671e5b9230bd7fa34fb9039cc561d3ce03854729f9b7926b06fb76e683d2b0",
+        "MAP_System/tasks/TASK-163.json": "860f69b11d54a8c0fae499358e3d7416cffd6ddd1f2aca44e3afec97f7f22e3c",
+        "MAP_System/tests/test_capability_whitelist.py": "24b7555ec965084eda93e7dc01a88df55f77f05476a613feca8aa215332b8c9b",
+        "MAP_System/tests/test_pre_dispatch_policy.py": "60f22a61e7fd3d69d208f1a66e9d63994e3b6320c7cc5d6ba52ebccd41ef1c5a",
+        "MAP_System/tests/test_runner_policy_gate.py": "b9b84d49e11e6b7518fd77d8c9fb27f3455f1028f278068a2c066331e292a9fe"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-163.json",
+        "MAP_System/scripts/pre_dispatch_policy.py",
+        "MAP_System/tests/test_capability_whitelist.py",
+        "MAP_System/tests/test_pre_dispatch_policy.py",
+        "MAP_System/tests/test_runner_policy_gate.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-163",
+      "title": "MAP 6.13: Implement pre-dispatch policy checker and capability gates",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/_mission_control_app.py",
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/tests/test_mission_control_tui.py"
+      ],
+      "concepts": [
+        "mission",
+        "control",
+        "read",
+        "only",
+        "attention",
+        "harden",
+        "surfaces",
+        "map"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Improve the read-only mission-control command-center surface so policy-gated work, policy rejections, drift warnings, and durable dead-letter pressure appear in the flight board and human-attention queue without adding write-capable controls.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Harden read-only mission-control attention surfaces.",
+      "semantic_word_count": 43,
+      "source_hashes": {
+        "MAP_System/scripts/_mission_control_app.py": "243f7f4076e545c1f2998171cd8631e60febe8e7643572a165fc4ac2795dfe4d",
+        "MAP_System/scripts/mission_control_tui.py": "8c0e898d4b609d6a99d3260fdc1b4045d69d977e041dc0f7ec3aaf8eccf546d8",
+        "MAP_System/tasks/TASK-164.json": "19cad360bc34c3cc76958c7bd08ffbbf098be3f29c4eea9f560964f6a769df2b",
+        "MAP_System/tests/test_mission_control_tui.py": "37b36bda84f8aaedefc0524f2bff984ae0caa36313f4d65d00a068bb81a48630"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-164.json",
+        "MAP_System/scripts/_mission_control_app.py",
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/tests/test_mission_control_tui.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-164",
+      "title": "Harden read-only mission-control attention surfaces",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/planning/mission-control-command-center-gap-plan.md"
+      ],
+      "concepts": [
+        "command",
+        "center",
+        "map",
+        "implementation",
+        "remaining",
+        "gaps",
+        "planning",
+        "create"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Create a durable planning artifact that compares current MAP command-center capability against the 6.13 command-center restructuring notes, marks implemented/partial/missing surfaces, and proposes bounded next implementation increments without editing the TASK-164 code under review.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Map remaining command-center implementation gaps.",
+      "semantic_word_count": 47,
+      "source_hashes": {
+        "MAP_System/artifacts/planning/mission-control-command-center-gap-plan.md": "f131f86b8ae8fbff53ef4511b01efa69939a7af7ccb3ea30992125d4477257c0",
+        "MAP_System/tasks/TASK-165.json": "eace7833c0594319b2fc6db47675777eb2ec3ca4ba33a74c306b1e2a5692a397"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-165.json",
+        "MAP_System/artifacts/planning/mission-control-command-center-gap-plan.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-165",
+      "title": "Map remaining command-center implementation gaps",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/_mission_control_app.py",
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/tests/test_mission_control_tui.py"
+      ],
+      "concepts": [
+        "mission",
+        "control",
+        "add",
+        "read",
+        "only",
+        "drilldowns",
+        "map",
+        "tui"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Add read-only drilldown data and TUI views for selected task, agent, and attention items in mission-control, reusing canonical MAP sources and preserving the no-write contract.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Add read-only mission-control drilldowns.",
+      "semantic_word_count": 38,
+      "source_hashes": {
+        "MAP_System/scripts/_mission_control_app.py": "243f7f4076e545c1f2998171cd8631e60febe8e7643572a165fc4ac2795dfe4d",
+        "MAP_System/scripts/mission_control_tui.py": "8c0e898d4b609d6a99d3260fdc1b4045d69d977e041dc0f7ec3aaf8eccf546d8",
+        "MAP_System/tasks/TASK-166.json": "b4d493871a41eaafc6b6a10d95444432233b39d39673c84747c0dc7b1ff20804",
+        "MAP_System/tests/test_mission_control_tui.py": "37b36bda84f8aaedefc0524f2bff984ae0caa36313f4d65d00a068bb81a48630"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-166.json",
+        "MAP_System/scripts/_mission_control_app.py",
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/tests/test_mission_control_tui.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-166",
+      "title": "Add read-only mission-control drilldowns",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/command_center_intake.py",
+        "MAP_System/tests/test_command_center_intake.py"
+      ],
+      "concepts": [
+        "command",
+        "center",
+        "intake",
+        "py",
+        "wrapper",
+        "md",
+        "scripts",
+        "mechanical"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Gap-plan increment 1 (mission-control-command-center-gap-plan.md). Build a MAP CLI wrapper that accepts operator intent text, runs it through scripts/intake_request.py to produce a dispatch packet, writes the resulting packet/event, validates the wrapper's own hcom-output shape against scripts/validate_protocol.py's 6-token MATOCP subset, and prints the next graph/runner.py route. This does not replace hcom or alter live agent messaging --\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Command-center intake wrapper (mechanical single entry point).",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/scripts/command_center_intake.py": "613eb10fce68930f97a88be7175ee7f7f23f84e9aa8c192ab7e16e1521112d3d",
+        "MAP_System/tasks/TASK-167.json": "513b7d251548be6fed1d2c3d9bdae6febefe4720e3604e04126df167ab876a56",
+        "MAP_System/tests/test_command_center_intake.py": "80beb64005053c9dfa3652537e933e2dc36ae47f97e8697d78836ddc9328059e"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-167.json",
+        "MAP_System/scripts/command_center_intake.py",
+        "MAP_System/tests/test_command_center_intake.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-167",
+      "title": "Command-center intake wrapper (mechanical single entry point)",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/planning/mission-control-write-control-spec.md"
+      ],
+      "concepts": [
+        "control",
+        "mission",
+        "spec",
+        "design",
+        "write",
+        "md",
+        "only",
+        "implementation"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Gap-plan increment 4 (mission-control-command-center-gap-plan.md). Design (do not implement) how the mission-control TUI's disabled intervention keybindings (approve/reject/nudge/kill/budget-bump/halt-clear/dead-letter-replay) would eventually call sanctioned commands safely: map_task.py approve/reject, dead_letter_queue.py replay, hcom send for nudge, halt_state.py clear, cost-governance for budget. Every control must specify dry-run/preview behavior, required confirmation text, post-action validator re-checks, and rollback/non-rollback expectations. This is explicitly a design\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Mission-control write-control design (spec only, no implementation).",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/artifacts/planning/mission-control-write-control-spec.md": "b1c6ff7aea28be3983014261cfec43481b933bb3b842603ed143f9f879a29855",
+        "MAP_System/tasks/TASK-168.json": "a1678f1d88df1eb01a677342f07b5f793b5ecb06da4a7622d7e80d747fd054d1"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-168.json",
+        "MAP_System/artifacts/planning/mission-control-write-control-spec.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-168",
+      "title": "Mission-control write-control design (spec only, no implementation)",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/planning/commandcenterui-boundary-decision.md"
+      ],
+      "concepts": [
+        "commandcenterui",
+        "external",
+        "boundary",
+        "decide",
+        "decision",
+        "map",
+        "system",
+        "home"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Gap-plan increment 5: create a durable decision artifact clarifying whether the next command-center UI work stays in MAP_System's mission-control TUI or requires explicit operator approval to edit the external /home/home/Projects/CommandCenterUI project.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Decide external CommandCenterUI boundary.",
+      "semantic_word_count": 44,
+      "source_hashes": {
+        "MAP_System/artifacts/planning/commandcenterui-boundary-decision.md": "ceef2e8a5223ece37f46cc882b0e5e4d8c1df89d9363311750ce09332089a869",
+        "MAP_System/tasks/TASK-169.json": "33f37344335f1d4f4743ddec38934a8450daebcedb214c0155881f16dcd32894"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-169.json",
+        "MAP_System/artifacts/planning/commandcenterui-boundary-decision.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-169",
+      "title": "Decide external CommandCenterUI boundary",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/_mission_control_app.py",
+        "MAP_System/scripts/aider_wrapper.py",
+        "MAP_System/scripts/dead_letter_queue.py",
+        "MAP_System/scripts/event_trace.py",
+        "MAP_System/scripts/liveness_reaper.py",
+        "MAP_System/scripts/local_runner.py",
+        "MAP_System/scripts/map_task.py",
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/scripts/release_task.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_event_trace.py",
+        "MAP_System/tests/test_mission_control_tui.py"
+      ],
+      "concepts": [
+        "map",
+        "system",
+        "py",
+        "scripts",
+        "trace",
+        "events",
+        "lifecycle",
+        "propagate"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Gap-plan increment 3: add a minimal trace_id convention for new task lifecycle events and mission-control rendering so operators can start reconstructing causal chains from one view while preserving legacy-event compatibility.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Propagate trace IDs through MAP lifecycle events.",
+      "semantic_word_count": 46,
+      "source_hashes": {
+        "MAP_System/scripts/_mission_control_app.py": "243f7f4076e545c1f2998171cd8631e60febe8e7643572a165fc4ac2795dfe4d",
+        "MAP_System/scripts/aider_wrapper.py": "1b8e29a047a56c4c7e6b4b56e5708cae18dc1330cd2785f4a37ab41931128f8e",
+        "MAP_System/scripts/dead_letter_queue.py": "a972b2ae7b7ad5b392fb625cd2bfcc82e6cfefba737b5444b99790ab5409ffbb",
+        "MAP_System/scripts/event_trace.py": "bb63183874992e567e0288d128fb9686e7663ade2aa339963f5dfd66f04843be",
+        "MAP_System/scripts/liveness_reaper.py": "5729a846bf86fba62337ae16177af5c2951ccc784d22daddca8ff57d229295be",
+        "MAP_System/scripts/local_runner.py": "b4d921d2345fff6a0390a04039d4eaa67a63f8085ada2b84f18660aefe11e8df",
+        "MAP_System/scripts/map_task.py": "296bbfb3d744f4f75e565c9fd3489da9fc9febe7fa036a8e5709b9fce2158605",
+        "MAP_System/scripts/mission_control_tui.py": "8c0e898d4b609d6a99d3260fdc1b4045d69d977e041dc0f7ec3aaf8eccf546d8",
+        "MAP_System/scripts/release_task.py": "f945fda6164726a9f709638b271f5d033f206b1587045baa10f03f912b518f44",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/tasks/TASK-170.json": "96791ee77c6b984db07e046efe8be65ac246108dc25ce0e5b47d6d02bdeadd6f",
+        "MAP_System/tests/test_event_trace.py": "e18bb51a3397965362dd80a4865529737150c84e5ac0f5bd220ef85d42cdaece",
+        "MAP_System/tests/test_mission_control_tui.py": "37b36bda84f8aaedefc0524f2bff984ae0caa36313f4d65d00a068bb81a48630",
+        "MAP_System/tests/test_validate_events.py": "2bb5f8c291e9b8ed3e78f900bdc7a895a14e4ded511a9ceec258f6827b6f5267"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-170.json",
+        "MAP_System/scripts/_mission_control_app.py",
+        "MAP_System/scripts/aider_wrapper.py",
+        "MAP_System/scripts/dead_letter_queue.py",
+        "MAP_System/scripts/event_trace.py",
+        "MAP_System/scripts/liveness_reaper.py",
+        "MAP_System/scripts/local_runner.py",
+        "MAP_System/scripts/map_task.py",
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/scripts/release_task.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_event_trace.py",
+        "MAP_System/tests/test_mission_control_tui.py",
+        "MAP_System/tests/test_validate_events.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-170",
+      "title": "Propagate trace IDs through MAP lifecycle events",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/audits/repo-reference-map-runtime-audit.md"
+      ],
+      "concepts": [
+        "map",
+        "repo",
+        "reference",
+        "runtime",
+        "audit",
+        "patterns",
+        "folder",
+        "home"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Survey /home/home/Projects/MultiAgentProject/repo reference projects from the 6.13 notes for MAP-useful runtime, memory, compression, orchestration, observability, and command-center patterns. Coordinate with claude-lab-zera to avoid the wikilink/knowledge-graph cluster and produce a durable recommendation artifact.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Audit repo reference folder for MAP runtime patterns.",
+      "semantic_word_count": 49,
+      "source_hashes": {
+        "MAP_System/artifacts/audits/repo-reference-map-runtime-audit.md": "48c409e5b2ccea63942511d24742a83a5f7dbb13d63c00fed036f5a3c2928bfa",
+        "MAP_System/tasks/TASK-171.json": "7e6822a9528800467406a256225d211b3abc1bd0952e83588c7a81427dec273e"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-171.json",
+        "MAP_System/artifacts/audits/repo-reference-map-runtime-audit.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-171",
+      "title": "Audit repo reference folder for MAP runtime patterns",
+      "unexpected": "",
+      "workstream": "agent-liveness-and-helpers"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/designs/session-replay-read-model-design.md"
+      ],
+      "concepts": [
+        "design",
+        "map",
+        "session",
+        "replay",
+        "read",
+        "model",
+        "follow",
+        "up"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Follow-up from TASK-171: design a MAP-native, local-only event/session replay read model for mission-control and Command Center use, derived from canonical task/events/hcom sources without adding new write authority.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Design MAP session replay read model.",
+      "semantic_word_count": 42,
+      "source_hashes": {
+        "MAP_System/artifacts/designs/session-replay-read-model-design.md": "34e0234247ed7de471811b39e61e289be65937b9cca68979df60da26e0dec39c",
+        "MAP_System/tasks/TASK-172.json": "2534158021a1165d6008514a5432a9caeb25a75e8c5738d50965ab726123b327"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-172.json",
+        "MAP_System/artifacts/designs/session-replay-read-model-design.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-172",
+      "title": "Design MAP session replay read model",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/runtime/.gitignore",
+        "MAP_System/runtime/README.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/session_replay.py",
+        "MAP_System/tests/test_session_replay.py"
+      ],
+      "concepts": [
+        "map",
+        "session",
+        "replay",
+        "implement",
+        "only",
+        "system",
+        "builder",
+        "runtime"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Follow-up from approved TASK-172: implement the first MAP-only session replay/read-model CLI using events.jsonl, task JSON, and map.db. Do not ingest hcom or transcripts in this slice.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Implement MAP-only session replay builder.",
+      "semantic_word_count": 40,
+      "source_hashes": {
+        "MAP_System/runtime/.gitignore": "b3d9f33c57eacd1a25e7960c96487df06628958b2f290fa7a2a7940dfc94b20e",
+        "MAP_System/runtime/README.md": "ec4f689cd811dfdc85e6d47ffce0e4b0408edb4a19ffbb6a95c0b824f8f0c090",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/scripts/session_replay.py": "37bea5a89dff67e4b61eb9fbfe9724b59e6c73c4663f9b55aa5c0b6a5c5cdd25",
+        "MAP_System/tasks/TASK-173.json": "91bedbe932296957be7013ba58880598baae3eb1c5dbb5ce563ecb98b0543e0a",
+        "MAP_System/tests/test_session_replay.py": "ccaccdbc2c90dd387999045a84ad3c4e2f4dcaed1c6c883fc59cc57f59607332"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-173.json",
+        "MAP_System/runtime/.gitignore",
+        "MAP_System/runtime/README.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/session_replay.py",
+        "MAP_System/tests/test_session_replay.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-173",
+      "title": "Implement MAP-only session replay builder",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/AGENT_PERMISSION_LEVELS.md",
+        "MAP_System/ARCHIVE_RETENTION_SYSTEM.md",
+        "MAP_System/CHANGE_CONTROL_SYSTEM.md",
+        "MAP_System/CONTEXT_SYSTEM.md",
+        "MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+        "MAP_System/DECISION_CLASSES.md",
+        "MAP_System/DESTRUCTIVE_ACTION_POLICY.md",
+        "MAP_System/HUMAN_INTERFACE_SYSTEM.md",
+        "MAP_System/NEW_PROJECT_WIZARD.md",
+        "MAP_System/ORCHESTRATION_ENTRYPOINT_SYSTEM.md",
+        "MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+        "MAP_System/RESEARCH_SYSTEM.md"
+      ],
+      "concepts": [
+        "system",
+        "map",
+        "md",
+        "librarian",
+        "library",
+        "measurement",
+        "agent",
+        "viability"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Operator directive (2026-07-14): stop designing, start implementing/exercising the MAP 6.13 corpus -- specifically called out missing wikilinks in MAP docs and no librarian agent. Builds the first real librarian agent (scripts/librarian.py): wikilink resolution/validation with ambiguous-stem disambiguation, backlink index, and a real (not simulated) compression/churn measurement runner satisfying map-library-viability-measurement.md's previously-never-run prerequisite. Applies wikilinks to the 16\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Build librarian agent + real Library-layer viability measurement.",
+      "semantic_word_count": 72,
+      "source_hashes": {
+        "MAP_System/AGENT_PERMISSION_LEVELS.md": "dc9767f4340b4c6b33c28d0282f1d1e97235f23022cae4a69b5c5f1254107d97",
+        "MAP_System/ARCHIVE_RETENTION_SYSTEM.md": "6e92085dc0a5c824b1166f678dceb9050e5c5a95a85fcd5a3fb36d9295066663",
+        "MAP_System/CHANGE_CONTROL_SYSTEM.md": "b0007f7664b5cc3365536d7baa8e4979d26d86a621042f2f0ce88975b3bc8fe1",
+        "MAP_System/CONTEXT_SYSTEM.md": "9ababfd0e89927e711a66618c51bbded7668c20ae0b4331116fa83551b5f6db1",
+        "MAP_System/DECISION_AUTHORITY_SYSTEM.md": "733eb931ba2d0bd3ce38335420b10e44bb86ddf7b53bc661bf1f94fa78defc1b",
+        "MAP_System/DECISION_CLASSES.md": "cc8179fd5cb907beb52ac17e6f6aeecd8e8a5d3734f31b668dae91d4b0ef6329",
+        "MAP_System/DESTRUCTIVE_ACTION_POLICY.md": "9563b7f4959f450a84a30f0835e3043370b9f31aa757a46c3713826e023697ac",
+        "MAP_System/HUMAN_INTERFACE_SYSTEM.md": "0c9400f605ffaffc38724d0d061f0ebf9dc5341635edeb6f325853cd89d17633",
+        "MAP_System/NEW_PROJECT_WIZARD.md": "79e10d7cf9b06cc107cdb8c87c2f2190a5ffd7c8cbd0a3b47820ca8ab1d87485",
+        "MAP_System/ORCHESTRATION_ENTRYPOINT_SYSTEM.md": "8dab231e5b01f4679669848779525115bf5a850059a5240ce9b0c2b5da6c82e4",
+        "MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md": "738d7592ffba927f3367e5667bb520cbe73b6fb498ebe53f8cefd03fb007cd85",
+        "MAP_System/RESEARCH_SYSTEM.md": "e255d2c3a302b00dbb075c085a6b57033a80aefdb7c44b0c2cbd36ce31fa64da",
+        "MAP_System/RETROSPECTIVE_SYSTEM.md": "3e2f5698d04c3699273bd9fe0086a372faa2cf5ec46ba25a03c183fd581e7d55",
+        "MAP_System/RISK_SYSTEM.md": "84077a8721b6faa6d518e7739dfd4ddaa1c2f51683300738182864bfb26282ed",
+        "MAP_System/SECURITY_PERMISSIONS_SYSTEM.md": "21058b61b149c6234a5a471f94403465e265f7547ae34df63f1d2ffd154ae82a",
+        "MAP_System/SELF_REPAIR_SYSTEM.md": "77391d848d01c5044b123c2fed2eabae4e1e56eca50ececddaec6c3085c243ba",
+        "MAP_System/artifacts/audits/map-library-viability-measurement-results-2026-07-14.md": "8185ad52ace93b37de100d9ccb70e209156e8f3d72127321f657bf71cc38cb4b",
+        "MAP_System/requirements.txt": "c874442d592fd3ddd4126b7267c34888f3336c4efa08da42b75ffde17db66a54",
+        "MAP_System/scripts/librarian.py": "72673d54895b27c4d9cd2f5e2b7163b2f1acf0468ab615e6399c77269bf64515",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/tasks/TASK-174.json": "70a28b67d7b201b4b771c40a6758447a2e1bdeb3d9c07b37b355ca255fa6e53a",
+        "MAP_System/tests/test_librarian.py": "115ddc26214f60536a50cd5f2a29e259ed819bd104827f2b28db1ad5fcadffa9"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-174.json",
+        "MAP_System/AGENT_PERMISSION_LEVELS.md",
+        "MAP_System/ARCHIVE_RETENTION_SYSTEM.md",
+        "MAP_System/CHANGE_CONTROL_SYSTEM.md",
+        "MAP_System/CONTEXT_SYSTEM.md",
+        "MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+        "MAP_System/DECISION_CLASSES.md",
+        "MAP_System/DESTRUCTIVE_ACTION_POLICY.md",
+        "MAP_System/HUMAN_INTERFACE_SYSTEM.md",
+        "MAP_System/NEW_PROJECT_WIZARD.md",
+        "MAP_System/ORCHESTRATION_ENTRYPOINT_SYSTEM.md",
+        "MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md",
+        "MAP_System/RESEARCH_SYSTEM.md",
+        "MAP_System/RETROSPECTIVE_SYSTEM.md",
+        "MAP_System/RISK_SYSTEM.md",
+        "MAP_System/SECURITY_PERMISSIONS_SYSTEM.md",
+        "MAP_System/SELF_REPAIR_SYSTEM.md",
+        "MAP_System/artifacts/audits/map-library-viability-measurement-results-2026-07-14.md",
+        "MAP_System/requirements.txt",
+        "MAP_System/scripts/librarian.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_librarian.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-174",
+      "title": "Build librarian agent + real Library-layer viability measurement",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/reports/command-center-runtime-exercise-2026-07-14.md"
+      ],
+      "concepts": [
+        "exercise",
+        "command",
+        "center",
+        "runtime",
+        "surfaces",
+        "operator",
+        "directive",
+        "follow"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Operator directive follow-up: exercise the built Command Center, LangGraph runner, RnS/liveness, HPOM pre-dispatch, mission-control, and replay surfaces with real commands, then record what is active, stale, or missing. This task does not edit external CommandCenterUI; it may read it for currency evidence.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Exercise command-center runtime surfaces.",
+      "semantic_word_count": 55,
+      "source_hashes": {
+        "MAP_System/artifacts/reports/command-center-runtime-exercise-2026-07-14.md": "dfadf1daa1c652adaf251b374e1a098c4aa2a495834aa61e47aff62b7f53a271",
+        "MAP_System/tasks/TASK-175.json": "d12b507fa08eedd74d3592cfa0f3dcd392ed21eb1fa83c5df435bd6b8a01820b"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-175.json",
+        "MAP_System/artifacts/reports/command-center-runtime-exercise-2026-07-14.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-175",
+      "title": "Exercise command-center runtime surfaces",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "concepts": [
+        "stale",
+        "incidents",
+        "rns",
+        "absent",
+        "sessions",
+        "prune",
+        "limit",
+        "watcher"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Follow-up to TASK-175: limit_watcher.py dry-run still attempts probe resumes for stale historical incidents and opens new incidents from stale last_live entries even when those agents are no longer registered in durable status or present in live hcom. Add a bounded stale-state pruning path so RnS stops probing absent historical sessions while preserving real active incidents.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Prune stale RnS incidents for absent sessions.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/scripts/limit_watcher.py": "8c862199c73ec46782b8afcf4178090d0c88f3646eeab3ceb5bf6f59a517a418",
+        "MAP_System/tasks/TASK-176.json": "9ad04f6cbd40362190e9187e82bb86d5a4e4c33553cf0f0899247f1a4b06a6f0",
+        "MAP_System/tests/test_limit_watcher.py": "561d8ab961ea85c0cf0cfd66785d5c4227f1847304bf91426f7f0daa61e16acc"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-176.json",
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-176",
+      "title": "Prune stale RnS incidents for absent sessions",
+      "unexpected": "",
+      "workstream": "agent-liveness-and-helpers"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/liveness_reaper.py",
+        "MAP_System/tests/test_liveness_reaper.py"
+      ],
+      "concepts": [
+        "liveness",
+        "reaper",
+        "py",
+        "hcom",
+        "list",
+        "json",
+        "shape",
+        "fix"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Fixes a real bug TASK-175's runtime-exercise audit found and reported: liveness_reaper.py's build_snapshot() crashed with AttributeError when fed the actual output shape of 'hcom list --json' (a list of session records keyed by 'name', not an agent-keyed dict). Adds normalize_hcom_status() which accepts either shape and wires it into main()'s --hcom-json loading path. Read the TASK-175 report\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Fix liveness_reaper.py: accept raw hcom list --json shape.",
+      "semantic_word_count": 72,
+      "source_hashes": {
+        "MAP_System/scripts/liveness_reaper.py": "5729a846bf86fba62337ae16177af5c2951ccc784d22daddca8ff57d229295be",
+        "MAP_System/tasks/TASK-177.json": "6e9717223659cb44aa71a02feb3aaf09aa3c6fff6279e4093d5d8ac3a8df0050",
+        "MAP_System/tests/test_liveness_reaper.py": "fcd8dd6a1134c2471dd1c113d71417cd9aa1de05ee9d5eba4f54691e61f7d980"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-177.json",
+        "MAP_System/scripts/liveness_reaper.py",
+        "MAP_System/tests/test_liveness_reaper.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-177",
+      "title": "Fix liveness_reaper.py: accept raw hcom list --json shape",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/tests/test_mission_control_tui.py"
+      ],
+      "concepts": [
+        "mission",
+        "control",
+        "hcom",
+        "roster",
+        "live",
+        "refresh",
+        "py",
+        "tui"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Follow-up to TASK-175 and TASK-177: mission_control_tui.py still reads shared/liveness-state.md, which can be stale unless liveness_reaper.py is run separately. Compose TASK-177's raw hcom normalization and liveness snapshot builder into a read-only live roster path, with fallback to the existing markdown snapshot when hcom is unavailable.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Refresh mission-control roster from live hcom.",
+      "semantic_word_count": 59,
+      "source_hashes": {
+        "MAP_System/scripts/mission_control_tui.py": "8c0e898d4b609d6a99d3260fdc1b4045d69d977e041dc0f7ec3aaf8eccf546d8",
+        "MAP_System/tasks/TASK-178.json": "43da44e828fc5f4bddd7266adcd772f6254d1dc6d46371e028bd252887fc0bad",
+        "MAP_System/tests/test_mission_control_tui.py": "37b36bda84f8aaedefc0524f2bff984ae0caa36313f4d65d00a068bb81a48630"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-178.json",
+        "MAP_System/scripts/mission_control_tui.py",
+        "MAP_System/tests/test_mission_control_tui.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-178",
+      "title": "Refresh mission-control roster from live hcom",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/audits/map-library-viability-measurement-results-2026-07-14.md",
+        "MAP_System/artifacts/audits/map-real-parameter-calibration.md",
+        "MAP_System/artifacts/audits/map-sensitivity-robustness-method.md",
+        "MAP_System/artifacts/command-center-ui/mission-control-textual-prototype.md",
+        "MAP_System/artifacts/planning/map-event-trace-schema.md",
+        "MAP_System/artifacts/planning/map-protocol-validator-spec.md",
+        "MAP_System/artifacts/planning/map-semantic-validator-spec.md",
+        "MAP_System/artifacts/planning/map-validator-halt-state-spec.md",
+        "MAP_System/artifacts/planning/mission-control-write-control-spec.md",
+        "MAP_System/artifacts/tests/map-613-simulation-testdrive-probes.md",
+        "MAP_System/artifacts/tests/map-validator-halt-probe.md",
+        "MAP_System/emergence/README.md"
+      ],
+      "concepts": [
+        "map",
+        "system",
+        "md",
+        "relative",
+        "artifacts",
+        "librarian",
+        "py",
+        "root"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Follow-on to TASK-174: fixes a real resolution bug the librarian-batch2 helper agent diagnosed while applying wikilinks to a second batch of docs. add_wikilinks_to_related_section() only resolved bullet paths relative to MAP_System/ root, so subdirectory docs using (a) repo-root-relative paths with an explicit MAP_System/ prefix, or (b) bare filenames relative to the referencing file's own directory, were\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Fix librarian.py wikilink path resolution (repo-root-relative and own-dir-relative).",
+      "semantic_word_count": 72,
+      "source_hashes": {
+        "MAP_System/artifacts/audits/map-library-viability-measurement-results-2026-07-14.md": "8185ad52ace93b37de100d9ccb70e209156e8f3d72127321f657bf71cc38cb4b",
+        "MAP_System/artifacts/audits/map-real-parameter-calibration.md": "1c87f1bd4a35be74c6b454c86371bb8f74a0f816667a8cdec8a9d7bc4f76ec33",
+        "MAP_System/artifacts/audits/map-sensitivity-robustness-method.md": "a6e252e49003167e61cf1997c9ba0c92f3bc967d7310a9d2816a17e627a7d676",
+        "MAP_System/artifacts/command-center-ui/mission-control-textual-prototype.md": "0ca64a5fb98fa01605fc572e370d4772faa9ec6c6068f991805fe6dee5c03d12",
+        "MAP_System/artifacts/planning/map-event-trace-schema.md": "e8dcfbfa97ee07a558385a3eb3dfa0b2caf0f5bfdd7bfec24a79ba3fe1d76995",
+        "MAP_System/artifacts/planning/map-protocol-validator-spec.md": "2fa41fd065ec2f36ba5aadeb5e0fa2c8400727c3b731e0dbd4bc188456fba7f7",
+        "MAP_System/artifacts/planning/map-semantic-validator-spec.md": "9fd829d9975276bc91baac84be130ba977d8c9be86569e707dff93e9ebb8953b",
+        "MAP_System/artifacts/planning/map-validator-halt-state-spec.md": "86297f4cc3912dfabeaf653224ede361c29a47567ffb86a33d3527dd94626e50",
+        "MAP_System/artifacts/planning/mission-control-write-control-spec.md": "b1c6ff7aea28be3983014261cfec43481b933bb3b842603ed143f9f879a29855",
+        "MAP_System/artifacts/tests/map-613-simulation-testdrive-probes.md": "13971cc5897fbf7a4695882177e0fcf79d1a5bc43213a76c1a3265d35cdf2977",
+        "MAP_System/artifacts/tests/map-validator-halt-probe.md": "1a00bdddb81f61932b5dd71626a913f98596e392337d7fc2d46b5d934f767de5",
+        "MAP_System/emergence/README.md": "1635a565ffd39281941c00433abef66688991baf6147635f563df27ae666f5ca",
+        "MAP_System/scripts/librarian.py": "72673d54895b27c4d9cd2f5e2b7163b2f1acf0468ab615e6399c77269bf64515",
+        "MAP_System/tasks/TASK-179.json": "198be5da276ef57a2483ecc76f82f060c38dd6b0e5c126c5cd61ba03ee7d7dc1",
+        "MAP_System/tests/test_librarian.py": "115ddc26214f60536a50cd5f2a29e259ed819bd104827f2b28db1ad5fcadffa9"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-179.json",
+        "MAP_System/artifacts/audits/map-library-viability-measurement-results-2026-07-14.md",
+        "MAP_System/artifacts/audits/map-real-parameter-calibration.md",
+        "MAP_System/artifacts/audits/map-sensitivity-robustness-method.md",
+        "MAP_System/artifacts/command-center-ui/mission-control-textual-prototype.md",
+        "MAP_System/artifacts/planning/map-event-trace-schema.md",
+        "MAP_System/artifacts/planning/map-protocol-validator-spec.md",
+        "MAP_System/artifacts/planning/map-semantic-validator-spec.md",
+        "MAP_System/artifacts/planning/map-validator-halt-state-spec.md",
+        "MAP_System/artifacts/planning/mission-control-write-control-spec.md",
+        "MAP_System/artifacts/tests/map-613-simulation-testdrive-probes.md",
+        "MAP_System/artifacts/tests/map-validator-halt-probe.md",
+        "MAP_System/emergence/README.md",
+        "MAP_System/scripts/librarian.py",
+        "MAP_System/tests/test_librarian.py"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-179",
+      "title": "Fix librarian.py wikilink path resolution (repo-root-relative and own-dir-relative)",
+      "unexpected": "",
+      "workstream": "emergence-and-learning"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/emergence/INDEX.md",
+        "MAP_System/emergence/templates/EXPERIMENT_TEMPLATE.md",
+        "MAP_System/emergence/templates/IDEA_CARD_TEMPLATE.md",
+        "MAP_System/emergence/templates/INSIGHT_TEMPLATE.md",
+        "MAP_System/emergence/templates/PROMOTION_RECORD_TEMPLATE.md",
+        "MAP_System/emergence/templates/SYNTHESIS_NOTE_TEMPLATE.md",
+        "MAP_System/scripts/map_emergence.py",
+        "MAP_System/tests/test_map_emergence.py",
+        "MAP_System/tests/test_map_emergence_stale.py"
+      ],
+      "concepts": [
+        "emergence",
+        "map",
+        "system",
+        "md",
+        "compact",
+        "wikilink",
+        "records",
+        "templates"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Operator reported that MAP_System/emergence artifacts still read as prose and lack wikilinked reference structure, which conflicts with the command-center shorthand/caveman/token-saving direction. Implement a bounded first pass that makes new emergence artifacts compact by default, adds deterministic wikilink/reference compaction for emergence index/listing surfaces, and validates the behavior without lossy semantic rewrites of historical records.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Compact and wikilink emergence records.",
+      "semantic_word_count": 67,
+      "source_hashes": {
+        "MAP_System/emergence/INDEX.md": "acec9a22ca7c8c16bd792c4c443e5a7c2cec850d850dbc499a3c0fe013fc7902",
+        "MAP_System/emergence/templates/EXPERIMENT_TEMPLATE.md": "ed6a388b3cec220b487f084fc2174ea34d683d1b35aee38fe491f3f273624ef0",
+        "MAP_System/emergence/templates/IDEA_CARD_TEMPLATE.md": "f2db5de874e2d6d229d00bf4570224272b52a73e6351ad1d47b7340e13db57c8",
+        "MAP_System/emergence/templates/INSIGHT_TEMPLATE.md": "9d7e7c148f5e32757b26138b01dfd44191f16336bba0813d448288de9aad16cb",
+        "MAP_System/emergence/templates/PROMOTION_RECORD_TEMPLATE.md": "f3f70d316c97c79b03aaedc7b19292b76df58dc28207daa6f320f7ddccb33c1d",
+        "MAP_System/emergence/templates/SYNTHESIS_NOTE_TEMPLATE.md": "a588ed40f23d53694c15006c6976ad053c01bcdd772e7a4c69637f3be34a0fc9",
+        "MAP_System/scripts/map_emergence.py": "0515cd8f4e267cede7bb377b164420b5c783e53a984eda0b42abc5f2e7537cd8",
+        "MAP_System/tasks/TASK-180.json": "ffd02452bb1597a82f444071bd62e57eedfb808682dc4603b236194d948c78a2",
+        "MAP_System/tests/test_map_emergence.py": "c37b6f8b36aa058e892729bd4d95fd4f763b7a459a3b02cded0b82a4557b1674",
+        "MAP_System/tests/test_map_emergence_stale.py": "4a0ad3a62f1073b741e21dd4b9a42dca84ef1331ad306e00563dd75463d32107"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-180.json",
+        "MAP_System/emergence/INDEX.md",
+        "MAP_System/emergence/templates/EXPERIMENT_TEMPLATE.md",
+        "MAP_System/emergence/templates/IDEA_CARD_TEMPLATE.md",
+        "MAP_System/emergence/templates/INSIGHT_TEMPLATE.md",
+        "MAP_System/emergence/templates/PROMOTION_RECORD_TEMPLATE.md",
+        "MAP_System/emergence/templates/SYNTHESIS_NOTE_TEMPLATE.md",
+        "MAP_System/scripts/map_emergence.py",
+        "MAP_System/tests/test_map_emergence.py",
+        "MAP_System/tests/test_map_emergence_stale.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-180",
+      "title": "Compact and wikilink emergence records",
+      "unexpected": "",
+      "workstream": "emergence-and-learning"
+    },
+    {
+      "broken_output_refs": [
+        "MAP_System/artifacts/planning/emergence-local-librarian-batch1.md"
+      ],
+      "changed_paths": [
+        "MAP_System/artifacts/planning/emergence-local-librarian-batch1.md",
+        "MAP_System/artifacts/planning/emergence-local-librarian-batch2.md",
+        "MAP_System/artifacts/planning/emergence-local-librarian-compaction.md",
+        "MAP_System/artifacts/planning/emergence-local-librarian-report.md",
+        "MAP_System/artifacts/reviews/task180-review-mira.md",
+        "MAP_System/emergence/INDEX.md",
+        "MAP_System/emergence/ideas/IDEA-0001-emergence-cli.md",
+        "MAP_System/emergence/ideas/IDEA-0002-text.md",
+        "MAP_System/emergence/ideas/IDEA-0003-text.md",
+        "MAP_System/emergence/ideas/IDEA-0004-require-a-second-security-focused-review-pass-for-any-task-that-.md",
+        "MAP_System/emergence/ideas/IDEA-0005-add-a-release-path-smoke-checklist-for-user-facing-packages.md",
+        "MAP_System/emergence/ideas/IDEA-0006-announce-task-id-before-claiming-and-pin-physical-continuity-facts.md"
+      ],
+      "concepts": [
+        "emergence",
+        "map",
+        "system",
+        "md",
+        "idea",
+        "insights",
+        "ins",
+        "ideas"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Operator asked whether this is the right time to use a lower-tier/local librarian for historical MAP_System/emergence files after TASK-180 made new templates/index compact. Run a bounded local-helper librarian pass over historical emergence records: local model produces draft compact rewrite guidance and/or candidate rewrites; core agent integrates only reviewed, meaning-preserving changes; validators and independent review gate\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Use local librarian to compact emergence records.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/artifacts/planning/emergence-local-librarian-batch2.md": "6ee6abb6f7f7997fa00b4d31aef0f55427eab56b5803b3ce0c76e89b3f10a5b7",
+        "MAP_System/artifacts/planning/emergence-local-librarian-compaction.md": "61f60b22fd2e5aeee6d1918aadfd6036a6a12b13f304e17639f0c01aaf3b832c",
+        "MAP_System/artifacts/planning/emergence-local-librarian-report.md": "b9e96e2006cdf4a7a863b3d0770d38f8a658b9ec014f6023a882fdfdfb949346",
+        "MAP_System/artifacts/reviews/task180-review-mira.md": "beb1b35ac1d473ed68d3c32530a9bb1258cf1fd5ab602bf0312491a564cdb560",
+        "MAP_System/emergence/INDEX.md": "acec9a22ca7c8c16bd792c4c443e5a7c2cec850d850dbc499a3c0fe013fc7902",
+        "MAP_System/emergence/ideas/IDEA-0001-emergence-cli.md": "1d271067fab6323039acb178c147fab04da08b4274b34dae594a0d78ffc0ac36",
+        "MAP_System/emergence/ideas/IDEA-0002-text.md": "c74b7ee4ee0a05953c3b62978d8cbb05cfd3437153d1760e97551f6d5b36d16a",
+        "MAP_System/emergence/ideas/IDEA-0003-text.md": "eaa253706155dab4657fe048e136bcacc564dcdf137675c755352cd8677aea53",
+        "MAP_System/emergence/ideas/IDEA-0004-require-a-second-security-focused-review-pass-for-any-task-that-.md": "1e70e1671ba1c5bca131ba1fe39a39b820ba490ec2939bba8aaac2a8fc28ec02",
+        "MAP_System/emergence/ideas/IDEA-0005-add-a-release-path-smoke-checklist-for-user-facing-packages.md": "7c0df2f855f3e36a4183194016ef194e0e11585fa336bb004045cea1deda6341",
+        "MAP_System/emergence/ideas/IDEA-0006-announce-task-id-before-claiming-and-pin-physical-continuity-facts.md": "4ff9eb09db4a44ce33308666d328177ad15ef6b3b1025f35af55baed147bd59c",
+        "MAP_System/emergence/ideas/IDEA-0007-declared-idle-checkin-protocol.md": "93a27cb8ccd241ecdfd4fc39a5db4e0fbcec63fb304f53c53b7de15abd6960b0",
+        "MAP_System/emergence/ideas/IDEA-0008-idle-accountability-heartbeat-for-active-agents.md": "9e1d6c3d4f1d456a775cc56194c3bf150b377df8cf354feca56c919b45f6196c",
+        "MAP_System/emergence/ideas/IDEA-0009-rns-should-ignore-superseded-and-disposable-sessions.md": "8bed2b5714562ad83e55bb3ab7c3257f148333122e4d070d3af7de33c1b4e1f1",
+        "MAP_System/emergence/ideas/IDEA-0010-add-a-proactive-e-i-operator-friction-scouting-loop-for-commandc.md": "67ff9149c3b41a5a3aabcfcde970f7165de971e44170cd643cc4b41762fcef68",
+        "MAP_System/emergence/ideas/IDEA-0011-add-a-bounded-process-steward-helper-pattern-for-complex-map-sys.md": "5758836e961c6c7aca07cf117b6d865c31c01056e5bec48f7ddbbff104230af5",
+        "MAP_System/emergence/ideas/IDEA-0012-add-a-process-adherence-watcher-role-a-lightweight-role-that-che.md": "494d58fa3299be920053b91452b15916447a2aeef5f58ad6f20ee282defa7811",
+        "MAP_System/emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel.md": "9f8df7e43bc3ab7d1b6a1912ed1d9c15f322294924b050a4e970d9ddd82fe90f",
+        "MAP_System/emergence/ideas/IDEA-0014-after-gap-review-implementation-run-a-backed-up-full-folder-file.md": "513ed5b51ac154f51a5bac5ec0c7139298d46c86c29c54dbba2899121bb7a314",
+        "MAP_System/emergence/ideas/IDEA-0015-add-an-export-import-json-button-to-projectupdater-to-mitigate-i.md": "db0eea5b14bead5d762656b2496487bfed36a400ba59d686b542185a3609fa04",
+        "MAP_System/emergence/insights/INS-0001-command-center-emergence-cli.md": "2c2e453b469de54c7552e84f3799d3a70ffd5e33d4cdadc6f0dbb62363c9b56d",
+        "MAP_System/emergence/insights/INS-0002-text.md": "f534ca80da6c43d0f6aa0af3c3fda25d60acfa3675bec2c3f9214c20c26fa696",
+        "MAP_System/emergence/insights/INS-0003-text.md": "d11f724b740683204d7f970ab1cf3cd88671cab5d714a320975da2c5b85da606",
+        "MAP_System/emergence/insights/INS-0004-fail-safe-identity-pattern-commandcenterui-s-browser-mode-defaul.md": "506ef15b30bcb68f6f1cbd326d8f03ce57bfb81689601acfe7565c387fd44495",
+        "MAP_System/emergence/insights/INS-0005-release-reviews-must-inspect-every-user-visible-acquisition-path.md": "d00f8ca9becd763518f87ab2d95a062fdc76d2ea1b7d021b65e4c4eea8b8587a",
+        "MAP_System/emergence/insights/INS-0006-sequential-task-ids-collide-under-concurrent-agents.md": "1c3a789fdaf36d520941aa3a34658ea012e06822bbaf5d2b585a2fe470585167",
+        "MAP_System/emergence/insights/INS-0007-emergence-records-need-lifecycle-closeout-not-just-capture.md": "c4239cfb08ddc2b8cbc1d33d7dc9935986e921d82450c0ab9c351c96edd03ea0",
+        "MAP_System/emergence/insights/INS-0008-ei-should-proactively-surface-operator-friction-affordances.md": "f329f592bbe76f78face248aa8608c9f40ff47bd26b18815e8f1ae4866a01056",
+        "MAP_System/emergence/insights/INS-0009-e-i-should-proactively-scout-operator-workflow-friction-instead-.md": "8d4004beec681605dc07191d2def8989d50502cb070188960848f4c9791f744e",
+        "MAP_System/emergence/insights/INS-0010-complex-map-system-buildouts-may-need-an-explicit-process-stewar.md": "261865954a2c01d9a783e6f89c484a729fb96644034912b24e2af5a29bb7ca21",
+        "MAP_System/emergence/insights/INS-0011-no-headless-browser-was-preinstalled-for-verifying-static-html-a.md": "b0b06ae6834950ea0f5ad0f4a647ca283169f15d6f6f0a7338836f52618cee31",
+        "MAP_System/emergence/insights/INS-0012-feature-completeness-gaps-a-missing-ui-filter-missing-accessibil.md": "b9377061b1d2c003657c68931df9459ed135a88a884b8734b5d07246de735e45",
+        "MAP_System/emergence/insights/INS-0013-emergence-insight-capture-was-skipped-entirely-for-an-entire-pro.md": "70b0e53871ee61f2436f8bf406b4de63095746e3501b9789d7daefec5687c567",
+        "MAP_System/emergence/insights/INS-0014-systems-with-a-mechanical-release-task-gate-get-genuinely-used-r.md": "6a349d2f48d9886cb88d17a57f7f0c674b4b4f64518ff50d7e0df13901bdfb77",
+        "MAP_System/emergence/insights/INS-0015-a-routine-no-self-review-reviewer-conflict-should-trigger-the-ex.md": "c0679222c9cbf4bb727a73abbead3baefd9b0c868df8ad6b9f5173444936d6fc",
+        "MAP_System/emergence/insights/INS-0016-validator-coverage-must-include-live-command-surfaces-not-only-d.md": "9cb37df81ddf657712cf6edaa1c710fa947c9ecc5dd75b86d254813bb4594664",
+        "MAP_System/emergence/insights/INS-0017-turn-by-turn-self-audited-card-game-simulation-naming-every-card.md": "015c76fce20aa05a7de95d088c02ccac32756e487aa259c0f9b33c6077daa477",
+        "MAP_System/emergence/insights/INS-0018-when-a-rules-heavy-generative-task-hits-a-genuinely-ambiguous-so.md": "bed42ff643b3ecda8d07ff400b45c23d2a7d2d86fe7ee74fe1dd0cd9adb14d29",
+        "MAP_System/emergence/insights/INS-0019-a-100-line-domain-validator-written-at-the-start-of-a-generative.md": "b372bd2b74749537dc225767d03b103759c9e03be50f8420bbb6f43a21273435",
+        "MAP_System/emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md": "b44072caa1b516c961ec75bbf1d94809ae9886196e2dd124d8c27a01849f029c",
+        "MAP_System/emergence/promotions/PROMO-0001-task-052-emergence-cli.md": "3090bb5594ee619b16f4cad3f331bc9369ad6215e09399295b314043e7d009ba",
+        "MAP_System/emergence/promotions/PROMO-0002-idea.md": "91b51a840ff3cf614064ba90967126afddec001de06aa8983ce71bba8cedd985",
+        "MAP_System/emergence/promotions/PROMO-0003-idea.md": "bdad0f3c1cec077faeb932511b27fdbced56d4b16ed3d04cbea40bb722e2819c",
+        "MAP_System/emergence/promotions/PROMO-0004-security-second-pass-review.md": "699a647d2e392545286b1791d28d67add5d1fa97e1df97e1baba793f978837ba",
+        "MAP_System/emergence/promotions/PROMO-0005-release-path-checklist.md": "4a12695ca8e76f33e5bc2f94770c0edf3762dd24f19004a0aedf47fd41f15b96",
+        "MAP_System/emergence/promotions/PROMO-0006-declared-idle-checkin.md": "025ec533cd7fe1bde3ca67aad0d27bd0e289b60e8517ee8a89fd928fb6ec7176",
+        "MAP_System/emergence/promotions/PROMO-0007-idea-0012.md": "150e3c84bd0a44c318dbeee2457f622a01fc285e963f9eb887f15e277f23b275",
+        "MAP_System/emergence/promotions/PROMO-0008-idea-0010.md": "b7686c41d425936c33936f6c174db3b773f0897ffd1db3eb5b63dc420b24fe5a",
+        "MAP_System/emergence/synthesis/SYN-0001-two-readers-one-truth.md": "dbc1f79fa5a392782e67029676abc62a882fe8cb303468804a9c7bbda6af3d14",
+        "MAP_System/events/events.jsonl": "cbb3ae381fc950cea0cd3cd53ead3a2eee5ce151047a3b95e1dfb28db9002186",
+        "MAP_System/inbox/helpers/task-181-gemma3-4b-2026-07-14T124413Z.md": "00babb1db3011050123b15c92c431b68b0aac572184cca8c9db326eef21a00da",
+        "MAP_System/inbox/helpers/task-181-llama3-2-1b-2026-07-14T124920Z.md": "c79c7f134fd0291c36e2d57149df4899f391f934b4ba3e6c5e6c638c0f817168",
+        "MAP_System/scripts/local_runner.py": "b4d921d2345fff6a0390a04039d4eaa67a63f8085ada2b84f18660aefe11e8df",
+        "MAP_System/tasks/TASK-181.json": "b21716e31b93ab31542d8d2677287fe87f1da594cf9de6ea151de6f7a9c89778",
+        "MAP_System/tests/test_local_runner.py": "6596469985c167db4f21d2abf256c76a653f219953a51d4e59033e85af16abfb"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-181.json",
+        "MAP_System/artifacts/planning/emergence-local-librarian-batch2.md",
+        "MAP_System/artifacts/planning/emergence-local-librarian-compaction.md",
+        "MAP_System/artifacts/planning/emergence-local-librarian-report.md",
+        "MAP_System/artifacts/reviews/task180-review-mira.md",
+        "MAP_System/emergence/INDEX.md",
+        "MAP_System/emergence/ideas/IDEA-0001-emergence-cli.md",
+        "MAP_System/emergence/ideas/IDEA-0002-text.md",
+        "MAP_System/emergence/ideas/IDEA-0003-text.md",
+        "MAP_System/emergence/ideas/IDEA-0004-require-a-second-security-focused-review-pass-for-any-task-that-.md",
+        "MAP_System/emergence/ideas/IDEA-0005-add-a-release-path-smoke-checklist-for-user-facing-packages.md",
+        "MAP_System/emergence/ideas/IDEA-0006-announce-task-id-before-claiming-and-pin-physical-continuity-facts.md",
+        "MAP_System/emergence/ideas/IDEA-0007-declared-idle-checkin-protocol.md",
+        "MAP_System/emergence/ideas/IDEA-0008-idle-accountability-heartbeat-for-active-agents.md",
+        "MAP_System/emergence/ideas/IDEA-0009-rns-should-ignore-superseded-and-disposable-sessions.md",
+        "MAP_System/emergence/ideas/IDEA-0010-add-a-proactive-e-i-operator-friction-scouting-loop-for-commandc.md",
+        "MAP_System/emergence/ideas/IDEA-0011-add-a-bounded-process-steward-helper-pattern-for-complex-map-sys.md",
+        "MAP_System/emergence/ideas/IDEA-0012-add-a-process-adherence-watcher-role-a-lightweight-role-that-che.md",
+        "MAP_System/emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel.md",
+        "MAP_System/emergence/ideas/IDEA-0014-after-gap-review-implementation-run-a-backed-up-full-folder-file.md",
+        "MAP_System/emergence/ideas/IDEA-0015-add-an-export-import-json-button-to-projectupdater-to-mitigate-i.md",
+        "MAP_System/emergence/insights/INS-0001-command-center-emergence-cli.md",
+        "MAP_System/emergence/insights/INS-0002-text.md",
+        "MAP_System/emergence/insights/INS-0003-text.md",
+        "MAP_System/emergence/insights/INS-0004-fail-safe-identity-pattern-commandcenterui-s-browser-mode-defaul.md",
+        "MAP_System/emergence/insights/INS-0005-release-reviews-must-inspect-every-user-visible-acquisition-path.md",
+        "MAP_System/emergence/insights/INS-0006-sequential-task-ids-collide-under-concurrent-agents.md",
+        "MAP_System/emergence/insights/INS-0007-emergence-records-need-lifecycle-closeout-not-just-capture.md",
+        "MAP_System/emergence/insights/INS-0008-ei-should-proactively-surface-operator-friction-affordances.md",
+        "MAP_System/emergence/insights/INS-0009-e-i-should-proactively-scout-operator-workflow-friction-instead-.md",
+        "MAP_System/emergence/insights/INS-0010-complex-map-system-buildouts-may-need-an-explicit-process-stewar.md",
+        "MAP_System/emergence/insights/INS-0011-no-headless-browser-was-preinstalled-for-verifying-static-html-a.md",
+        "MAP_System/emergence/insights/INS-0012-feature-completeness-gaps-a-missing-ui-filter-missing-accessibil.md",
+        "MAP_System/emergence/insights/INS-0013-emergence-insight-capture-was-skipped-entirely-for-an-entire-pro.md",
+        "MAP_System/emergence/insights/INS-0014-systems-with-a-mechanical-release-task-gate-get-genuinely-used-r.md",
+        "MAP_System/emergence/insights/INS-0015-a-routine-no-self-review-reviewer-conflict-should-trigger-the-ex.md",
+        "MAP_System/emergence/insights/INS-0016-validator-coverage-must-include-live-command-surfaces-not-only-d.md",
+        "MAP_System/emergence/insights/INS-0017-turn-by-turn-self-audited-card-game-simulation-naming-every-card.md",
+        "MAP_System/emergence/insights/INS-0018-when-a-rules-heavy-generative-task-hits-a-genuinely-ambiguous-so.md",
+        "MAP_System/emergence/insights/INS-0019-a-100-line-domain-validator-written-at-the-start-of-a-generative.md",
+        "MAP_System/emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md",
+        "MAP_System/emergence/promotions/PROMO-0001-task-052-emergence-cli.md",
+        "MAP_System/emergence/promotions/PROMO-0002-idea.md",
+        "MAP_System/emergence/promotions/PROMO-0003-idea.md",
+        "MAP_System/emergence/promotions/PROMO-0004-security-second-pass-review.md",
+        "MAP_System/emergence/promotions/PROMO-0005-release-path-checklist.md",
+        "MAP_System/emergence/promotions/PROMO-0006-declared-idle-checkin.md",
+        "MAP_System/emergence/promotions/PROMO-0007-idea-0012.md",
+        "MAP_System/emergence/promotions/PROMO-0008-idea-0010.md",
+        "MAP_System/emergence/synthesis/SYN-0001-two-readers-one-truth.md",
+        "MAP_System/events/events.jsonl",
+        "MAP_System/inbox/helpers/task-181-gemma3-4b-2026-07-14T124413Z.md",
+        "MAP_System/inbox/helpers/task-181-llama3-2-1b-2026-07-14T124920Z.md",
+        "MAP_System/scripts/local_runner.py",
+        "MAP_System/tests/test_local_runner.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-181",
+      "title": "Use local librarian to compact emergence records",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [
+        "/home/home/Projects/CommandCenterUI/README.md",
+        "/home/home/Projects/CommandCenterUI/app/server.py",
+        "/home/home/Projects/CommandCenterUI/src/chat.css",
+        "/home/home/Projects/CommandCenterUI/src/chat.html",
+        "/home/home/Projects/CommandCenterUI/src/chat.js"
+      ],
+      "changed_paths": [
+        "/home/home/Projects/CommandCenterUI/README.md",
+        "/home/home/Projects/CommandCenterUI/app/server.py",
+        "/home/home/Projects/CommandCenterUI/src/chat.css",
+        "/home/home/Projects/CommandCenterUI/src/chat.html",
+        "/home/home/Projects/CommandCenterUI/src/chat.js",
+        "MAP_System/artifacts/command-center-ui/task-182-map-health-cards.md"
+      ],
+      "concepts": [
+        "home",
+        "commandcenterui",
+        "map",
+        "health",
+        "projects",
+        "runtime",
+        "cards",
+        "currency"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Operator directive (hcom #33284 context, #33409 lead assignment, and model-upgrade directive): bring external CommandCenterUI current with the MAP runtime built in TASK-171-179. Add a read-only /api/map/health endpoint to app/server.py aggregating LangGraph runner route, librarian validation, session-replay status, and RnS/limit-watcher staleness, plus a MAP health card strip in the chat UI. Operator messages naming Claude as\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: CommandCenterUI currency: MAP runtime health cards.",
+      "semantic_word_count": 70,
+      "source_hashes": {
+        "MAP_System/artifacts/command-center-ui/task-182-map-health-cards.md": "ac05b51b8cab2c128bff166f12b7ed8356d162e0c7136f77c415ab1aab3fa6b2",
+        "MAP_System/tasks/TASK-182.json": "86225c5b5cd0bdf0470d7d52fa7c53025acfa8e95d10f238fb4698da81a065ad"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-182.json",
+        "MAP_System/artifacts/command-center-ui/task-182-map-health-cards.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-182",
+      "title": "CommandCenterUI currency: MAP runtime health cards",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/planning/emergence-deterministic-compaction-report.md",
+        "MAP_System/artifacts/reviews/task181-review-mira.md",
+        "MAP_System/emergence/INDEX.md",
+        "MAP_System/emergence/ideas/IDEA-0009-rns-should-ignore-superseded-and-disposable-sessions.md",
+        "MAP_System/emergence/insights/INS-0008-ei-should-proactively-surface-operator-friction-affordances.md",
+        "MAP_System/emergence/insights/INS-0009-e-i-should-proactively-scout-operator-workflow-friction-instead-.md",
+        "MAP_System/emergence/insights/INS-0017-turn-by-turn-self-audited-card-game-simulation-naming-every-card.md",
+        "MAP_System/emergence/insights/INS-0018-when-a-rules-heavy-generative-task-hits-a-genuinely-ambiguous-so.md",
+        "MAP_System/emergence/insights/INS-0019-a-100-line-domain-validator-written-at-the-start-of-a-generative.md",
+        "MAP_System/emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md",
+        "MAP_System/emergence/synthesis/SYN-0001-two-readers-one-truth.md",
+        "MAP_System/scripts/map_emergence.py"
+      ],
+      "concepts": [
+        "emergence",
+        "map",
+        "system",
+        "md",
+        "deterministic",
+        "active",
+        "records",
+        "insights"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Follow-up from TASK-181 under claude-lab-mira lead: implement a deterministic MAP-side compaction command for active emergence records, then use it/core review to compact the remaining active records without local-model semantic drift. Scope excludes CommandCenterUI and external launcher work.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Deterministic compact active emergence records.",
+      "semantic_word_count": 51,
+      "source_hashes": {
+        "MAP_System/artifacts/planning/emergence-deterministic-compaction-report.md": "e2c339a335eca3fce22acc74ac79e6a9e771422edd7bad585a76b5d4a21d47bf",
+        "MAP_System/artifacts/reviews/task181-review-mira.md": "2210c462a8b1248a6426016e129a33e0c2baa773d8a21acc0a57cf6ec6b67961",
+        "MAP_System/emergence/INDEX.md": "acec9a22ca7c8c16bd792c4c443e5a7c2cec850d850dbc499a3c0fe013fc7902",
+        "MAP_System/emergence/ideas/IDEA-0009-rns-should-ignore-superseded-and-disposable-sessions.md": "8bed2b5714562ad83e55bb3ab7c3257f148333122e4d070d3af7de33c1b4e1f1",
+        "MAP_System/emergence/insights/INS-0008-ei-should-proactively-surface-operator-friction-affordances.md": "f329f592bbe76f78face248aa8608c9f40ff47bd26b18815e8f1ae4866a01056",
+        "MAP_System/emergence/insights/INS-0009-e-i-should-proactively-scout-operator-workflow-friction-instead-.md": "8d4004beec681605dc07191d2def8989d50502cb070188960848f4c9791f744e",
+        "MAP_System/emergence/insights/INS-0017-turn-by-turn-self-audited-card-game-simulation-naming-every-card.md": "015c76fce20aa05a7de95d088c02ccac32756e487aa259c0f9b33c6077daa477",
+        "MAP_System/emergence/insights/INS-0018-when-a-rules-heavy-generative-task-hits-a-genuinely-ambiguous-so.md": "bed42ff643b3ecda8d07ff400b45c23d2a7d2d86fe7ee74fe1dd0cd9adb14d29",
+        "MAP_System/emergence/insights/INS-0019-a-100-line-domain-validator-written-at-the-start-of-a-generative.md": "b372bd2b74749537dc225767d03b103759c9e03be50f8420bbb6f43a21273435",
+        "MAP_System/emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md": "b44072caa1b516c961ec75bbf1d94809ae9886196e2dd124d8c27a01849f029c",
+        "MAP_System/emergence/synthesis/SYN-0001-two-readers-one-truth.md": "dbc1f79fa5a392782e67029676abc62a882fe8cb303468804a9c7bbda6af3d14",
+        "MAP_System/scripts/map_emergence.py": "0515cd8f4e267cede7bb377b164420b5c783e53a984eda0b42abc5f2e7537cd8",
+        "MAP_System/tasks/TASK-183.json": "0a71c33c1a7dcd731c6b633ccf0cb1d76088cb384451e2c67f089ee1731584f7",
+        "MAP_System/tests/test_map_emergence.py": "c37b6f8b36aa058e892729bd4d95fd4f763b7a459a3b02cded0b82a4557b1674"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-183.json",
+        "MAP_System/artifacts/planning/emergence-deterministic-compaction-report.md",
+        "MAP_System/artifacts/reviews/task181-review-mira.md",
+        "MAP_System/emergence/INDEX.md",
+        "MAP_System/emergence/ideas/IDEA-0009-rns-should-ignore-superseded-and-disposable-sessions.md",
+        "MAP_System/emergence/insights/INS-0008-ei-should-proactively-surface-operator-friction-affordances.md",
+        "MAP_System/emergence/insights/INS-0009-e-i-should-proactively-scout-operator-workflow-friction-instead-.md",
+        "MAP_System/emergence/insights/INS-0017-turn-by-turn-self-audited-card-game-simulation-naming-every-card.md",
+        "MAP_System/emergence/insights/INS-0018-when-a-rules-heavy-generative-task-hits-a-genuinely-ambiguous-so.md",
+        "MAP_System/emergence/insights/INS-0019-a-100-line-domain-validator-written-at-the-start-of-a-generative.md",
+        "MAP_System/emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md",
+        "MAP_System/emergence/synthesis/SYN-0001-two-readers-one-truth.md",
+        "MAP_System/scripts/map_emergence.py",
+        "MAP_System/tests/test_map_emergence.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-183",
+      "title": "Deterministic compact active emergence records",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/AGENTS.md",
+        "MAP_System/scripts/command_center_intake.py",
+        "MAP_System/tests/test_command_center_intake.py"
+      ],
+      "concepts": [
+        "command",
+        "center",
+        "intake",
+        "default",
+        "visible",
+        "broad",
+        "path",
+        "make"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "TASK-175 recommendation #4 follow-up: document and lightly enforce a convention that broad operator directives enter through command_center_intake.py as the default visible path before decomposition, while urgent live-control messages remain exempt. Keep scope MAP-side; no CommandCenterUI edits.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Make command-center intake the default visible broad-directive path.",
+      "semantic_word_count": 53,
+      "source_hashes": {
+        "MAP_System/AGENTS.md": "2ae3f82bd279e9f103924e9e9f64367463fe8284ae7619744597b3c3f9e4da4c",
+        "MAP_System/scripts/command_center_intake.py": "613eb10fce68930f97a88be7175ee7f7f23f84e9aa8c192ab7e16e1521112d3d",
+        "MAP_System/tasks/TASK-184.json": "a9421e7a3b9b0b57061f0cda5b3b9310cc316c3c9aeef828b78799eab17baae3",
+        "MAP_System/tests/test_command_center_intake.py": "80beb64005053c9dfa3652537e933e2dc36ae47f97e8697d78836ddc9328059e"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-184.json",
+        "MAP_System/AGENTS.md",
+        "MAP_System/scripts/command_center_intake.py",
+        "MAP_System/tests/test_command_center_intake.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-184",
+      "title": "Make command-center intake the default visible broad-directive path",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/repairs/README.md",
+        "MAP_System/scripts/map_repair.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_map_repair.py"
+      ],
+      "concepts": [
+        "repair",
+        "map",
+        "add",
+        "atomic",
+        "record",
+        "cli",
+        "system",
+        "scripts"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Improvement-backlog follow-up: add MAP_System/scripts/map_repair.py as a thin file-lock based repair-record CLI with atomic --repair-id auto allocation, following the proven REPAIR-0005 fcntl pattern. No SQLite dependency for repair ID allocation.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Add atomic repair record CLI.",
+      "semantic_word_count": 43,
+      "source_hashes": {
+        "MAP_System/repairs/README.md": "9fafbf69cc8b6d346dc26d9cddc6cb731801039af60bec67cf7cf5c53fb31670",
+        "MAP_System/scripts/map_repair.py": "fe07cbaf6b315202e96d065bd337567be40dc57eeb9241b4d00ce2e8ae26152a",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/tasks/TASK-185.json": "af6bc71342c6bdba17fc2fa6560d51fbcc26af53fd50f10dce0dfb69e035136c",
+        "MAP_System/tests/test_map_repair.py": "2de572574deb7b2cebc2b653e3017c9f35a22e61ad9d546d47c7a4ce1bdca210"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-185.json",
+        "MAP_System/repairs/README.md",
+        "MAP_System/scripts/map_repair.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_map_repair.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-185",
+      "title": "Add atomic repair record CLI",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/notes/limit-exhaustion-protocol.md",
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "concepts": [
+        "rns",
+        "active",
+        "session",
+        "resume",
+        "make",
+        "aware",
+        "hcom",
+        "map"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Learn from the 2026-07-14 Mira scheduled RnS failure: the systemd timer fired but hcom r failed because hcom still considered the session active. Update RnS behavior so a resume nudge that encounters an already-active/listening session delivers the RnS prompt via hcom send instead of failing silently or requiring manual intervention.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Make RnS active-session resume aware.",
+      "semantic_word_count": 64,
+      "source_hashes": {
+        "MAP_System/notes/limit-exhaustion-protocol.md": "d5148a817b64705009a44e64070abed240698adb96780451b6994a07d7e84ed8",
+        "MAP_System/scripts/limit_watcher.py": "8c862199c73ec46782b8afcf4178090d0c88f3646eeab3ceb5bf6f59a517a418",
+        "MAP_System/tasks/TASK-187.json": "efe695e10470b414de31aa07e7151eb379197b079d7a420743088f03782a9e9d",
+        "MAP_System/tests/test_limit_watcher.py": "561d8ab961ea85c0cf0cfd66785d5c4227f1847304bf91426f7f0daa61e16acc"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-187.json",
+        "MAP_System/notes/limit-exhaustion-protocol.md",
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-187",
+      "title": "Make RnS active-session resume aware",
+      "unexpected": "",
+      "workstream": "agent-liveness-and-helpers"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/audits/map-real-parameter-calibration-results-2026-07-14.md",
+        "MAP_System/artifacts/audits/map-robustness-grading-2026-07-14.md"
+      ],
+      "concepts": [
+        "calibration",
+        "map",
+        "real",
+        "parameter",
+        "robustness",
+        "grading",
+        "md",
+        "first"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Source-mining audit item #1 (Gap-Register 3.1 + Wave 2.5): run every measurement in artifacts/audits/map-real-parameter-calibration.md that current event/trace/replay data supports, honestly marking unsupported ones; apply artifacts/audits/map-sensitivity-robustness-method.md to grade standing 6.13 conclusions robust/conditional/unsupported. Work packet: MAP_System/inbox/helpers/calibration-run-packet.md.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Real-parameter calibration + first robustness grading.",
+      "semantic_word_count": 49,
+      "source_hashes": {
+        "MAP_System/artifacts/audits/map-real-parameter-calibration-results-2026-07-14.md": "f16cf8eb73243df6a43f846c28b21cf8f22e83a95fcc51467312885bb9445145",
+        "MAP_System/artifacts/audits/map-robustness-grading-2026-07-14.md": "1e75ff6a29ce3948f36e74a16a0a08220af676e28f4f27348e2a7972f93c10ce",
+        "MAP_System/tasks/TASK-188.json": "e3d72cc2b602d2a5dd017e1207686e7991b543b9762d611146ce68fcca90ab3a"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-188.json",
+        "MAP_System/artifacts/audits/map-real-parameter-calibration-results-2026-07-14.md",
+        "MAP_System/artifacts/audits/map-robustness-grading-2026-07-14.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-188",
+      "title": "Real-parameter calibration + first robustness grading",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/events/README.md",
+        "MAP_System/scripts/map_metrics.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/validate_events.py",
+        "MAP_System/tests/test_liveness_reaper.py",
+        "MAP_System/tests/test_outcome_feedback.py"
+      ],
+      "concepts": [
+        "outcome",
+        "map",
+        "feedback",
+        "system",
+        "event",
+        "type",
+        "validator",
+        "blind"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Source-mining audit item #2 (Extension-Plan #2, spec artifacts/planning/map-outcome-feedback-spec.md, self-declared design-only): implement the outcome event type (outcome_pass/outcome_fail per released task) and the validator blind-spot metric in map_metrics.py per the existing spec. The spec is the design authority; deviations documented in the task report.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Outcome feedback: event type + validator blind-spot metric.",
+      "semantic_word_count": 59,
+      "source_hashes": {
+        "MAP_System/events/README.md": "f86f292b6ca392487f560c2cb570315f90a5f11bb0880f952677c4fdb6bcbf0d",
+        "MAP_System/scripts/map_metrics.py": "feffbd8b5d90e96c00dc12f6a64263da62f7ce0a8be803b0abc12ecfe0c27bb7",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/scripts/validate_events.py": "ad6d7a30d409a5d2a1234e947b6954ac8f64ab2a14d6792850379b830c8e8acb",
+        "MAP_System/tasks/TASK-189.json": "0df7f5a0fdb1969e33c78ff28a6652787bed5d814fce2cd2bf0161c6324f4ebe",
+        "MAP_System/tests/test_liveness_reaper.py": "fcd8dd6a1134c2471dd1c113d71417cd9aa1de05ee9d5eba4f54691e61f7d980",
+        "MAP_System/tests/test_outcome_feedback.py": "5a4492e5ca8b34a145ca7a471dac638294d8d39b5487220a9cab47443e981246"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-189.json",
+        "MAP_System/events/README.md",
+        "MAP_System/scripts/map_metrics.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/validate_events.py",
+        "MAP_System/tests/test_liveness_reaper.py",
+        "MAP_System/tests/test_outcome_feedback.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-189",
+      "title": "Outcome feedback: event type + validator blind-spot metric",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md",
+        "MAP_System/scripts/cost_yield.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_cost_yield.py"
+      ],
+      "concepts": [
+        "cost",
+        "yield",
+        "rollup",
+        "map",
+        "per",
+        "outcome",
+        "system",
+        "view"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Source-mining audit item #3 (codeburn pattern, TASK-171 Priority 2, zero follow-on so far): per-task cost-proxy x outcome rollup joining events.jsonl volumes and map.db lifecycle spans, classifying RELEASED / approved-not-released / RETIRED / abandoned, with productive-vs-abandoned spend split. Proxies labeled as proxies, no invented dollar figures. Work packet: MAP_System/inbox/helpers/cost-yield-rollup-packet.md; reference vocabulary repo/codeburn-main/src/yield.ts.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Cost/yield rollup: per-task cost x outcome view.",
+      "semantic_word_count": 67,
+      "source_hashes": {
+        "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md": "574309858c2aa25571bf36336d05cbd0e1cc6bb84c064286430f92f08793f023",
+        "MAP_System/scripts/cost_yield.py": "4782be1c4a0708c7088b76643bd2d7b4f9d99d598f7bcd3e095f734d83e0825a",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/tasks/TASK-190.json": "d6886218a06b5b1c6a5ea6a7b86464c65f6f55a9fdc58beccca3bf97f70c205f",
+        "MAP_System/tests/test_cost_yield.py": "3d32936159e3ab27a7f097d7e472983cee271b8508a02ce1978f5a3a4507be1a"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-190.json",
+        "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md",
+        "MAP_System/scripts/cost_yield.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_cost_yield.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-190",
+      "title": "Cost/yield rollup: per-task cost x outcome view",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/audits/map-threat-model.md",
+        "MAP_System/scripts/local_runner.py",
+        "MAP_System/scripts/map_emergence.py",
+        "MAP_System/scripts/map_repair.py",
+        "MAP_System/scripts/redaction.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_redaction.py"
+      ],
+      "concepts": [
+        "map",
+        "redaction",
+        "py",
+        "system",
+        "guard",
+        "scripts",
+        "capture",
+        "pipelines"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Source-mining audit item #4 (agentcairn pattern; security gap flagged by zera's survey, confirmed absent): shared redaction module (known credential formats + URL userinfo + tuned high-entropy fallback) wired warn-and-redact into map_emergence.py, map_repair.py, and local_runner.py write paths. Packet: MAP_System/inbox/helpers/redaction-guard-packet.md. Starts after TASK-190 release.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Redaction guard for capture pipelines.",
+      "semantic_word_count": 56,
+      "source_hashes": {
+        "MAP_System/artifacts/audits/map-threat-model.md": "bd5908a1e16970ebd4baea0a4175fdbda87f2b231826bbb2ab02892ff08d7738",
+        "MAP_System/scripts/local_runner.py": "b4d921d2345fff6a0390a04039d4eaa67a63f8085ada2b84f18660aefe11e8df",
+        "MAP_System/scripts/map_emergence.py": "0515cd8f4e267cede7bb377b164420b5c783e53a984eda0b42abc5f2e7537cd8",
+        "MAP_System/scripts/map_repair.py": "fe07cbaf6b315202e96d065bd337567be40dc57eeb9241b4d00ce2e8ae26152a",
+        "MAP_System/scripts/redaction.py": "845cc96eef12bf974dd2d17b2e8029234a66971709376113e34f90d50cf1258f",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/tasks/TASK-191.json": "5a6bfee971fcced91328b1205478df52c402f40b0309aac04a87ece0aca5bcad",
+        "MAP_System/tests/test_redaction.py": "e8575bfbd683bfa4eca1fc35aa00d83069410bbc12baebb048c96d9546133436"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-191.json",
+        "MAP_System/artifacts/audits/map-threat-model.md",
+        "MAP_System/scripts/local_runner.py",
+        "MAP_System/scripts/map_emergence.py",
+        "MAP_System/scripts/map_repair.py",
+        "MAP_System/scripts/redaction.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_redaction.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-191",
+      "title": "Redaction guard for capture pipelines",
+      "unexpected": "",
+      "workstream": "emergence-and-learning"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/tests/taxonomy-tests-4-6-report.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_context_summary_drift.py",
+        "MAP_System/tests/test_decomposer_edges.py",
+        "MAP_System/tests/test_multi_project_isolation.py"
+      ],
+      "concepts": [
+        "tests",
+        "taxonomy",
+        "map",
+        "system",
+        "audit",
+        "test",
+        "close",
+        "regression"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Source-mining audit item #5 (origin map-failure-taxonomy-coverage.md #4/#5/#6): three focused test files \u2014 decomposer dependency-edge cases, context-summary drift detection negative paths, multi-project isolation \u2014 wired into run_tests.sh. Where a taxonomy hole has no detector, the test is written and skipped-with-reason naming the missing mechanism (honest tracked gap, not a fabricated pass). Packet: MAP_System/inbox/helpers/taxonomy-tests-packet.md. Starts after TASK-187\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Close taxonomy-audit regression tests #4-#6.",
+      "semantic_word_count": 69,
+      "source_hashes": {
+        "MAP_System/artifacts/tests/taxonomy-tests-4-6-report.md": "7022d02d6d3170d5c94231eae954cde9f45adb76340f32d71ea0edae008ea52e",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/tasks/TASK-192.json": "394d6ebfd18262eeb291c5b1394b5f811161eb20b69c3727f0b58e749932e355",
+        "MAP_System/tests/test_context_summary_drift.py": "ae845066999d43ccf8ca69a0e20fe87e724c183b019569ad34d65a9f295fe8a2",
+        "MAP_System/tests/test_decomposer_edges.py": "59d6f450df5f265ae2f5d4cdee0516358591e175f562293e3e28db8165942eab",
+        "MAP_System/tests/test_multi_project_isolation.py": "bcadb33c239149a253c6e2dac10c1a04947dbb276c6a830c9e3e09af9de9dcea"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-192.json",
+        "MAP_System/artifacts/tests/taxonomy-tests-4-6-report.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_context_summary_drift.py",
+        "MAP_System/tests/test_decomposer_edges.py",
+        "MAP_System/tests/test_multi_project_isolation.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-192",
+      "title": "Close taxonomy-audit regression tests #4-#6",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/archive/README.md",
+        "MAP_System/archive/compactions/compaction-2026-07-14-tasks-147-192.md",
+        "MAP_System/shared/current-state.md",
+        "MAP_System/shared/improvement-backlog.md",
+        "MAP_System/shared/memory-map.md"
+      ],
+      "concepts": [
+        "md",
+        "compaction",
+        "archive",
+        "147",
+        "192",
+        "narrative",
+        "map",
+        "brain"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "notes/brain-compaction-guide.md trigger is ~45 tasks overdue (no compaction has ever run; archive/compactions/ does not exist). Compact completed-work narrative from shared active memory into archive/compactions/compaction-2026-07-14-tasks-147-192.md per the guide and templates/compaction-summary.md: preserve decisions/risks/outcomes, remove stale progress narrative from current-state.md and improvement-backlog.md, keep raw history untouched in events/artifacts, backlink from active files. Follows the guide's safety rules: no\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: First brain compaction: archive TASK-147-192 era narrative.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/archive/README.md": "65923ce8e40ea40b81e186aeefdfa7502092bdfddba955a9624b07a50133ba12",
+        "MAP_System/archive/compactions/compaction-2026-07-14-tasks-147-192.md": "bd430d6f936ac8a6933f70228a6c5ff8a9d8ee986323f7d8fa81f27e08cbb9b9",
+        "MAP_System/shared/current-state.md": "0bd881cffb3786b3fdcec27675e189acd5a681eb5e09e6cb14dba1624f350851",
+        "MAP_System/shared/improvement-backlog.md": "37d0f614b76ef18450b5c1fc8f66537d0411c8db9a11c6ed7bb330fa7aae979b",
+        "MAP_System/shared/memory-map.md": "90e86eb7edfdb937cf5756b0fbe7b9926328e9fcb5152531d02998adb541ee68",
+        "MAP_System/tasks/TASK-193.json": "40ced7a2d35b29eb562894751790b82cade1f4ff6130eb7c8c71e8f6f478f4f3"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-193.json",
+        "MAP_System/archive/README.md",
+        "MAP_System/archive/compactions/compaction-2026-07-14-tasks-147-192.md",
+        "MAP_System/shared/current-state.md",
+        "MAP_System/shared/improvement-backlog.md",
+        "MAP_System/shared/memory-map.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-193",
+      "title": "First brain compaction: archive TASK-147-192 era narrative",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/AGENTS.md",
+        "MAP_System/notes/helper-agent-guide.md",
+        "MAP_System/notes/orchestration-notes.md"
+      ],
+      "concepts": [
+        "tier",
+        "model",
+        "claude",
+        "helper",
+        "escalation",
+        "defaults",
+        "policy",
+        "map"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Implement the operator directive that Claude-created helper agents default to auto permission mode plus Haiku model tier, and require a written reviewed escalation request for higher Claude model tiers. Document a practical tier-capability rubric so reviewers choose the right model level generously when the reasoning is sound, without forcing low-tier or high-tier use by default.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "APPROVED: Claude helper model-tier defaults and escalation policy.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/AGENTS.md": "2ae3f82bd279e9f103924e9e9f64367463fe8284ae7619744597b3c3f9e4da4c",
+        "MAP_System/notes/helper-agent-guide.md": "2482bedca03071d592edd51cf8eb741a1798c624b950667cbde8b81f37ff317d",
+        "MAP_System/notes/orchestration-notes.md": "34d1dbb2ae0f228e3351457ef1d700ff352bea4663de1267c2788db119a400f9",
+        "MAP_System/tasks/TASK-194.json": "ceeb115eaaae2d17399da115778db7cdf73873b8f2b2071368955ff23424d69c"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-194.json",
+        "MAP_System/AGENTS.md",
+        "MAP_System/notes/helper-agent-guide.md",
+        "MAP_System/notes/orchestration-notes.md"
+      ],
+      "status": "APPROVED",
+      "task_id": "TASK-194",
+      "title": "Claude helper model-tier defaults and escalation policy",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [
+        "/home/home/Projects/CommandCenterUI/app/server.py"
+      ],
+      "changed_paths": [
+        "/home/home/Projects/CommandCenterUI/app/server.py",
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "concepts": [
+        "watcher",
+        "rns",
+        "hung",
+        "harden",
+        "against",
+        "resumes",
+        "limit",
+        "py"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "A hung hcom r subprocess can crash the persistent RnS limit watcher, leaving auto-resume inactive until manual restart. Catch resume timeouts/failures as failed nudges, continue polling, and make health expose dead or stale watcher pidfiles.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Harden RnS watcher against hung resumes.",
+      "semantic_word_count": 50,
+      "source_hashes": {
+        "MAP_System/scripts/limit_watcher.py": "8c862199c73ec46782b8afcf4178090d0c88f3646eeab3ceb5bf6f59a517a418",
+        "MAP_System/tasks/TASK-195.json": "faf0a1f7b9b8a5b5151f1f78a34f91aa0e0b809b4df6b17740a67ea12e5b0e02",
+        "MAP_System/tests/test_limit_watcher.py": "561d8ab961ea85c0cf0cfd66785d5c4227f1847304bf91426f7f0daa61e16acc"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-195.json",
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-195",
+      "title": "Harden RnS watcher against hung resumes",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/validate_task_schema.py",
+        "MAP_System/tests/test_validate_task_schema.py"
+      ],
+      "concepts": [
+        "audit",
+        "schema",
+        "json",
+        "closures",
+        "check",
+        "memory",
+        "setup",
+        "skim"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Two S-sized closures from source-mining-audit-2026-07-14.md section C: (1) structural schema check for tasks/TASK-NNN.json (command-center-later item; promote_task.py validates 8 HPOM fields but nothing validates structure/types of task JSON) \u2014 append to validate_task_mirrors.py or standalone, agent's call, wired into run_tests.sh with focused tests; (2) 10-minute skim of repo/claude-code-memory-setup-main (the only repo/ item no prior audit covered) to\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Audit small closures: task-JSON schema check + memory-setup skim.",
+      "semantic_word_count": 73,
+      "source_hashes": {
+        "MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md": "dc3bed1ddde5a705144732733298018090021318faaea9c32fa7881a79658aa6",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/scripts/validate_task_schema.py": "0c93c03c0f8ae6bf9a041538506d0ceca3e19fac4a9c1d2cfaed6f779194e266",
+        "MAP_System/tasks/TASK-196.json": "06de7eb23605cc53c507fe2d353ec8a3b6ef8ec059479c90b336cb4383eb5e1b",
+        "MAP_System/tests/test_validate_task_schema.py": "c83cc547664b620e9eb99a8645cad704bd6a867a17078bdfde498cbd30ee6416"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-196.json",
+        "MAP_System/artifacts/audits/source-mining-audit-2026-07-14.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/validate_task_schema.py",
+        "MAP_System/tests/test_validate_task_schema.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-196",
+      "title": "Audit small closures: task-JSON schema check + memory-setup skim",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/artifacts/tests/task197-decision-conflict-run.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/validate_decisions.py",
+        "MAP_System/tests/test_decision_conflicts.py"
+      ],
+      "concepts": [
+        "decisions",
+        "py",
+        "decision",
+        "pass",
+        "validate",
+        "conflict",
+        "detection",
+        "map"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Source-mining audit section B (callimachus 'Review conflicts' precedent, UNEXPLOITED): extend validate_decisions.py (or sibling) with a supersession/contradiction pass over shared/decisions.md \u2014 flag decision pairs touching the same subject where neither supersedes the other, and decisions whose supersedes/superseded_by links are one-way or dangling. Report-only (no gate) for the first pass, matching validate_events.py's telemetry-first posture. Reference: repo/callimachus-main review-conflicts\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Decision-conflict detection pass for validate_decisions.py.",
+      "semantic_word_count": 69,
+      "source_hashes": {
+        "MAP_System/artifacts/tests/task197-decision-conflict-run.md": "54d724ffbbf82744bb1fc8ecb788a21de083022fa4166efa8b0c6d5bd0c93f7a",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/scripts/validate_decisions.py": "960cfb5ee1525f1984c7a2e0a7a93753d74fab63654ebdb6d392ef9cb236829b",
+        "MAP_System/tasks/TASK-197.json": "531a5e42cdacea7a368e925c3c0d2352ad171de3512b74ca68b39f3e5db2b6c8",
+        "MAP_System/tests/test_decision_conflicts.py": "7c472552011606a32840ba059ddf100b4191dbae4806c71a97fb3048caa351c6"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-197.json",
+        "MAP_System/artifacts/tests/task197-decision-conflict-run.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/validate_decisions.py",
+        "MAP_System/tests/test_decision_conflicts.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-197",
+      "title": "Decision-conflict detection pass for validate_decisions.py",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/agents/status.json",
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "concepts": [
+        "failed",
+        "live",
+        "rns",
+        "fix",
+        "nudge",
+        "consumption",
+        "state",
+        "reconciliation"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "RnS marked recorded-reset nudges as consumed even when hcom resume failed, leaving agents stuck standby/out_of_tokens after the scheduled reset. It also did not reconcile durable status when hcom showed the agent was already live after the reset window. Do not consume failed nudges, retry with a bounded backoff, and clear out_of_tokens when a due recorded-reset\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RETIRED: Fix RnS failed-nudge consumption and live-state reconciliation.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/agents/status.json": "1650ca352cf6b80ef2213726d50b5e841b98b98eb221baa0ea66ebdf4873c552",
+        "MAP_System/scripts/limit_watcher.py": "8c862199c73ec46782b8afcf4178090d0c88f3646eeab3ceb5bf6f59a517a418",
+        "MAP_System/tasks/TASK-198.json": "7dd6043aadd3f0e29073ff8c83697492716e164633071d6f645777883f4a1f3d",
+        "MAP_System/tests/test_limit_watcher.py": "561d8ab961ea85c0cf0cfd66785d5c4227f1847304bf91426f7f0daa61e16acc"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-198.json",
+        "MAP_System/agents/status.json",
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "status": "RETIRED",
+      "task_id": "TASK-198",
+      "title": "Fix RnS failed-nudge consumption and live-state reconciliation",
+      "unexpected": "",
+      "workstream": "agent-liveness-and-helpers"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/db/claims.py",
+        "MAP_System/migration/schema.sql",
+        "MAP_System/notes/review-guide.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_review_claims.py"
+      ],
+      "concepts": [
+        "review",
+        "claim",
+        "py",
+        "claims",
+        "db",
+        "map",
+        "atomic",
+        "claiming"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "IDEA-0017: SQLite-arbitrated review claiming, mirroring claim_task's atomic pattern, so independent reviewers stop duplicating full review work before either finalizes (TASK-196 zera+mira, TASK-197 toku+mira both duplicated review effort same day despite broadcast claim messages). Add claim_review(task_id, reviewer_id)/release_review_claim()/get_open_review_claim() to db/claims.py using a partial-unique index on reviews(task_id) WHERE completed_at IS NULL for atomicity. Self-review blocked (reviewer != owner)\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Atomic review claiming (claim_review in db/claims.py).",
+      "semantic_word_count": 70,
+      "source_hashes": {
+        "MAP_System/db/claims.py": "2bf0d02a88cdefeec7e9234b8dbe14509f3c64bbf96f1bbe9bd63890025220bc",
+        "MAP_System/migration/schema.sql": "07239a40f42a3eacfb88fb2b950f11d3736e7d133406ce6149db35bc5d3e3dc3",
+        "MAP_System/notes/review-guide.md": "f90e80cd4d06cb6a1613625e330ab9e89c9eb88c5b1bca4b4f3a040ae6dd9a4b",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/tasks/TASK-199.json": "ddcb7030b9a3aea0990584fef871071c1a9195d93acfdcb984e82ce066db3f47",
+        "MAP_System/tests/test_review_claims.py": "c9dd468dca25ba372edc9329c0946ca7b23bc21af44606051c839658fbc88235"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-199.json",
+        "MAP_System/db/claims.py",
+        "MAP_System/migration/schema.sql",
+        "MAP_System/notes/review-guide.md",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/tests/test_review_claims.py"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-199",
+      "title": "Atomic review claiming (claim_review in db/claims.py)",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/emergence/INDEX.md",
+        "MAP_System/emergence/ideas/IDEA-0016-extend-the-task-191-redaction-guard-to-events-jsonl-appenders.md",
+        "MAP_System/emergence/ideas/IDEA-0017-atomic-review-claiming-add-claim-review-task-id-reviewer-to-db-c.md",
+        "MAP_System/emergence/insights/INS-0021-real-data-contradicts-the-simulation-cut-of-peer-review-reviews-.md",
+        "MAP_System/shared/decisions.md",
+        "MAP_System/shared/improvement-backlog.md"
+      ],
+      "concepts": [
+        "emergence",
+        "md",
+        "langgraph",
+        "map",
+        "system",
+        "supersedes",
+        "closeouts",
+        "housekeeping"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Bundled S-items, all pre-sanctioned: (1) add reciprocal Supersedes fields to DEC-008 (for DEC-004/007) and DEC-014 (for DEC-012) \u2014 the three TASK-197 findings, sanctioned as 'fold into next decisions.md touch'; validate_decisions should drop to 0 conflict notes. (2) improvement-backlog item 'Clean up stale langgraph/ references': fix or annotate remaining langgraph/ directory mentions in active (non-archive, non-artifact)\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Housekeeping sweep: supersedes reciprocity, langgraph refs, emergence closeouts.",
+      "semantic_word_count": 72,
+      "source_hashes": {
+        "MAP_System/emergence/INDEX.md": "acec9a22ca7c8c16bd792c4c443e5a7c2cec850d850dbc499a3c0fe013fc7902",
+        "MAP_System/emergence/ideas/IDEA-0016-extend-the-task-191-redaction-guard-to-events-jsonl-appenders.md": "fee27faa4708c5da56f5974ea6f32805431d63755200a5cc3f594d2a32d60ed6",
+        "MAP_System/emergence/ideas/IDEA-0017-atomic-review-claiming-add-claim-review-task-id-reviewer-to-db-c.md": "970db3634d1c8f4ac5e5f923db535b5b20b936967e8b72862e30ee50a55ab797",
+        "MAP_System/emergence/insights/INS-0021-real-data-contradicts-the-simulation-cut-of-peer-review-reviews-.md": "b15db3142a4db7f527c9a9b1d5fb903be1b2bc02e359541fd2d769755b332fbc",
+        "MAP_System/shared/decisions.md": "e158289ed3fa39235310ad2514a32483b2140c9f61bc150fe6fc6b0c7c175c80",
+        "MAP_System/shared/improvement-backlog.md": "37d0f614b76ef18450b5c1fc8f66537d0411c8db9a11c6ed7bb330fa7aae979b",
+        "MAP_System/tasks/TASK-200.json": "2fdc16f2b983fdffcb307120e8cda98c0bfce9526f73b4ff022173db8f6de05f"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-200.json",
+        "MAP_System/emergence/INDEX.md",
+        "MAP_System/emergence/ideas/IDEA-0016-extend-the-task-191-redaction-guard-to-events-jsonl-appenders.md",
+        "MAP_System/emergence/ideas/IDEA-0017-atomic-review-claiming-add-claim-review-task-id-reviewer-to-db-c.md",
+        "MAP_System/emergence/insights/INS-0021-real-data-contradicts-the-simulation-cut-of-peer-review-reviews-.md",
+        "MAP_System/shared/decisions.md",
+        "MAP_System/shared/improvement-backlog.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-200",
+      "title": "Housekeeping sweep: supersedes reciprocity, langgraph refs, emergence closeouts",
+      "unexpected": "",
+      "workstream": "emergence-and-learning"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/notes/halt-authority-window-runbook.md",
+        "MAP_System/scripts/halt_state.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/validate_layer1.py",
+        "MAP_System/scripts/validate_protocol.py",
+        "MAP_System/tests/test_halt_authority_window.py",
+        "MAP_System/workflow/runtime_policy.yaml"
+      ],
+      "concepts": [
+        "halt",
+        "window",
+        "authority",
+        "map",
+        "system",
+        "bounded",
+        "mechanism",
+        "scripts"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Wave 3 NIVO lane: implement a disabled-by-default halt_authority_window in runtime_policy.yaml so layer1/protocol validators can set operator-clearable halts only during a bounded active window, while inactive/expired windows preserve telemetry-only behavior.",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Bounded halt-authority window mechanism.",
+      "semantic_word_count": 42,
+      "source_hashes": {
+        "MAP_System/notes/halt-authority-window-runbook.md": "d4ed7bd09388d97a48fd8141edeb6dfec46225c4bab12a517e7968773748cec8",
+        "MAP_System/scripts/halt_state.py": "b4cf0b9d11c98efe8f622439468a7ba87d04d6c529140f6c86dd72fe40fb733f",
+        "MAP_System/scripts/run_tests.sh": "314b6336320a3d0fd1b9d8682fba2ed71c738c0ed6c39e109c93632d96d6c854",
+        "MAP_System/scripts/validate_layer1.py": "0dea7ecd960042e7b31f7d04373aaf7837b0c43389aa1cea6d6686b3b71e430f",
+        "MAP_System/scripts/validate_protocol.py": "ee40480d91ac978def217538f1a1e5d3c297d3f43ab3f27b58ebd07df322aa07",
+        "MAP_System/tasks/TASK-201.json": "af3bcfd6f1ebcf64a0b05da2828022377d77150fed395f588ea54a946a60d483",
+        "MAP_System/tests/test_halt_authority_window.py": "29f07ff16936838173a7b38a172e186bc2be5204a19619e5fd3d508af37f3bdf",
+        "MAP_System/workflow/runtime_policy.yaml": "42d2daee0beabeed060bb5190676aa5c4a7db3f159036a30a1f415b4c3296e6b"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-201.json",
+        "MAP_System/notes/halt-authority-window-runbook.md",
+        "MAP_System/scripts/halt_state.py",
+        "MAP_System/scripts/run_tests.sh",
+        "MAP_System/scripts/validate_layer1.py",
+        "MAP_System/scripts/validate_protocol.py",
+        "MAP_System/tests/test_halt_authority_window.py",
+        "MAP_System/workflow/runtime_policy.yaml"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-201",
+      "title": "Bounded halt-authority window mechanism",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/agents/README.md",
+        "MAP_System/agents/operator-identities.json",
+        "MAP_System/artifacts/audits/map-real-parameter-calibration-results-2026-07-14.md",
+        "MAP_System/notes/communication-architecture.md",
+        "MAP_System/shared/operator-identities.md"
+      ],
+      "concepts": [
+        "operator",
+        "map",
+        "md",
+        "hcom",
+        "intent",
+        "identity",
+        "durable",
+        "parameter"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "Unlocks calibration parameter 7 (operator approval load) and the P1-practice grade, both flagged missing-data in map-real-parameter-calibration-results-2026-07-14.md. (1) Durable operator-identity registry: shared/operator-identities.md + agents/operator-identities.json listing which hcom identities count as 'the operator' (bigboss = direct terminal, command-center = CommandCenterUI's OPERATOR_NAME relay per CommandCenterUI/app/server.py), cross-linked from agents/README.md. (2) Intent recording: session_replay.py does NOT currently index hcom at\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Operator-identity + message-intent conventions in durable state.",
+      "semantic_word_count": 71,
+      "source_hashes": {
+        "MAP_System/agents/README.md": "c7e85a95924aa0b8140946cffb0b42984785ff95e0dd1bff357ba1161b7fb3c0",
+        "MAP_System/agents/operator-identities.json": "56e8a6cf0fc2c9c3f6a8e45c45dcdbcbbfcea38ce3d113eccfdfb33dc3c9c15d",
+        "MAP_System/artifacts/audits/map-real-parameter-calibration-results-2026-07-14.md": "f16cf8eb73243df6a43f846c28b21cf8f22e83a95fcc51467312885bb9445145",
+        "MAP_System/notes/communication-architecture.md": "538456a653d04ad225ce828474b3c3fd75b68ae01c1a7eb9925c6e19c320d4db",
+        "MAP_System/shared/operator-identities.md": "ca14b7aac4a0c8bde619929f2cd0b12e4d6dfaa79acce10e45bb9308030e9892",
+        "MAP_System/tasks/TASK-202.json": "6dec581705d469df18650e11d4ddd0e9bc1c0b5452bd0278f6f735baabe4aeea"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-202.json",
+        "MAP_System/agents/README.md",
+        "MAP_System/agents/operator-identities.json",
+        "MAP_System/artifacts/audits/map-real-parameter-calibration-results-2026-07-14.md",
+        "MAP_System/notes/communication-architecture.md",
+        "MAP_System/shared/operator-identities.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-202",
+      "title": "Operator-identity + message-intent conventions in durable state",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [
+        "/home/home/Projects/CommandCenterUI/app/server.py",
+        "/home/home/Projects/CommandCenterUI/src/chat.css",
+        "/home/home/Projects/CommandCenterUI/src/chat.html",
+        "/home/home/Projects/CommandCenterUI/src/chat.js",
+        "MAP_System/artifacts/reports/task-2xx-ui-metrics-cards-evidence.md"
+      ],
+      "changed_paths": [
+        "/home/home/Projects/CommandCenterUI/app/server.py",
+        "/home/home/Projects/CommandCenterUI/src/chat.css",
+        "/home/home/Projects/CommandCenterUI/src/chat.html",
+        "/home/home/Projects/CommandCenterUI/src/chat.js",
+        "MAP_System/artifacts/reports/task-203-ui-metrics-cards-evidence.md",
+        "MAP_System/artifacts/reports/task-2xx-ui-metrics-cards-evidence.md",
+        "MAP_System/artifacts/reports/task203-map-health-card.png"
+      ],
+      "concepts": [
+        "map",
+        "commandcenterui",
+        "home",
+        "cost",
+        "yield",
+        "card",
+        "outcome",
+        "rows"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "TASK-182 follow-on (operator-approved CommandCenterUI output boundary precedent): extend /api/map/health with cost_yield and outcomes sources (read-only, mirrors TASK-182's cache/lock/error-isolation pattern) and two compact rows in the existing MAP runtime card, consuming TASK-189 outcome metrics and TASK-190 cost_yield.py. Packet: MAP_System/inbox/helpers/ui-metrics-cards-packet.md. Baseline-committed the operator's uncommitted sidebar/timer work first (CommandCenterUI commit 1f8b245), per the packet's explicit instruction, before this\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: CommandCenterUI outcome + cost/yield rows in MAP runtime card.",
+      "semantic_word_count": 73,
+      "source_hashes": {
+        "MAP_System/artifacts/reports/task-203-ui-metrics-cards-evidence.md": "cd02ac40924bff44cb943111ece4ad27350bb99c1480311192c36f7018ef58bd",
+        "MAP_System/artifacts/reports/task203-map-health-card.png": "361ebb67a60f53a2d901b9deda6242a00278bc2bd5f57268b0a118fc4dc61f66",
+        "MAP_System/tasks/TASK-203.json": "72e2365be4c2203a468e800e3915139d98a0d30fa05b5607c1c1e3a75ea74534"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-203.json",
+        "MAP_System/artifacts/reports/task-203-ui-metrics-cards-evidence.md",
+        "MAP_System/artifacts/reports/task203-map-health-card.png"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-203",
+      "title": "CommandCenterUI outcome + cost/yield rows in MAP runtime card",
+      "unexpected": "",
+      "workstream": "command-center-ui"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+        "MAP_System/notes/review-guide.md"
+      ],
+      "concepts": [
+        "debate",
+        "escalation",
+        "decision",
+        "authority",
+        "conflict",
+        "optional",
+        "pre",
+        "step"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "PROMO-0009 / IDEA-0019: wire the existing 'hcom run debate' workflow into the conflict-freeze and decision-authority path as an OPTIONAL, non-breaking pre-escalation step, so contested CONFLICT-frozen tasks and high-authority DECISION_CLASSES calls can get a structured multi-perspective critique before defaulting to operator escalation. Doc + convention only: no new wrapper script (hcom already ships 'hcom run debate')\u2026",
+      "outcome": "unknown",
+      "project": "MAP",
+      "result": "RELEASED: Optional debate pre-escalation step for conflict-freeze / decision-authority path.",
+      "semantic_word_count": 73,
+      "source_hashes": {
+        "MAP_System/DECISION_AUTHORITY_SYSTEM.md": "733eb931ba2d0bd3ce38335420b10e44bb86ddf7b53bc661bf1f94fa78defc1b",
+        "MAP_System/notes/review-guide.md": "f90e80cd4d06cb6a1613625e330ab9e89c9eb88c5b1bca4b4f3a040ae6dd9a4b",
+        "MAP_System/tasks/TASK-204.json": "8af43cb05578497a8134632ccdae8eb7649d375c20e0693dd88208b46dfe0f23"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-204.json",
+        "MAP_System/DECISION_AUTHORITY_SYSTEM.md",
+        "MAP_System/notes/review-guide.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-204",
+      "title": "Optional debate pre-escalation step for conflict-freeze / decision-authority path",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    },
+    {
+      "broken_output_refs": [],
+      "changed_paths": [
+        "Projects/ProjectUpdater/app/index.html",
+        "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+      ],
+      "concepts": [
+        "projectupdater",
+        "backup",
+        "export",
+        "full",
+        "import",
+        "data",
+        "json",
+        "complete"
+      ],
+      "curation": "deterministic_task_record",
+      "friction": "",
+      "goal": "DEC-028 first software-delivery slice. IDEA-0015's export shipped in TASK-136 but only as a LOSSY status snapshot (exportStatus() drops id/goal/nextAction/points/streak/reminderDays/lastVisited/dueDate), so it cannot restore state. Add a FULL backup Export + Import of the complete internal model (the STORE_KEY localStorage payload / db) to actually mitigate the registered localStorage data-loss risk. Keep the existing 'Export status'\u2026",
+      "outcome": "unknown",
+      "project": "ProjectUpdater",
+      "result": "RELEASED: ProjectUpdater full JSON backup export + import (complete IDEA-0015 data-loss mitigation).",
+      "semantic_word_count": 75,
+      "source_hashes": {
+        "MAP_System/tasks/TASK-205.json": "d45a32085dbd2c6c188a0e647abd2506c9213347d00044526aaab7ae3995ef39",
+        "Projects/ProjectUpdater/app/index.html": "1e8b022b580f02213c6628356ef7101b09b3f8202c6f1acd21232ef91b6338a9",
+        "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md": "d7d51074962345649f0091fe822333c8773c29d5e47e34b5cd15061575706dc6"
+      },
+      "source_refs": [
+        "MAP_System/tasks/TASK-205.json",
+        "Projects/ProjectUpdater/app/index.html",
+        "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+      ],
+      "status": "RELEASED",
+      "task_id": "TASK-205",
+      "title": "ProjectUpdater full JSON backup export + import (complete IDEA-0015 data-loss mitigation)",
+      "unexpected": "",
+      "workstream": "map-runtime"
+    }
+  ],
+  "generated_at": "2026-07-19T14:05:00-04:00",
+  "missing_task_ids": [],
+  "pilot_metrics_before_helper": {
+    "critical_task_misses": 2,
+    "expected_source_visibility": 0.625,
+    "per_query": [
+      {
+        "expected_sources": [
+          "MAP_System/scripts/session_replay.py",
+          "MAP_System/tests/test_session_replay.py"
+        ],
+        "expected_tasks": [
+          "TASK-173"
+        ],
+        "hidden_expected_sources": [
+          "MAP_System/scripts/session_replay.py",
+          "MAP_System/tests/test_session_replay.py"
+        ],
+        "id": "H1",
+        "missing_tasks": [
+          "TASK-173"
+        ],
+        "returned_tasks": [
+          "TASK-170",
+          "TASK-174",
+          "TASK-189",
+          "TASK-181",
+          "TASK-190",
+          "TASK-172"
+        ],
+        "visible_expected_sources": []
+      },
+      {
+        "expected_sources": [
+          "MAP_System/scripts/librarian.py",
+          "MAP_System/tests/test_librarian.py"
+        ],
+        "expected_tasks": [
+          "TASK-179"
+        ],
+        "hidden_expected_sources": [
+          "MAP_System/scripts/librarian.py"
+        ],
+        "id": "H2",
+        "missing_tasks": [],
+        "returned_tasks": [
+          "TASK-179",
+          "TASK-184",
+          "TASK-204",
+          "TASK-181",
+          "TASK-176",
+          "TASK-192"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/tests/test_librarian.py"
+        ]
+      },
+      {
+        "expected_sources": [
+          "MAP_System/scripts/redaction.py",
+          "MAP_System/tests/test_redaction.py"
+        ],
+        "expected_tasks": [
+          "TASK-191"
+        ],
+        "hidden_expected_sources": [
+          "MAP_System/scripts/redaction.py"
+        ],
+        "id": "H3",
+        "missing_tasks": [],
+        "returned_tasks": [
+          "TASK-191",
+          "TASK-180",
+          "TASK-183",
+          "TASK-202",
+          "TASK-181",
+          "TASK-198"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/tests/test_redaction.py"
+        ]
+      },
+      {
+        "expected_sources": [
+          "MAP_System/db/claims.py",
+          "MAP_System/tests/test_review_claims.py"
+        ],
+        "expected_tasks": [
+          "TASK-199"
+        ],
+        "hidden_expected_sources": [
+          "MAP_System/db/claims.py"
+        ],
+        "id": "H4",
+        "missing_tasks": [],
+        "returned_tasks": [
+          "TASK-199",
+          "TASK-179",
+          "TASK-183",
+          "TASK-181",
+          "TASK-162",
+          "TASK-197"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/tests/test_review_claims.py"
+        ]
+      },
+      {
+        "expected_sources": [
+          "MAP_System/workflow/runtime_policy.yaml",
+          "MAP_System/tests/test_halt_authority_window.py"
+        ],
+        "expected_tasks": [
+          "TASK-201"
+        ],
+        "hidden_expected_sources": [
+          "MAP_System/workflow/runtime_policy.yaml"
+        ],
+        "id": "H5",
+        "missing_tasks": [],
+        "returned_tasks": [
+          "TASK-201",
+          "TASK-183",
+          "TASK-202",
+          "TASK-204",
+          "TASK-184",
+          "TASK-188"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/tests/test_halt_authority_window.py"
+        ]
+      },
+      {
+        "expected_sources": [
+          "Projects/ProjectUpdater/app/index.html",
+          "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+        ],
+        "expected_tasks": [
+          "TASK-205"
+        ],
+        "hidden_expected_sources": [],
+        "id": "H6",
+        "missing_tasks": [],
+        "returned_tasks": [
+          "TASK-205",
+          "TASK-168",
+          "TASK-193",
+          "TASK-181",
+          "TASK-188",
+          "TASK-192"
+        ],
+        "visible_expected_sources": [
+          "Projects/ProjectUpdater/app/index.html",
+          "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+        ]
+      },
+      {
+        "expected_sources": [
+          "MAP_System/scripts/cost_yield.py",
+          "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+        ],
+        "expected_tasks": [
+          "TASK-190"
+        ],
+        "hidden_expected_sources": [],
+        "id": "H7",
+        "missing_tasks": [],
+        "returned_tasks": [
+          "TASK-190",
+          "TASK-162",
+          "TASK-180",
+          "TASK-193",
+          "TASK-203",
+          "TASK-161"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/scripts/cost_yield.py",
+          "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+        ]
+      },
+      {
+        "expected_sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/tests/test_limit_watcher.py"
+        ],
+        "expected_tasks": [
+          "TASK-187",
+          "TASK-195"
+        ],
+        "hidden_expected_sources": [],
+        "id": "H8",
+        "missing_tasks": [
+          "TASK-195"
+        ],
+        "returned_tasks": [
+          "TASK-187",
+          "TASK-198",
+          "TASK-172",
+          "TASK-173",
+          "TASK-178",
+          "TASK-176"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/tests/test_limit_watcher.py"
+        ]
+      }
+    ],
+    "task_hits": 7,
+    "task_recall_at_6": 0.7778,
+    "total_expected_sources": 16,
+    "total_expected_tasks": 9,
+    "visible_expected_sources": 10
+  },
+  "projection_authority": "none; generated retrieval aid only",
+  "query_packet_estimated_tokens": {
+    "H1": 1083,
+    "H2": 1114,
+    "H3": 1107,
+    "H4": 1106,
+    "H5": 1196,
+    "H6": 1156,
+    "H7": 1061,
+    "H8": 1071
+  },
+  "schema_version": 1,
+  "source_spec": "MAP_System/artifacts/experiments/task-fingerprint-holdout-queries-2026-07-19.json"
+}

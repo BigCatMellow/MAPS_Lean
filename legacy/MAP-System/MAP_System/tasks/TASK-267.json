@@ -1,0 +1,39 @@
+{
+  "task_id": "TASK-267",
+  "title": "Re-align MAP project vision, current state, and active execution lanes",
+  "task_type": "planning",
+  "role": "shaper",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lime",
+  "description": "Operator directive 2026-07-22: agents have been operating from different stages of MAP evolution. Reconcile approved decisions, executable state, active tasks, and agent authority into one concise current operating picture; refresh stale canonical summaries without inventing architecture or erasing history.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/planning/map-project-realignment-2026-07-22.md",
+    "MAP_System/shared/agent-capability-matrix.md",
+    "MAP_System/shared/canonical-repo.md",
+    "MAP_System/shared/current-state.md",
+    "MAP_System/shared/hpom.md",
+    "MAP_System/shared/project-brief.md"
+  ],
+  "acceptance_criteria": [
+    "A concise durable alignment memo states the approved project vision and non-goals using current decisions and executable evidence.",
+    "The memo reconciles every active task, current owner/lane, dependency or gate, and recommended execution order.",
+    "project-brief.md and current-state.md are refreshed only where verified facts have changed, with current metadata and links to authoritative decisions.",
+    "Agent roles and authority boundaries are explicit: Codex/Claude core, Pi exploratory-only, helpers bounded/visible, operator attention reserved for decisions and risks.",
+    "Validators pass and an independent reviewer can verify every claimed current-state fact."
+  ],
+  "decision_class": null,
+  "risk_class": "KNOWLEDGE",
+  "risk_severity": "BLOCKING",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

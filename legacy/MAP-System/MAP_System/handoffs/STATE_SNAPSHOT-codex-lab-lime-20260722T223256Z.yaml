@@ -1,0 +1,194 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-22T22:32:56Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-lime
+session_id: 019f8b93-7438-70d3-8472-06d926e8bcb2
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: DECISION_RECORDED
+    task_id: TASK-186
+    summary: 'Selected release option A: accept outcome, test, and pre-restart dry-run
+      evidence; preserve the lost live-attribution limitation and do not manufacture
+      a terminal transition. TASK-186 is RELEASED.'
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-270
+    summary: Reproduced a review_id primary-key collision hidden by the first UNIQUE-text
+      classifier and required semantic open-claim classification, contract corrections,
+      and registered test scope.
+  - event_type: APPROVED
+    task_id: TASK-270
+    summary: Approved rework after 12 focused tests, four mutation checks, mirror
+      validation, and full-suite baseline 72/2; TASK-270 is now RELEASED.
+  - event_type: RESEARCH
+    task_id: HERDR-COMPARISON
+    summary: Commissioned a visible Haiku helper to compare Herdr with MAP. Core review
+      removed secondary sourcing and overclaims; the final artifact is primary-source-only
+      with explicit uncertainty.
+  - event_type: APPROVED
+    task_id: TASK-271
+    summary: Verified context-rotation implementation is APPROVED; this session is
+      dogfooding the two-phase protocol again at the watcher checkpoint.
+  - event_type: APPROVED
+    task_id: TASK-272
+    summary: Claude-lab-gabi independently approved Veto's startup-continuity task
+      with all criteria, mutations, focused tests, context-rotation tests, and launcher
+      syntax verified.
+  touched_paths:
+  - MAP_System/artifacts/reviews/task270-review-lime.md
+  - MAP_System/artifacts/reviews/task270-rereview-lime.md
+  - MAP_System/artifacts/research/SUMMARY-herdr-comparison-2026-07-22.md
+  - MAP_System/inbox/helpers/helper-herdr-comparison-2026-07-22.md
+  - MAP_System/shared/context-continuity.md
+active_constraints:
+- scope: task
+  rule: TASK-267 is CHANGES_REQUESTED and owned by codex-lab-lime; rework its stale
+    alignment claims before resubmission.
+  source: MAP_System/tasks/TASK-267.json and prior review handoff
+- scope: task
+  rule: TASK-236 remains parked pending TASK-267; do not claim it merely because SQLite
+    shows READY.
+  source: claude-lab-gabi handoff 2026-07-22
+- scope: task
+  rule: TASK-272 is independently APPROVED; its owner codex-lab-veto controls integration/release.
+  source: MAP_System/tasks/TASK-272.json and MAP_System/artifacts/reviews/task272-review-gabi.md
+- scope: communication
+  rule: Herdr comparison remains advisory; helper output must be core-reviewed before
+    promotion into tasks, decisions, or emergence records.
+  source: MAP_System/inbox/helpers/helper-herdr-comparison-2026-07-22.md
+- scope: safety
+  rule: Do not supersede or stop this old session until a fresh visible replacement
+    ACKs the exact prepared snapshot hash and finalize succeeds.
+  source: MAP_System/notes/context-rotation-guide.md
+- scope: repo
+  rule: Preserve unrelated dirty-worktree changes and use MAP_System/scripts/map-git
+    for Git inspection.
+  source: AGENTS.md
+forward_tasks:
+- task_id: TASK-267
+  next_action: fix
+  owner: codex-lab-lime
+  reason: Resolve the existing CHANGES_REQUESTED findings in the canonical alignment
+    artifact before resubmission.
+  paths:
+  - MAP_System/artifacts/planning/map-project-realignment-2026-07-22.md
+- task_id: TASK-272
+  next_action: wait
+  owner: codex-lab-veto
+  reason: Independently APPROVED by claude-lab-gabi; wait for the owner to perform
+    the normal integration/release gate.
+  paths:
+  - MAP_System/tasks/TASK-272.json
+- task_id: TASK-236
+  next_action: wait
+  owner: claude-lab-gome
+  reason: Explicitly parked pending TASK-267 by cross-agent agreement.
+  paths: []
+- task_id: TASK-265
+  next_action: ask_operator
+  owner: command-center
+  reason: Still needs operator direction on remote OLLAMA_HOST permission and which
+    server.py is authoritative.
+  paths: []
+blockers:
+- kind: dependency
+  detail: TASK-236 is parked until TASK-267 is resolved.
+  unblock_by: Complete and release TASK-267 or explicitly revise the parking agreement.
+- kind: approval
+  detail: TASK-265 requires operator decisions on remote OLLAMA_HOST and authoritative
+    server.py.
+  unblock_by: Operator provides both decisions through the normal policy gate.
+lexicon:
+  Herdr: Terminal-native multi-agent multiplexer being evaluated only as an advisory
+    operator-surface comparison.
+  HPOM: Human-Paced Orchestration Model for worker fit and authority routing.
+  RnS: Rise & Shine limit watcher and recovery flow.
+  claim_review: SQLite review-slot claim helper fixed by TASK-270 to register reviewers
+    and classify the open-claim invariant.
+  context_rotation: Checkpoint, immutable v2 snapshot, checksum-bound live replacement
+    ACK, finalize, then supersede.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-267
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- sed -n '1,280p' MAP_System/artifacts/research/SUMMARY-herdr-comparison-2026-07-22.md
+validation:
+- 'TASK-270 focused review-claim tests: 12/12 pass.'
+- 'TASK-270 mutation checks: registration removal, swallow-all, re-raise-all, and
+  rejected UNIQUE-text classifier all killed.'
+- Task mirrors passed after TASK-270 approval; full suite baseline was 72 pass / 2
+  established unrelated event-warning failures.
+- Herdr helper artifact received multiple core source-quality passes; the final artifact
+  is complete, primary-source-only, and explicitly labels undocumented Herdr behavior.
+rotation:
+  reason: threshold
+  summary: This session independently reviewed TASK-270, found and reproduced a second
+    hidden uniqueness failure, required rework, then approved the invariant-based
+    correction; TASK-270 is RELEASED. It selected evidence option A for TASK-186,
+    now RELEASED. It commissioned the Herdr comparison helper and enforced primary-source-only
+    uncertainty discipline. No task is currently claimed by this identity. TASK-267
+    remains owned and CHANGES_REQUESTED; TASK-272 is independently APPROVED; TASK-236
+    is parked; TASK-265 needs operator input.
+  next_action: Load this snapshot, inspect TASK-267 review findings, and begin its
+    owned rework; leave TASK-272 integration/release to its owner.
+  used_tokens: 135222
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-22T22:32:56Z'
+  canonical_tasks:
+  - task_id: TASK-236
+    status: READY
+    owner: claude-lab-gome
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 15:27:57'
+  - task_id: TASK-265
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-21T22:18:49Z'
+  - task_id: TASK-267
+    status: CHANGES_REQUESTED
+    owner: codex-lab-lime
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 19:09:43'
+  - task_id: TASK-272
+    status: APPROVED
+    owner: codex-lab-veto
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 22:31:32'
+  canonical_tasks_sha256: d9390b83d529f323f6ef8d189cf9c134e35f7e9466018136f64191739d96f95a
+  touched_paths:
+  - path: MAP_System/artifacts/research/SUMMARY-herdr-comparison-2026-07-22.md
+    scope: workspace
+    sha256: 760e8d7669cef2e0b0dc54f8da256c21cab857e632793f7b185011e84541cb60
+    state: file
+  - path: MAP_System/artifacts/reviews/task270-rereview-lime.md
+    scope: workspace
+    sha256: db3c1e5f4e7524c377aed55c946f6fa2f24d12680ba92cdf0c72e41230eebcfd
+    state: file
+  - path: MAP_System/artifacts/reviews/task270-review-lime.md
+    scope: workspace
+    sha256: 32d04fa89cdf35fcb9055d4b02da7e8d0e94bb0a2b505e8fdc832f9825f7aca5
+    state: file
+  - path: MAP_System/inbox/helpers/helper-herdr-comparison-2026-07-22.md
+    scope: workspace
+    sha256: a9e5258283b03a55deac117a0a148848163352f636572e405a194d44fbff270f
+    state: file
+  - path: MAP_System/shared/context-continuity.md
+    scope: protocol_generated
+    sha256: null
+    state: tracked_by_ledger_revision
+  touched_paths_sha256: ef8f1d616fdf16ca07984284bf8fedd3fbe12004cf3dab8b63a664eefe10c0b0

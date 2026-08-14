@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-047",
+  "title": "HPOM-004: Review gate \u2014 require review record before APPROVED",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-mako",
+  "description": "Add validate_review.py to enforce pre-APPROVED review gate: self-review check, verdict validity, criteria rows, files listed, forbidden changes section, task ID match. Extend map_task.py approve with --review-record flag.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/validate_review.py",
+    "MAP_System/templates/review-record.md"
+  ],
+  "acceptance_criteria": [
+    "validate_review.py exits 0 for well-formed review, 1 for self-review or missing fields",
+    "map_task.py approve --review-record blocks APPROVED on validate_review.py exit 1",
+    "review-record.md template includes all required HPOM header fields"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

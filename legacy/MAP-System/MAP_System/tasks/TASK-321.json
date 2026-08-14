@@ -1,0 +1,39 @@
+{
+  "task_id": "TASK-321",
+  "title": "Phase 0: restore a trustworthy Biggie/Smalls authority baseline",
+  "task_type": "bugfix",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "rotation-replacement-miro-fela",
+  "description": "Implement the first independently reviewable slice of the operator-approved MAP Research Adoption Implementation Program: establish truthful Biggie mirror and Smalls authority freshness across host and agent-sandbox execution, reconcile the remaining authority/rotation recovery evidence without weakening fail-closed writer detection, and produce a verified Phase 0 baseline packet for independent review.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/recovery/map2-phase0-trustworthy-baseline-2026-08-10.md",
+    "MAP_System/scripts/map_authority.py",
+    "MAP_System/scripts/map_authority_notify.py",
+    "MAP_System/tests/test_map_authority.py",
+    "MAP_System/tests/test_map_authority_notify.py"
+  ],
+  "acceptance_criteria": [
+    "Biggie and Smalls host roles are named consistently in the new baseline artifact, with Smalls remaining the sole writable lifecycle authority and Biggie remaining a read-only mirror.",
+    "The Biggie host-side and Codex-sandbox authority probes are reproduced and distinguished with exact commands; the sanctioned route no longer gives agents a false stale result solely because the sandbox cannot access the user systemd bus, without treating an unproven writer state as clean.",
+    "A genuine active local lifecycle writer or recent overlapping watcher write still fails closed and blocks mirror installation.",
+    "Focused authority tests cover the sandbox/user-bus failure mode and the retained writer-collision protections.",
+    "Unsandboxed map-authority status and route, task mirrors, shared-state validation, focused tests, and graph runner provide a consistent final baseline, with any remaining blockers explicitly carried rather than hidden.",
+    "A different core agent performs functional review and a separate security-framed review before approval because the change affects an authority/write-capable trust boundary."
+  ],
+  "decision_class": "AUTHORITY",
+  "risk_class": "AVAILABILITY",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": true,
+  "trust_boundary_crossing": true
+}

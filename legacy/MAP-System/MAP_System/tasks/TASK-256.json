@@ -1,0 +1,39 @@
+{
+  "task_id": "TASK-256",
+  "title": "Pilot token-budgeted task-fingerprint retrieval with a fresh helper",
+  "task_type": "experiment",
+  "role": "researcher",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Run a bounded offline experiment over a frozen recent-task corpus. Generate compact source-linked task fingerprints and deterministic lexical retrieval results, give a fresh visible read-only helper only the compact pilot packet first, monitor its source selections and uncertainty, and compare them with a predeclared truth set and context budget. Do not integrate the prototype into startup, MAP routing, the Command Center, or external services.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task-fingerprint-index-helper-packet-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-fingerprint-index-pilot-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-fingerprint-index-pilot-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-fingerprint-index-pilot-queries-2026-07-19.json",
+    "MAP_System/inbox/helpers/helper-index-neko-2026-07-19.md",
+    "MAP_System/scripts/task_fingerprint_pilot.py",
+    "MAP_System/tests/test_task_fingerprint_pilot.py"
+  ],
+  "acceptance_criteria": [
+    "The corpus, frozen queries, expected relevant sources, scoring method, and token budget are recorded before the evaluator sees the packet.",
+    "Each compact fingerprint links to resolvable primary MAP evidence and the generated pilot remains a disposable projection rather than task or policy authority.",
+    "A fresh visible helper evaluates the compact index without broad repository search, writes nothing, reports uncertainty and selected source expansions, and is monitored through hcom.",
+    "The final report measures retrieval recall, precision/usefulness, discovery size, source-expansion choices, latency, stale or broken references, and limitations, including negative results."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

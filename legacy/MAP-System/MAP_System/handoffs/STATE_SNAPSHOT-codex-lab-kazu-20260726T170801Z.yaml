@@ -1,0 +1,156 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T17:08:01Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-kazu
+session_id: 019f9f5c-16c5-7583-9cb9-9c1e54fefe84
+status: handing_off
+task_context:
+  current_task: TASK-277
+  owned_tasks: []
+  pending_reviews:
+  - TASK-277
+  recent_events:
+  - event_type: APPROVED
+    task_id: TASK-276
+    summary: Independently reviewed and approved; review artifact written and active-lane
+      state synchronized.
+  - event_type: SUBMISSION
+    task_id: TASK-277
+    summary: Role-system architecture review submitted; low-level submit path has
+      no canonical SUBMISSION event until TASK-274.
+  - event_type: REVIEW_ROUTING
+    task_id: TASK-277
+    summary: claude-lab-nene was requested as independent reviewer but went idle without
+      responding; review remains unclaimed.
+  touched_paths:
+  - MAP_System/artifacts/reviews/task276-review-kazu.md
+  - MAP_System/artifacts/planning/roles-system-map-improvement-review.md
+  - MAP_System/shared/current-state.md
+  - MAP_System/tasks/TASK-276.json
+  - MAP_System/tasks/TASK-277.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/events/events.jsonl
+active_constraints:
+- scope: repo
+  rule: Preserve the large pre-existing dirty worktree; do not clean or discard uncommitted
+    durable MAP evidence.
+  source: AGENTS.md and HANDOFF-claude-lane-claude-lab-zaro.md
+- scope: task
+  rule: TASK-277 is SUBMITTED and must be reviewed by an independent agent; codex-lab-kazu
+    cannot review its own architecture deliverable.
+  source: MAP_System/AGENTS.md and MAP_System/notes/review-guide.md
+- scope: communication
+  rule: Use hcom request only for decisions, blockers, approvals, risks, or needed
+    responses; routine progress uses inform.
+  source: operator startup instruction
+- scope: tool
+  rule: Any hcom-spawned agent/helper must use --terminal wezterm-tab and never --headless
+    unless explicitly directed.
+  source: MAP_System/AGENTS.md and operator startup instruction
+- scope: task
+  rule: Do not implement TASK-277 recommendations before independent review and operator
+    prioritization; the report explicitly separates adoption from recommendation.
+  source: MAP_System/artifacts/planning/roles-system-map-improvement-review.md
+forward_tasks:
+- task_id: TASK-277
+  next_action: review
+  owner: null
+  reason: Submitted architecture review needs a fresh independent reviewer; claude-lab-nene
+    did not respond.
+  paths:
+  - /home/mellow/Projects/MultiAgentProject/roles_in_MAP_system.md
+  - MAP_System/artifacts/planning/roles-system-map-improvement-review.md
+  - MAP_System/tasks/TASK-277.json
+- task_id: TASK-268
+  next_action: claim
+  owner: command-center
+  reason: Runner identifies TASK-268 as the sole ready implementation task, but review
+    routing takes precedence while TASK-277 is submitted.
+  paths:
+  - MAP_System/tasks/TASK-268.json
+blockers:
+- kind: ownership_conflict
+  detail: TASK-277 cannot be self-reviewed; the first requested Claude reviewer went
+    idle without responding.
+  unblock_by: Route TASK-277 to another live independent Claude/core reviewer.
+lexicon:
+  MAP: Reusable multi-agent delivery system under MAP_System.
+  HPOM: Human-Paced Orchestration Model; separates worker/model fit from authority.
+  role_system_review: TASK-277 report deriving an evolutionary MAP roadmap from roles_in_MAP_system.md.
+  STATE_SNAPSHOT: Checksum-bound YAML handoff used for verified session rotation.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- python3 MAP_System/scripts/validate_task_mirrors.py
+- python3 MAP_System/scripts/validate_task_graph.py
+validation:
+- TASK-276 focused validator tests passed 14/14 before approval.
+- validate_shared_state_tasks.py passed after TASK-276 approval and lane synchronization.
+- validate_shared_state.py passed 23/23.
+- validate_task_mirrors.py passed after TASK-277 submission.
+- validate_task_graph.py passed after TASK-277 submission.
+- Runner route is review with TASK-277 submitted.
+rotation:
+  reason: threshold
+  summary: Session oriented, independently approved TASK-276, then reviewed the full
+    roles_in_MAP_system.md and submitted TASK-277 with a prioritized evolutionary
+    roadmap. The strongest recommendations are stable role IDs separated from worker/model,
+    generated operational state, task revisions and run manifests, structured criterion-level
+    submission evidence, then deterministic scope enforcement and source-aware compact
+    memory. No recommended system changes were implemented. Independent Claude review
+    is still pending because claude-lab-nene went idle.
+  next_action: Read this snapshot, TASK-277, the submitted report, and current runner
+    output; acknowledge the snapshot hash, then route TASK-277 to a live independent
+    reviewer.
+  used_tokens: 151481
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-26T17:08:01Z'
+  canonical_tasks:
+  - task_id: TASK-268
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23 03:28:44'
+  - task_id: TASK-277
+    status: SUBMITTED
+    owner: codex-lab-kazu
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26 17:04:21'
+  canonical_tasks_sha256: 5b65a28bd3204f77ee6d22c0f9b232efd3330464f45f3168b6303c2a43f6f141
+  touched_paths:
+  - path: MAP_System/artifacts/planning/roles-system-map-improvement-review.md
+    scope: workspace
+    sha256: fd0ee86fd4de0fdd026d7f9f558838405cbf63f7bf23621871a9a183963dddc5
+    state: file
+  - path: MAP_System/artifacts/reviews/task276-review-kazu.md
+    scope: workspace
+    sha256: 57b8edb619d06f969c549d691e9352c6c0e2708df83183e9ae63c8406108310f
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: 93c156f9bc3ff366a0bdefd7ebab8bacd558a4f9f469892dc9949c7e42aeeb61
+    state: file
+  - path: MAP_System/shared/current-state.md
+    scope: workspace
+    sha256: 35415f99ae10b5314ac21b06454a46648b3ed8fb9d271b15de409ccc7d493283
+    state: file
+  - path: MAP_System/tasks/TASK-276.json
+    scope: workspace
+    sha256: 4a21ce72afbadf3588d190bd73166d327bf2a75951b45b76508e75921e11d12e
+    state: file
+  - path: MAP_System/tasks/TASK-277.json
+    scope: workspace
+    sha256: 9bbbd78885fa8aae4afdd8ead7ab99d095a78abec20c9dc7b9d79e832b287123
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 1a8b82ea24c3639297c24c81a7e4c11ca6046a366104da0d5ce33073db0fa44e
+    state: file
+  touched_paths_sha256: 58d664c8f669e8f48cd5f916c682f7c58adbd4470407e920ad3997dfa30b2233

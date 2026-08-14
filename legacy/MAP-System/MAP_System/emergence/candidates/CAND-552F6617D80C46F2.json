@@ -1,0 +1,17 @@
+{
+  "candidate_id": "CAND-552F6617D80C46F2",
+  "status": "accepted",
+  "signal_type": "repeated_rework",
+  "subject": "TASK-306",
+  "summary": "TASK-306 received 2 changes-requested events; inspect for a reusable prevention lesson.",
+  "evidence_refs": [
+    "MAP_System/events/events.jsonl:4546",
+    "MAP_System/events/events.jsonl:4555"
+  ],
+  "dedup_key": "552f6617d80c46f2",
+  "detected_at": "2026-07-30T13:16:05Z",
+  "curated_at": "2026-07-30T13:19:02Z",
+  "curated_by": "claude-lab-mimi",
+  "resolution_reason": "Genuine reusable pattern: submission-time parity evidence invalidated by a live edit during the review window. Captured with TASK-263 as INS-0058.",
+  "resolution_ref": "MAP_System/emergence/insights/INS-0058-submission-time-evidence-file-parity-checksums-pilot-metrics-can.md"
+}

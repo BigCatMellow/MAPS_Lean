@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-259",
+  "title": "Build and benchmark a temporal-safe FTS5 memory index",
+  "task_type": "experiment",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Build a disposable local SQLite FTS5/BM25 retrieval baseline for MAP durable memory. Separate unique source documents from task/source links, prevent current shared mutable content from being copied into historical task meaning, query weighted task/source/path channels with bounded deterministic decomposition, and fuse ranked lists with reciprocal rank fusion. Score only the known TASK-257 and TASK-258 truth sets as labeled development regressions in this task; freeze the resulting implementation before any later fresh holdout. Measure task/source retrieval, compound coverage, negative handling, build/query latency, database size, path health, and temporal attribution. Do not integrate into startup, routing, Command Center, canonical authority, or external services.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task-memory-fts5-rrf-development-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-memory-fts5-rrf-development-2026-07-19.md",
+    "MAP_System/scripts/task_memory_fts.py",
+    "MAP_System/tests/test_task_memory_fts.py"
+  ],
+  "acceptance_criteria": [
+    "The disposable SQLite schema stores one source document per unique normalized path plus explicit task/source links and temporal-attribution labels; multiply linked mutable current content is not cloned into historical task semantics.",
+    "Weighted local FTS5 task/source fields, a path/identifier channel, bounded deterministic subqueries, and reciprocal-rank fusion are implemented without a package, model, network, runtime, router, UI, or canonical-authority dependency.",
+    "Focused tests cover deterministic rebuild/query behavior, shared-source temporal handling, RRF, compound retrieval, path health, and abstention signals.",
+    "Known TASK-257 and TASK-258 truth sets are labeled development regressions only; the report records task/source metrics, compound and negative behavior, build/query latency, index size, failure analysis, and a frozen-implementation handoff for a later fresh holdout without making an adoption claim."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

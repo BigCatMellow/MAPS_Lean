@@ -1,0 +1,120 @@
+{
+  "seed": 7,
+  "steps": [
+    {
+      "turn": 0,
+      "lifeYou": "19",
+      "lifeEnemy": "20",
+      "phase": "Your turn",
+      "handCount": 3,
+      "boardCountYou": 1,
+      "boardCountEnemy": 0,
+      "log": [
+        "You played Doomed Servant as card 1 of 2.",
+        "You started turn 1 with 3 cards.Deploy Ashen Reaper for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. You go first."
+      ]
+    },
+    {
+      "turn": 1,
+      "lifeYou": "19",
+      "lifeEnemy": "19",
+      "phase": "Your turn",
+      "handCount": 3,
+      "boardCountYou": 1,
+      "boardCountEnemy": 0,
+      "log": [
+        "You played Doomed Servant as card 1 of 2.",
+        "You started turn 1 with 3 cards.Deploy Ashen Reaper for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. You go first."
+      ]
+    },
+    {
+      "turn": 2,
+      "lifeYou": "19",
+      "lifeEnemy": "19",
+      "phase": "Your turn",
+      "handCount": 3,
+      "boardCountYou": 2,
+      "boardCountEnemy": 0,
+      "log": [
+        "You played Doomed Servant as card 1 of 2.",
+        "You started turn 1 with 3 cards.Deploy Ashen Reaper for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. You go first."
+      ]
+    },
+    {
+      "turn": 3,
+      "lifeYou": "19",
+      "lifeEnemy": "19",
+      "phase": "Your turn",
+      "handCount": 3,
+      "boardCountYou": 3,
+      "boardCountEnemy": 2,
+      "log": [
+        "You played Doomed Servant as card 1 of 2.",
+        "You started turn 1 with 3 cards.Deploy Ashen Reaper for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. You go first."
+      ]
+    },
+    {
+      "turn": 4,
+      "lifeYou": "19",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 3,
+      "boardCountEnemy": 3,
+      "log": [
+        "You played Doomed Servant as card 1 of 2.",
+        "You started turn 1 with 3 cards.Deploy Ashen Reaper for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. You go first."
+      ]
+    },
+    {
+      "turn": 5,
+      "lifeYou": "16",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 3,
+      "boardCountEnemy": 4,
+      "log": [
+        "You played Doomed Servant as card 1 of 2.",
+        "You started turn 1 with 3 cards.Deploy Ashen Reaper for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. You go first."
+      ]
+    },
+    {
+      "turn": 6,
+      "lifeYou": "16",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 3,
+      "boardCountEnemy": 4,
+      "log": [
+        "You played Doomed Servant as card 1 of 2.",
+        "You started turn 1 with 3 cards.Deploy Ashen Reaper for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. You go first."
+      ]
+    },
+    {
+      "turn": 7,
+      "lifeYou": "12",
+      "lifeEnemy": "20",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 3,
+      "boardCountEnemy": 4,
+      "log": [
+        "You played Doomed Servant as card 1 of 2.",
+        "You started turn 1 with 3 cards.Deploy Ashen Reaper for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. You go first."
+      ]
+    }
+  ],
+  "consoleMsgCount": 0,
+  "exceptionCount": 0,
+  "exceptions": []
+}

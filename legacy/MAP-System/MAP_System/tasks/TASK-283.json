@@ -1,0 +1,42 @@
+{
+  "task_id": "TASK-283",
+  "title": "Enforce run path scope and retry budgets deterministically",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-281"
+  ],
+  "owner": "command-center",
+  "description": "Implement the approved TASK-277 scope and budget slice after minimal run manifests exist. Add readable, writable, and forbidden path contracts, dispatch preflight, post-run diff verification, and bounded attempt, tool-failure, and runtime envelopes. Claim hard containment only where the harness demonstrably enforces it; otherwise block submission and escalate.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task283-scope-budget-delivery-note.md",
+    "MAP_System/migration/run_manifest_schema.sql",
+    "MAP_System/scripts/pre_dispatch_policy.py",
+    "MAP_System/scripts/run_manifest.py",
+    "MAP_System/scripts/verify_run_scope.py",
+    "MAP_System/tests/test_run_scope.py",
+    "MAP_System/workflow/runtime_policy.yaml"
+  ],
+  "acceptance_criteria": [
+    "Run manifests declare readable, writable, and forbidden paths plus maximum attempts, tool failures, and runtime.",
+    "Dispatch preflight rejects invalid or overlapping scope contracts before model work starts.",
+    "Post-run verification detects out-of-scope writes and blocks submission until a recorded scope expansion or rollback occurs.",
+    "Retry or runtime exhaustion produces a durable escalation artifact instead of an unbounded loop.",
+    "Tests distinguish prompt-level guidance, post-run enforcement, and genuine harness containment so documentation never overclaims the security boundary."
+  ],
+  "decision_class": "POLICY",
+  "risk_class": "SECURITY",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "policy",
+  "requires_operator_approval": true,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": true,
+  "trust_boundary_crossing": true
+}

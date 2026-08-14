@@ -1,0 +1,339 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-30T21:44:44Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-mimi
+session_id: 849c721b-210c-4fba-8627-c9794c3c9c12
+status: handing_off
+task_context:
+  current_task: TASK-310
+  owned_tasks:
+  - TASK-310
+  pending_reviews: []
+  recent_events:
+  - event_type: RECOVERY_REVIEW_QUEUE_CLEARED
+    task_id: null
+    summary: 'As operator-designated MAP recovery coordinator (DEC-036), cleared the
+      submitted-review backlog: TASK-313/305/298/295/311 all reviewed and APPROVED,
+      each independently re-verified live rather than trusted from the executor''s
+      report. All lifecycle mutations executed by codex-lab-vumo on Smalls (Biggie
+      cannot write map.db directly).
+
+      '
+  - event_type: DEC037_AUDIT_FOUND_REAL_DRIFT
+    task_id: null
+    summary: 'Operator directed the librarian to own standing plan/goal-alignment
+      auditing (DEC-037), explicitly including checking the coordinator''s own work.
+      First audit (helper-librarian-tara, MAP_System_Recovery_2026-07-29/00_control/reviews/plan-alignment-audit-2026-07-30.md)
+      found real, confirmed problems: TASK-310''s own SQLite lease had silently expired
+      ~7 hours earlier (cross-host hcom coordination waiting consumes real wall-clock
+      time even though the conversation felt continuous -- re-heartbeated immediately
+      on discovery, nobody had reclaimed it but that was luck not safety); TASK-309
+      (the recovery epic) still showed codex-lab-risa as owner/claimant with an expired
+      lease, never actually reconciled after DEC-036 despite being documented there;
+      TASK-311 (WS-2) was approved while running ahead of Sequence Amendment 1''s
+      own approved revised ordering (WS-2 was supposed to follow TASK-310''s independent
+      review, not run parallel to it) -- the coordinator''s operator question authorizing
+      this was framed around the raw SQLite dependency, not Amendment 1''s fuller
+      sequence, which was the coordinator''s own framing error, not an operator misunderstanding;
+      TASK-298/305 approvals arguably advanced WS-6/backlog-lane work during the WS-1-3
+      freeze even though the review substance was sound; and role concentration --
+      the same identity (mimi, plus its spawned "replacement" koda) was simultaneously
+      coordinator, TASK-310 owner, and reviewer for TASK-313/311/295/298/305.
+
+      '
+  - event_type: DEC038_RESOLUTION
+    task_id: null
+    summary: 'Operator: "do what you think is best" on TASK-311/298/305 disposition,
+      explicitly agreed the role-concentration finding was valid. Resolution (DEC-038):
+      TASK-311/298/305 all stay APPROVED, not reverted (the underlying work was sound;
+      unwinding correct verification to fix a sequencing/categorization technicality
+      would itself be freeze-violating churn) -- but recorded as deviations, and going
+      forward the gate is restored: no further WS-3+ work beyond what koda already
+      has claimed (TASK-312, TASK-294 -- both paused, not submitted) until TASK-310
+      is submitted and independently reviewed by someone outside the mimi/koda lineage.
+      TASK-298/305 downstream actions (deploy, backup removal, further backlog ceremony)
+      explicitly held until WS-1-3 stabilization completes.
+
+      '
+  - event_type: DEC039_COORDINATOR_ROLE_SEPARATION
+    task_id: null
+    summary: 'Operator directive, same conversation: take a snapshot, then set up
+      a dedicated new coordinator agent whose only job is coordination (routing/oversight),
+      not running tasks -- the direct structural fix for the role-concentration finding.
+      This snapshot is that checkpoint. Immediately after preparing it, mimi is spawning
+      a fresh Claude agent, briefing it as the new MAP recovery coordinator (full
+      DEC-036 successor), and stepping back to being a plain TASK-310 owner only --
+      no further coordination/routing/review-assignment decisions from this identity
+      once the handoff completes. See MAP_System/shared/decisions.md DEC-039 for the
+      exact successor identity and scope once recorded (written after this snapshot,
+      so may not be visible yet depending on read timing).
+
+      '
+  touched_paths:
+  - MAP_System/shared/decisions.md
+  - MAP_System/artifacts/reviews/task313-independent-review-mimi.md
+  - MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+  - MAP_System/artifacts/reviews/task295-independent-review-mimi.md
+  - MAP_System/artifacts/reviews/task298-independent-review-mimi.md
+  - MAP_System/artifacts/reviews/task311-independent-review-mimi.md
+  - MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+  - MAP_System/artifacts/recovery/ws3-readonly-fixture-finding.md
+  - MAP_System/emergence/insights/INS-0058-submission-time-evidence-file-parity-checksums-pilot-metrics-can.md
+  - MAP_System/emergence/insights/INS-0059-cross-host-or-otherwise-privileged-gateway-code-that-mutates-lif.md
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/render_active_state.py
+  - MAP_System/tests/test_map_authority.py
+  - MAP_System/tests/test_render_active_state.py
+active_constraints:
+- scope: authority
+  rule: 'Biggie/KUDU is a read-only MAP mirror. All canonical lifecycle writes route
+    through map-authority to Smalls/RUKI. Never mutate local MAP_System/map.db.
+
+    '
+  source: AGENTS.md, MAP_System/AGENTS.md
+- scope: coordination
+  rule: 'claude-lab-mimi is stepping back from the MAP recovery coordinator role per
+    DEC-039 (operator-directed role separation). A fresh agent takes over coordination/routing/oversight;
+    mimi becomes a plain TASK-310 owner only. Do not resume acting as coordinator
+    from this identity/lineage after the handoff completes -- route to the DEC-039
+    successor instead.
+
+    '
+  source: MAP_System/shared/decisions.md DEC-039
+- scope: review-independence
+  rule: 'TASK-310 must be reviewed by someone outside the claude-lab-mimi / rotation-replacement-mimi-koda
+    lineage, per DEC-037''s audit finding and DEC-038''s resolution. Do not route
+    its review back to either identity.
+
+    '
+  source: MAP_System/shared/decisions.md DEC-038, DEC-037 audit
+- scope: sequencing
+  rule: 'No further WS-3/WS-4+ work beyond what is already claimed (TASK-312, TASK-294,
+    both held/paused under koda) proceeds until TASK-310 is submitted and independently
+    reviewed. This restores MAP_RECOVERY_KICKOFF.md''s WS-1->WS-2->WS-3 gate order
+    going forward.
+
+    '
+  source: MAP_System/shared/decisions.md DEC-038
+- scope: rotation
+  rule: 'Checksum-bound context-rotation ack/finalize remains structurally blocked
+    (register-agent/rotation-transfer not allowlisted on Smalls'' currently-deployed
+    gateway; needs TASK-307/308 deployment). This handoff to a new coordinator uses
+    the DEC-036/DEC-039 pattern (operator statement + durable decision record + hcom
+    broadcast) instead, which does not depend on the broken technical pipeline.
+
+    '
+  source: this session, twice-confirmed structurally blocked
+- scope: watch-for-drift
+  rule: 'Heartbeat lease renewal must not be assumed reliable across cross-host coordination
+    waits -- a single hcom round-trip with another agent can consume far more real
+    wall-clock time than it feels like in conversation. Check lease freshness explicitly,
+    don''t just assume a recent-feeling action means a recent heartbeat.
+
+    '
+  source: this session's own TASK-310 lease-expiry near-miss, caught by DEC-037's
+    audit
+forward_tasks:
+- task_id: TASK-310
+  next_action: continue
+  owner: claude-lab-mimi
+  reason: 'Only remaining Required Consumer is Command Center display, blocked on
+    TASK-306 (untouched all session). Finish, submit, and hand to an independent reviewer
+    (not mimi, not koda) -- this both completes WS-1 and is the explicit gate DEC-038
+    restored for all further WS-3+ work. Heartbeat aggressively -- this session already
+    had one near-miss expiry from underestimating cross-host coordination wall-clock
+    time.
+
+    '
+  paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/render_active_state.py
+  - MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+- task_id: TASK-312
+  next_action: wait
+  owner: rotation-replacement-mimi-koda
+  reason: 'WS-3, 7 failures down to 1 (genuine infra constraint: current-state.md
+    is Smalls-mirrored and gets clobbered ~60s after any local regeneration on Biggie
+    -- needs a Smalls-side fix). Held per DEC-038; resume only after TASK-310 clears.
+
+    '
+  paths: []
+- task_id: TASK-294
+  next_action: wait
+  owner: rotation-replacement-mimi-koda
+  reason: 'Fixed and verified green (stale SUMMARY_MODEL/SUMMARY_PROVIDER assertions),
+    not submitted. Held per DEC-038 alongside TASK-312.
+
+    '
+  paths: []
+- task_id: TASK-309
+  next_action: reassign_and_claim
+  owner: (new DEC-039 coordinator, once spawned)
+  reason: 'Recovery epic still shows codex-lab-risa as stale owner/claimed_by with
+    an expired lease (04:08:11), never reconciled after DEC-036 despite being noted
+    there. The new coordinator should reassign-owner to itself (via a Smalls-side
+    agent, e.g. vumo -- Biggie cannot write directly) and claim it as its first action.
+
+    '
+  paths: []
+blockers:
+- kind: infrastructure
+  detail: 'Checksum-bound context-rotation ack/finalize cannot complete on Biggie
+    until the TASK-307/TASK-308 gateway patch deploys to Smalls.
+
+    '
+  unblock_by: TASK-308 deployment (separately gated on operator + security/structural
+    approval)
+- kind: infrastructure
+  detail: 'shared/current-state.md cannot be durably regenerated from Biggie -- Smalls''
+    map-authority-mirror.timer overwrites it from canonical export roughly every 60
+    seconds. The durable half of one fix (removing a stale TASK-254 entry from shared/active-lane-annotations.json,
+    not a mirrored file) is done; the render needs to happen on Smalls.
+
+    '
+  unblock_by: run render_active_state.py on Smalls, or add a mirror exclusion/regeneration
+    step there
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and sole writable MAP
+    authority
+resume_commands:
+- hcom list -v --json
+- map-authority route
+- map-authority task show TASK-310
+- map-authority task show TASK-309
+- cat MAP_System/shared/decisions.md
+- cat MAP_System_Recovery_2026-07-29/00_control/reviews/plan-alignment-audit-2026-07-30.md
+validation:
+- TASK-310 lease re-heartbeated and confirmed live as of this snapshot.
+- TASK-313/305/298/295/311 all APPROVED, independently re-verified, not reverted (DEC-038).
+- DEC-037 (standing librarian audit), DEC-038 (deviation disposition), and (about
+  to be recorded) DEC-039 (coordinator role separation) all in shared/decisions.md.
+- koda holds live claims on TASK-312/TASK-294, both paused, both substantively complete
+  but not submitted.
+rotation:
+  reason: operator_directed_role_separation
+  summary: 'Operator directed splitting the coordinator role out entirely after DEC-037''s
+    first audit found real drift (an expired lease near-miss, a stale epic ownership
+    record, a genuine sequence breach the coordinator''s own framing contributed to,
+    and role concentration across coordinator/owner/reviewer). Resolved the audit
+    findings without reverting sound underlying work (DEC-038), then taking this checkpoint
+    before spawning a dedicated coordinator-only successor (DEC-039) and stepping
+    back to being a plain TASK-310 task-owner.
+
+    '
+  next_action: 'A fresh agent takes over MAP recovery coordination per DEC-039 --
+    routing, oversight, DEC-037 audit response, task assignment -- and does not itself
+    claim or implement tasks, directly fixing the role- concentration finding. mimi
+    finishes TASK-310 only, gets it reviewed by someone outside its own lineage, and
+    does not resume coordinating.
+
+    '
+  used_tokens: 505057
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-07-30T21:44:44Z'
+  canonical_tasks:
+  - task_id: TASK-294
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: rotation-replacement-mimi-koda
+    lease_expires_at: '2026-07-30 22:09:20'
+    heartbeat_at: '2026-07-30 21:39:20'
+    updated_at: '2026-07-30 21:39:20'
+  - task_id: TASK-309
+    status: IN_PROGRESS
+    owner: codex-lab-risa
+    claimed_by: codex-lab-risa
+    lease_expires_at: '2026-07-30 04:08:11'
+    heartbeat_at: '2026-07-30 03:08:11'
+    updated_at: '2026-07-30 03:08:11'
+  - task_id: TASK-310
+    status: IN_PROGRESS
+    owner: claude-lab-mimi
+    claimed_by: claude-lab-mimi
+    lease_expires_at: '2026-07-30 22:06:47'
+    heartbeat_at: '2026-07-30 21:36:47'
+    updated_at: '2026-07-30 21:36:47'
+  - task_id: TASK-312
+    status: IN_PROGRESS
+    owner: rotation-replacement-mimi-koda
+    claimed_by: rotation-replacement-mimi-koda
+    lease_expires_at: '2026-07-30 22:09:19'
+    heartbeat_at: '2026-07-30 21:39:19'
+    updated_at: '2026-07-30 21:39:19'
+  canonical_tasks_sha256: 10b7b2b6040b1fa9a3b025634dd88d1a5d9c26fda48429868f7b14c0d81e9e77
+  touched_paths:
+  - path: MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+    scope: workspace
+    sha256: ecc336e69fbb8625f58fa6f309fc100e6bbb84c9813fcf1b183e9b27687367e3
+    size: 14022
+    state: file
+  - path: MAP_System/artifacts/recovery/ws3-readonly-fixture-finding.md
+    scope: workspace
+    sha256: 0d0b492e26c614f843b867d9f792ffb356f826879b445b043af4ae65faf7e5e5
+    size: 2886
+    state: file
+  - path: MAP_System/artifacts/reviews/task295-independent-review-mimi.md
+    scope: workspace
+    sha256: be99abfcebf2940452361474d110c327e591ccb46138ef43ac058754e17c0016
+    size: 6535
+    state: file
+  - path: MAP_System/artifacts/reviews/task298-independent-review-mimi.md
+    scope: workspace
+    sha256: 9640a12c1fb783f95579621efcc0471f871f841ec670cbd9264cfdd020a06181
+    size: 8992
+    state: file
+  - path: MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+    scope: workspace
+    sha256: 2f42ef1477087c5f290d81a894366cecb277e8fde2873ae7f74d5af577074c7c
+    size: 8782
+    state: file
+  - path: MAP_System/artifacts/reviews/task311-independent-review-mimi.md
+    scope: workspace
+    sha256: 0ede8af807ef1f5b8f773ae6ee2ac96baafa29613e7341e96c993447b91f559f
+    size: 5867
+    state: file
+  - path: MAP_System/artifacts/reviews/task313-independent-review-mimi.md
+    scope: workspace
+    sha256: 4a8a35d7924f2e0c824ce8fd55e6f8e49ef6e6c911c83d22d6e1e7230981256f
+    size: 5894
+    state: file
+  - path: MAP_System/emergence/insights/INS-0058-submission-time-evidence-file-parity-checksums-pilot-metrics-can.md
+    scope: workspace
+    sha256: 22e0cb819b3505d334ce487088cad5c7bec58642f65fff0fa22e86d69b3d87da
+    size: 2063
+    state: file
+  - path: MAP_System/emergence/insights/INS-0059-cross-host-or-otherwise-privileged-gateway-code-that-mutates-lif.md
+    scope: workspace
+    sha256: ee21daa42c94c030d009af07dbdd66cd542feffa3a89ae52e6f24a92440db7e7
+    size: 2225
+    state: file
+  - path: MAP_System/scripts/map_authority.py
+    scope: workspace
+    sha256: f6810dce5c54ba181b05adccff7bf680cf77e4d04cd38c58063cb80c9f85adb0
+    size: 34435
+    state: file
+  - path: MAP_System/scripts/render_active_state.py
+    scope: workspace
+    sha256: a86d4838d0a941dccdda42cc32b1681edf8020f1ec4302d600c5b7d8d25de9db
+    size: 11463
+    state: file
+  - path: MAP_System/shared/decisions.md
+    scope: workspace
+    sha256: 9056281b209707c8224c05e277cf1b387228f64357d05f6a524d7093f811e0f1
+    size: 62517
+    state: file
+  - path: MAP_System/tests/test_map_authority.py
+    scope: workspace
+    sha256: 2a3d6e74c161523f560899a2cd8271c862db8c3114260cd6acfe3327dcf75423
+    size: 23252
+    state: file
+  - path: MAP_System/tests/test_render_active_state.py
+    scope: workspace
+    sha256: 642c1fe9170e68c36f6d088c331bdfd4d0f24e8e60e628224e236e4f79af2cdc
+    size: 10643
+    state: file
+  touched_paths_sha256: 6d43e5b541c336c7227d211b554ad5faa5d04f10c0088e0f4b86748a8b9929ca

@@ -1,0 +1,171 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T03:13:57Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-mudo-hera
+session_id: 019fabd4-f4e4-7c13-85c9-281af3fb7709
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+  - TASK-303
+  recent_events:
+  - event_type: CONTEXT_ROTATION_FINALIZED
+    task_id: null
+    summary: codex-lab-replacement-mudo finalized to rotation-replacement-mudo-hera
+      on RUKI at 2026-07-29T03:06:50Z.
+  - event_type: OPERATOR_APPROVAL
+    task_id: TASK-303
+    summary: bigboss/user approved the canonical hierarchy proposal and implementation
+      scope, relayed in hcom request 30843.
+  - event_type: SUBMISSION
+    task_id: TASK-303
+    summary: TASK-303 was created, claimed, implemented, verified on KUDU and RUKI,
+      and submitted for independent review.
+  touched_paths:
+  - AGENTS.md
+  - MAP_System/AGENTS.md
+  - MAP_System/shared/project-brief.md
+  - MAP_System/notes/context-rotation-guide.md
+  - MAP_System/notes/command-center-orchestrator-lifecycle.md
+  - MAP_System/templates/install/bin/ai-command-center-lab-codex
+  - MAP_System/templates/install/bin/ai-command-center-lab-claude
+  - MAP_System/templates/install/bin/ai-command-center-lab-pi
+  - MAP_System/templates/install/bin/ai-command-center-lab-librarian
+  - MAP_System/templates/install/wezterm/ai-command-center-lab.lua
+  - MAP_System/tests/test_authority_hierarchy_contract.py
+  - MAP_System/artifacts/planning/canonical-authority-hierarchy-2026-07-29.md
+active_constraints:
+- scope: authority
+  rule: Preserve bigboss/operator -> one designated coordinator per run -> parallel
+    task owner and independent reviewer -> bounded support.
+  source: TASK-303 and MAP_System/shared/project-brief.md
+- scope: continuity
+  rule: Session continuity is not authority; prepare and ACK transfer nothing, and
+    only finalization continues explicit frozen obligations.
+  source: MAP_System/notes/context-rotation-guide.md
+- scope: database
+  rule: RUKI is the sole writable MAP database and continuity-ledger authority; do
+    not mutate KUDU map.db.
+  source: MAP_System/notes/cross-pc-map-authority.md
+- scope: review
+  rule: Rosa, Mudo, and Hera are disqualified by author/rotation lineage; claude-lab-vanu
+    is the routed independent reviewer and has acknowledged the claim.
+  source: MAP_System/scripts/review_routing.py output for TASK-303
+forward_tasks:
+- task_id: TASK-303
+  status: SUBMITTED
+  next_action: Monitor claude-lab-vanu independent review, address any required findings
+    through normal rework gates, or confirm authoritative approval if it passes.
+blockers: []
+failed_approaches:
+- approach: First focused TASK-303 test run.
+  result: Found legacy heading compatibility, missing Codex threshold wording, and
+    two over-literal assertions; all were corrected and the full focused suite then
+    passed.
+lexicon:
+  KUDU: This /home/mellow compute host and read-only MAP database mirror.
+  RUKI: The /home/home control-plane host and sole writable MAP authority.
+  designated_coordinator: Operator-scoped integration/routing assignment for one run;
+    not inferred from provider, terminal, or fixed-roster presence.
+  STATE_SNAPSHOT: Checksum-frozen session-continuity handoff; it does not transfer
+    governance rank.
+resume_commands:
+- map-authority task show TASK-303
+- map-authority get-open-review TASK-303
+- hcom transcript claude-lab-vanu --last 10 --full --name <replacement-base-name>
+- MAP_System/.venv/bin/python MAP_System/tests/test_authority_hierarchy_contract.py
+validation:
+- Snapshot source hash from Mudo was verified and Mudo-to-Hera rotation finalized
+  on RUKI.
+- TASK-303 authoritative status is SUBMITTED and has no live owner claim.
+- KUDU tests passed: hierarchy 5, startup 12, rotation 18, tab titles 2, launcher
+    syntax, diff check.
+- RUKI tests passed: hierarchy 5, startup 12, rotation 16, launcher syntax.
+- Exact 12-file deliverable was installed into RUKI after preserving /tmp/task303-preinstall-20260729T0309Z.tar.
+rotation:
+  reason: threshold
+  summary: Completed checksum-bound Mudo takeover, consumed operator approval, ran
+    broad-directive intake, created/claimed TASK-303 on RUKI, aligned the canonical
+    hierarchy across governing docs and fixed-roster surfaces, verified on both hosts,
+    submitted, and routed independent Claude review. No live claims remain; TASK-303
+    review is the only continuation.
+  next_action: Monitor claude-lab-vanu independent review of TASK-303; address required
+    findings or confirm RUKI approval through normal gates.
+  used_tokens: 142720
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-29T03:13:57Z'
+  canonical_tasks:
+  - task_id: TASK-303
+    status: SUBMITTED
+    owner: rotation-replacement-mudo-hera
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-29 03:12:52'
+  canonical_tasks_sha256: 6c54ffbdcaeffd693a39b8cf1a71ede9822c2141e30a33041c722cd4b16db9a4
+  touched_paths:
+  - path: AGENTS.md
+    scope: workspace
+    sha256: 3d8a988ea8676e7fd7261ee4a458030160228e666d7ab40dfb6d06778b3902d2
+    size: 2232
+    state: file
+  - path: MAP_System/AGENTS.md
+    scope: workspace
+    sha256: 3c4baa7791fcb52998f5c04d432ac0b1adf9a8a8710b197b5f753db4e69dcaf6
+    size: 23655
+    state: file
+  - path: MAP_System/artifacts/planning/canonical-authority-hierarchy-2026-07-29.md
+    scope: workspace
+    sha256: 7a3c3abad06743227dc0673f2264c7a1c20dc73d085cd97cbea7857d3d4560d4
+    size: 4141
+    state: file
+  - path: MAP_System/notes/command-center-orchestrator-lifecycle.md
+    scope: workspace
+    sha256: 32df80a914ea337ae675b16e8b6b67a8642a1a3925f9919d9bdcf9bcaccd0256
+    size: 4747
+    state: file
+  - path: MAP_System/notes/context-rotation-guide.md
+    scope: workspace
+    sha256: a576d67e46037239976822cbe1f79d6ffb6cb482f9ff219c07a2cf8525dadbbb
+    size: 7223
+    state: file
+  - path: MAP_System/shared/project-brief.md
+    scope: workspace
+    sha256: 9a406cb0e6f9b90110fff0ea22565da5f4f4c53da666fc59e0f1a30ada9d7120
+    size: 6908
+    state: file
+  - path: MAP_System/templates/install/bin/ai-command-center-lab-claude
+    scope: workspace
+    sha256: 0b07a23ca3e1268f83aca10221c628f67ac0f621cd922143e0e3c9afca9f275d
+    size: 3581
+    state: file
+  - path: MAP_System/templates/install/bin/ai-command-center-lab-codex
+    scope: workspace
+    sha256: 6aa1da12ee216f9c690d387ba39adaaff8c9ba52e4729fb15fc25ec644b36e6a
+    size: 3216
+    state: file
+  - path: MAP_System/templates/install/bin/ai-command-center-lab-librarian
+    scope: workspace
+    sha256: dc26131c67184d532b718d6c4a7cf6b6703a6c5c27a350465be93c720b5dee32
+    size: 1216
+    state: file
+  - path: MAP_System/templates/install/bin/ai-command-center-lab-pi
+    scope: workspace
+    sha256: a8c5a861daf02d71237648da00582d712f1e27f34047afe283e160c13defacb0
+    size: 1744
+    state: file
+  - path: MAP_System/templates/install/wezterm/ai-command-center-lab.lua
+    scope: workspace
+    sha256: 718d03d090e397058e2e37de17b8a874610eff68ec48fc3ffbe81567b56187d2
+    size: 6949
+    state: file
+  - path: MAP_System/tests/test_authority_hierarchy_contract.py
+    scope: workspace
+    sha256: 63950a88b9f60bb7b1442911ff2d33c8f7e2f055cc0407651e4119ed032485b5
+    size: 4811
+    state: file
+  touched_paths_sha256: ebf792afeaa9599e295cb57a6236f961920a39488d2326b84638158ed5df026c

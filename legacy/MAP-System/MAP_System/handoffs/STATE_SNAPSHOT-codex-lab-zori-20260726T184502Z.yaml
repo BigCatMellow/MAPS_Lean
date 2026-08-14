@@ -1,0 +1,218 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T18:45:02Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-zori
+session_id: 019f9f81-d7e6-7120-b740-51ac4f1e9b34
+status: handing_off
+task_context:
+  current_task: TASK-268
+  owned_tasks: []
+  pending_reviews:
+  - TASK-268
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-278
+    summary: REPAIR-0008 applied with direct bigboss approval; premature map_task.py
+      output registration was deferred until predecessor ownership clears.
+  - event_type: SUBMISSION
+    task_id: TASK-268
+    summary: TASK-268 submitted through the new synchronized verb as SQLite event
+      1701; status and mirrors are SUBMITTED.
+  - event_type: REVIEW_REQUESTED
+    task_id: TASK-268
+    summary: Independent review was requested from codex-lab-veto, but that session
+      stopped before claiming or responding; reroute to another clean Codex reviewer.
+  touched_paths:
+  - MAP_System/AGENTS.md
+  - MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+  - MAP_System/events/events.jsonl
+  - MAP_System/handoffs/HANDOFF-TASK-268-zori-to-veto.md
+  - MAP_System/repairs/REPAIR-0008-task278-map-task-output-defer.md
+  - MAP_System/scripts/map_task.py
+  - MAP_System/tasks/TASK-268.json
+  - MAP_System/tasks/TASK-278.json
+  - MAP_System/tests/test_task268_lifecycle.py
+  - MAP_System/workflow/task_graph.json
+active_constraints:
+- scope: repo
+  rule: Preserve the large pre-existing dirty worktree; do not clean, discard, or
+    rewrite unrelated durable MAP evidence.
+  source: AGENTS.md and inherited Lura handoff
+- scope: task
+  rule: TASK-268 is frozen in SUBMITTED state and requires independent non-author
+    review before approval or release.
+  source: MAP_System/tasks/TASK-268.json and AGENTS.md
+- scope: task
+  rule: TASK-278 must re-register MAP_System/scripts/map_task.py only after TASK-268
+    and TASK-274 predecessor ownership clears.
+  source: REPAIR-0008 and TASK-278 description
+- scope: task
+  rule: Do not silently edit MAP_System/shared/current-state.md to clear the transient
+    TASK-268 row drift; READY TASK-279 owns that output.
+  source: validate_shared_state_tasks result and TASK-279 output_paths
+- scope: safety
+  rule: Do not use any Claude identity through 2026-07-29; use a clean Codex reviewer.
+  source: inherited operator directive and durable agent availability
+- scope: communication
+  rule: Routine progress uses hcom inform; requests are reserved for review, decisions,
+    blockers, approvals, risks, or needed responses.
+  source: MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-268
+  next_action: review
+  owner: command-center
+  reason: Submission is complete and validated; codex-lab-veto stopped before claiming,
+    so route the frozen handoff to a different clean Codex reviewer.
+  paths:
+  - MAP_System/handoffs/HANDOFF-TASK-268-zori-to-veto.md
+  - MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+  - MAP_System/repairs/REPAIR-0008-task278-map-task-output-defer.md
+  - MAP_System/scripts/map_task.py
+  - MAP_System/tests/test_task268_lifecycle.py
+- task_id: TASK-274
+  next_action: wait
+  owner: command-center
+  reason: Durable submission-authorship work remains dependent on TASK-268 release;
+    do not start after mere submission.
+  paths:
+  - MAP_System/tasks/TASK-274.json
+- task_id: TASK-278
+  next_action: wait
+  owner: command-center
+  reason: Author-keyed review enforcement waits on TASK-274 and must restore deferred
+    output registrations only after predecessor release.
+  paths:
+  - MAP_System/tasks/TASK-278.json
+- task_id: TASK-279
+  next_action: wait
+  owner: command-center
+  reason: Preserve runner and lifecycle sequencing until TASK-268 review/release is
+    resolved; its current-state.md ownership explains the disclosed transient drift.
+  paths:
+  - MAP_System/tasks/TASK-279.json
+blockers:
+- kind: tool_failure
+  detail: Requested reviewer codex-lab-veto stopped before creating a review claim
+    or review artifact.
+  unblock_by: Route TASK-268 to a different live clean Codex reviewer such as codex-lab-lilo.
+- kind: dependency
+  detail: TASK-274 waits for TASK-268 release; TASK-278 then waits for TASK-274.
+  unblock_by: Complete independent review and normal approval/release gates in order.
+lexicon:
+  MAP: Reusable multi-agent delivery system under MAP_System.
+  STATE_SNAPSHOT: Checksum-bound YAML handoff used for verified session rotation.
+  synchronized_submit: map_task.py submit verb that verifies the claimant, commits
+    SUBMITTED, appends a canonical event, and exports mirrors.
+  review_identity_contract: Released TASK-270 behavior that registers a valid fresh
+    reviewer and distinguishes occupied claims from unexpected integrity errors.
+  REPAIR-0008: Operator-approved structural correction deferring TASK-278 map_task.py
+    output ownership until predecessor release.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_schema.py --tasks-dir
+  MAP_System/tasks
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_mirrors.py --db MAP_System/map.db
+  --root MAP_System
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_graph.py
+- MAP_System/.venv/bin/python MAP_System/tests/test_task268_lifecycle.py
+- MAP_System/.venv/bin/python MAP_System/tests/test_review_claims.py
+validation:
+- TASK-268 lifecycle tests pass 3/3.
+- Existing review-claim tests pass 12/12.
+- Task schema, task mirrors, task graph, exporter invariants, and repair records validate.
+- Full suite is 73 pass / 4 fail; three are the disclosed research/event baseline
+  and derivative Layer-1 failure, while the fourth is transient current-state.md drift
+  reserved to TASK-279.
+- TASK-268 SQLite status and exported mirrors are SUBMITTED; submission event id 1701
+  names codex-lab-zori.
+- REPAIR-0008 SQLite event id 1699 and JSONL trace task:TASK-278 record the approved
+  structural mutation.
+rotation:
+  reason: threshold
+  summary: Claimed priority TASK-268, implemented and tested a synchronized submission
+    verb, preserved the released TASK-270 reviewer identity contract, obtained direct
+    bigboss approval for structural REPAIR-0008, deferred TASK-278 map_task.py ownership,
+    submitted TASK-268 via its new verb, and requested independent Codex review. The
+    first mutation command failed before execution due quoting; a second audited application
+    succeeded. The requested reviewer stopped before claiming.
+  next_action: Start a fresh visible Codex replacement, ACK this snapshot, finalize
+    zori only after ACK, then reroute frozen TASK-268 to a live independent Codex
+    reviewer.
+  used_tokens: 150615
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-26T18:45:02Z'
+  canonical_tasks:
+  - task_id: TASK-268
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26 18:43:21'
+  - task_id: TASK-274
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23T03:55:36Z'
+  - task_id: TASK-278
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26 18:39:28'
+  - task_id: TASK-279
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:46Z'
+  canonical_tasks_sha256: 3590877b32dc376ef6239e368594b18ee497993cd9a3c9d091633ff6ac7b1bf9
+  touched_paths:
+  - path: MAP_System/AGENTS.md
+    scope: workspace
+    sha256: d8c26743a2b4de2494b43e8db7f3a846e63b9b8669261b47ec43aa08772e0bf0
+    state: file
+  - path: MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+    scope: workspace
+    sha256: 5e8cc7f4ec36ebe0032cf478efcd82f45d3c0fae6fe1c75cb6619d5594cf2430
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: 0ff485efbf5006eff9b62e743245692acdff06abcb4c9f96c1fdb2443dbeb8e1
+    state: file
+  - path: MAP_System/handoffs/HANDOFF-TASK-268-zori-to-veto.md
+    scope: workspace
+    sha256: 2e64df4f6447f4faae6b8de77ebbfd92ecb7d0f042634d3610c9452a312e06cc
+    state: file
+  - path: MAP_System/repairs/REPAIR-0008-task278-map-task-output-defer.md
+    scope: workspace
+    sha256: c44b137783424743ddd4d91c9d426e5ba9387f76e56e385fe131b03c46f181f3
+    state: file
+  - path: MAP_System/scripts/map_task.py
+    scope: workspace
+    sha256: 7e5f713337687c29e92889f366a371ce044012efdaca540dde941c2ddb7e62af
+    state: file
+  - path: MAP_System/tasks/TASK-268.json
+    scope: workspace
+    sha256: 0e7965e474ddc9cf6398f50dce4ab7e6e044fbe82aad17facdb05a57142a643e
+    state: file
+  - path: MAP_System/tasks/TASK-278.json
+    scope: workspace
+    sha256: 885093f30adef5e2de51cbcd5ca34a179bde1dbf6c8d59487f223299f9924c51
+    state: file
+  - path: MAP_System/tests/test_task268_lifecycle.py
+    scope: workspace
+    sha256: c72d107b2e903706d34daafb4e745f368d6a08d9bffc7d11ef7dd10d2c08ee12
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 52916951cd12c621a9727a77bc8642611a040a6a3e920653d42e2528e6f98a6b
+    state: file
+  touched_paths_sha256: 91a33c0048ff6763db8fb5b4b7b9301c5e70c64a600c5824741193e87f800474

@@ -1,0 +1,216 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T05:22:44Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-nene
+session_id: 8920c704-d1d2-4dd0-a771-0cb8a7900510
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Startup orientation: ledger rev 75 ok=false but only pre-existing unrelated
+      drift (codex-lab-kazu, task278-levi); rotation advise below_threshold; graph
+      route=review with no ready tasks. Sent bigboss an hcom request summarizing continuity/rotation/queue
+      state and asking for priorities on 4 SUBMITTED tasks per the local KUDU mirror.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'codex-lab-mebo corrected the queue against RUKI (authoritative, not
+      KUDU''s stale local mirror): TASK-263 is CHANGES_REQUESTED (not submitted),
+      TASK-298 is SUBMITTED but already claimed for review by codex-lab-loki, only
+      TASK-294 and TASK-295 are SUBMITTED with no open review claim. Relayed the correction
+      to bigboss via hcom inform.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'helper-librarian-kobe flagged (repeat finding, also in the prior audit):
+      MAP_System/scripts/map_task.py is a declared output of both submitted TASK-295
+      and ready/operator-gated TASK-297 (real output-path collision). Also TASK-301
+      is APPROVED with no durable review artifact. Relayed both to bigboss as caveats
+      on TASK-295 specifically; neither blocks TASK-294. bigboss had not yet responded
+      with a routing decision when the operator (human, direct chat, not hcom) opened
+      a new, unrelated direct task in this same session.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: Operator asked to implement a UI redesign found at "/home/mellow/Desktop/Command
+      Center UI redesign/" into the live CommandCenterUI desktop app at /home/mellow/Projects/CommandCenterUI
+      (a separate project directory, sibling to this MAP_System repo, not itself under
+      MAP task governance). The redesign is two design-tool "dc.html" mockups (AI
+      Command Center.dc.html = chat-room view, MAP Orchestrator.dc.html = hierarchical
+      agent-tree view) built on a React-based preview runtime (support.js) against
+      fictional seed data.
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Spawned an Explore agent to map the real backend: CommandCenterUI/app/server.py
+      (2435 lines, localhost:8765) exposes polling GET endpoints (/api/chat, /api/presence,
+      /api/attention, /api/approvals, /api/tasks, /api/events, /api/map/*) and POST
+      endpoints (/api/chat/send via `hcom send`, /api/gate/decide for MAP approval
+      gates). Confirmed the mockups invent concepts absent from real data: no multi-project
+      grouping (task_graph.json has one project_id), no "DQ" disqualified field anywhere,
+      and a fictional 4-way Update/Ask/Broadcast/Direct composer mode where reality
+      only has 3 hcom intents (inform/request/ack) plus implicit broadcast-vs-direct
+      via @mentions. Confirmed a real per-agent `tag` field exists (hcom instances
+      table; LAB_TAGS = claude-lab/codex-lab/pi-lab in server.py) usable as an honest
+      substitute for the fictional project grouping. Confirmed server.py serves any
+      file dropped under CommandCenterUI/src/ automatically by path (SimpleHTTPRequestHandler
+      + SRC_DIR base), so new pages need no server.py changes to become reachable.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Asked the operator 3 scoping questions via AskUserQuestion; all recommended
+      defaults were chosen: (1) derive the redesign''s "rooms" from real hcom agent
+      tags rather than fictional named projects; (2) ship the new pages alongside
+      chat.html/app.html without switching the app''s default entrypoint or touching
+      server.py; (3) port both .dc.html mockups to plain vanilla JS matching the existing
+      app''s style (chat.js) rather than shipping React + support.js as a new runtime
+      dependency.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Implementation in progress under /home/mellow/Projects/CommandCenterUI/src/.
+      Completed: room.css, room.html, room.js (the ported "AI Command Center" chat-room
+      view; fully wired to real /api/chat polling, /api/presence, /api/attention,
+      /api/approvals, /api/chat/send, /api/gate/decide; "rooms" computed live from
+      each agent''s presence `tag`, with an always-present "All" room matching today''s
+      real single-feed behavior; composer reuses the real 3-intent model and reply/mention
+      semantics from chat.js). Completed: orchestrator.css (design tokens/layout for
+      the hierarchy view). NOT yet done: orchestrator.html and orchestrator.js (the
+      agent-tree + per-agent-thread view, ported from "MAP Orchestrator.dc.html",
+      meant to follow the same real-data wiring pattern as room.js). NOT yet done:
+      any smoke test of the two new pages against the live running app.'
+  - event_type: BLOCKED
+    task_id: null
+    summary: 'This rotation checkpoint fired mid-implementation (limit_watcher notice:
+      140197/150000 tokens) before orchestrator.html/js existed and before any browser
+      smoke test. Nothing is broken or half-written mid-file - the four completed
+      files are each complete and internally consistent - the remaining two files
+      simply do not exist yet.'
+  touched_paths:
+  - /home/mellow/Projects/CommandCenterUI/src/room.css
+  - /home/mellow/Projects/CommandCenterUI/src/room.html
+  - /home/mellow/Projects/CommandCenterUI/src/room.js
+  - /home/mellow/Projects/CommandCenterUI/src/orchestrator.css
+active_constraints:
+- scope: task
+  rule: Honor the operator's three scoping decisions from this session's AskUserQuestion
+    - tag-derived rooms (not fictional named projects), ship alongside the existing
+    chat.html/app.html without switching the app's default entrypoint or editing server.py's
+    routing, and plain vanilla JS (no React/support.js runtime dependency).
+  source: this session, operator AskUserQuestion answers
+- scope: repo
+  rule: This UI work lives entirely under /home/mellow/Projects/CommandCenterUI, a
+    project directory separate from and not nested inside this MAP_System repo. It
+    is direct, operator-directed work in this chat session, not an hcom/MAP task -
+    do not invent a MAP task_id for it or expect map.db claims to cover it.
+  source: this session
+- scope: tool
+  rule: Every model-backed agent must be visible in wezterm-tab; never resume or spawn
+    headless.
+  source: MAP_System/AGENTS.md
+- scope: safety
+  rule: Do not modify CommandCenterUI/app/server.py's routes or switch the app's default
+    entrypoint (chat.html) without further operator confirmation - the operator explicitly
+    chose an alongside rollout, not a replacement.
+  source: this session, operator AskUserQuestion answer on rollout
+forward_tasks:
+- task_id: null
+  next_action: continue_implementation
+  owner: claude-lab-nene successor
+  reason: 'Build orchestrator.html and orchestrator.js under /home/mellow/Projects/CommandCenterUI/src/,
+    mirroring room.js''s real-data wiring pattern: poll /api/presence to group agents
+    into a tree by their real `tag` field (orchestrator.css already has the tree/node
+    styles ready), poll /api/chat and derive each agent''s thread by client-side filtering
+    on sender==agent or mentions containing @agent (no new backend endpoint exists
+    or is needed for this), and wire a per-thread composer through the same /api/chat/send
+    used by room.js, auto-@mentioning the selected agent. Use room.js as the reference
+    implementation for style (escapeHtml, fmtTime, polling intervals, mention/reply
+    handling).'
+  paths:
+  - /home/mellow/Projects/CommandCenterUI/src/room.js
+  - /home/mellow/Projects/CommandCenterUI/src/orchestrator.css
+  - /home/mellow/Projects/CommandCenterUI/src/orchestrator.html
+  - /home/mellow/Projects/CommandCenterUI/src/orchestrator.js
+- task_id: null
+  next_action: smoke_test
+  owner: claude-lab-nene successor
+  reason: Once both new pages exist, start the real app (`cd /home/mellow/Projects/CommandCenterUI
+    && ./run-command-center-app.sh --server-only`, or the full window) and load http://127.0.0.1:8765/room.html
+    and /orchestrator.html in a browser to confirm real hcom/MAP data renders with
+    no console errors before telling the operator it is ready to try. Nothing has
+    been smoke-tested yet as of this snapshot.
+  paths: []
+- task_id: null
+  next_action: ask_operator
+  owner: null
+  reason: 'Separately from the UI work: bigboss (hcom) never responded to this session''s
+    routing request about who should pick up TASK-294 / TASK-295 review (the only
+    two SUBMITTED tasks with no open review claim, per codex-lab-mebo''s RUKI-authoritative
+    correction). That MAP routing question is still open. Whoever resumes should decide
+    whether to re-raise it via hcom or leave it for a later session with routing capacity
+    - it is unrelated to the CommandCenterUI work and should not block it.'
+  paths: []
+blockers: []
+lexicon:
+  dc.html: Design-tool "design comp" export format (custom <x-dc> markup interpreted
+    at runtime by a React-based library, support.js) used for the two UI mockups at
+    "~/Desktop/Command Center UI redesign/". Not meant for production as-is; this
+    session is porting the markup/behavior to plain HTML/CSS/JS instead of shipping
+    the React runtime.
+  CommandCenterUI: The live desktop app at /home/mellow/Projects/CommandCenterUI (separate
+    from this MAP_System repo). app/server.py runs a localhost backend on 127.0.0.1:8765
+    and serves any file placed under src/ automatically; chat.html is the current
+    default UI, unchanged by this session's work.
+  room.html / room.js: New chat-room view (ported from "AI Command Center.dc.html"),
+    complete as of this snapshot, wired to real hcom/MAP data, added alongside chat.html
+    rather than replacing it.
+  orchestrator.html / orchestrator.js: New hierarchical agent-tree view (ported from
+    "MAP Orchestrator.dc.html"). NOT yet created as of this snapshot - orchestrator.css
+    (styles only) is done.
+resume_commands:
+- cd /home/mellow/Projects/MultiAgentProject/Source
+- ls /home/mellow/Projects/CommandCenterUI/src/room.* /home/mellow/Projects/CommandCenterUI/src/orchestrator.*
+- cd /home/mellow/Projects/CommandCenterUI && ./run-command-center-app.sh --server-only
+validation: []
+rotation:
+  reason: context_checkpoint_due
+  summary: 'MAP startup orientation and hcom coordination (queue corrections relayed
+    to bigboss, no routing decision received yet) completed cleanly early in this
+    session. The operator then opened a separate, direct (non-MAP) task in this same
+    chat: implement a new UI redesign into the live CommandCenterUI app. Backend/frontend
+    research and three operator scoping decisions are done; room.css/html/js (one
+    full page) and orchestrator.css are written and complete; orchestrator.html/js
+    (the second page) are not yet started. Rotation checkpoint fired mid-task at 140197/150000
+    tokens.'
+  next_action: Build orchestrator.html + orchestrator.js following room.js's pattern,
+    smoke-test both new pages against the live app, then report completion to the
+    operator. Separately, the still-open bigboss routing question on TASK-294/TASK-295
+    review can be re-raised or left for later capacity.
+  used_tokens: 140197
+  threshold_tokens: 150000
+  metric_source: limit_watcher_checkpoint_notice
+integrity:
+  prepared_at: '2026-07-29T05:22:44Z'
+  canonical_tasks: []
+  canonical_tasks_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  touched_paths:
+  - path: /home/mellow/Projects/CommandCenterUI/src/orchestrator.css
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Projects/CommandCenterUI/src/room.css
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Projects/CommandCenterUI/src/room.html
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Projects/CommandCenterUI/src/room.js
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  touched_paths_sha256: 3e7ae02cd33b9a0d03ac7a32310a33343961760ceea7d2e09367a863e49dbe6f

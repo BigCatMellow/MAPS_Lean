@@ -1,0 +1,182 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-23T08:30:17Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-feta
+session_id: 019f8d1e-58d8-75e1-bad9-ac12ae19ad72
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+  - TASK-273
+  recent_events:
+  - event_type: RELEASED
+    task_id: TASK-275
+    summary: Independently reviewed, approved, and released the external CommandCenterUI
+      loopback consolidation; live operator instance intentionally not restarted.
+  - event_type: REVIEW_REQUESTED
+    task_id: TASK-273
+    summary: Routed independent review to codex-lab-lilo after claude-lab-zaro recused
+      because TASK-274's overlapping claims.py path creates an outcome interest.
+  - event_type: RECUSAL
+    task_id: PROMO-0013
+    summary: Recused from independent approve-or-reject because active TASK-273 routing
+      and the TASK-273/TASK-274 graph collision create direct outcome interest.
+  touched_paths:
+  - MAP_System/artifacts/reviews/task275-review-feta.md
+  - MAP_System/artifacts/releases/task-275-release-checklist.md
+  - MAP_System/tasks/TASK-275.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/events/events.jsonl
+  - /home/mellow/Projects/CommandCenterUI/app/server.py
+active_constraints:
+- scope: repo
+  rule: Preserve unrelated dirty worktree and use MAP_System/scripts/map-git for Git
+    inspection.
+  source: AGENTS.md
+- scope: task
+  rule: Do not edit or disposition TASK-273 submitted outputs; route only an independent
+    reviewer not conflicted by TASK-274.
+  source: TASK-273 handoff and mubo ruling
+- scope: task
+  rule: TASK-274's MAP_System/db/claims.py overlap with TASK-273 is a known graph-red
+    collision; do not hand-edit SQLite or output paths.
+  source: Zaro disclosure and INS-0042/SYN-0005
+- scope: task
+  rule: Do not claim TASK-268 until TASK-273 is independently approved and released.
+  source: TASK-273 handoff sequencing
+- scope: task
+  rule: Recuse from PROMO-0013 because its approval affects TASK-274's lifetime and
+    the TASK-273 collision while this session routes TASK-273 review.
+  source: request
+- scope: file
+  rule: Do not restart the operator's live CommandCenterUI process; TASK-275 release
+    documents that it remains on pre-edit code until planned restart.
+  source: TASK-275 release checklist
+- scope: communication
+  rule: Use hcom for agent routing and MATOCP tokens for compact status; reply to
+    requests with the supplied message id.
+  source: MAP_System/AGENTS.md and hcom protocol
+forward_tasks:
+- task_id: TASK-273
+  next_action: review
+  owner: codex-lab-lilo
+  reason: Independent review was requested; no acceptance or verdict has arrived yet.
+    Preserve submitted outputs and disclose graph-red collision as unrelated.
+  paths:
+  - MAP_System/db/claims.py
+  - MAP_System/scripts/map_task.py
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/tests/test_reassign_owner.py
+- task_id: TASK-268
+  next_action: wait
+  owner: command-center
+  reason: Remains READY and sequenced after TASK-273 release because of overlapping
+    lifecycle outputs.
+  paths:
+  - MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+- task_id: TASK-274
+  next_action: wait
+  owner: command-center
+  reason: READY but blocked by TASK-268 and TASK-273; its claims.py registration is
+    the known graph-red collision.
+  paths:
+  - MAP_System/db/claims.py
+  - MAP_System/artifacts/tests/task-submission-event-delivery-note.md
+blockers:
+- kind: ownership_conflict
+  detail: TASK-273 review and TASK-274/PROMO-0013 fate are coupled through the db/claims.py
+    collision; this session cannot independently decide both.
+  unblock_by: Independent reviewer disposition of TASK-273 and separate clean reviewer/operator
+    disposition of PROMO-0013.
+- kind: dependency
+  detail: TASK-268 and TASK-274 remain sequenced behind TASK-273 release.
+  unblock_by: Independently approve and release TASK-273.
+lexicon:
+  HPOM: Human-Paced Orchestration Model for worker fit and authority routing.
+  MAP: File-backed multi-agent delivery system with SQLite claim coordination.
+  MATOCP: Compact agent communication tokens such as !ACK, !REQ, and !LGTM.
+  TASK-273: Sanctioned owner-reassignment verb, submitted and awaiting independent
+    review.
+  TASK-274: Durable submission-event task, READY but blocked and causing the claims.py
+    collision.
+  PROMO-0013: Promotion of IDEA-0027 behind TASK-274; requires independent disposition.
+  graph-red: validate_task_graph collision caused by TASK-274's overlapping claims.py
+    output path.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-273
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_review.py --review-record
+  MAP_System/artifacts/reviews/task275-review-feta.md --task-id TASK-275
+validation:
+- TASK-275 review record validated successfully.
+- TASK-275 was approved and released; task mirrors and release events recorded.
+- Pre/post external server.py control under bogus ambient OLLAMA_HOST each discovered
+  10 models; helper child env capture pinned loopback.
+- TASK-273/TASK-274 graph-red collision remains expected and untouched.
+rotation:
+  reason: threshold
+  summary: Completed independent functional and security review of TASK-275, recorded
+    review artifact, approved and released it with the required external-boundary
+    checklist. Continued routing TASK-273 independently after Zaro recused due to
+    TASK-274's overlapping claims.py path and graph-red outcome interest. Recused
+    from PROMO-0013 for the same coupled outcome interest. No task implementation
+    outputs were edited.
+  next_action: Validate continuity in the replacement, then check whether codex-lab-lilo
+    accepted TASK-273 review; preserve the recusal and do not claim TASK-268 or PROMO-0013.
+  used_tokens: 134924
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-23T08:30:17Z'
+  canonical_tasks:
+  - task_id: TASK-268
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23 03:28:44'
+  - task_id: TASK-273
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23 03:55:07'
+  - task_id: TASK-274
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23T03:55:36Z'
+  canonical_tasks_sha256: 62f144b16993b117009ad3b91c0d339a9785f1a729c165da5abd0897b4443370
+  touched_paths:
+  - path: /home/mellow/Projects/CommandCenterUI/app/server.py
+    scope: outside_workspace
+    sha256: null
+    state: unverified
+  - path: MAP_System/artifacts/releases/task-275-release-checklist.md
+    scope: workspace
+    sha256: c966b2e133074716561955e0dda933b7b0ddb84e8c03fcabceedc81215e10817
+    state: file
+  - path: MAP_System/artifacts/reviews/task275-review-feta.md
+    scope: workspace
+    sha256: 7053006e7be404e81d6efc8f9bf0cb420bee6756b6195bb6bda9a573cc190b75
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: 37d259293ba6e3e475b6a2aeb277aa37ace2ce683866c355456adb8f14fbdbda
+    state: file
+  - path: MAP_System/tasks/TASK-275.json
+    scope: workspace
+    sha256: fb8b69bc289b592287b9433dc9ed1f9556fc5966e0cc95a65baf1d6c2e0aca0e
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: e0ac5443e240f732ed1607a5b66cccde4199b44463ce260fd6a1b745c4d0f3a3
+    state: file
+  touched_paths_sha256: 05c688f09791231cab21be841e47644e0e1fdd9bb9f06561b1431234867013d9

@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-244",
+  "title": "Increase CommandCenterUI agent identity color contrast",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RETIRED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Increase contrast and saturation of the muted-pastel agent identity chips so provider types are distinguishable at a glance, without turning them into warning/error colors. Superseded by TASK-254, which owns independent review and release of the combined final UI state because later serial edits overwrote the earlier worktree snapshots.",
+  "input_paths": [],
+  "output_paths": [
+    "../../CommandCenterUI/src/chat.css",
+    "MAP_System/templates/install/command-center-ui/src/chat.css",
+    "MAP_System/tests/test_command_center_agent_identity.py"
+  ],
+  "acceptance_criteria": [
+    "Agent-type chips remain readable and have visibly distinct pastel color treatments.",
+    "Live and installer styles remain equivalent and focused checks pass."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

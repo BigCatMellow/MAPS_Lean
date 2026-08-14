@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-323",
+  "title": "Phase-0 P0.2: repair events.jsonl NUL corruption, TASK-315 stale backlink, wikilink findings",
+  "task_type": "bugfix",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-sumi",
+  "description": "Per map-2 plan P0.2 and helper-librarian.md 2026-08-09 rerun: (1) quarantine+repair NUL corruption at events.jsonl line 18785 via reviewed append-only-preserving procedure, retain original bytes/hash as evidence; (2) correct TASK-315's stale /home/home/... release backlink through authority or a provenance repair record, not local SQL edit; (3) triage the 22 wikilink findings into scanner false positives / resolvable shorthand / ambiguous AGENTS / genuinely missing evidence. Do not silently rewrite history - preserve evidence per map-2 sec 22 stop conditions.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/recovery/p02-validation-debt-repair-2026-08-10.md",
+    "MAP_System/events/events.jsonl",
+    "MAP_System/tasks/TASK-315.json"
+  ],
+  "acceptance_criteria": [
+    "events.jsonl NUL corruption at line 18785 is repaired with original bytes/hash preserved as evidence",
+    "TASK-315 backlink is corrected via authority/provenance record, not direct SQL",
+    "22 wikilink findings are triaged with disposition recorded per finding"
+  ],
+  "decision_class": null,
+  "risk_class": "DATA",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

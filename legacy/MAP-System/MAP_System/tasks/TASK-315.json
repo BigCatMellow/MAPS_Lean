@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-315",
+  "title": "Converge Biggie and Smalls source through reviewed GitHub checkpoint",
+  "task_type": "operations",
+  "role": "delivery-implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "zeno",
+  "description": "Preserve both dirty worktrees, curate Biggie publish scope, publish through a reviewed GitHub branch, and update Smalls only after active task ownership and review gates are clear. Operator directed this convergence in chat on 2026-08-01.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/operations/biggie-smalls-source-convergence-20260801.md"
+  ],
+  "acceptance_criteria": [
+    "Biggie and Smalls pre-convergence worktrees have recoverable local snapshots with recorded checksums.",
+    "No active task-owned or sensitive/generated path is published without its normal review gate.",
+    "GitHub contains the reviewed canonical source checkpoint and reports a clean target revision.",
+    "Smalls reaches the same committed revision without losing its preserved divergent worktree.",
+    "Post-convergence MAP authority sync, hcom visibility, and focused tests remain healthy."
+  ],
+  "decision_class": "SCOPE",
+  "risk_class": "DATA",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "operator",
+  "requires_operator_approval": true,
+  "destructive_action": true,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": true,
+  "trust_boundary_crossing": true
+}

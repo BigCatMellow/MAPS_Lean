@@ -1,0 +1,280 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-30T04:36:42Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-mimi
+session_id: 849c721b-210c-4fba-8627-c9794c3c9c12
+status: handing_off
+task_context:
+  current_task: TASK-310
+  owned_tasks:
+  - TASK-310
+  pending_reviews: []
+  recent_events:
+  - event_type: PLAN_REVIEW_COMPLETE
+    task_id: null
+    summary: 'Independent review of MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_KICKOFF.md:
+      CHANGES_REQUESTED (git-exposure BLOCKER on the preserved map.db copy), then
+      re-verified fix and APPROVED. Review at MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md.
+
+      '
+  - event_type: AMENDMENT_REVIEW_COMPLETE
+    task_id: null
+    summary: 'Independent review of MAP_RECOVERY_SEQUENCE_AMENDMENT_1.md: APPROVED
+      Option A, with a non-blocking note that the prerequisite task (became TASK-313)
+      should not be owned by codex-lab-risa. Review at MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_SEQUENCE_AMENDMENT_1_REVIEW.md.
+
+      '
+  - event_type: TASK313_DISPOSITION_REVIEW
+    task_id: TASK-313
+    summary: 'Reviewed codex-lab-vumo''s ws1-path-ownership-prerequisite.md. Endorsed
+      Option A mechanism but flagged it exceeded Amendment 1''s narrow mandate: full
+      TASK-304 retirement would silently resolve the separate TASK-304/TASK-307 collision
+      (WS-2 baseline, chartered to TASK-311) and drop TASK-304''s priority-100 coordinator-enforcement
+      scope with no successor. Recommended two guards. Review at MAP_System/artifacts/recovery/ws1-path-ownership-prerequisite-review-mimi.md.
+
+      '
+  - event_type: COORDINATOR_HANDOFF
+    task_id: null
+    summary: 'Operator (bigboss) told claude-lab-mimi directly in chat "Codex is out
+      of use, so I need you to take over as orchestrator" (2026-07-30). Recorded as
+      DEC-036 in MAP_System/shared/decisions.md. Broadcast to the fleet over hcom.
+      codex-lab-risa formally handed off recovery coordination and confirmed it will
+      not reclaim TASK-310, route decisions, or submit further work.
+
+      '
+  - event_type: A1_EXECUTED_AND_VERIFIED
+    task_id: TASK-313
+    summary: 'Operator APPROVEd the two-guard A1 disposition (retire TASK-304 only,
+      with explicit TASK-304/TASK-307 collision attribution to TASK-311 and explicit
+      temporary deprioritization of remaining TASK-304 scope). codex-lab-vumo (still
+      live on Smalls/RUKI) executed it via sanctioned `map-authority task retire`.
+      I independently verified the after-state live (task show + task log): reason
+      text matches exactly, TASK-306 and TASK-308 timestamps predate the mutation
+      (untouched). Confirmed to vumo, which then submitted TASK-313.
+
+      '
+  - event_type: TASK310_RECLAIMED
+    task_id: TASK-310
+    summary: 'codex-lab-risa''s TASK-310 lease was expired (04:08:11Z) and risa is
+      unreachable. Independently reran risa''s unsubmitted work (map_authority.py,
+      map_authority_notify.py, tests) before touching anything: 33/33 focused tests
+      pass, and the work correctly respected TASK-310''s "Ownership Gate" (did not
+      touch graph/runner.py or server.py while they were contested). Direct `map-authority
+      claim` from Biggie failed with a FOREIGN KEY constraint (claude-lab-mimi was
+      never registered as an agent on Smalls). Diagnosed with vumo: Smalls is running
+      an OLDER map_authority.py than Biggie''s checked-in copy (missing register-agent/rotation-transfer/rotation-restore/snapshot
+      -- almost certainly the still-undeployed TASK-307/TASK-308 gateway patch). Worked
+      around it via the already-available `reassign-owner` verb, which registers an
+      agent as a documented side effect without touching claim state (db/claims.py
+      reassign_task_owner). vumo ran that locally on Smalls; I then successfully claimed
+      TASK-310 myself from Biggie. Confirmed live: owner=claimed_by=claude-lab-mimi,
+      attempt=2.
+
+      '
+  touched_paths:
+  - MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md
+  - MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_SEQUENCE_AMENDMENT_1_REVIEW.md
+  - MAP_System/artifacts/recovery/ws1-path-ownership-prerequisite-review-mimi.md
+  - MAP_System/shared/decisions.md
+  - MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-mimi-20260730T012822Z.yaml
+active_constraints:
+- scope: authority
+  rule: 'Biggie/KUDU is a read-only MAP mirror for map.db. All canonical lifecycle
+    writes (claim/heartbeat/retire/reassign-owner/submit) must go through `map-authority`,
+    which forwards mutating verbs to Smalls over SSH. Reads (`task show`/`task log`)
+    work locally against Biggie''s synced mirror. Never attempt to edit MAP_System/map.db
+    directly on Biggie.
+
+    '
+  source: AGENTS.md, MAP_System/AGENTS.md, this session's TASK-310 reclaim
+- scope: version_skew
+  rule: 'Smalls'' deployed map_authority.py lacks register-agent, rotation-transfer,
+    rotation-restore, and snapshot operations that Biggie''s checked-in copy has.
+    Do not assume any operation present in the local source file is actually available
+    on Smalls -- verify, or expect an argparse "invalid choice" error. This is presumably
+    the still-undeployed TASK-307/TASK-308 gateway patch; flagged to codex-lab-vumo
+    as a WS-6 recovery-backlog item, not yet filed as its own task.
+
+    '
+  source: this session, confirmed by codex-lab-vumo running the command locally on
+    Smalls
+- scope: coordination
+  rule: 'claude-lab-mimi is the operator-designated MAP recovery coordinator/orchestrator
+    while Codex is unavailable (DEC-036). Route new coordination decisions through
+    this identity/lineage, not codex-lab-risa. codex-lab-vumo (Smalls/RUKI) was still
+    functioning as of this session and is a legitimate executor for Smalls-side sanctioned
+    verbs when the coordinator is Biggie-side.
+
+    '
+  source: MAP_System/shared/decisions.md DEC-036
+forward_tasks:
+- task_id: TASK-310
+  next_action: continue
+  owner: claude-lab-mimi
+  reason: 'WS-1 authority-freshness contract (see MAP_System/artifacts/recovery/ws1-truthful-authority-state.md).
+    Core map-authority status/watchdog/snapshot work is done and tested (33/33). graph/runner.py
+    is now released (TASK-304 retired) and collision-free -- next step is `map-authority
+    task add-output-path TASK-310 MAP_System/graph/runner.py --actor claude-lab-mimi
+    --reason ...` (verify this verb exists on Smalls'' deployed version first, per
+    the version-skew constraint above) then wire the shared authority object into
+    the LangGraph runner output per the contract''s "Required Consumers" section,
+    without touching graph/runner.py''s *routing* logic. `templates/install/command-center-ui/app/server.py`
+    remains blocked by TASK-306 (CHANGES_REQUESTED) -- do not touch it; that Command
+    Center-facing integration is a separate follow-up per the contract doc. Heartbeat
+    at least every ~15 minutes (`map-authority heartbeat TASK-310 claude-lab-mimi`).
+
+    '
+  paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/map_authority_notify.py
+  - MAP_System/tests/test_map_authority.py
+  - MAP_System/tests/test_map_authority_notify.py
+  - MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+- task_id: TASK-311
+  next_action: check
+  owner: rotation-replacement-kite-veni
+  reason: 'Gated on TASK-310 (WS-2 collision resolution, including citing the TASK-304/TASK-307
+    pre-resolution entry A1 recorded). Independently noticed veni has shown hcom status
+    "blocked: approval pending" for several hours, unrelated to the Codex outage --
+    not yet investigated this session. Worth a direct check-in as coordinator once
+    TASK-310 work is underway.
+
+    '
+  paths:
+  - MAP_System/artifacts/recovery/ws2-output-collision-resolution.md
+- task_id: TASK-306
+  next_action: wait
+  owner: claude-lab-nene
+  reason: 'CHANGES_REQUESTED, still sole active owner of templates/install/command-center-ui/app/server.py.
+    TASK-310''s Command-Center-facing freshness display stays blocked until TASK-306
+    is separately dispositioned. Not part of this session''s scope; flag to operator/coordinator
+    if it becomes the next bottleneck after TASK-310''s runner integration lands.
+
+    '
+  paths: []
+blockers:
+- kind: coordination
+  detail: 'TASK-311''s owner (rotation-replacement-kite-veni, Smalls/RUKI, a Claude
+    identity) has shown "blocked: approval pending" in hcom for multiple hours, independent
+    of the Codex outage. Cause not yet diagnosed.
+
+    '
+  unblock_by: successor coordinator checks in directly (hcom transcript rotation-replacement-kite-veni,
+    or ask on Smalls side)
+- kind: infrastructure
+  detail: 'Smalls'' deployed map-authority gateway is missing several operations present
+    in Biggie''s checked-in source (register-agent, rotation-transfer, rotation-restore,
+    snapshot), confirmed by a live argparse rejection when vumo ran register-agent
+    locally on Smalls.
+
+    '
+  unblock_by: TASK-307/TASK-308 gateway deployment (already tracked separately; not
+    newly blocking, but worth a durable note under WS-6)
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and sole writable MAP
+    authority
+resume_commands:
+- hcom list -v --json --name mimi
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- map-authority task show TASK-310
+- map-authority task show TASK-311
+- cat MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+- git -C /home/mellow/Projects/MultiAgentProject/Source diff --stat -- MAP_System/scripts/map_authority.py
+  MAP_System/scripts/map_authority_notify.py
+validation:
+- MAP recovery kickoff plan APPROVED (second pass, BLOCKER fixed and reverified).
+- Sequence Amendment 1 APPROVED.
+- TASK-313 disposition (A1) reviewed, executed, independently verified live, and submitted
+  by codex-lab-vumo.
+- TASK-304 is RETIRED with the exact required A1 reason text (verified via `task log
+  TASK-304`).
+- TASK-306 and TASK-308 are untouched (timestamps predate the A1 mutation).
+- TASK-310 is IN_PROGRESS, owner=claimed_by=claude-lab-mimi, attempt=2, fresh lease
+  as of this snapshot.
+- DEC-036 recorded in MAP_System/shared/decisions.md documenting the operator's coordinator
+  handoff to claude-lab-mimi.
+rotation:
+  reason: rotation_due
+  summary: 'Oriented at startup as claude-lab-mimi, sent bigboss one status/priority
+    request. Received and completed three independent-review assignments from codex-lab-risa
+    on the MAP recovery effort (kickoff plan, sequence amendment, TASK-313 disposition),
+    each verified against live Smalls state rather than trusted blindly. When the
+    operator said "Codex is out of use" and told mimi to take over as orchestrator,
+    recorded DEC-036, broadcast the handoff, verified and confirmed the already-approved
+    A1 task-retirement mutation, then reclaimed codex-lab-risa''s stalled TASK-310
+    (diagnosing a real FK/agent-registration bug and a real Biggie/Smalls gateway
+    version-skew along the way, working around both with sanctioned verbs rather than
+    any direct DB edit). Session is now well past the hard rotation threshold (292k/150k
+    tokens).
+
+    '
+  next_action: 'On resume: verify this snapshot''s hash matches the ledger, confirm
+    TASK-310 is still claimed by claude-lab-mimi (heartbeat if the lease is getting
+    close to expiry), then continue TASK-310 per forward_tasks above -- register graph/runner.py
+    (checking the verb exists on Smalls'' current deployed version first) and wire
+    the authority-freshness contract into the LangGraph runner output. Check in on
+    TASK-311/veni''s stale block. Keep acting as MAP recovery coordinator per DEC-036
+    until Codex returns or the operator says otherwise. Continue verifying every agent-reported
+    mutation against live `map-authority task show`/`task log` rather than trusting
+    reports at face value -- that discipline caught real gaps twice this session (the
+    git-exposure BLOCKER, the A1 scope-creep risk).
+
+    '
+  used_tokens: 292164
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-07-30T04:36:42Z'
+  canonical_tasks:
+  - task_id: TASK-306
+    status: CHANGES_REQUESTED
+    owner: claude-lab-nene
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-29 15:40:10'
+  - task_id: TASK-310
+    status: IN_PROGRESS
+    owner: claude-lab-mimi
+    claimed_by: claude-lab-mimi
+    lease_expires_at: '2026-07-30 05:04:29'
+    heartbeat_at: '2026-07-30 04:34:29'
+    updated_at: '2026-07-30 04:34:29'
+  - task_id: TASK-311
+    status: READY
+    owner: rotation-replacement-kite-veni
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-30T01:43:36Z'
+  canonical_tasks_sha256: e2dc28928c89b11bbe316237ebe46212e29eae5f96ffa163bafd3e42e6878991
+  touched_paths:
+  - path: MAP_System/artifacts/recovery/ws1-path-ownership-prerequisite-review-mimi.md
+    scope: workspace
+    sha256: a062baea968505f1537411b312221d497986ed5a0f7ef14d9af727d39f7ec8d8
+    size: 4146
+    state: file
+  - path: MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-mimi-20260730T012822Z.yaml
+    scope: workspace
+    sha256: 72233385bf8b9161066dfd10d198b252a6807b0144837d621c9cb7b9bd03ed76
+    size: 4491
+    state: file
+  - path: MAP_System/shared/decisions.md
+    scope: workspace
+    sha256: 83b36d236cecb0c53e0a6edd9c5921c0d53e75b0dff8b7942fd63fccd555ea9a
+    size: 56787
+    state: file
+  - path: MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md
+    scope: workspace
+    sha256: 4f3ae5a8e2c7d7064aa373e4844df59754120c9e17e2d0f358175b23958fd691
+    size: 9808
+    state: file
+  - path: MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_SEQUENCE_AMENDMENT_1_REVIEW.md
+    scope: workspace
+    sha256: 4741fa9c95f066007abbfcb67b9c536c1069648cce749d656f7cdbe42a8f4067
+    size: 6491
+    state: file
+  touched_paths_sha256: b1e3e22696d781de842afbe1ff534ae2ef2a47bb84dd2678d5f49d70f8ce34f0

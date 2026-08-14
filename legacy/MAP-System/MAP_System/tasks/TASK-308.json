@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-308",
+  "title": "Deploy and live-verify the reviewed TASK-307 gateway patch on Smalls",
+  "task_type": "infrastructure",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-307"
+  ],
+  "owner": "claude-lab-nene",
+  "description": "Workflow-safe continuation after TASK-307 was prematurely advanced to APPROVED at code-review time before its deployment/live-verification criteria ran. Operator directed continuation and Nene recorded approval to deploy once the workflow correction was ready. Deploy only the exact attempt-3 hashes approved in MAP_System/artifacts/reviews/task307-smalls-rereview3-codex-lab-vumo.md to Smalls/RUKI, with pre-write backup, staged checksum verification, recoverable activation, focused tests, live success/fail-closed probes, durable evidence, and independent final review. Preserve RUKI map.db authority, credentials, configuration, hcom state, unrelated source, and all user work. This task records rather than erases TASK-307s premature-approval discrepancy and does not fix the separate review-artifact transport problem.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/operations/gateway-rotation-ops-live-deployment-2026-07-29.md"
+  ],
+  "acceptance_criteria": [
+    "Record TASK-307s premature-approval discrepancy, the attempt-3 approved review artifact, and exact reviewed SHA-256 values before any Smalls write.",
+    "Confirm destination home@192.168.1.153 hostname MediaCenter device RUKI and preserve a timestamped backup of every target file before activation; never modify map.db directly, authority topology, credentials, hcom state, runtime state, or unrelated files.",
+    "Stage only the exact approved TASK-307 files, prove every staged hash equals the approved Biggie hash, run compile/focused tests in staging, and activate recoverably only after all checks pass.",
+    "Post-deploy verification on live RUKI proves register-agent succeeds idempotently for an existing approved agent identity, rotation-transfer fails closed for invalid/nonexistent state without mutation, rotation-restore rejects unknown or replayed transfer IDs without unrelated row drift, and the forced-command gateway rejects the obsolete three-row-JSON restore shape.",
+    "Record deployed paths, before/after hashes, backup/rollback location, commands/results, relay health, and rollback outcome if needed in the deployment artifact; a different core agent performs final functional and security-framed review before completion."
+  ],
+  "decision_class": null,
+  "risk_class": "SECURITY",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "bounded",
+  "requires_operator_approval": true,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": true,
+  "trust_boundary_crossing": true
+}

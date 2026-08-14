@@ -1,0 +1,91 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 1
+created_at: "2026-07-18T01:41:24-04:00"
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-lilo
+session_id: codex-lab-lilo-20260718T014124
+status: active
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+    - event_type: RELEASED
+      task_id: TASK-228
+      summary: "Visible local-only qwen3.5:4b advisory lane released after independent review."
+    - event_type: RELEASED
+      task_id: TASK-229
+      summary: "Pi qwen2.5-coder:7b-16k requalification failure record released after independent review."
+    - event_type: EXPERIMENT_COMPLETE
+      task_id: EXP-0005
+      summary: "Six-row orientation treatment passed at 2,619 bytes against 44,432-byte control; parked as bounded evidence."
+  touched_paths:
+    - MAP_System/tasks/TASK-228.json
+    - MAP_System/tasks/TASK-229.json
+    - MAP_System/artifacts/releases/task-228-release-checklist.md
+    - MAP_System/artifacts/releases/task-229-release-checklist.md
+    - MAP_System/notes/pi-agent-communication-guide.md
+    - MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md
+    - MAP_System/shared/current-state.md
+    - MAP_System/artifacts/reports/system-improvement-iteration-2026-07-18.md
+    - MAP_System/emergence/experiments/EXP-0005-a-frozen-rubric-and-retained-control-can-test-orientation-sa.md
+    - MAP_System/artifacts/experiments/orientation-manifest-refined-evaluation-2026-07-18.md
+active_constraints:
+  - scope: communication
+    rule: "Use hcom request only for operator decisions, approvals, blockers, conflicts, privacy/scope risks, or questions; routine progress is inform."
+    source: operator directive
+  - scope: communication
+    rule: "Helpers and model-backed work must be visible in wezterm-tab, bounded by a durable note, and never headless without explicit operator instruction."
+    source: MAP_System/AGENTS.md; operator directive
+  - scope: task
+    rule: "SQLite is canonical for task state; export and validate mirrors after claim, submission, approval, or release."
+    source: MAP_System/AGENTS.md
+  - scope: tool
+    rule: "Pi is operationally paused. Do not route tasks, reviews, handoffs, releases, routing, durable output, or capacity through it. A future attempt needs a new operator-authorized no-write drill and a fresh visible instance."
+    source: MAP_System/notes/pi-agent-communication-guide.md; TASK-229 release
+  - scope: safety
+    rule: "EXP-0005 is scenario-local evidence only. It does not authorize a manifest runtime, index behavior, startup-policy, or task-state change."
+    source: MAP_System/emergence/experiments/EXP-0005-a-frozen-rubric-and-retained-control-can-test-orientation-sa.md
+forward_tasks:
+  - task_id: TASK-227
+    next_action: wait
+    owner: claude-lab-gome
+    reason: "Claude-owned plan remains CHANGES_REQUESTED with five REQUIRED findings. Durable status marks its owner unavailable; do not edit the registered plan without an explicit ownership transfer."
+    paths:
+      - MAP_System/notes/system-improvement-implementation-plan.md
+      - MAP_System/artifacts/reviews/task227-review-lilo.md
+      - MAP_System/handoffs/HANDOFF-20260718-system-improvement-kickoff-to-claude.md
+  - task_id: EXP-0005
+    next_action: wait
+    owner: null
+    reason: "Complete and parked. Preserve evidence; no follow-on implementation is approved."
+    paths:
+      - MAP_System/artifacts/experiments/orientation-manifest-refined-rubric-control-2026-07-18.md
+      - MAP_System/artifacts/experiments/orientation-manifest-refined-treatment-2026-07-18.md
+      - MAP_System/artifacts/experiments/orientation-manifest-refined-evaluation-2026-07-18.md
+  - task_id: PI-LANE
+    next_action: wait
+    owner: null
+    reason: "No current Pi work lane after three failed bounded trials; do not restart automatically."
+    paths:
+      - MAP_System/notes/pi-agent-communication-guide.md
+      - MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md
+blockers:
+  - kind: ownership_conflict
+    detail: "TASK-227 output is owned by claude-lab-gome while it is CHANGES_REQUESTED and capacity remains unconfirmed."
+    unblock_by: "claude-lab-gome resumes and reworks its plan, or an explicit ownership handoff is created."
+lexicon:
+  E/I: "Emergence and improvement: evidence-first discovery, synthesis, experiment, then optional promotion."
+  HPOM: "Human-Paced Orchestration Model: human-visible authority and risk-proportionate routing."
+  EXP-0005: "Refined compact orientation experiment; passed one retained-control scenario but is parked rather than generalized."
+  STATE_SNAPSHOT: "Compact restart orientation; canonical facts remain SQLite, task mirrors, decisions, and durable artifacts."
+  MATOCP: "Compact hcom tokens such as !ACK, !NOTE, and !LGTM."
+resume_commands:
+  - "hcom list --name lilo"
+  - "MAP_System/.venv/bin/python MAP_System/graph/runner.py"
+  - "MAP_System/.venv/bin/python MAP_System/scripts/validate_task_mirrors.py"
+  - "MAP_System/.venv/bin/python MAP_System/scripts/map_emergence.py validate"
+validation:
+  - "2026-07-18: TASK-228 and TASK-229 are RELEASED after independent review records."
+  - "2026-07-18: hcom Pi default verified as --model ollama/qwen2.5-coder:7b-16k --offline; stopped nami produced no required acknowledgement event."
+  - "2026-07-18: shared-state validation passed 22 files; emergence validation passed 68 artifacts."

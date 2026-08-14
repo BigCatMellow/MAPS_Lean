@@ -1,0 +1,41 @@
+{
+  "task_id": "TASK-001",
+  "title": "Review collaboration bootstrap",
+  "task_type": "review",
+  "role": "reviewer",
+  "status": "DONE",
+  "dependencies": [],
+  "owner": "claude",
+  "description": "Review the initial collaboration workspace for clarity, completeness, and usability by both Codex and Claude Code.",
+  "input_paths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "README.md",
+    "shared/",
+    "workflow/",
+    "langgraph/"
+  ],
+  "output_paths": [
+    "artifacts/reviews/bootstrap-review.md",
+    "artifacts/reviews/bootstrap_review.md"
+  ],
+  "acceptance_criteria": [
+    "Verify that Codex and Claude Code have clear entrypoint instructions",
+    "Verify that task and handoff conventions are understandable",
+    "Verify that LangGraph boundaries are documented",
+    "Record required fixes or approve the bootstrap"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,18 @@
+{
+  "candidate_id": "CAND-CA152F475CC3E594",
+  "status": "accepted",
+  "signal_type": "repeated_blocker",
+  "subject": "TASK-189",
+  "summary": "TASK-189 recorded 3 blockers; inspect whether the blocking condition should become operational learning.",
+  "evidence_refs": [
+    "MAP_System/events/events.jsonl:1045",
+    "MAP_System/events/events.jsonl:1053",
+    "MAP_System/events/events.jsonl:1054"
+  ],
+  "dedup_key": "ca152f475cc3e594",
+  "detected_at": "2026-07-18T01:27:58Z",
+  "curated_at": "2026-07-27T18:07:01Z",
+  "curated_by": "claude-lab-nora",
+  "resolution_reason": "Genuine reusable pattern, captured as INS-0051: non-core-agent workers fail silently instead of erroring, recurring across three separate incidents.",
+  "resolution_ref": "MAP_System/emergence/insights/INS-0051-non-core-agent-workers-visible-helpers-haiku-agents-local-pi-mod.md"
+}

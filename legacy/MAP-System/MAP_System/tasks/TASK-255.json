@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-255",
+  "title": "Map conversation notes into existing E/I and triage architecture",
+  "task_type": "planning",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Assess the operator-provided conversation_notes.md against MAP current architecture. Separate existing capabilities from genuine gaps, propose bounded experiments for task fingerprints, workstream digests, explainable wait and incident records, and improved E/I retrieval, and explicitly defer duplicate agents, autonomous authority expansion, and external GitHub integration pending evidence and operator decisions.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md"
+  ],
+  "acceptance_criteria": [
+    "The intake maps each major proposal to an existing MAP mechanism, a genuine gap, or a deferred idea without creating a duplicate source of truth.",
+    "The intake separates adopt-now principles, extensions to existing systems, bounded experiments, and deferred or rejected architecture.",
+    "The plan defines measurable experiments for task fingerprints, workstream digests, E/I recall, and explainable waits/incidents while preserving proposal-only authority.",
+    "GitHub and external references are treated as optional unverified inputs and no external write or integration is authorized."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

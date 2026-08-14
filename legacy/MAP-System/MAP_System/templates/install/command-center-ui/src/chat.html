@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Command Center</title>
+  <link rel="stylesheet" href="chat.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <div>
+          <h1>AI Command Center</h1>
+          <p id="conn-status">connecting…</p>
+        </div>
+      </div>
+      <div id="lab-banner" class="lab-banner" hidden>
+        <span id="lab-banner-text"></span>
+        <button id="lab-start" type="button">Start lab</button>
+      </div>
+      <section id="attention-section" class="sidebar-section" data-sidebar-section="attention" data-default-collapsed="true">
+        <button id="attention-head" class="sidebar-section-head" type="button" aria-expanded="false">
+          <span>Attention needed</span>
+          <span id="attention-count" class="section-count">0</span>
+        </button>
+        <div class="sidebar-section-body">
+          <ul id="attention-list" class="attention"></ul>
+        </div>
+      </section>
+      <section class="sidebar-section" data-sidebar-section="room">
+        <button class="sidebar-section-head" type="button" aria-expanded="true">
+          <span>In the room</span>
+          <span id="presence-count" class="section-count">0</span>
+        </button>
+        <div class="sidebar-section-body">
+          <div class="presence-tools">
+            <span id="usage-refresh-state">usage auto-refreshes</span>
+            <button id="usage-refresh" type="button" title="Re-read agent token transcripts now">Refresh usage</button>
+          </div>
+          <ul id="presence-list" class="presence"></ul>
+        </div>
+      </section>
+      <section class="sidebar-section" data-sidebar-section="lab">
+        <button class="sidebar-section-head" type="button" aria-expanded="true">
+          <span>MAP status</span>
+          <span id="lab-section-state" class="section-count">...</span>
+        </button>
+        <div class="sidebar-section-body">
+          <div class="map-status-block">
+            <b>Task queue</b>
+            <div id="map-summary" class="map-summary">loading…</div>
+          </div>
+          <div id="map-health-card" class="map-health-card" title="Read-only MAP runtime health (runner route, librarian wikilinks, session replay, RnS watcher, token status, cost/yield split, outcome feedback)">
+            <div class="map-health-head">
+              <b>System checks</b>
+              <span id="map-health-overall" class="health-dot" data-status="loading"></span>
+            </div>
+            <ul id="map-health-rows" class="map-health-rows">
+              <li>checking…</li>
+            </ul>
+          </div>
+          <div id="steward-card" class="steward-card">
+            <div class="steward-head"><b>MAP Steward</b><span id="steward-mode">loading…</span></div>
+            <div id="steward-meta" class="steward-meta">reading local attention state…</div>
+            <div id="steward-inputs" class="steward-inputs"></div>
+            <ul id="steward-recommendations" class="steward-recommendations"></ul>
+            <div class="steward-actions">
+              <button id="steward-refresh" type="button">Refresh</button>
+              <button id="steward-ask" type="button">Ask visibly</button>
+              <button id="steward-stop" type="button">Stop</button>
+              <button id="steward-resume" type="button">Resume</button>
+            </div>
+          </div>
+          <div id="sentinel-card" class="steward-card">
+            <div class="steward-head"><b>E/I Sentinel</b><span id="sentinel-status">loading…</span></div>
+            <div id="sentinel-meta" class="steward-meta">reading scan state…</div>
+            <div class="steward-actions">
+              <button id="sentinel-scan" type="button">Scan now</button>
+              <button id="sentinel-stop" type="button">Stop</button>
+              <button id="sentinel-resume" type="button">Resume</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="sidebar-section" data-sidebar-section="projects">
+        <button class="sidebar-section-head" type="button" aria-expanded="true">
+          <span>Project Updater</span>
+          <span id="project-updater-count" class="section-count">...</span>
+        </button>
+        <div class="sidebar-section-body">
+          <div id="project-updater-card" class="project-updater-card">
+            <div class="project-updater-head">
+              <b>Project Updater</b>
+              <span id="project-updater-state">checking…</span>
+            </div>
+            <div id="project-updater-summary" class="project-updater-summary">loading status…</div>
+            <ul id="project-updater-projects" class="project-updater-projects"></ul>
+            <div class="project-updater-actions">
+              <button id="project-updater-modal-open" class="project-updater-open primary" type="button">Open here</button>
+              <button id="project-updater-open" class="project-updater-open" type="button">Standalone</button>
+            </div>
+            <div id="project-updater-commands" class="project-updater-commands">
+              <b>Commands</b>
+              <span>ai project new · update · note</span>
+            </div>
+            <div id="project-updater-boundary" class="project-updater-boundary">
+              Embedded records use Command Center browser storage; standalone has its own localStorage.
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="sidebar-section" data-sidebar-section="timers">
+        <button class="sidebar-section-head" type="button" aria-expanded="true">
+          <span>Timers</span>
+          <span id="timer-count" class="section-count">0</span>
+        </button>
+        <div class="sidebar-section-body">
+          <div class="timer-card">
+            <div class="timer-now">
+              <b id="timer-now">--:--:--</b>
+              <span id="timer-next">No timers set</span>
+            </div>
+            <div class="timer-mode" role="group" aria-label="Timer mode">
+              <button id="timer-mode-countdown" class="selected" type="button">Timer</button>
+              <button id="timer-mode-alarm" type="button">Alarm</button>
+            </div>
+            <form id="timer-form" class="timer-form" autocomplete="off">
+              <input id="timer-label" type="text" maxlength="32" placeholder="label" />
+              <input id="timer-value" type="text" placeholder="10m or 14:30" />
+              <button type="submit">Set</button>
+            </form>
+            <ul id="timer-list" class="timer-list"></ul>
+          </div>
+        </div>
+      </section>
+      <label class="gist-toggle">
+        <input id="gist-checkbox" type="checkbox" />
+        Casual relay
+      </label>
+      <a class="side-link" href="/app.html">MAP dashboard →</a>
+    </aside>
+
+    <div id="screen-panel" class="screen-panel" hidden>
+      <div class="screen-head">
+        <b id="screen-title"></b>
+        <button id="screen-close" type="button" title="Close">×</button>
+      </div>
+      <pre id="screen-body" class="screen-body"></pre>
+      <div class="quick-keys">
+        <span>quick keys:</span>
+        <button type="button" data-key="1">1</button>
+        <button type="button" data-key="2">2</button>
+        <button type="button" data-key="3">3</button>
+        <button type="button" data-key="y">y</button>
+        <button type="button" data-key="n">n</button>
+        <button type="button" data-key="&#27;" title="Escape">Esc</button>
+        <button type="button" data-key="&#27;[Z" title="Shift+Tab — cycles the agent's permission/auto mode">auto mode ⇄</button>
+      </div>
+      <form id="screen-form" class="screen-form" autocomplete="off">
+        <input id="screen-input" type="text"
+          placeholder="Type into this terminal… Enter sends text+Enter, button sends Enter only" />
+        <button id="screen-enter" type="button" title="Send Enter only">⏎</button>
+      </form>
+    </div>
+
+    <main class="room">
+      <div id="feed" class="feed" aria-live="polite"></div>
+      <form id="composer" class="composer" autocomplete="off">
+        <div id="mention-hint" class="mention-hint" hidden></div>
+        <div id="reply-chip" class="reply-chip" hidden>
+          <div class="reply-chip-body">
+            <b id="reply-chip-sender"></b>
+            <span id="reply-chip-text"></span>
+          </div>
+          <button id="reply-cancel" type="button" title="Cancel reply">×</button>
+        </div>
+        <label class="message-intent-label" for="message-intent">
+          <span>Send</span>
+          <select id="message-intent" aria-label="Message intent">
+            <option value="inform">Update</option>
+            <option value="request">Needs reply</option>
+            <option value="ack">Acknowledge</option>
+          </select>
+          <span id="message-intent-help" class="message-intent-help">No reply expected.</span>
+        </label>
+        <textarea id="input" rows="1"
+          placeholder="Message the room — @name to address an agent, Enter to send"></textarea>
+        <button id="send" type="submit" title="Send">Send</button>
+      </form>
+    </main>
+  </div>
+  <div id="project-updater-modal" class="project-updater-modal-wrap" hidden>
+    <div class="project-updater-scrim"></div>
+    <div class="project-updater-modal">
+      <div class="project-updater-modal-head">
+        <div>
+          <b>Project Updater</b>
+          <span id="project-updater-modal-note">embedded in Command Center</span>
+        </div>
+        <button id="project-updater-modal-close" type="button" title="Close">×</button>
+      </div>
+      <div class="project-updater-frame-wrap">
+        <iframe id="project-updater-frame" title="Project Updater"></iframe>
+      </div>
+    </div>
+  </div>
+  <section id="attention-popup" class="attention-popup" role="dialog" aria-modal="false" aria-labelledby="attention-popup-title" hidden>
+    <div class="attention-popup-head">
+      <span class="attention-popup-dot" aria-hidden="true"></span>
+      <span id="attention-popup-kind">Reply needed</span>
+      <span id="attention-popup-position" class="attention-popup-position"></span>
+    </div>
+    <h2 id="attention-popup-title">An agent needs your reply</h2>
+    <p id="attention-popup-from" class="attention-popup-from"></p>
+    <time id="attention-popup-when" class="attention-popup-when" hidden></time>
+    <p id="attention-popup-text" class="attention-popup-text"></p>
+    <div class="attention-popup-actions">
+      <button id="attention-popup-reply" class="primary" type="button">Reply</button>
+      <button id="attention-popup-open" type="button">Open</button>
+      <button id="attention-popup-snooze" type="button">Snooze 5m</button>
+      <button id="attention-popup-dismiss" type="button">Dismiss</button>
+    </div>
+  </section>
+  <script src="chat.js"></script>
+</body>
+</html>

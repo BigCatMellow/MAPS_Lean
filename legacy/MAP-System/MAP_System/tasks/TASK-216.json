@@ -1,0 +1,42 @@
+{
+  "task_id": "TASK-216",
+  "title": "ClearFront: extract js/input.js (card preview gestures)",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-215"
+  ],
+  "owner": "codex-lab-lilo",
+  "description": "Final decomposition slice per DEC-CF-007. Move only the self-contained initCardPeek hover/touch preview IIFE into app/js/input.js behind CF.installInputModule(), invoked at the same inline-host ordering point. Keep host action/modal/scrollbar wiring and bootstrap inline. No rules, balance, source, or baseline changes.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/app/index.html",
+    "Projects/ClearFront/app/js/input.js",
+    "Projects/ClearFront/artifacts/tests/screenshots/task216-app-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task216-pre216-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/task-216-input-parity.md",
+    "Projects/ClearFront/artifacts/tests/task216-input-check.mjs",
+    "Projects/ClearFront/shared/decisions.md"
+  ],
+  "acceptance_criteria": [
+    "The initCardPeek desktop-hover and touch-hold IIFE moves without behavior changes into app/js/input.js behind CF.installInputModule(), invoked at the exact former ordering point.",
+    "input.js adds no ctx keys or mutable shared bindings; host action/modal/scrollbar wiring and showDeckSelect bootstrap remain inline.",
+    "app/index.html still opens directly through file://; desktop hover and touch-hold preview checks pass with zero console errors/exceptions.",
+    "Champion-select screenshots are byte-identical and the released seeded combat/blocking plus undo regressions still pass.",
+    "node --check passes for all app JS files and the remaining inline host; source and baseline hashes remain unchanged."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-249",
+  "title": "Fix pre-dispatch is_destructive false positive on prohibition clauses",
+  "task_type": "fix",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-lure",
+  "description": "evaluate_pre_dispatch flagged read-only tasks as core-destructive because is_destructive() substring-matched hard-stop phrases even inside a prohibition. TASK-235 (read-only manifest) was blocked at claim because its guardrail named forbidden actions. Fix: added clause-scoped negation-aware contains_unnegated(); a hard-stop phrase named only inside a negated clause no longer counts, while an imperative after a clause boundary still does (safety preserved). destructive_action flag and all other gates untouched. Independent review requested from kiri before TASK-235 relies on this change.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/scripts/pre_dispatch_policy.py",
+    "MAP_System/tests/test_pre_dispatch_policy.py"
+  ],
+  "acceptance_criteria": [
+    "A task whose text names a hard-stop action only inside a prohibition clause evaluates to allow (no REQUIRE_CORE_DESTRUCTIVE_APPROVAL).",
+    "A genuine destructive imperative after a clause boundary, and any unnegated hard-stop phrase, still evaluate to require_approval.",
+    "All pre_dispatch_policy and runner_policy_gate tests pass."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

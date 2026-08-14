@@ -1,0 +1,19 @@
+{
+  "_comment": "Canonical machine-readable role bindings for the stale_role_bindings runner check (map-bedrock-operating-structure-2026-08-10.md Sec 2/6 rule 6). Keep in sync with that file's Sec 2 table by hand at each checkpoint; this file is the source graph/runner.py actually reads.",
+  "schema_version": 1,
+  "last_verified": "2026-08-10",
+  "bindings": [
+    {
+      "role": "Program Coordinator",
+      "bound_identity": "claude-lab-sumi",
+      "evidence": "DEC-042",
+      "check": "must_resolve_to_live_hcom_identity"
+    },
+    {
+      "role": "Librarian",
+      "bound_identity": "helper-librarian",
+      "evidence": "inbox/helpers/helper-librarian.md fixed-roster lane",
+      "check": "must_resolve_to_live_hcom_identity_prefix"
+    }
+  ]
+}

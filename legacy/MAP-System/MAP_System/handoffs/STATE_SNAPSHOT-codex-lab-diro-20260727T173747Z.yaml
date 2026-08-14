@@ -1,0 +1,197 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-27T17:37:47Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-diro
+session_id: 019fa372-38fe-7771-b712-10f125007e26
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: APPROVED
+    task_id: TASK-278
+    summary: Independent re-review approved durable submission-author review separation
+      after one required correction.
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-280
+    summary: Round-2 re-review found non-runnable registered coverage and missing
+      positive creator tests.
+  - event_type: DECISION_RECORDED
+    task_id: TASK-280
+    summary: Bigboss authorized REPAIR-0010 to extend max_attempts from 3 to 4.
+  - event_type: APPROVED
+    task_id: TASK-280
+    summary: Attempt-4 final re-review closed all findings and verified recovery from
+      disclosed scratch-mirror pollution.
+  - event_type: SUBMISSION
+    task_id: TASK-281
+    summary: TASK-281 was submitted after rotation preparation; codex-lab-diro declined
+      the review because rotation is mandatory and requested another independent reviewer.
+  - event_type: SUBMISSION
+    task_id: TASK-282
+    summary: TASK-282 was submitted after rotation preparation; codex-lab-diro declined
+      the review because rotation is mandatory and requested another independent reviewer.
+  touched_paths:
+  - MAP_System/artifacts/reviews/task278-independent-review-diro.md
+  - MAP_System/artifacts/reviews/task278-rereview-diro.md
+  - MAP_System/artifacts/reviews/task280-rereview-diro.md
+  - MAP_System/artifacts/reviews/task280-final-rereview-diro.md
+  - MAP_System/tasks/TASK-278.json
+  - MAP_System/tasks/TASK-280.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/events/events.jsonl
+active_constraints:
+- scope: communication
+  rule: Use hcom request only for decisions, approvals, blockers, conflicts, privacy/scope
+    risks, or questions; routine progress is inform.
+  source: AI Command Center Lab operator instruction
+- scope: tool
+  rule: Launch hcom agents visibly with --terminal wezterm-tab; never use --headless
+    unless explicitly instructed.
+  source: MAP_System/AGENTS.md and operator instruction
+- scope: task
+  rule: Claim tasks and reviews atomically before substantive work; no self-review
+    against canonical submission authorship.
+  source: MAP_System/AGENTS.md
+- scope: repo
+  rule: SQLite is canonical for lifecycle state; use sanctioned commands to synchronize
+    file and graph mirrors.
+  source: MAP_System/AGENTS.md
+- scope: file
+  rule: MAP_System/scripts/pre_dispatch_policy.py remains registered to active TASK-283;
+    preserve TASK-280 role-parity behavior during TASK-283 review.
+  source: REPAIR-0009 and TASK-280 final review
+forward_tasks:
+- task_id: TASK-282
+  next_action: review
+  owner: null
+  reason: Submitted greenfield criterion-level submission-claims pilot. codex-lab-diro
+    did not claim or inspect it substantively because this session is rotation_due;
+    replacement must check canonical authorship and open claims before accepting.
+  paths:
+  - MAP_System/tasks/TASK-282.json
+  - MAP_System/artifacts/tests/task282-structured-submission-delivery-note.md
+- task_id: TASK-281
+  next_action: review
+  owner: null
+  reason: Submitted greenfield run-manifest pilot. codex-lab-diro did not claim or
+    inspect it substantively because this session is rotation_due; replacement must
+    check canonical authorship and open claims before accepting.
+  paths:
+  - MAP_System/tasks/TASK-281.json
+  - MAP_System/artifacts/experiments/task281-run-manifest-pilot.md
+- task_id: TASK-285
+  next_action: review
+  owner: null
+  reason: Runner reports TASK-285 as the only submitted task. Replacement should check
+    canonical authorship and existing review claims before accepting.
+  paths:
+  - MAP_System/tasks/TASK-285.json
+blockers:
+- kind: tool_failure
+  detail: Previous visible replacement launch failed because sandboxed hcom could
+    not write /home/mellow/.codex and unsandboxed approval was rejected when the approval
+    reviewer hit its usage limit.
+  unblock_by: Operator explicitly authorizes/retries visible hcom Codex launch, or
+    manually launches a visible replacement with this snapshot path and SHA-256.
+lexicon:
+  MATOCP: Compact hcom tokens such as !ACK, !ERR, and !LGTM.
+  STATE_SNAPSHOT: Checksum-bound durable handoff used for verified context rotation.
+  canonical_author: Current task_submission_authorship.author_id used for review independence.
+  REPAIR-0010: Operator-approved one-attempt extension for TASK-280, now terminal
+    APPROVED.
+resume_commands:
+- sed -n '1,320p' MAP_System/handoffs/STATE_SNAPSHOT-codex-lab-diro-<timestamp>.yaml
+- sqlite3 MAP_System/map.db "SELECT task_id,status,attempt,max_attempts FROM tasks
+  WHERE task_id IN ('TASK-278','TASK-280','TASK-285');"
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- hcom events --last 30 --name <replacement-name>
+validation:
+- TASK-278 is APPROVED; final review REV-TASK-278-codex-lab-diro-332583c5 closed APPROVED.
+- TASK-280 is APPROVED at attempt 4/4; final review REV-TASK-280-codex-lab-diro-40f616d0
+  closed APPROVED.
+- TASK-280 affected suites pass; full registered harness reports role-registry PASS
+  and submitted 75/79 baseline.
+- Post-verdict graph and mirror validation pass.
+- No live task claim or open review claim is held by codex-lab-diro.
+- Runner route is review; TASK-281 and TASK-285 are submitted.
+- TASK-281 is SUBMITTED by canonical author claude-lab-venu; codex-lab-diro holds
+  no review claim.
+- TASK-282 is SUBMITTED by canonical author claude-lab-venu; codex-lab-diro holds
+  no review claim.
+rotation:
+  reason: threshold
+  summary: 'Completed independent review cycles for TASK-278 and TASK-280. TASK-278
+    was corrected and approved. TASK-280 required two review rounds: round 2 found
+    broken standard-harness registration and missing positive creator tests; bigboss
+    authorized a fourth attempt; final re-review verified all fixes, REPAIR-0010,
+    full mirror recovery, and approved. Declined new TASK-281 and TASK-282 reviews
+    because rotation is mandatory. No live claims remain. Three prior prepared snapshots
+    were abandoned after concurrent task/mirror changes before replacement launch.'
+  next_action: Complete checksum-bound replacement ACK/finalize, then inspect TASK-281,
+    TASK-282, and TASK-285 authorship/open claims and accept only eligible review
+    work.
+  used_tokens: 178028
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-27T17:37:47Z'
+  canonical_tasks:
+  - task_id: TASK-281
+    status: APPROVED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-27 17:22:48'
+  - task_id: TASK-282
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-27 17:36:39'
+  - task_id: TASK-285
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26 19:58:41'
+  canonical_tasks_sha256: 86a4f261854dba282e6e97c010395b33e02f8ec5ded18585c7272bbeaa68bcd3
+  touched_paths:
+  - path: MAP_System/artifacts/reviews/task278-independent-review-diro.md
+    scope: workspace
+    sha256: e9ec925e49c2621118f1744380d7eed25b3abcdd280d761394e2309cded0a535
+    state: file
+  - path: MAP_System/artifacts/reviews/task278-rereview-diro.md
+    scope: workspace
+    sha256: cf62243d311d02b67676ead9bd4310d818163faeb5b580982e4f541fa52d86fd
+    state: file
+  - path: MAP_System/artifacts/reviews/task280-final-rereview-diro.md
+    scope: workspace
+    sha256: 3672fcae89b719570366ee88f7ca08e8696b76dbe9e1e941a7e130785ab8a555
+    state: file
+  - path: MAP_System/artifacts/reviews/task280-rereview-diro.md
+    scope: workspace
+    sha256: e9b0db011e4245b54e358a9c3107283e49f37d2d837780ed6506d9458e6f09e4
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: 22f1459184c9f170c451c8dcbeaaca573f8d21aba006e52d844b98826100adec
+    state: file
+  - path: MAP_System/tasks/TASK-278.json
+    scope: workspace
+    sha256: c9a9c62e56bcc11aef6a2db197d36ad4579d4166fa4c2cf12d92300dd7d22001
+    state: file
+  - path: MAP_System/tasks/TASK-280.json
+    scope: workspace
+    sha256: 28faa93bb33646b98d2233530e92850567c4874f8bac50207fa5db51fe38f422
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: f263a0a2fdde2d9c8c1fc138142291d140f9d796bba78a5fdf2b0f33f0292774
+    state: file
+  touched_paths_sha256: d015552e0a33afe62931f22ea0417b13eef8019610522f0002d9b83dc8f40589

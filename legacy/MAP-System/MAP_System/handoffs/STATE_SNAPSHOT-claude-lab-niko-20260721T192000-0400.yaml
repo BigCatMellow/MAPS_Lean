@@ -1,0 +1,171 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 1
+created_at: "2026-07-21T19:20:00-04:00"
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-niko
+session_id: niko-20260721T192000-0400
+status: session_active
+task_context:
+  current_task: null
+  owned_tasks:
+    - TASK-264
+  pending_reviews: []
+  recent_events:
+    - event_type: APPROVED
+      task_id: TASK-264
+      summary: "CommandCenterUI local-model security hardening restored and independently approved by audit-untracked-bozo after one CHANGES_REQUESTED round."
+    - event_type: DECISION_RECORDED
+      task_id: TASK-261
+      summary: "Operator moved Pi from paused to exploratory-only; authority ceiling (no task/review/routing/release) unchanged."
+    - event_type: PROGRESS
+      task_id: TASK-263
+      summary: "Independent freeze author (exp263-freeze-vimu) authoring blinded question/evidence set; treatment not yet written."
+touched_paths:
+  - MAP_System/artifacts/research/SUMMARY-external-blueprint-gap-review-2026-07-21.md
+  - MAP_System/scripts/map_emergence.py
+  - MAP_System/tests/test_map_emergence.py
+  - MAP_System/emergence/README.md
+  - MAP_System/emergence/coverage.json
+  - MAP_System/notes/command-center-lab-restart-startup.md
+  - MAP_System/shared/current-state.md
+  - /home/mellow/Projects/CommandCenterUI/app/server.py
+
+completed_this_session:
+  - id: gap-4-approval-gates
+    summary: >
+      Found that no pre-dispatch approval gate had ever fired for a core agent:
+      all 253 tasks evaluated to {'allow': 253}. Cause was 5 decision inputs read
+      as task fields that did not exist in the schema. Closed in two phases
+      (rose implemented, soba planned/tested and re-verified, niko found it).
+      Four previously unreachable tier-1 gates now fire.
+    residual: >
+      Only destructive_action and trust_boundary_crossing gate a TIER-1 core
+      agent. final_review, final_decision, broad_architecture, broad_rewrite,
+      canonical_map_mutation and shell_required restrict helpers only and return
+      allow at tier 1. This is pre-existing trust-model design, confirmed
+      untouched by both migrations. Do NOT read gap 4 as "everything is gated".
+  - id: coverage-ledger
+    summary: >
+      map_emergence.py coverage: ranks open emergence records by how long nothing
+      has revisited them. Complements `stale`, which only flags records their own
+      related task contradicts. Reviewed by soba (CHANGES_REQUESTED on kind-aware
+      closed statuses, fixed, APPROVED). Wired into startup orientation.
+  - id: review-backlog
+    summary: "12-task backlog drained: 11 APPROVED, TASK-254 repaired and resubmitted."
+  - id: task-254-untracked-edit
+    summary: >
+      An exclusively-owned CommandCenterUI file was modified with no task claim.
+      Attribution UNRESOLVED after ruling out all 9 named agents and the operator;
+      hcom event stream had a total blackout during the exact edit window. The
+      edit also silently reverted security hardening, fixed under TASK-264.
+
+update_2026_07_22:
+  note: >
+    Appended after three usage-limit resets. Operator authorised reassigning
+    TASK-186 and TASK-236, permitted remote Ollama, and delegated the
+    server.py authoritative-copy choice to niko.
+  resolved:
+    - "TASK-236: freed CHANGES_REQUESTED -> READY via map_task.py rework. Needs a new owner."
+    - >
+      TASK-186: UNBLOCKED. Root cause found -- MAP had no sanctioned recovery path
+      for IN_PROGRESS with claimed_by NULL. expire_leases filters claimed_by IS NOT
+      NULL, release_task filters claimed_by = ?, rework needs CHANGES_REQUESTED,
+      reject needs SUBMITTED, and AGENTS.md forbids hand-editing SQLite. The task
+      was structurally unreachable, which is why it sat 4+ days.
+    - >
+      TASK-266: built the missing verb (claims.py recover_orphan_task +
+      map_task.py recover-orphan), 7 tests, wired into run_tests.sh, used it to
+      return TASK-186 to READY. SUBMITTED, NOT self-approved -- needs a reviewer.
+  blocked_on_operator:
+    - >
+      AGENT SPAWNING IS UNAVAILABLE to niko: hcom launch fails with "terminal or
+      session creation may be restricted" from inside a managed session. All
+      previously spawned agents (rose, soba, bozo, vimu) died in the resets. The
+      authorised reassignments cannot be executed by niko; the operator must spawn
+      workers, or the queue stays parked.
+    - "Full run_tests.sh cannot complete in this session (exit 137 / SIGKILL). Targeted tests pass; a full pass needs a healthier session."
+  unclaimed_queue:
+    - "TASK-186 READY - RnS terminal-session suppression (the actual work, now unblocked)"
+    - "TASK-236 READY - real-time advisory monitor rework"
+    - "TASK-263 READY - frozen claim-evidence holdout; freeze author never landed the artifact"
+    - "TASK-265 READY - server.py combine; decision recorded, needs implementing"
+    - "TASK-266 SUBMITTED - needs an independent reviewer"
+    - "TASK-254 CHANGES_REQUESTED - changed state during the resets, not investigated by niko"
+
+open_items:
+  - task_id: TASK-186
+    next_action: assign
+    owner: unassigned
+    reason: >
+      RESOLVED as an orphan on 2026-07-22 and returned to READY via the new
+      recover-orphan verb. The RnS terminal-session suppression work itself is
+      still undone and now needs an owner. Its problem is live: 6 wasted probe
+      nudges were logged on 2026-07-21 alone.
+  - task_id: TASK-265
+    next_action: ask_operator
+    owner: command-center
+    reason: >
+      Gated on REQUIRE_SECURITY_STRUCTURAL_APPROVAL, correctly. Needs the operator
+      to settle whether the CommandCenterUI process may ever reach a remote
+      OLLAMA_HOST, and to declare which copy of server.py is authoritative. Live
+      and template have diverged (2376 vs 2119 lines).
+  - task_id: TASK-263
+    next_action: continue
+    owner: codex-lab-kiri
+    reason: >
+      Freeze author working. STRICT ORDERING: the treatment must not be authored
+      until the frozen question set lands, and the evaluator must not be the
+      freeze author or the implementer. soba is reserved for blind evaluation and
+      must not see the questions.
+  - task_id: TASK-254
+    next_action: review
+    owner: codex-lab-kiri
+    reason: "Repaired by bozo and resubmitted; needs an independent reviewer."
+  - task_id: TASK-236
+    next_action: fix
+    owner: claude-lab-gome
+    reason: "CHANGES_REQUESTED since 2026-07-18, untouched this session."
+
+active_constraints:
+  - scope: safety
+    rule: >
+      Pi is exploratory-only (operator decision 2026-07-21). Probes, drafts and
+      bounded experiments are fine and need no per-run authorization; task
+      ownership, review, routing, releases and capacity plans remain forbidden.
+    source: shared/current-state.md; DECISION_RECORDED event for TASK-261
+  - scope: safety
+    rule: >
+      CommandCenterUI OLLAMA_URL is hardcoded loopback deliberately. It is a
+      data-egress boundary, not a feature toggle, and must not become
+      environment-settable. Permitting remote is TASK-265's decision to make.
+    source: TASK-264; artifacts/reviews/task264-review-bozo.md
+  - scope: process
+    rule: >
+      Verbal operator authorizations must be written to events.jsonl at the time
+      they are given. Three instances of loss were found on 2026-07-21 alone
+      (TASK-250 approval, TASK-261 Pi run, and the TASK-254 untracked edit).
+    source: this session
+  - scope: tool
+    rule: >
+      A newly spawned agent's first API call can block on a per-process host
+      firewall prompt. hcom reports it 'active' while it has done nothing, and
+      connectivity tests from the parent agent pass and mislead. Spawning agents
+      is not fully unattended.
+    source: INS-0037
+
+known_traps:
+  - "db/claims.py claim_review lacks the ensure_agent call map_task.py has. An unregistered reviewer gets a bare False, which review-guide.md tells them to read as 'already claimed, stand down'. Proven on a scratch DB. Fix not yet landed; bundle with the coverage.json fcntl lock."
+  - "Suite baseline is pass=69 fail=2. Both failures trace to one non-canonical TASK_SUBMITTED event at events/events.jsonl:2145 (codex-lab-kiri, 2026-07-19); validate_layer1 fails downstream of validate_events. Do NOT 'fix' by rewriting the append-only log."
+  - "Spawned agents may inherit CLAUDE_CODE_CHILD_SESSION and silently not persist transcripts. Spawn with CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1. This directly weakens forensic attribution, as TASK-254 demonstrated."
+
+single_strongest_finding: >
+  Five separate problems this session were the same problem, and MAP had already
+  named it. SYN-0001 (2026-07-02, CLARIFIED, never acted on): "Every MAP failure
+  found this week is the same failure: one piece of state with two readers and no
+  declared authority." Today that recurred as the dead approval gates, TASK-250's
+  unrecorded approval, the missing Pi authorization record, the live-vs-template
+  server.py divergence, and an owned file edited by an unidentifiable writer.
+  Separately, IDEA-0013 (2026-07-02, APPROVED_FOR_EXPERIMENT) proposed exactly the
+  coverage-scouting mechanism rebuilt from scratch today, 19 days later, by someone
+  who did not know it existed. The system lost its own approved fix for losing
+  things. Captured as SYN-0004.

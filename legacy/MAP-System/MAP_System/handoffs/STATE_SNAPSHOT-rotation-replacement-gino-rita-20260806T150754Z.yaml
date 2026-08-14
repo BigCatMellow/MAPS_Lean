@@ -1,0 +1,323 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-06T15:07:54Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-gino-rita
+session_id: ad47d5b8-15bf-47fc-9e2f-2e21d188e4d9
+status: handing_off
+task_context:
+  current_task: TASK-318
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: Acked context rotation from rotation-replacement-gino-zera (prior snapshot
+      STATE_SNAPSHOT-rotation-replacement-gino-zera-20260806T140855Z.yaml). No forward
+      MAP work resulted; continued the informal direct-chat iteration on the Export
+      Army Sheet CSS in the external StarCraftCA project, same as inherited.
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Operator asked why they could not save the exported army sheet. Investigated
+      exportArmySheet() in Test Army.dc.html: it opens the sheet via URL.createObjectURL
+      + window.open on a blob: URL, then calls URL.revokeObjectURL(url) after a 30s
+      setTimeout. Explained two causes: (1) the blob auto-revokes 30s after export,
+      so saving after that fails; (2) the blob is tied to the originating Test Army
+      tab - closing/reloading that tab invalidates it immediately too. Offered to
+      change it to a real downloadable .html file. Operator said "skip it for now"
+      - not implemented, no code changed for this.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Operator asked whether Deploy Supply (currently a fully manual +/- counter,
+      state.battleSupplyAvailable, default 4, via bumpBattleSupply()) could instead
+      auto-update from the round tracker and mission type. Investigated: Test Army.dc.html
+      already has a round counter (state.play.round, Round Tracker sheet, roundUp/roundDown).
+      missions-data.js (window.SCTMG_MISSIONS) already defines per-mission supply
+      (base) and perRound (increment) and gameLength, but is currently only loaded/used
+      by the separate Missions.dc.html tab - Test Army.dc.html does not load missions-data.js
+      and has no mission-selection state at all. Proposed: add a mission picker to
+      Test Army, compute Deploy Supply as mission.supply + mission.perRound * (round
+      - 1) automatically. Asked the operator whether to keep the +/- buttons as a
+      manual override on top of the computed value, or make it fully computed/read-only.
+      Operator did not answer this and moved on to a different topic (see next event)
+      - this thread is UNSTARTED, no code changed, and awaiting operator direction
+      before any implementation begins.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Operator returned to the Abilities-row layout in the exported sheet
+      (superseding the still-unanswered "round 4 spacing, ready to port?" question
+      from the inherited snapshot - treat that round-4 question as moot/overtaken,
+      not still pending). Asked to move the ability name to sit below the phase badge,
+      and put the active/passive "type" text where the name used to be. Implemented
+      as a CSS-only change in printSheetCss()''s .ability-name/.ability-type grid
+      rules, verified live via the blob-capture-to-iframe technique (see active_constraints).
+      Flagged one rough edge to the operator: multi-word names like "Devastating Charge"
+      wrapped to two lines in the narrow 76px name column, and the type label did
+      not perfectly center against the wrap.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Operator said the result "looks like one big line of text" and asked
+      what to do for consistency and readability across the whole sheet. Compared
+      sections: the Weapons table already reads well because it is a real HTML <table>
+      with <th> column headers; Abilities and Upgrades had no headers and relied purely
+      on font-weight/color/position to convey structure, which is why repeated CSS
+      tweaking kept feeling unstable. Recommended converting Abilities and Upgrades
+      to real <table> markup with header rows, reusing the Weapons table''s exact
+      CSS class and the existing .phase-tag badge style (already used inline in the
+      Weapons name cell) instead of the old per-section grid/flex hacks. Operator
+      said "go for it".'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Implemented the table redesign in Test Army.dc.html (still the only
+      uncommitted file, still not committed - see active_constraints for the exact
+      current code). Renamed the .weapon-table CSS class to the shared .sheet-table
+      (used by all three sections now), rewrote printAbilityRows() and printUpgradeRows()
+      to emit <table> markup with <th> header rows (Ability/Type/Effect, and Upgrade/Cost/Type/Effect),
+      moved the phase badge inline next to the ability name using the existing .phase-tag
+      class (same one Weapons already used), and added a .sheet-table td.left modifier
+      for the prose columns (Type/Effect) since the base .sheet-table td rule centers
+      text (fine for Weapons'' short stat values, wrong for prose). Removed the old
+      .ability-row/.ability-name/.ability-type/.ability-desc and .upgrade-row/.upg-name/.upg-cost/.upg-type/.upg-desc
+      CSS entirely - no longer used anywhere. Kept a simplified .ability-phase CSS
+      rule (dropped the now-irrelevant grid-column/grid-row/justify-self properties)
+      because printCardHtml()''s Tactical Cards section (a separate, untouched part
+      of the sheet) still uses the .ability-phase class in a flex layout - do not
+      delete that rule. Verified live across multiple units (Goliath, Marauder) via
+      the blob-capture-to-iframe technique: clean column alignment, consistent header
+      row on every section, no more text wrapping into the badge/label area. Reported
+      to operator and asked "take a look?" - no reply yet when the checkpoint_due
+      rotation fired.'
+  touched_paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html (live, UNCOMMITTED this session - Abilities/Upgrades table redesign
+    in printAbilityRows()/printUpgradeRows()/printSheetCss(); see active_constraints
+    for exact current rule text. No other files touched this session; the blob-save
+    and mission-supply threads discussed with the operator resulted in NO code changes.)
+  - MAP_System/handoffs/ (this workspace's repo; ack of inherited rotation, and this
+    snapshot)
+active_constraints:
+- scope: task
+  rule: 'TASK-318''s output_path is entirely outside this git repo, at "/home/mellow/Documents/Projects/StarCraftCA/StarCraft
+    RPG Companion Design". All read/write file work for this task happens there, not
+    under MAP_System/ or Projects/. That folder has its own local (non-global) git
+    identity. Current diff (git diff --stat, checked this session): Test Army.dc.html
+    only, 23 insertions / 30 deletions, CSS + the three print*Rows() methods only.'
+  source: inherited across multiple prior snapshots, still true
+- scope: task
+  rule: Do NOT commit the current Test Army.dc.html change yet, and do NOT treat the
+    round-4 "spacing tightened, ready to port?" question from the prior snapshot as
+    still pending - it was superseded by two full further rounds of changes this session
+    (the name/type swap, then the full table redesign). The operator has not yet reviewed
+    or approved the CURRENT state (the table redesign with header rows). Next session
+    should first check hcom/chat for a reply to "take a look?" before doing anything
+    else. If the operator asks for more tweaks, keep iterating on Test Army.dc.html
+    only. If they approve, commit Test Army.dc.html, then port the CURRENT printAbilityRows()/printUpgradeRows()/relevant
+    printSheetCss() rules (given verbatim below, NOT the old round-4 grid CSS referenced
+    in older snapshots, which is now fully replaced) into Terran Army.dc.html, Zerg
+    Army.dc.html, and Protoss Army.dc.html's own copies of these methods, then commit
+    each separately.
+  source: this session, operator-directed
+- scope: reference
+  rule: 'Exact current (uncommitted) code for the three print*Rows() methods in Test
+    Army.dc.html, to copy verbatim into the other three files when porting (search
+    each file for the same method names - each file has its own independent copy):
+
+
+    printWeaponRows unchanged except class rename: table class is now "sheet-table"
+    (was "weapon-table").
+
+
+    printAbilityRows(abilityGroups): `if (!abilityGroups.length) return ''; return
+    ''<div class="section-label">Abilities</div><table class="sheet-table"><tr>''
+    + ''<th style="width:32%">Ability</th><th style="width:16%">Type</th><th>Effect</th></tr>''
+    + abilityGroups.map(g => g.items.map(a => ''<tr><td>'' + this.printEsc(a.name)
+    + '' <span class="phase-tag '' + g.phase.toLowerCase() + ''">'' + this.printEsc(g.phase)
+    + ''</span></td>'' + ''<td class="left">'' + this.printEsc(a.type) + ''</td>''
+    + ''<td class="left">— '' + this.printSegsHtml(a.segs) + ''</td></tr>'' ).join('''')).join('''')
+    + ''</table>''; }
+
+
+    printUpgradeRows(upgrades): `if (!upgrades.length) return ''; return ''<div class="upgrade-bar"><div
+    class="section-label">Upgrades</div><table class="sheet-table"><tr>'' + ''<th
+    style="width:26%">Upgrade</th><th style="width:10%">Cost</th><th style="width:14%">Type</th><th>Effect</th></tr>''
+    + upgrades.map(u => ''<tr><td>'' + (u.on ? ''✓ '' : '''') + this.printEsc(u.name)
+    + ''</td>'' + ''<td>'' + this.printEsc(u.cost) + ''</td>'' + ''<td class="left">''
+    + this.printEsc(u.type) + ''</td>'' + ''<td class="left">— '' + this.printSegsHtml(u.segs)
+    + ''</td></tr>'' ).join('''') + ''</table></div>''; }
+
+
+    printSheetCss() changes: the old ".weapon-table{...}" rule block (5 lines: base,
+    th, th:first-child, td, td:first-child, tr:last-child) is renamed to ".sheet-table"
+    with one addition - ".sheet-table td.left{text-align:left;font-family:''Source
+    Sans 3'',sans-serif;color:var(--muted)}". The old .ability-list/.ability-row/.ability-name/.ability-type/.ability-desc
+    rules are DELETED entirely. .ability-phase is KEPT but simplified to just: ".ability-phase{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:1px
+    5px;border-radius:2px;white-space:nowrap}" plus its 5 unchanged .ability-phase.<phase>
+    color rules (still needed by printCardHtml()''s Tactical Cards section, which
+    is untouched and still uses this class). The old .upgrade-row/.upg-name/.upg-cost/.upg-type/.upg-desc
+    rules are DELETED entirely; .upgrade-bar is kept, plus one new rule ".upgrade-bar
+    .sheet-table td:first-child{color:var(--accent)}" so upgrade names stay green-tinted
+    like before.'
+  source: this session
+- scope: task
+  rule: The Upgrades section''s old "chaotic ragged name column" problem (flagged
+    in the prior snapshot, operator never explicitly asked for it) is RESOLVED as
+    a side effect of this session''s table redesign - Upgrades now uses the same fixed-column
+    <table> structure as Abilities and Weapons. No further action needed on that specific
+    complaint.
+  source: this session, resolves a constraint from the prior snapshot
+- scope: task
+  rule: 'Two side-topics came up this session and are UNSTARTED (no code changed,
+    no operator decision made) - do not act on either without the operator raising
+    it again: (1) exportArmySheet() opens a blob: URL that self-revokes after 30s
+    and is tied to the originating tab, which is why the operator could not save it;
+    operator said "skip it for now" when offered a real-file-download fix. (2) Deploy
+    Supply (state.battleSupplyAvailable) is a manual counter; operator asked if it
+    could auto-compute from mission type + round instead (missions-data.js already
+    has the per-mission supply/perRound data, Test Army already has a round counter,
+    but Test Army does not yet load missions-data.js or have any mission-selection
+    state) - operator has not yet answered whether the manual +/- should remain as
+    an override on top of the computed value.'
+  source: this session
+- scope: tool
+  rule: 'claude-in-chrome cannot screenshot or run javascript_tool against blob: URLs
+    at all (hard error: "Can''t interact with browser-internal or unparseable URLs")
+    - this blocks the direct/obvious way of previewing exportArmySheet()''s output,
+    since that method literally does URL.createObjectURL + window.open to show the
+    sheet. Working technique used repeatedly this session: on the NORMAL http:// tab
+    (not the blob tab), monkey-patch both URL.createObjectURL (to capture blob.text()
+    into window.__capturedHtml) and window.open (to no-op it) BEFORE clicking "Export
+    Army Sheet", then after the click, inject a same-origin <iframe id="__preview_frame">
+    with srcdoc = window.__capturedHtml directly into the http:// page (position:fixed
+    covering the viewport) and screenshot that. To scroll the captured content, use
+    f.contentWindow.scrollTo(x,y) via javascript_tool - a normal `scroll` computer-tool
+    action on the outer page does not scroll the iframe content. Always remove the
+    iframe and restore the two patched globals afterward with window.__origCreateObjectURL
+    / window.__origOpen. The export button click is sometimes flaky (silently no-ops,
+    no error, window.__capturedHtml stays null) - always verify capture succeeded
+    (check window.__capturedHtml length) before proceeding, and re-click if it did
+    not fire.'
+  source: discovered in a prior session this rotation lineage, re-confirmed this session
+- scope: task
+  rule: TASK-318 shows SUBMITTED in MAP's canonical task state with owner=claude-lab-gina
+    in the local task JSON mirror, but the real work has continued informally in direct
+    operator chat across many agent identities with no new MAP claim opened. MAP's
+    task tracking does not reflect the real state of the work. Keep treating this
+    as informal direct-chat iteration outside MAP unless the operator says otherwise
+    - do not re-claim or re-submit TASK-318.
+  source: inherited, still true
+- scope: tool
+  rule: 'This host is confirmed read-only for MAP lifecycle writes: map_task.py show
+    (and presumably other mutating/show commands) raises RemoteAuthorityRequired pointing
+    to map-authority on 100.127.80.108. Read task state via the local JSON mirrors
+    in MAP_System/tasks/*.json instead of map_task.py show.'
+  source: inherited, not re-verified this session
+- scope: repo
+  rule: Prior orientation thread (36-item emergence backlog triage) is still explicitly
+    on hold per operator instruction carried forward across multiple snapshots. Do
+    not resume it until the operator raises it again.
+  source: operator instruction, carried forward from earlier snapshots
+active_constraints_note: This session acked an inherited rotation, then continued
+  the same informal direct-chat Export Army Sheet work from the prior snapshot - it
+  went through a blob-save Q&A (no code change), a mission/supply feasibility discussion
+  (no code change, unstarted), and two more full rounds of Abilities-CSS changes (name/type
+  swap, then a full table-based redesign of Abilities+Upgrades). The table redesign
+  is the current, still-unreviewed, uncommitted state - treat the round-4 grid CSS
+  from the prior snapshot as obsolete/replaced, not as the thing awaiting approval.
+forward_tasks:
+- task_id: TASK-318
+  next_action: check_operator_reply_then_continue_or_port
+  owner: null
+  reason: Waiting on the operator's answer to "take a look?" about the Abilities/Upgrades
+    table redesign in Test Army.dc.html. If they want more adjustment, keep iterating
+    CSS/markup in printAbilityRows()/printUpgradeRows()/printSheetCss() in Test Army.dc.html
+    only, using the blob-capture-to-iframe technique documented in active_constraints
+    to verify each change visually before reporting back. If they approve, commit
+    Test Army.dc.html (currently uncommitted), then apply the CURRENT code documented
+    verbatim in active_constraints (table-based, NOT the old round-4 grid CSS) into
+    the equivalent printWeaponRows()/printAbilityRows()/printUpgradeRows()/printSheetCss()
+    locations inside Terran Army.dc.html, Zerg Army.dc.html, and Protoss Army.dc.html's
+    own copies of these methods, verify each in-browser the same way, and commit each
+    separately (matching this project's established one-commit-per-file convention).
+    Do not start the two unstarted side-topics (blob-save fix, mission-driven supply)
+    unless the operator raises them again.
+  paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html
+blockers: []
+lexicon:
+  StarCraftCA / SCTMG / "StarCraft RPG Companion Design": The operator's personal,
+    non-MAP creative project - a tabletop-game companion web app (plain .dc.html component
+    files + a small Node build pipeline that regenerates *-data.js from uploads/*.html
+    rules/unit source). Lives entirely outside this git repo at /home/mellow/Documents/Projects/StarCraftCA/.
+  .dc.html: This project's own single-file component convention - each top-level screen
+    is one file using <dc-import> to embed sub-components like UnitDetail. No native
+    browser dialogs (alert/confirm/prompt) are used anywhere in this app.
+  Export Army Sheet: A button on the Roster tab that calls exportArmySheet(), which
+    builds a standalone printable HTML document (own inline CSS via printSheetCss(),
+    no external stylesheet) as a Blob and opens it via URL.createObjectURL + window.open.
+    Shows the faction card, all mustered units (stats/weapons/abilities/upgrades),
+    and tactical cards, laid out for print. This session's work is entirely about
+    the visual formatting of the Weapons/Abilities/Upgrades tables within that generated
+    sheet, in Test Army.dc.html only so far.
+  missions-data.js / window.SCTMG_MISSIONS: Separate data file defining mission objects
+    (supply, perRound, gameLength, etc), currently only loaded/used by Missions.dc.html.
+    Relevant background for the unstarted mission-driven-supply side topic - not loaded
+    in Test Army.dc.html.
+  dev server: python3 -m http.server 8934, served from inside the external project
+    folder. Confirmed running at snapshot time.
+resume_commands:
+- 'curl -sf http://localhost:8934/ >/dev/null && echo "dev server still up" || echo
+  "restart: cd ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion
+  Design'' && python3 -m http.server 8934"'
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git status --short && git diff -- "Test Army.dc.html"
+rotation:
+  reason: checkpoint_due
+  summary: 'Automated advisory from limit_watcher: current estimate ~122235 tokens
+    against soft=120000 / rotate=150000 thresholds, sent as an inform requesting a
+    snapshot+prepare+fresh-session rotation now. Rotating mid-task at the operator''s
+    request boundary: the last visible action was "take a look?" about the just-finished
+    Abilities/Upgrades table redesign, which has not been answered yet, so there is
+    no partial file edit in flight, but the task itself is NOT complete - do not report
+    this as done.'
+  next_action: Next session should ack this rotation, then check hcom/chat for whether
+    the operator has replied to "take a look?", and proceed per forward_tasks. Do
+    not assume approval - if there's no reply yet, it's fine to just wait for one
+    (per operator preference for terse, non-presumptuous handoffs).
+  used_tokens: 122235
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-06T15:07:54Z'
+  canonical_tasks:
+  - task_id: TASK-318
+    status: SUBMITTED
+    owner: claude-lab-gina
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-05 18:50:39'
+  canonical_tasks_sha256: a9bd814dc3ad8558e1975f31366f8d01bda2ce6fcb252baa9814e6258ee7f68f
+  touched_paths:
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+      Army.dc.html (live, UNCOMMITTED this session - Abilities/Upgrades table redesign
+      in printAbilityRows()/printUpgradeRows()/printSheetCss(); see active_constraints
+      for exact current rule text. No other files touched this session; the blob-save
+      and mission-supply threads discussed with the operator resulted in NO code changes.)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: MAP_System/handoffs/ (this workspace's repo; ack of inherited rotation,
+      and this snapshot)
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  touched_paths_sha256: 61b6d3763af461871bcd186a15e82b00e4662000176f6905359c36c034992b1b

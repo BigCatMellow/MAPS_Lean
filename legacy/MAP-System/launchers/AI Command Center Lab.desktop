@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AI Command Center Lab
+Comment=Open the test AI command center with lab agents, Librarian, and Monitor
+Exec=/home/mellow/.local/bin/ai-command-center-lab
+Icon=utilities-terminal
+Terminal=false
+Categories=Development;

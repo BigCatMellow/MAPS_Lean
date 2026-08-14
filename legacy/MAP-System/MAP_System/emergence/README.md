@@ -1,0 +1,210 @@
+<!-- hpom: file: emergence/README.md -->
+<!-- hpom: project: MAP -->
+<!-- hpom: state_owner: command-center -->
+<!-- hpom: status: CURRENT -->
+<!-- hpom: last_verified: 2026-06-29 -->
+<!-- hpom: verified_against: TASK-052 emergence CLI implementation -->
+<!-- hpom: confidence: HIGH -->
+<!-- hpom: supersedes: NONE -->
+<!-- hpom: superseded_by: NONE -->
+
+# MAP Emergence System
+
+## What this is
+
+The Emergence System is the creative discovery layer of MAP.
+
+HPOM governs safe execution:
+```
+How does work move safely from task to review to release?
+```
+
+The Emergence System governs creative discovery:
+```
+What new thing is becoming possible because of the work?
+```
+
+## Core principle
+
+```
+Ideas are allowed to emerge freely.
+Only promoted ideas are allowed to change the project.
+```
+
+An agent may notice and capture an idea.
+An agent may not silently redirect the project because of that idea.
+
+## The three layers
+
+| Layer | Question | System |
+|---|---|---|
+| Execution | How do we move work safely? | HPOM |
+| Discovery | What is becoming possible? | Emergence System |
+| Governance | What becomes real? | Human Owner + Decision process |
+
+## How emergence connects to HPOM
+
+```
+Insight → Synthesis → Idea → Experiment → Promotion → HPOM Task → Review → Release
+```
+
+The Emergence System creates candidates. HPOM executes approved work.
+
+## The emergence loop
+
+```
+Observe → Connect → Synthesize → Name → Test → Promote
+```
+
+1. Observe what exists.
+2. Notice patterns, tensions, combinations, gaps, or repeated problems.
+3. Synthesize a new idea from existing material.
+4. Name the idea clearly.
+5. Test whether the idea is useful.
+6. Promote it into a task, decision, project, or artifact if it survives.
+
+## Artifact types
+
+| Artifact | What it is | Status range |
+|---|---|---|
+| Insight | Something noticed | RAW → PROMOTED / DISMISSED |
+| Synthesis | Two things combined into a third | CLARIFIED → PROMOTED |
+| Idea | A possible thing to build or change | CANDIDATE → PROMOTED_TO_TASK |
+| Experiment | A small safe test of an idea | PROPOSED → ADOPTED / REJECTED |
+| Promotion | An idea becoming real work | PROPOSED → APPROVED |
+
+## Folder structure
+
+```
+MAP_System/emergence/
+  README.md               ← this file
+  SYNTHESIS_METHODS.md    ← how to combine ideas
+  IDEA_PROMOTION_RULES.md ← what qualifies an idea for promotion
+  CREATIVE_REVIEW.md      ← quality standards and do-not-derail rules
+  INDEX.md                ← running registry of active artifacts
+
+  templates/
+    INSIGHT_TEMPLATE.md
+    SYNTHESIS_NOTE_TEMPLATE.md
+    IDEA_CARD_TEMPLATE.md
+    EXPERIMENT_TEMPLATE.md
+    PROMOTION_RECORD_TEMPLATE.md
+
+  insights/               ← MAP-system-level insight records
+  synthesis/              ← MAP-system-level synthesis notes
+  ideas/                  ← MAP-system-level idea cards
+  experiments/            ← MAP-system-level experiment records
+  promotions/             ← promotion records for ideas entering HPOM
+```
+
+Project-level folders live at:
+```
+Projects/<PROJECT>/
+  insights/
+  synthesis/
+  ideas/
+  experiments/
+```
+
+## Command-line capture
+
+Use `MAP_System/scripts/map_emergence.py` for routine Command Center Lab
+capture. The script creates artifacts from templates, assigns the next ID,
+rebuilds `INDEX.md`, and validates that raw template placeholders are not left
+behind.
+
+Capture is also available, on an opt-in lightweight basis, when
+operator-directed work was intentionally kept outside MAP task governance.
+Use an insight with `Related task: NONE` to preserve a reusable lesson without
+retroactively importing the underlying work into MAP. That capture creates no
+task, claim, authority, approval, ownership, or governance relationship; any
+implementation still requires normal promotion and task gates.
+
+Create an insight:
+
+```bash
+python3 MAP_System/scripts/map_emergence.py insight \
+  "Short concrete observation" \
+  --owner codex-lab-zanu \
+  --related-task TASK-052
+```
+
+Create a follow-up idea:
+
+```bash
+python3 MAP_System/scripts/map_emergence.py idea \
+  "Possible bounded improvement" \
+  --owner codex-lab-zanu \
+  --source INS-0001
+```
+
+Promote an idea into a proposal record:
+
+```bash
+python3 MAP_System/scripts/map_emergence.py promote IDEA-0001 \
+  --owner command-center \
+  --summary "Promote the bounded idea into HPOM shaping"
+```
+
+Maintain and check the registry:
+
+```bash
+python3 MAP_System/scripts/map_emergence.py list
+python3 MAP_System/scripts/map_emergence.py rebuild-index
+python3 MAP_System/scripts/map_emergence.py validate
+```
+
+Check what the sweep has been ignoring:
+
+```bash
+python3 MAP_System/scripts/map_emergence.py coverage
+python3 MAP_System/scripts/map_emergence.py coverage --mark-reviewed INS-0008 --reviewer <agent>
+```
+
+`stale` and `coverage` answer different questions. `stale` flags a record its
+own related task has already contradicted — a correctness check. `coverage`
+ranks open records by how long nothing has revisited them, which is the only
+signal that catches a record with `Related task: NONE` that everyone forgot.
+Run `coverage` at the start of an E/I sweep and `--mark-reviewed` the IDs you
+actually considered; an unmarked sweep leaves the debt in place on purpose.
+
+For automation that needs every field explicit, use
+`create <insight|synthesis|idea|experiment|promotion> --summary ...`.
+
+Promotion records remain proposals until the approval fields are completed.
+Creating a promotion record does not authorize implementation by itself; the
+work still enters HPOM through normal task, review, and release gates.
+
+## Agent rule
+
+```
+Notice freely.
+Act carefully.
+Promote deliberately.
+```
+
+If assigned work creates a useful new possibility, capture it in an insight record.
+Do not act on it unless the task scope allows it or it has been promoted.
+
+## Related files
+
+- `SYNTHESIS_METHODS.md` [[SYNTHESIS_METHODS]] — how to do synthesis
+- `IDEA_PROMOTION_RULES.md` [[IDEA_PROMOTION_RULES]] — promotion criteria
+- `CREATIVE_REVIEW.md` [[CREATIVE_REVIEW]] — quality and safety rules
+- `INDEX.md` [[INDEX]] — active artifact registry
+- `MAP_System/shared/hpom.md` [[hpom]] — the execution system this feeds into
+- `MAP_System/shared/decisions.md` [[decisions]] — where promoted ideas land as decisions
+- `MAP_System/RESEARCH_SYSTEM.md` [[RESEARCH_SYSTEM]] — a passing hunch becomes an insight here;
+  a specific, answerable question becomes a Research Brief there
+- `MAP_System/SELF_REPAIR_SYSTEM.md` [[SELF_REPAIR_SYSTEM]] — a recurring repair should be captured
+  here as an insight so it can be promoted into a permanent fix
+- `MAP_System/HUMAN_INTERFACE_SYSTEM.md` [[HUMAN_INTERFACE_SYSTEM]] — where recent insights are
+  surfaced to the operator
+- `MAP_System/RETROSPECTIVE_SYSTEM.md` [[RETROSPECTIVE_SYSTEM]] — where a recurring insight across
+  a whole cycle becomes a retrospective finding
+- `MAP_System/PROJECT_BOOTSTRAPPING_SYSTEM.md` [[PROJECT_BOOTSTRAPPING_SYSTEM]] — requires every project to
+  set up `insights/`/`ideas/`/`experiments/`/`synthesis/` folders at
+  bootstrap (DEC-026)
+- `MAP_System/CHANGE_CONTROL_SYSTEM.md` [[CHANGE_CONTROL_SYSTEM]] — mechanically requires an
+  "Emergence capture considered" line before any task can be released
+  (DEC-026), so this system cannot be silently skipped on a real project

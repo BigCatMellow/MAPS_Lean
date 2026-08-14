@@ -1,0 +1,35 @@
+{
+  "task_id": "TASK-316",
+  "title": "Fix map-authority mirror-sync self-block from always-on limit-watcher service",
+  "task_type": "bugfix",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "Fix map-authority mirror-sync self-block from always-on limit-watcher service: narrow active_local_writer_services()'s check for map-rns-watcher.service to actual recent writes (15s quiet window on its one overlapping mirror file, events.jsonl) instead of bare process-liveness, since the watcher is meant to run continuously and blanket-blocking on liveness alone permanently prevented mirror sync. Includes a TOCTOU-race follow-up fix (re-check immediately before the real file replace, inside the lock) found and required by independent review.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/scripts/map_authority.py",
+    "MAP_System/tests/test_map_authority.py"
+  ],
+  "acceptance_criteria": [
+    "active_local_writer_services() in MAP_System/scripts/map_authority.py no longer treats map-rns-watcher.service (limit_watcher.py, which only ever writes MAP_System/agents/limit-watcher-state.json, never map.db) as a disqualifying local writer -- confirm by reading limit_watcher.py's actual write targets before changing the check, not just assuming.",
+    "Root cause documented: map-rns-watcher.service restarted on Biggie at 2026-08-03T14:20:42-04:00 (systemctl --user show -p ActiveEnterTimestamp), and every map-authority-mirror.service run since has failed with 'local writer services must be disabled before mirror sync: map-rns-watcher.service' (journalctl --user -u map-authority-mirror.service), pinning graph/runner.py's route at STALE_AUTHORITY / review-only system-wide.",
+    "Fix preserves the original intent of the check (never let a second lifecycle-writing authority run on the Biggie mirror) -- if any doubt remains about what the check should actually be scoped to, consult TASK-310's design doc at MAP_System/artifacts/recovery/ws1-truthful-authority-state.md before narrowing it.",
+    "After the fix, map-authority-mirror.service completes a real sync cycle successfully while map-rns-watcher.service is still running (systemctl --user is-active map-rns-watcher.service reports active), and map_authority.py status / graph/runner.py route both report freshness OK, not INVALID.",
+    "Focused test added to MAP_System/tests/test_map_authority.py covering: writer-service list still blocks a genuine second-authority writer, but does not block map-rns-watcher.service. Independent core agent reviews the result before release, since this touches TASK-310's AUTHORITY-classified, trust-boundary-crossing contract code."
+  ],
+  "decision_class": "AUTHORITY",
+  "risk_class": "AVAILABILITY",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": true
+}

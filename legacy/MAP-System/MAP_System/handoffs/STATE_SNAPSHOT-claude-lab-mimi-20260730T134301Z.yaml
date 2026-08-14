@@ -1,0 +1,349 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-30T13:43:01Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-mimi
+session_id: 849c721b-210c-4fba-8627-c9794c3c9c12
+status: handing_off
+task_context:
+  current_task: TASK-310
+  owned_tasks:
+  - TASK-310
+  pending_reviews: []
+  recent_events:
+  - event_type: RECOVERY_REVIEW_QUEUE_CLEARED
+    task_id: null
+    summary: 'As operator-designated MAP recovery coordinator (DEC-036, since Codex
+      went unavailable), cleared the entire submitted-review backlog: TASK-313 APPROVED
+      (WS-1 path-ownership prerequisite; independently verified the A1 TASK-304-retirement
+      mutation live before endorsing), TASK-305 APPROVED (rereview independently re-verified:
+      12/12 test_release_gate.py, 126-artifact emergence validate), TASK-295 sent
+      CHANGES_REQUESTED for an undeclared db/claims.py output-path touch then mechanically
+      fixed back to READY (rework + add-output-path; substance/tests were already
+      correct), TASK-298 APPROVED (major cross-PC convergence + SSH hardening task,
+      2 days stale -- did NOT trust the write-up alone, had rotation-replacement-kite-veni
+      independently re-verify live: backup integrity, actual sshd_config, commit HEAD,
+      service status, all matched exactly). All approvals executed by codex-lab-vumo
+      on Smalls (Biggie cannot write map.db directly); every mutation independently
+      re-verified live afterward, never trusted from the executor''s report alone.
+
+      '
+  - event_type: EMERGENCE_BACKLOG_CLEARED
+    task_id: null
+    summary: 'Ran emergence_sentinel.py scan; found 3 new repeated_rework candidates
+      (TASK-306, TASK-263, TASK-307). Investigated each against real event content
+      (not just evidence_refs line numbers, which had gone stale as the events log
+      grew) and found two genuine reusable patterns rather than routine dismissals:
+      INS-0058 (submission-time evidence -- parity checksums, pilot metrics -- can
+      go stale before review; re-verify live, don''t trust the snapshot) and INS-0059
+      (cross-host/privileged gateway code benefits from a dedicated security-framed
+      review pass; TASK-307''s 3 rounds caught a real arbitrary-row-restore risk and
+      a real snapshot/transaction race). map_emergence.py validate passes (126 artifacts).
+
+      '
+  - event_type: TASK310_THREE_OF_FOUR_CONSUMERS_DONE
+    task_id: TASK-310
+    summary: 'WS-1 authority-freshness contract: map-authority status (prior session)
+      and map-authority route now both carry a shared apply_freshness_gate() -- STALE/UNAVAILABLE/INVALID
+      overrides next_route to STALE_AUTHORITY while preserving the original recommendation
+      under stale_authority_* keys, never silently hidden. shared/current-state.md
+      now carries an authority_line() via render_active_state.py, threaded as an explicit
+      optional parameter so every pre-existing caller/test is unaffected when it''s
+      omitted; found and fixed a real bug along the way (sys.path gap breaking the
+      cross-module import when the script runs by direct path, not as a package --
+      caught because the fail-closed default rendered UNAVAILABLE with the real exception
+      text instead of silently omitting the line). 52 focused tests total across the
+      three files, all independently reverified. Only remaining consumer (Command
+      Center display) stays blocked on TASK-306''s separate disposition. graph/runner.py
+      itself deliberately left unedited -- stays task-graph-only/recommendation-only,
+      the actual gap was entirely in map_authority.py.
+
+      '
+  - event_type: WS3_FINDING_DOCUMENTED_NOT_FIXED
+    task_id: TASK-312
+    summary: 'Root-caused liveness_reaper_test/chaos_resilience_test''s "attempt to
+      write a readonly database" failure: MAP_System/map.db is mode 444 (correct),
+      and both tests'' _make_fixture_db copies it with shutil.copy, which preserves
+      that permission bit onto what''s meant to be a disposable writable copy. One-line
+      fix (fixture_db.chmod 0o644) documented at MAP_System/artifacts/recovery/ws3-readonly-fixture-finding.md
+      but deliberately NOT applied -- TASK-312 (WS-3) is dependency-gated on TASK-311
+      and wasn''t claimable; fixing test files outside any registered task''s scope
+      would repeat exactly the gap TASK-295 got sent back for.
+
+      '
+  - event_type: WS2_NUDGED
+    task_id: TASK-311
+    summary: 'TASK-311 is READY, owner rotation-replacement-kite-veni, but not yet
+      claimed at the SQLite level as of this snapshot. Nudged veni to claim and start
+      it now that the review queue is clear -- it''s the last stabilization gate before
+      TASK-312/WS-3 and beyond. Six collisions remain per veni''s own earlier live
+      audit: TASK-295/297 map_task.py, TASK-296/305 AGENTS.md, TASK-254/306 four Command
+      Center tests (TASK-305 side now APPROVED).
+
+      '
+  touched_paths:
+  - MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md
+  - MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_SEQUENCE_AMENDMENT_1_REVIEW.md
+  - MAP_System/artifacts/recovery/ws1-path-ownership-prerequisite-review-mimi.md
+  - MAP_System/artifacts/reviews/task313-independent-review-mimi.md
+  - MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+  - MAP_System/artifacts/reviews/task295-independent-review-mimi.md
+  - MAP_System/artifacts/reviews/task298-independent-review-mimi.md
+  - MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+  - MAP_System/artifacts/recovery/ws3-readonly-fixture-finding.md
+  - MAP_System/emergence/insights/INS-0058-submission-time-evidence-file-parity-checksums-pilot-metrics-can.md
+  - MAP_System/emergence/insights/INS-0059-cross-host-or-otherwise-privileged-gateway-code-that-mutates-lif.md
+  - MAP_System/shared/decisions.md
+  - MAP_System/shared/current-state.md
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/map_authority_notify.py
+  - MAP_System/scripts/render_active_state.py
+  - MAP_System/tests/test_map_authority.py
+  - MAP_System/tests/test_map_authority_notify.py
+  - MAP_System/tests/test_render_active_state.py
+active_constraints:
+- scope: authority
+  rule: 'Biggie/KUDU is a read-only MAP mirror. All canonical lifecycle writes route
+    through map-authority to Smalls/RUKI. Never mutate local MAP_System/map.db.
+
+    '
+  source: AGENTS.md, MAP_System/AGENTS.md
+- scope: coordination
+  rule: 'claude-lab-mimi is the operator-designated MAP recovery coordinator/orchestrator
+    while Codex is unavailable (DEC-036). Route new coordination decisions through
+    this identity/lineage.
+
+    '
+  source: MAP_System/shared/decisions.md DEC-036
+- scope: rotation
+  rule: 'Checksum-bound rotation ack/finalize is structurally blocked: both need top-level
+    gateway operations (register-agent, rotation-transfer) that only exist in the
+    still-undeployed TASK-307/TASK-308 gateway patch, not the version currently running
+    on Smalls. Confirmed twice (first via a failed ack attempt from a spawned replacement,
+    then root-caused). Per standing instructions, on a failed rotation the old session
+    stays active rather than forcing supersession -- do not re-attempt ack/ finalize
+    until TASK-308 deploys; re-checkpointing (prepare only) stays fine and worthwhile
+    for continuity.
+
+    '
+  source: this session, twice-confirmed
+- scope: review-discipline
+  rule: 'Never approve/trust a submitted task''s evidence from its own report alone.
+    Re-run the tests yourself, or (for Smalls-side-only facts) have a live Smalls
+    agent independently re-check before trusting. This caught real problems twice
+    this session already (git-exposure BLOCKER in the recovery plan, A1 scope creep)
+    and confirmed clean twice more (TASK-305 rereview, TASK-298 convergence).
+
+    '
+  source: this session's pattern, also captured as INS-0058
+forward_tasks:
+- task_id: TASK-310
+  next_action: continue
+  owner: claude-lab-mimi
+  reason: 'Only remaining Required Consumer is Command Center display, blocked on
+    TASK-306''s separate disposition (CHANGES_REQUESTED, owner claude-lab-nene, not
+    touched by this session). Watch for TASK-306 to move; when it does, this is the
+    last piece before TASK-310 can honestly submit. Heartbeat at least every ~15 minutes.
+
+    '
+  paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/render_active_state.py
+  - MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+- task_id: TASK-311
+  next_action: watch
+  owner: rotation-replacement-kite-veni
+  reason: 'Nudged to start; not yet claimed at SQLite level as of this snapshot. Offered
+    to double-check any disposition it proposes, same pattern as TASK-313''s A1. This
+    is the critical-path stabilization gate right now -- TASK-312 (WS-3) can''t start
+    until it lands.
+
+    '
+  paths:
+  - MAP_System/artifacts/recovery/ws2-output-collision-resolution.md
+- task_id: TASK-312
+  next_action: wait
+  owner: codex-lab-risa (per task record; risa has stepped back -- likely needs reassignment
+    when TASK-311 clears)
+  reason: 'Dependency-gated on TASK-311. Readonly-fixture-DB fix is fully documented
+    and ready to apply the moment this becomes claimable -- see MAP_System/artifacts/recovery/ws3-readonly-fixture-finding.md.
+
+    '
+  paths:
+  - MAP_System/artifacts/recovery/ws3-green-baseline.md
+blockers:
+- kind: infrastructure
+  detail: 'Checksum-bound context-rotation ack/finalize cannot complete on Biggie
+    until the TASK-307/TASK-308 gateway patch deploys to Smalls (register-agent, rotation-transfer
+    not allowlisted on the currently deployed gateway).
+
+    '
+  unblock_by: TASK-308 deployment (separately gated on operator + security/structural
+    approval, tracked independently of this session)
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and sole writable MAP
+    authority
+resume_commands:
+- hcom list -v --json --name mimi
+- map-authority route
+- map-authority task show TASK-310
+- map-authority task show TASK-311
+- cat MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+- cat MAP_System/artifacts/recovery/ws3-readonly-fixture-finding.md
+validation:
+- TASK-313, TASK-305, TASK-298 all APPROVED; TASK-295 READY with the fixed output-path
+  registration. All independently re-verified live, not trusted from reports.
+- TASK-304 RETIRED with exact required reason text (independently reconfirmed earlier
+  this session, unchanged since).
+- TASK-310 IN_PROGRESS, owner=claimed_by=claude-lab-mimi, 52/52 focused tests passing
+  across its three touched files.
+- Emergence backlog fully curated (0 uncurated candidates), 2 new insights (INS-0058,
+  INS-0059) captured with real evidence, not routine dismissals.
+- shared/current-state.md regenerated and idempotent (--check reports unchanged after
+  a real render).
+rotation:
+  reason: rotation_due
+  summary: 'Cleared the entire MAP recovery submitted-review queue as coordinator
+    (TASK-313/305/298 approved, TASK-295 fixed and reopened), advanced TASK-310 to
+    3-of-4 required consumers with a real bug caught and fixed along the way, cleared
+    and enriched the emergence backlog with two genuine new insights, root-caused
+    (but deliberately did not fix out-of-scope) a WS-3 test-fixture bug, and nudged
+    WS-2/TASK-311 to actually start now that nothing else is blocking it. Rotation
+    ack/ finalize remains structurally blocked on the undeployed gateway patch; per
+    standing instructions this session stays active rather than forcing a handoff
+    that can''t be verified.
+
+    '
+  next_action: 'Watch for TASK-311 progress and TASK-306 movement (the two remaining
+    external gates on TASK-310/WS-3 respectively). Keep verifying every agent-reported
+    mutation against live map-authority state before trusting it. Re-checkpoint again
+    once substantially more work lands, even though full rotation can''t complete
+    until TASK-308 deploys.
+
+    '
+  used_tokens: 505057
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-07-30T13:43:01Z'
+  canonical_tasks:
+  - task_id: TASK-310
+    status: IN_PROGRESS
+    owner: claude-lab-mimi
+    claimed_by: claude-lab-mimi
+    lease_expires_at: '2026-07-30 13:55:16'
+    heartbeat_at: '2026-07-30 13:25:16'
+    updated_at: '2026-07-30 13:25:16'
+  - task_id: TASK-311
+    status: READY
+    owner: rotation-replacement-kite-veni
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-30T01:43:36Z'
+  - task_id: TASK-312
+    status: READY
+    owner: codex-lab-risa
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-30T01:43:37Z'
+  canonical_tasks_sha256: 07cdd0ef2eace72f7fe6592f54c6e84d49707006a8f67aef926290b980478f26
+  touched_paths:
+  - path: MAP_System/artifacts/recovery/ws1-path-ownership-prerequisite-review-mimi.md
+    scope: workspace
+    sha256: a062baea968505f1537411b312221d497986ed5a0f7ef14d9af727d39f7ec8d8
+    size: 4146
+    state: file
+  - path: MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+    scope: workspace
+    sha256: ecc336e69fbb8625f58fa6f309fc100e6bbb84c9813fcf1b183e9b27687367e3
+    size: 14022
+    state: file
+  - path: MAP_System/artifacts/recovery/ws3-readonly-fixture-finding.md
+    scope: workspace
+    sha256: 0d0b492e26c614f843b867d9f792ffb356f826879b445b043af4ae65faf7e5e5
+    size: 2886
+    state: file
+  - path: MAP_System/artifacts/reviews/task295-independent-review-mimi.md
+    scope: workspace
+    sha256: 1ad3753edd6f4fc1df49d01b2cfad099a3b7114b69d4d6dc02049f22ec4234ca
+    size: 5888
+    state: file
+  - path: MAP_System/artifacts/reviews/task298-independent-review-mimi.md
+    scope: workspace
+    sha256: 9640a12c1fb783f95579621efcc0471f871f841ec670cbd9264cfdd020a06181
+    size: 8992
+    state: file
+  - path: MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+    scope: workspace
+    sha256: 2f42ef1477087c5f290d81a894366cecb277e8fde2873ae7f74d5af577074c7c
+    size: 8782
+    state: file
+  - path: MAP_System/artifacts/reviews/task313-independent-review-mimi.md
+    scope: workspace
+    sha256: 4a8a35d7924f2e0c824ce8fd55e6f8e49ef6e6c911c83d22d6e1e7230981256f
+    size: 5894
+    state: file
+  - path: MAP_System/emergence/insights/INS-0058-submission-time-evidence-file-parity-checksums-pilot-metrics-can.md
+    scope: workspace
+    sha256: 22e0cb819b3505d334ce487088cad5c7bec58642f65fff0fa22e86d69b3d87da
+    size: 2063
+    state: file
+  - path: MAP_System/emergence/insights/INS-0059-cross-host-or-otherwise-privileged-gateway-code-that-mutates-lif.md
+    scope: workspace
+    sha256: ee21daa42c94c030d009af07dbdd66cd542feffa3a89ae52e6f24a92440db7e7
+    size: 2225
+    state: file
+  - path: MAP_System/scripts/map_authority.py
+    scope: workspace
+    sha256: f6810dce5c54ba181b05adccff7bf680cf77e4d04cd38c58063cb80c9f85adb0
+    size: 34435
+    state: file
+  - path: MAP_System/scripts/map_authority_notify.py
+    scope: workspace
+    sha256: e9bc6711b040a7797cae0de420800d02ba7cbf187c778fa1f0596e6d079c4d28
+    size: 8140
+    state: file
+  - path: MAP_System/scripts/render_active_state.py
+    scope: workspace
+    sha256: a86d4838d0a941dccdda42cc32b1681edf8020f1ec4302d600c5b7d8d25de9db
+    size: 11463
+    state: file
+  - path: MAP_System/shared/current-state.md
+    scope: workspace
+    sha256: 5e45eefac46e4297ffea7a2f996956e8aecc5d8d5ab3913b4bd35d43ccb5f692
+    size: 17304
+    state: file
+  - path: MAP_System/shared/decisions.md
+    scope: workspace
+    sha256: 83b36d236cecb0c53e0a6edd9c5921c0d53e75b0dff8b7942fd63fccd555ea9a
+    size: 56787
+    state: file
+  - path: MAP_System/tests/test_map_authority.py
+    scope: workspace
+    sha256: 2a3d6e74c161523f560899a2cd8271c862db8c3114260cd6acfe3327dcf75423
+    size: 23252
+    state: file
+  - path: MAP_System/tests/test_map_authority_notify.py
+    scope: workspace
+    sha256: 29ff0ea0393c62aaf7ec6f7229245ac48d0a4ce6f8f48befa166042c77e5aa90
+    size: 10037
+    state: file
+  - path: MAP_System/tests/test_render_active_state.py
+    scope: workspace
+    sha256: 642c1fe9170e68c36f6d088c331bdfd4d0f24e8e60e628224e236e4f79af2cdc
+    size: 10643
+    state: file
+  - path: MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md
+    scope: workspace
+    sha256: 4f3ae5a8e2c7d7064aa373e4844df59754120c9e17e2d0f358175b23958fd691
+    size: 9808
+    state: file
+  - path: MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_SEQUENCE_AMENDMENT_1_REVIEW.md
+    scope: workspace
+    sha256: 4741fa9c95f066007abbfcb67b9c536c1069648cce749d656f7cdbe42a8f4067
+    size: 6491
+    state: file
+  touched_paths_sha256: 23663d9403ef837f5615b0cbecdf437293cd74dac0f5f2fd358a7dc6b6de6f60

@@ -1,0 +1,35 @@
+{
+  "task_id": "TASK-211",
+  "title": "ClearFront: rules-to-implementation conformance audit",
+  "task_type": "research",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-208"
+  ],
+  "owner": "codex-lab-lilo",
+  "description": "Replaces TASK-209 (superseded -- see events.jsonl BLOCKED entry; TASK-209 was misclassified role=reviewer, which trips the self-review claim gate for any owner, and its original delegate pi-lab-puma could not complete it and is now unavailable per operator). Phase-1 completion condition from Projects/ClearFront/shared/project-brief.md: an audit comparing the governing playtest ruleset (Projects/ClearFront/source/game-card-combat-effects/clearfront_rules.md) against the parity-proven implementation (Projects/ClearFront/baseline/index.html, readable JS from line 1651; app/ is the released multi-file equivalent if you prefer to audit that instead, same logic). Per rules section (goal/life, deck construction, mana, three-card hand + replace, turn structure, card types incl. relics/equipment, champions incl. return-cost escalation, combat incl. blocking/persistent damage, keywords Charge/Rush/Guard/Flying/Shield/Drain/Stun, faction identities, board limits, interface/desaturation rules, undo), record whether the implementation MATCHES, DEVIATES, or is UNIMPLEMENTED, with line references. Read-only against source/, baseline/, and app/. Owner is claude-lab-gome's ClearFront co-lead per operator instruction (Pi unavailable, work with Codex); reassign to a helper if useful but codex-lab-lilo remains accountable.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/artifacts/research/rules-conformance-audit.md"
+  ],
+  "acceptance_criteria": [
+    "Every numbered section of clearfront_rules.md (1-16) appears in the audit with a MATCHES / DEVIATES / UNIMPLEMENTED / UNVERIFIED verdict and at least one line reference for any MATCHES or DEVIATES claim.",
+    "Each of the seven core keywords (Charge, Rush, Guard, Flying, Shield, Drain, Stun) is individually checked against its implementation.",
+    "Deviations include a one-line statement of what the code actually does versus what the rules say.",
+    "source/, baseline/, and app/ are untouched; the only written file is the audit artifact."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

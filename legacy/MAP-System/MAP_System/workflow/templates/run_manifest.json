@@ -1,0 +1,37 @@
+{
+  "_comment": "TASK-281 bounded pilot. Documents the shape produced by `MAP_System/scripts/run_manifest.py show <run_id>`. Manifests live in the run_manifests/run_manifest_skills/run_manifest_context_refs SQLite tables (migration/run_manifest_schema.sql); this file is documentation, not a canonical source.",
+  "schema": {
+    "run_id": "string, primary key, format RUN-<task_id>-<NN> (per-task sequence)",
+    "task_id": "string, references tasks.task_id",
+    "task_revision": "sha256 hex of the task's stable definition fields (title, description, task_type, role, sorted dependencies/output_paths/acceptance_criteria) at manifest-creation time; excludes lifecycle fields (status, owner, claimed_by, lease, attempt) so claim/heartbeat churn never manufactures false staleness",
+    "worker_id": "string, references agents.agent_id; the accountable execution identity for this run",
+    "session_id": "string or null; live session identity if available",
+    "role_id": "string; normalized role (see workflow/role_registry.yaml), never a raw free-form role string",
+    "role_source": "'canonical' or 'compatibility', per normalize_role()",
+    "writable_scope": "array of repo-relative paths this run may write; defaults to the task's registered output_paths when not explicitly supplied",
+    "runtime_limits": "object with optional max_attempts, max_tool_failures, runtime_seconds keys; only keys explicitly supplied at creation are present",
+    "base_revision": "string or null; a Git commit sha for Git-backed work, or null for document-only/non-Git work -- never a placeholder commit",
+    "created_by": "string, references agents.agent_id; who invoked run_manifest.py create (may differ from worker_id)",
+    "created_at": "ISO8601 UTC timestamp",
+    "skills": "array of selected skill names, sorted",
+    "context_refs": "array of {path, sha256}; the repo-relative path and content hash of each context input at manifest-creation time -- never the copied content itself"
+  },
+  "example": {
+    "run_id": "RUN-TASK-999-01",
+    "task_id": "TASK-999",
+    "task_revision": "3f9a...",
+    "worker_id": "codex-lab-example",
+    "session_id": "019fa372-38fe-7771-b712-10f125007e26",
+    "role_id": "delivery-implementer",
+    "role_source": "canonical",
+    "writable_scope": ["MAP_System/scripts/example.py"],
+    "runtime_limits": {"max_attempts": 3},
+    "base_revision": null,
+    "created_by": "codex-lab-example",
+    "created_at": "2026-07-27T13:00:00Z",
+    "skills": ["python"],
+    "context_refs": [
+      {"path": "MAP_System/tasks/TASK-999.json", "sha256": "9a1c..."}
+    ]
+  }
+}

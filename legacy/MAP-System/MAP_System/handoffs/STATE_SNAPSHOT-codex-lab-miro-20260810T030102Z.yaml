@@ -1,0 +1,139 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-10T03:01:02Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-miro
+session_id: 019fe994-0b40-7692-a9cf-370ecad62904
+status: handing_off
+task_context:
+  current_task: TASK-321
+  owned_tasks:
+  - TASK-321
+  pending_reviews: []
+  recent_events:
+  - event_type: OPERATOR_APPROVAL
+    task_id: null
+    summary: Operator approved beginning the reviewed MAP Research Adoption Implementation
+      Program; command-center intake recorded the directive and constrained work to
+      Phase 0 first.
+  - event_type: TASK_CLAIMED
+    task_id: TASK-321
+    summary: Smalls created and assigned the first independently reviewable Phase
+      0 authority-baseline slice to codex-lab-miro.
+  - event_type: ROOT_CAUSE_PROGRESS
+    task_id: TASK-321
+    summary: Reproduced two distinct probe states. The Codex sandbox cannot query
+      Biggie's user systemd bus and falsely gates route as stale; an unsandboxed host
+      probe succeeds and retains the 15-second watcher collision gate. After the watcher
+      becomes quiet, host route reports FRESH.
+  touched_paths:
+  - MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md
+  - MAP_System/tasks/TASK-321.json
+  - MAP_System/workflow/task_graph.json
+active_constraints:
+- scope: task
+  rule: TASK-321 owns only map_authority.py, map_authority_notify.py, their focused
+    tests, and the new Phase 0 recovery artifact.
+  source: TASK-321 canonical task record on Smalls
+- scope: safety
+  rule: Smalls remains the sole writable lifecycle authority; Biggie is read-only
+    and all task mutations use map-authority.
+  source: operator directive and MAP_System/AGENTS.md
+- scope: safety
+  rule: Do not fix sandbox routing by treating an unproven writer state as clean;
+    genuine writers and recent overlapping watcher writes must still fail closed.
+  source: TASK-321 acceptance criteria and TASK-310 authority contract
+- scope: task
+  rule: A different core agent must perform functional review and a separate security-framed
+    pass before approval.
+  source: TASK-321 acceptance criteria and MAP_System/AGENTS.md Review Standard
+- scope: communication
+  rule: Biggie names this PC; Smalls names the writable authority PC. Preserve old
+    aliases only in exact historical identifiers or legacy filenames, with labels.
+  source: operator instruction
+forward_tasks:
+- task_id: TASK-321
+  next_action: continue
+  owner: codex-lab-miro
+  reason: Implement a fail-closed sandbox-safe local writer probe, add focused tests
+    and the Phase 0 evidence artifact, verify on Biggie, submit through Smalls, and
+    route conflict-separated Claude reviews.
+  paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/map_authority_notify.py
+  - MAP_System/tests/test_map_authority.py
+  - MAP_System/tests/test_map_authority_notify.py
+  - MAP_System/artifacts/recovery/map2-phase0-trustworthy-baseline-2026-08-10.md
+blockers: []
+failed_approaches:
+- Treating the sandboxed systemctl error as the real host state was incorrect; the
+  sandbox has XDG/DBus variables but cannot access the user bus.
+- Using only a recent sync-health timestamp as a topology fallback would leave a window
+  where a new writer could start after attestation, so it is not sufficient by itself.
+decisions:
+- The safest promising implementation is a cgroup-v2 fallback for service activity
+  when the user bus is inaccessible. Biggie's cgroup.events remains readable inside
+  the Codex sandbox and reports map-rns-watcher.service populated=1.
+- Literal historical hcom identities and legacy filenames are evidence and should
+  not be silently renamed; current operational prose uses Biggie and Smalls.
+lexicon:
+  Biggie: This PC and read-only MAP mirror.
+  Smalls: Remote PC and sole writable MAP lifecycle authority.
+  writer_probe: Local check proving no conflicting Biggie writer is active before
+    trusting or installing a mirror snapshot.
+  collision_window: Fifteen seconds after an overlapping watcher write, during which
+    mirror installation must fail closed.
+resume_commands:
+- cd /home/mellow/Projects/MultiAgentProject/Source
+- hcom list --json --name <replacement-short-name>
+- map-authority task show TASK-321
+- map-authority heartbeat TASK-321 <replacement-exact-hcom-identity>
+- sed -n '680,825p' MAP_System/scripts/map_authority.py
+- sed -n '205,330p' MAP_System/tests/test_map_authority.py
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+validation:
+- TASK-321 is IN_PROGRESS on Smalls with owner and claimant codex-lab-miro.
+- Unsandboxed map-authority route reported FRESH, valid topology, and no local writers
+  after the watcher collision window closed.
+- Sandboxed systemctl --user probes reproduce Failed to connect to bus: No data available.
+- Biggie cgroup v2 exposes map-rns-watcher.service/cgroup.events with populated 1
+  inside the Codex sandbox.
+rotation:
+  reason: threshold
+  summary: Operator approved program implementation. Intake was recorded, TASK-321
+    was created and claimed for Phase 0, and the authority freshness mismatch was
+    narrowed to sandbox-inaccessible user systemd plus the real watcher collision
+    window. No task code has been edited yet.
+  next_action: Implement and test a fail-closed cgroup-v2 service-activity fallback
+    for the sandboxed writer probe, then write the Phase 0 evidence artifact.
+  used_tokens: 144147
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-08-10T03:01:02Z'
+  canonical_tasks:
+  - task_id: TASK-321
+    status: IN_PROGRESS
+    owner: codex-lab-miro
+    claimed_by: codex-lab-miro
+    lease_expires_at: '2026-08-10 03:29:39'
+    heartbeat_at: '2026-08-10 02:59:39'
+    updated_at: '2026-08-10 02:59:39'
+  canonical_tasks_sha256: aa5c906151b5a8665ec7a440af8df52f3a266d22e1be075cdd82c9f20ef263bc
+  touched_paths:
+  - path: MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md
+    scope: workspace
+    sha256: 775c0e6ae893556cfbc01b7a889ef0aefd4861405e3a2a318f267de4c5de86b1
+    size: 51340
+    state: file
+  - path: MAP_System/tasks/TASK-321.json
+    scope: workspace
+    sha256: 30b93312a727757b925eec8fbcccb8a183f2191ee0aea07360490824956c11a4
+    size: 2549
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: f0db0f8bcd96551cb2d2eacec8c49a2524ac9f9e99509e30b2e2f5ed14437b7d
+    size: 518881
+    state: file
+  touched_paths_sha256: 710d8ff505e787141c305c3e1684955fd19b02130890824c6dae2b3d9062de09

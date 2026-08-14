@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodically refresh the read-only MAP database mirror
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+Persistent=true
+Unit=map-authority-mirror.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,6 @@
+{
+  "baseline_line_count": 4501,
+  "recorded_at": "2026-07-30T21:00:00Z",
+  "recorded_by": "TASK-312",
+  "note": "All validate_events.py warnings at or before this line are pre-existing legacy noise (accepted per TASK-140 gap #6). Warnings on lines after this count are new and should be treated as real signal, not folded into the accepted baseline. TASK-312 first extended the baseline from 680 to 2145 for the reviewed TASK_SUBMITTED warning. TASK-315 then preserved GitHub's append-only event history during convergence and extended it to 4501 for the one additional historical warning exposed by that restoration: REVIEW_RECORD_CORRECTED for TASK-302. Validation reported no other new warning between lines 2146 and 4501; future appended records remain outside the baseline."
+}

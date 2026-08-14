@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en"><head><script>window.__resources = {"deck_lion": "assets/3fc6801a-1429-48f4-aae2-0925e8d8f075.png", "deck_badger": "assets/7c9ae1fc-8916-4304-8a6e-5d4e107bbe80.png", "deck_raven": "assets/70860df9-40a4-403e-b892-e4e57f9b31d0.png", "deck_owl": "assets/9300c284-a8d8-400c-a349-2d33c0ec4225.png", "deck_stag": "assets/d65247e2-9572-41cd-b478-c0a6a5c04f7c.png", "deck_fox": "assets/7b0690f1-7002-48aa-9ade-5c9856207594.png"};</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Clearfront — Champion Prototype</title>
+<link rel="stylesheet" href="styles/clearfront.css">
+
+
+
+
+
+
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="title-wrap">
+      <h1>Clearfront</h1>
+      <p>A compact card game where your Champion anchors the board and two hand cards shape your turn.</p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="rulesBtn">Rules</button>
+      <button class="btn" id="cardsBtn">Cards</button>
+      <button class="btn mobile-only" id="logBtn">Log</button>
+      <button class="btn danger" id="restartBtn">New</button>
+    </div>
+  </div>
+
+  <div class="board-grid">
+    <!-- LEFT RAIL: enemy status · battle log · your status -->
+    <div class="lrail">
+      <section class="status enemy">
+        <div class="who"><img class="portrait" id="enemyPortrait" src="assets/7c9ae1fc-8916-4304-8a6e-5d4e107bbe80.png" alt="Enemy commander">
+          <div class="who-name"><strong id="enemyDeckName"></strong><span id="enemyDeckSub">AI opponent</span><span class="mini-deck-info" id="enemyDeckInfo"></span></div></div>
+        <div class="vitals">
+          <div class="vital life"><span class="value" id="enemyLife">20</span><span class="label">Life</span></div>
+          <div class="vital mana"><span class="value" id="enemyMana">0/0</span><span class="label">Mana</span></div>
+        </div>
+        <div class="rlabel">Enemy hand</div>
+        <div class="enemy-hand" id="enemyHand"></div>
+      </section>
+
+      <section class="logpanel">
+        <div class="rlabel">Battle log</div>
+        <div class="log" id="gameLog"></div>
+      </section>
+
+      <section class="status you">
+        <div class="who"><img class="portrait" id="playerPortrait" src="assets/3fc6801a-1429-48f4-aae2-0925e8d8f075.png" alt="Your commander">
+          <div class="who-name"><strong id="playerDeckName"></strong><span id="playerDeckSub">You</span></div></div>
+        <div class="vitals">
+          <div class="vital life"><span class="value" id="playerLife">20</span><span class="label">Life</span></div>
+          <div class="vital mana"><span class="value" id="playerMana">0/0</span><span class="label">Mana</span></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- CENTER: pure play -->
+    <main class="arena">
+      <section class="board-wrap enemy">
+        <canvas class="board-bg" data-theme="iron"></canvas>
+        <div class="board-head"><span>Enemy board</span></div>
+        <div class="board-row">
+          <div class="board" id="enemyBoard"></div>
+          <div class="relic-field"><div class="rf-label">Relics</div><div class="relic-row" id="enemyRelics"></div></div>
+        </div>
+        <div class="board-scrollbar" id="enemyBoardScrollbar" aria-label="Enemy board scroll position"><span id="enemyBoardScrollThumb"></span></div>
+      </section>
+
+      <section class="phase-bar">
+        <span class="phase-dot"></span>
+        <div class="phase">
+          <strong id="phaseTitle">Your turn</strong>
+          <span id="phaseHelp">Play cards, then choose units to attack.</span>
+        </div>
+        <button class="latest-event" id="latestEventBtn" type="button" aria-label="Open recent events">
+          <span class="latest-event-label">Latest</span>
+          <span class="latest-event-text" id="latestEventText">New game started.</span>
+        </button>
+        <div class="phase-actions">
+          <button class="btn" id="undoBtn" type="button" disabled="">Undo</button>
+          <button class="btn" id="swapCardBtn" type="button">Swap 1 card</button>
+          <button class="btn combat-review" id="combatReviewBtn" type="button">Review blocks</button>
+          <button class="btn primary" id="mainActionBtn">Attack</button>
+        </div>
+      </section>
+
+      <section class="board-wrap you">
+        <canvas class="board-bg" data-theme="ember"></canvas>
+        <div class="board-head"><span>Your board</span></div>
+        <div class="board-row">
+          <div class="board" id="playerBoard"></div>
+          <div class="relic-field"><div class="rf-label">Relics</div><div class="relic-row" id="playerRelics"></div></div>
+        </div>
+        <div class="board-scrollbar" id="playerBoardScrollbar" aria-label="Your board scroll position"><span id="playerBoardScrollThumb"></span></div>
+      </section>
+
+      <section class="tray">
+        <div class="hand-label" id="playerHandLabel">Your hand · 3-card limit</div>
+        <div class="hand" id="playerHand"></div>
+      </section>
+    </main>
+
+    <!-- RIGHT RAIL: champion slots -->
+    <div class="rrail">
+      <section class="champ enemy">
+        <canvas class="board-bg" data-theme="iron"></canvas>
+        <div class="rlabel">Enemy Champion</div>
+        <div class="champ-slot" id="enemyChampionSlot"></div>
+      </section>
+      <section class="champ you">
+        <canvas class="board-bg" data-theme="ember"></canvas>
+        <div class="rlabel">Your Champion</div>
+        <div class="champ-slot" id="playerChampionSlot"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="clash-overlay" id="clashOverlay" data-screen-label="Combat clash">
+  <div class="clash-track">
+    <div class="clash-header">
+      <img class="clash-portrait" id="clashPortraitYou" src="assets/3fc6801a-1429-48f4-aae2-0925e8d8f075.png" alt="">
+      <span class="clash-round" id="clashRound">Your attack</span>
+      <span class="clash-step" id="clashStep"></span>
+      <img class="clash-portrait" id="clashPortraitFoe" src="assets/7c9ae1fc-8916-4304-8a6e-5d4e107bbe80.png" alt="">
+    </div>
+    <div class="clash-stage" id="clashStage"></div>
+    <div class="clash-skip">Tap anywhere to skip</div>
+  </div>
+</div>
+
+<div class="overlay" id="deckSelectOverlay" data-screen-label="Deck select">
+  <div class="modal deck-select-modal">
+    <h2>Choose your Champion</h2>
+    <p class="deck-select-sub">Each Champion leads a 30-card deck built from two factions. A rival Champion takes the other side.</p>
+    <div class="deck-grid" id="deckGrid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="rulesOverlay">
+  <div class="modal">
+    <h2>Clearfront rules</h2>
+    <ol>
+      <li>Each player starts at 20 life with a 30-card deck made of two factions, plus a Champion kept outside the deck.</li>
+      <li>Your hand holds at most 3 cards. It refills to 3 at the end of your turn.</li>
+      <li>Deploy your Champion for mana whenever you like; it counts as one of your 2 plays and enters as a unit.</li>
+      <li>A destroyed Champion returns to its slot with its cost increased by 2, and can be redeployed later.</li>
+      <li>While on the battlefield, your Champion grants one ongoing ability, such as +1 damage on your first damage card or +1 Health on your first unit.</li>
+      <li>The starting player is chosen randomly each game.</li>
+      <li>Your opening hand always includes at least one 1-cost card.</li>
+      <li>Once each turn, you may discard one card and immediately draw a replacement.</li>
+      <li>At the start of your turn, gain 1 maximum mana and refill mana. There is no automatic start-of-turn draw.</li>
+      <li>Units stay on the board. Spells happen once. Relics give ongoing effects.</li>
+      <li>You have one attack step each turn and may play cards before or after it.</li>
+      <li>Units normally wait one turn before attacking. Charge ignores this if you have not used your attack step yet.</li>
+      <li>The attacker chooses attackers. The defender may assign one blocker to each attacker; each blocker can block only once.</li>
+      <li>A blocked attacker deals no damage to the player, even when its blocker is destroyed.</li>
+      <li>Blocked units deal damage to each other at the same time. Unblocked units hit the player.</li>
+      <li>Damage remains on units until they are healed or destroyed.</li>
+      <li>Cards can reward damaged enemies, Health gains, Shields, surviving combat, sacrifices, and being played first or second.</li>
+      <li>Raised, faction-colored cards are Champions. Desaturated cards cannot currently act; their label explains why.</li>
+      <li>Undo reverses one reversible action. Combat resolution and ending a turn cannot be undone.</li>
+      <li>Green status labels show when a card’s synergy or bonus is currently active.</li>
+    </ol>
+    <button class="btn primary" id="closeRulesBtn">Close</button>
+  </div>
+</div>
+
+
+<div class="overlay" id="cardsOverlay">
+  <div class="modal catalog-modal">
+    <h2>Card collection</h2>
+    <p class="catalog-summary">Champion prototype across four factions. Deploy your Champion when ready, and use your other cards to build the turn.</p>
+    <div id="cardCatalog"></div>
+    <button class="btn primary catalog-close" id="closeCardsBtn">Close</button>
+  </div>
+</div>
+
+<div class="overlay" id="logOverlay">
+  <div class="modal">
+    <h2>Recent events</h2>
+    <p>Newest first. This records card plays, damage, destruction, and rules that changed the result.</p>
+    <div class="log" id="mobileGameLog"></div>
+    <button class="btn primary" id="closeLogBtn">Close</button>
+  </div>
+</div>
+
+<div class="overlay" id="blockOverlay">
+  <div class="modal">
+    <h2>Block assignment</h2>
+    <div id="blockReviewBody"></div>
+    <div class="modal-actions">
+      <button class="btn primary" id="closeBlockBtn">Back to battlefield</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="combatReportOverlay">
+  <div class="modal">
+    <h2>Combat report</h2>
+    <div id="combatReportBody"></div>
+    <div class="modal-actions">
+      <button class="btn primary" id="closeCombatReportBtn">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="gameOverOverlay">
+  <div class="modal">
+    <h2 id="gameOverTitle">Game over</h2>
+    <p id="gameOverText"></p>
+    <button class="btn primary" id="playAgainBtn">Play again</button>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/render.js"></script>
+<script src="js/input.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const { MAX_BOARD, MAX_RELICS, HAND_LIMIT, STARTING_HAND, MAX_CARDS_PER_TURN, CARD_LIBRARY, PLAYER_DECKLIST, AI_DECKLIST, DECKS, FACTION_POOLS, HERO_NAMES } = window.CF;
+
+  let playerDeckChoice = DECKS[0];
+  let enemyDeckChoice = DECKS[2];
+
+  const $ = (id) => document.getElementById(id);
+  const refs = {
+    enemyLife: $('enemyLife'), enemyMana: $('enemyMana'), enemyHand: $('enemyHand'), enemyRelics: $('enemyRelics'), enemyBoard: $('enemyBoard'),
+    playerLife: $('playerLife'), playerMana: $('playerMana'), playerHand: $('playerHand'), playerRelics: $('playerRelics'), playerBoard: $('playerBoard'), playerChampionSlot: $('playerChampionSlot'), enemyChampionSlot: $('enemyChampionSlot'),
+    phaseTitle: $('phaseTitle'), phaseHelp: $('phaseHelp'), mainActionBtn: $('mainActionBtn'), undoBtn: $('undoBtn'), swapCardBtn: $('swapCardBtn'), combatReviewBtn: $('combatReviewBtn'), latestEventBtn: $('latestEventBtn'), latestEventText: $('latestEventText'), gameLog: $('gameLog'),
+    rulesOverlay: $('rulesOverlay'), cardsOverlay: $('cardsOverlay'), cardCatalog: $('cardCatalog'), logOverlay: $('logOverlay'), mobileGameLog: $('mobileGameLog'), blockOverlay: $('blockOverlay'), blockReviewBody: $('blockReviewBody'), combatReportOverlay: $('combatReportOverlay'), combatReportBody: $('combatReportBody'), enemyDeckInfo: $('enemyDeckInfo'), gameOverOverlay: $('gameOverOverlay'), gameOverTitle: $('gameOverTitle'), gameOverText: $('gameOverText'), playerHandLabel: $('playerHandLabel'), enemyBoardScrollbar: $('enemyBoardScrollbar'), enemyBoardScrollThumb: $('enemyBoardScrollThumb'), playerBoardScrollbar: $('playerBoardScrollbar'), playerBoardScrollThumb: $('playerBoardScrollThumb'),
+    clashOverlay: $('clashOverlay'), clashStage: $('clashStage'), clashRound: $('clashRound'), clashStep: $('clashStep')
+  };
+
+
+
+  let uidCounter = 1;
+  let state;
+  let undoRecord = null;
+
+
+  // Shared mutable-state contract with js/state.js and js/combat.js
+  // (TASK-212/TASK-214): state, undoRecord, uidCounter, playerDeckChoice and
+  // enemyDeckChoice stay declared once above; modules read/write them
+  // through these accessors so cross-file reassignment stays in sync
+  // (DEC-CF-002 / DEC-CF-004 -- no bare globals, no ES modules).
+  const ctx = {
+    get state() { return state; }, set state(v) { state = v; },
+    get undoRecord() { return undoRecord; }, set undoRecord(v) { undoRecord = v; },
+    get uidCounter() { return uidCounter; }, set uidCounter(v) { uidCounter = v; },
+    get playerDeckChoice() { return playerDeckChoice; }, set playerDeckChoice(v) { playerDeckChoice = v; },
+    get enemyDeckChoice() { return enemyDeckChoice; }, set enemyDeckChoice(v) { enemyDeckChoice = v; },
+    $, refs
+  };
+  const {
+    buildDecklist, applyDeckIdentity, showDeckSelect, makeCard, shuffle, createSide,
+    resetGame, sideOf, otherSide, controllerLabel, championDef, resetChampionTurnFlags,
+    championDeployReason, deployChampion, returnChampionToSlot, saveUndo, clearUndo,
+    canUndo, undoLastAction, aiConsiderChampion, addLog, dealStartingHand, drawCard,
+    refillHand, replaceCard, startTurn
+  } = window.CF.installStateModule(ctx);
+  const {
+    cardAttack, effectiveCost, isDamageCard, isDamageSpell, damageHero,
+    getCardCondition, canAttack, usesCompactLayout, scrollZoneIntoView,
+    scrollToTargets, handleHandCard, getTargetInfo, isCardPlayable,
+    handUnavailableReason, handleUnitTarget, blockTargetReason, assignBlock,
+    playCard, resolveEffect, gainUnitHealth, buffUnit, dealDamage,
+    removeDeadUnits, beginPlayerAttack, aiChooseBlocks, triggerCombatSurvival,
+    resolveCombat, dealCombatDamage, resolveEndTurnEffects, endPlayerTurn,
+    endEnemyTurn, scoreAiCardBase, scoreAiCard, aiMainPhase, chooseAiTarget,
+    aiDeclareAttackers, resolvePlayerBlocks, checkGameOver
+  } = window.CF.installCombatModule(ctx);
+  const {
+    clashDelay, buildClashCard, buildClashFx, spawnClashNumber, showClashHit,
+    flagClashCard, stageImpact, runBlockedClash, runHeroClash, playClashSequence,
+    updateBoardScrollIndicator, updateBoardScrollbars, bindBoardScrollbar, render,
+    renderEnemyHand, renderRelics, renderChampionSlot, renderBoard, renderHand,
+    createCardElement, renderCardCatalog, getBlockingSnapshot, predictCombat,
+    renderBlockReview, renderCombatReport, renderPhase, renderLog, escapeHtml
+  } = window.CF.installRenderModule(ctx);
+
+  refs.undoBtn.addEventListener('click', undoLastAction);
+
+  refs.mainActionBtn.addEventListener('click', () => {
+    if (state.targetMode) {
+      state.targetMode = null;
+      addLog('Target selection canceled.', 'info');
+      render();
+      return;
+    }
+    if (state.turn === 'player' && state.phase === 'main') {
+      if (state.player.combatUsed) endPlayerTurn();
+      else beginPlayerAttack();
+    }
+    else if (state.turn === 'enemy' && state.phase === 'blocking') resolvePlayerBlocks();
+  });
+
+  refs.swapCardBtn.addEventListener('click', () => {
+    if (state.gameOver || state.turn !== 'player' || state.phase !== 'main' || state.targetMode || state.player.swapUsed || !state.player.hand.length) return;
+    state.swapMode = !state.swapMode;
+    addLog(state.swapMode ? 'Choose one card to replace.' : 'Card replacement canceled.', 'info', state.swapMode ? 'You may replace one card each turn. The replacement is immediate.' : 'No card was discarded.');
+    render();
+    if (state.swapMode) scrollZoneIntoView(refs.playerHand);
+  });
+
+  $('rulesBtn').addEventListener('click', () => refs.rulesOverlay.classList.add('show'));
+  $('cardsBtn').addEventListener('click', () => { renderCardCatalog(); refs.cardsOverlay.classList.add('show'); });
+  $('logBtn').addEventListener('click', () => refs.logOverlay.classList.add('show'));
+  refs.latestEventBtn.addEventListener('click', () => refs.logOverlay.classList.add('show'));
+  refs.combatReviewBtn.addEventListener('click', () => { renderBlockReview(); refs.blockOverlay.classList.add('show'); });
+  $('closeRulesBtn').addEventListener('click', () => refs.rulesOverlay.classList.remove('show'));
+  refs.rulesOverlay.addEventListener('click', (e) => { if (e.target === refs.rulesOverlay) refs.rulesOverlay.classList.remove('show'); });
+  $('closeCardsBtn').addEventListener('click', () => refs.cardsOverlay.classList.remove('show'));
+  refs.cardsOverlay.addEventListener('click', (e) => { if (e.target === refs.cardsOverlay) refs.cardsOverlay.classList.remove('show'); });
+  $('closeLogBtn').addEventListener('click', () => refs.logOverlay.classList.remove('show'));
+  refs.logOverlay.addEventListener('click', (e) => { if (e.target === refs.logOverlay) refs.logOverlay.classList.remove('show'); });
+  $('closeBlockBtn').addEventListener('click', () => refs.blockOverlay.classList.remove('show'));
+  refs.blockOverlay.addEventListener('click', (e) => { if (e.target === refs.blockOverlay) refs.blockOverlay.classList.remove('show'); });
+  $('closeCombatReportBtn').addEventListener('click', () => { state.pendingCombatReport = false; refs.combatReportOverlay.classList.remove('show'); });
+  refs.combatReportOverlay.addEventListener('click', (e) => { if (e.target === refs.combatReportOverlay) { state.pendingCombatReport = false; refs.combatReportOverlay.classList.remove('show'); } });
+  $('restartBtn').addEventListener('click', () => { refs.gameOverOverlay.classList.remove('show'); refs.blockOverlay.classList.remove('show'); refs.combatReportOverlay.classList.remove('show'); showDeckSelect(); });
+  $('playAgainBtn').addEventListener('click', () => { refs.gameOverOverlay.classList.remove('show'); refs.blockOverlay.classList.remove('show'); refs.combatReportOverlay.classList.remove('show'); showDeckSelect(); });
+
+
+  bindBoardScrollbar(refs.enemyBoard, refs.enemyBoardScrollbar);
+  bindBoardScrollbar(refs.playerBoard, refs.playerBoardScrollbar);
+  window.addEventListener('resize', updateBoardScrollbars);
+
+  // Hover/touch card preview installs here to preserve its original listener
+  // ordering relative to host action wiring and initial deck selection.
+  window.CF.installInputModule();
+
+  showDeckSelect();
+})();
+</script>
+
+<script>
+/* Themed procedural board/champion backgrounds (2026-07-19 UI redesign) */
+(() => {
+  'use strict';
+  function paint(canvas) {
+    const host = canvas.parentElement; if (!host) return;
+    const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = w*dpr; canvas.height = h*dpr; canvas.style.width = w+'px'; canvas.style.height = h+'px';
+    const x = canvas.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,w,h);
+    const rnd = mulberry(hash(canvas.dataset.theme + '|' + w + 'x' + h));
+    if (canvas.dataset.theme === 'ember') {
+      let g = x.createLinearGradient(0,0,0,h); g.addColorStop(0,'#180c07'); g.addColorStop(1,'#2c150a'); x.fillStyle=g; x.fillRect(0,0,w,h);
+      const gl = x.createRadialGradient(w/2,h,8, w/2,h,h*1.15); gl.addColorStop(0,'rgba(255,122,60,.20)'); gl.addColorStop(1,'rgba(255,122,60,0)'); x.fillStyle=gl; x.fillRect(0,0,w,h);
+      const cols=['#ff7a3c','#ffb347','#ff9d5c','#ffd9a8'];
+      for (let i=0;i<Math.round(w*h/2800);i++){ const px=rnd()*w, py=h-Math.pow(rnd(),1.6)*h, r=rnd()*1.8+0.5;
+        x.globalAlpha=rnd()*0.45+0.2; x.fillStyle=cols[i%4]; x.shadowColor='#ff7a3c'; x.shadowBlur=6; x.beginPath(); x.arc(px,py,r,0,7); x.fill(); }
+      x.globalAlpha=1; x.shadowBlur=0;
+    } else {
+      let g = x.createLinearGradient(0,0,0,h); g.addColorStop(0,'#0f2233'); g.addColorStop(1,'#0a1622'); x.fillStyle=g; x.fillRect(0,0,w,h);
+      const gl = x.createRadialGradient(w/2,0,8, w/2,0,h*1.15); gl.addColorStop(0,'rgba(127,160,201,.16)'); gl.addColorStop(1,'rgba(127,160,201,0)'); x.fillStyle=gl; x.fillRect(0,0,w,h);
+      x.strokeStyle='rgba(127,160,201,.08)'; x.lineWidth=1;
+      for (let i=0;i<Math.round(w/70);i++){ const sx=rnd()*w; x.beginPath(); x.moveTo(sx,0); x.lineTo(sx+h*0.35,h); x.stroke(); }
+      for (let i=0;i<Math.round(w*h/4600);i++){ const px=rnd()*w, py=rnd()*h, r=rnd()*1.1+0.3; x.globalAlpha=rnd()*0.28+0.1; x.fillStyle='#b4cdeb'; x.beginPath(); x.arc(px,py,r,0,7); x.fill(); }
+      x.globalAlpha=1;
+    }
+  }
+  function hash(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+  function mulberry(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+  function paintAll(){ document.querySelectorAll('canvas.board-bg').forEach(paint); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintAll); else paintAll();
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt=setTimeout(paintAll,120); });
+})();
+</script>
+

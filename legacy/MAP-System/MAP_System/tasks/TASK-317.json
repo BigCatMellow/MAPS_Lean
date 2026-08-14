@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-317",
+  "title": "Add map_task.py verb to describe/promote a NEEDS_SHAPING task to READY",
+  "task_type": "implementation",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "helper-fix-authority-316-bume",
+  "description": "TASK-316 landed NEEDS_SHAPING with a blank description despite fully-specified output_paths and acceptance_criteria, and no existing map_task.py verb can set description or promote NEEDS_SHAPING->READY after creation (confirmed: create/approve/reject/rework/submit/release/recover-orphan/reassign-owner/extend-attempts/retire/add-output-path/show/log are the complete set). This is the fifth instance of the missing-lifecycle-verb pattern (after TASK-293 extend-attempts, TASK-295 retire, TASK-296 recover-orphan, TASK-297 amend-criteria), and it is currently blocking TASK-316 from being claimed at all. Add a narrowly-scoped 'describe' verb: sets a NEEDS_SHAPING task's description, then re-runs the same non-empty-description/output_path/criterion gate create_task already applies at creation time, promoting to READY only if it now passes. Refuse any status other than NEEDS_SHAPING (narrower than retire_task's any-nonterminal-status scope, since this only unblocks shaping, not general editing). No DEC/REPAIR authority citation required (matches retire_task/extend_task_attempts's bar, not amend_task_criterion's, since this cannot retroactively lower a bar the task already passed -- NEEDS_SHAPING tasks have not been reviewed against anything yet).",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/db/claims.py",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/tests/test_map_task_describe.py"
+  ],
+  "acceptance_criteria": [
+    "New 'describe' verb in map_task.py (calling a new describe_task()/similar in db/claims.py) sets a task's description and, if the task now has non-empty description + at least one output_path + at least one acceptance_criterion, promotes it from NEEDS_SHAPING to READY in the same transaction; refuses (returns None, does not raise) for any task not currently in NEEDS_SHAPING.",
+    "The verb is added to ALLOWED_TASK_VERBS in map_authority.py so it is callable remotely from a mirror host through the gateway, matching the other lifecycle verbs.",
+    "Focused test added covering: promotes a NEEDS_SHAPING task with otherwise-complete fields once description is set; refuses (no-op, no exception) on a READY/IN_PROGRESS/other-status task; refuses a blank description.",
+    "Using the new verb, TASK-316 itself is promoted to READY (description filled in from its existing acceptance criteria) and successfully claimed, unblocking it.",
+    "Independent core-agent review before release, since this adds a new remotely-callable lifecycle verb to map_authority.py's AUTHORITY-classified gateway allowlist."
+  ],
+  "decision_class": "AUTHORITY",
+  "risk_class": "PROCESS",
+  "risk_severity": "BLOCKING",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": true
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "lessons": [
+    {
+      "lesson_id": "OPLESSON-0001",
+      "title": "Use visible Codex helpers while Claude is unavailable",
+      "status": "active",
+      "scopes": ["review-routing", "helper-routing", "startup"],
+      "summary": "Until a Claude core session successfully answers a readiness check, route routine helper and review work to a bounded Codex helper in a visible wezterm-tab. Never use headless or hidden model workers.",
+      "owner": "codex-lab-lilo",
+      "source_paths": [
+        "MAP_System/emergence/insights/INS-0027-operational-notes-are-durable-but-not-automatically-promoted-int.md",
+        "MAP_System/inbox/helpers/helper-review-task222.md"
+      ],
+      "activated_at": "2026-07-17T21:20:00-04:00",
+      "review_trigger": "A Claude core session successfully responds to a direct readiness check.",
+      "review_after": "2026-07-25T00:00:00-04:00",
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
+      "lesson_id": "OPLESSON-0002",
+      "title": "All model-backed agents remain operator-visible",
+      "status": "active",
+      "scopes": ["helper-routing", "startup", "all"],
+      "summary": "Launch every LLM agent and model-backed helper in a visible terminal, using wezterm-tab by default. Deterministic automation must expose status and controls in Command Center and must open visible sessions for any model judgment.",
+      "owner": "bigboss",
+      "source_paths": ["MAP_System/AGENTS.md"],
+      "activated_at": "2026-07-17T21:30:00-04:00",
+      "review_trigger": "Operator changes the visibility rule.",
+      "review_after": null,
+      "supersedes": [],
+      "superseded_by": null
+    }
+  ]
+}

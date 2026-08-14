@@ -1,0 +1,95 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 1
+created_at: "2026-07-18T01:04:42-04:00"
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-lilo
+session_id: 019f6d82-37de-7a50-9e7c-d57c4290a75b
+status: active
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+    - event_type: RELEASED
+      task_id: TASK-220
+      summary: "ClearFront engine-test task released after independent re-review."
+    - event_type: CHANGES_REQUESTED
+      task_id: TASK-227
+      summary: "Claude-owned implementation plan needs five bounded corrections before resubmission."
+    - event_type: EXPERIMENT_RUNNING
+      task_id: EXP-0004
+      summary: "Orientation-manifest baseline has control, treatment, and preflight; independent evaluation is in progress."
+    - event_type: CAPACITY_REMOVED
+      task_id: null
+      summary: "Pi is terminal/inactive and excluded from MAP routing by operator direction."
+  touched_paths:
+    - MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md
+    - MAP_System/notes/pi-agent-communication-guide.md
+    - MAP_System/templates/install/bin/ai-command-center-lab-pi
+    - MAP_System/shared/current-state.md
+    - MAP_System/emergence/experiments/EXP-0004-a-scoped-orientation-manifest-can-reduce-a-resumed-agent-s-conte.md
+    - MAP_System/artifacts/experiments/orientation-manifest-canonical-control-2026-07-18.md
+    - MAP_System/artifacts/experiments/orientation-manifest-control-treatment-2026-07-18.md
+    - MAP_System/artifacts/experiments/orientation-manifest-discovery-preflight-2026-07-18.md
+    - MAP_System/inbox/helpers/helper-orientation-baseline-evaluation-2026-07-18.md
+    - MAP_System/artifacts/reviews/task227-review-lilo.md
+    - MAP_System/handoffs/HANDOFF-20260718-system-improvement-kickoff-to-claude.md
+active_constraints:
+  - scope: communication
+    rule: "Model-backed helpers must remain visible in wezterm-tab and report through hcom inform plus durable notes; never use headless without explicit operator instruction."
+    source: MAP_System/AGENTS.md
+  - scope: communication
+    rule: "Use hcom request only for actual operator decisions, approvals, blockers, conflicts, privacy/scope risks, or questions; routine progress is inform."
+    source: operator directive
+  - scope: task
+    rule: "SQLite is canonical for task and agent lifecycle state; use the provided script then export mirrors rather than hand-editing state."
+    source: MAP_System/AGENTS.md; MAP_System/scripts/declare_standby.py
+  - scope: tool
+    rule: "Pi is inactive/disposable_session_ended and must not be used for task, review, handoff, routing, durable output, or capacity planning. Its launch default is local-only only for a future explicitly authorized diagnostic."
+    source: operator directive; MAP_System/notes/pi-agent-communication-guide.md
+  - scope: safety
+    rule: "EXP-0004 is read-only and non-canonical; no manifest runtime, index, policy, or task-state change follows from a single experiment."
+    source: MAP_System/emergence/experiments/EXP-0004-a-scoped-orientation-manifest-can-reduce-a-resumed-agent-s-conte.md
+forward_tasks:
+  - task_id: EXP-0004
+    next_action: continue
+    owner: codex-lab-lilo
+    reason: "Await helper-review-steward-moku's independent baseline evaluation, then record evidence/result/decision and only propose a refined repeat if evidence supports it."
+    paths:
+      - MAP_System/artifacts/experiments/orientation-manifest-baseline-evaluation-2026-07-18.md
+      - MAP_System/emergence/experiments/EXP-0004-a-scoped-orientation-manifest-can-reduce-a-resumed-agent-s-conte.md
+  - task_id: TASK-227
+    next_action: fix
+    owner: claude-lab-gome
+    reason: "Resolve the five REQUIRED review findings in the plan after capacity is confirmed; do not let another agent edit its owned output without a transfer."
+    paths:
+      - MAP_System/notes/system-improvement-implementation-plan.md
+      - MAP_System/artifacts/reviews/task227-review-lilo.md
+      - MAP_System/handoffs/HANDOFF-20260718-system-improvement-kickoff-to-claude.md
+  - task_id: PI-LANE
+    next_action: wait
+    owner: null
+    reason: "Operationally paused. Requalification requires a new explicit operator decision and a terminal-only exact-match drill; it is not queued work."
+    paths:
+      - MAP_System/notes/pi-agent-communication-guide.md
+      - MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md
+blockers:
+  - kind: ownership_conflict
+    detail: "TASK-227's registered output is owned by claude-lab-gome while it is CHANGES_REQUESTED; support may be read-only only until its owner resumes/reworks."
+    unblock_by: "claude-lab-gome re-enters rework and edits its own registered plan output, or creates an explicit handoff."
+lexicon:
+  E/I: "Emergence and improvement: evidence-first discovery, synthesis, experiments, then optional promotion."
+  HPOM: "Human-Paced Orchestration Model; human-visible authority and risk-proportionate routing."
+  EXP-0004: "Read-only orientation-manifest experiment; baseline treatment must not be generalized without independent correctness and measurement evidence."
+  STATE_SNAPSHOT: "Compact resumption orientation; canonical state remains SQLite task/agent records, task files, decisions, and artifacts."
+  MATOCP: "Compact hcom agent-to-agent communication tokens such as !ACK and !NOTE."
+resume_commands:
+  - "hcom list --name lilo"
+  - "MAP_System/.venv/bin/python MAP_System/graph/runner.py"
+  - "MAP_System/.venv/bin/python MAP_System/scripts/map_emergence.py validate"
+  - "MAP_System/.venv/bin/python MAP_System/scripts/declare_standby.py pi-lab-puma --terminal disposable_session_ended"
+validation:
+  - "2026-07-18: hcom Pi default verified as --model ollama/qwen3.5:9b --offline; both template and deployed launcher pass sh -n."
+  - "2026-07-18: Pi lifecycle state written SQLite-first using declare_standby.py; graph runner no longer lists pi-lab-puma as available."
+  - "2026-07-18: Python JSON validation of agents/status.json passed."
+  - "2026-07-18: map_emergence.py validate passed 67 artifacts."

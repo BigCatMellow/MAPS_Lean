@@ -1,0 +1,38 @@
+{
+  "task_id": "TASK-285",
+  "title": "Pilot evidence-linked workstream digests",
+  "task_type": "implementation",
+  "role": "researcher",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-284"
+  ],
+  "owner": "command-center",
+  "description": "Implement the final approved TASK-277 compact-memory experiment after source-aware fingerprints are proven. Generate one bounded workstream digest only when several related released tasks form a mature capability, preserving decisions, repeated failures, key files, open risks, and backlinks to canonical evidence. Treat the digest as a retrieval projection, never project truth.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task285-workstream-digest-pilot.md",
+    "MAP_System/scripts/workstream_digest_pilot.py",
+    "MAP_System/tests/test_workstream_digest_pilot.py"
+  ],
+  "acceptance_criteria": [
+    "Pilot eligibility requires a declared threshold of related released tasks and one bounded mature workstream.",
+    "The digest preserves decisions, repeated failures, key files, unresolved risks, and backlinks to canonical task, submission, review, and source evidence.",
+    "Stale, contradictory, or missing evidence is surfaced rather than synthesized into an unquestioned fact.",
+    "A frozen evaluation measures required-fact retention, source traceability, stale-claim detection, and token reduction against raw context.",
+    "The pilot remains noncanonical and includes explicit refresh, invalidation, independent review, and rollback rules before any production proposal."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "KNOWLEDGE",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

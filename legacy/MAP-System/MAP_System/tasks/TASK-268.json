@@ -1,0 +1,40 @@
+{
+  "task_id": "TASK-268",
+  "title": "Unify task submission and review-claim identity through synchronized lifecycle verbs",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-266"
+  ],
+  "owner": "command-center",
+  "description": "TASK-266 review and live TASK-267 alignment exposed two SYN-0001 lifecycle seams. Submission exists only as db/claims.py submit_task(), which mutates SQLite but cannot append a SUBMISSION event or sync task/graph mirrors. claim_review() assumes the reviewer already exists in agents, while map_task.py owns registration; the foreign-key failure is flattened into False and misreported as already claimed. Add one sanctioned synchronized submission verb and one explicit review-claim identity contract without broad lifecycle redesign.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/AGENTS.md",
+    "MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md",
+    "MAP_System/repairs/REPAIR-0008-task278-map-task-output-defer.md",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/tests/test_task268_lifecycle.py"
+  ],
+  "acceptance_criteria": [
+    "map_task.py exposes a sanctioned submit verb that verifies the current claimant, transitions to SUBMITTED, appends a canonical SUBMISSION event, and synchronizes task JSON and graph mirrors.",
+    "The documented submission path points agents to the synchronized verb; direct low-level submit_task use is clearly internal or returns enough data for a synchronized caller.",
+    "claim_review handles an unregistered valid reviewer through one declared registration contract or returns a distinct diagnosable failure; a foreign-key error cannot collapse into the same False as an occupied review claim.",
+    "End-to-end tests reproduce both live failures and prove SQLite, task mirrors, graph, events, reviewer identity, and review-claim state agree after each transition.",
+    "TASK-266 completes first so overlapping claims.py/map_task.py output ownership never occurs."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "BLOCKING",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

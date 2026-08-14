@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-313",
+  "title": "WS-1 prerequisite: resolve runner and Command Center path ownership",
+  "task_type": "governance-repair",
+  "role": "state-steward",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-vumo",
+  "description": "Approved Sequence Amendment 1 prerequisite for TASK-310. Independently determine and, only after a separate explicit Command Center disposition, reconcile nonterminal ownership of MAP_System/graph/runner.py and MAP_System/templates/install/command-center-ui/app/server.py across TASK-304 and TASK-306 so TASK-310 can integrate truthful authority freshness without creating a new or deeper collision. Preserve all history; use Smalls authority and sanctioned lifecycle verbs only. This task does not authorize TASK-304 implementation, TASK-306 deployment, TASK-308, or acceptance-criteria changes.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/recovery/ws1-path-ownership-prerequisite.md"
+  ],
+  "acceptance_criteria": [
+    "Record authoritative before-state rows for TASK-304, TASK-306, TASK-310 and the two exact paths, including status, owner, dependencies, output ownership, and approval gates.",
+    "Present bounded disposition options and a recommendation, then obtain and cite a separate explicit Command Center decision before any lifecycle mutation.",
+    "If authorized, use only sanctioned map-authority lifecycle verbs, never direct SQL or silent task-file edits, and preserve task/review/event history.",
+    "After-state leaves exactly one active owner for graph/runner.py and one active owner for Command Center server.py, without authorizing excluded TASK-304/TASK-306/TASK-308 scope.",
+    "A different core agent independently reviews the prerequisite evidence and authoritative after-state before TASK-310 registers or edits either path."
+  ],
+  "decision_class": "OWNERSHIP",
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

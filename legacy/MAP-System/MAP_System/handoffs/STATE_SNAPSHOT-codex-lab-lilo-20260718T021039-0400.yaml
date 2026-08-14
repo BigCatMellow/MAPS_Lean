@@ -1,0 +1,78 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 1
+created_at: "2026-07-18T02:10:39-04:00"
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-lilo
+session_id: codex-lab-lilo-20260718T021039
+status: active
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+    - event_type: RELEASED
+      task_id: TASK-230
+      summary: "Pi vema health check recorded a responsive terminal but no outbound hcom message event."
+    - event_type: RELEASED
+      task_id: TASK-229
+      summary: "Earlier Pi 7B-16K requalification record remains released and operational pause remains in force."
+    - event_type: RELEASED
+      task_id: TASK-228
+      summary: "Visible loopback-only qwen3.5:4b advisory lane remains released."
+  touched_paths:
+    - MAP_System/tasks/TASK-230.json
+    - MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md
+    - MAP_System/notes/pi-agent-communication-guide.md
+    - MAP_System/artifacts/reviews/task230-review-rori.md
+    - MAP_System/artifacts/releases/task-230-release-checklist.md
+active_constraints:
+  - scope: communication
+    rule: "Use hcom request only for operator decisions, approvals, blockers, conflicts, privacy/scope risks, or questions; routine progress is inform."
+    source: operator directive
+  - scope: communication
+    rule: "Pi terminal text is not hcom delivery. Treat Pi as non-operational for coordination unless an outbound hcom event is observed."
+    source: TASK-230 review and release
+  - scope: tool
+    rule: "Pi is visible but operationally paused. Do not route tasks, reviews, handoffs, releases, routing, durable output, or capacity through it."
+    source: MAP_System/notes/pi-agent-communication-guide.md
+  - scope: task
+    rule: "SQLite is canonical for task state; export and validate mirrors after lifecycle changes."
+    source: MAP_System/AGENTS.md
+forward_tasks:
+  - task_id: TASK-227
+    next_action: wait
+    owner: claude-lab-gome
+    reason: "Claude-owned plan remains CHANGES_REQUESTED with five REQUIRED findings; do not edit without a transfer."
+    paths:
+      - MAP_System/notes/system-improvement-implementation-plan.md
+      - MAP_System/artifacts/reviews/task227-review-lilo.md
+  - task_id: PI-LANE
+    next_action: wait
+    owner: null
+    reason: "No current Pi work lane. A future drill needs fresh operator authorization, a fresh visible instance, and observed outbound hcom evidence."
+    paths:
+      - MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md
+      - MAP_System/notes/pi-agent-communication-guide.md
+  - task_id: EXP-0005
+    next_action: wait
+    owner: null
+    reason: "Complete and parked as scenario-local orientation evidence; no runtime or startup-policy change is approved."
+    paths:
+      - MAP_System/artifacts/experiments/orientation-manifest-refined-evaluation-2026-07-18.md
+blockers:
+  - kind: ownership_conflict
+    detail: "TASK-227 output remains owned by claude-lab-gome while its capacity is unconfirmed."
+    unblock_by: "claude-lab-gome resumes/reworks, or an explicit ownership handoff is created."
+lexicon:
+  HPOM: "Human-Paced Orchestration Model: human-visible authority and risk-proportionate routing."
+  E/I: "Emergence and improvement: evidence-first discovery and bounded experiments."
+  STATE_SNAPSHOT: "Compact restart orientation; canonical facts remain SQLite and durable task/artifact records."
+  PI-LANE: "Local Pi diagnostic lane; terminal response alone never proves hcom communication."
+resume_commands:
+  - "hcom list --name lilo"
+  - "MAP_System/.venv/bin/python MAP_System/graph/runner.py"
+  - "MAP_System/.venv/bin/python MAP_System/scripts/validate_task_mirrors.py"
+validation:
+  - "2026-07-18: TASK-230 released after independent review."
+  - "2026-07-18: vema terminal showed qwen2.5-coder:7b-16k and exact text, but hcom event history contained no outbound message."
+  - "2026-07-18: task mirrors and shared-state validation passed."

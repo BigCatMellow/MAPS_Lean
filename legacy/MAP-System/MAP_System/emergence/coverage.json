@@ -1,0 +1,50 @@
+{
+  "records": {
+    "IDEA-0009": {
+      "last_reviewed_at": "2026-07-21T17:53:56Z",
+      "review_count": 1,
+      "reviewed_by": "claude-lab-niko"
+    },
+    "IDEA-0013": {
+      "last_reviewed_at": "2026-07-21T17:53:56Z",
+      "review_count": 1,
+      "reviewed_by": "claude-lab-niko"
+    },
+    "INS-0008": {
+      "last_reviewed_at": "2026-07-21T17:53:56Z",
+      "review_count": 1,
+      "reviewed_by": "claude-lab-niko"
+    },
+    "INS-0009": {
+      "last_reviewed_at": "2026-07-21T17:53:56Z",
+      "review_count": 1,
+      "reviewed_by": "claude-lab-niko"
+    },
+    "INS-0054": {
+      "last_reviewed_at": "2026-07-29T13:29:55Z",
+      "review_count": 1,
+      "reviewed_by": "codex-lab-mebo"
+    },
+    "INS-0055": {
+      "last_reviewed_at": "2026-07-29T13:29:55Z",
+      "review_count": 1,
+      "reviewed_by": "codex-lab-mebo"
+    },
+    "INS-0056": {
+      "last_reviewed_at": "2026-07-29T13:29:55Z",
+      "review_count": 1,
+      "reviewed_by": "codex-lab-mebo"
+    },
+    "INS-0057": {
+      "last_reviewed_at": "2026-07-29T13:29:55Z",
+      "review_count": 1,
+      "reviewed_by": "codex-lab-mebo"
+    },
+    "SYN-0001": {
+      "last_reviewed_at": "2026-07-21T17:53:56Z",
+      "review_count": 1,
+      "reviewed_by": "claude-lab-niko"
+    }
+  },
+  "version": 1
+}

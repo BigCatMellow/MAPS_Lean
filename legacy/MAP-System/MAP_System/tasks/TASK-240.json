@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-240",
+  "title": "Improve CommandCenterUI attention popup message formatting",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Improve the operator attention popup readability by preserving authored line breaks and visually separating structured request fields such as Issue, Options, Recommendation, and Needed. Apply the same behavior to the live CommandCenterUI copy and installer template. Do not alter message meaning, reply routing, or approval authority.",
+  "input_paths": [],
+  "output_paths": [
+    "../../CommandCenterUI/src/chat.css",
+    "../../CommandCenterUI/src/chat.js",
+    "MAP_System/templates/install/command-center-ui/src/chat.css",
+    "MAP_System/templates/install/command-center-ui/src/chat.js",
+    "MAP_System/tests/test_command_center_popup_formatting.py"
+  ],
+  "acceptance_criteria": [
+    "Popup text preserves authored newlines and wraps long content without horizontal overflow.",
+    "One-line structured request messages display Issue, Options, Recommendation, and Needed as separate readable lines without changing the underlying message content.",
+    "Live and installer popup formatting code remains equivalent and focused checks pass."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

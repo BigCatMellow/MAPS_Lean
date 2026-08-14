@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-233",
+  "title": "Run a measured MAP kickoff-alignment practice scenario",
+  "task_type": "research",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "Exercise MAP from a project kickoff through an implementation-ready brief without changing product code or policy. Use a realistic coordination-surface scenario, distinct visible participant roles, durable kickoff material, and measured friction so the system can improve based on evidence rather than ceremony.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+  ],
+  "acceptance_criteria": [
+    "The durable kickoff records the project purpose, success condition, scope/non-goals, known facts, assumptions, risks, roles, authority boundaries, and initial questions before participant recommendations are integrated.",
+    "At least two visible non-owner participant roles contribute independently through bounded durable assignments, and the coordinator records convergences, disagreements, and decisions without treating suggestions as policy.",
+    "The scenario reports measured or directly counted kickoff efficiency signals: retrieval paths, durable artifacts consulted, participant turns, time/order evidence, and friction/rework observed.",
+    "The final brief is implementation-ready enough to create a later task but makes no UI, policy, or authority change; it recommends only evidence-backed follow-up."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

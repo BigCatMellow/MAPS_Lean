@@ -1,0 +1,661 @@
+{
+  "architecture": {
+    "channels": [
+      "task Porter",
+      "source Porter",
+      "path trigram"
+    ],
+    "engine": "SQLite FTS5 weighted BM25",
+    "fusion": "reciprocal rank fusion k=60",
+    "temporal_model": "unique source_documents + task_source_links; current shared content downweighted and never cloned into task text"
+  },
+  "benchmarks": [
+    {
+      "build": {
+        "build_ms": 633.465,
+        "database_bytes": 823296,
+        "missing_task_ids": [],
+        "reused_source_count": 40,
+        "source_document_count": 242,
+        "task_count": 45,
+        "task_source_link_count": 309,
+        "temporal_mode_counts": {
+          "current_shared": 36,
+          "current_unique": 154,
+          "task_snapshot": 45,
+          "unresolved": 7
+        },
+        "unresolved_link_instances": 12
+      },
+      "label": "ORIGINAL",
+      "metrics": {
+        "abstention_accuracy": 1.0,
+        "abstention_hits": 8,
+        "compound_complete": 1,
+        "compound_total": 1,
+        "expected_source_visibility": 0.8125,
+        "per_query": [
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/session_replay.py",
+              "MAP_System/tests/test_session_replay.py"
+            ],
+            "expected_tasks": [
+              "TASK-173"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H1",
+            "missing_tasks": [],
+            "query_coverage": 0.4,
+            "query_ms": 22.4,
+            "query_parts": [
+              "How can I rebuild a disposable local view of task and event history, query it by task, agent, or trace, and avoid treating the view as healthy when its canonical sources drift?",
+              "How can I rebuild a disposable local view of task and event history, query it by task, agent",
+              "trace, and avoid treating the view as healthy when its canonical sources drift"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-170",
+              "TASK-181",
+              "TASK-173",
+              "TASK-183",
+              "TASK-179",
+              "TASK-172"
+            ],
+            "supporting_channels": 17,
+            "visible_expected_sources": [
+              "MAP_System/scripts/session_replay.py",
+              "MAP_System/tests/test_session_replay.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/librarian.py",
+              "MAP_System/tests/test_librarian.py"
+            ],
+            "expected_tasks": [
+              "TASK-179"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H2",
+            "missing_tasks": [],
+            "query_coverage": 0.2222,
+            "query_ms": 17.229,
+            "query_parts": [
+              "Related-files entries in nested documents were being skipped when they used a repository-root prefix or a sibling filename. Where was path resolution corrected?",
+              "Related-files entries in nested documents were being skipped when they used a repository-root prefix",
+              "a sibling filename. Where was path resolution corrected",
+              "Related-files entries in nested documents were being skipped when they used a repository-root prefix or a sibling filename"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-181",
+              "TASK-179",
+              "TASK-174",
+              "TASK-192",
+              "TASK-176",
+              "TASK-196"
+            ],
+            "supporting_channels": 14,
+            "visible_expected_sources": [
+              "MAP_System/scripts/librarian.py",
+              "MAP_System/tests/test_librarian.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/redaction.py",
+              "MAP_System/tests/test_redaction.py"
+            ],
+            "expected_tasks": [
+              "TASK-191"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/scripts/redaction.py"
+            ],
+            "id": "H3",
+            "missing_tasks": [],
+            "query_coverage": 0.4444,
+            "query_ms": 9.84,
+            "query_parts": [
+              "How do we keep API keys, URL passwords, credential assignments, and suspicious high-entropy tokens out of durable capture records without rejecting the capture itself?"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-191",
+              "TASK-181",
+              "TASK-161",
+              "TASK-163",
+              "TASK-162",
+              "TASK-193"
+            ],
+            "supporting_channels": 3,
+            "visible_expected_sources": [
+              "MAP_System/tests/test_redaction.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/db/claims.py",
+              "MAP_System/tests/test_review_claims.py"
+            ],
+            "expected_tasks": [
+              "TASK-199"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H4",
+            "missing_tasks": [],
+            "query_coverage": 0.4286,
+            "query_ms": 16.913,
+            "query_parts": [
+              "Two reviewers can race to review the same submitted task. What prevents duplicate ownership while also blocking the task owner from reviewing their own work?",
+              "Two reviewers can race to review the same submitted task. What prevents duplicate ownership",
+              "also blocking the task owner from reviewing their own work",
+              "Two reviewers can race to review the same submitted task"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-199",
+              "TASK-183",
+              "TASK-181",
+              "TASK-200",
+              "TASK-197",
+              "TASK-194"
+            ],
+            "supporting_channels": 22,
+            "visible_expected_sources": [
+              "MAP_System/db/claims.py",
+              "MAP_System/tests/test_review_claims.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/workflow/runtime_policy.yaml",
+              "MAP_System/tests/test_halt_authority_window.py"
+            ],
+            "expected_tasks": [
+              "TASK-201"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/workflow/runtime_policy.yaml"
+            ],
+            "id": "H5",
+            "missing_tasks": [],
+            "query_coverage": 0.55,
+            "query_ms": 18.963,
+            "query_parts": [
+              "Can deterministic validators ever set a real halt instead of merely reporting telemetry, and how is that authority kept disabled by default, time-bounded, scope-limited, and operator-clearable?",
+              "Can deterministic validators ever set a real halt instead of merely reporting telemetry",
+              "how is that authority kept disabled by default, time-bounded, scope-limited, and operator-clearable"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-201",
+              "TASK-181",
+              "TASK-183",
+              "TASK-162",
+              "TASK-180",
+              "TASK-174"
+            ],
+            "supporting_channels": 14,
+            "visible_expected_sources": [
+              "MAP_System/tests/test_halt_authority_window.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "Projects/ProjectUpdater/app/index.html",
+              "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+            ],
+            "expected_tasks": [
+              "TASK-205"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H6",
+            "missing_tasks": [],
+            "query_coverage": 0.4091,
+            "query_ms": 13.68,
+            "query_parts": [
+              "How can a ProjectUpdater user export and restore every stored project field, keep the older status snapshot intact, reject malformed input safely, and require confirmation before overwriting current data?"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-205",
+              "TASK-181",
+              "TASK-198",
+              "TASK-162",
+              "TASK-193",
+              "TASK-174"
+            ],
+            "supporting_channels": 4,
+            "visible_expected_sources": [
+              "Projects/ProjectUpdater/app/index.html",
+              "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/cost_yield.py",
+              "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+            ],
+            "expected_tasks": [
+              "TASK-190"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+            ],
+            "id": "H7",
+            "missing_tasks": [],
+            "query_coverage": 0.25,
+            "query_ms": 11.189,
+            "query_parts": [
+              "Where can I compare per-task effort proxies with delivery outcomes and see productive versus discarded work without inventing token costs or dollar amounts?",
+              "Where can I compare per-task effort proxies with delivery outcomes and see productive",
+              "discarded work without inventing token costs"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-190",
+              "TASK-203",
+              "TASK-162",
+              "TASK-165",
+              "TASK-193",
+              "TASK-199"
+            ],
+            "supporting_channels": 9,
+            "visible_expected_sources": [
+              "MAP_System/scripts/cost_yield.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/limit_watcher.py",
+              "MAP_System/tests/test_limit_watcher.py"
+            ],
+            "expected_tasks": [
+              "TASK-187",
+              "TASK-195"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H8",
+            "missing_tasks": [],
+            "query_coverage": 0.2381,
+            "query_ms": 18.032,
+            "query_parts": [
+              "A scheduled recovery nudge may fail because the target session is already live, or it may hang during resume. Which completed fixes cover those two distinct failure modes?",
+              "A scheduled recovery nudge may fail because the target session is already live",
+              "it may hang during resume. Which completed fixes cover those two distinct failure modes",
+              "A scheduled recovery nudge may fail because the target session is already live, or it may hang during resume"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-181",
+              "TASK-187",
+              "TASK-173",
+              "TASK-198",
+              "TASK-161",
+              "TASK-195"
+            ],
+            "supporting_channels": 20,
+            "visible_expected_sources": [
+              "MAP_System/scripts/limit_watcher.py",
+              "MAP_System/tests/test_limit_watcher.py"
+            ]
+          }
+        ],
+        "query_latency_ms": {
+          "max": 22.4,
+          "median": 17.229,
+          "min": 9.84
+        },
+        "source_hits": 13,
+        "source_mrr": 0.3197,
+        "task_hits": 9,
+        "task_mrr": 0.7708,
+        "task_recall_at_6": 1.0,
+        "total_expected_sources": 16,
+        "total_expected_tasks": 9,
+        "total_queries": 8
+      },
+      "source_spec": "artifacts/experiments/task-fingerprint-holdout-queries-2026-07-19.json"
+    },
+    {
+      "build": {
+        "build_ms": 598.318,
+        "database_bytes": 823296,
+        "missing_task_ids": [],
+        "reused_source_count": 40,
+        "source_document_count": 242,
+        "task_count": 45,
+        "task_source_link_count": 309,
+        "temporal_mode_counts": {
+          "current_shared": 36,
+          "current_unique": 154,
+          "task_snapshot": 45,
+          "unresolved": 7
+        },
+        "unresolved_link_instances": 12
+      },
+      "label": "PARAPHRASE",
+      "metrics": {
+        "abstention_accuracy": 0.375,
+        "abstention_hits": 3,
+        "compound_complete": 0,
+        "compound_total": 1,
+        "expected_source_visibility": 0.3125,
+        "per_query": [
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/session_replay.py",
+              "MAP_System/tests/test_session_replay.py"
+            ],
+            "expected_tasks": [
+              "TASK-173"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/scripts/session_replay.py",
+              "MAP_System/tests/test_session_replay.py"
+            ],
+            "id": "H1",
+            "missing_tasks": [
+              "TASK-173"
+            ],
+            "query_coverage": 0.3125,
+            "query_ms": 19.263,
+            "query_parts": [
+              "I want to reconstruct what happened across earlier work into a throwaway database I can inspect, and know when it has gone out of date compared with the real records. Which work did that?",
+              "I want to reconstruct what happened across earlier work into a throwaway database I can inspect, and know when it has gone out of date compared with the real records",
+              "Which work did that"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-181",
+              "TASK-198",
+              "TASK-196",
+              "TASK-179",
+              "TASK-200",
+              "TASK-174"
+            ],
+            "supporting_channels": 8,
+            "visible_expected_sources": []
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/librarian.py",
+              "MAP_System/tests/test_librarian.py"
+            ],
+            "expected_tasks": [
+              "TASK-179"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H2",
+            "missing_tasks": [],
+            "query_coverage": 0.1053,
+            "query_ms": 23.396,
+            "query_parts": [
+              "Links between our markdown documents were not being picked up when the pointer used a whole-project prefix or just a neighbouring file's name. What fixed that lookup?",
+              "Links between our markdown documents were not being picked up when the pointer used a whole-project prefix",
+              "just a neighbouring file's name. What fixed that lookup",
+              "Links between our markdown documents were not being picked up when the pointer used a whole-project prefix or just a neighbouring file's name"
+            ],
+            "recommendation": "no_strong_match",
+            "returned_tasks": [
+              "TASK-181",
+              "TASK-179",
+              "TASK-174",
+              "TASK-192",
+              "TASK-200",
+              "TASK-193"
+            ],
+            "supporting_channels": 15,
+            "visible_expected_sources": [
+              "MAP_System/scripts/librarian.py",
+              "MAP_System/tests/test_librarian.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/redaction.py",
+              "MAP_System/tests/test_redaction.py"
+            ],
+            "expected_tasks": [
+              "TASK-191"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/scripts/redaction.py",
+              "MAP_System/tests/test_redaction.py"
+            ],
+            "id": "H3",
+            "missing_tasks": [
+              "TASK-191"
+            ],
+            "query_coverage": 0.1,
+            "query_ms": 8.052,
+            "query_parts": [
+              "How do we stop secrets from leaking into saved logs while still keeping the log entry itself?",
+              "How do we stop secrets from leaking into saved logs",
+              "still keeping the log entry itself"
+            ],
+            "recommendation": "no_strong_match",
+            "returned_tasks": [
+              "TASK-201",
+              "TASK-176",
+              "TASK-193",
+              "TASK-180",
+              "TASK-187",
+              "TASK-205"
+            ],
+            "supporting_channels": 6,
+            "visible_expected_sources": []
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/db/claims.py",
+              "MAP_System/tests/test_review_claims.py"
+            ],
+            "expected_tasks": [
+              "TASK-199"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/db/claims.py",
+              "MAP_System/tests/test_review_claims.py"
+            ],
+            "id": "H4",
+            "missing_tasks": [
+              "TASK-199"
+            ],
+            "query_coverage": 0.2857,
+            "query_ms": 8.846,
+            "query_parts": [
+              "What stops two people grabbing the same item for checking at the same time, and also stops whoever did the work from signing it off themselves?"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-181",
+              "TASK-196",
+              "TASK-188",
+              "TASK-197",
+              "TASK-203",
+              "TASK-192"
+            ],
+            "supporting_channels": 5,
+            "visible_expected_sources": []
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/workflow/runtime_policy.yaml",
+              "MAP_System/tests/test_halt_authority_window.py"
+            ],
+            "expected_tasks": [
+              "TASK-201"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/workflow/runtime_policy.yaml",
+              "MAP_System/tests/test_halt_authority_window.py"
+            ],
+            "id": "H5",
+            "missing_tasks": [
+              "TASK-201"
+            ],
+            "query_coverage": 0.25,
+            "query_ms": 13.91,
+            "query_parts": [
+              "Can an automated check actually stop work rather than only warn, and how is that power kept switched off unless deliberately turned on, with an expiry?",
+              "Can an automated check actually stop work rather than only warn",
+              "how is that power kept switched off unless deliberately turned on, with an expiry"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-181",
+              "TASK-179",
+              "TASK-178",
+              "TASK-180",
+              "TASK-183",
+              "TASK-168"
+            ],
+            "supporting_channels": 10,
+            "visible_expected_sources": []
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "Projects/ProjectUpdater/app/index.html",
+              "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+            ],
+            "expected_tasks": [
+              "TASK-205"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H6",
+            "missing_tasks": [],
+            "query_coverage": 0.1765,
+            "query_ms": 10.621,
+            "query_parts": [
+              "How does the project tracker let someone save a copy of their data and load it back later, refuse a bad file, and warn before replacing what is already there?"
+            ],
+            "recommendation": "no_strong_match",
+            "returned_tasks": [
+              "TASK-192",
+              "TASK-205",
+              "TASK-174",
+              "TASK-200",
+              "TASK-181",
+              "TASK-196"
+            ],
+            "supporting_channels": 3,
+            "visible_expected_sources": [
+              "Projects/ProjectUpdater/app/index.html",
+              "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/cost_yield.py",
+              "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+            ],
+            "expected_tasks": [
+              "TASK-190"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+            ],
+            "id": "H7",
+            "missing_tasks": [],
+            "query_coverage": 0.1538,
+            "query_ms": 6.403,
+            "query_parts": [
+              "Where can I see how much effort went in versus what actually shipped or was thrown away, without invented money figures?",
+              "Where can I see how much effort went in",
+              "what actually shipped",
+              "was thrown away, without invented money figures"
+            ],
+            "recommendation": "no_strong_match",
+            "returned_tasks": [
+              "TASK-199",
+              "TASK-190",
+              "TASK-162",
+              "TASK-177",
+              "TASK-165",
+              "TASK-170"
+            ],
+            "supporting_channels": 4,
+            "visible_expected_sources": [
+              "MAP_System/scripts/cost_yield.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/limit_watcher.py",
+              "MAP_System/tests/test_limit_watcher.py"
+            ],
+            "expected_tasks": [
+              "TASK-187",
+              "TASK-195"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/scripts/limit_watcher.py",
+              "MAP_System/tests/test_limit_watcher.py"
+            ],
+            "id": "H8",
+            "missing_tasks": [
+              "TASK-187",
+              "TASK-195"
+            ],
+            "query_coverage": 0.0588,
+            "query_ms": 14.134,
+            "query_parts": [
+              "The automatic wake-up message sometimes goes to a worker that never stopped, and sometimes it freezes while bringing one back. Which finished work handled both of those?",
+              "The automatic wake-up message sometimes goes to a worker that never stopped, and sometimes it freezes",
+              "bringing one back. Which finished work handled both of those",
+              "The automatic wake-up message sometimes goes to a worker that never stopped, and sometimes it freezes while bringing one back"
+            ],
+            "recommendation": "no_strong_match",
+            "returned_tasks": [
+              "TASK-181",
+              "TASK-199",
+              "TASK-202",
+              "TASK-162",
+              "TASK-176",
+              "TASK-191"
+            ],
+            "supporting_channels": 12,
+            "visible_expected_sources": []
+          }
+        ],
+        "query_latency_ms": {
+          "max": 23.396,
+          "median": 13.91,
+          "min": 6.403
+        },
+        "source_hits": 5,
+        "source_mrr": 0.0573,
+        "task_hits": 3,
+        "task_mrr": 0.1875,
+        "task_recall_at_6": 0.3333,
+        "total_expected_sources": 16,
+        "total_expected_tasks": 9,
+        "total_queries": 8
+      },
+      "source_spec": "/tmp/claude-1000/-home-mellow-Projects-MultiAgentProject-Source/50955350-d702-4849-bdd6-4834bdfd6a28/scratchpad/paraphrase-queries.json"
+    }
+  ],
+  "experiment": "TASK-259-development-regression",
+  "generated_at": "2026-07-20T13:22:49Z",
+  "projection_authority": "none; disposable local retrieval benchmark",
+  "truth_provenance": "known TASK-257 and TASK-258 truth; not fresh holdout evidence"
+}

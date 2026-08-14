@@ -1,0 +1,38 @@
+{
+  "task_id": "TASK-207",
+  "title": "ClearFront: reproducible bundle extraction to editable baseline",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-gome",
+  "description": "Operator directive hcom #311 (2026-07-16): take over ClearFront trading card game via MAP. First step per Lilo's intake handoff (MAP_System/handoffs/HANDOFF-CLEARFRONT-intake-codex-lab-lilo-to-claude-lab-gome.md): the original Clearfront.html is a generated self-extracting artifact-bundler HTML (JSON __bundler/manifest of UUID-keyed base64/gzip assets + JSON __bundler/template with UUID placeholders), not editable source. Original preserved+hashed under Projects/ClearFront/source/ (done). Write a reproducible Python extractor that parses the manifest+template, decodes/decompresses every asset to a real file, rewrites template UUID references to relative asset paths, and emits a runnable baseline HTML outside source/. Prove parity with a smoke test before any decomposition/refactor begins (RISK-CF-0001).",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/artifacts/tests/task-extraction-parity.md",
+    "Projects/ClearFront/baseline/",
+    "Projects/ClearFront/scripts/extract_bundle.py",
+    "Projects/ClearFront/scripts/test_extract_bundle.py",
+    "Projects/ClearFront/source/SHA256SUMS.txt"
+  ],
+  "acceptance_criteria": [
+    "Extractor script decodes every __bundler/manifest entry (asset count matches manifest key count) to real files under baseline/assets/, decompressing gzip entries.",
+    "Extracted baseline HTML has all UUID placeholders replaced with relative paths to real files (zero raw UUID strings remain in the emitted HTML).",
+    "__bundler/ext_resources entries are enumerated and accounted for in the extraction report, not silently dropped.",
+    "Smoke test documents that the extracted baseline renders/behaves equivalently to the original bundle (screenshot or DOM/console check), recorded in artifacts/tests/task-extraction-parity.md.",
+    "source/ remains untouched; extraction reads from source/ only."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

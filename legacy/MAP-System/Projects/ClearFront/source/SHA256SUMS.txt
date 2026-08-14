@@ -1,0 +1,11 @@
+57e67f190b5a7f05418af1ad1884f8f99602ed6cc9731e02a9975086c0744fa6  ./Clearfront.html.dup
+fe86e35c502b5419feb9f879fa3b2b1dbc11e5f9e24c046c20d1bf4af32060cf  ./game-card-combat-effects/assets/deck_badger.png
+79f11d1e3d8d5db1069086fc317ae6d5f5528b5f2c9dad614928987e87495e40  ./game-card-combat-effects/assets/deck_fox.png
+fdbfd3cc2b588ab9da0e14ee2f4455fd8909fead694089d7312ea2ee68176723  ./game-card-combat-effects/assets/deck_lion.png
+2fbb44a827baf52dedb10ee098a0d019516f4961bde17e08f55f8ec9f80f7556  ./game-card-combat-effects/assets/deck_owl.png
+0d2d6b7fd86328b6c0dd2c03f5bebe98a70c97700059190cc57dabced6f0feb5  ./game-card-combat-effects/assets/deck_raven.png
+a7310b9d8f54a32f49e34ec4bee19b9b66d5dbf8d74a0b773c7e35178e3dc678  ./game-card-combat-effects/assets/deck_stag.png
+7d940dc2c84ab9288f357faef4e00f50f4d1f77ea73e295667988f7fbcc69b89  ./game-card-combat-effects/clearfront_design_principles.md
+57e67f190b5a7f05418af1ad1884f8f99602ed6cc9731e02a9975086c0744fa6  ./game-card-combat-effects/Clearfront.html
+2bf7bef4e0152605a5a125d88a4451d06e611255e54b6c75f57c3727bb874dcb  ./game-card-combat-effects/clearfront_rules.md
+429ae24ff31f9afb5dff59c916030eb525bbc3457c27312d15ac3198eb623c05  ./Game-card-combat-effects.zip

@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-294",
+  "title": "Fix test_local_ollama_lane.py assertions that contradict DEC-029/DEC-030",
+  "task_type": "maintenance",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "zeno",
+  "description": "Found 2026-07-28 by lili-replacement-nisa during an independent health baseline (MAP_System/artifacts/tests/map-health-baseline-2026-07-28.md). MAP_System/tests/test_local_ollama_lane.py asserts that the CommandCenterUI template server.py should NOT contain ollama-goose/pi-lab-new and should retain the old hardcoded OLLAMA_URL/SUMMARY_MODEL. Those assertions directly contradict DEC-029 and DEC-030, which TASK-265 (RELEASED 2026-07-28, independently reviewed and APPROVED) correctly implemented. So the test now fails BECAUSE the code is right -- an inverted test, not a code regression. Secondary finding worth acting on: TASK-265's reviewer searched for affected tests using the test_command_center_* prefix and this file did not match that prefix, so an inverted assertion survived an otherwise sound review. That is a test-discovery gap, not reviewer error.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/tests/test_local_ollama_lane.py"
+  ],
+  "acceptance_criteria": [
+    "test_local_ollama_lane.py asserts the behavior DEC-029 and DEC-030 actually mandate, and passes against the current template server.py without weakening what it checks (fix the assertions, do not delete the test or mark it skipped).",
+    "The test file records, in a comment naming DEC-029/DEC-030 and TASK-265, which prior assertions were inverted and why, so a future reader does not re-invert them.",
+    "The task record states how a CommandCenterUI-affecting test whose filename does not start with test_command_center_ should be discovered by a future reviewer, and either proposes a naming/discovery convention or explains why the existing suite registration in run_tests.sh is already sufficient.",
+    "MAP_System/scripts/run_tests.sh passes for this check and the total failure count drops by one relative to the 2026-07-28 baseline."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "BLOCKING",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,41 @@
+{
+  "task_id": "TASK-260",
+  "title": "Run a fresh blinded holdout for the frozen FTS5 memory index",
+  "task_type": "experiment",
+  "role": "researcher",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Evaluate the frozen TASK-259 temporal-safe SQLite FTS5/BM25 plus reciprocal-rank-fusion retriever on a fresh completed-task corpus not used by TASK-257 or TASK-258. Freeze a generic packet/scoring harness before truth authoring. Use a fresh visible read-only author to create heterogeneous paraphrased questions with at least two compound cases and three legitimate no-match cases, then a different fresh visible read-only evaluator receiving one compact packet at a time. Score task/source precision and recall, compound completeness, false-positive abstention behavior, context, latency, path/temporal warnings, and a task-only ablation. Do not change the frozen retriever or integrate it into startup, routing, UI, canonical authority, or external services.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task-memory-fts5-rrf-holdout-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-memory-fts5-rrf-holdout-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-memory-fts5-rrf-holdout-helper-packet-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-memory-fts5-rrf-holdout-packets-2026-07-19/",
+    "MAP_System/artifacts/experiments/task-memory-fts5-rrf-holdout-queries-2026-07-19.json",
+    "MAP_System/inbox/helpers/helper-index-fts-author-2026-07-19.md",
+    "MAP_System/inbox/helpers/helper-index-fts-evaluator-2026-07-19.md",
+    "MAP_System/scripts/task_memory_fts_holdout.py",
+    "MAP_System/tests/test_task_memory_fts_holdout.py"
+  ],
+  "acceptance_criteria": [
+    "The TASK-259 retriever hash remains frozen, and the generic validation/rendering/scoring harness plus focused tests are frozen before the independent author creates truth.",
+    "A fresh visible read-only author uses only completed TASK-206 through TASK-249 records and their registered outputs, excluding non-completed TASK-236, to create at least eight positive questions, two compound task sets, and three legitimate no-match questions across at least five work areas.",
+    "A different fresh visible read-only evaluator receives one bounded packet at a time and does not access the truth, combined packet, index, task files, source files, research, prior experiments, or repository search.",
+    "The final report compares frozen FTS task/source metrics, evaluator precision/recall, compound completion, task-only ablation, no-match false positives, context, latency, path/temporal warnings, and limitations without making an adoption or integration claim."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,38 @@
+{
+  "task_id": "TASK-276",
+  "title": "Validate active-lane table status claims in current-state.md against map.db",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "Promoted from IDEA-0029 via PROMO-0014 on evidence from EXP-0010. Closes INS-0040. Hand-maintained shared state is the one MAP mirror with no checker: validate_task_mirrors compares SQLite to tasks/*.json and the task graph, but validate_shared_state only checks the nine HPOM metadata fields, not whether status CLAIMS in the body are true. This cost two full review cycles on TASK-267, where current-state.md asserted TASK-266 RELEASED in four places while map.db had it APPROVED with no release record. EXP-0010 found live drift on its first run: the active-lane table claims TASK-236 is READY, map.db says RELEASED. SCOPE IS DELIBERATELY NARROW \u2014 INS-0040 records that a validator regexing every TASK-NNN mention across shared/ would fire constantly on legitimate historical prose, decision-era context, and timestamped snapshots, then be disabled, leaving the project worse off than with no check. Match ONLY the numbered rows of the designated active-lane table. Do not check free prose.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task-shared-state-table-validator-delivery-note.md",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/scripts/validate_shared_state_tasks.py",
+    "MAP_System/tests/test_validate_shared_state_tasks.py"
+  ],
+  "acceptance_criteria": [
+    "Parses only the numbered rows of the designated active-lane table in MAP_System/shared/current-state.md and compares each row's claimed status to tasks.status in map.db, opened read-only.",
+    "Reports drift with file, line number, task id, claimed status, and actual status; exits nonzero when any row drifts.",
+    "A zero-row match is an ERROR, not a pass \u2014 if the table format changes so nothing matches, the validator must fail loudly rather than silently approve. This is the failure mode most likely to make the check worthless later.",
+    "Does NOT flag TASK-NNN mentions in prose, historical narrative, decision-era context, or explicitly timestamped snapshots elsewhere in the file or in shared/. Proven by a fixture containing such lines that must produce no findings.",
+    "Isolated tests cover: a correct table (no findings), a drifted row (one finding with correct fields), a zero-row/format-change case (error), and the prose-must-not-fire case; registered in run_tests.sh and green.",
+    "Detects the drift EXP-0010 found, or its successor if current-state.md has since been corrected; evidence via the TASK-219 delivery-note template and an independent reviewer who is neither claude-lab-zaro nor claude-lab-bima."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

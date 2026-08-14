@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAP Orchestrator</title>
+<link rel="icon" type="image/svg+xml" href="./bcmagent.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./orchestrator.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="title">MAP Orchestrator</div>
+    <div class="conn"><span class="dot"></span><span id="operator-name">…</span></div>
+    <div class="spacer"></div>
+    <button type="button" class="attention-btn" id="attention-btn">
+      <span aria-hidden="true">!</span>
+      <span>Needs you</span>
+      <span class="count" id="attention-btn-count">0</span>
+    </button>
+    <div class="simplifier-status mono" id="simplifier-status" title="Message simplifier status">originals</div>
+    <div class="authority-status mono" id="authority-status" title="MAP authority freshness">authority…</div>
+    <div class="meta mono" id="top-meta"></div>
+  </header>
+
+  <div class="body">
+    <!-- ===== HIERARCHY (left) ===== -->
+    <aside class="hierarchy" aria-label="Agent hierarchy">
+      <div class="hierarchy-scroll">
+        <button class="root-node active" id="root-node" type="button">
+          <span class="avatar" id="root-avatar">CC</span>
+          <span class="col">
+            <span class="name" id="root-name">command-center</span>
+            <span class="sub">ORCHESTRATOR · ALL AGENTS</span>
+          </span>
+          <span class="badge" id="root-badge" hidden></span>
+          <span class="dot"></span>
+        </button>
+
+        <div class="tree" id="tree"></div>
+      </div>
+
+      <div class="hierarchy-foot">
+        <span class="meta mono" id="agent-total">0 agents</span>
+      </div>
+    </aside>
+
+    <!-- ===== THREAD (right) ===== -->
+    <main class="thread">
+      <div class="thread-head">
+        <span class="avatar" id="thread-avatar">CC</span>
+        <div>
+          <div class="name" id="thread-name">All agents</div>
+          <div class="status mono" id="thread-status">orchestrator feed</div>
+        </div>
+        <div class="spacer"></div>
+        <button type="button" class="term-btn" id="open-terminal-btn" disabled>▸ Terminal</button>
+      </div>
+
+      <div class="thread-scroll" id="thread-scroll">
+        <div class="thread-empty" id="thread-empty" hidden>No messages yet.</div>
+      </div>
+
+      <div class="thread-composer">
+        <form id="composer" autocomplete="off">
+          <textarea id="input" rows="1" placeholder="Message this thread — Enter to send"></textarea>
+          <button type="submit" id="send-btn">Send</button>
+        </form>
+      </div>
+      <div class="thread-status" id="thread-status-msg"></div>
+    </main>
+  </div>
+
+  <div id="screen-panel" class="screen-panel" hidden>
+    <div class="screen-head">
+      <div>
+        <span class="title" id="screen-title"></span>
+        <span class="status mono" id="screen-status"></span>
+      </div>
+      <button type="button" id="screen-close" title="Close (Esc)">×</button>
+    </div>
+    <pre id="screen-body" class="screen-body">loading…</pre>
+    <div class="quick-keys">
+      <span>quick keys:</span>
+      <button type="button" data-key="1">1</button>
+      <button type="button" data-key="2">2</button>
+      <button type="button" data-key="3">3</button>
+      <button type="button" data-key="y">y</button>
+      <button type="button" data-key="n">n</button>
+      <button type="button" data-key="&#27;" title="Escape">Esc</button>
+      <button type="button" data-key="&#27;[Z" title="Shift+Tab — cycles the agent's permission/auto mode">auto mode ⇄</button>
+    </div>
+    <form id="screen-form" class="screen-form" autocomplete="off">
+      <input id="screen-input" type="text" placeholder="Type into this terminal… Enter sends text+Enter, button sends Enter only" />
+      <button id="screen-enter" type="button" title="Send Enter only">⏎</button>
+    </form>
+  </div>
+
+  <div id="attention-backdrop" class="attention-backdrop" hidden></div>
+  <aside id="attention-panel" class="attention-panel" aria-labelledby="attention-panel-title" hidden>
+    <div class="attention-panel-head">
+      <div>
+        <h2 id="attention-panel-title">Needs your attention</h2>
+        <p id="attention-panel-summary">Open requests and decisions</p>
+      </div>
+      <button type="button" id="attention-panel-close" title="Close (Esc)" aria-label="Close attention inbox">×</button>
+    </div>
+    <div id="attention-list" class="attention-list"></div>
+    <div id="attention-empty" class="attention-empty" hidden>
+      <span aria-hidden="true">✓</span>
+      <strong>All clear</strong>
+      <span>Nothing is waiting for you.</span>
+    </div>
+  </aside>
+
+  <section id="attention-popup" class="attention-popup" role="dialog" aria-modal="false" aria-labelledby="attention-popup-title" hidden>
+    <div class="attention-popup-head">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="attention-popup-kind">Reply needed</span>
+      <span id="attention-popup-position" class="attention-popup-position"></span>
+    </div>
+    <h2 id="attention-popup-title">An agent needs your reply</h2>
+    <p id="attention-popup-from" class="attention-popup-from"></p>
+    <time id="attention-popup-when" class="attention-popup-when" hidden></time>
+    <p id="attention-popup-text" class="attention-popup-text"></p>
+    <div class="attention-popup-actions" id="attention-popup-actions"></div>
+  </section>
+</div>
+<script src="./orchestrator.js"></script>
+</body>
+</html>

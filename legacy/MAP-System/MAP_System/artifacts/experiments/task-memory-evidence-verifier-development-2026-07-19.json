@@ -1,0 +1,490 @@
+{
+  "authority": "none; disposable development projection",
+  "build": {
+    "build_ms": 676.658,
+    "database_bytes": 704512,
+    "missing_task_ids": [],
+    "reused_source_count": 22,
+    "source_document_count": 193,
+    "task_count": 43,
+    "task_source_link_count": 250,
+    "temporal_mode_counts": {
+      "current_shared": 22,
+      "current_unique": 125,
+      "task_snapshot": 43,
+      "unresolved": 3
+    },
+    "unresolved_link_instances": 3
+  },
+  "development_source": "MAP_System/artifacts/experiments/task-memory-fts5-rrf-holdout-queries-2026-07-19.json",
+  "experiment": "TASK-261",
+  "frozen_input_hashes": {
+    "holdout_harness": {
+      "actual": "65219824dc3c2d5f62b77923a0bd9cd3f6c21d3222ee9db9f3e5bcff723a83ff",
+      "expected": "65219824dc3c2d5f62b77923a0bd9cd3f6c21d3222ee9db9f3e5bcff723a83ff",
+      "path": "MAP_System/scripts/task_memory_fts_holdout.py",
+      "unchanged": true
+    },
+    "holdout_harness_tests": {
+      "actual": "3d97e70c1624a714ae2620993959f7c23abf39cbc4cdca5a45aec149f2dacd0c",
+      "expected": "3d97e70c1624a714ae2620993959f7c23abf39cbc4cdca5a45aec149f2dacd0c",
+      "path": "MAP_System/tests/test_task_memory_fts_holdout.py",
+      "unchanged": true
+    },
+    "retriever": {
+      "actual": "edd0b53ab6d9c480360e19f4d14d667f459fcaa3155748a9bd96e741b70cca27",
+      "expected": "edd0b53ab6d9c480360e19f4d14d667f459fcaa3155748a9bd96e741b70cca27",
+      "path": "MAP_System/scripts/task_memory_fts.py",
+      "unchanged": true
+    },
+    "retriever_tests": {
+      "actual": "58df22f41258c3cea27d48ddbf413bf1b0c9c63eead9016b58008718a677949f",
+      "expected": "58df22f41258c3cea27d48ddbf413bf1b0c9c63eead9016b58008718a677949f",
+      "path": "MAP_System/tests/test_task_memory_fts.py",
+      "unchanged": true
+    }
+  },
+  "local_pi_verifier": {
+    "context_compactions_observed": 2,
+    "delivery": "one frozen TASK-260 packet per hcom message",
+    "final_terminal_token_display": {
+      "cumulative_input_approx": 114000,
+      "output_approx": 696
+    },
+    "hcom_responses_returned": 0,
+    "helper": "helper-index-local-verifier-bero",
+    "latency_seconds": {
+      "median": 3,
+      "total": 68,
+      "values": [
+        9,
+        3,
+        3,
+        2,
+        3,
+        3,
+        13,
+        8,
+        3,
+        12,
+        9
+      ]
+    },
+    "model_display": "qwen2.5-coder:7b-16k",
+    "per_query": [
+      {
+        "confidence": "medium",
+        "id": "F1",
+        "input_event_id": 7963,
+        "latency_seconds": 9,
+        "sources": [
+          "Projects/ClearFront/app/js/combat.js",
+          "Projects/ClearFront/app/js/state.js"
+        ],
+        "task_ids": [
+          "TASK-214",
+          "TASK-215"
+        ]
+      },
+      {
+        "confidence": "high",
+        "id": "F2",
+        "input_event_id": 7978,
+        "latency_seconds": 3,
+        "sources": [
+          "Projects/ClearFront/app/index.html",
+          "Projects/ClearFront/app/js/combat.js"
+        ],
+        "task_ids": [
+          "TASK-213",
+          "TASK-214"
+        ]
+      },
+      {
+        "confidence": "medium",
+        "id": "F3",
+        "input_event_id": 7988,
+        "latency_seconds": 3,
+        "sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/scripts/emergence_sentinel.py",
+          "MAP_System/tests/test_limit_watcher.py"
+        ],
+        "task_ids": [
+          "TASK-223",
+          "TASK-224",
+          "TASK-221"
+        ]
+      },
+      {
+        "also_said_no_match": true,
+        "confidence": "low",
+        "id": "F4",
+        "input_event_id": 7998,
+        "latency_seconds": 2,
+        "sources": [
+          "MAP_System/scripts/local_runner.py"
+        ],
+        "task_ids": [
+          "TASK-232"
+        ]
+      },
+      {
+        "also_said_no_match": true,
+        "confidence": "low",
+        "id": "F5",
+        "input_event_id": 8006,
+        "latency_seconds": 3,
+        "sources": [
+          "MAP_System/tests/test_runner_helper_notes.py"
+        ],
+        "task_ids": [
+          "TASK-231"
+        ]
+      },
+      {
+        "confidence": "medium",
+        "id": "F6",
+        "input_event_id": 8014,
+        "latency_seconds": 3,
+        "sources": [
+          "MAP_System/artifacts/tests/task237-attention-popup.md",
+          "MAP_System/templates/install/command-center-ui/src/chat.js"
+        ],
+        "task_ids": [
+          "TASK-237",
+          "TASK-240"
+        ]
+      },
+      {
+        "also_said_no_match": true,
+        "confidence": "low",
+        "id": "F7",
+        "input_event_id": 8024,
+        "latency_seconds": 13,
+        "sources": [
+          "MAP_System/scripts/pre_dispatch_policy.py",
+          "/home/mellow/Projects/MultiAgentProject/MAP_System/tests/test_pre_dispatch_policy.py"
+        ],
+        "task_ids": [
+          "TASK-249"
+        ]
+      },
+      {
+        "also_said_no_match": true,
+        "confidence": "low",
+        "id": "F8",
+        "input_event_id": 8038,
+        "latency_seconds": 8,
+        "sources": [
+          "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+        ],
+        "task_ids": [
+          "TASK-233"
+        ]
+      },
+      {
+        "confidence": "low",
+        "id": "N1",
+        "input_event_id": 8053,
+        "latency_seconds": 3,
+        "no_match": true,
+        "sources": []
+      },
+      {
+        "confidence": "low",
+        "id": "N2",
+        "input_event_id": 8063,
+        "latency_seconds": 12,
+        "no_match": true,
+        "sources": []
+      },
+      {
+        "confidence": "low",
+        "id": "N3",
+        "input_event_id": 8073,
+        "latency_seconds": 9,
+        "no_match": true,
+        "sources": []
+      }
+    ],
+    "repository_command_events": 0,
+    "repository_file_events": 0,
+    "self_reported_outside_context": false,
+    "source_metrics": {
+      "exact_expected_source_hits": 9,
+      "exact_source_precision": 0.6429,
+      "exact_source_visibility": 0.45,
+      "expected_sources": 20,
+      "returned_source_paths": 14
+    },
+    "task_metrics": {
+      "correct_positive_task_ids": 8,
+      "exact_positive_task_sets": 1,
+      "expected_positive_task_ids": 12,
+      "mixed_task_and_no_match_responses": 4,
+      "negative_queries": 3,
+      "negative_rejections": 3,
+      "over_budget_task_responses": 1,
+      "positive_queries": 8,
+      "returned_positive_task_ids": 13,
+      "task_precision": 0.6154,
+      "task_recall": 0.6667
+    },
+    "verdict": "not viable as a task/source capability verifier in this packet format"
+  },
+  "metrics": {
+    "evaluation_mode": "known TASK-260 development; task-conditioned after evaluator task selection",
+    "expected_sources": 20,
+    "fixed_selector_hits": 15,
+    "fixed_selector_visibility": 0.75,
+    "median_selection_ms": 8.397,
+    "per_query": [
+      {
+        "expected_sources": [
+          "Projects/ClearFront/app/js/state.js",
+          "Projects/ClearFront/app/js/combat.js",
+          "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md"
+        ],
+        "fixed_hidden_expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md"
+        ],
+        "fixed_visible_expected_sources": [
+          "Projects/ClearFront/app/js/state.js",
+          "Projects/ClearFront/app/js/combat.js"
+        ],
+        "id": "F1",
+        "packet_estimated_tokens": 404,
+        "query_global_hidden_expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md"
+        ],
+        "query_global_sources": [
+          "Projects/ClearFront/artifacts/tests/task-212-state-parity.md",
+          "Projects/ClearFront/app/js/state.js",
+          "Projects/ClearFront/app/js/combat.js"
+        ],
+        "query_global_visible_expected_sources": [
+          "Projects/ClearFront/app/js/state.js",
+          "Projects/ClearFront/app/js/combat.js"
+        ],
+        "selected_task_ids": [
+          "TASK-212",
+          "TASK-214"
+        ],
+        "selection_ms": 9.948
+      },
+      {
+        "expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+          "Projects/ClearFront/tests/engine/rules.cases.mjs"
+        ],
+        "fixed_hidden_expected_sources": [],
+        "fixed_visible_expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+          "Projects/ClearFront/tests/engine/rules.cases.mjs"
+        ],
+        "id": "F2",
+        "packet_estimated_tokens": 382,
+        "query_global_hidden_expected_sources": [],
+        "query_global_sources": [
+          "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+          "Projects/ClearFront/app/index.html",
+          "Projects/ClearFront/tests/engine/rules.cases.mjs"
+        ],
+        "query_global_visible_expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+          "Projects/ClearFront/tests/engine/rules.cases.mjs"
+        ],
+        "selected_task_ids": [
+          "TASK-213",
+          "TASK-220"
+        ],
+        "selection_ms": 6.51
+      },
+      {
+        "expected_sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/tests/test_limit_watcher.py",
+          "MAP_System/artifacts/tests/rns-persistent-supervisor.md"
+        ],
+        "fixed_hidden_expected_sources": [
+          "MAP_System/artifacts/tests/rns-persistent-supervisor.md"
+        ],
+        "fixed_visible_expected_sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/tests/test_limit_watcher.py"
+        ],
+        "id": "F3",
+        "packet_estimated_tokens": 378,
+        "query_global_hidden_expected_sources": [],
+        "query_global_sources": [
+          "MAP_System/tests/test_limit_watcher.py",
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/artifacts/tests/rns-persistent-supervisor.md"
+        ],
+        "query_global_visible_expected_sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/tests/test_limit_watcher.py",
+          "MAP_System/artifacts/tests/rns-persistent-supervisor.md"
+        ],
+        "selected_task_ids": [
+          "TASK-221"
+        ],
+        "selection_ms": 8.397
+      },
+      {
+        "expected_sources": [
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_ollama_lane.py",
+          "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md"
+        ],
+        "fixed_hidden_expected_sources": [
+          "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md"
+        ],
+        "fixed_visible_expected_sources": [
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_ollama_lane.py"
+        ],
+        "id": "F4",
+        "packet_estimated_tokens": 342,
+        "query_global_hidden_expected_sources": [
+          "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md"
+        ],
+        "query_global_sources": [
+          "MAP_System/tests/test_local_ollama_lane.py",
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_runner.py"
+        ],
+        "query_global_visible_expected_sources": [
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_ollama_lane.py"
+        ],
+        "selected_task_ids": [
+          "TASK-228"
+        ],
+        "selection_ms": 8.45
+      },
+      {
+        "expected_sources": [
+          "MAP_System/AGENTS.md",
+          "MAP_System/tests/test_runner_helper_notes.py"
+        ],
+        "fixed_hidden_expected_sources": [
+          "MAP_System/AGENTS.md"
+        ],
+        "fixed_visible_expected_sources": [
+          "MAP_System/tests/test_runner_helper_notes.py"
+        ],
+        "id": "F5",
+        "packet_estimated_tokens": 304,
+        "query_global_hidden_expected_sources": [
+          "MAP_System/AGENTS.md"
+        ],
+        "query_global_sources": [
+          "MAP_System/tests/test_runner_helper_notes.py",
+          "MAP_System/graph/README.md",
+          "MAP_System/scripts/run_tests.sh"
+        ],
+        "query_global_visible_expected_sources": [
+          "MAP_System/tests/test_runner_helper_notes.py"
+        ],
+        "selected_task_ids": [
+          "TASK-231"
+        ],
+        "selection_ms": 3.331
+      },
+      {
+        "expected_sources": [
+          "MAP_System/templates/install/command-center-ui/src/chat.js",
+          "MAP_System/tests/test_command_center_attention_popup.py",
+          "MAP_System/tests/test_command_center_popup_formatting.py"
+        ],
+        "fixed_hidden_expected_sources": [
+          "MAP_System/tests/test_command_center_attention_popup.py"
+        ],
+        "fixed_visible_expected_sources": [
+          "MAP_System/templates/install/command-center-ui/src/chat.js",
+          "MAP_System/tests/test_command_center_popup_formatting.py"
+        ],
+        "id": "F6",
+        "packet_estimated_tokens": 398,
+        "query_global_hidden_expected_sources": [
+          "MAP_System/templates/install/command-center-ui/src/chat.js"
+        ],
+        "query_global_sources": [
+          "MAP_System/artifacts/tests/task237-attention-popup.md",
+          "MAP_System/tests/test_command_center_popup_formatting.py",
+          "MAP_System/tests/test_command_center_attention_popup.py"
+        ],
+        "query_global_visible_expected_sources": [
+          "MAP_System/tests/test_command_center_attention_popup.py",
+          "MAP_System/tests/test_command_center_popup_formatting.py"
+        ],
+        "selected_task_ids": [
+          "TASK-237",
+          "TASK-240"
+        ],
+        "selection_ms": 11.812
+      },
+      {
+        "expected_sources": [
+          "MAP_System/scripts/pre_dispatch_policy.py",
+          "MAP_System/tests/test_pre_dispatch_policy.py"
+        ],
+        "fixed_hidden_expected_sources": [],
+        "fixed_visible_expected_sources": [
+          "MAP_System/scripts/pre_dispatch_policy.py",
+          "MAP_System/tests/test_pre_dispatch_policy.py"
+        ],
+        "id": "F7",
+        "packet_estimated_tokens": 312,
+        "query_global_hidden_expected_sources": [],
+        "query_global_sources": [
+          "MAP_System/scripts/pre_dispatch_policy.py",
+          "MAP_System/tests/test_pre_dispatch_policy.py"
+        ],
+        "query_global_visible_expected_sources": [
+          "MAP_System/scripts/pre_dispatch_policy.py",
+          "MAP_System/tests/test_pre_dispatch_policy.py"
+        ],
+        "selected_task_ids": [
+          "TASK-249"
+        ],
+        "selection_ms": 4.114
+      },
+      {
+        "expected_sources": [
+          "MAP_System/notes/practice-scenario-runbook.md",
+          "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+        ],
+        "fixed_hidden_expected_sources": [],
+        "fixed_visible_expected_sources": [
+          "MAP_System/notes/practice-scenario-runbook.md",
+          "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+        ],
+        "id": "F8",
+        "packet_estimated_tokens": 396,
+        "query_global_hidden_expected_sources": [],
+        "query_global_sources": [
+          "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md",
+          "MAP_System/notes/practice-scenario-runbook.md",
+          "MAP_System/artifacts/planning/map-practice-scenario-queue-2026-07-18.md"
+        ],
+        "query_global_visible_expected_sources": [
+          "MAP_System/notes/practice-scenario-runbook.md",
+          "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+        ],
+        "selected_task_ids": [
+          "TASK-239",
+          "TASK-233"
+        ],
+        "selection_ms": 3.402
+      }
+    ],
+    "positive_queries": 8,
+    "query_global_hits": 16,
+    "query_global_visibility": 0.8,
+    "source_budget_per_query": 3
+  },
+  "task_selection_condition": "TASK-260 blinded evaluator selected every expected task with no extras; known labels are supplied here solely to isolate evidence allocation"
+}

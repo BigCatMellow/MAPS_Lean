@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=hcom Dashboard
+Comment=Open the multi-agent communications dashboard
+Exec=__LOCAL_BIN__/hcom-dashboard
+Icon=utilities-terminal
+Terminal=false
+Categories=Development;

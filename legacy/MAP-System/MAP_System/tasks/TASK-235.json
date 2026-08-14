@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-235",
+  "title": "Create a current CommandCenter deployment-source manifest and provenance check",
+  "task_type": "research",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-lure",
+  "description": "Turn TASK-234 parity evidence into a durable, read-only deployment-source manifest and repeatable runtime-provenance check. Preserve historical records as provenance, but make the current configured launcher, installed-copy drift, and listener-identity uncertainty discoverable before any future UI task. Do not edit CommandCenterUI, run the installer, restart services, alter policy/authority, or change TASK-227.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/audits/command-center-deployment-source-manifest-2026-07-18.md"
+  ],
+  "acceptance_criteria": [
+    "The manifest records the current configured desktop and launcher chain, candidate-path accessibility, template-versus-installed fingerprints, and the explicit distinction between a configured target and a running listener.",
+    "The manifest specifies a read-only repeat check with expected outcomes for free port, occupied port with verified server provenance, and occupied port with unverified provenance; it does not start, stop, or modify a process.",
+    "The manifest gives a bounded decision gate for template deployment versus an external installed-copy change, retaining explicit operator approval for any external edit and no implementation selection by inference.",
+    "The work makes no UI, deployment, installer, policy, authority, shared-state, or TASK-227 change and is independently reviewable as a durable input to a future implementation task."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,3798 @@
+<!DOCTYPE html>
+<html lang="en"><head><script>window.__resources = {"deck_lion": "assets/3fc6801a-1429-48f4-aae2-0925e8d8f075.png", "deck_badger": "assets/7c9ae1fc-8916-4304-8a6e-5d4e107bbe80.png", "deck_raven": "assets/70860df9-40a4-403e-b892-e4e57f9b31d0.png", "deck_owl": "assets/9300c284-a8d8-400c-a349-2d33c0ec4225.png", "deck_stag": "assets/d65247e2-9572-41cd-b478-c0a6a5c04f7c.png", "deck_fox": "assets/7b0690f1-7002-48aa-9ade-5c9856207594.png"};</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Clearfront — Champion Prototype</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #151c2f;
+    --panel-2: #1d2740;
+    --line: #33415f;
+    --text: #edf2ff;
+    --muted: #9eabc6;
+    --accent: #7dd3fc;
+    --good: #86efac;
+    --bad: #fca5a5;
+    --gold: #fde68a;
+    --shadow: 0 16px 40px rgba(0,0,0,.28);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 15% 10%, rgba(59,130,246,.14), transparent 32%),
+      radial-gradient(circle at 85% 90%, rgba(168,85,247,.12), transparent 30%),
+      var(--bg);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  button { font: inherit; }
+
+  .app {
+    width: min(1500px, 100%);
+    margin: 0 auto;
+    padding: 14px;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .title-wrap h1 {
+    margin: 0;
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    letter-spacing: -.03em;
+  }
+
+  .title-wrap p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: .92rem;
+  }
+
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .btn {
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: .15s ease;
+  }
+
+  .btn:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .btn.primary { background: #2563eb; border-color: #60a5fa; }
+  .btn.danger { background: #7f1d1d; border-color: #ef4444; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 12px;
+  }
+
+  .game {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(21,28,47,.9);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .side {
+    padding: 10px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .side.enemy { background: rgba(127,29,29,.08); }
+  .side.player { background: rgba(30,64,175,.08); }
+
+  .hero-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .hero {
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .hero strong { display: block; }
+  .hero span { color: var(--muted); font-size: .85rem; }
+  .hero { display: flex; align-items: center; gap: 10px; }
+  .hero-text { min-width: 0; }
+  .hero-portrait {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--panel);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--deck-color, var(--line)) 65%, transparent), 0 4px 10px rgba(0,0,0,.4);
+  }
+
+  .deck-select-modal { width: min(780px, 100%); }
+  .deck-select-sub { color: var(--muted); margin: 6px 0 0; }
+  .deck-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0 2px; }
+  .deck-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 16px 10px 13px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--panel-2);
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .deck-option:hover, .deck-option:focus-visible {
+    transform: translateY(-3px);
+    border-color: var(--deck-color);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--deck-color) 45%, transparent), 0 14px 30px rgba(0,0,0,.35);
+  }
+  .deck-option img { width: 104px; height: 104px; filter: drop-shadow(0 6px 12px rgba(0,0,0,.45)); }
+  .deck-option strong { font-size: .98rem; }
+  .deck-option .deck-factions { font-size: .76rem; color: var(--deck-color); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .deck-option .deck-blurb { font-size: .74rem; color: var(--muted); line-height: 1.35; }
+  @media (max-width: 640px) {
+    .deck-grid { grid-template-columns: repeat(2, 1fr); }
+    .deck-option img { width: 76px; height: 76px; }
+    .hero-portrait { width: 38px; height: 38px; }
+  }
+
+  .counter {
+    min-width: 88px;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .counter .value { font-size: 1.3rem; font-weight: 800; display: block; }
+  .counter .label { font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+  .life .value { color: var(--bad); }
+  .mana .value { color: var(--accent); }
+
+  .zone-label {
+    color: var(--muted);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .board, .hand, .relic-row {
+    display: flex;
+    gap: 8px;
+    min-height: 150px;
+    align-items: stretch;
+    overflow-x: auto;
+    padding: 2px 2px 6px;
+    scrollbar-color: var(--line) transparent;
+  }
+
+  .relic-row { min-height: 80px; }
+  .enemy-hand { min-height: 46px; align-items: center; }
+  .champion-zone .board { overflow: visible; padding-top: 12px; }
+
+  .card {
+    position: relative;
+    flex: 0 0 150px;
+    min-height: 180px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, #25304a, #182038);
+    padding: 9px;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 6px;
+    user-select: none;
+    transition: transform .13s ease, border-color .13s ease, box-shadow .13s ease;
+  }
+
+  .card.unit { box-shadow: inset 0 3px 0 #22c55e; }
+  .card.spell { box-shadow: inset 0 3px 0 #a78bfa; }
+  .card.relic { box-shadow: inset 0 3px 0 #f59e0b; }
+  .card.clickable { cursor: pointer; }
+  .card.clickable:hover { transform: translateY(-4px); border-color: var(--accent); }
+  .card.selected { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(253,230,138,.28), inset 0 3px 0 var(--gold); }
+  .card.targetable { border-color: var(--good); box-shadow: 0 0 0 2px rgba(134,239,172,.2); cursor: crosshair; }
+  .card.exhausted { transform: rotate(1deg); }
+  .card.dead { opacity: .2; }
+  .card.unavailable {
+    filter: grayscale(.9) saturate(.22) brightness(.7);
+    opacity: .74;
+    cursor: not-allowed;
+  }
+  .card.unavailable:hover { transform: none; border-color: var(--line); }
+  .card.commander {
+    --command-color: var(--accent);
+    transform: translateY(-10%);
+    z-index: 5;
+    border-color: var(--command-color);
+    box-shadow: inset 0 3px 0 var(--command-color), 0 0 0 2px color-mix(in srgb, var(--command-color) 42%, transparent), 0 10px 24px rgba(0,0,0,.36);
+  }
+  .card.commander-flame { --command-color: #fb923c; background: linear-gradient(180deg, #4a2b24, #251b27); }
+  .card.commander-wild { --command-color: #4ade80; background: linear-gradient(180deg, #1f4434, #172a2b); }
+  .card.commander-order { --command-color: #facc15; background: linear-gradient(180deg, #45422a, #252638); }
+  .card.commander-shadow { --command-color: #c084fc; background: linear-gradient(180deg, #402b55, #251d3b); }
+  .commander-badge {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 3px 7px;
+    border-radius: 999px;
+    color: #08111f;
+    background: var(--command-color);
+    border: 1px solid rgba(255,255,255,.5);
+    font-size: .56rem;
+    font-weight: 950;
+    letter-spacing: .08em;
+    white-space: nowrap;
+  }
+
+
+  .card-top {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 7px;
+    align-items: center;
+  }
+
+  .cost {
+    width: 31px;
+    height: 31px;
+    border-radius: 50%;
+    background: #075985;
+    border: 1px solid #38bdf8;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+  }
+
+  .card-name { font-weight: 800; line-height: 1.05; }
+  .card-type { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .card-text { font-size: .84rem; line-height: 1.3; color: #d9e2f6; }
+  .keywords { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tag { padding: 3px 6px; border-radius: 999px; background: #0f172a; border: 1px solid var(--line); font-size: .68rem; }
+  .stats { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-weight: 900; }
+  .stat { min-width: 46px; text-align: center; border-radius: 8px; padding: 5px 7px; background: #0f172a; border: 1px solid var(--line); }
+  .attack-stat { color: #fcd34d; }
+  .health-stat { color: #fca5a5; }
+  .shield-dot { position: absolute; top: 7px; right: 7px; width: 12px; height: 12px; border-radius: 50%; background: #7dd3fc; box-shadow: 0 0 10px #7dd3fc; }
+  .ready-dot { position: absolute; top: 7px; left: 7px; width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(0,0,0,.35); z-index: 2; }
+  .ready-dot.ready { background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,.7); }
+  .ready-dot.waiting { background: #facc15; box-shadow: 0 0 8px rgba(250,204,21,.55); }
+  .ready-dot.spent { background: #64748b; box-shadow: none; }
+
+  .relic-card {
+    flex: 0 0 190px;
+    min-height: 72px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px;
+    background: linear-gradient(180deg, #3b2d16, #211b12);
+  }
+  .relic-card strong { display: block; }
+  .relic-card span { color: #f8e8b0; font-size: .78rem; }
+
+  .arena {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+    background: rgba(2,6,23,.45);
+  }
+
+  .phase strong { display: block; }
+  .phase span { color: var(--muted); font-size: .86rem; }
+
+  .hand { padding-top: 22px; }
+  .hand .card { flex-basis: 160px; }
+  .enemy-card-back {
+    width: 34px;
+    height: 46px;
+    border-radius: 6px;
+    border: 1px solid #475569;
+    background: repeating-linear-gradient(45deg, #1e3a8a, #1e3a8a 6px, #172554 6px, #172554 12px);
+  }
+
+  aside {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(21,28,47,.9);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    height: fit-content;
+  }
+
+  .panel { padding: 12px; border-bottom: 1px solid var(--line); }
+  .panel:last-child { border-bottom: 0; }
+  .panel h2 { margin: 0 0 8px; font-size: 1rem; }
+  .panel p, .panel li { color: var(--muted); font-size: .84rem; line-height: 1.45; }
+  .panel ul { margin: 0; padding-left: 18px; }
+
+  .log {
+    max-height: 310px;
+    overflow: auto;
+    display: grid;
+    gap: 7px;
+  }
+
+  .log-entry {
+    border-left: 3px solid var(--line);
+    padding-left: 8px;
+    font-size: .8rem;
+    color: var(--muted);
+  }
+
+  .log-entry.good { border-color: #22c55e; }
+  .log-entry.bad { border-color: #ef4444; }
+  .log-entry.info { border-color: #38bdf8; }
+  .log-entry strong { display: block; color: var(--text); font-size: .82rem; line-height: 1.3; }
+  .log-detail { display: block; margin-top: 2px; color: var(--muted); font-size: .74rem; line-height: 1.35; }
+
+  .arena-info { min-width: 0; display: grid; gap: 6px; }
+  .arena-actions { display: grid; gap: 6px; align-self: stretch; }
+  .latest-event {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #0f172a;
+    color: var(--text);
+    padding: 6px 8px;
+    text-align: left;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 7px;
+    align-items: center;
+  }
+  .latest-event-label { color: var(--accent); font-size: .64rem; font-weight: 900; text-transform: uppercase; letter-spacing: .07em; }
+  .latest-event-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .75rem; color: #dce6fb; }
+  .combat-review { display: none; }
+  .combat-review.show { display: block; }
+
+  .card-status {
+    margin-top: 2px;
+    padding: 4px 6px;
+    border-radius: 7px;
+    border: 1px solid #475569;
+    background: rgba(15,23,42,.92);
+    color: var(--gold);
+    font-size: .63rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .card-status.danger { color: #fecaca; border-color: #7f1d1d; background: rgba(69,10,10,.72); }
+  .card-status.safe { color: #bbf7d0; border-color: #166534; background: rgba(5,46,22,.72); }
+  .card.synergy-active { border-color: #4ade80; box-shadow: inset 0 3px 0 #22c55e, 0 0 0 1px rgba(74,222,128,.2); }
+  .card-status.synergy { color: #dcfce7; border-color: #15803d; background: rgba(5,46,22,.84); }
+  .card-status.setup { color: #bfdbfe; border-color: #1d4ed8; background: rgba(23,37,84,.82); }
+  .relic-trigger { display:block; margin-top:5px; padding:3px 5px; border:1px solid #166534; border-radius:6px; color:#bbf7d0 !important; background:rgba(5,46,22,.7); font-size:.66rem !important; }
+
+
+  .combat-summary-box {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #0f172a;
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+  .combat-summary-box strong { display: block; font-size: 1.05rem; }
+  .combat-summary-box span { color: var(--muted); font-size: .82rem; line-height: 1.4; }
+  .combat-rules-note {
+    border-left: 3px solid var(--accent);
+    padding: 8px 10px;
+    margin: 0 0 12px;
+    background: rgba(14,116,144,.1);
+    color: #dbeafe;
+    font-size: .82rem;
+    line-height: 1.42;
+  }
+  .combat-list { display: grid; gap: 8px; }
+  .combat-row {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 10px;
+    background: var(--panel-2);
+  }
+  .combat-row-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .combat-row-head strong { font-size: .9rem; }
+  .combat-row-head span { color: var(--gold); font-weight: 900; font-size: .8rem; white-space: nowrap; }
+  .combat-row p { margin: 5px 0 0; color: var(--muted); font-size: .79rem; line-height: 1.38; }
+  .combat-outcome { margin-top: 6px; font-size: .76rem; font-weight: 800; }
+  .combat-outcome.bad { color: var(--bad); }
+  .combat-outcome.good { color: var(--good); }
+  .modal-actions { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    place-items: center;
+    padding: 20px;
+    background: rgba(2,6,23,.82);
+    z-index: 20;
+  }
+
+  .overlay.show { display: grid; }
+  .modal {
+    width: min(560px, 100%);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--panel);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .modal h2 { margin-top: 0; }
+  .modal p, .modal li { color: var(--muted); line-height: 1.5; }
+  .catalog-modal { width: min(1120px, 100%); }
+  .catalog-summary { color: var(--muted); margin: -4px 0 14px; }
+  .catalog-section { margin: 0 0 22px; }
+  .catalog-section h3 { margin: 0 0 9px; }
+  .card-catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 9px;
+  }
+  .card-catalog .card { min-width: 0; width: 100%; min-height: 174px; }
+  .catalog-close { position: sticky; bottom: 0; width: 100%; margin-top: 4px; }
+
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { display: grid; grid-template-columns: 1fr 1fr; }
+    aside .panel:last-child { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 640px) {
+    .app { padding: 8px; }
+    .topbar, .hero-row, .arena { grid-template-columns: 1fr; }
+    .actions { justify-content: stretch; }
+    .actions .btn { flex: 1; }
+    .counter { min-width: 0; }
+    .hero-row { grid-template-columns: 1fr 1fr; }
+    .hero { grid-column: 1 / -1; }
+    .card { flex-basis: 142px; }
+    aside { grid-template-columns: 1fr; }
+    aside .panel:last-child { grid-column: auto; }
+  }
+
+
+  /* Mobile-first interaction and phone layout */
+  html {
+    min-height: 100%;
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    overscroll-behavior-y: contain;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button, .card.clickable {
+    touch-action: manipulation;
+  }
+
+  .btn {
+    min-height: 44px;
+  }
+
+  .mobile-only { display: none; }
+  .mini-deck-info { display: block; margin-top: 2px; }
+
+  .board, .hand, .relic-row, .enemy-hand {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+  }
+
+  .card, .relic-card, .enemy-card-back {
+    scroll-snap-align: start;
+  }
+
+  .card.clickable:active {
+    transform: scale(.975);
+  }
+
+  .modal {
+    max-height: min(88dvh, 760px);
+    overflow-y: auto;
+  }
+
+  @media (hover: none) {
+    .btn:hover, .card.clickable:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 760px), (max-height: 520px) and (orientation: landscape) and (max-width: 950px) {
+    body {
+      background: var(--bg);
+    }
+
+    .app {
+      width: 100%;
+      padding:
+        max(6px, env(safe-area-inset-top))
+        max(6px, env(safe-area-inset-right))
+        max(6px, env(safe-area-inset-bottom))
+        max(6px, env(safe-area-inset-left));
+    }
+
+    .topbar {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .title-wrap h1 {
+      font-size: 1.15rem;
+      white-space: nowrap;
+    }
+
+    .title-wrap p { display: none; }
+
+    .actions {
+      flex-wrap: nowrap;
+      gap: 5px;
+    }
+
+    .actions .btn {
+      min-width: 52px;
+      min-height: 42px;
+      padding: 8px 10px;
+      font-size: .8rem;
+    }
+
+    .mobile-only { display: inline-flex; }
+
+    .layout { display: block; }
+    aside { display: none; }
+
+    .game {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      border-radius: 12px;
+      overflow: visible;
+      box-shadow: none;
+    }
+
+    .side {
+      min-width: 0;
+      grid-template-columns: minmax(0, 1fr);
+      padding: 7px;
+      gap: 6px;
+    }
+
+    .zone, .hero-row, .board, .hand, .relic-row {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .board, .hand, .relic-row {
+      width: 100%;
+    }
+
+    .side.enemy { order: 1; }
+    .side.player { order: 2; }
+    .arena { order: 3; }
+
+    .side.player > .hero-row { order: -1; }
+
+    .hero-row {
+      grid-template-columns: minmax(0, 1fr) 58px 76px !important;
+      gap: 5px;
+    }
+
+    .hero {
+      grid-column: auto !important;
+      min-width: 0;
+      padding: 7px 8px;
+      border-radius: 9px;
+    }
+
+    .hero strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: .86rem;
+    }
+
+    .hero span { font-size: .68rem; }
+
+    .counter {
+      min-width: 0;
+      padding: 6px 4px;
+      border-radius: 9px;
+    }
+
+    .counter .value { font-size: 1rem; }
+    .counter .label { font-size: .58rem; letter-spacing: .05em; }
+
+    .zone-label {
+      font-size: .62rem;
+      letter-spacing: .07em;
+      margin-bottom: 1px;
+    }
+
+    .enemy-hand-zone { display: none; }
+    .relic-zone.empty { display: none; }
+
+    .board, .hand {
+      gap: 6px;
+      min-height: 151px;
+      padding: 1px 1px 5px;
+    }
+
+    .relic-row {
+      min-height: 52px;
+      gap: 6px;
+    }
+
+    .card {
+      flex: 0 0 124px;
+      min-height: 148px;
+      padding: 7px;
+      gap: 4px;
+      border-radius: 10px;
+      grid-template-rows: auto auto 1fr auto;
+    }
+
+    .hand .card {
+      flex-basis: 138px;
+      min-height: 162px;
+    }
+
+    .card-top {
+      grid-template-columns: 27px minmax(0, 1fr);
+      gap: 5px;
+    }
+
+    .cost {
+      width: 27px;
+      height: 27px;
+      font-size: .84rem;
+    }
+
+    .card-name {
+      font-size: .78rem;
+      overflow-wrap: anywhere;
+    }
+
+    .card-type { font-size: .58rem; }
+    .card-text { font-size: .7rem; line-height: 1.22; }
+    .keywords { gap: 2px; }
+    .tag { padding: 2px 4px; font-size: .56rem; }
+
+    .stats { gap: 4px; }
+    .stat {
+      min-width: 0;
+      flex: 1;
+      padding: 4px 3px;
+      font-size: .72rem;
+    }
+
+    .sick {
+      position: static;
+      display: block;
+      margin-top: -2px;
+      font-size: .55rem;
+    }
+
+    .shield-dot {
+      width: 10px;
+      height: 10px;
+      top: 5px;
+      right: 5px;
+    }
+
+    .relic-card {
+      flex-basis: 154px;
+      min-height: 49px;
+      padding: 7px;
+      border-radius: 8px;
+    }
+
+    .relic-card strong { font-size: .76rem; }
+    .relic-card span { font-size: .66rem; }
+
+    .arena {
+      position: sticky;
+      bottom: 0;
+      z-index: 15;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      gap: 6px;
+      padding: 8px;
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+      border: 1px solid var(--line);
+      border-radius: 0 0 12px 12px;
+      background: rgba(10, 16, 32, .97);
+      box-shadow: 0 -8px 24px rgba(0,0,0,.3);
+      backdrop-filter: blur(12px);
+    }
+
+    .arena-info { gap: 4px; }
+    .arena-actions { min-width: 108px; }
+    .phase { min-width: 0; }
+    .phase strong { font-size: .84rem; }
+    .phase span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: .68rem;
+    }
+
+    .arena .btn {
+      min-width: 108px;
+      min-height: 44px;
+      padding: 7px 9px;
+      font-size: .76rem;
+      font-weight: 800;
+    }
+
+    .latest-event { padding: 5px 7px; }
+    .latest-event-label { font-size: .57rem; }
+    .latest-event-text { font-size: .66rem; }
+    .combat-review.show { display: block; min-height: 38px; }
+    .card-status { font-size: .55rem; padding: 3px 4px; }
+
+    .overlay {
+      align-items: end;
+      padding: 0;
+    }
+
+    .modal {
+      width: 100%;
+      max-height: 88dvh;
+      border-radius: 18px 18px 0 0;
+      border-bottom: 0;
+      padding: 18px max(16px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    }
+
+    .modal h2 { font-size: 1.15rem; }
+    .modal p, .modal li { font-size: .87rem; }
+    .modal > .btn { width: 100%; min-height: 48px; }
+
+    #mobileGameLog {
+      max-height: 56dvh;
+      overflow-y: auto;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .catalog-modal { padding: 12px; }
+    .card-catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+    .card-catalog .card { min-height: 160px; font-size: .88rem; }
+  }
+
+  @media (max-width: 390px) {
+    .actions .btn { min-width: 47px; padding-inline: 7px; }
+    .hero-row { grid-template-columns: minmax(0, 1fr) 54px 70px !important; }
+    .card { flex-basis: 118px; }
+    .hand .card { flex-basis: 132px; }
+    .arena .btn { min-width: 104px; }
+  }
+
+  @media (max-height: 520px) and (orientation: landscape) {
+    .topbar { margin-bottom: 3px; }
+    .side { padding-block: 4px; }
+    .board, .hand { min-height: 128px; }
+    .card { min-height: 126px; flex-basis: 116px; }
+    .hand .card { min-height: 134px; flex-basis: 126px; }
+    .card-text { font-size: .64rem; }
+    .arena { padding-block: 5px; }
+  }
+
+
+  /* Three cards always fit in the player's hand on phone screens. */
+  @media (max-width: 760px) {
+    .hand {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+      overflow-x: hidden;
+      scroll-snap-type: none;
+      align-items: stretch;
+      padding-top: 20px;
+      overflow-y: visible;
+    }
+
+    .hand .card {
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      flex: none;
+      min-height: 162px;
+      padding: 6px;
+    }
+
+    .hand .card-top { grid-template-columns: 25px minmax(0, 1fr); gap: 4px; }
+    .hand .cost { width: 25px; height: 25px; font-size: .78rem; }
+    .hand .card-name { font-size: .72rem; line-height: 1.02; }
+    .hand .card-type { font-size: .53rem; }
+    .hand .card-text { font-size: .64rem; line-height: 1.18; }
+    .hand .tag { font-size: .51rem; padding: 2px 3px; }
+    .hand .stat { font-size: .67rem; padding: 4px 2px; }
+  }
+
+  @media (max-width: 350px) {
+    .hand { gap: 4px; }
+    .hand .card { padding: 5px 4px; min-height: 158px; }
+    .hand .card-name { font-size: .66rem; }
+    .hand .card-text { font-size: .59rem; }
+  }
+
+  /* Persistent visual scrollbar for horizontally overflowing battlefields. */
+  .board-scrollbar {
+    position: relative;
+    height: 8px;
+    margin: 1px 2px 0;
+    overflow: hidden;
+    border: 1px solid rgba(158,171,198,.28);
+    border-radius: 999px;
+    background: rgba(2,6,23,.7);
+    cursor: pointer;
+    touch-action: none;
+    transition: opacity .15s ease;
+  }
+
+  .board-scrollbar span {
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    left: 0;
+    width: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #64748b, #9eabc6);
+    pointer-events: none;
+    transition: width .12s ease, left .08s linear, opacity .15s ease;
+  }
+
+  .board-scrollbar.inactive { opacity: .26; }
+  .board-scrollbar.inactive span { opacity: .45; }
+
+  /* ── Combat clash stage ─────────────────────────────────────── */
+  .clash-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: none;
+    place-items: center;
+    padding: 16px;
+    background: radial-gradient(circle at 50% 42%, rgba(30,41,59,.55), rgba(2,6,23,.93) 72%);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    overflow: hidden;
+  }
+  .clash-overlay.show { display: grid; }
+
+  .clash-track { width: min(720px, 96vw); display: grid; gap: 4px; justify-items: center; }
+
+  .clash-header { display: flex; align-items: center; gap: 12px; }
+  .clash-portrait { width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 0 0 2px color-mix(in srgb, var(--deck-color, var(--line)) 65%, transparent), 0 4px 10px rgba(0,0,0,.5); }
+  .clash-round {
+    font-size: .8rem;
+    font-weight: 950;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-shadow: 0 0 18px rgba(125,211,252,.4);
+  }
+  .clash-round.enemy-round { color: #fca5a5; text-shadow: 0 0 18px rgba(239,68,68,.4); }
+  .clash-step { color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+  .clash-stage { position: relative; width: 100%; height: 320px; }
+  .clash-stage.shake { animation: clashShake .34s cubic-bezier(.36,.07,.19,.97); }
+  @keyframes clashShake {
+    10%, 90% { transform: translate(-2px, 1px); }
+    20%, 80% { transform: translate(4px, -2px); }
+    30%, 50%, 70% { transform: translate(-7px, 2px) rotate(-.4deg); }
+    40%, 60% { transform: translate(7px, -1px) rotate(.4deg); }
+  }
+
+  .clash-card {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    width: 176px;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1.5px solid var(--line);
+    background: linear-gradient(180deg, #25304a, #182038);
+    box-shadow: 0 18px 44px rgba(0,0,0,.5);
+    display: grid;
+    gap: 7px;
+    will-change: transform;
+  }
+  .clash-card.f-flame { border-color: #fb923c; background: linear-gradient(180deg, #4a2b24, #251b27); box-shadow: 0 18px 44px rgba(0,0,0,.5), 0 0 26px rgba(251,146,60,.22); }
+  .clash-card.f-wild { border-color: #4ade80; background: linear-gradient(180deg, #1f4434, #172a2b); box-shadow: 0 18px 44px rgba(0,0,0,.5), 0 0 26px rgba(74,222,128,.2); }
+  .clash-card.f-order { border-color: #facc15; background: linear-gradient(180deg, #45422a, #252638); box-shadow: 0 18px 44px rgba(0,0,0,.5), 0 0 26px rgba(250,204,21,.2); }
+  .clash-card.f-shadow { border-color: #c084fc; background: linear-gradient(180deg, #402b55, #251d3b); box-shadow: 0 18px 44px rgba(0,0,0,.5), 0 0 26px rgba(192,132,252,.22); }
+
+  .clash-card.side-a { right: 50%; margin-right: 10px; transform: translate(calc(-50vw - 240px), -50%) rotate(-8deg); }
+  .clash-card.side-b { left: 50%; margin-left: 10px; transform: translate(calc(50vw + 240px), -50%) rotate(8deg); }
+  .clash-card.charge { transition: transform .34s cubic-bezier(.55, 0, .9, .4); }
+  .clash-card.side-a.charge { transform: translate(0, -50%) rotate(-2deg); }
+  .clash-card.side-b.charge { transform: translate(0, -50%) rotate(2deg); }
+  .clash-card.hit { transition: transform .09s ease-out; }
+  .clash-card.side-a.hit { transform: translate(16px, -50%) rotate(1deg); }
+  .clash-card.side-b.hit { transform: translate(-16px, -50%) rotate(-1deg); }
+  .clash-card.recoil { transition: transform .3s cubic-bezier(.18,.9,.32,1.2); }
+  .clash-card.side-a.recoil { transform: translate(-20px, -50%) rotate(-3deg); }
+  .clash-card.side-b.recoil { transform: translate(20px, -50%) rotate(3deg); }
+  .clash-card.destroyed { transition: transform .5s cubic-bezier(.5,0,.85,.4), opacity .5s ease-in, filter .3s ease-in; opacity: 0; filter: grayscale(1) brightness(.55); }
+  .clash-card.side-a.destroyed { transform: translate(-64px, 48%) rotate(-24deg); }
+  .clash-card.side-b.destroyed { transform: translate(64px, 48%) rotate(24deg); }
+
+  .clash-card-top { display: flex; gap: 8px; align-items: center; }
+  .clash-cost { flex: 0 0 26px; width: 26px; height: 26px; border-radius: 50%; background: #075985; border: 1px solid #38bdf8; display: grid; place-items: center; font-weight: 900; font-size: .82rem; }
+  .clash-name { font-weight: 900; font-size: .92rem; line-height: 1.08; letter-spacing: -.01em; }
+  .clash-type { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+  .clash-stats { display: flex; gap: 6px; }
+  .clash-stat { flex: 1; text-align: center; padding: 5px 6px; border-radius: 8px; background: rgba(15,23,42,.85); border: 1px solid var(--line); font-weight: 900; font-size: .86rem; }
+  .clash-stat.atk { color: #fcd34d; }
+  .clash-stat.hp { color: #fca5a5; }
+  .clash-stat.hp.dropped { animation: hpFlash .55s ease-out; }
+  @keyframes hpFlash {
+    0% { background: rgba(239,68,68,.85); color: #fff; }
+    100% { background: rgba(15,23,42,.85); }
+  }
+
+  .clash-role {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: .55rem;
+    font-weight: 950;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    background: #0f172a;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .clash-flag {
+    position: absolute;
+    left: -7px;
+    right: -7px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-7deg);
+    text-align: center;
+    padding: 6px 0;
+    background: #7f1d1d;
+    border: 1px solid #ef4444;
+    color: #fee2e2;
+    font-weight: 950;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    font-size: .68rem;
+    border-radius: 6px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .clash-flag.on { animation: flagSlam .3s cubic-bezier(.2,1.4,.4,1) forwards; }
+  @keyframes flagSlam {
+    from { opacity: 0; transform: translateY(-50%) rotate(-7deg) scale(1.7); }
+    to { opacity: 1; transform: translateY(-50%) rotate(-7deg) scale(1); }
+  }
+
+  .clash-vs {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    font-size: 1.7rem;
+    font-weight: 950;
+    font-style: italic;
+    letter-spacing: .08em;
+    color: var(--gold);
+    text-shadow: 0 2px 18px rgba(253,230,138,.45);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .clash-vs.on { animation: vsIn .3s ease-out forwards; }
+  @keyframes vsIn {
+    from { opacity: 0; transform: translate(-50%,-50%) scale(2.6); }
+    to { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  }
+  .clash-vs.out { animation: vsOut .22s ease-in forwards; }
+  @keyframes vsOut {
+    from { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+    to { opacity: 0; transform: translate(-50%,-50%) scale(3); }
+  }
+
+  .clash-fx { position: absolute; left: 50%; top: 50%; z-index: 4; pointer-events: none; }
+  .clash-flash {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff, rgba(253,230,138,.9) 30%, rgba(253,230,138,0) 70%);
+    opacity: 0;
+    transform: translate(-50%,-50%) scale(1);
+  }
+  .clash-fx.on .clash-flash { animation: flashPop .42s ease-out forwards; }
+  @keyframes flashPop {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
+    12% { opacity: 1; transform: translate(-50%,-50%) scale(15); }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(24); }
+  }
+  .clash-ring {
+    position: absolute;
+    left: -28px;
+    top: -28px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid rgba(125,211,252,.85);
+    opacity: 0;
+    transform: scale(.3);
+  }
+  .clash-fx.on .clash-ring { animation: ringOut .45s ease-out forwards; }
+  @keyframes ringOut {
+    0% { opacity: .9; transform: scale(.3); }
+    100% { opacity: 0; transform: scale(3.2); }
+  }
+  .clash-spark {
+    position: absolute;
+    left: -13px;
+    top: -2px;
+    width: 26px;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(253,230,138,0), #fde68a 45%, #fff);
+    opacity: 0;
+    transform: rotate(var(--ang)) translateX(8px) scaleX(.5);
+  }
+  .clash-fx.on .clash-spark { animation: sparkFly .5s cubic-bezier(.2,.6,.4,1) forwards; animation-delay: .02s; }
+  @keyframes sparkFly {
+    0% { opacity: 1; transform: rotate(var(--ang)) translateX(8px) scaleX(.5); }
+    70% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(var(--ang)) translateX(var(--dist, 120px)) scaleX(1.1); }
+  }
+
+  .clash-dmg {
+    position: absolute;
+    left: 50%;
+    top: -8px;
+    transform: translateX(-50%);
+    z-index: 5;
+    font-weight: 950;
+    font-size: 1.5rem;
+    color: #fca5a5;
+    text-shadow: 0 2px 0 #450a0a, 0 4px 14px rgba(0,0,0,.6);
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .clash-dmg.on { animation: dmgFloat .95s cubic-bezier(.2,.7,.3,1) forwards; }
+  @keyframes dmgFloat {
+    0% { opacity: 0; transform: translate(-50%, 10px) scale(.6); }
+    18% { opacity: 1; transform: translate(-50%, -8px) scale(1.25); }
+    30% { transform: translate(-50%, -14px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -54px) scale(1); }
+  }
+  .clash-dmg.blocked-zero { color: #7dd3fc; font-size: 1rem; letter-spacing: .08em; text-transform: uppercase; text-shadow: 0 2px 0 #0c4a6e, 0 4px 14px rgba(0,0,0,.6); }
+  .clash-dmg.heal { color: #86efac; font-size: 1.05rem; text-shadow: 0 2px 0 #052e16, 0 4px 14px rgba(0,0,0,.6); }
+
+  .clash-hero {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: 10px;
+    z-index: 2;
+    width: 188px;
+    padding: 16px 14px;
+    border-radius: 14px;
+    border: 1.5px solid var(--line);
+    background: linear-gradient(180deg, #1d2740, #10182c);
+    box-shadow: 0 18px 44px rgba(0,0,0,.5);
+    display: grid;
+    gap: 6px;
+    justify-items: center;
+    text-align: center;
+    opacity: 0;
+    transform: translate(34px, -50%);
+    transition: transform .28s ease-out, opacity .28s ease-out;
+  }
+  .clash-hero.in { opacity: 1; transform: translate(0, -50%); }
+  .clash-hero.hit { animation: heroJolt .42s cubic-bezier(.36,.07,.19,.97); border-color: #ef4444; box-shadow: 0 18px 44px rgba(0,0,0,.5), 0 0 26px rgba(239,68,68,.3); }
+  @keyframes heroJolt {
+    20% { transform: translate(16px, -50%) rotate(1.5deg); }
+    45% { transform: translate(-8px, -50%) rotate(-1deg); }
+    70% { transform: translate(4px, -50%); }
+    100% { transform: translate(0, -50%); }
+  }
+  .clash-hero-name { font-weight: 900; font-size: 1rem; }
+  .clash-hero-sub { color: var(--muted); font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; }
+  .clash-hero-life { font-size: 2.1rem; font-weight: 950; color: var(--bad); line-height: 1; }
+
+  .clash-skip { color: var(--muted); font-size: .66rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+
+  @media (max-width: 620px) {
+    .clash-stage { height: 252px; }
+    .clash-card { width: 140px; padding: 9px; gap: 5px; }
+    .clash-card.side-a { margin-right: 5px; }
+    .clash-card.side-b { margin-left: 5px; }
+    .clash-name { font-size: .78rem; }
+    .clash-type { font-size: .54rem; }
+    .clash-stat { font-size: .74rem; padding: 4px; }
+    .clash-cost { flex-basis: 23px; width: 23px; height: 23px; font-size: .74rem; }
+    .clash-hero { width: 150px; padding: 12px 10px; margin-left: 5px; }
+    .clash-hero-life { font-size: 1.7rem; }
+    .clash-dmg { font-size: 1.2rem; }
+    .clash-dmg.blocked-zero, .clash-dmg.heal { font-size: .84rem; }
+    .clash-flag { font-size: .58rem; letter-spacing: .14em; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clash-overlay *, .clash-stage { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+
+
+  @media (min-width: 761px) {
+    body {
+      background:
+        radial-gradient(circle at 15% 8%, rgba(59,130,246,.16), transparent 34%),
+        radial-gradient(circle at 85% 92%, rgba(168,85,247,.14), transparent 32%),
+        radial-gradient(circle at 50% 50%, rgba(125,211,252,.05), transparent 60%),
+        var(--bg);
+    }
+
+    .app { width: min(1360px, 100%); padding: 20px 22px 26px; }
+
+    .topbar { margin-bottom: 16px; }
+
+    /* Game panel reads as a lit tabletop, with the two armies facing off */
+    .game {
+      background:
+        radial-gradient(ellipse 120% 62% at 50% 50%, rgba(125,211,252,.05), transparent 72%),
+        linear-gradient(180deg, rgba(127,29,29,.10), rgba(21,28,47,.94) 42%, rgba(21,28,47,.94) 58%, rgba(30,64,175,.12)),
+        rgba(21,28,47,.92);
+    }
+
+    .side { padding: 14px 18px; gap: 8px 18px; }
+    .side.enemy { background: linear-gradient(180deg, rgba(127,29,29,.14), transparent); }
+    .side.player { background: linear-gradient(0deg, rgba(30,64,175,.14), transparent); }
+
+    /* Rail + battlefield: identity/champion/relics live in a compact side rail,
+       the board takes the remaining full width — no more stacked full-width rows */
+    .side {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      align-items: stretch;
+    }
+    .side.enemy {
+      grid-template-areas:
+        "hero  board"
+        "champ board"
+        "hand  board"
+        "relic board";
+      grid-template-rows: auto auto auto minmax(0, 1fr);
+    }
+    .side.player {
+      grid-template-areas:
+        "hero  board"
+        "champ board"
+        "relic board"
+        "handz handz";
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+    }
+    .side.enemy .hero-row { grid-area: hero; }
+    .side.enemy .champion-zone { grid-area: champ; }
+    .side.enemy .enemy-hand-zone { grid-area: hand; }
+    .side.enemy .relic-zone { grid-area: relic; }
+    .side.enemy .board-zone { grid-area: board; }
+    .side.player .hero-row { grid-area: hero; }
+    .side.player .champion-zone { grid-area: champ; }
+    .side.player .relic-zone { grid-area: relic; }
+    .side.player .board-zone { grid-area: board; }
+    .side.player .hand-zone { grid-area: handz; }
+
+    /* Rail hero block: portrait row on top, counters beneath */
+    .hero-row {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .hero { grid-column: 1 / -1; padding: 10px 12px; }
+    .hero-portrait { width: 46px; height: 46px; }
+
+    /* Battlefield fills its cell; cards anchor left instead of floating in a void */
+    .board-zone { display: flex; flex-direction: column; min-height: 0; }
+    .board-zone .board {
+      flex: 1;
+      justify-content: flex-start;
+      align-items: flex-start;
+      align-content: flex-start;
+      flex-wrap: wrap;
+      min-height: 168px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px dashed rgba(158,171,198,.16);
+      background:
+        repeating-linear-gradient(90deg, transparent, transparent 46px, rgba(158,171,198,.03) 46px, rgba(158,171,198,.03) 47px),
+        rgba(2,6,23,.28);
+    }
+    .relic-row { justify-content: flex-start; min-height: 44px; }
+    .card { flex-basis: 148px; }
+    .hand { justify-content: flex-start; }
+    .hand .card { flex-basis: 164px; }
+
+    /* Champion card fills the rail */
+    .champion-zone .board { padding-top: 12px; }
+    .champion-zone .card { flex: 1 1 auto; max-width: 100%; }
+
+    /* Empty-state labels sit centred in their zone, not pinned to the left edge */
+    .board > span, .relic-row > span, .hand > span {
+      margin: auto !important;
+      align-self: center;
+      text-align: center;
+      letter-spacing: .04em;
+      opacity: .8;
+    }
+
+    /* Enemy hand: a compact horizontal fan under the enemy hero, not a vertical stack */
+    .enemy-hand {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-start;
+    }
+    .enemy-card-back { width: 30px; height: 42px; }
+
+    .zone-label { margin-bottom: 4px; }
+
+    /* Central control strip feels like the table's edge */
+    .arena {
+      padding: 14px 18px;
+      background:
+        linear-gradient(180deg, rgba(2,6,23,.55), rgba(2,6,23,.35));
+    }
+    .arena-actions { min-width: 240px; grid-auto-flow: row; }
+    .arena .btn.primary { font-weight: 800; }
+
+    aside { position: sticky; top: 20px; }
+  }
+
+  @media (min-width: 981px) {
+    /* Real two-column desktop: give the board room and let the rail breathe */
+    .layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; }
+  }
+
+  /* ── Desktop / large-screen presentation (mobile <=760px untouched) ── */
+  @media (min-width: 761px) and (min-height: 600px) {
+    html, body { height: 100dvh; overflow: hidden; }
+    .app {
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .topbar { flex: 0 0 auto; }
+    .layout { flex: 1; min-height: 0; }
+    .layout > aside { min-height: 0; height: 100%; overflow-y: auto; box-sizing: border-box; position: static; }
+    .game { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    .side { flex: 1 1 0; min-height: 0; overflow: hidden; }
+    .side.player { flex: 1.35 1 0; }
+    .arena { flex: 0 0 auto; }
+    .side.enemy { grid-template-rows: auto auto auto minmax(0, 1fr); }
+    .side.player { grid-template-rows: auto auto minmax(0, 1fr) auto; }
+    .board-zone .board { min-height: 0; overflow-y: hidden; }
+    .hand-zone { min-height: 0; }
+    .hand { overflow-y: hidden; }
+    /* Compact cards: name, keywords, stats — full text lives in the hover zoom */
+    .board-zone .card .card-text, .hand .card .card-text { display: none; }
+    .card { min-height: 0; flex-basis: 132px; padding: 7px; gap: 4px; }
+    .hand .card { min-height: 116px; flex-basis: 150px; }
+    .board-zone .card { min-height: 104px; }
+    .card.commander { transform: none; }
+
+    /* Champion slot: horizontal chip that always fits the rail */
+    .champion-zone .board { padding-top: 0; min-height: 0; overflow: visible; }
+    .champion-zone .card {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: 0;
+      gap: 8px;
+      padding: 6px 10px;
+    }
+    .champion-zone .card .commander-badge,
+    .champion-zone .card .card-type,
+    .champion-zone .card .keywords,
+    .champion-zone .card .card-text,
+    .champion-zone .card .sick { display: none; }
+    .champion-zone .card .card-top { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; }
+    .champion-zone .card .card-name { font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .champion-zone .card > div:not(.card-top) { display: flex; align-items: center; min-width: 0; }
+    .champion-zone .card .card-status { margin: 0; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .champion-zone .card .stats { margin: 0; flex: 0 0 auto; gap: 4px; }
+    .champion-zone .card .stat { min-width: 0; padding: 3px 6px; font-size: .7rem; white-space: nowrap; }
+
+    /* Rail extras stay small so the battlefield gets the height */
+    .enemy-card-back { width: 24px; height: 34px; }
+    .relic-row { min-height: 34px; }
+    .hero { padding: 8px 12px; }
+    .hero-portrait { width: 40px; height: 40px; }
+  }
+
+  /* Hover zoom: enlarged readable copy of any card (desktop pointer devices) */
+  .card-peek {
+    position: fixed;
+    z-index: 90;
+    width: 250px;
+    pointer-events: none;
+    box-shadow: 0 18px 50px rgba(0,0,0,.65), 0 0 0 1px rgba(158,171,198,.25);
+    transform: none !important;
+    opacity: 0;
+    transition: opacity .1s ease;
+  }
+  .card-peek.show { opacity: 1; }
+  .card-peek .card-text { display: block !important; font-size: .85rem; line-height: 1.45; }
+  .card-peek .card-name { font-size: 1rem; white-space: normal; }
+  .card-peek .card-status { white-space: normal; max-width: none; }
+
+  /* Press-and-hold inspect on touch devices: centered, dimmed backdrop */
+  .card-peek.touch {
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(300px, 84vw);
+    min-height: 0;
+  }
+  .peek-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 89;
+    background: rgba(2, 6, 23, .6);
+    backdrop-filter: blur(2px);
+  }
+
+</style>
+
+
+
+
+
+
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="title-wrap">
+      <h1>Clearfront</h1>
+      <p>A compact card game where your Champion anchors the board and two hand cards shape your turn.</p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="rulesBtn">Rules</button>
+      <button class="btn" id="cardsBtn">Cards</button>
+      <button class="btn mobile-only" id="logBtn">Log</button>
+      <button class="btn danger" id="restartBtn">New</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <main class="game">
+      <section class="side enemy">
+        <div class="hero-row">
+          <div class="hero"><img class="hero-portrait" id="enemyPortrait" src="assets/7c9ae1fc-8916-4304-8a6e-5d4e107bbe80.png" alt="Enemy commander"><div class="hero-text"><strong id="enemyDeckName">Iron Covenant</strong><span id="enemyDeckSub">AI opponent</span><span class="mini-deck-info" id="enemyDeckInfo"></span></div></div>
+          <div class="counter life"><span class="value" id="enemyLife">20</span><span class="label">Life</span></div>
+          <div class="counter mana"><span class="value" id="enemyMana">0/0</span><span class="label">Mana</span></div>
+        </div>
+
+        <div class="zone champion-zone">
+          <div class="zone-label">Enemy Champion</div>
+          <div class="board" id="enemyChampionSlot"></div>
+        </div>
+
+        <div class="zone enemy-hand-zone">
+          <div class="zone-label">Enemy hand</div>
+          <div class="enemy-hand" id="enemyHand"></div>
+        </div>
+
+        <div class="zone relic-zone">
+          <div class="zone-label">Enemy relics</div>
+          <div class="relic-row" id="enemyRelics"></div>
+        </div>
+
+        <div class="zone board-zone">
+          <div class="zone-label">Enemy board</div>
+          <div class="board" id="enemyBoard"></div>
+          <div class="board-scrollbar" id="enemyBoardScrollbar" aria-label="Enemy board scroll position"><span id="enemyBoardScrollThumb"></span></div>
+        </div>
+      </section>
+
+      <section class="arena">
+        <div class="arena-info">
+          <div class="phase">
+            <strong id="phaseTitle">Your turn</strong>
+            <span id="phaseHelp">Play cards, then choose units to attack.</span>
+          </div>
+          <button class="latest-event" id="latestEventBtn" type="button" aria-label="Open recent events">
+            <span class="latest-event-label">Latest</span>
+            <span class="latest-event-text" id="latestEventText">New game started.</span>
+          </button>
+        </div>
+        <div class="arena-actions">
+          <button class="btn" id="undoBtn" type="button" disabled="">Undo</button>
+          <button class="btn" id="swapCardBtn" type="button">Swap 1 card</button>
+          <button class="btn combat-review" id="combatReviewBtn" type="button">Review blocks</button>
+          <button class="btn primary" id="mainActionBtn">Attack</button>
+        </div>
+      </section>
+
+      <section class="side player">
+        <div class="zone board-zone">
+          <div class="zone-label">Your board</div>
+          <div class="board" id="playerBoard"></div>
+          <div class="board-scrollbar" id="playerBoardScrollbar" aria-label="Your board scroll position"><span id="playerBoardScrollThumb"></span></div>
+        </div>
+
+        <div class="zone relic-zone">
+          <div class="zone-label">Your relics</div>
+          <div class="relic-row" id="playerRelics"></div>
+        </div>
+
+        <div class="zone hand-zone">
+          <div class="zone-label" id="playerHandLabel">Your hand · 3-card limit</div>
+          <div class="hand" id="playerHand"></div>
+        </div>
+
+        <div class="hero-row">
+          <div class="hero"><img class="hero-portrait" id="playerPortrait" src="assets/3fc6801a-1429-48f4-aae2-0925e8d8f075.png" alt="Your commander"><div class="hero-text"><strong id="playerDeckName">Emberwild</strong><span id="playerDeckSub">You</span></div></div>
+          <div class="counter life"><span class="value" id="playerLife">20</span><span class="label">Life</span></div>
+          <div class="counter mana"><span class="value" id="playerMana">0/0</span><span class="label">Mana</span></div>
+        </div>
+
+        <div class="zone champion-zone">
+          <div class="zone-label">Your Champion</div>
+          <div class="board" id="playerChampionSlot"></div>
+        </div>
+      </section>
+    </main>
+
+    <aside>
+      <section class="panel">
+        <h2>How to play</h2>
+        <ul>
+          <li>Your hand holds at most 3 cards and refills to 3 when your turn ends.</li>
+          <li>Your Champion sits outside your deck in its own slot. Deploy it for mana whenever you like as one of your 2 plays.</li>
+          <li>A deployed Champion is a unit with an ongoing ability. If destroyed, it returns to its slot at +2 cost.</li>
+          <li>You may play at most 2 cards per turn (deploying your Champion counts as one).</li>
+          <li>You may swap one unwanted card each turn.</li>
+          <li>Click a card in your hand to play it.</li>
+          <li>You have one attack step each turn. You may play cards before or after it.</li>
+          <li>Click ready units to select attackers, then confirm the attack.</li>
+          <li>During defense, click your blocker, then an enemy attacker.</li>
+          <li>The bottom bar shows unblocked damage and projected life.</li>
+          <li>Use Review blocks to see which units survive before resolving combat.</li>
+          <li>Attacks play out as short card clashes. Tap the clash screen to skip.</li>
+          <li>Tap Latest or Log to see why a card was destroyed or discarded.</li>
+          <li>Reduce the opponent from 20 life to 0.</li>
+        </ul>
+      </section>
+      <section class="panel">
+        <h2>Champions</h2>
+        <ul>
+          <li><strong>Ember Warden</strong> (Emberwild): first damage card each turn deals +1 damage.</li>
+          <li><strong>Verdant Sentinel</strong> (Verdant Court): first unit played each turn gains +1 Health.</li>
+          <li><strong>Iron Warden</strong> (Iron Covenant): prevents the first 1 damage each turn cycle.</li>
+          <li><strong>Ashen Reaper</strong> (Ashen Murder): first friendly death each turn cycle deals 1 damage.</li>
+          <li><strong>Gilded Champion</strong> (Gilded Vigil): first damage card each turn deals +2 damage.</li>
+          <li><strong>Thicket Stalker</strong> (Thicket Guile): first unit played each turn gains +2 Health; has Rush.</li>
+        </ul>
+      </section>
+      <section class="panel">
+        <h2>Keywords</h2>
+        <ul>
+          <li><strong>Charge:</strong> Can attack immediately.</li>
+          <li><strong>Rush:</strong> Can attack immediately, but cannot hit the opposing player its entry turn.</li>
+          <li><strong>Flying:</strong> Only Flying can block it.</li>
+          <li><strong>Shield:</strong> Prevent the next damage.</li>
+          <li><strong>Drain:</strong> Damage restores that much life.</li>
+          <li><strong>Guard:</strong> Must be blocked before other attackers.</li>
+          <li><strong>Stun:</strong> Cannot attack during its next turn.</li>
+        </ul>
+      </section>
+      <section class="panel">
+        <h2>Game log</h2>
+        <div class="log" id="gameLog"></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="clash-overlay" id="clashOverlay" data-screen-label="Combat clash">
+  <div class="clash-track">
+    <div class="clash-header">
+      <img class="clash-portrait" id="clashPortraitYou" src="assets/3fc6801a-1429-48f4-aae2-0925e8d8f075.png" alt="">
+      <span class="clash-round" id="clashRound">Your attack</span>
+      <span class="clash-step" id="clashStep"></span>
+      <img class="clash-portrait" id="clashPortraitFoe" src="assets/7c9ae1fc-8916-4304-8a6e-5d4e107bbe80.png" alt="">
+    </div>
+    <div class="clash-stage" id="clashStage"></div>
+    <div class="clash-skip">Tap anywhere to skip</div>
+  </div>
+</div>
+
+<div class="overlay" id="deckSelectOverlay" data-screen-label="Deck select">
+  <div class="modal deck-select-modal">
+    <h2>Choose your Champion</h2>
+    <p class="deck-select-sub">Each Champion leads a 30-card deck built from two factions. A rival Champion takes the other side.</p>
+    <div class="deck-grid" id="deckGrid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="rulesOverlay">
+  <div class="modal">
+    <h2>Clearfront rules</h2>
+    <ol>
+      <li>Each player starts at 20 life with a 30-card deck made of two factions, plus a Champion kept outside the deck.</li>
+      <li>Your hand holds at most 3 cards. It refills to 3 at the end of your turn.</li>
+      <li>Deploy your Champion for mana whenever you like; it counts as one of your 2 plays and enters as a unit.</li>
+      <li>A destroyed Champion returns to its slot with its cost increased by 2, and can be redeployed later.</li>
+      <li>While on the battlefield, your Champion grants one ongoing ability, such as +1 damage on your first damage card or +1 Health on your first unit.</li>
+      <li>The starting player is chosen randomly each game.</li>
+      <li>Your opening hand always includes at least one 1-cost card.</li>
+      <li>Once each turn, you may discard one card and immediately draw a replacement.</li>
+      <li>At the start of your turn, gain 1 maximum mana and refill mana. There is no automatic start-of-turn draw.</li>
+      <li>Units stay on the board. Spells happen once. Relics give ongoing effects.</li>
+      <li>You have one attack step each turn and may play cards before or after it.</li>
+      <li>Units normally wait one turn before attacking. Charge ignores this if you have not used your attack step yet.</li>
+      <li>The attacker chooses attackers. The defender may assign one blocker to each attacker; each blocker can block only once.</li>
+      <li>A blocked attacker deals no damage to the player, even when its blocker is destroyed.</li>
+      <li>Blocked units deal damage to each other at the same time. Unblocked units hit the player.</li>
+      <li>Damage remains on units until they are healed or destroyed.</li>
+      <li>Cards can reward damaged enemies, Health gains, Shields, surviving combat, sacrifices, and being played first or second.</li>
+      <li>Raised, faction-colored cards are Champions. Desaturated cards cannot currently act; their label explains why.</li>
+      <li>Undo reverses one reversible action. Combat resolution and ending a turn cannot be undone.</li>
+      <li>Green status labels show when a card’s synergy or bonus is currently active.</li>
+    </ol>
+    <button class="btn primary" id="closeRulesBtn">Close</button>
+  </div>
+</div>
+
+
+<div class="overlay" id="cardsOverlay">
+  <div class="modal catalog-modal">
+    <h2>Card collection</h2>
+    <p class="catalog-summary">Champion prototype across four factions. Deploy your Champion when ready, and use your other cards to build the turn.</p>
+    <div id="cardCatalog"></div>
+    <button class="btn primary catalog-close" id="closeCardsBtn">Close</button>
+  </div>
+</div>
+
+<div class="overlay" id="logOverlay">
+  <div class="modal">
+    <h2>Recent events</h2>
+    <p>Newest first. This records card plays, damage, destruction, and rules that changed the result.</p>
+    <div class="log" id="mobileGameLog"></div>
+    <button class="btn primary" id="closeLogBtn">Close</button>
+  </div>
+</div>
+
+<div class="overlay" id="blockOverlay">
+  <div class="modal">
+    <h2>Block assignment</h2>
+    <div id="blockReviewBody"></div>
+    <div class="modal-actions">
+      <button class="btn primary" id="closeBlockBtn">Back to battlefield</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="combatReportOverlay">
+  <div class="modal">
+    <h2>Combat report</h2>
+    <div id="combatReportBody"></div>
+    <div class="modal-actions">
+      <button class="btn primary" id="closeCombatReportBtn">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="gameOverOverlay">
+  <div class="modal">
+    <h2 id="gameOverTitle">Game over</h2>
+    <p id="gameOverText"></p>
+    <button class="btn primary" id="playAgainBtn">Play again</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const MAX_BOARD = 6;
+  const MAX_RELICS = 3;
+  const HAND_LIMIT = 3;
+  const STARTING_HAND = 3;
+  const MAX_CARDS_PER_TURN = 2;
+
+  const CARD_LIBRARY = {
+    // Flame — fast units and direct damage
+    spark_imp: { name: 'Spark Imp', type: 'unit', faction: 'Flame', cost: 1, attack: 1, health: 2, text: 'When played: Deal 1 damage to the enemy player.', effect: 'pingHero' },
+    coal_hound: { name: 'Coal Hound', type: 'unit', faction: 'Flame', cost: 1, attack: 2, health: 1, text: 'No ability.' },
+    ember_runner: { name: 'Ember Runner', type: 'unit', faction: 'Flame', cost: 1, attack: 1, health: 1, text: 'Charge.', keywords: ['Charge'] },
+    flare: { name: 'Flare', type: 'spell', faction: 'Flame', cost: 1, text: 'Deal 1 damage to the enemy player.', effect: 'pingHero' },
+    ash_runner: { name: 'Ash Runner', type: 'unit', faction: 'Flame', cost: 2, attack: 2, health: 1, text: 'Charge.', keywords: ['Charge'] },
+    smoke_scout: { name: 'Smoke Scout', type: 'unit', faction: 'Flame', cost: 2, attack: 2, health: 2, text: 'When played: Deal 1 damage to the enemy player.', effect: 'pingHero' },
+    ember_mage: { name: 'Ember Mage', type: 'unit', faction: 'Flame', cost: 3, attack: 2, health: 3, text: 'When played: Deal 1 damage to an enemy unit.', effect: 'pingUnit' },
+    forge_brute: { name: 'Forge Brute', type: 'unit', faction: 'Flame', cost: 3, attack: 4, health: 3, text: 'No ability.' },
+    phoenix_hatchling: { name: 'Phoenix Hatchling', type: 'unit', faction: 'Flame', cost: 3, attack: 2, health: 2, text: 'Flying.', keywords: ['Flying'] },
+    fire_drake: { name: 'Fire Drake', type: 'unit', faction: 'Flame', cost: 4, attack: 4, health: 3, text: 'Flying.', keywords: ['Flying'] },
+    lava_elemental: { name: 'Lava Elemental', type: 'unit', faction: 'Flame', cost: 5, attack: 5, health: 5, text: 'When played: Deal 1 damage to all enemy units.', effect: 'aoe1' },
+    cinder_giant: { name: 'Cinder Giant', type: 'unit', faction: 'Flame', cost: 6, attack: 6, health: 5, text: 'No ability.' },
+    firebolt: { name: 'Firebolt', type: 'spell', faction: 'Flame', cost: 2, text: 'Deal 3 damage to an enemy unit.', effect: 'damage3' },
+    scorch: { name: 'Scorch', type: 'spell', faction: 'Flame', cost: 1, text: 'Deal 2 damage to an enemy unit.', effect: 'damage2' },
+    flame_wave: { name: 'Flame Wave', type: 'spell', faction: 'Flame', cost: 5, text: 'Deal 2 damage to all enemy units.', effect: 'aoe2' },
+    inferno: { name: 'Inferno', type: 'spell', faction: 'Flame', cost: 7, text: 'Deal 3 damage to all enemy units.', effect: 'aoe3' },
+    ember_shrine: { name: 'Ember Shrine', type: 'relic', faction: 'Flame', cost: 3, text: 'Your first damage spell each turn deals 1 extra damage.', effect: 'firstSpellBonus' },
+
+    // Wild — efficient creatures, growth, and healing
+    young_wolf: { name: 'Young Wolf', type: 'unit', faction: 'Wild', cost: 1, attack: 2, health: 1, text: 'No ability.' },
+    acorn_scout: { name: 'Acorn Scout', type: 'unit', faction: 'Wild', cost: 1, attack: 1, health: 3, text: 'No ability.' },
+    seedling: { name: 'Seedling', type: 'unit', faction: 'Wild', cost: 1, attack: 1, health: 2, text: 'No ability.' },
+    bark_guard: { name: 'Bark Guard', type: 'unit', faction: 'Wild', cost: 2, attack: 1, health: 4, text: 'Shield.', keywords: ['Shield'] },
+    thorn_lizard: { name: 'Thorn Lizard', type: 'unit', faction: 'Wild', cost: 2, attack: 3, health: 2, text: 'No ability.' },
+    sky_stag: { name: 'Sky Stag', type: 'unit', faction: 'Wild', cost: 3, attack: 3, health: 2, text: 'Flying.', keywords: ['Flying'] },
+    river_bear: { name: 'River Bear', type: 'unit', faction: 'Wild', cost: 3, attack: 3, health: 5, text: 'No ability.' },
+    pack_alpha: { name: 'Pack Alpha', type: 'unit', faction: 'Wild', cost: 4, attack: 3, health: 4, text: 'When played: Give another friendly unit +1/+1.', effect: 'buffFriendly' },
+    ancient_boar: { name: 'Ancient Boar', type: 'unit', faction: 'Wild', cost: 4, attack: 5, health: 4, text: 'No ability.' },
+    moss_titan: { name: 'Moss Titan', type: 'unit', faction: 'Wild', cost: 5, attack: 4, health: 7, text: 'Guard.', keywords: ['Guard'] },
+    world_tree_guard: { name: 'World-Tree Guard', type: 'unit', faction: 'Wild', cost: 7, attack: 6, health: 9, text: 'Guard.', keywords: ['Guard'] },
+    wild_growth: { name: 'Wild Growth', type: 'spell', faction: 'Wild', cost: 2, text: 'Give a friendly unit +2/+2.', effect: 'buff2' },
+    renewal: { name: 'Renewal', type: 'spell', faction: 'Wild', cost: 2, text: 'Restore 4 health to a friendly unit.', effect: 'heal4' },
+    mend: { name: 'Mend', type: 'spell', faction: 'Wild', cost: 1, text: 'Restore 3 health to a friendly unit.', effect: 'heal3' },
+    stampede: { name: 'Stampede', type: 'spell', faction: 'Wild', cost: 4, text: 'Give all friendly units +1/+1.', effect: 'buffAll1' },
+    war_drum: { name: 'War Drum', type: 'relic', faction: 'Wild', cost: 3, text: 'Your attacking units have +1 Attack.', effect: 'attackBoost' },
+
+    // Order — defense, shields, and steady healing
+    recruit: { name: 'Recruit', type: 'unit', faction: 'Order', cost: 1, attack: 1, health: 2, text: 'No ability.' },
+    vanguard_squire: { name: 'Vanguard Squire', type: 'unit', faction: 'Order', cost: 1, attack: 1, health: 1, text: 'Charge.', keywords: ['Charge'] },
+    ward_novice: { name: 'Ward Novice', type: 'unit', faction: 'Order', cost: 1, attack: 1, health: 2, text: 'Shield.', keywords: ['Shield'] },
+    shield_bearer: { name: 'Shield Bearer', type: 'unit', faction: 'Order', cost: 2, attack: 1, health: 4, text: 'Guard.', keywords: ['Guard'] },
+    skyguard: { name: 'Skyguard', type: 'unit', faction: 'Order', cost: 2, attack: 2, health: 2, text: 'Flying.', keywords: ['Flying'] },
+    field_medic: { name: 'Field Medic', type: 'unit', faction: 'Order', cost: 2, attack: 2, health: 2, text: 'When played: Restore 2 life.', effect: 'healHero2' },
+    dawn_knight: { name: 'Dawn Knight', type: 'unit', faction: 'Order', cost: 3, attack: 3, health: 3, text: 'Shield.', keywords: ['Shield'] },
+    sun_priest: { name: 'Sun Priest', type: 'unit', faction: 'Order', cost: 3, attack: 2, health: 4, text: 'When played: Restore 2 life.', effect: 'healHero2' },
+    wall_sentinel: { name: 'Wall Sentinel', type: 'unit', faction: 'Order', cost: 3, attack: 1, health: 6, text: 'Guard.', keywords: ['Guard'] },
+    griffin: { name: 'Griffin', type: 'unit', faction: 'Order', cost: 4, attack: 4, health: 3, text: 'Flying.', keywords: ['Flying'] },
+    banner_knight: { name: 'Banner Knight', type: 'unit', faction: 'Order', cost: 4, attack: 4, health: 4, text: 'No ability.' },
+    golden_lion: { name: 'Golden Lion', type: 'unit', faction: 'Order', cost: 5, attack: 5, health: 6, text: 'No ability.' },
+    high_guardian: { name: 'High Guardian', type: 'unit', faction: 'Order', cost: 6, attack: 4, health: 8, text: 'Guard.', keywords: ['Guard'] },
+    radiant_blessing: { name: 'Radiant Blessing', type: 'spell', faction: 'Order', cost: 2, text: 'Give a friendly unit Shield.', effect: 'giveShield' },
+    smite: { name: 'Smite', type: 'spell', faction: 'Order', cost: 2, text: 'Deal 2 damage to an enemy unit.', effect: 'damage2' },
+    rally: { name: 'Rally', type: 'spell', faction: 'Order', cost: 3, text: 'Give all friendly units +1/+1.', effect: 'buffAll1' },
+    healing_spring: { name: 'Healing Spring', type: 'relic', faction: 'Order', cost: 3, text: 'At turn start: Restore 1 life.', effect: 'turnHeal' },
+
+    // Shadow — sacrifice, drain, and removal
+    grave_rat: { name: 'Grave Rat', type: 'unit', faction: 'Shadow', cost: 1, attack: 1, health: 1, text: 'When destroyed: Deal 1 damage to the enemy player.', deathEffect: 'deathPing' },
+    bonecrawler: { name: 'Bonecrawler', type: 'unit', faction: 'Shadow', cost: 1, attack: 2, health: 1, text: 'No ability.' },
+    shade_bolt: { name: 'Shade Bolt', type: 'spell', faction: 'Shadow', cost: 1, text: 'Deal 1 damage to the enemy player.', effect: 'pingHero' },
+    blood_leech: { name: 'Blood Leech', type: 'unit', faction: 'Shadow', cost: 2, attack: 2, health: 2, text: 'Drain.', keywords: ['Drain'] },
+    pain_acolyte: { name: 'Pain Acolyte', type: 'unit', faction: 'Shadow', cost: 2, attack: 3, health: 2, text: 'When played: Take 1 damage.', effect: 'selfDamage1' },
+    night_wing: { name: 'Night Wing', type: 'unit', faction: 'Shadow', cost: 3, attack: 3, health: 2, text: 'Flying.', keywords: ['Flying'] },
+    hollow_guard: { name: 'Hollow Guard', type: 'unit', faction: 'Shadow', cost: 3, attack: 2, health: 5, text: 'Guard.', keywords: ['Guard'] },
+    vampire_bat: { name: 'Vampire Bat', type: 'unit', faction: 'Shadow', cost: 3, attack: 2, health: 2, text: 'Flying. Drain.', keywords: ['Flying', 'Drain'] },
+    dusk_reaper: { name: 'Dusk Reaper', type: 'unit', faction: 'Shadow', cost: 4, attack: 4, health: 4, text: 'When played: Take 2 damage.', effect: 'selfDamage2' },
+    crypt_horror: { name: 'Crypt Horror', type: 'unit', faction: 'Shadow', cost: 5, attack: 5, health: 6, text: 'No ability.' },
+    cruel_end: { name: 'Cruel End', type: 'spell', faction: 'Shadow', cost: 3, text: 'Destroy a damaged enemy unit.', effect: 'destroyDamaged' },
+    doom_blade: { name: 'Doom Blade', type: 'spell', faction: 'Shadow', cost: 4, text: 'Destroy an enemy unit.', effect: 'destroyUnit' },
+    soul_drain: { name: 'Soul Drain', type: 'spell', faction: 'Shadow', cost: 3, text: 'Deal 2 damage to an enemy unit and restore 2 life.', effect: 'damage2heal2' },
+    dark_bargain: { name: 'Dark Bargain', type: 'spell', faction: 'Shadow', cost: 2, text: 'Discard your other cards, refill to 3, and take 2 damage.', effect: 'refreshHandHurt2' },
+    soul_lantern: { name: 'Soul Lantern', type: 'relic', faction: 'Shadow', cost: 3, text: 'When your unit is destroyed, restore 1 life.', effect: 'deathHeal' },
+    blood_idol: { name: 'Blood Idol', type: 'relic', faction: 'Shadow', cost: 3, text: 'At turn start: Replace your highest-cost card and take 1 damage.', effect: 'turnReplaceHurt1' },
+
+    // Synergy package — short setup, payoff, and engine cards
+    cinder_imp: { name: 'Cinder Imp', type: 'unit', faction: 'Flame', cost: 1, attack: 1, health: 1, text: 'When played: Deal 1 damage to an enemy unit.', effect: 'pingUnit' },
+    ash_hunter: { name: 'Ash Hunter', type: 'unit', faction: 'Flame', cost: 3, attack: 3, health: 3, text: 'Has +2 Attack while an enemy unit is damaged.', effect: 'damagedEnemyBoost' },
+    prepared_strike: { name: 'Prepared Strike', type: 'spell', faction: 'Flame', cost: 2, text: 'Deal 2 damage, or 4 if this is your second card.', effect: 'preparedStrike' },
+    finish_weak: { name: 'Finish the Weak', type: 'spell', faction: 'Flame', cost: 2, text: 'Deal 4 damage to a damaged enemy unit.', effect: 'finishWeak' },
+
+    young_sprout: { name: 'Young Sprout', type: 'unit', faction: 'Wild', cost: 1, attack: 1, health: 2, text: 'After this gains Health, give it +1 Attack.', effect: 'growOnHealth' },
+    grove_tender: { name: 'Grove Tender', type: 'unit', faction: 'Wild', cost: 2, attack: 2, health: 2, text: 'When played: Give another friendly unit +2 Health.', effect: 'giveHealth2' },
+    ancient_stag: { name: 'Ancient Stag', type: 'unit', faction: 'Wild', cost: 5, attack: 5, health: 5, text: 'When played: Gain Shield if another friendly unit has 5 Health.', effect: 'shieldIfBigFriend' },
+    pack_instinct: { name: 'Pack Instinct', type: 'spell', faction: 'Wild', cost: 2, text: 'Give a unit +1/+1, or +2/+2 if played first.', effect: 'packInstinct' },
+    living_grove: { name: 'Living Grove', type: 'relic', faction: 'Wild', cost: 3, text: 'The first unit to gain Health each turn also gains +1 Attack.', effect: 'healthGainAttack' },
+
+    shield_recruit: { name: 'Shield Recruit', type: 'unit', faction: 'Order', cost: 1, attack: 1, health: 2, text: 'When played: Give another friendly unit Shield.', effect: 'shieldOther' },
+    steadfast_guard: { name: 'Steadfast Guard', type: 'unit', faction: 'Order', cost: 3, attack: 2, health: 5, text: 'After this survives combat, give it +1 Attack.', effect: 'growAfterSurvive' },
+    rally_line: { name: 'Rally the Line', type: 'spell', faction: 'Order', cost: 2, text: 'Give your damaged units +1/+2.', effect: 'buffDamaged' },
+    patient_guardian: { name: 'Patient Guardian', type: 'unit', faction: 'Order', cost: 3, attack: 2, health: 5, text: 'At turn end: Gain Shield if you played only 1 card.', effect: 'shieldIfOneCard' },
+    fortress_bell: { name: 'Fortress Bell', type: 'relic', faction: 'Order', cost: 3, text: 'After your first unit survives combat each turn, restore 1 life.', effect: 'surviveHeal' },
+
+    doomed_servant: { name: 'Doomed Servant', type: 'unit', faction: 'Shadow', cost: 1, attack: 1, health: 1, text: 'When destroyed: Deal 2 damage to the enemy player.', deathEffect: 'deathPing2' },
+    bone_collector: { name: 'Bone Collector', type: 'unit', faction: 'Shadow', cost: 3, attack: 3, health: 3, text: 'After a friendly unit is destroyed, give this +1/+1.', effect: 'growOnFriendlyDeath' },
+    sacrifice_blast: { name: 'Sacrifice Blast', type: 'spell', faction: 'Shadow', cost: 2, text: 'Destroy your weakest unit, then deal 4 damage to an enemy unit.', effect: 'sacrificeBlast' },
+    bone_altar: { name: 'Bone Altar', type: 'relic', faction: 'Shadow', cost: 3, text: 'After your first unit is destroyed each turn, deal 1 damage to the enemy player.', effect: 'firstDeathPing' }
+  };
+
+  // Each deck contains 30 different cards so the expanded pool appears in normal play.
+  const PLAYER_DECKLIST = [
+    'cinder_imp','coal_hound','ember_runner','flare','ash_runner','smoke_scout','ash_hunter','forge_brute','phoenix_hatchling','fire_drake','firebolt','scorch','prepared_strike','finish_weak','ember_shrine',
+    'young_sprout','acorn_scout','seedling','bark_guard','grove_tender','thorn_lizard','sky_stag','river_bear','pack_alpha','ancient_stag','moss_titan','wild_growth','mend','pack_instinct','living_grove'
+  ];
+
+  const AI_DECKLIST = [
+    'shield_recruit','recruit','vanguard_squire','ward_novice','shield_bearer','skyguard','field_medic','steadfast_guard','dawn_knight','wall_sentinel','patient_guardian','radiant_blessing','rally_line','fortress_bell','healing_spring',
+    'doomed_servant','grave_rat','bonecrawler','shade_bolt','blood_leech','pain_acolyte','bone_collector','night_wing','hollow_guard','vampire_bat','cruel_end','soul_drain','sacrifice_blast','bone_altar','soul_lantern'
+  ];
+
+  const DECKS = [
+    { id: 'lion', name: 'Emberwild', factions: ['Flame', 'Wild'], color: '#fb923c', img: window.__resources.deck_lion, blurb: 'Fast damage backed by growing beasts.', champion: { id: 'champion_lion', name: 'Ember Warden', faction: 'Flame', baseCost: 6, attack: 4, health: 6, keywords: ['Charge'], abilityKey: 'flameDamage', abilityMag: 1, abilityText: 'While on the battlefield: your first damage card each turn deals +1 damage.' } },
+    { id: 'stag', name: 'Verdant Court', factions: ['Wild', 'Order'], color: '#4ade80', img: window.__resources.deck_stag, blurb: 'Tall health, shields, and steady healing.', champion: { id: 'champion_stag', name: 'Verdant Sentinel', faction: 'Wild', baseCost: 6, attack: 3, health: 8, keywords: ['Shield'], abilityKey: 'wildHealth', abilityMag: 1, abilityText: 'While on the battlefield: the first unit you play each turn gains +1 Health.' } },
+    { id: 'badger', name: 'Iron Covenant', factions: ['Order', 'Shadow'], color: '#93c5fd', img: window.__resources.deck_badger, blurb: 'Defensive walls that profit from losses.', champion: { id: 'champion_badger', name: 'Iron Warden', faction: 'Order', baseCost: 6, attack: 3, health: 9, keywords: ['Guard'], abilityKey: 'orderPrevent', abilityMag: 1, abilityText: 'While on the battlefield: prevent the first 1 damage dealt to you each turn cycle.' } },
+    { id: 'raven', name: 'Ashen Murder', factions: ['Flame', 'Shadow'], color: '#c084fc', img: window.__resources.deck_raven, blurb: 'Burn everything, even your own units.', champion: { id: 'champion_raven', name: 'Ashen Reaper', faction: 'Shadow', baseCost: 6, attack: 5, health: 5, keywords: ['Flying'], abilityKey: 'shadowDeath', abilityMag: 1, abilityText: 'While on the battlefield: the first friendly unit destroyed each turn cycle deals 1 damage to the enemy.' } },
+    { id: 'owl', name: 'Gilded Vigil', factions: ['Order', 'Flame'], color: '#facc15', img: window.__resources.deck_owl, blurb: 'Patient defense that strikes back hard.', champion: { id: 'champion_owl', name: 'Gilded Champion', faction: 'Flame', baseCost: 6, attack: 4, health: 7, keywords: ['Shield'], abilityKey: 'flameDamage', abilityMag: 2, abilityText: 'While on the battlefield: your first damage card each turn deals +2 damage.' } },
+    { id: 'fox', name: 'Thicket Guile', factions: ['Wild', 'Shadow'], color: '#34d399', img: window.__resources.deck_fox, blurb: 'Tricky growth with cruel sacrifices.', champion: { id: 'champion_fox', name: 'Thicket Stalker', faction: 'Wild', baseCost: 6, attack: 5, health: 5, keywords: ['Rush'], abilityKey: 'wildHealth', abilityMag: 2, abilityText: 'While on the battlefield: the first unit you play each turn gains +2 Health. Rush: can attack enemy units the turn it enters play, but not the opposing player.' } }
+  ];
+  let playerDeckChoice = DECKS[0];
+  let enemyDeckChoice = DECKS[2];
+
+  const $ = (id) => document.getElementById(id);
+  const refs = {
+    enemyLife: $('enemyLife'), enemyMana: $('enemyMana'), enemyHand: $('enemyHand'), enemyRelics: $('enemyRelics'), enemyBoard: $('enemyBoard'),
+    playerLife: $('playerLife'), playerMana: $('playerMana'), playerHand: $('playerHand'), playerRelics: $('playerRelics'), playerBoard: $('playerBoard'), playerChampionSlot: $('playerChampionSlot'), enemyChampionSlot: $('enemyChampionSlot'),
+    phaseTitle: $('phaseTitle'), phaseHelp: $('phaseHelp'), mainActionBtn: $('mainActionBtn'), undoBtn: $('undoBtn'), swapCardBtn: $('swapCardBtn'), combatReviewBtn: $('combatReviewBtn'), latestEventBtn: $('latestEventBtn'), latestEventText: $('latestEventText'), gameLog: $('gameLog'),
+    rulesOverlay: $('rulesOverlay'), cardsOverlay: $('cardsOverlay'), cardCatalog: $('cardCatalog'), logOverlay: $('logOverlay'), mobileGameLog: $('mobileGameLog'), blockOverlay: $('blockOverlay'), blockReviewBody: $('blockReviewBody'), combatReportOverlay: $('combatReportOverlay'), combatReportBody: $('combatReportBody'), enemyDeckInfo: $('enemyDeckInfo'), gameOverOverlay: $('gameOverOverlay'), gameOverTitle: $('gameOverTitle'), gameOverText: $('gameOverText'), playerHandLabel: $('playerHandLabel'), enemyBoardScrollbar: $('enemyBoardScrollbar'), enemyBoardScrollThumb: $('enemyBoardScrollThumb'), playerBoardScrollbar: $('playerBoardScrollbar'), playerBoardScrollThumb: $('playerBoardScrollThumb'),
+    clashOverlay: $('clashOverlay'), clashStage: $('clashStage'), clashRound: $('clashRound'), clashStep: $('clashStep')
+  };
+
+
+
+  let uidCounter = 1;
+  let state;
+  let undoRecord = null;
+
+  const FACTION_POOLS = { Flame: [], Wild: [], Order: [], Shadow: [] };
+  [...PLAYER_DECKLIST, ...AI_DECKLIST].forEach(id => FACTION_POOLS[CARD_LIBRARY[id].faction].push(id));
+
+  function buildDecklist(deckDef) {
+    return [...FACTION_POOLS[deckDef.factions[0]], ...FACTION_POOLS[deckDef.factions[1]]];
+  }
+
+  function applyDeckIdentity() {
+    const p = playerDeckChoice, e = enemyDeckChoice;
+    const playerPortrait = $('playerPortrait'), enemyPortrait = $('enemyPortrait');
+    playerPortrait.src = p.img; playerPortrait.alt = p.name;
+    playerPortrait.style.setProperty('--deck-color', p.color);
+    $('playerDeckName').textContent = p.name;
+    $('playerDeckSub').textContent = `You \u00b7 ${p.factions.join(' & ')}`;
+    enemyPortrait.src = e.img; enemyPortrait.alt = e.name;
+    enemyPortrait.style.setProperty('--deck-color', e.color);
+    $('enemyDeckName').textContent = e.name;
+    $('enemyDeckSub').textContent = `AI \u00b7 ${e.factions.join(' & ')}`;
+    const clashYou = $('clashPortraitYou'), clashFoe = $('clashPortraitFoe');
+    clashYou.src = p.img; clashYou.style.setProperty('--deck-color', p.color);
+    clashFoe.src = e.img; clashFoe.style.setProperty('--deck-color', e.color);
+    document.documentElement.style.setProperty('--accent', p.color);
+  }
+
+  function showDeckSelect() {
+    const grid = $('deckGrid');
+    grid.innerHTML = '';
+    DECKS.forEach(deck => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'deck-option';
+      btn.style.setProperty('--deck-color', deck.color);
+      btn.innerHTML = `<img src="${deck.img}" alt="" /><strong>${deck.name}</strong><span class="deck-factions">${deck.factions.join(' \u00b7 ')}</span><span class="deck-blurb">${deck.blurb}</span>`;
+      btn.addEventListener('click', () => {
+        playerDeckChoice = deck;
+        const rivals = DECKS.filter(d => d.id !== deck.id);
+        enemyDeckChoice = rivals[Math.floor(Math.random() * rivals.length)];
+        $('deckSelectOverlay').classList.remove('show');
+        resetGame();
+      });
+      grid.appendChild(btn);
+    });
+    $('deckSelectOverlay').classList.add('show');
+  }
+
+
+  function makeCard(id) {
+    const base = CARD_LIBRARY[id];
+    return {
+      ...base,
+      id,
+      uid: uidCounter++,
+      keywords: [...(base.keywords || [])],
+      currentHealth: base.health ?? null,
+      maxHealth: base.health ?? null,
+      bonusAttack: 0,
+      summoningSick: base.type === 'unit',
+      exhausted: false,
+      shield: (base.keywords || []).includes('Shield')
+    };
+  }
+
+  function shuffle(array) {
+    const a = [...array];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function createSide(decklist, champDef) {
+    return {
+      life: 20,
+      maxMana: 0,
+      mana: 0,
+      deck: shuffle(decklist.map(makeCard)),
+      hand: [],
+      board: [],
+      relics: [],
+      graveyard: [],
+      swapUsed: false,
+      combatUsed: false,
+      cardsPlayed: 0,
+      firstSpellBonusUsed: false,
+      healthGainTriggerUsed: false,
+      deathTriggerUsed: false,
+      surviveTriggerUsed: false,
+      championCost: champDef.baseCost,
+      championInPlay: false,
+      championUid: null,
+      championDamageUsed: false,
+      championUnitUsed: false,
+      championOrderReady: false,
+      championDeathUsed: false
+    };
+  }
+
+  function resetGame() {
+    uidCounter = 1;
+    undoRecord = null;
+    state = {
+      player: createSide(buildDecklist(playerDeckChoice), playerDeckChoice.champion),
+      enemy: createSide(buildDecklist(enemyDeckChoice), enemyDeckChoice.champion),
+      turn: 'player',
+      phase: 'main',
+      selectedAttackers: new Set(),
+      aiAttackers: [],
+      blockAssignments: new Map(),
+      selectedBlocker: null,
+      targetMode: null,
+      gameOver: false,
+      log: [],
+      lastCombatReport: null,
+      pendingCombatReport: false,
+      swapMode: false
+    };
+
+    applyDeckIdentity();
+    dealStartingHand('player');
+    dealStartingHand('enemy');
+    const firstPlayer = Math.random() < 0.5 ? 'player' : 'enemy';
+    addLog(`New game started. ${playerDeckChoice.name} vs ${enemyDeckChoice.name}. ${firstPlayer === 'player' ? 'You go' : 'The enemy goes'} first.`, 'info');
+    startTurn(firstPlayer);
+  }
+
+  function sideOf(who) { return state[who]; }
+  function otherSide(who) { return who === 'player' ? 'enemy' : 'player'; }
+  function controllerLabel(who) { return who === 'player' ? 'You' : 'Enemy'; }
+
+  function championDef(who) {
+    return (who === 'player' ? playerDeckChoice : enemyDeckChoice).champion;
+  }
+
+  function resetChampionTurnFlags(who) {
+    const side = sideOf(who);
+    side.championDamageUsed = false;
+    side.championUnitUsed = false;
+    side.championOrderReady = championDef(who).abilityKey === 'orderPrevent';
+    side.championDeathUsed = false;
+  }
+
+  function championDeployReason(who) {
+    const side = sideOf(who);
+    const def = championDef(who);
+    if (side.championInPlay) return 'Already on the battlefield';
+    if (state.turn !== who || state.phase !== 'main') return 'Not your action window';
+    if (state.targetMode) return 'Finish target selection';
+    if (state.swapMode) return 'Finish card replacement';
+    if (side.cardsPlayed >= MAX_CARDS_PER_TURN) return '2-card limit reached';
+    if (side.board.length >= MAX_BOARD) return 'Board is full';
+    if (side.mana < side.championCost) return `Needs ${side.championCost - side.mana} more mana`;
+    return '';
+  }
+
+  function deployChampion(who) {
+    const side = sideOf(who);
+    const def = championDef(who);
+    if (championDeployReason(who)) return false;
+    if (who === 'player') saveUndo(`deploying ${def.name}`);
+    side.mana -= side.championCost;
+    side.cardsPlayed += 1;
+    const unit = {
+      id: def.id,
+      uid: uidCounter++,
+      name: def.name,
+      type: 'unit',
+      faction: def.faction,
+      cost: side.championCost,
+      text: def.abilityText,
+      attack: def.attack,
+      health: def.health,
+      keywords: [...def.keywords],
+      currentHealth: def.health,
+      maxHealth: def.health,
+      bonusAttack: 0,
+      summoningSick: !def.keywords.includes('Charge') && !def.keywords.includes('Rush'),
+      rushLocked: def.keywords.includes('Rush'),
+      exhausted: false,
+      shield: def.keywords.includes('Shield'),
+      isChampion: true
+    };
+    side.board.push(unit);
+    side.championInPlay = true;
+    side.championUid = unit.uid;
+    addLog(`${controllerLabel(who)} deployed ${def.name} as Champion.`, who === 'player' ? 'good' : 'bad', def.abilityText);
+    removeDeadUnits();
+    checkGameOver();
+    render();
+    return true;
+  }
+
+  function returnChampionToSlot(who, unit) {
+    const side = sideOf(who);
+    side.championInPlay = false;
+    side.championUid = null;
+    side.championCost += 2;
+    addLog(`${unit.name} returns to the Champion slot at ${side.championCost} mana.`, who === 'player' ? 'bad' : 'good', 'A destroyed Champion returns to its slot with its cost increased by 2.');
+  }
+
+  function saveUndo(label) {
+    if (state.gameOver) return;
+    undoRecord = { label, state: structuredClone(state), uidCounter };
+  }
+
+  function clearUndo() { undoRecord = null; }
+
+  function canUndo() {
+    return !!undoRecord && !state.gameOver && ((state.turn === 'player' && state.phase === 'main') || (state.turn === 'enemy' && state.phase === 'blocking'));
+  }
+
+  function undoLastAction() {
+    if (!canUndo()) return;
+    const label = undoRecord.label;
+    state = undoRecord.state;
+    uidCounter = undoRecord.uidCounter;
+    undoRecord = null;
+    refs.gameOverOverlay.classList.remove('show');
+    refs.blockOverlay.classList.remove('show');
+    refs.combatReportOverlay.classList.remove('show');
+    addLog(`Undid ${label}.`, 'info');
+    render();
+  }
+
+  function aiConsiderChampion() {
+    if (!championDeployReason('enemy')) deployChampion('enemy');
+  }
+
+  function addLog(text, tone = '', detail = '') {
+    state.log.unshift({ text, tone, detail });
+    state.log = state.log.slice(0, 60);
+  }
+
+  function dealStartingHand(who) {
+    const side = sideOf(who);
+    let oneCostIndex = -1;
+    for (let i = side.deck.length - 1; i >= 0; i--) {
+      if (side.deck[i].cost === 1) {
+        oneCostIndex = i;
+        break;
+      }
+    }
+    if (oneCostIndex >= 0) side.hand.push(side.deck.splice(oneCostIndex, 1)[0]);
+    while (side.hand.length < STARTING_HAND) {
+      if (!drawCard(who, false)) break;
+    }
+  }
+
+  function drawCard(who, logIt = true) {
+    const side = sideOf(who);
+    if (side.hand.length >= HAND_LIMIT) return false;
+    if (!side.deck.length) {
+      side.life -= 1;
+      if (logIt) addLog(`${controllerLabel(who)} could not refill and took 1 fatigue damage.`, who === 'player' ? 'bad' : 'good');
+      checkGameOver();
+      return false;
+    }
+    const card = side.deck.pop();
+    side.hand.push(card);
+    if (logIt) addLog(`${controllerLabel(who)} drew a card.`);
+    return true;
+  }
+
+  function refillHand(who, logIt = true) {
+    const side = sideOf(who);
+    const before = side.hand.length;
+    while (side.hand.length < HAND_LIMIT) {
+      if (!drawCard(who, false)) break;
+    }
+    const drawn = side.hand.length - before;
+    if (logIt && drawn > 0) {
+      addLog(`${controllerLabel(who)} refilled ${drawn} card${drawn === 1 ? '' : 's'} to a ${side.hand.length}-card hand.`, 'info', 'Hands refill only when their owner ends a turn.');
+    }
+    return drawn;
+  }
+
+  function replaceCard(who, cardUid, markTurnSwap = true, logIt = true) {
+    const side = sideOf(who);
+    const index = side.hand.findIndex(card => card.uid === cardUid);
+    if (index < 0 || (markTurnSwap && side.swapUsed)) return false;
+    const [discarded] = side.hand.splice(index, 1);
+    side.graveyard.push(discarded);
+    const drew = drawCard(who, false);
+    if (markTurnSwap) side.swapUsed = true;
+    if (logIt) {
+      addLog(`${controllerLabel(who)} replaced ${discarded.name}.`, who === 'player' ? 'info' : 'bad', drew ? 'The discarded card moved to the discard pile and a new card took its place.' : 'The discarded card moved to the discard pile, but the deck was empty.');
+    }
+    return true;
+  }
+
+  function startTurn(who) {
+    if (state.gameOver) return;
+    clearUndo();
+    resetChampionTurnFlags(who);
+    state.turn = who;
+    state.phase = 'main';
+    state.selectedAttackers.clear();
+    state.aiAttackers = [];
+    state.blockAssignments.clear();
+    state.selectedBlocker = null;
+    state.targetMode = null;
+    state.swapMode = false;
+
+    ['player', 'enemy'].forEach(key => {
+      sideOf(key).deathTriggerUsed = false;
+      sideOf(key).surviveTriggerUsed = false;
+    });
+    const side = sideOf(who);
+    side.swapUsed = false;
+    side.combatUsed = false;
+    side.cardsPlayed = 0;
+    side.firstSpellBonusUsed = false;
+    side.healthGainTriggerUsed = false;
+    side.deathTriggerUsed = false;
+    side.surviveTriggerUsed = false;
+    side.maxMana = Math.min(10, side.maxMana + 1);
+    side.mana = side.maxMana;
+    side.board.forEach(unit => {
+      unit.exhausted = false;
+      unit.summoningSick = false;
+      unit.rushLocked = false;
+    });
+
+    side.relics.forEach(relic => {
+      if (relic.effect === 'turnHeal') {
+        side.life = Math.min(20, side.life + 1);
+        addLog(`${relic.name} restored 1 life to ${controllerLabel(who).toLowerCase()}.`, who === 'player' ? 'good' : 'bad');
+      }
+      if (relic.effect === 'turnPing') {
+        const relicDamage = damageHero(otherSide(who), 1, who, relic.name);
+        addLog(`${relic.name} dealt ${relicDamage} damage to ${controllerLabel(otherSide(who)).toLowerCase()}.`, who === 'player' ? 'good' : 'bad');
+      }
+      if (relic.effect === 'turnReplaceHurt1') {
+        if (side.hand.length) {
+          const highest = [...side.hand].sort((a, b) => b.cost - a.cost)[0];
+          replaceCard(who, highest.uid, false, false);
+          addLog(`${relic.name} replaced ${highest.name} and dealt 1 damage to ${controllerLabel(who).toLowerCase()}.`, who === 'player' ? 'bad' : 'good');
+        }
+        side.life -= 1;
+      }
+    });
+
+    if (checkGameOver()) return;
+    addLog(`${controllerLabel(who)} started turn ${side.maxMana} with ${side.hand.length} card${side.hand.length === 1 ? '' : 's'}.`, 'info', side.championInPlay ? '' : `Deploy ${championDef(who).name} for ${side.championCost} mana when ready.`);
+    render();
+
+    if (who === 'enemy') {
+      window.setTimeout(aiMainPhase, 550);
+    }
+  }
+
+  function cardAttack(card, attacking = false, owner = 'player') {
+    let value = (card.attack || 0) + (card.bonusAttack || 0);
+    if (card.effect === 'damagedEnemyBoost' && sideOf(otherSide(owner)).board.some(unit => unit.currentHealth < unit.maxHealth)) value += 2;
+    if (attacking && sideOf(owner).relics.some(r => r.effect === 'attackBoost')) value += 1;
+    return value;
+  }
+
+  function effectiveCost(card, owner) {
+    return card.cost;
+  }
+
+  function isDamageCard(card) {
+    return ['pingHero','pingUnit','damage2','damage3','aoe1','aoe2','aoe3','damage2heal2','preparedStrike','finishWeak','sacrificeBlast'].includes(card.effect);
+  }
+
+  function isDamageSpell(card) {
+    return card.type === 'spell' && isDamageCard(card);
+  }
+
+  function damageHero(targetOwner, amount, sourceOwner, sourceName) {
+    const target = sideOf(targetOwner);
+    const targetChamp = championDef(targetOwner);
+    let prevented = 0;
+    if (sourceOwner !== targetOwner && target.championInPlay && targetChamp.abilityKey === 'orderPrevent' && target.championOrderReady && amount > 0) {
+      prevented = Math.min(targetChamp.abilityMag, amount);
+      target.championOrderReady = false;
+      addLog(`${targetChamp.name} prevented ${prevented} damage to ${controllerLabel(targetOwner).toLowerCase()}.`, targetOwner === 'player' ? 'good' : 'bad', `${sourceName || 'The damage source'} dealt ${amount - prevented} instead of ${amount}.`);
+    }
+    const dealt = Math.max(0, amount - prevented);
+    target.life -= dealt;
+    return dealt;
+  }
+
+  function getCardCondition(card, owner) {
+    const side = sideOf(owner);
+    const enemy = sideOf(otherSide(owner));
+    const first = side.cardsPlayed === 0;
+    const second = side.cardsPlayed === 1;
+    switch (card.effect) {
+      case 'damagedEnemyBoost': {
+        const active = enemy.board.some(unit => unit.currentHealth < unit.maxHealth);
+        return { active, tone: active ? 'synergy' : 'setup', text: active ? 'Bonus active: +2 Attack' : 'Needs a damaged enemy' };
+      }
+      case 'preparedStrike':
+        return { active: second, tone: second ? 'synergy' : 'setup', text: second ? 'Second-card bonus: 4 damage' : 'Play second for 4 damage' };
+      case 'finishWeak': {
+        const count = enemy.board.filter(unit => unit.currentHealth < unit.maxHealth).length;
+        return { active: count > 0, tone: count > 0 ? 'synergy' : 'setup', text: count ? `Payoff ready: ${count} damaged target${count === 1 ? '' : 's'}` : 'Needs a damaged enemy' };
+      }
+      case 'packInstinct':
+        return { active: first, tone: first ? 'synergy' : 'setup', text: first ? 'First-card bonus: +2/+2' : 'Now gives +1/+1' };
+      case 'growOnHealth':
+        return { active: side.hand.some(c => ['giveHealth2','heal3','heal4','buff2','packInstinct'].includes(c.effect)) || side.relics.some(r => r.effect === 'healthGainAttack'), tone: 'setup', text: 'Grows whenever it gains Health' };
+      case 'giveHealth2': {
+        const active = side.board.some(unit => unit.effect === 'growOnHealth') || side.relics.some(r => r.effect === 'healthGainAttack');
+        return { active, tone: active ? 'synergy' : 'setup', text: active ? 'Growth synergy ready' : 'Sets up high-Health units' };
+      }
+      case 'shieldIfBigFriend': {
+        const active = side.board.some(unit => unit.uid !== card.uid && (unit.currentHealth >= 5 || unit.maxHealth >= 5));
+        return { active, tone: active ? 'synergy' : 'setup', text: active ? 'Bonus active: enters Shielded' : 'Needs another 5-Health unit' };
+      }
+      case 'shieldOther': {
+        const active = side.board.length > 0;
+        return { active, tone: active ? 'synergy' : 'setup', text: active ? 'Shield target ready' : 'Play later to grant Shield' };
+      }
+      case 'buffDamaged': {
+        const count = side.board.filter(unit => unit.currentHealth < unit.maxHealth).length;
+        return { active: count > 0, tone: count > 0 ? 'synergy' : 'setup', text: count ? `Bonus ready: ${count} damaged unit${count === 1 ? '' : 's'}` : 'Needs damaged friendly units' };
+      }
+      case 'shieldIfOneCard':
+        return { active: side.cardsPlayed <= 1, tone: 'setup', text: 'End after 1 card to gain Shield' };
+      case 'growAfterSurvive':
+        return { active: true, tone: 'setup', text: 'Grows after surviving combat' };
+      case 'growOnFriendlyDeath':
+        return { active: side.board.some(unit => unit.uid !== card.uid), tone: 'setup', text: 'Grows whenever an ally dies' };
+      case 'sacrificeBlast': {
+        const active = side.board.length > 0 && enemy.board.length > 0;
+        return { active, tone: active ? 'synergy' : 'setup', text: active ? `Sacrifice ready: ${side.board.length} possible` : 'Needs units on both boards' };
+      }
+      case 'firstSpellBonus':
+        return { active: !side.firstSpellBonusUsed, tone: !side.firstSpellBonusUsed ? 'synergy' : 'setup', text: !side.firstSpellBonusUsed ? 'Next damage spell: +1 damage' : 'Bonus used this turn' };
+      case 'healthGainAttack':
+        return { active: !side.healthGainTriggerUsed, tone: !side.healthGainTriggerUsed ? 'synergy' : 'setup', text: !side.healthGainTriggerUsed ? 'Next Health gain: +1 Attack' : 'Trigger used this turn' };
+      case 'surviveHeal':
+        return { active: !side.surviveTriggerUsed, tone: !side.surviveTriggerUsed ? 'synergy' : 'setup', text: !side.surviveTriggerUsed ? 'Next survivor restores 1 life' : 'Trigger used this turn' };
+      case 'firstDeathPing':
+        return { active: !side.deathTriggerUsed, tone: !side.deathTriggerUsed ? 'synergy' : 'setup', text: !side.deathTriggerUsed ? 'Next ally death deals 1' : 'Trigger used this turn' };
+      default:
+        return null;
+    }
+  }
+
+  function canAttack(card) {
+    return card.type === 'unit' && !card.summoningSick && !card.exhausted && !card.stunned;
+  }
+
+  function usesCompactLayout() {
+    return window.matchMedia('(max-width: 760px)').matches;
+  }
+
+  function scrollZoneIntoView(element) {
+    if (!usesCompactLayout() || !element) return;
+    window.setTimeout(() => {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    }, 40);
+  }
+
+  function scrollToTargets(targetInfo, owner) {
+    if (!usesCompactLayout()) return;
+    const enemyTarget = targetInfo.targets.some(target => sideOf(otherSide(owner)).board.some(unit => unit.uid === target.uid));
+    scrollZoneIntoView(enemyTarget ? refs.enemyBoard : refs.playerBoard);
+  }
+
+  function handleHandCard(card) {
+    if (state.gameOver || state.turn !== 'player' || state.phase !== 'main') return;
+    const side = state.player;
+    if (state.swapMode) {
+      saveUndo('card swap');
+      replaceCard('player', card.uid, true, true);
+      state.swapMode = false;
+      render();
+      return;
+    }
+    if (state.targetMode) return;
+    if (side.cardsPlayed >= MAX_CARDS_PER_TURN) {
+      addLog('You have already played 2 cards this turn.', 'bad', 'You may still attack, swap a card, or end your turn.');
+      render();
+      return;
+    }
+    const cost = effectiveCost(card, 'player');
+    if (cost > side.mana) {
+      addLog(`Not enough mana for ${card.name}.`, 'bad');
+      render();
+      return;
+    }
+    if (card.type === 'unit' && side.board.length >= MAX_BOARD) {
+      addLog('Your board is full.', 'bad');
+      render();
+      return;
+    }
+    if (card.type === 'relic' && side.relics.length >= MAX_RELICS) {
+      addLog('Your relic row is full.', 'bad');
+      render();
+      return;
+    }
+
+    const targetInfo = getTargetInfo(card, 'player');
+    if (targetInfo.needsTarget) {
+      if (!targetInfo.targets.length) {
+        addLog(`There is no valid target for ${card.name}.`, 'bad');
+        render();
+        return;
+      }
+      state.targetMode = { cardUid: card.uid, owner: 'player', validUids: new Set(targetInfo.targets.map(t => t.uid)), description: targetInfo.description };
+      addLog(`Choose a target for ${card.name}.`, 'info');
+      render();
+      scrollToTargets(targetInfo, 'player');
+      return;
+    }
+
+    playCard('player', card, null);
+  }
+
+  function getTargetInfo(card, owner) {
+    const friendly = sideOf(owner).board;
+    const enemy = sideOf(otherSide(owner)).board;
+    switch (card.effect) {
+      case 'pingUnit':
+        return { needsTarget: card.type === 'spell' || enemy.length > 0, targets: enemy, description: 'Choose an enemy unit.' };
+      case 'damage2':
+      case 'damage3':
+      case 'damage2heal2':
+      case 'preparedStrike':
+      case 'sacrificeBlast':
+      case 'destroyUnit':
+        return { needsTarget: true, targets: enemy, description: 'Choose an enemy unit.' };
+      case 'destroyDamaged':
+      case 'finishWeak':
+        return { needsTarget: true, targets: enemy.filter(u => u.currentHealth < u.maxHealth), description: 'Choose a damaged enemy unit.' };
+      case 'buffFriendly':
+      case 'shieldOther':
+        return { needsTarget: friendly.length > 0, targets: friendly, description: 'Choose another friendly unit.' };
+      case 'buff2':
+      case 'heal3':
+      case 'heal4':
+      case 'giveShield':
+      case 'packInstinct':
+        return { needsTarget: true, targets: friendly, description: 'Choose a friendly unit.' };
+      case 'giveHealth2':
+        return { needsTarget: friendly.length > 0, targets: friendly, description: 'Choose another friendly unit.' };
+      default:
+        return { needsTarget: false, targets: [], description: '' };
+    }
+  }
+
+  function isCardPlayable(owner, card) {
+    const side = sideOf(owner);
+    if (side.cardsPlayed >= MAX_CARDS_PER_TURN) return false;
+    if (effectiveCost(card, owner) > side.mana) return false;
+    if (card.type === 'unit' && side.board.length >= MAX_BOARD) return false;
+    if (card.type === 'relic' && side.relics.length >= MAX_RELICS) return false;
+    if (card.effect === 'buffDamaged' && !side.board.some(unit => unit.currentHealth < unit.maxHealth)) return false;
+    if (card.effect === 'sacrificeBlast' && (!side.board.length || !sideOf(otherSide(owner)).board.length)) return false;
+    const targetInfo = getTargetInfo(card, owner);
+    if (targetInfo.needsTarget && !targetInfo.targets.length) return false;
+    return true;
+  }
+
+  function handUnavailableReason(owner, card) {
+    const side = sideOf(owner);
+    if (state.turn !== owner || state.phase !== 'main') return 'Not your action window';
+    if (state.targetMode) return 'Finish target selection';
+    if (state.swapMode) return '';
+    if (side.cardsPlayed >= MAX_CARDS_PER_TURN) return '2-card limit reached';
+    if (effectiveCost(card, owner) > side.mana) return `Needs ${effectiveCost(card, owner) - side.mana} more mana`;
+    if (card.type === 'unit' && side.board.length >= MAX_BOARD) return 'Board is full';
+    if (card.type === 'relic' && side.relics.length >= MAX_RELICS) return 'Relic row is full';
+    if (card.effect === 'buffDamaged' && !side.board.some(unit => unit.currentHealth < unit.maxHealth)) return 'Needs a damaged ally';
+    if (card.effect === 'sacrificeBlast' && (!side.board.length || !sideOf(otherSide(owner)).board.length)) return 'Needs units on both boards';
+    const targetInfo = getTargetInfo(card, owner);
+    if (targetInfo.needsTarget && !targetInfo.targets.length) return 'No valid target';
+    return '';
+  }
+
+  function handleUnitTarget(unit, owner) {
+    if (state.targetMode) {
+      if (!state.targetMode.validUids.has(unit.uid)) return;
+      const card = state.player.hand.find(c => c.uid === state.targetMode.cardUid);
+      if (!card) return;
+      playCard('player', card, unit);
+      return;
+    }
+
+    if (state.turn === 'player' && state.phase === 'main' && owner === 'player' && !state.player.combatUsed && canAttack(unit)) {
+      saveUndo(state.selectedAttackers.has(unit.uid) ? 'attacker removal' : 'attacker selection');
+      if (state.selectedAttackers.has(unit.uid)) state.selectedAttackers.delete(unit.uid);
+      else state.selectedAttackers.add(unit.uid);
+      render();
+      return;
+    }
+
+    if (state.turn === 'enemy' && state.phase === 'blocking') {
+      if (owner === 'player') {
+        if (unit.exhausted) return;
+        saveUndo('blocker selection');
+        state.selectedBlocker = state.selectedBlocker === unit.uid ? null : unit.uid;
+        render();
+        if (state.selectedBlocker) scrollZoneIntoView(refs.enemyBoard);
+        return;
+      }
+      if (owner === 'enemy' && state.selectedBlocker && state.aiAttackers.some(a => a.uid === unit.uid)) {
+        assignBlock(state.selectedBlocker, unit.uid);
+      }
+    }
+  }
+
+  function blockTargetReason(attacker) {
+    if (!state.aiAttackers.some(unit => unit.uid === attacker.uid)) return 'Not attacking';
+    if (!state.selectedBlocker) return '';
+    const blocker = state.player.board.find(unit => unit.uid === state.selectedBlocker);
+    if (!blocker) return '';
+    if (attacker.keywords.includes('Flying') && !blocker.keywords.includes('Flying')) return 'Needs a Flying blocker';
+    const blockedAttackerUids = new Set([...state.blockAssignments.values()]);
+    const unblockedGuardExists = state.aiAttackers.some(unit => unit.keywords.includes('Guard') && !blockedAttackerUids.has(unit.uid));
+    if (unblockedGuardExists && !attacker.keywords.includes('Guard')) return 'Block Guard first';
+    return '';
+  }
+
+  function assignBlock(blockerUid, attackerUid) {
+    const blocker = state.player.board.find(u => u.uid === blockerUid);
+    const attacker = state.aiAttackers.find(u => u.uid === attackerUid);
+    if (!blocker || !attacker) return;
+    if (attacker.keywords.includes('Flying') && !blocker.keywords.includes('Flying')) {
+      addLog('Only a Flying unit can block a Flying attacker.', 'bad');
+      render();
+      return;
+    }
+
+    const guardAttackers = state.aiAttackers.filter(a => a.keywords.includes('Guard'));
+    const blockedAttackerUids = new Set([...state.blockAssignments.values()]);
+    const unblockedGuardExists = guardAttackers.some(g => !blockedAttackerUids.has(g.uid));
+    if (unblockedGuardExists && !attacker.keywords.includes('Guard')) {
+      addLog('A Guard attacker must be blocked before other attackers.', 'bad');
+      render();
+      return;
+    }
+
+    saveUndo(state.blockAssignments.get(blockerUid) === attackerUid ? 'block removal' : 'block assignment');
+
+    if (state.blockAssignments.get(blockerUid) === attackerUid) {
+      state.blockAssignments.delete(blockerUid);
+      state.selectedBlocker = null;
+      addLog(`${blocker.name} is no longer blocking ${attacker.name}.`, 'info', `${attacker.name} will now deal ${cardAttack(attacker, true, 'enemy')} damage to you unless another blocker is assigned.`);
+      render();
+      scrollZoneIntoView(refs.playerBoard);
+      return;
+    }
+
+    for (const [bUid, aUid] of [...state.blockAssignments.entries()]) {
+      if (bUid === blockerUid || aUid === attackerUid) state.blockAssignments.delete(bUid);
+    }
+    state.blockAssignments.set(blockerUid, attackerUid);
+    state.selectedBlocker = null;
+    addLog(`${blocker.name} will block ${attacker.name}.`, 'info', 'A blocked attacker deals no damage to you. The two units deal damage to each other at the same time.');
+    render();
+    scrollZoneIntoView(refs.playerBoard);
+  }
+
+  function playCard(owner, card, target) {
+    const side = sideOf(owner);
+    const index = side.hand.findIndex(c => c.uid === card.uid);
+    const cost = effectiveCost(card, owner);
+    if (index < 0 || side.mana < cost || side.cardsPlayed >= MAX_CARDS_PER_TURN) return false;
+    if (owner === 'player') saveUndo(`playing ${card.name}`);
+
+    const champ = championDef(owner);
+    const playNumber = side.cardsPlayed + 1;
+    let spellBonus = 0;
+    const willDealDamage = isDamageCard(card) && !(card.effect === 'pingUnit' && !target) && !(['aoe1','aoe2','aoe3'].includes(card.effect) && sideOf(otherSide(owner)).board.length === 0);
+    if (willDealDamage && side.championInPlay && champ.abilityKey === 'flameDamage' && !side.championDamageUsed) {
+      spellBonus += champ.abilityMag;
+      side.championDamageUsed = true;
+      addLog(`${champ.name} empowered ${card.name}.`, owner === 'player' ? 'good' : 'bad', `The first damage card each turn deals ${champ.abilityMag} extra damage while ${champ.name} is on the battlefield.`);
+    }
+    if (isDamageSpell(card) && side.relics.some(relic => relic.effect === 'firstSpellBonus') && !side.firstSpellBonusUsed) {
+      spellBonus = 1;
+      side.firstSpellBonusUsed = true;
+      addLog(`Ember Shrine empowered ${card.name}.`, owner === 'player' ? 'good' : 'bad', 'The first damage spell this turn deals 1 extra damage.');
+    }
+
+    side.mana -= cost;
+    side.hand.splice(index, 1);
+    side.cardsPlayed += 1;
+    state.targetMode = null;
+    state.swapMode = false;
+
+    if (card.type === 'unit') {
+      card.summoningSick = !card.keywords.includes('Charge') && !card.keywords.includes('Rush');
+      card.rushLocked = card.keywords.includes('Rush');
+      side.board.push(card);
+      if (side.championInPlay && champ.abilityKey === 'wildHealth' && !side.championUnitUsed) {
+        side.championUnitUsed = true;
+        gainUnitHealth(card, champ.abilityMag, owner, { name: champ.name });
+      }
+      addLog(`${controllerLabel(owner)} played ${card.name} as card ${playNumber} of ${MAX_CARDS_PER_TURN}.`, owner === 'player' ? 'good' : 'bad');
+      resolveEffect(owner, card, target, { playNumber, spellBonus });
+    } else if (card.type === 'relic') {
+      side.relics.push(card);
+      addLog(`${controllerLabel(owner)} played ${card.name} as card ${playNumber} of ${MAX_CARDS_PER_TURN}.`, owner === 'player' ? 'good' : 'bad');
+    } else {
+      addLog(`${controllerLabel(owner)} cast ${card.name} as card ${playNumber} of ${MAX_CARDS_PER_TURN}.`, owner === 'player' ? 'good' : 'bad', 'Spells resolve once, then move to the discard pile.');
+      resolveEffect(owner, card, target, { playNumber, spellBonus });
+      side.graveyard.push(card);
+    }
+
+    removeDeadUnits();
+    checkGameOver();
+    render();
+    return true;
+  }
+
+  function resolveEffect(owner, card, target, context = {}) {
+    const playNumber = context.playNumber || sideOf(owner).cardsPlayed || 1;
+    const spellBonus = context.spellBonus || 0;
+    const friendly = sideOf(owner);
+    const enemy = sideOf(otherSide(owner));
+    switch (card.effect) {
+      case 'pingHero':
+        const pingDamage = damageHero(otherSide(owner), 1 + spellBonus, owner, card.name);
+        addLog(`${card.name} dealt ${pingDamage} damage to ${controllerLabel(otherSide(owner)).toLowerCase()}.`, owner === 'player' ? 'good' : 'bad');
+        break;
+      case 'pingUnit':
+        if (target) dealDamage(target, 1 + spellBonus, owner, card);
+        break;
+      case 'damage2':
+        if (target) dealDamage(target, 2 + spellBonus, owner, card);
+        break;
+      case 'damage3':
+        if (target) dealDamage(target, 3 + spellBonus, owner, card);
+        break;
+      case 'aoe1':
+        enemy.board.forEach(unit => dealDamage(unit, 1 + spellBonus, owner, card));
+        break;
+      case 'aoe2':
+        enemy.board.forEach(unit => dealDamage(unit, 2 + spellBonus, owner, card));
+        break;
+      case 'aoe3':
+        enemy.board.forEach(unit => dealDamage(unit, 3 + spellBonus, owner, card));
+        break;
+      case 'buffFriendly':
+        if (target) buffUnit(target, 1, 1, owner, card);
+        break;
+      case 'buff2':
+        if (target) buffUnit(target, 2, 2, owner, card);
+        break;
+      case 'buffAll1':
+        friendly.board.forEach(unit => buffUnit(unit, 1, 1, owner, card));
+        break;
+      case 'heal3':
+        if (target) {
+          const old = target.currentHealth;
+          target.currentHealth = Math.min(target.maxHealth, target.currentHealth + 3);
+          addLog(`${card.name} restored ${target.currentHealth - old} health to ${target.name}.`);
+        }
+        break;
+      case 'heal4':
+        if (target) {
+          const old = target.currentHealth;
+          target.currentHealth = Math.min(target.maxHealth, target.currentHealth + 4);
+          addLog(`${card.name} restored ${target.currentHealth - old} health to ${target.name}.`);
+        }
+        break;
+      case 'healHero2':
+        friendly.life = Math.min(20, friendly.life + 2);
+        break;
+      case 'giveShield':
+        if (target) target.shield = true;
+        break;
+      case 'selfDamage1':
+        friendly.life -= 1;
+        break;
+      case 'selfDamage2':
+        friendly.life -= 2;
+        break;
+      case 'destroyUnit':
+        if (target) {
+          target.lastDamageSource = { type: 'destroy', sourceName: card.name, amount: 0 };
+          target.currentHealth = 0;
+        }
+        break;
+      case 'destroyDamaged':
+        if (target) {
+          target.lastDamageSource = { type: 'destroy', sourceName: card.name, amount: 0 };
+          target.currentHealth = 0;
+        }
+        break;
+      case 'damage2heal2':
+        if (target) {
+          dealDamage(target, 2 + spellBonus, owner, card);
+          friendly.life = Math.min(20, friendly.life + 2);
+        }
+        break;
+      case 'preparedStrike':
+        if (target) {
+          const amount = (playNumber === 2 ? 4 : 2) + spellBonus;
+          dealDamage(target, amount, owner, card);
+          if (playNumber === 2) addLog(`${card.name} received its second-card bonus.`, owner === 'player' ? 'good' : 'bad');
+        }
+        break;
+      case 'finishWeak':
+        if (target) dealDamage(target, 4 + spellBonus, owner, card);
+        break;
+      case 'giveHealth2':
+        if (target) gainUnitHealth(target, 2, owner, card);
+        break;
+      case 'packInstinct':
+        if (target) {
+          const amount = playNumber === 1 ? 2 : 1;
+          buffUnit(target, amount, amount, owner, card);
+          if (playNumber === 1) addLog(`${card.name} received its first-card bonus.`, owner === 'player' ? 'good' : 'bad');
+        }
+        break;
+      case 'shieldIfBigFriend': {
+        const hasBigFriend = friendly.board.some(unit => unit.uid !== card.uid && (unit.currentHealth >= 5 || unit.maxHealth >= 5));
+        if (hasBigFriend) {
+          card.shield = true;
+          addLog(`${card.name} gained Shield from a high-Health ally.`, owner === 'player' ? 'good' : 'bad');
+        }
+        break;
+      }
+      case 'shieldOther':
+        if (target) {
+          target.shield = true;
+          addLog(`${card.name} gave ${target.name} Shield.`, owner === 'player' ? 'good' : 'bad');
+        }
+        break;
+      case 'buffDamaged': {
+        const damaged = friendly.board.filter(unit => unit.currentHealth < unit.maxHealth);
+        damaged.forEach(unit => buffUnit(unit, 1, 2, owner, card));
+        addLog(`${card.name} strengthened ${damaged.length} damaged unit${damaged.length === 1 ? '' : 's'}.`, owner === 'player' ? 'good' : 'bad');
+        break;
+      }
+      case 'sacrificeBlast': {
+        const sacrifice = [...friendly.board].sort((a, b) => cardAttack(a, false, owner) - cardAttack(b, false, owner) || a.currentHealth - b.currentHealth)[0];
+        if (sacrifice && target) {
+          sacrifice.lastDamageSource = { type: 'destroy', sourceName: card.name, amount: 0 };
+          sacrifice.currentHealth = 0;
+          addLog(`${card.name} sacrificed ${sacrifice.name}.`, owner === 'player' ? 'bad' : 'good', 'The weakest friendly unit is destroyed before the damage is dealt.');
+          removeDeadUnits();
+          dealDamage(target, 4 + spellBonus, owner, card);
+        }
+        break;
+      }
+      case 'refreshHandHurt2': {
+        const discarded = [...friendly.hand];
+        friendly.hand = [];
+        friendly.graveyard.push(...discarded);
+        refillHand(owner, false);
+        friendly.life -= 2;
+        addLog(`${card.name} replaced ${discarded.length} card${discarded.length === 1 ? '' : 's'} and dealt 2 damage to ${controllerLabel(owner).toLowerCase()}.`, owner === 'player' ? 'bad' : 'good');
+        break;
+      }
+    }
+  }
+
+  function gainUnitHealth(unit, amount, owner, sourceCard = null) {
+    if (!unit || amount <= 0) return;
+    unit.maxHealth += amount;
+    unit.currentHealth += amount;
+    addLog(`${sourceCard ? sourceCard.name : 'An effect'} gave ${unit.name} +${amount} Health.`, owner === 'player' ? 'good' : 'bad');
+    if (unit.effect === 'growOnHealth') {
+      unit.bonusAttack += 1;
+      addLog(`${unit.name} gained +1 Attack from its growth ability.`, owner === 'player' ? 'good' : 'bad');
+    }
+    const side = sideOf(owner);
+    if (side.relics.some(relic => relic.effect === 'healthGainAttack') && !side.healthGainTriggerUsed) {
+      side.healthGainTriggerUsed = true;
+      unit.bonusAttack += 1;
+      addLog(`Living Grove gave ${unit.name} +1 Attack.`, owner === 'player' ? 'good' : 'bad', 'This was the first friendly Health gain this turn.');
+    }
+  }
+
+  function buffUnit(unit, attack, health, owner = null, sourceCard = null) {
+    unit.bonusAttack += attack;
+    if (health > 0) {
+      if (owner) gainUnitHealth(unit, health, owner, sourceCard);
+      else {
+        unit.maxHealth += health;
+        unit.currentHealth += health;
+      }
+    }
+  }
+
+  function dealDamage(unit, amount, sourceOwner, sourceCard = null) {
+    if (unit.shield) {
+      unit.shield = false;
+      addLog(`${unit.name}'s Shield prevented the damage.`, 'info');
+      return 0;
+    }
+    unit.currentHealth -= amount;
+    unit.lastDamageSource = { type: sourceCard ? 'card' : 'damage', sourceName: sourceCard ? sourceCard.name : 'damage', amount };
+    addLog(`${sourceCard ? sourceCard.name : 'Combat'} dealt ${amount} damage to ${unit.name}.`, sourceOwner === 'player' ? 'good' : 'bad', `${unit.name} is now at ${Math.max(0, unit.currentHealth)}/${unit.maxHealth} health.`);
+    return amount;
+  }
+
+  function removeDeadUnits() {
+    ['player', 'enemy'].forEach(owner => {
+      const side = sideOf(owner);
+      const champ = championDef(owner);
+      const dead = side.board.filter(u => u.currentHealth <= 0);
+      side.board = side.board.filter(u => u.currentHealth > 0);
+      dead.forEach(unit => {
+        if (unit.isChampion) returnChampionToSlot(owner, unit); else side.graveyard.push(unit);
+        const cause = unit.lastDamageSource;
+        let reason = 'Its health reached 0.';
+        let headline = `${unit.name} was destroyed.`;
+        if (cause?.type === 'combat') {
+          headline = `${unit.name} was destroyed by ${cause.sourceName}.`;
+          reason = `${cause.sourceName} dealt ${cause.amount} combat damage, reducing ${unit.name} to 0 health.`;
+        } else if (cause?.type === 'destroy') {
+          headline = `${unit.name} was destroyed by ${cause.sourceName}.`;
+          reason = `${cause.sourceName} destroys a unit directly, regardless of its remaining health.`;
+        } else if (cause?.sourceName) {
+          headline = `${unit.name} was destroyed by ${cause.sourceName}.`;
+          reason = `${cause.sourceName} dealt ${cause.amount} damage, reducing ${unit.name} to 0 health.`;
+        }
+        addLog(headline, owner === 'player' ? 'bad' : 'good', reason);
+        if (unit.deathEffect === 'deathPing') {
+          const dealt = damageHero(otherSide(owner), 1, owner, unit.name);
+          addLog(`${unit.name} dealt ${dealt} damage when destroyed.`, owner === 'player' ? 'good' : 'bad');
+        }
+        if (unit.deathEffect === 'deathPing2') {
+          const dealt = damageHero(otherSide(owner), 2, owner, unit.name);
+          addLog(`${unit.name} dealt ${dealt} damage when destroyed.`, owner === 'player' ? 'good' : 'bad');
+        }
+        if (side.championInPlay && champ.abilityKey === 'shadowDeath' && !side.championDeathUsed) {
+          side.championDeathUsed = true;
+          const dealt = damageHero(otherSide(owner), champ.abilityMag, owner, champ.name);
+          addLog(`${champ.name} dealt ${dealt} damage after ${unit.name} was destroyed.`, owner === 'player' ? 'good' : 'bad');
+        }
+        side.board.filter(card => card.effect === 'growOnFriendlyDeath').forEach(collector => {
+          buffUnit(collector, 1, 1, owner, unit);
+          addLog(`${collector.name} gained +1/+1 when ${unit.name} was destroyed.`, owner === 'player' ? 'good' : 'bad');
+        });
+        if (side.relics.some(r => r.effect === 'firstDeathPing') && !side.deathTriggerUsed) {
+          side.deathTriggerUsed = true;
+          const dealt = damageHero(otherSide(owner), 1, owner, 'Bone Altar');
+          addLog(`Bone Altar dealt ${dealt} damage after ${unit.name} was destroyed.`, owner === 'player' ? 'good' : 'bad');
+        }
+        if (side.relics.some(r => r.effect === 'deathHeal')) {
+          side.life = Math.min(20, side.life + 1);
+          addLog(`Soul Lantern restored 1 life.`, owner === 'player' ? 'good' : 'bad');
+        }
+      });
+    });
+  }
+
+  function beginPlayerAttack() {
+    if (state.turn !== 'player' || state.phase !== 'main' || state.targetMode || state.player.combatUsed) return;
+    state.swapMode = false;
+    const attackers = state.player.board.filter(u => state.selectedAttackers.has(u.uid) && canAttack(u));
+    if (!attackers.length) {
+      endPlayerTurn();
+      return;
+    }
+    clearUndo();
+    state.phase = 'resolving';
+    render();
+    attackers.forEach(u => u.exhausted = true);
+    state.selectedAttackers.clear();
+    const blocks = aiChooseBlocks(attackers, state.enemy.board);
+    resolveCombat('player', attackers, blocks, () => {
+      if (!state.gameOver) {
+        state.player.combatUsed = true;
+        state.phase = 'main';
+        addLog('Your attack step is complete.', 'info', 'You may still play cards, replace a card, or end your turn. You cannot attack again this turn.');
+        render();
+        scrollZoneIntoView(refs.playerHand);
+      }
+    });
+  }
+
+  function aiChooseBlocks(attackers, defenders) {
+    const blocks = new Map();
+    const available = [...defenders].filter(u => !u.exhausted);
+    const sortedAttackers = [...attackers].sort((a, b) => {
+      const guardDiff = Number(b.keywords.includes('Guard')) - Number(a.keywords.includes('Guard'));
+      if (guardDiff) return guardDiff;
+      return cardAttack(b, true, 'player') - cardAttack(a, true, 'player');
+    });
+
+    for (const attacker of sortedAttackers) {
+      const valid = available.filter(d => !attacker.keywords.includes('Flying') || d.keywords.includes('Flying'));
+      if (!valid.length) continue;
+      valid.sort((a, b) => {
+        const aSurvives = a.currentHealth > cardAttack(attacker, true, 'player') ? 1 : 0;
+        const bSurvives = b.currentHealth > cardAttack(attacker, true, 'player') ? 1 : 0;
+        if (aSurvives !== bSurvives) return bSurvives - aSurvives;
+        return cardAttack(a) - cardAttack(b);
+      });
+      const blocker = valid[0];
+      blocks.set(blocker.uid, attacker.uid);
+      available.splice(available.indexOf(blocker), 1);
+    }
+    return blocks;
+  }
+
+  function triggerCombatSurvival(owner, unit) {
+    if (!unit || unit.currentHealth <= 0) return;
+    const side = sideOf(owner);
+    if (unit.effect === 'growAfterSurvive') {
+      unit.bonusAttack += 1;
+      addLog(`${unit.name} survived combat and gained +1 Attack.`, owner === 'player' ? 'good' : 'bad');
+    }
+    if (side.relics.some(relic => relic.effect === 'surviveHeal') && !side.surviveTriggerUsed) {
+      side.surviveTriggerUsed = true;
+      const before = side.life;
+      side.life = Math.min(20, side.life + 1);
+      addLog(`Fortress Bell restored ${side.life - before} life after ${unit.name} survived combat.`, owner === 'player' ? 'good' : 'bad');
+    }
+  }
+
+  function resolveCombat(attackerOwner, attackers, blockMap, onComplete) {
+    const defenderOwner = otherSide(attackerOwner);
+    const attackerSide = sideOf(attackerOwner);
+    const defenderSide = sideOf(defenderOwner);
+    const defenderLifeBefore = defenderSide.life;
+    let directHeroDamage = 0;
+    const reportRows = [];
+
+    for (const attacker of attackers) {
+      const blockerEntry = [...blockMap.entries()].find(([, aUid]) => aUid === attacker.uid);
+      const attackerPower = cardAttack(attacker, true, attackerOwner);
+      if (blockerEntry) {
+        const blocker = defenderSide.board.find(u => u.uid === blockerEntry[0]);
+        if (!blocker) continue;
+        const blockerPower = cardAttack(blocker, false, defenderOwner);
+        const attackerShielded = !!attacker.shield;
+        const blockerShielded = !!blocker.shield;
+        const attackerHealthBefore = attacker.currentHealth;
+        const blockerHealthBefore = blocker.currentHealth;
+        const dealtToBlocker = dealCombatDamage(blocker, attackerPower, attacker);
+        const dealtToAttacker = dealCombatDamage(attacker, blockerPower, blocker);
+        triggerCombatSurvival(attackerOwner, attacker);
+        triggerCombatSurvival(defenderOwner, blocker);
+        addLog(`${attacker.name} fought ${blocker.name}.`, attackerOwner === 'player' ? 'good' : 'bad', `${attacker.name} dealt ${dealtToBlocker} damage; ${blocker.name} dealt ${dealtToAttacker} damage. Combat damage happens simultaneously.`);
+        if (attacker.keywords.includes('Drain') && dealtToBlocker > 0) attackerSide.life = Math.min(20, attackerSide.life + dealtToBlocker);
+        if (blocker.keywords.includes('Drain') && dealtToAttacker > 0) defenderSide.life = Math.min(20, defenderSide.life + dealtToAttacker);
+        reportRows.push({
+          type: 'blocked',
+          attackerName: attacker.name,
+          attackerPower,
+          attackerFaction: attacker.faction,
+          attackerCost: attacker.cost,
+          attackerHealthBefore,
+          attackerDrain: attacker.keywords.includes('Drain'),
+          blockerFaction: blocker.faction,
+          blockerCost: blocker.cost,
+          blockerHealthBefore,
+          blockerDrain: blocker.keywords.includes('Drain'),
+          attackerHealthAfter: attacker.currentHealth,
+          attackerMaxHealth: attacker.maxHealth,
+          attackerShielded,
+          blockerName: blocker.name,
+          blockerPower,
+          blockerHealthAfter: blocker.currentHealth,
+          blockerMaxHealth: blocker.maxHealth,
+          blockerShielded,
+          dealtToBlocker,
+          dealtToAttacker
+        });
+      } else {
+        const rushLocked = attacker.keywords.includes('Rush') && attacker.rushLocked;
+        const lifeBeforeHit = defenderSide.life;
+        const dealtToHero = rushLocked ? 0 : damageHero(defenderOwner, attackerPower, attackerOwner, attacker.name);
+        directHeroDamage += dealtToHero;
+        addLog(rushLocked ? `${attacker.name} has Rush and cannot damage ${controllerLabel(defenderOwner).toLowerCase()} the turn it entered play.` : `${attacker.name} dealt ${dealtToHero} damage to ${controllerLabel(defenderOwner).toLowerCase()}.`, attackerOwner === 'player' ? 'good' : 'bad', rushLocked ? 'Rush units can attack immediately but cannot hit the opposing player on their entry turn.' : dealtToHero < attackerPower ? 'A Champion ability prevented some damage. The attacker was otherwise unblocked.' : 'It was not assigned a blocker, so all of its Attack damaged the defending player.');
+        if (attacker.keywords.includes('Drain') && dealtToHero > 0) attackerSide.life = Math.min(20, attackerSide.life + dealtToHero);
+        reportRows.push({ type: 'unblocked', attackerName: attacker.name, attackerPower, attackerFaction: attacker.faction, attackerCost: attacker.cost, attackerHealth: attacker.currentHealth, attackerMaxHealth: attacker.maxHealth, attackerShielded: !!attacker.shield, attackerDrain: attacker.keywords.includes('Drain'), dealtToHero, lifeBefore: lifeBeforeHit, lifeAfter: defenderSide.life });
+      }
+    }
+    removeDeadUnits();
+    const netLifeLoss = Math.max(0, defenderLifeBefore - defenderSide.life);
+    state.lastCombatReport = {
+      attackerOwner,
+      defenderOwner,
+      defenderLifeBefore,
+      defenderLifeAfter: defenderSide.life,
+      directHeroDamage,
+      netLifeLoss,
+      rows: reportRows
+    };
+    const casualties = reportRows.filter(row => row.type === 'blocked' && (row.attackerHealthAfter <= 0 || row.blockerHealthAfter <= 0)).length;
+    addLog(`Combat ended: ${directHeroDamage} damage reached ${controllerLabel(defenderOwner).toLowerCase()}.`, attackerOwner === 'player' ? 'good' : 'bad', `${reportRows.length} attacker${reportRows.length === 1 ? '' : 's'}, ${reportRows.filter(r => r.type === 'blocked').length} blocked, ${casualties} combat pair${casualties === 1 ? '' : 's'} with a destroyed unit. Final life reflects Drain or other healing.`);
+    const finishCombat = () => {
+      checkGameOver();
+      render();
+
+      if (!state.gameOver && attackerOwner === 'enemy' && (directHeroDamage > 0 || casualties > 0)) {
+        state.pendingCombatReport = true;
+        window.setTimeout(() => {
+          if (!state.pendingCombatReport) return;
+          renderCombatReport();
+          refs.combatReportOverlay.classList.add('show');
+        }, 100);
+      }
+      if (onComplete) onComplete();
+    };
+    playClashSequence(state.lastCombatReport, finishCombat);
+  }
+
+  function dealCombatDamage(unit, amount, sourceUnit) {
+    if (unit.shield) {
+      unit.shield = false;
+      unit.lastDamageSource = null;
+      addLog(`${unit.name}'s Shield prevented ${amount} combat damage from ${sourceUnit.name}.`, 'info', 'Shield prevents the entire next instance of damage, then disappears.');
+      return 0;
+    }
+    unit.currentHealth -= amount;
+    unit.lastDamageSource = { type: 'combat', sourceName: sourceUnit.name, amount };
+    return amount;
+  }
+
+  /* ── Combat clash presentation ─────────────────────────────── */
+  let clashTimers = [];
+  let clashSkip = null;
+  const HERO_NAMES = { player: 'Emberwild', enemy: 'Iron Covenant' };
+
+  function clashDelay(fn, ms) { clashTimers.push(window.setTimeout(fn, ms)); }
+
+  function buildClashCard(info, sideClass) {
+    const el = document.createElement('div');
+    el.className = `clash-card ${sideClass} f-${String(info.faction || '').toLowerCase()}`;
+    el.innerHTML = `
+      <span class="clash-role">${escapeHtml(info.role)}</span>
+      ${info.shielded ? '<span class="shield-dot" title="Shield active"></span>' : ''}
+      <div class="clash-card-top"><span class="clash-cost">${Number.isFinite(info.cost) ? info.cost : ''}</span><span class="clash-name">${escapeHtml(info.name)}</span></div>
+      <div class="clash-type">${escapeHtml(info.faction || '')} unit</div>
+      <div class="clash-stats">
+        <span class="clash-stat atk">⚔ ${info.power}</span>
+        <span class="clash-stat hp">♥ <b>${Math.max(0, info.health)}</b>/${info.maxHealth}</span>
+      </div>
+      <div class="clash-flag"></div>
+    `;
+    return el;
+  }
+
+  function buildClashFx(offsetLeft) {
+    const fx = document.createElement('div');
+    fx.className = 'clash-fx';
+    if (offsetLeft) fx.style.left = offsetLeft;
+    let inner = '<span class="clash-flash"></span><span class="clash-ring"></span>';
+    for (let i = 0; i < 10; i++) {
+      const ang = Math.round((360 / 10) * i + (Math.random() * 22 - 11));
+      const dist = 78 + Math.round(Math.random() * 74);
+      inner += `<span class="clash-spark" style="--ang:${ang}deg;--dist:${dist}px"></span>`;
+    }
+    fx.innerHTML = inner;
+    return fx;
+  }
+
+  function spawnClashNumber(parent, text, cls = '') {
+    const n = document.createElement('span');
+    n.className = `clash-dmg on${cls ? ' ' + cls : ''}`;
+    n.textContent = text;
+    parent.appendChild(n);
+  }
+
+  function showClashHit(cardEl, dealt, hadShield, healthAfter) {
+    if (hadShield && dealt === 0) {
+      spawnClashNumber(cardEl, 'Shielded', 'blocked-zero');
+      const dot = cardEl.querySelector('.shield-dot');
+      if (dot) dot.remove();
+      return;
+    }
+    if (dealt > 0) {
+      spawnClashNumber(cardEl, `-${dealt}`);
+      const hpValue = cardEl.querySelector('.clash-stat.hp b');
+      const hpStat = cardEl.querySelector('.clash-stat.hp');
+      if (hpValue) hpValue.textContent = Math.max(0, healthAfter);
+      if (hpStat) {
+        hpStat.classList.remove('dropped');
+        void hpStat.offsetWidth;
+        hpStat.classList.add('dropped');
+      }
+    }
+  }
+
+  function flagClashCard(cardEl, text) {
+    const flag = cardEl.querySelector('.clash-flag');
+    if (!flag) return;
+    flag.textContent = text;
+    flag.classList.add('on');
+  }
+
+  function stageImpact(fx) {
+    refs.clashStage.classList.remove('shake');
+    void refs.clashStage.offsetWidth;
+    refs.clashStage.classList.add('shake');
+    fx.classList.add('on');
+  }
+
+  function runBlockedClash(row) {
+    const stage = refs.clashStage;
+    stage.classList.remove('shake');
+    stage.innerHTML = '';
+    const attackerEl = buildClashCard({ role: 'Attacker', name: row.attackerName, faction: row.attackerFaction, cost: row.attackerCost, power: row.attackerPower, health: row.attackerHealthBefore, maxHealth: row.attackerMaxHealth, shielded: row.attackerShielded }, 'side-a');
+    const blockerEl = buildClashCard({ role: 'Blocker', name: row.blockerName, faction: row.blockerFaction, cost: row.blockerCost, power: row.blockerPower, health: row.blockerHealthBefore, maxHealth: row.blockerMaxHealth, shielded: row.blockerShielded }, 'side-b');
+    const vs = document.createElement('span');
+    vs.className = 'clash-vs on';
+    vs.textContent = 'VS';
+    const fx = buildClashFx();
+    stage.append(attackerEl, blockerEl, vs, fx);
+
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      attackerEl.classList.add('charge');
+      blockerEl.classList.add('charge');
+    }));
+
+    clashDelay(() => {
+      attackerEl.classList.add('hit');
+      blockerEl.classList.add('hit');
+      vs.classList.remove('on');
+      vs.classList.add('out');
+      stageImpact(fx);
+      showClashHit(blockerEl, row.dealtToBlocker, row.blockerShielded, row.blockerHealthAfter);
+      showClashHit(attackerEl, row.dealtToAttacker, row.attackerShielded, row.attackerHealthAfter);
+    }, 430);
+
+    clashDelay(() => {
+      attackerEl.classList.add('recoil');
+      blockerEl.classList.add('recoil');
+    }, 580);
+
+    clashDelay(() => {
+      if (row.attackerDrain && row.dealtToBlocker > 0) spawnClashNumber(attackerEl, `Drain +${row.dealtToBlocker}`, 'heal');
+      if (row.blockerDrain && row.dealtToAttacker > 0) spawnClashNumber(blockerEl, `Drain +${row.dealtToAttacker}`, 'heal');
+    }, 760);
+
+    const attackerDies = row.attackerHealthAfter <= 0;
+    const blockerDies = row.blockerHealthAfter <= 0;
+    if (attackerDies || blockerDies) {
+      clashDelay(() => {
+        if (attackerDies) flagClashCard(attackerEl, 'Destroyed');
+        if (blockerDies) flagClashCard(blockerEl, 'Destroyed');
+      }, 1060);
+      clashDelay(() => {
+        if (attackerDies) attackerEl.classList.add('destroyed');
+        if (blockerDies) blockerEl.classList.add('destroyed');
+      }, 1340);
+      return 1920;
+    }
+    return 1560;
+  }
+
+  function runHeroClash(row, report) {
+    const stage = refs.clashStage;
+    stage.classList.remove('shake');
+    stage.innerHTML = '';
+    const attackerEl = buildClashCard({ role: 'Attacker', name: row.attackerName, faction: row.attackerFaction, cost: row.attackerCost, power: row.attackerPower, health: row.attackerHealth ?? 1, maxHealth: row.attackerMaxHealth ?? Math.max(1, row.attackerHealth ?? 1), shielded: row.attackerShielded }, 'side-a');
+    const defenderOwner = report.defenderOwner;
+    const heroEl = document.createElement('div');
+    heroEl.className = 'clash-hero';
+    heroEl.innerHTML = `
+      <span class="clash-hero-sub">${defenderOwner === 'player' ? 'You' : 'Enemy'}</span>
+      <strong class="clash-hero-name">${escapeHtml(HERO_NAMES[defenderOwner] || 'Hero')}</strong>
+      <div class="clash-hero-life"><b>${Math.max(0, row.lifeBefore ?? 0)}</b></div>
+      <span class="clash-hero-sub">Life</span>
+      <div class="clash-flag"></div>
+    `;
+    const fx = buildClashFx('54%');
+    stage.append(attackerEl, heroEl, fx);
+
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      attackerEl.classList.add('charge');
+      heroEl.classList.add('in');
+    }));
+
+    clashDelay(() => {
+      attackerEl.classList.add('hit');
+      stageImpact(fx);
+      heroEl.classList.add('hit');
+      const lifeValue = heroEl.querySelector('.clash-hero-life b');
+      if (lifeValue) lifeValue.textContent = Math.max(0, row.lifeAfter ?? 0);
+      if (row.dealtToHero > 0) spawnClashNumber(heroEl, `-${row.dealtToHero}`);
+      else spawnClashNumber(heroEl, 'Prevented', 'blocked-zero');
+    }, 430);
+
+    clashDelay(() => {
+      attackerEl.classList.add('recoil');
+    }, 580);
+
+    clashDelay(() => {
+      const prevented = (row.attackerPower ?? 0) - (row.dealtToHero ?? 0);
+      if (prevented > 0 && row.dealtToHero > 0) spawnClashNumber(heroEl, `${prevented} prevented`, 'blocked-zero');
+      if (row.attackerDrain && row.dealtToHero > 0) spawnClashNumber(attackerEl, `Drain +${row.dealtToHero}`, 'heal');
+    }, 780);
+
+    if ((row.lifeAfter ?? 1) <= 0) {
+      clashDelay(() => flagClashCard(heroEl, 'Defeated'), 1060);
+      return 1800;
+    }
+    return 1520;
+  }
+
+  function playClashSequence(report, onDone) {
+    const rows = report && Array.isArray(report.rows) ? report.rows : [];
+    if (!rows.length) { onDone(); return; }
+    clashTimers.forEach(window.clearTimeout);
+    clashTimers = [];
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      clashSkip = null;
+      clashTimers.forEach(window.clearTimeout);
+      clashTimers = [];
+      refs.clashOverlay.classList.remove('show');
+      refs.clashStage.classList.remove('shake');
+      refs.clashStage.innerHTML = '';
+      onDone();
+    };
+    clashSkip = finish;
+    const playerAttack = report.attackerOwner === 'player';
+    refs.clashRound.textContent = playerAttack ? 'Your attack' : 'Enemy attack';
+    refs.clashRound.classList.toggle('enemy-round', !playerAttack);
+    refs.clashStep.textContent = '';
+    refs.clashOverlay.classList.add('show');
+    let index = 0;
+    const nextStep = () => {
+      if (finished) return;
+      if (index >= rows.length) {
+        clashDelay(finish, 140);
+        return;
+      }
+      const row = rows[index];
+      refs.clashStep.textContent = `Clash ${index + 1} of ${rows.length}`;
+      index += 1;
+      const duration = row.type === 'blocked' ? runBlockedClash(row) : runHeroClash(row, report);
+      clashDelay(nextStep, duration);
+    };
+    nextStep();
+  }
+
+  function resolveEndTurnEffects(who) {
+    const side = sideOf(who);
+    if (side.cardsPlayed === 1) {
+      side.board.filter(unit => unit.effect === 'shieldIfOneCard').forEach(unit => {
+        if (!unit.shield) {
+          unit.shield = true;
+          addLog(`${unit.name} gained Shield because only 1 card was played.`, who === 'player' ? 'good' : 'bad');
+        }
+      });
+    }
+  }
+
+  function endPlayerTurn() {
+    if (state.gameOver) return;
+    clearUndo();
+    state.swapMode = false;
+    resolveEndTurnEffects('player');
+    refillHand('player');
+    state.phase = 'waiting';
+    render();
+    window.setTimeout(() => startTurn('enemy'), 450);
+  }
+
+  function endEnemyTurn() {
+    if (state.gameOver) return;
+    clearUndo();
+    resolveEndTurnEffects('enemy');
+    refillHand('enemy');
+    state.phase = 'waiting';
+    render();
+    window.setTimeout(() => startTurn('player'), 450);
+  }
+
+  function scoreAiCardBase(card) {
+    let score = card.cost * 0.7;
+    if (card.type === 'relic') score += 1;
+    return score;
+  }
+
+  function scoreAiCard(card) {
+    const side = state.enemy;
+    let score = scoreAiCardBase(card);
+    const condition = getCardCondition(card, 'enemy');
+    if (condition?.active) score += 4;
+    if (card.effect === 'growOnFriendlyDeath' && side.cardsPlayed === 0) score += 3;
+    if (card.effect === 'sacrificeBlast' && side.board.some(unit => unit.deathEffect)) score += 4;
+    if (card.effect === 'shieldIfOneCard' && side.cardsPlayed === 0) score += 1.5;
+    return score;
+  }
+
+  function aiMainPhase() {
+    if (state.gameOver || state.turn !== 'enemy') return;
+    aiConsiderChampion();
+    let safety = 8;
+    while (safety-- > 0 && state.enemy.cardsPlayed < MAX_CARDS_PER_TURN) {
+      const playable = state.enemy.hand.filter(card => isCardPlayable('enemy', card));
+      if (!playable.length) {
+        if (!state.enemy.swapUsed && state.enemy.hand.length) {
+          const replacement = [...state.enemy.hand].sort((a, b) => b.cost - a.cost)[0];
+          replaceCard('enemy', replacement.uid, true, true);
+          continue;
+        }
+        break;
+      }
+      playable.sort((a, b) => scoreAiCard(b) - scoreAiCard(a));
+      const card = playable[0];
+      const info = getTargetInfo(card, 'enemy');
+      const target = info.needsTarget ? chooseAiTarget(card, info.targets) : null;
+      if (!playCard('enemy', card, target)) break;
+    }
+    window.setTimeout(aiDeclareAttackers, 500);
+  }
+
+  function chooseAiTarget(card, targets) {
+    if (!targets.length) return null;
+    switch (card.effect) {
+      case 'damage2':
+      case 'damage3':
+      case 'damage2heal2':
+      case 'preparedStrike':
+      case 'finishWeak':
+      case 'sacrificeBlast':
+      case 'pingUnit':
+      case 'destroyUnit':
+      case 'destroyDamaged':
+        return [...targets].sort((a,b) => cardAttack(b) - cardAttack(a))[0];
+      case 'buffFriendly':
+      case 'buff2':
+      case 'giveShield':
+      case 'giveHealth2':
+      case 'packInstinct':
+      case 'shieldOther':
+        return [...targets].sort((a,b) => cardAttack(b) - cardAttack(a))[0];
+      case 'heal3':
+      case 'heal4':
+        return [...targets].sort((a,b) => (b.maxHealth-b.currentHealth) - (a.maxHealth-a.currentHealth))[0];
+      default:
+        return targets[0];
+    }
+  }
+
+  function aiDeclareAttackers() {
+    if (state.gameOver || state.turn !== 'enemy') return;
+    state.aiAttackers = state.enemy.board.filter(canAttack);
+    state.aiAttackers.forEach(u => u.exhausted = true);
+    if (!state.aiAttackers.length) {
+      addLog('Enemy ended the turn without attacking.', 'info');
+      window.setTimeout(endEnemyTurn, 450);
+      return;
+    }
+    state.phase = 'blocking';
+    addLog(`Enemy attacked with ${state.aiAttackers.length} unit${state.aiAttackers.length === 1 ? '' : 's'}.`, 'bad');
+    render();
+  }
+
+  function resolvePlayerBlocks() {
+    if (state.turn !== 'enemy' || state.phase !== 'blocking') return;
+    clearUndo();
+    state.phase = 'waiting';
+    render();
+    resolveCombat('enemy', state.aiAttackers, state.blockAssignments, () => {
+      if (!state.gameOver) window.setTimeout(endEnemyTurn, 450);
+    });
+  }
+
+  function checkGameOver() {
+    if (state.gameOver) return true;
+    if (state.player.life <= 0 || state.enemy.life <= 0) {
+      state.gameOver = true;
+      const playerWon = state.enemy.life <= 0 && state.player.life > 0;
+      const draw = state.enemy.life <= 0 && state.player.life <= 0;
+      refs.gameOverTitle.textContent = draw ? 'Draw' : playerWon ? 'Victory' : 'Defeat';
+      refs.gameOverText.textContent = draw ? 'Both players reached 0 life.' : playerWon ? 'You reduced the enemy to 0 life.' : 'The enemy reduced you to 0 life.';
+      refs.gameOverOverlay.classList.add('show');
+      render();
+      return true;
+    }
+    return false;
+  }
+
+  function updateBoardScrollIndicator(board, track, thumb) {
+    if (!board || !track || !thumb) return;
+    const overflow = Math.max(0, board.scrollWidth - board.clientWidth);
+    if (overflow <= 2) {
+      track.classList.add('inactive');
+      thumb.style.width = '100%';
+      thumb.style.left = '0%';
+      return;
+    }
+    track.classList.remove('inactive');
+    const widthPercent = Math.max(18, Math.min(100, (board.clientWidth / board.scrollWidth) * 100));
+    const progress = Math.max(0, Math.min(1, board.scrollLeft / overflow));
+    thumb.style.width = `${widthPercent}%`;
+    thumb.style.left = `${progress * (100 - widthPercent)}%`;
+  }
+
+  function updateBoardScrollbars() {
+    updateBoardScrollIndicator(refs.enemyBoard, refs.enemyBoardScrollbar, refs.enemyBoardScrollThumb);
+    updateBoardScrollIndicator(refs.playerBoard, refs.playerBoardScrollbar, refs.playerBoardScrollThumb);
+  }
+
+  function bindBoardScrollbar(board, track) {
+    board.addEventListener('scroll', updateBoardScrollbars, { passive: true });
+    track.addEventListener('pointerdown', event => {
+      const overflow = Math.max(0, board.scrollWidth - board.clientWidth);
+      if (!overflow) return;
+      const rect = track.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+      board.scrollTo({ left: overflow * ratio, behavior: 'smooth' });
+    });
+  }
+
+  function render() {
+    refs.playerLife.textContent = Math.max(0, state.player.life);
+    refs.enemyLife.textContent = Math.max(0, state.enemy.life);
+    refs.playerMana.textContent = `${state.player.mana}/${state.player.maxMana}`;
+    refs.enemyMana.textContent = `${state.enemy.mana}/${state.enemy.maxMana}`;
+
+    renderEnemyHand();
+    renderRelics('player');
+    renderRelics('enemy');
+    renderChampionSlot('player');
+    renderChampionSlot('enemy');
+    renderBoard('player');
+    renderBoard('enemy');
+    renderHand();
+    renderPhase();
+    renderLog();
+    window.requestAnimationFrame(updateBoardScrollbars);
+  }
+
+  function renderEnemyHand() {
+    refs.enemyHand.innerHTML = '';
+    refs.enemyDeckInfo.textContent = `${state.enemy.hand.length} hand · ${state.enemy.championInPlay ? championDef('enemy').name + ' deployed · ' : ''}${state.enemy.deck.length} deck`;
+    state.enemy.hand.forEach(() => {
+      const back = document.createElement('div');
+      back.className = 'enemy-card-back';
+      refs.enemyHand.appendChild(back);
+    });
+    const count = document.createElement('span');
+    count.style.color = 'var(--muted)';
+    count.style.fontSize = '.82rem';
+    count.textContent = `${state.enemy.hand.length} cards · ${state.enemy.deck.length} in deck`;
+    refs.enemyHand.appendChild(count);
+  }
+
+  function renderRelics(owner) {
+    const container = owner === 'player' ? refs.playerRelics : refs.enemyRelics;
+    const relics = sideOf(owner).relics;
+    container.innerHTML = '';
+    const zone = container.closest('.relic-zone');
+    if (zone) zone.classList.toggle('empty', relics.length === 0);
+    if (!relics.length) {
+      container.innerHTML = '<span style="color:var(--muted);font-size:.8rem;align-self:center">No relics</span>';
+      return;
+    }
+    relics.forEach(relic => {
+      const el = document.createElement('div');
+      el.className = 'relic-card';
+      const condition = getCardCondition(relic, owner);
+      el.innerHTML = `<strong>${escapeHtml(relic.name)}</strong><span>${escapeHtml(relic.text)}</span>${condition ? `<span class="relic-trigger">${escapeHtml(condition.text)}</span>` : ''}`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderChampionSlot(who) {
+    const side = sideOf(who);
+    const def = championDef(who);
+    const container = who === 'player' ? refs.playerChampionSlot : refs.enemyChampionSlot;
+    container.innerHTML = '';
+    if (side.championInPlay) {
+      container.innerHTML = `<span style="color:var(--muted);font-size:.8rem;align-self:center">${escapeHtml(def.name)} is on the battlefield.</span>`;
+      return;
+    }
+    const reason = who === 'player' ? championDeployReason('player') : '';
+    const preview = { id: def.id, name: def.name, type: 'unit', faction: def.faction, cost: side.championCost, text: def.abilityText, attack: def.attack, health: def.health, keywords: [...def.keywords], currentHealth: def.health, maxHealth: def.health, bonusAttack: 0, summoningSick: false, exhausted: false, shield: def.keywords.includes('Shield') };
+    const el = createCardElement(preview, {
+      owner: who,
+      clickable: who === 'player' && !reason,
+      unavailable: who === 'player' && !!reason,
+      commander: true,
+      statusLabel: who === 'player' ? (reason || 'Tap to deploy') : 'Waiting in Champion slot',
+      statusTone: who === 'player' ? (reason ? 'danger' : 'safe') : ''
+    });
+    if (who === 'player' && !reason) el.addEventListener('click', () => deployChampion('player'));
+    container.appendChild(el);
+  }
+
+  function renderBoard(owner) {
+    const container = owner === 'player' ? refs.playerBoard : refs.enemyBoard;
+    container.innerHTML = '';
+    const board = sideOf(owner).board;
+    if (!board.length) {
+      container.innerHTML = '<span style="color:var(--muted);font-size:.8rem;align-self:center">Board is empty</span>';
+      return;
+    }
+    board.forEach(unit => {
+      const assignedBlocker = state.phase === 'blocking' && owner === 'player' && state.blockAssignments.has(unit.uid);
+      const blockedAttacker = state.phase === 'blocking' && owner === 'enemy' && [...state.blockAssignments.values()].includes(unit.uid);
+      const selected = state.selectedAttackers.has(unit.uid) || state.selectedBlocker === unit.uid || assignedBlocker || blockedAttacker;
+      const targetable = state.targetMode?.validUids.has(unit.uid);
+      const playerAttackWindow = state.turn === 'player' && state.phase === 'main' && owner === 'player' && !state.player.combatUsed;
+      let unavailableReason = '';
+      if (state.targetMode && !targetable) unavailableReason = 'Not a valid target';
+      if (playerAttackWindow && owner === 'player' && !canAttack(unit)) unavailableReason = unit.summoningSick ? 'Played this turn' : unit.exhausted ? 'Already attacked' : 'Cannot attack';
+      if (state.turn === 'player' && state.phase === 'main' && owner === 'player' && state.player.combatUsed) unavailableReason = 'Attack step used';
+      if (state.turn === 'enemy' && state.phase === 'blocking' && owner === 'player' && unit.exhausted) unavailableReason = 'Already used: cannot block';
+      if (state.turn === 'enemy' && state.phase === 'blocking' && owner === 'enemy') unavailableReason = blockTargetReason(unit);
+      const blockingClickable = state.turn === 'enemy' && state.phase === 'blocking' && ((owner === 'player' && !unit.exhausted) || (owner === 'enemy' && !!state.selectedBlocker && !unavailableReason));
+      const clickable = targetable || (playerAttackWindow && canAttack(unit)) || blockingClickable;
+      let statusLabel = '';
+      let statusTone = '';
+      if (state.turn === 'player' && state.phase === 'main' && owner === 'player' && state.selectedAttackers.has(unit.uid)) {
+        statusLabel = `Will attack for ${cardAttack(unit, true, 'player')}`;
+        statusTone = 'safe';
+      }
+      if (state.turn === 'enemy' && state.phase === 'blocking') {
+        if (owner === 'enemy' && state.aiAttackers.some(a => a.uid === unit.uid)) {
+          const blockerUid = [...state.blockAssignments.entries()].find(([, attackerUid]) => attackerUid === unit.uid)?.[0];
+          const blocker = state.player.board.find(card => card.uid === blockerUid);
+          statusLabel = blocker ? `Blocked by ${blocker.name}` : `Unblocked: ${cardAttack(unit, true, 'enemy')} damage`;
+          statusTone = blocker ? 'safe' : 'danger';
+        } else if (owner === 'player' && state.blockAssignments.has(unit.uid)) {
+          const attacker = state.aiAttackers.find(card => card.uid === state.blockAssignments.get(unit.uid));
+          statusLabel = attacker ? `Blocking ${attacker.name}` : '';
+          statusTone = 'safe';
+        } else if (owner === 'player' && state.selectedBlocker === unit.uid) {
+          statusLabel = 'Selected: choose attacker';
+        }
+      }
+      if (unavailableReason) { statusLabel = unavailableReason; statusTone = 'danger'; }
+      const condition = !statusLabel ? getCardCondition(unit, owner) : null;
+      if (condition) {
+        statusLabel = condition.text;
+        statusTone = condition.tone;
+      }
+      const readyState = unit.type === 'unit' ? (unit.exhausted ? 'spent' : (unit.summoningSick || unit.stunned || unit.rushLocked) ? 'waiting' : 'ready') : null;
+      const el = createCardElement(unit, { readyState, selected, targetable, clickable, unavailable: !!unavailableReason && !targetable, owner, statusLabel, statusTone, synergyActive: !!condition?.active, commander: !!unit.isChampion, attacking: (owner === 'player' && state.selectedAttackers.has(unit.uid)) || (owner === 'enemy' && state.aiAttackers.some(a => a.uid === unit.uid)) });
+      if (clickable) el.addEventListener('click', () => handleUnitTarget(unit, owner));
+      container.appendChild(el);
+    });
+  }
+
+  function renderHand() {
+    refs.playerHand.innerHTML = '';
+    refs.playerHandLabel.textContent = state.player.hand.length
+      ? `Your hand · cards played ${state.player.cardsPlayed}/${MAX_CARDS_PER_TURN}`
+      : 'Your hand · empty';
+    state.player.hand.forEach(card => {
+      const canSwap = state.swapMode && state.turn === 'player' && state.phase === 'main' && !state.player.swapUsed;
+      const playable = state.turn === 'player' && state.phase === 'main' && !state.targetMode && !state.swapMode && isCardPlayable('player', card);
+      const clickable = canSwap || playable;
+      const condition = !canSwap ? getCardCondition(card, 'player') : null;
+      const unavailableReason = handUnavailableReason('player', card);
+      const statusLabel = canSwap
+            ? 'Tap to replace'
+            : unavailableReason || condition?.text || '';
+      const statusTone = canSwap ? 'safe' : unavailableReason ? 'danger' : condition?.tone || '';
+      const el = createCardElement(card, {
+        clickable,
+        unavailable: !!unavailableReason,
+        owner: 'player',
+        statusLabel,
+        statusTone,
+        synergyActive: !!condition?.active && !unavailableReason
+      });
+      if (clickable) el.addEventListener('click', () => handleHandCard(card));
+      refs.playerHand.appendChild(el);
+    });
+    if (!state.player.hand.length) refs.playerHand.innerHTML = '<span style="color:var(--muted);font-size:.8rem;align-self:center">Your hand is empty. It refills when your turn ends.</span>';
+  }
+
+  function createCardElement(card, opts = {}) {
+    const el = document.createElement('article');
+    el.className = `card ${card.type}`;
+    if (opts.clickable) el.classList.add('clickable');
+    if (opts.selected) el.classList.add('selected');
+    if (opts.targetable) el.classList.add('targetable');
+    if (opts.unavailable) el.classList.add('unavailable');
+    if (opts.commander) el.classList.add('commander', `commander-${String(card.faction || '').toLowerCase()}`);
+    if (card.exhausted) el.classList.add('exhausted');
+    if (opts.synergyActive) el.classList.add('synergy-active');
+
+    const tags = (card.keywords || []).map(k => `<span class="tag">${escapeHtml(k)}</span>`).join('');
+    const stats = card.type === 'unit'
+      ? `<div class="stats"><span class="stat attack-stat">⚔ ${cardAttack(card, !!opts.attacking, opts.owner)}</span><span class="stat health-stat">♥ ${card.currentHealth}/${card.maxHealth}</span></div>`
+      : '<div></div>';
+
+    el.innerHTML = `
+      ${opts.commander ? '<span class="commander-badge">CHAMPION</span>' : ''}
+      ${card.shield ? '<span class="shield-dot" title="Shield active"></span>' : ''}
+      <div class="card-top"><span class="cost">${opts.owner ? effectiveCost(card, opts.owner) : card.cost}</span><span class="card-name">${escapeHtml(card.name)}</span></div>
+      <div class="card-type">${escapeHtml(card.faction)} ${escapeHtml(card.type)}</div>
+      <div><div class="card-text">${escapeHtml(card.text)}</div><div class="keywords">${tags}</div>${opts.statusLabel ? `<div class="card-status ${escapeHtml(opts.statusTone || '')}">${escapeHtml(opts.statusLabel)}</div>` : ''}</div>
+      ${stats}
+      ${opts.readyState ? `<span class="ready-dot ${opts.readyState}" title="${opts.readyState === 'ready' ? 'Ready to attack' : opts.readyState === 'waiting' ? 'Not ready this turn' : 'Already acted'}"></span>` : ''}
+    `;
+    return el;
+  }
+
+  function renderCardCatalog() {
+    refs.cardCatalog.innerHTML = '';
+    const factionOrder = ['Flame', 'Wild', 'Order', 'Shadow'];
+    factionOrder.forEach(faction => {
+      const section = document.createElement('section');
+      section.className = 'catalog-section';
+      const title = document.createElement('h3');
+      title.textContent = faction;
+      const grid = document.createElement('div');
+      grid.className = 'card-catalog';
+      Object.entries(CARD_LIBRARY)
+        .filter(([, card]) => card.faction === faction)
+        .sort((a, b) => a[1].cost - b[1].cost || a[1].name.localeCompare(b[1].name))
+        .forEach(([id, base]) => {
+          const preview = {
+            ...base,
+            id,
+            keywords: [...(base.keywords || [])],
+            currentHealth: base.health ?? null,
+            maxHealth: base.health ?? null,
+            bonusAttack: 0,
+            summoningSick: false,
+            exhausted: false,
+            shield: (base.keywords || []).includes('Shield')
+          };
+          grid.appendChild(createCardElement(preview, { owner: faction === 'Order' || faction === 'Shadow' ? 'enemy' : 'player' }));
+        });
+      section.append(title, grid);
+      refs.cardCatalog.appendChild(section);
+    });
+  }
+
+  function getBlockingSnapshot() {
+    const attackers = state.aiAttackers.filter(attacker => state.enemy.board.some(unit => unit.uid === attacker.uid));
+    const assignments = [...state.blockAssignments.entries()].filter(([blockerUid, attackerUid]) =>
+      state.player.board.some(unit => unit.uid === blockerUid) && attackers.some(unit => unit.uid === attackerUid)
+    );
+    const blockedIds = new Set(assignments.map(([, attackerUid]) => attackerUid));
+    const unblocked = attackers.filter(attacker => !blockedIds.has(attacker.uid));
+    const incomingDamage = unblocked.reduce((sum, attacker) => sum + cardAttack(attacker, true, 'enemy'), 0);
+    const availableBlockers = state.player.board.filter(unit => !unit.exhausted);
+    return { attackers, assignments, blockedIds, unblocked, incomingDamage, availableBlockers };
+  }
+
+  function predictCombat(attacker, blocker) {
+    const attackerPower = cardAttack(attacker, true, 'enemy');
+    const blockerPower = cardAttack(blocker, false, 'player');
+    const attackerSurvives = attacker.shield || attacker.currentHealth > blockerPower;
+    const blockerSurvives = blocker.shield || blocker.currentHealth > attackerPower;
+    return { attackerPower, blockerPower, attackerSurvives, blockerSurvives };
+  }
+
+  function renderBlockReview() {
+    if (state.turn !== 'enemy' || state.phase !== 'blocking') {
+      refs.blockReviewBody.innerHTML = '<p>There is no attack to review.</p>';
+      return;
+    }
+    const snapshot = getBlockingSnapshot();
+    const lifeAfter = Math.max(0, state.player.life - snapshot.incomingDamage);
+    const rows = snapshot.attackers.map(attacker => {
+      const assignment = snapshot.assignments.find(([, attackerUid]) => attackerUid === attacker.uid);
+      const power = cardAttack(attacker, true, 'enemy');
+      const keywordNote = attacker.keywords.includes('Flying') ? ' Flying attackers require a Flying blocker.' : attacker.keywords.includes('Guard') ? ' Guard attackers must be blocked before non-Guard attackers.' : '';
+      if (!assignment) {
+        return `<div class="combat-row"><div class="combat-row-head"><strong>${escapeHtml(attacker.name)}</strong><span>${power} damage</span></div><p>Unblocked.${escapeHtml(keywordNote)}</p><div class="combat-outcome bad">This unit will deal ${power} damage to you.</div></div>`;
+      }
+      const blocker = state.player.board.find(unit => unit.uid === assignment[0]);
+      if (!blocker) return '';
+      const result = predictCombat(attacker, blocker);
+      const attackerOutcome = result.attackerSurvives ? `${attacker.name} survives` : `${attacker.name} is destroyed`;
+      const blockerOutcome = result.blockerSurvives ? `${blocker.name} survives` : `${blocker.name} is destroyed`;
+      const shieldNote = attacker.shield || blocker.shield ? ' An active Shield prevents that unit’s incoming damage once.' : '';
+      const drainNote = blocker.keywords.includes('Drain') ? ` ${blocker.name} restores life equal to the damage it deals.` : '';
+      return `<div class="combat-row"><div class="combat-row-head"><strong>${escapeHtml(attacker.name)} → ${escapeHtml(blocker.name)}</strong><span>Blocked</span></div><p>${escapeHtml(attacker.name)} deals ${result.attackerPower}; ${escapeHtml(blocker.name)} deals ${result.blockerPower}. Damage happens at the same time.${escapeHtml(shieldNote + drainNote)}</p><div class="combat-outcome ${result.blockerSurvives ? 'good' : 'bad'}">${escapeHtml(attackerOutcome)}. ${escapeHtml(blockerOutcome)}. You take 0 damage from this attacker.</div></div>`;
+    }).join('');
+
+    refs.blockReviewBody.innerHTML = `
+      <div class="combat-summary-box"><strong>${snapshot.incomingDamage} incoming damage</strong><span>${snapshot.assignments.length} of ${snapshot.attackers.length} attackers blocked. Before Drain or other healing, your life is projected to change from ${state.player.life} to ${lifeAfter}.</span></div>
+      <div class="combat-rules-note"><strong>How blocking works:</strong> Blocking is optional. Each of your units can block one attacker. A blocked attacker deals no damage to you, even if your blocker is destroyed. The attacker and blocker damage each other simultaneously.</div>
+      <div class="combat-list">${rows || '<p>No attackers.</p>'}</div>`;
+  }
+
+  function renderCombatReport() {
+    const report = state.lastCombatReport;
+    if (!report) {
+      refs.combatReportBody.innerHTML = '<p>No combat has happened yet.</p>';
+      return;
+    }
+    const blockedCount = report.rows.filter(row => row.type === 'blocked').length;
+    const rows = report.rows.map(row => {
+      if (row.type === 'unblocked') {
+        return `<div class="combat-row"><div class="combat-row-head"><strong>${escapeHtml(row.attackerName)}</strong><span>${row.attackerPower} damage</span></div><p>No blocker was assigned, so it damaged the defending player directly.</p></div>`;
+      }
+      const attackerOutcome = row.attackerHealthAfter <= 0 ? `${row.attackerName} was destroyed` : `${row.attackerName} survived at ${row.attackerHealthAfter}/${row.attackerMaxHealth}`;
+      const blockerOutcome = row.blockerHealthAfter <= 0 ? `${row.blockerName} was destroyed` : `${row.blockerName} survived at ${row.blockerHealthAfter}/${row.blockerMaxHealth}`;
+      const shieldText = row.attackerShielded || row.blockerShielded ? ' A Shield prevented one side’s incoming damage.' : '';
+      return `<div class="combat-row"><div class="combat-row-head"><strong>${escapeHtml(row.attackerName)} vs. ${escapeHtml(row.blockerName)}</strong><span>Blocked</span></div><p>${escapeHtml(row.attackerName)} dealt ${row.dealtToBlocker}; ${escapeHtml(row.blockerName)} dealt ${row.dealtToAttacker}. Damage was simultaneous.${escapeHtml(shieldText)}</p><div class="combat-outcome ${row.blockerHealthAfter <= 0 ? 'bad' : 'good'}">${escapeHtml(attackerOutcome)}. ${escapeHtml(blockerOutcome)}.</div></div>`;
+    }).join('');
+    refs.combatReportBody.innerHTML = `
+      <div class="combat-summary-box"><strong>${report.directHeroDamage} damage reached ${controllerLabel(report.defenderOwner).toLowerCase()}</strong><span>Life changed from ${report.defenderLifeBefore} to ${Math.max(0, report.defenderLifeAfter)} after all damage, Drain, and healing. ${blockedCount} of ${report.rows.length} attackers were blocked.</span></div>
+      <div class="combat-list">${rows}</div>`;
+  }
+
+  function renderPhase() {
+    refs.undoBtn.disabled = !canUndo();
+    refs.undoBtn.textContent = undoRecord ? 'Undo' : 'Undo';
+    refs.undoBtn.title = undoRecord ? `Undo ${undoRecord.label}` : 'No reversible action to undo';
+    refs.combatReviewBtn.classList.remove('show');
+    refs.combatReviewBtn.disabled = true;
+    refs.swapCardBtn.style.display = '';
+    refs.swapCardBtn.classList.toggle('primary', state.swapMode);
+    refs.swapCardBtn.textContent = state.swapMode ? 'Cancel swap' : state.player.swapUsed ? 'Swap used' : 'Swap 1 card';
+    refs.swapCardBtn.disabled = state.gameOver || state.turn !== 'player' || state.phase !== 'main' || !!state.targetMode || state.player.swapUsed || !state.player.hand.length;
+    if (state.gameOver) {
+      refs.phaseTitle.textContent = 'Game over';
+      refs.phaseHelp.textContent = 'Start a new game to continue.';
+      refs.mainActionBtn.textContent = 'Game over';
+      refs.mainActionBtn.disabled = true;
+      return;
+    }
+
+    refs.mainActionBtn.disabled = false;
+    if (state.targetMode) {
+      refs.phaseTitle.textContent = 'Choose a target';
+      refs.phaseHelp.textContent = state.targetMode.description;
+      refs.mainActionBtn.textContent = 'Cancel';
+      return;
+    }
+
+    if (state.turn === 'player' && state.phase === 'main') {
+      refs.phaseTitle.textContent = state.player.championInPlay ? `${championDef('player').name} active` : 'Your turn';
+      const count = state.selectedAttackers.size;
+      const damage = state.player.board.filter(unit => state.selectedAttackers.has(unit.uid)).reduce((sum, unit) => sum + cardAttack(unit, true, 'player'), 0);
+      refs.phaseHelp.textContent = state.swapMode
+        ? 'Tap one card in your hand to discard it and draw a replacement.'
+        : state.player.combatUsed
+          ? `Attack complete. Cards played: ${state.player.cardsPlayed}/${MAX_CARDS_PER_TURN}. You may still play cards or end your turn.`
+          : count
+            ? `${count} attacker${count === 1 ? '' : 's'} selected for ${damage} total Attack before blocks.`
+            : `Cards played: ${state.player.cardsPlayed}/${MAX_CARDS_PER_TURN}. ${state.player.championInPlay ? championDef('player').abilityText : `Deploy ${championDef('player').name} for ${state.player.championCost} mana to activate your Champion.`}`;
+      refs.mainActionBtn.textContent = count && !state.player.combatUsed ? 'Confirm attack' : 'End turn';
+      return;
+    }
+
+    if (state.turn === 'enemy' && state.phase === 'blocking') {
+      const snapshot = getBlockingSnapshot();
+      const lifeAfter = Math.max(0, state.player.life - snapshot.incomingDamage);
+      refs.phaseTitle.textContent = `${snapshot.incomingDamage} damage is unblocked`;
+      refs.phaseHelp.textContent = `${snapshot.assignments.length}/${snapshot.attackers.length} attackers blocked · life ${state.player.life} → ${lifeAfter}. Tap Review for outcomes.`;
+      refs.mainActionBtn.textContent = snapshot.incomingDamage ? `Take ${snapshot.incomingDamage} damage` : 'Resolve: 0 damage';
+      refs.combatReviewBtn.classList.add('show');
+      refs.combatReviewBtn.disabled = false;
+      return;
+    }
+
+    refs.phaseTitle.textContent = 'Enemy turn';
+    refs.phaseHelp.textContent = 'The enemy is making its move.';
+    refs.mainActionBtn.textContent = 'Waiting';
+    refs.mainActionBtn.disabled = true;
+  }
+
+  function renderLog() {
+    [refs.gameLog, refs.mobileGameLog].forEach(container => {
+      container.innerHTML = '';
+      state.log.forEach(entry => {
+        const el = document.createElement('div');
+        el.className = `log-entry ${entry.tone || ''}`;
+        el.innerHTML = `<strong>${escapeHtml(entry.text)}</strong>${entry.detail ? `<span class="log-detail">${escapeHtml(entry.detail)}</span>` : ''}`;
+        container.appendChild(el);
+      });
+    });
+    const latest = state.log.slice(0, 4).find(entry => /destroyed|burned/.test(entry.text.toLowerCase())) || state.log[0];
+    refs.latestEventText.textContent = latest ? latest.text : 'No events yet.';
+    refs.latestEventBtn.title = latest?.detail || 'Open recent events';
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  }
+
+  refs.undoBtn.addEventListener('click', undoLastAction);
+
+  refs.mainActionBtn.addEventListener('click', () => {
+    if (state.targetMode) {
+      state.targetMode = null;
+      addLog('Target selection canceled.', 'info');
+      render();
+      return;
+    }
+    if (state.turn === 'player' && state.phase === 'main') {
+      if (state.player.combatUsed) endPlayerTurn();
+      else beginPlayerAttack();
+    }
+    else if (state.turn === 'enemy' && state.phase === 'blocking') resolvePlayerBlocks();
+  });
+
+  refs.swapCardBtn.addEventListener('click', () => {
+    if (state.gameOver || state.turn !== 'player' || state.phase !== 'main' || state.targetMode || state.player.swapUsed || !state.player.hand.length) return;
+    state.swapMode = !state.swapMode;
+    addLog(state.swapMode ? 'Choose one card to replace.' : 'Card replacement canceled.', 'info', state.swapMode ? 'You may replace one card each turn. The replacement is immediate.' : 'No card was discarded.');
+    render();
+    if (state.swapMode) scrollZoneIntoView(refs.playerHand);
+  });
+
+  $('rulesBtn').addEventListener('click', () => refs.rulesOverlay.classList.add('show'));
+  $('cardsBtn').addEventListener('click', () => { renderCardCatalog(); refs.cardsOverlay.classList.add('show'); });
+  $('logBtn').addEventListener('click', () => refs.logOverlay.classList.add('show'));
+  refs.latestEventBtn.addEventListener('click', () => refs.logOverlay.classList.add('show'));
+  refs.combatReviewBtn.addEventListener('click', () => { renderBlockReview(); refs.blockOverlay.classList.add('show'); });
+  $('closeRulesBtn').addEventListener('click', () => refs.rulesOverlay.classList.remove('show'));
+  refs.rulesOverlay.addEventListener('click', (e) => { if (e.target === refs.rulesOverlay) refs.rulesOverlay.classList.remove('show'); });
+  $('closeCardsBtn').addEventListener('click', () => refs.cardsOverlay.classList.remove('show'));
+  refs.cardsOverlay.addEventListener('click', (e) => { if (e.target === refs.cardsOverlay) refs.cardsOverlay.classList.remove('show'); });
+  $('closeLogBtn').addEventListener('click', () => refs.logOverlay.classList.remove('show'));
+  refs.logOverlay.addEventListener('click', (e) => { if (e.target === refs.logOverlay) refs.logOverlay.classList.remove('show'); });
+  $('closeBlockBtn').addEventListener('click', () => refs.blockOverlay.classList.remove('show'));
+  refs.blockOverlay.addEventListener('click', (e) => { if (e.target === refs.blockOverlay) refs.blockOverlay.classList.remove('show'); });
+  $('closeCombatReportBtn').addEventListener('click', () => { state.pendingCombatReport = false; refs.combatReportOverlay.classList.remove('show'); });
+  refs.combatReportOverlay.addEventListener('click', (e) => { if (e.target === refs.combatReportOverlay) { state.pendingCombatReport = false; refs.combatReportOverlay.classList.remove('show'); } });
+  $('restartBtn').addEventListener('click', () => { refs.gameOverOverlay.classList.remove('show'); refs.blockOverlay.classList.remove('show'); refs.combatReportOverlay.classList.remove('show'); showDeckSelect(); });
+  $('playAgainBtn').addEventListener('click', () => { refs.gameOverOverlay.classList.remove('show'); refs.blockOverlay.classList.remove('show'); refs.combatReportOverlay.classList.remove('show'); showDeckSelect(); });
+
+  refs.clashOverlay.addEventListener('click', () => { if (clashSkip) clashSkip(); });
+
+  bindBoardScrollbar(refs.enemyBoard, refs.enemyBoardScrollbar);
+  bindBoardScrollbar(refs.playerBoard, refs.playerBoardScrollbar);
+  window.addEventListener('resize', updateBoardScrollbars);
+
+  // Hover zoom: enlarged readable card preview on desktop pointer devices
+  (function initCardPeek() {
+    const canPeek = window.matchMedia('(min-width: 761px) and (hover: hover)');
+    let peekEl = null, peekSrc = null;
+    function removePeek() {
+      if (peekEl) { peekEl.remove(); peekEl = null; peekSrc = null; }
+    }
+    document.addEventListener('mouseover', (e) => {
+      if (!canPeek.matches) return;
+      const card = e.target.closest('.card');
+      if (!card || card.classList.contains('card-peek') || card.closest('.card-catalog, .deck-select-modal')) { if (!e.target.closest('.card-peek')) removePeek(); return; }
+      if (card === peekSrc) return;
+      removePeek();
+      peekSrc = card;
+      peekEl = card.cloneNode(true);
+      peekEl.classList.add('card-peek');
+      peekEl.classList.remove('clickable', 'selected', 'targetable');
+      document.body.appendChild(peekEl);
+      const r = card.getBoundingClientRect();
+      const pw = 250, ph = peekEl.offsetHeight || 220;
+      let x = r.right + 12;
+      if (x + pw > window.innerWidth - 8) x = r.left - pw - 12;
+      if (x < 8) x = Math.min(window.innerWidth - pw - 8, Math.max(8, r.left));
+      let y = Math.min(Math.max(8, r.top - 20), window.innerHeight - ph - 8);
+      peekEl.style.left = x + 'px';
+      peekEl.style.top = y + 'px';
+      requestAnimationFrame(() => peekEl && peekEl.classList.add('show'));
+    });
+    document.addEventListener('mouseout', (e) => {
+      if (peekSrc && !peekSrc.contains(e.relatedTarget)) removePeek();
+    });
+    document.addEventListener('click', removePeek, true);
+    window.addEventListener('scroll', removePeek, true);
+
+    // Touch: press-and-hold any card to inspect it full-size
+    let holdTimer = null, holdShown = false, backdrop = null;
+    function removeTouchPeek() {
+      clearTimeout(holdTimer); holdTimer = null;
+      if (backdrop) { backdrop.remove(); backdrop = null; }
+      removePeek();
+    }
+    document.addEventListener('touchstart', (e) => {
+      const card = e.target.closest('.card');
+      if (!card || card.classList.contains('card-peek')) return;
+      holdShown = false;
+      clearTimeout(holdTimer);
+      holdTimer = setTimeout(() => {
+        holdShown = true;
+        removePeek();
+        backdrop = document.createElement('div');
+        backdrop.className = 'peek-backdrop';
+        document.body.appendChild(backdrop);
+        peekSrc = card;
+        peekEl = card.cloneNode(true);
+        peekEl.classList.add('card-peek', 'touch');
+        peekEl.classList.remove('clickable', 'selected', 'targetable');
+        document.body.appendChild(peekEl);
+        requestAnimationFrame(() => peekEl && peekEl.classList.add('show'));
+        if (navigator.vibrate) navigator.vibrate(10);
+      }, 350);
+    }, { passive: true });
+    document.addEventListener('touchmove', () => { if (!holdShown) { clearTimeout(holdTimer); holdTimer = null; } }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      if (holdShown) { e.preventDefault(); removeTouchPeek(); holdShown = false; }
+      else { clearTimeout(holdTimer); holdTimer = null; }
+    }, { passive: false });
+    document.addEventListener('touchcancel', () => { removeTouchPeek(); holdShown = false; }, { passive: true });
+    // Swallow the click that follows a completed hold so the card isn't played
+    document.addEventListener('click', (e) => {
+      if (holdShown) { e.stopPropagation(); e.preventDefault(); holdShown = false; }
+    }, true);
+  })();
+
+  showDeckSelect();
+})();
+</script>
+
+
+</body></html>

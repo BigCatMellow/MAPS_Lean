@@ -1,0 +1,40 @@
+{
+  "task_id": "TASK-307",
+  "title": "Revalidate, review, and deploy the damo-nivo map-authority gateway patch to Smalls",
+  "task_type": "implementation",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-nene",
+  "description": "Biggie/Smalls action-plan step 1a. An earlier session (rotation-replacement-damo-nivo) wrote register-agent/rotation-transfer/rotation-restore operations into the map-authority gateway to fix a real read-only-mirror-write bug during context rotation, but left the patch uncommitted and undeployed to Smalls (RUKI), the authority host these calls route to. This is now confirmed actively blocking: claude-lab-nene's register-agent call during its own context rotation failed because RUKI does not have this code. Revalidate the existing patch against current main, get it independently reviewed (functional AND explicit security review, since these are new remote-writable authority-gateway operations), then checksum-stage and deploy exactly the reviewed files to Smalls, and verify register-agent/rotation-transfer/rotation-restore succeed (or fail closed, as designed) end-to-end after deployment. Explicitly excluded from this task: fixing the separate task-approve/review-artifact-availability problem (a different, already-diagnosed cause - RUKI cannot read KUDU-only review files, unrelated to this code gap), any manual TASK-305/TASK-306 status transition, any direct SQL against map.db, and any deployment to Smalls before independent review completes.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/operations/gateway-rotation-ops-deployment-2026-07-29.md",
+    "MAP_System/db/claims.py",
+    "MAP_System/migration/schema.sql",
+    "MAP_System/scripts/context_rotation.py",
+    "MAP_System/scripts/map_authority.py",
+    "MAP_System/tests/test_context_rotation.py"
+  ],
+  "acceptance_criteria": [
+    "The existing damo-nivo patch (MAP_System/db/claims.py, scripts/map_authority.py, scripts/context_rotation.py, tests/test_context_rotation.py) is revalidated against current main: applies cleanly, existing focused tests still pass, no unrelated drift.",
+    "A different core agent performs independent functional review of the patch's gateway changes.",
+    "A different core agent (or the same functional reviewer under an explicit second pass) performs independent security-framed review, given the patch adds new remote-writable map-authority gateway operations (register-agent, rotation-transfer, rotation-restore).",
+    "The exact reviewed files are checksum-staged and deployed to Smalls (RUKI) only after both reviews approve; deployment evidence (files deployed, checksums, destination, timestamp) is recorded in a durable artifact.",
+    "Post-deployment verification proves register-agent, rotation-transfer, and rotation-restore calls actually succeed (or fail closed exactly as designed) against the live RUKI authority host - not just that the files copied.",
+    "This task does not attempt to fix the separate task-approve/review-artifact-availability problem, does not manually transition TASK-305 or TASK-306, does not use direct SQL against map.db, and does not deploy before both reviews approve."
+  ],
+  "decision_class": null,
+  "risk_class": "SECURITY",
+  "risk_severity": "BLOCKING",
+  "task_tier": "bounded",
+  "requires_operator_approval": true,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

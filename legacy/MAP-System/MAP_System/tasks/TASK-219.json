@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-219",
+  "title": "ClearFront: one-command test runner + evidence consolidation template",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "ClearFront-local half of the process-improvement batch (operator-directed, hcom thread clearfront-map #1851, per Projects/ClearFront/artifacts/reviews/clearfront-independent-delivery-audit-2026-07-17.md P1 findings and DEC-CF-008). Medium-risk tier per DEC-CF-008 (tooling/process, no game rules/engine change): one review at completion, no per-file ceremony. Two parts: (1) Projects/ClearFront/scripts/test_all.mjs (or equivalent single entrypoint): runs node --check across all app/js/*.js, runs scripts/test_extract_bundle.py, manages its own headless Chromium lifecycle (launch, allocate a free remote-debugging port, guaranteed cleanup even on failure via try/finally or trap), and runs the registered browser harnesses (task217-card-art-check.mjs-style input checks, undo-check, seeded-replay) without requiring the caller to manually start Chromium or supply a port -- single process exit code (0 = everything passed, nonzero = something failed) with a compact pass/fail summary, not a full transcript dump. This directly answers the audits P1 finding that harnesses currently 'fail without externally starting Chromium and supplying positional port/URL/output arguments.' (2) Projects/ClearFront/templates/delivery-note-template.md: one combined evidence template for future low/medium-risk changes that replaces the current pattern of a separate parity report + owner-verification note + release checklist all re-narrating the same facts -- sections for what changed, how it was verified (commands + pass/fail), and acceptance-criteria mapping. Keep the reviewer-authored review record as a separate artifact (that's the no-self-review boundary, not narrative duplication). Do not retrofit this template onto TASK-207-217's already-released evidence -- applies to future work only. No game rules, balance, or app behavior changes.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/scripts/test_all.mjs",
+    "Projects/ClearFront/templates/delivery-note-template.md"
+  ],
+  "acceptance_criteria": [
+    "Running the test runner with zero setup (no manually pre-launched Chromium, no manually supplied port) exercises: JS syntax checks on all app modules, the extractor regression suite, and the registered browser harnesses (input, undo, seeded combat/blocking), and exits 0 iff everything passed.",
+    "The runner cleans up its own Chromium process even when a check fails partway through (verify by intentionally triggering a failure path or inspecting the cleanup logic).",
+    "delivery-note-template.md exists with sections for change summary, verification (commands run + results), and acceptance-criteria mapping; documented as the intended replacement for the parity-report+owner-verification-note+release-checklist trio on future low/medium-risk ClearFront changes.",
+    "No game rule, balance, or app runtime behavior changes; source/ and baseline/ untouched."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

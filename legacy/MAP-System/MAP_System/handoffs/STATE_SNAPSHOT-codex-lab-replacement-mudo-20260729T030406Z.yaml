@@ -1,0 +1,97 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T03:04:06Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-replacement-mudo
+session_id: 019faaea-b7c7-7722-91a5-b7f5d5bd7e96
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: CONTEXT_ROTATION_FINALIZED
+    task_id: TASK-271
+    summary: codex-lab-rosa was finalized on RUKI and this session became its checksum-bound
+      replacement.
+  - event_type: APPROVAL
+    task_id: TASK-302
+    summary: RUKI validated the independent review artifact and transitioned TASK-302
+      to APPROVED.
+  - event_type: GOVERNANCE_PROPOSAL
+    task_id: null
+    summary: Sent bigboss a concise canonical hierarchy proposal separating operator
+      authority, core roles, task roles, bounded helpers, and session continuity.
+  touched_paths: []
+active_constraints:
+- scope: repo
+  rule: RUKI is the sole writable MAP database and continuity-ledger authority; KUDU
+    remains a read-only mirror.
+  source: MAP_System/notes/cross-pc-map-authority.md
+- scope: communication
+  rule: Await bigboss approval or correction before changing orchestration-policy
+    files.
+  source: hcom governance proposal sent by codex-lab-replacement-mudo
+- scope: safety
+  rule: Preserve the hierarchy operator/bigboss > Codex+Claude core coordination >
+    task owner and independent reviewer roles > bounded Pi/Librarian/helpers.
+  source: MAP_System/shared/project-brief.md, DEC-008, MAP_System/shared/hpom.md
+- scope: safety
+  rule: Treat context rotation as session continuity only, not promotion or transfer
+    of operator/core-role authority.
+  source: MAP_System/notes/context-rotation-guide.md and governance proposal
+- scope: tool
+  rule: Every model-backed replacement must remain visible in an operator-reachable
+    WezTerm tab.
+  source: MAP_System/AGENTS.md
+forward_tasks: []
+blockers:
+- kind: approval
+  detail: The canonical hierarchy view and proposed home in MAP_System/shared/project-brief.md
+    are awaiting bigboss approval or correction.
+  unblock_by: Receive bigboss's decision, then create or claim a MAP task before any
+    durable governance edit.
+failed_approaches:
+- approach: Run context_rotation.py ACK/finalize directly on KUDU after cross-PC authority
+    activation.
+  result: Correctly failed because KUDU map.db is read-only; the operations were completed
+    on RUKI with verified identity/session and snapshot hashes.
+lexicon:
+  KUDU: This /home/mellow compute host and read-only MAP mirror.
+  RUKI: The /home/home control-plane host and sole writable MAP authority.
+  MAP: Durable file- and SQLite-backed multi-agent delivery system.
+  STATE_SNAPSHOT: Checksum-frozen session-continuity handoff; it does not transfer
+    governance rank.
+  core_role: Durable Codex or Claude coordination seat defined by DEC-008, distinct
+    from a live session identity.
+resume_commands:
+- map-authority route
+- map-authority task show TASK-302
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- hcom transcript search 'Governance-clarity proposal' --all --name mudo
+validation:
+- RUKI authoritative query found no task owned or claimed by codex-lab-replacement-mudo.
+- TASK-302 authoritative state is APPROVED.
+- TASK-302 review artifact validated on KUDU and RUKI with SHA-256 303ae3bf99bed5344fc0de97611e94391d2170bbdab86f6e44646888615d3fec.
+- RUKI continuity ledger revision 76 contains the finalized Rosa-to-Mudo rotation.
+- Local continuity validation has only pre-existing unrelated drift for codex-lab-kazu
+  and task278-levi.
+rotation:
+  reason: threshold
+  summary: Completed the RUKI-side Rosa rotation, validated and approved TASK-302,
+    and proposed a concise canonical governance hierarchy to bigboss without editing
+    policy files. No task claims or pending reviews are owned by this session. The
+    only live continuation is the operator decision on hierarchy wording and canonical
+    placement.
+  next_action: Read this frozen snapshot and the pending bigboss governance response;
+    preserve the authority hierarchy and make no orchestration-policy edit until bigboss
+    approves or corrects the proposal.
+  used_tokens: 123008
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-29T03:04:06Z'
+  canonical_tasks: []
+  canonical_tasks_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  touched_paths: []
+  touched_paths_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945

@@ -1,0 +1,221 @@
+{
+  "experiment": "LURE-paraphrase-robustness-probe",
+  "frozen_at": "2026-07-19T14:05:00-04:00",
+  "owner": "codex-lab-kiri",
+  "independent_author": "helper-index-author-bono",
+  "author_hcom_event": 7014,
+  "fingerprint_mode": "deterministic task record only; no owner-curated semantic fields",
+  "corpus_rule": "Completed TASK-160 through TASK-205, excluding non-completed TASK-186.",
+  "corpus_task_ids": [
+    "TASK-160",
+    "TASK-161",
+    "TASK-162",
+    "TASK-163",
+    "TASK-164",
+    "TASK-165",
+    "TASK-166",
+    "TASK-167",
+    "TASK-168",
+    "TASK-169",
+    "TASK-170",
+    "TASK-171",
+    "TASK-172",
+    "TASK-173",
+    "TASK-174",
+    "TASK-175",
+    "TASK-176",
+    "TASK-177",
+    "TASK-178",
+    "TASK-179",
+    "TASK-180",
+    "TASK-181",
+    "TASK-182",
+    "TASK-183",
+    "TASK-184",
+    "TASK-185",
+    "TASK-187",
+    "TASK-188",
+    "TASK-189",
+    "TASK-190",
+    "TASK-191",
+    "TASK-192",
+    "TASK-193",
+    "TASK-194",
+    "TASK-195",
+    "TASK-196",
+    "TASK-197",
+    "TASK-198",
+    "TASK-199",
+    "TASK-200",
+    "TASK-201",
+    "TASK-202",
+    "TASK-203",
+    "TASK-204",
+    "TASK-205"
+  ],
+  "retrieval_contract": {
+    "max_candidates_per_query": 6,
+    "max_sources_per_candidate": 2,
+    "max_selected_sources_per_query": 2,
+    "discovery_packet_max_estimated_tokens": 1200,
+    "delivery_mode": "one query packet at a time",
+    "helper_access": "current query packet only; no index, truth set, broad search, or named-source reads"
+  },
+  "queries": [
+    {
+      "id": "H1",
+      "question": "I want to reconstruct what happened across earlier work into a throwaway database I can inspect, and know when it has gone out of date compared with the real records. Which work did that?",
+      "expected_task_ids": [
+        "TASK-173"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/session_replay.py",
+        "MAP_System/tests/test_session_replay.py"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": [
+        "Builds the disposable SQLite read model, records source high-water metadata and drift findings, and exposes task, agent, trace, and status queries.",
+        "Proves deterministic queries plus unsafe status on malformed events, missing task references, and mirror-validation failures."
+      ]
+    },
+    {
+      "id": "H2",
+      "question": "Links between our markdown documents were not being picked up when the pointer used a whole-project prefix or just a neighbouring file's name. What fixed that lookup?",
+      "expected_task_ids": [
+        "TASK-179"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/librarian.py",
+        "MAP_System/tests/test_librarian.py"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": [
+        "Contains the multi-base related-bullet resolver and the conversion path that consumes it.",
+        "Covers repository-root-relative paths, source-directory sibling paths, end-to-end conversion, and intentional Guidelines exclusion."
+      ]
+    },
+    {
+      "id": "H3",
+      "question": "How do we stop secrets from leaking into saved logs while still keeping the log entry itself?",
+      "expected_task_ids": [
+        "TASK-191"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/redaction.py",
+        "MAP_System/tests/test_redaction.py"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": [
+        "Defines known-secret patterns, false-positive guards, placeholder replacement, and warn-and-redact behavior before persistence.",
+        "Exercises credential families, entropy true and false positives, idempotence, warnings, and on-disk capture integration."
+      ]
+    },
+    {
+      "id": "H4",
+      "question": "What stops two people grabbing the same item for checking at the same time, and also stops whoever did the work from signing it off themselves?",
+      "expected_task_ids": [
+        "TASK-199"
+      ],
+      "expected_source_paths": [
+        "MAP_System/db/claims.py",
+        "MAP_System/tests/test_review_claims.py"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": [
+        "Provides atomic review claiming, open-claim lookup, self-review rejection, and holder-only release behavior.",
+        "Proves one-winner review races, self-review rejection, submitted-status gating, and release by the actual holder."
+      ]
+    },
+    {
+      "id": "H5",
+      "question": "Can an automated check actually stop work rather than only warn, and how is that power kept switched off unless deliberately turned on, with an expiry?",
+      "expected_task_ids": [
+        "TASK-201"
+      ],
+      "expected_source_paths": [
+        "MAP_System/workflow/runtime_policy.yaml",
+        "MAP_System/tests/test_halt_authority_window.py"
+      ],
+      "expected_source_roles": [
+        "current_state",
+        "test"
+      ],
+      "source_justifications": [
+        "Shows the halt-authority window with no expiry grant and empty scope, making the live default disabled.",
+        "Proves disabled, expired, and scope-mismatched windows only log, while active scoped windows create operator-clearable halts."
+      ]
+    },
+    {
+      "id": "H6",
+      "question": "How does the project tracker let someone save a copy of their data and load it back later, refuse a bad file, and warn before replacing what is already there?",
+      "expected_task_ids": [
+        "TASK-205"
+      ],
+      "expected_source_paths": [
+        "Projects/ProjectUpdater/app/index.html",
+        "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": [
+        "Implements separate backup controls, a full-model envelope, import normalization, overwrite confirmation, save, and re-render while retaining exportStatus.",
+        "Records a real export-clear-import round trip preserving omitted fields and a malformed-JSON check leaving storage unchanged."
+      ]
+    },
+    {
+      "id": "H7",
+      "question": "Where can I see how much effort went in versus what actually shipped or was thrown away, without invented money figures?",
+      "expected_task_ids": [
+        "TASK-190"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/cost_yield.py",
+        "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "outcome"
+      ],
+      "source_justifications": [
+        "Joins event volume, activity span, attempts, and rework with explicit outcome classes and productive, abandoned, pending, and legacy buckets.",
+        "Records the real repository run, proxy disclaimer, class definitions, spend split, JSON summary, and caveats."
+      ]
+    },
+    {
+      "id": "H8",
+      "question": "The automatic wake-up message sometimes goes to a worker that never stopped, and sometimes it freezes while bringing one back. Which finished work handled both of those?",
+      "expected_task_ids": [
+        "TASK-187",
+        "TASK-195"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": [
+        "Detects the still-active resume response and sends to the live session while separately catching resume timeouts and returning failure.",
+        "Distinguishes visible-terminal resume, active-session fallback success/failure, and timeout behavior for both task IDs."
+      ],
+      "ambiguity": "Compound label: TASK-187 covers already-active fallback and TASK-195 covers resume timeouts; neither alone is complete."
+    }
+  ],
+  "note": "Controlled probe: identical corpus/expected truth; only question wording changed to non-corpus vocabulary."
+}

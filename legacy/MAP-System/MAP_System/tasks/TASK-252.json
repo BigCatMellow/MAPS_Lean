@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-252",
+  "title": "Create accessible collapsed-card type glyphs for ClearFront G1",
+  "task_type": "asset",
+  "role": "illustrator",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Generate exactly three square transparent PNG type glyphs for ClearFront collapsed cards: Unit, Spell, and Relic. Maintain a consistent ClearFront fantasy-card visual family, strong silhouettes at 24-32px, and accessibility through shape rather than color. Do not edit ClearFront code, source provenance, rules, or any file outside the three registered assets.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/app/assets/glyph-relic.png",
+    "Projects/ClearFront/app/assets/glyph-spell.png",
+    "Projects/ClearFront/app/assets/glyph-unit.png"
+  ],
+  "acceptance_criteria": [
+    "All three files are square 64-128px RGBA PNGs with transparent corners and no background, text, watermark, or cast shadow.",
+    "At 24px and 32px on a dark navy background, Unit reads as a blade/sword, Spell as a spark/star, and Relic as a gem/diamond through distinct silhouettes rather than color alone.",
+    "The glyphs form a consistent high-contrast ClearFront fantasy UI family and only the three registered asset files are added."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

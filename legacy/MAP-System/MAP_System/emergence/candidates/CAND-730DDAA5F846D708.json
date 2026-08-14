@@ -1,0 +1,17 @@
+{
+  "candidate_id": "CAND-730DDAA5F846D708",
+  "status": "accepted",
+  "signal_type": "repeated_rework",
+  "subject": "TASK-263",
+  "summary": "TASK-263 received 2 changes-requested events; inspect for a reusable prevention lesson.",
+  "evidence_refs": [
+    "MAP_System/events/events.jsonl:3191",
+    "MAP_System/events/events.jsonl:3692"
+  ],
+  "dedup_key": "730ddaa5f846d708",
+  "detected_at": "2026-07-30T13:16:05Z",
+  "curated_at": "2026-07-30T13:19:02Z",
+  "curated_by": "claude-lab-mimi",
+  "resolution_reason": "Genuine reusable pattern: submission-time pilot metrics no longer reproduced at review time. Captured with TASK-306 as INS-0058.",
+  "resolution_ref": "MAP_System/emergence/insights/INS-0058-submission-time-evidence-file-parity-checksums-pilot-metrics-can.md"
+}

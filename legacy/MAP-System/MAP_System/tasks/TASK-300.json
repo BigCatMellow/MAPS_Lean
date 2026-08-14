@@ -1,0 +1,40 @@
+{
+  "task_id": "TASK-300",
+  "title": "Notify operator when cross-PC MAP authority is unavailable",
+  "task_type": "infrastructure",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-live",
+  "description": "Add a boot-persistent, non-AI watchdog around mirror synchronization that records failures, retries, sends rate-limited desktop alerts when RUKI cannot be reached or a snapshot fails validation, and sends a recovery notification.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/reviews/task300-review.md",
+    "MAP_System/notes/cross-pc-map-authority.md",
+    "MAP_System/scripts/map_authority_notify.py",
+    "MAP_System/templates/install/bin/map-authority-sync",
+    "MAP_System/templates/install/systemd/map-authority-mirror.service",
+    "MAP_System/tests/test_map_authority_notify.py",
+    "install-map-system.sh"
+  ],
+  "acceptance_criteria": [
+    "Mirror sync failures are persisted and produce a desktop notification once a graphical session is available.",
+    "Repeated failures are rate-limited and do not notify every minute.",
+    "The first successful sync after a failure records recovery and sends a recovery notification.",
+    "No UI, Codex session, or local LLM is started by the watchdog.",
+    "Installer keeps standalone and authority defaults unchanged and installs the watchdog wrapper."
+  ],
+  "decision_class": "AUTHORITY",
+  "risk_class": "AVAILABILITY",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

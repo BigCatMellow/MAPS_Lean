@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-030",
+  "title": "Multi-gate handling in LangGraph runner",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-022"
+  ],
+  "owner": "claude",
+  "description": "runner.py currently interrupts at the first pending approval gate only. Handle multiple pending gates: surface all in the interrupt payload, and resume should process each in sequence.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/graph/runner.py",
+    "graph/runner.py"
+  ],
+  "acceptance_criteria": [
+    "Interrupt payload includes list of all pending gates, not just the first",
+    "--approve/--reject applies to specified gate_id, then loops back if more gates remain",
+    "Single-gate case unchanged (no regression)",
+    "py_compile clean; runner smoke test passes"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,39 @@
+{
+  "task_id": "TASK-261",
+  "title": "Prototype query-global evidence selection and local capability verification",
+  "task_type": "experiment",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Follow-up to TASK-260. Keep the frozen FTS5/RRF retriever and TASK-260 truth/results unchanged and use them only as labeled development data. Build a separate query-global evidence selector that allocates up to three sources across the candidate task set using clause coverage, proof-role demand, non-redundancy, task linkage, path health, and temporal quality. Compare it with the fixed two-per-task selector. Separately test a bounded visible local/Pi helper as a capability verifier on one existing compact packet at a time, measuring positive task decisions, no-match false positives, context, latency, and scope. Do not download models, modify Pi authority, add embeddings, or integrate into startup, routing, UI, canonical authority, or external services.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task-memory-evidence-verifier-development-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-memory-evidence-verifier-development-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-memory-query-global-packets-2026-07-19/",
+    "MAP_System/inbox/helpers/helper-index-local-verifier-2026-07-19.md",
+    "MAP_System/scripts/task_memory_packet_selector.py",
+    "MAP_System/tests/test_task_memory_packet_selector.py"
+  ],
+  "acceptance_criteria": [
+    "TASK-259 retriever and TASK-260 truth/results remain byte-for-byte unchanged; the new selector is a separate disposable layer and TASK-260 is labeled development data rather than fresh evidence.",
+    "A deterministic query-global selector allocates at most three resolved sources across selected candidate tasks and scores clause coverage, requested proof roles, non-redundancy, task linkage, and temporal attribution without forcing different roles.",
+    "Focused tests cover three-role single-task questions, compound cross-task allocation, complementary same-role evidence, unresolved/shared-source penalties, deterministic ordering, and the fixed-selector comparison.",
+    "A visible bounded local/Pi verifier receives one frozen TASK-260 packet at a time without repository search or writes; the report records task/no-match decisions, false positives, context, latency, scope, and whether local verification is viable.",
+    "The report compares exact-source visibility against TASK-260 15/20, documents abstention/verifier tradeoffs and limitations, freezes a candidate for a later fresh holdout, and makes no integration or embedding claim."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

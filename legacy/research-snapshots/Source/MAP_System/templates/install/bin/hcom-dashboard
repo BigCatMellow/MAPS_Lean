@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+PROJECT_DIR="${PROJECT_DIR:-__PROJECT_DIR__}"
+HCOM="${HCOM:-$(command -v hcom 2>/dev/null || printf '%s' '__LOCAL_BIN__/hcom')}"
+WEZTERM="${WEZTERM:-$(command -v wezterm 2>/dev/null || printf '%s' '__LOCAL_BIN__/wezterm')}"
+CONFIG="${HCOM_WEZTERM_CONFIG:-__HOME__/.config/wezterm/hcom-dashboard.lua}"
+
+cd "$PROJECT_DIR"
+exec "$WEZTERM" --config-file "$CONFIG" start --always-new-process --cwd "$PROJECT_DIR" -- "$HCOM"

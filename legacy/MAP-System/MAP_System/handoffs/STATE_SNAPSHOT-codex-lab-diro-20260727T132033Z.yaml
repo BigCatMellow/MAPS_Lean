@@ -1,0 +1,151 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-27T13:20:33Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-diro
+session_id: 019fa372-38fe-7771-b712-10f125007e26
+status: handing_off
+task_context:
+  current_task: TASK-280
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: APPROVED
+    task_id: TASK-278
+    summary: Independent re-review closed the artifact-authority finding; TASK-278
+      is APPROVED.
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-280
+    summary: Behavior fixes pass, but registered role_registry_test is not runnable
+      under its run_tests.sh interpreter and positive sanctioned-create coverage remains
+      absent.
+  - event_type: QUESTION
+    task_id: TASK-280
+    summary: Requested operator authorization for one extra attempt because durable
+      state is attempt 3/3.
+  touched_paths:
+  - MAP_System/artifacts/reviews/task278-independent-review-diro.md
+  - MAP_System/artifacts/reviews/task278-rereview-diro.md
+  - MAP_System/artifacts/reviews/task280-rereview-diro.md
+  - MAP_System/tasks/TASK-278.json
+  - MAP_System/tasks/TASK-280.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/events/events.jsonl
+active_constraints:
+- scope: task
+  rule: TASK-280 remains CHANGES_REQUESTED at attempt 3/3; do not alter max_attempts
+    without operator authorization and a sanctioned transition.
+  source: MAP_System/map.db and hcom request to bigboss
+- scope: file
+  rule: MAP_System/scripts/pre_dispatch_policy.py remains registered to active TASK-283;
+    TASK-280 must not claim or edit it while that ownership persists.
+  source: REPAIR-0009-task280-output-path-defer.md
+- scope: communication
+  rule: Use hcom request only for decisions, approvals, blockers, conflicts, privacy/scope
+    risks, or questions; routine progress is inform.
+  source: AI Command Center Lab operator instruction
+- scope: tool
+  rule: Any replacement or helper must launch visibly with --terminal wezterm-tab;
+    never use --headless unless explicitly instructed.
+  source: MAP_System/AGENTS.md and operator instruction
+- scope: repo
+  rule: SQLite is canonical for lifecycle claims; synchronize task and graph mirrors
+    through sanctioned commands.
+  source: MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-280
+  next_action: wait
+  owner: command-center
+  reason: Await bigboss response to hcom request authorizing one additional attempt
+    or selecting exception/defer. If authorized, route the narrow test-harness and
+    positive-creator-test fixes to an eligible implementer, then require independent
+    re-review.
+  paths:
+  - MAP_System/artifacts/reviews/task280-rereview-diro.md
+  - MAP_System/artifacts/tests/task280-role-registry-delivery-note.md
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/tests/test_role_registry.py
+  - MAP_System/notes/role-contracts.md
+blockers:
+- kind: approval
+  detail: TASK-280 needs narrow rework but has exhausted attempt 3 of max_attempts
+    3.
+  unblock_by: bigboss must authorize an extra attempt and sanctioned max-attempt adjustment,
+    or choose exception/defer.
+lexicon:
+  MATOCP: Compact agent communication tokens such as !ACK, !ERR, and !LGTM.
+  STATE_SNAPSHOT: Checksum-bound durable handoff used for verified context rotation.
+  canonical_author: Current task_submission_authorship.author_id used for no-self-review
+    authority.
+  REPAIR-0009: Approved output-path collision repair that leaves pre_dispatch_policy.py
+    registered to TASK-283.
+resume_commands:
+- sed -n '1,280p' MAP_System/artifacts/reviews/task280-rereview-diro.md
+- sqlite3 MAP_System/map.db "SELECT task_id,status,attempt,max_attempts FROM tasks
+  WHERE task_id='TASK-280';"
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- hcom events --last 30 --name <replacement-name>
+validation:
+- TASK-278 final state APPROVED; review REV-TASK-278-codex-lab-diro-332583c5 closed
+  APPROVED.
+- TASK-280 final state CHANGES_REQUESTED; review REV-TASK-280-codex-lab-diro-3e31733f
+  closed CHANGES_REQUESTED.
+- TASK-280 graph and mirrors passed after verdict.
+- TASK-280 venv focused suites passed; exact registered bare-python role_registry_test
+  failed with missing langgraph.
+- No live task or review claim is held by codex-lab-diro.
+rotation:
+  reason: threshold
+  summary: 'Reviewed TASK-278 twice: first found artifact-text false blocking, then
+    approved corrected canonical-author behavior. Reviewed TASK-280 round 2: role
+    guards and routing parity are correct, but rejected because the newly registered
+    standard-harness test fails under bare Python and positive sanctioned-create canonical/compatibility
+    tests are absent. Requested one extra attempt from bigboss because TASK-280 is
+    3/3. No live claim remains.'
+  next_action: Read the operator reply on TASK-280; if an extra attempt is authorized,
+    coordinate only the bounded test-harness/test/doc fixes and subsequent independent
+    re-review.
+  used_tokens: 133518
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-27T13:20:33Z'
+  canonical_tasks:
+  - task_id: TASK-280
+    status: CHANGES_REQUESTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-27 13:19:21'
+  canonical_tasks_sha256: aa8fdc1843e042181b54bbf97bf9899c5dac96ef98b13e188cf169f342b184df
+  touched_paths:
+  - path: MAP_System/artifacts/reviews/task278-independent-review-diro.md
+    scope: workspace
+    sha256: e9ec925e49c2621118f1744380d7eed25b3abcdd280d761394e2309cded0a535
+    state: file
+  - path: MAP_System/artifacts/reviews/task278-rereview-diro.md
+    scope: workspace
+    sha256: cf62243d311d02b67676ead9bd4310d818163faeb5b580982e4f541fa52d86fd
+    state: file
+  - path: MAP_System/artifacts/reviews/task280-rereview-diro.md
+    scope: workspace
+    sha256: e9b0db011e4245b54e358a9c3107283e49f37d2d837780ed6506d9458e6f09e4
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: 6d8cd3e9c406f6e0c8c110eca5785bb6d71c49f7e187f8e96a00f9404429047f
+    state: file
+  - path: MAP_System/tasks/TASK-278.json
+    scope: workspace
+    sha256: c9a9c62e56bcc11aef6a2db197d36ad4579d4166fa4c2cf12d92300dd7d22001
+    state: file
+  - path: MAP_System/tasks/TASK-280.json
+    scope: workspace
+    sha256: 484416c9ef4378da4fefa7a20a7c714329cf483c26ab6ddf24bb0524744cab4f
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 9e70edbb0c28e5bd418cb153e8f7a5ab64faf1218708f8e9768a3ce6850d3d5d
+    state: file
+  touched_paths_sha256: b3954522c563a4b4f76483585a3a5296c503a36ad8c94960669bfc080f76921f

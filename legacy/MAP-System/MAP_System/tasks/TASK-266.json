@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-266",
+  "title": "Add a sanctioned recovery path for orphaned IN_PROGRESS tasks with no claimant",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "TASK-186 has been IN_PROGRESS since before 2026-07-18 with claimed_by, lease_expires_at and heartbeat_at all NULL. Verified 2026-07-22 that MAP has NO sanctioned way to recover this shape: expire_leases() only matches a non-null expired lease; release_task()/submit_task() require claimed_by to equal the caller; map_task.py rework requires CHANGES_REQUESTED; map_task.py reject requires SUBMITTED. AGENTS.md forbids hand-editing SQLite, so the task is structurally unreachable by every recovery mechanism and by every operator-facing verb. This is why it stalled for four days and why the advisory monitor could only observe it, never fix it. Add an explicit, auditable recovery verb.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/db/claims.py",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/tests/test_recover_orphan.py"
+  ],
+  "acceptance_criteria": [
+    "A sanctioned function and CLI verb returns an IN_PROGRESS task whose claimed_by is NULL to READY, requiring an actor and a written reason, and refusing to touch a task that has a live claimant or an unexpired lease.",
+    "The action appends a durable event naming the actor, the prior owner, and the reason, so orphan recovery is auditable rather than silent.",
+    "Tests cover the orphan shape, refusal when claimed_by is set, refusal when the lease is still live, and refusal for statuses other than IN_PROGRESS.",
+    "TASK-186 is returned to READY using the new verb, not by hand-editing SQLite or task JSON."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "BLOCKING",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

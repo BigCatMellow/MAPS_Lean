@@ -1,0 +1,184 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-10T18:14:25Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: helper-releases-batch2-bela
+session_id: a916e4d7-2540-4fbc-b363-7a1d97979734
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: RELEASE
+    task_id: TASK-301
+    summary: Released; OpenSnitch cross-PC allow rules and installer verified on disk,
+      no gaps.
+  - event_type: RELEASE
+    task_id: TASK-302
+    summary: Released; fixed Command Center Lab roster verified, self-corrected review
+      record confirmed matching real review artifact.
+  - event_type: RELEASE
+    task_id: TASK-303
+    summary: Released; thin review-trail caveat independently resolved by finding
+      hcom request 30843 in raw codex transcript (CONFIRMED real).
+  - event_type: RELEASE
+    task_id: TASK-305
+    summary: Released; INS-0054-0057/PROMO-0015-0018 emergence guidance integration
+      verified, real rework cycle confirmed.
+  - event_type: RELEASE
+    task_id: TASK-309
+    summary: Released; dead 03_kickoff citation confirmed dead, correct evidence documented
+      in checklist (no sanctioned verb can edit description on an APPROVED task; SQL
+      not used; follow-up recommended to fix the JSON field later).
+  - event_type: RELEASE
+    task_id: TASK-313
+    summary: Released; WS-1 path-ownership prerequisite verified, cross-checked against
+      TASK-309 phase2-status.md.
+  - event_type: REPAIR
+    task_id: TASK-323
+    summary: 'REPAIR-0013 follow-up: events.jsonl line 18785 (1526 leading NUL bytes)
+      was fixed only on Biggie''s mirror and silently reverted by the next Smalls->Biggie
+      sync (events.jsonl is in MIRROR_FILES). Re-applied the fix directly on Smalls
+      via the smalls ssh alias with operator authorization; sha256 before=25fdc3a602d8861ae1d06d01fe3108d785e7d2ba8c8b06a13bd8dea624185b6a
+      after=ca1fd955bdd71ceaf6038c0c5469fad62377eddb3cf3a7d941b288e2bc3f1064, bytes_removed=1526
+      exact; validate_events.py on Smalls now errors=0. REPAIR-0013 doc updated with
+      root-cause note and scp''d to Smalls.'
+  touched_paths:
+  - MAP_System/artifacts/releases/task-301-release-checklist.md
+  - MAP_System/artifacts/releases/task-302-release-checklist.md
+  - MAP_System/artifacts/releases/task-303-release-checklist.md
+  - MAP_System/artifacts/releases/task-305-release-checklist.md
+  - MAP_System/artifacts/releases/task-309-release-checklist.md
+  - MAP_System/artifacts/releases/task-313-release-checklist.md
+  - MAP_System/repairs/REPAIR-0013-events-jsonl-line-18785-had-1526-leading-nul-bytes-prefixing-an-otherwise-valid.md
+  - MAP_System/events/events.jsonl
+active_constraints:
+- scope: task
+  rule: Do NOT touch TASK-311 (excluded, genuinely-blocked - missing deliverable artifact
+    never synced from RUKI/Smalls to this tree).
+  source: MAP_System/inbox/helpers/helper-releases-batch2.md
+- scope: tool
+  rule: release_task.py runs on Smalls (the map-authority gateway host) via a forced-command
+    SSH key and cannot see files that only exist on Biggie's local filesystem. Checklists
+    must be scp'd to smalls:/home/home/Projects/MultiAgentProject/Source/MAP_System/artifacts/releases/
+    before `map-authority task release` will find them.
+  source: discovered live 2026-08-10, confirmed with helper-releases-batch1-mive
+- scope: file
+  rule: The 'Emergence capture considered' checklist line must be a single unwrapped
+    line (release_task.py regex-matches ^[ \t]*-[ \t]*\[[xX]\][ \t]*Emergence capture
+    considered on one physical line) or release is rejected as incomplete.
+  source: MAP_System/scripts/release_task.py line 28, discovered live 2026-08-10
+- scope: safety
+  rule: Never edit map.db directly or via SQL; only sanctioned map-authority lifecycle
+    verbs (describe/amend-criteria/add-output-path/etc.) are permitted, and each is
+    status-gated (e.g. describe only works on NEEDS_SHAPING).
+  source: MAP_System/inbox/helpers/helper-releases-batch2.md
+forward_tasks:
+- task_id: TASK-309
+  next_action: ask_operator
+  owner: claude-lab-sumi
+  reason: TASK-309.json's description still contains the dead 03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md
+    citation. No sanctioned map-authority verb can edit description on an APPROVED
+    task (describe requires NEEDS_SHAPING; amend-criteria only touches acceptance_criteria;
+    add-output-path is gated to NEEDS_SHAPING/READY/IN_PROGRESS/CHANGES_REQUESTED).
+    Recommend a small REPAIR-NNNN or governance task, run through describe/amend-criteria
+    at an editable stage, citing MAP_System/artifacts/releases/task-309-release-checklist.md
+    as the authority for the replacement text.
+  paths:
+  - MAP_System/tasks/TASK-309.json
+  - MAP_System/artifacts/releases/task-309-release-checklist.md
+- task_id: null
+  next_action: continue
+  owner: claude-lab-sumi
+  reason: 'Report final batch2 completion to claude-lab-sumi via hcom once they are
+    back online (was offline at both attempted report times); everything else in the
+    assignment (helper-releases-batch2.md) is done: 6/6 checklists written+released,
+    TASK-311 untouched, REPAIR-0013 mirror-revert fixed on Smalls.'
+  paths: []
+blockers: []
+lexicon:
+  smalls: ssh alias (192.168.1.153, key id_ed25519_map_peer_biggie) giving a normal
+    (non-gateway) shell on the Smalls authority host, distinct from the map-authority
+    gateway key which is locked to the forced 'map-authority' command only.
+  Biggie: This local host; map.db here is a read-only mirror of Smalls.
+resume_commands:
+- hcom transcript helper-releases-batch2-bela --last 50
+- python3 MAP_System/scripts/map_authority.py task show TASK-309
+validation:
+- python3 MAP_System/scripts/map_authority.py task show TASK-30{1,2,3,5,9} and TASK-313
+  all report status RELEASED
+- python3 MAP_System/scripts/map_authority.py task show TASK-311 reports status APPROVED
+  (untouched)
+- 'validate_events.py on Smalls: errors=0, new_warnings=0'
+rotation:
+  reason: threshold
+  summary: 'Completed helper-releases-batch2 assignment in full: wrote and independently
+    verified 6 release checklists (TASK-301/302/303/305/309/313), resolved TASK-303''s
+    thin-evidence caveat (hcom req 30843 confirmed real in raw transcript) and TASK-309''s
+    dead-citation caveat (confirmed dead, documented correct evidence, could not edit
+    the APPROVED task''s description via any sanctioned verb so did not use SQL),
+    released all 6 via the smalls-scp workaround, left TASK-311 untouched. Then handled
+    a follow-up ask from claude-lab-sumi: REPAIR-0013''s NUL-byte fix had been silently
+    reverted by a mirror sync because it was only applied on Biggie''s read-only mirror;
+    re-applied it directly on Smalls (operator-authorized) with verified sha256/byte-delta,
+    confirmed via validate_events.py, and documented the mirror-sync root cause in
+    REPAIR-0013.'
+  next_action: Report batch2 completion + REPAIR-0013 follow-up fix to claude-lab-sumi
+    via hcom (they were offline at last two attempts); no other open work.
+  used_tokens: 128537
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-10T18:14:25Z'
+  canonical_tasks:
+  - task_id: TASK-309
+    status: RELEASED
+    owner: coordinator-replacement-rose
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-10 16:45:12'
+  canonical_tasks_sha256: 96cd7097cba6d558b02c813a6b7900079b12314cee5a1ba8d3cc22e3b8a9daf7
+  touched_paths:
+  - path: MAP_System/artifacts/releases/task-301-release-checklist.md
+    scope: workspace
+    sha256: e02d54ea64a8f73752bc22feace32ac2600cac117cbabc389350a22bb0d885ea
+    size: 1304
+    state: file
+  - path: MAP_System/artifacts/releases/task-302-release-checklist.md
+    scope: workspace
+    sha256: 76ca518d4e00c62ef6090a417f8d05602034ccf6c58d6580c5f98ac4c0d044f1
+    size: 1423
+    state: file
+  - path: MAP_System/artifacts/releases/task-303-release-checklist.md
+    scope: workspace
+    sha256: 169af5278dda294f887d12479379c8293247000f688386bbd0e1978abce5e0fa
+    size: 3225
+    state: file
+  - path: MAP_System/artifacts/releases/task-305-release-checklist.md
+    scope: workspace
+    sha256: d840baf7d797c6e928ab87960d4c0bedc6f5d01720f32f3f9ca24d2cb6ba0177
+    size: 1751
+    state: file
+  - path: MAP_System/artifacts/releases/task-309-release-checklist.md
+    scope: workspace
+    sha256: a34394ce38c38ed665f8361872cafb47fa6c106fb082bbad1f95fc307eea0d44
+    size: 4233
+    state: file
+  - path: MAP_System/artifacts/releases/task-313-release-checklist.md
+    scope: workspace
+    sha256: 8fa353aff7d660c1db360009644b150df46c93d77b687dda6a43d422bae35fa2
+    size: 1546
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: volatile_shared
+    sha256: null
+    size: 6896620
+    state: excluded_from_content_match
+  - path: MAP_System/repairs/REPAIR-0013-events-jsonl-line-18785-had-1526-leading-nul-bytes-prefixing-an-otherwise-valid.md
+    scope: workspace
+    sha256: 95d9fc8e38568bc581bf0885debac219d0c67a7152d6e6737aa6904e2243cdf6
+    size: 4687
+    state: file
+  touched_paths_sha256: 46990be600deae4ebb9c386c240f5ff2c8b94826794bc0ff620fbe1b16f30491

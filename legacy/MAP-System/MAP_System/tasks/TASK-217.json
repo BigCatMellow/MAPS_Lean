@@ -1,0 +1,44 @@
+{
+  "task_id": "TASK-217",
+  "title": "ClearFront: add category artwork and detail-on-preview card faces",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-216"
+  ],
+  "owner": "codex-lab-lilo",
+  "description": "Operator-requested presentation improvement after decomposition. Generate three original bitmap category artworks (Unit, Spell, Relic). Compact card faces show cost/name/art/category/stats while full rules text, keywords, and conditions appear in existing hover/touch previews. No card rules, balance, or state behavior changes. Design checklist: improves clarity/readability, adds no mechanic or tracking state, and reuses one image per category to minimize complexity.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/app/assets/card-relic.png",
+    "Projects/ClearFront/app/assets/card-spell.png",
+    "Projects/ClearFront/app/assets/card-unit.png",
+    "Projects/ClearFront/app/js/render.js",
+    "Projects/ClearFront/app/styles/clearfront.css",
+    "Projects/ClearFront/artifacts/tests/screenshots/task217-card-face.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task217-card-hover.png",
+    "Projects/ClearFront/artifacts/tests/task-217-card-art-preview.md",
+    "Projects/ClearFront/artifacts/tests/task217-card-art-check.mjs"
+  ],
+  "acceptance_criteria": [
+    "Three original project-local bitmap assets clearly distinguish Unit, Spell, and Relic without embedded text or watermarks.",
+    "Compact card faces show card name, category artwork, cost, type, and applicable stats; detailed rules/keywords/condition information remains available in desktop hover and touch-hold previews.",
+    "Existing click/target/unavailable/status behavior and card-game rules are unchanged; seeded combat/blocking and undo regressions pass.",
+    "The presentation passes the design checklist: improves clarity, adds no mechanic or hidden tracking, and uses the smallest three-asset category system.",
+    "app remains file:// compatible with zero console errors/exceptions; source/baseline remain unchanged and focused screenshots/evidence are recorded."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,324 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-06T15:53:15Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-gino-kava
+session_id: db6b9a69-24f5-4068-b9e6-e2f53e710ab6
+status: handing_off
+task_context:
+  current_task: TASK-318
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: Acked context rotation from rotation-replacement-gino-dole (prior snapshot
+      STATE_SNAPSHOT-rotation-replacement-gino-dole-20260806T152828Z.yaml). Reported
+      the inherited mission-follows-supply result to the operator in chat (the action
+      that rotation had interrupted) - Battle tab mission badge plus auto-computed
+      Deploy Supply, override still works, Export Army Sheet header shows mission
+      name. Also flagged the still-unanswered older "take a look?" (Abilities/Upgrades
+      table redesign) thread as still open, not dropped.
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: Operator asked (in normal chat, not hcom) whether the War Room and Battle
+      tab could be connected so mission and map are easy to click, building directly
+      on the just-reported mission-supply feature. Started an AskUserQuestion to scope
+      it (inline picker vs. tappable badge vs. both) but the operator interrupted/rejected
+      the tool call and answered in plain text instead, saying both options were fine
+      but the important part was being able to select it in the War Room and have
+      it show up on the Battle tab too. Read literally, the core requirement is War
+      Room selection becoming visible on the Battle tab, for BOTH mission and map
+      (mission already worked from the prior session; map selection was not yet synced
+      to the shared state at all).
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Implemented and verified live (both files, both still uncommitted, same
+      two files as before - no new files touched). Missions.dc.html save() now also
+      merges the selected map id into the shared sctmg_play localStorage object alongside
+      the existing mission id merge (same read-spread-overwrite-write pattern). Test
+      Army.dc.html: added a mapId state field. loadSaved() now also reads mapId from
+      the shared sctmg_play key (mirrors the existing missionId read). Added a selectedMap()
+      helper next to selectedMission() (looks up window.SCTMG_MISSIONS.MAPS by id).
+      render() now computes the selected map and exposes warRoomActive (mission or
+      map selected) and a single combined warRoomLabel string, for example "Mission:
+      Divide and Conquer - base 14 +1 - Map: Proving Grounds" (mission part omitted
+      if no mission, map part omitted if no map). exportArmySheet() header now also
+      appends a MAP segment after the existing MISSION segment when a map is selected.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: Battle tab badge iteration - operator gave a follow-up correction after
+      seeing the first version. First version rendered mission and map as two stacked
+      boxes and linked to plain Missions.dc.html, which lands on whatever War Room
+      sub-tab (Setup/Missions/Maps) was last left active, since that is War Room's
+      own persisted UI state, not something the link controlled. Operator asked to
+      keep it one line, and to have clicking it just take you to War Room generally
+      rather than a specific sub-tab. Fixed by collapsing the badge to the single
+      warRoomLabel line described above instead of two separate divs, and by changing
+      the link href to Missions.dc.html with a ?tab=setup query param, plus adding
+      a small read of the URL's tab search param in Missions.dc.html's componentDidMount
+      that overrides the persisted activeTab when a valid value is present - so the
+      badge link now always lands on War Room's general Setup overview (which shows
+      both current mission and map at a glance) regardless of which War Room sub-tab
+      was last open. When no mission or map is selected yet, a dashed "Select Mission
+      / Map in War Room" link in the same single-line style takes its place, also
+      pointed at the Setup tab.
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Verified live in-browser at every step (dev server localhost:8934):
+      selected and deselected mission and map from War Room and confirmed the shared
+      play localStorage entry gained and lost the map id correctly; confirmed Battle
+      tab shows the combined one-line badge with correct base-supply math when a mission
+      is active; confirmed the dashed "Select Mission / Map" empty-state link appears
+      when both are cleared and Deploy Supply correctly falls back to the plain manual
+      value; confirmed clicking the badge (both the active and empty-state variants)
+      always lands on War Room''s Setup tab specifically, even when War Room''s own
+      last-active-tab state was Missions or Maps; used the established blob-capture-to-string
+      technique (monkey-patch URL.createObjectURL plus a no-op window.open, read window.__capturedHtml,
+      always restored both globals afterward) to confirm the exported Army Sheet header
+      string includes both the mission name and the map name when both are selected.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: Reported the completed war-room-to-battle-tab connection back to the
+      operator in chat (one-line badge, tap-to-Setup link, map now also synced and
+      shown, export header updated) before this checkpoint_due rotation fired. That
+      report was NOT interrupted this time, unlike the prior rotation - the operator
+      has already seen the result described in these recent_events; only the rotation
+      ack/handoff mechanics remain.
+  touched_paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html (live, UNCOMMITTED - carries THREE independent uncommitted layers
+    now, see active_constraints - the still-unreviewed table redesign, the mission-follows-supply
+    feature from the prior session, and this session's map-sync plus one-line-badge
+    work.)
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Missions.dc.html
+    (live, UNCOMMITTED - this session added the mapId merge in save() and the tab-param
+    override in componentDidMount, on top of the prior session's missionId merge.)
+  - MAP_System/handoffs/ (this workspace's repo; ack of inherited rotation, and this
+    snapshot)
+active_constraints:
+- scope: task
+  rule: 'TASK-318''s output_path is entirely outside this git repo, at "/home/mellow/Documents/Projects/StarCraftCA/StarCraft
+    RPG Companion Design". All read/write file work for this task happens there, not
+    under MAP_System/ or Projects/. That folder has its own local (non-global) git
+    identity. Current diff (checked this session): Test Army.dc.html AND Missions.dc.html,
+    both uncommitted. Do not run any git commands there without operator approval
+    - same as always.'
+  source: inherited across multiple prior snapshots, still true
+- scope: task
+  rule: 'THREE independent layers of uncommitted change now sit in Test Army.dc.html
+    - do not conflate them when reporting or committing. LAYER 1 (oldest, awaiting
+    review): the Abilities/Upgrades table redesign in printAbilityRows, printUpgradeRows,
+    and printSheetCss - operator asked "take a look?" long ago and never explicitly
+    replied; still treat as open, not superseded. LAYER 2 (prior session): the mission-follows-supply
+    feature (missionId sync, bumpBattleSupply override, Battle tab supply math, exportArmySheet
+    MISSION line) - operator HAS since seen and implicitly approved this by asking
+    to extend it further (this session''s request built directly on top of it). LAYER
+    3 (this session): mapId sync, selectedMap(), the combined warRoomLabel and warRoomActive
+    values, the one-line badge, the tab=setup link, and the exportArmySheet MAP line
+    - operator has seen and given one round of UI feedback on already (two stacked
+    boxes to one line; generic link to a forced Setup-tab link), which was implemented
+    and verified, but has not yet given a final reply to this latest iteration since
+    the report landed right before this rotation. All three layers are independently
+    verified working in-browser but only layers 2 and 3 have any operator engagement;
+    layer 1 remains completely unreviewed.'
+  source: this session, extends prior session's two-layer tracking to three
+- scope: task
+  rule: Do NOT commit Test Army.dc.html or Missions.dc.html yet. If and when the operator
+    approves porting the war-room-connection feature (mission and map sync, badge,
+    exportArmySheet lines), the SAME pattern needs to go into Terran Army.dc.html,
+    Zerg Army.dc.html, and Protoss Army.dc.html - but for those REAL files, read both
+    missionId and mapId from their OWN sctmg_play key (same key they already use for
+    round, phase, VP - no separate isolated-key complication like Test Army has).
+    Also still pending, unrelated to this feature - if and when the table-redesign
+    layer (LAYER 1 above) is approved, port printWeaponRows, printAbilityRows, printUpgradeRows,
+    and printSheetCss per the verbatim code in STATE_SNAPSHOT-rotation-replacement-gino-rita-20260806T150754Z.yaml's
+    active_constraints. These are two separate porting jobs targeting the same 3 files;
+    fine to do in one pass once both are approved, but track as distinct diffs.
+  source: carried forward and extended this session
+- scope: reference
+  rule: Exact mechanism for how mission and map selection now reach the Battle tab,
+    the War Room link-back, and the Army Sheet, for anyone continuing this feature.
+    Missions.dc.html's save() now merges both this.state.selectedMissionId and this.state.selectedMapId
+    into the shared sctmg_play localStorage object. Missions.dc.html's componentDidMount
+    reads a tab value from the page's URL search params and, if it is one of setup,
+    missions, or maps, uses it to override whatever activeTab was persisted from a
+    prior visit - this is what lets a link with ?tab=setup always land on the general
+    overview. Test Army.dc.html's loadSaved() reads missionId and mapId from that
+    same shared sctmg_play key (not its own sctmg_play_test). selectedMission() and
+    selectedMap() look them up in window.SCTMG_MISSIONS.MISSIONS and .MAPS. render()
+    builds warRoomActive as true when either mission or map is set, and warRoomLabel
+    by filtering and joining a mission-supply string and a map-name string. The Battle
+    tab template wraps this in a single link to Missions.dc.html with the setup tab
+    param when warRoomActive, or a dashed "Select Mission / Map in War Room" link
+    when not. No live cross-tab sync exists anywhere in this app (no storage-event
+    listeners) - a tab left open across a change in another tab only updates on reload,
+    matching all existing patterns here.
+  source: this session
+- scope: task
+  rule: Two side-topics remain UNSTARTED, still true. First, exportArmySheet's blob
+    URL self-revokes after 30 seconds and cannot be saved - operator said to skip
+    it for now, carried forward across many snapshots. Second, LAYER 1 table redesign
+    (see above) is still fully unreviewed - do not assume dropped just because the
+    operator has moved through several other topics since asking "take a look?".
+  source: carried forward, still true
+- scope: tool
+  rule: 'claude-in-chrome cannot screenshot or run javascript_tool against blob URLs
+    directly - use the monkey-patch-capture technique on the normal http tab (patch
+    URL.createObjectURL to capture blob.text() into window.__capturedHtml, patch window.open
+    to no-op, click Export, then read window.__capturedHtml directly as a string,
+    or inject a same-origin iframe with srcdoc for visual screenshots). Always restore
+    window.__origCreateObjectURL and window.__origOpen afterward. This session only
+    needed the string-read half again. Also noted this session: a freshly-navigated
+    Test Army.dc.html page sometimes needs the Export Army Sheet button clicked twice
+    before the blob-capture promise resolves and window.__capturedHtml populates -
+    if a capture reads null or undefined immediately after one click, click again
+    before assuming something is broken.'
+  source: discovered in a prior session this rotation lineage, extended this session
+    with the double-click note
+- scope: task
+  rule: TASK-318 shows SUBMITTED in MAP's canonical task state with owner=claude-lab-gina
+    in the local task JSON mirror, but the real work has continued informally in direct
+    operator chat across many agent identities with no new MAP claim opened. MAP's
+    task tracking does not reflect the real state of the work. Keep treating this
+    as informal direct-chat iteration outside MAP unless the operator says otherwise
+    - do not re-claim or re-submit TASK-318.
+  source: inherited, still true
+- scope: tool
+  rule: 'This host is confirmed read-only for MAP lifecycle writes: map_task.py show
+    raises RemoteAuthorityRequired pointing to map-authority on 100.127.80.108. Read
+    task state via the local JSON mirrors in MAP_System/tasks/*.json instead.'
+  source: inherited, not re-verified this session
+- scope: repo
+  rule: Prior orientation thread (36-item emergence backlog triage) is still explicitly
+    on hold per operator instruction carried forward across multiple snapshots. Do
+    not resume it until the operator raises it again.
+  source: operator instruction, carried forward from earlier snapshots
+active_constraints_note: This session acked the inherited rotation, reported the interrupted
+  mission-supply result, received and implemented a new War-Room-to-Battle-tab connection
+  request (including a mid-stream UI correction from the operator that was also implemented
+  and verified), and reported that back too - all before this checkpoint_due rotation
+  fired. Unlike the prior rotation, nothing was left mid-report this time; the open
+  item is simply that the operator has not yet replied to the latest report, and the
+  very old LAYER 1 table-redesign thread remains unanswered underneath it all.
+forward_tasks:
+- task_id: TASK-318
+  next_action: await_operator_feedback
+  owner: null
+  reason: The war-room-to-battle-tab connection (mission and map sync, one-line badge,
+    tab=setup link-back, export sheet MAP line) is implemented, verified live, and
+    has already been reported to the operator - unlike the prior rotation, there is
+    no interrupted report to deliver. Next session's first action should just be checking
+    hcom/chat for any operator reply or feedback on this latest report (and remember
+    the still-open LAYER 1 "take a look?" table-redesign thread underneath it, which
+    predates all of this and has never been answered). Do not commit or port to the
+    3 real faction files without explicit approval. If the operator approves porting,
+    follow the reference-scope active_constraint above for the exact mechanism to
+    replicate.
+  paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Missions.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html
+blockers: []
+lexicon:
+  StarCraftCA / SCTMG / "StarCraft RPG Companion Design": The operator's personal,
+    non-MAP creative project - a tabletop-game companion web app (plain .dc.html component
+    files plus a small Node build pipeline that regenerates *-data.js from uploads/*.html
+    rules and unit source). Lives entirely outside this git repo at /home/mellow/Documents/Projects/StarCraftCA/.
+  .dc.html: This project's own single-file component convention - each top-level screen
+    is one file using dc-import to embed sub-components like UnitDetail. No native
+    browser dialogs (alert, confirm, prompt) are used anywhere in this app. Screens
+    navigate via plain anchor links to other .dc.html files, not an SPA router - so
+    cross-screen state only survives via localStorage, read fresh on each page's componentDidMount.
+    Templates only support plain double-brace variable substitution (verified this
+    session by grepping for ternary and expression patterns in templates and finding
+    none) - all conditional text or values must be precomputed in render() and exposed
+    as plain named fields, never inlined as expressions in the template markup.
+  War Room: Missions.dc.html's on-screen label. Lets the operator pick battle size,
+    a mission, and a map. Shares round, phase, and VP state (the sctmg_play localStorage
+    key) with Command Center.dc.html and the 3 REAL faction Army files (Terran, Zerg,
+    Protoss). As of the prior session also writes missionId into that key; as of this
+    session also writes mapId, and accepts an optional tab URL param (setup, missions,
+    or maps) to force which of its own three sub-tabs it opens on, overriding its
+    normal persisted-last-tab behavior.
+  Battle tab: A tab within each Army .dc.html file's own bottom nav (Roster, Battle,
+    Codex for Test Army; similar for the real files) - tracks per-unit model losses
+    and deployment status during actual play, separate from roster-building. As of
+    this session shows a single-line badge (mission plus map combined) that links
+    back to War Room's Setup tab.
+  Export Army Sheet: A button on the Roster tab that calls exportArmySheet(), which
+    builds a standalone printable HTML document (own inline CSS via printSheetCss(),
+    no external stylesheet) as a Blob and opens it via URL.createObjectURL plus window.open.
+    Header now includes both MISSION and MAP when selected.
+  missions-data.js / window.SCTMG_MISSIONS: Exposes MISSIONS and MAPS arrays - mission
+    objects have id, name, type, supply, perRound, gameLength, etc.; map objects have
+    id, name, size, type, width, height, blueZones, redZones, markers, etc. Was only
+    loaded by Missions.dc.html before the prior session; now also loaded by Test Army.dc.html.
+  Test Army.dc.html: The operator's sandbox/test file for this project - NOT linked
+    from Command Center, uses an isolated sctmg_play_test localStorage key for its
+    own round tracker (deliberately, so testing doesn't corrupt real game state),
+    but reads missionId and mapId from the shared sctmg_play key since mission and
+    map selection are treated as a single global concept, not per-army-instance.
+  dev server: python3 -m http.server 8934, served from inside the external project
+    folder. Confirmed running and responsive at snapshot time (localhost:8934).
+resume_commands:
+- 'curl -sf http://localhost:8934/ >/dev/null && echo "dev server still up" || echo
+  "restart: cd ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion
+  Design'' && python3 -m http.server 8934"'
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git status --short && git diff --stat
+rotation:
+  reason: checkpoint_due
+  summary: 'Automated advisory from limit_watcher: current estimate ~131522 tokens
+    against soft=120000 / rotate=150000 thresholds. Rotating after implementing, verifying,
+    and reporting the war-room-to-battle-tab connection feature (including one round
+    of operator-requested UI correction) - unlike the prior rotation, the report to
+    the operator was NOT interrupted this time.'
+  next_action: Next session's first action should be checking hcom/chat for any operator
+    reply to the just-delivered report, and keeping the still-unanswered LAYER 1 table-redesign
+    thread in mind. No re-verification needed unless something looks off - everything
+    in this snapshot was verified live this session.
+  used_tokens: 131522
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-06T15:53:15Z'
+  canonical_tasks:
+  - task_id: TASK-318
+    status: SUBMITTED
+    owner: claude-lab-gina
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-05 18:50:39'
+  canonical_tasks_sha256: a9bd814dc3ad8558e1975f31366f8d01bda2ce6fcb252baa9814e6258ee7f68f
+  touched_paths:
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Missions.dc.html
+      (live, UNCOMMITTED - this session added the mapId merge in save() and the tab-param
+      override in componentDidMount, on top of the prior session's missionId merge.)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+      Army.dc.html (live, UNCOMMITTED - carries THREE independent uncommitted layers
+      now, see active_constraints - the still-unreviewed table redesign, the mission-follows-supply
+      feature from the prior session, and this session's map-sync plus one-line-badge
+      work.)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: MAP_System/handoffs/ (this workspace's repo; ack of inherited rotation,
+      and this snapshot)
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  touched_paths_sha256: 5f95e5891b4a24d4a4c6386332146f859a9ff5b5c1e723a1504dbfe47363d7f9

@@ -1,0 +1,263 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T04:51:57Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-damo-nivo
+session_id: d9c4ba35-1b76-406a-887b-0f4845adc22c
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: HANDOFF
+    task_id: null
+    summary: Received and verified a context-rotation handoff from claude-lab-damo
+      (hash cc041c93a013... matched; content coherent; live hcom session confirmed).
+      Relayed the confirmed RUKI desktop-shortcut completion to the operator.
+  - event_type: PROGRESS
+    task_id: TASK-263
+    summary: 'Reassigned three stale review claims held by stopped agents: mapfinish-kino
+      (TASK-263) and mapfinish-rafa (TASK-294, TASK-295), via `map-authority release-review`.
+      Confirmed afterward that TASK-263 subsequently received a real CHANGES_REQUESTED
+      verdict from a live reviewer -- the reassignment worked as intended and is not
+      orphaned.'
+  - event_type: BLOCKED
+    task_id: null
+    summary: 'The real `context_rotation.py ack` for claude-lab-damo failed: map.db
+      is chmod 444 on KUDU (read-only mirror per TASK-298) and acknowledge_rotation()/finalize_rotation()
+      did direct sqlite3 writes, bypassing the guard_production_write/mirror-mode
+      convention every other write path already follows. Told claude-lab-damo not
+      to finalize. Real ack/finalize for damo is still NOT complete.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Fixed the root cause, not just the symptom: added register_agent/transfer_rotation_claims/restore_rotation_claims
+      to MAP_System/db/claims.py; added register-agent/rotation-transfer/ rotation-restore
+      operations to MAP_System/scripts/map_authority.py''s single-writer gateway (same
+      allowlist pattern as claim/heartbeat/ claim-review); wired MAP_System/scripts/context_rotation.py''s
+      acknowledge_rotation/finalize_rotation to route through the gateway only when
+      db_path is the production map.db AND the host is mode=mirror -- standalone/authority/test
+      paths unchanged. Added MAP_System/scripts/context_rotation.py session_closer
+      hook so a successful finalize now runs `hcom kill <old_agent>` to close the
+      old agent''s terminal (bigboss flagged rotations were accumulating idle tabs
+      indefinitely) -- best-effort, only fires after the ledger commits, verified
+      to never fire on a rolled-back finalize.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Full regression: 19/19 test_context_rotation.py (new tests included),
+      17/17 test_map_authority.py, 6/6 test_map_authority_notify.py all pass. One
+      pre-existing, unrelated failure in test_installed_prompts_name_rotation_policy_and_recovery
+      / test_startup_context_rotation.py (missing "150k" phrase in the ai-command-center-lab-codex
+      installer template) -- confirmed pre-existing, not touched by this session''s
+      diff.'
+  - event_type: BLOCKED
+    task_id: null
+    summary: 'MAP_System/db/claims.py, MAP_System/scripts/map_authority.py, MAP_System/scripts/context_rotation.py,
+      and MAP_System/tests/test_context_rotation.py are all UNTRACKED in git (confirmed:
+      zero git history at these paths, 681 untracked files repo-wide -- pre-existing
+      fallout from the recent installer/Source reorg, not something this session caused).
+      Nothing has been staged or committed. This also touches the production authority
+      gateway (new remote-writable operations) -- security-sensitive surface that
+      should get an independent look before anyone commits it, per this repo''s own
+      no-self-review rule.'
+  - event_type: BLOCKED
+    task_id: null
+    summary: 'codex-lab-rosa relayed a third-party "operator directive" asking me
+      to take ownership of a large TASK-303/304 coordinator-architecture redesign.
+      Declined: TASK-303 was already live-owned by rotation-replacement-mudo-hera
+      (would have created duplicate ownership), and it contradicted the operator''s
+      direct instruction (in this session) to hold for coordination with this PC first.
+      Routed rosa to mudo-hera instead. mudo-hera later asked for bounded architecture
+      input on the resulting TASK-304 (runtime coordinator enforcement, unclaimed,
+      blocked on TASK-303 release) -- declined that too per explicit operator direction
+      ("not at this time"), since mudo-hera itself is rotation_due and codex capacity
+      is tight. Not a rejection of TASK-304''s merit, just deferred.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Diagnosed the "agents piling up" complaint by cross-referencing map.db
+      agents where status=inactive AND reason=session_superseded against the live
+      hcom roster. Two confirmed matches: gune:RUKI and claude-lab-zera:RUKI (also
+      independently stuck blocked:launch_blocked for 8h, zero progress). Killed both
+      via `hcom kill` per explicit operator approval.'
+  - event_type: BLOCKED
+    task_id: null
+    summary: 'The two `hcom kill` calls appear to have triggered (or coincided with)
+      a much broader hcom disruption: every other live agent on RUKI (helper-librarian-lome,
+      claude-lab-vanu, codex-lab-feno, task299-security-review-todo) disappeared from
+      the roster, and this session''s own hcom identity (rotation-replacement-damo-nivo)
+      also broke (process_binding_expired, then launch_failed after re-registering).
+      Root cause NOT identified. Ruled out: hcom-relay.service on KUDU did not actually
+      restart (systemd shows 8h continuous uptime, same Main PID 15110 throughout)
+      -- the "PID 6" shown by `hcom status`/`hcom relay daemon` is a namespace-relative
+      PID, not evidence of a KUDU-side relay restart. `hcom relay` on KUDU shows RUKI
+      online but reporting zero agents. KUDU''s local hcom log showed repeated "DB
+      v18 > code v17, working with newer schema" warnings around the same time, which
+      may be related (a version/schema mismatch during cross-device sync) but this
+      is not confirmed. Checked map.db for fallout: NO orphaned MAP task claims from
+      the killed/disconnected agents -- the only stale IN_PROGRESS claims (TASK-254
+      mapfinish-guru, TASK-292 mapfinish-kino, TASK-296 mapfinish2-zemi) predate this
+      incident by hours and are unrelated. Operator decided to stop debugging and
+      reload the Command Center Lab instead of continuing to investigate the relay.'
+  touched_paths:
+  - MAP_System/db/claims.py
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/context_rotation.py
+  - MAP_System/tests/test_context_rotation.py
+active_constraints:
+- scope: repo
+  rule: SQLite/map.db is canonical; do not mutate with raw SQL. On KUDU specifically,
+    map.db is a read-only mirror -- RUKI is the sole writable task-db authority, reached
+    only through MAP_System/scripts/map_authority.py over a forced-command-only SSH
+    key.
+  source: MAP_System/AGENTS.md and MAP_System/artifacts/operations/cross-pc-convergence-2026-07-28.md
+- scope: task
+  rule: No agent may independently review its own implementation; do not approve your
+    own substantive deliverable.
+  source: MAP_System/AGENTS.md
+- scope: tool
+  rule: Every model-backed agent must be visible in wezterm-tab; never resume or spawn
+    headless.
+  source: MAP_System/AGENTS.md
+- scope: safety
+  rule: TASK-297 requires operator + security-structural approval before dispatch.
+    TASK-298 (KUDU/RUKI program convergence) is destructive_action=true, requires_operator_approval=true,
+    already implemented and SUBMITTED, awaiting functional + security review before
+    its RUKI backup path is eligible for removal.
+  source: MAP_System/tasks/TASK-297.json, MAP_System/tasks/TASK-298.json
+- scope: repo
+  rule: MAP_System/db/claims.py, MAP_System/scripts/map_authority.py, MAP_System/scripts/context_rotation.py,
+    and MAP_System/tests/test_context_rotation.py are untracked in git (part of a
+    much larger 681-file untracked state repo-wide). Do not assume `git diff`/`git
+    log` shows this session's work -- check `git status` directly.
+  source: this session, verified via git status/log
+forward_tasks:
+- task_id: null
+  next_action: coordinate_with_agent
+  owner: claude-lab-damo
+  reason: The real ack/finalize for claude-lab-damo's rotation is still incomplete.
+    The code-level fix is done and fully tested, but has never been exercised against
+    the live continuity ledger. codex-lab-replacement-mudo asked to hold off on any
+    production rotation calls until they confirmed Rosa's ACK was committed -- they
+    confirmed this at ledger revision 75 and said to coordinate again before the real
+    Damo ACK. That re-coordination never happened before the hcom incident/CCL reload.
+  paths:
+  - MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-damo-20260728T234953Z.yaml
+  - MAP_System/scripts/context_rotation.py
+- task_id: null
+  next_action: ask_operator
+  owner: null
+  reason: MAP_System/db/claims.py, MAP_System/scripts/map_authority.py, MAP_System/scripts/context_rotation.py,
+    and MAP_System/tests/test_context_rotation.py are untracked and unstaged. Needs
+    an operator decision on committing (and per no-self-review, an independent look
+    at the new map_authority.py gateway operations before that happens, since they're
+    new remote-writable production- authority surface).
+  paths:
+  - MAP_System/db/claims.py
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/context_rotation.py
+  - MAP_System/tests/test_context_rotation.py
+- task_id: null
+  next_action: ask_operator
+  owner: rotation-replacement-mudo-hera
+  reason: TASK-304 (runtime coordinator enforcement, follow-on to TASK-303; confirmed
+    real on RUKI's live db via map-authority, not yet mirrored to KUDU's local map.db,
+    hence no structured task_id here) is READY, command-center-owned, unclaimed, blocked
+    on TASK-303 release. mudo-hera asked for bounded architecture input; declined
+    per explicit operator direction ("not at this time... codex is about to hit its
+    limit"). Worth a deliberate decision once there's runway, rather than whichever
+    agent has a free cycle picking it up.
+  paths: []
+- task_id: null
+  next_action: ask_operator
+  owner: null
+  reason: hcom relay disruption is unresolved. RUKI reported zero agents after the
+    two `hcom kill` calls; this session's own hcom identity also broke. Root cause
+    not identified (ruled out a KUDU-side hcom-relay.service restart). Operator is
+    reloading the Command Center Lab as the recovery path instead of further live
+    debugging. Whoever resumes should verify `hcom status` / `hcom relay` are healthy
+    post-reload before trusting hcom-mediated coordination again.
+  paths: []
+blockers:
+- kind: missing_context
+  detail: Real claude-lab-damo rotation ack/finalize still pending re-coordination
+    with codex-lab-replacement-mudo/rotation-replacement-mudo-hera, and now also pending
+    the CCL reload settling.
+  unblock_by: Coordinate via hcom once the relay is confirmed healthy post-reload,
+    then re-run the real ack.
+- kind: approval
+  detail: New map_authority.py gateway operations (register-agent, rotation-transfer,
+    rotation-restore) are untracked, uncommitted, and unreviewed.
+  unblock_by: Operator decision on committing + an independent reviewer for the gateway
+    change specifically.
+- kind: unknown_cause
+  detail: hcom relay disruption following the two `hcom kill` calls; root cause not
+    identified.
+  unblock_by: Observe post-CCL-reload whether hcom comes back healthy; if the same
+    thing recurs, it needs real investigation rather than another kill/reload cycle.
+lexicon:
+  KUDU: This machine (/home/mellow/Projects/MultiAgentProject); read-only MAP mirror
+    as of TASK-298.
+  RUKI: The other machine (/home/home/Projects/MultiAgentProject, user 'home', 192.168.1.153);
+    sole writable map.db authority, reached via MAP_System/scripts/map_authority.py
+    over a forced-command-only SSH key.
+  map-authority: The single-writer gateway CLI (gateway/status/mode/sync/route/task/claim/heartbeat/claim-review/get-open-review/release-review/register-agent/rotation-transfer/rotation-restore)
+    that KUDU agents must use instead of touching local map.db for anything canonical.
+  TASK-303: Align canonical MAP authority hierarchy across operator surfaces -- APPROVED,
+    owned by rotation-replacement-mudo-hera, defines the bigboss -> coordinator ->
+    owner/reviewer -> support hierarchy in docs/prompts.
+  TASK-304: Distinct runtime-enforcement follow-on to TASK-303 (coordinator identity/lease,
+    claim-bound dispatch). READY, unclaimed, blocked on TASK-303 release.
+  CCL: Command Center Lab, the fixed-roster multi-agent launcher (per-machine, e.g.
+    `ai-command-center-lab-claude`); operator is reloading it to recover from the
+    hcom disruption.
+resume_commands:
+- cd /home/mellow/Projects/MultiAgentProject/Source
+- hcom status && hcom relay
+- MAP_System/.venv/bin/python MAP_System/tests/test_context_rotation.py
+- git status MAP_System/db/claims.py MAP_System/scripts/map_authority.py MAP_System/scripts/context_rotation.py
+  MAP_System/tests/test_context_rotation.py
+validation:
+- 19/19 test_context_rotation.py pass (excluding one pre-existing unrelated failure);
+  17/17 test_map_authority.py pass; 6/6 test_map_authority_notify.py pass.
+- No orphaned MAP task claims traced to the RUKI kill incident; verified directly
+  against map.db via map-authority route + task show.
+rotation:
+  reason: operator_requested
+  summary: Handled a verified rotation handoff, fixed a real cross-host bug in the
+    rotation protocol itself (map.db read-only writes) with full test coverage, reassigned
+    stale review claims, declined two out-of-scope ownership asks per operator direction,
+    closed two confirmed superseded RUKI tabs, and then hit an unresolved hcom relay
+    disruption. Operator is reloading the Command Center Lab; this snapshot captures
+    state going into that reload.
+  next_action: After CCL reload, verify hcom health, then decide (a) whether/how to
+    commit the untracked rotation-protocol fix, and (b) whether to re-coordinate the
+    real claude-lab-damo ack/finalize.
+  used_tokens: 150000
+  threshold_tokens: 150000
+  metric_source: operator_requested_manual_snapshot
+integrity:
+  prepared_at: '2026-07-29T04:51:57Z'
+  canonical_tasks: []
+  canonical_tasks_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  touched_paths:
+  - path: MAP_System/db/claims.py
+    scope: workspace
+    sha256: 0a6746031ded856c9c429999f4f90e75d87caf53742d5fbe6ff6809db350a40e
+    size: 33515
+    state: file
+  - path: MAP_System/scripts/context_rotation.py
+    scope: workspace
+    sha256: 3c8af4be714d1eaea3cce49d6e126056c71613e8f4e583cf3b4c69d4ce5c3bec
+    size: 42484
+    state: file
+  - path: MAP_System/scripts/map_authority.py
+    scope: workspace
+    sha256: c01dc152f4ec12fbfa14902762439116b58b68c0bf5776015f56d26d60e9a454
+    size: 24911
+    state: file
+  - path: MAP_System/tests/test_context_rotation.py
+    scope: workspace
+    sha256: 6515557329fb037b397dc8f7a05f2da272c14c1be1996f14e7d1e3ba2a50a8ba
+    size: 26746
+    state: file
+  touched_paths_sha256: 80de1a295391deb303bbdcff694a9baeb24e513e35b90191c49cdab7738dc335

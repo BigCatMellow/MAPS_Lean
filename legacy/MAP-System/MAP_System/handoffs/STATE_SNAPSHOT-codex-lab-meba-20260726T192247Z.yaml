@@ -1,0 +1,126 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T19:22:47Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-meba
+session_id: 019f9fd0-f269-7f52-b388-4b327e8389a4
+status: handing_off
+task_context:
+  current_task: TASK-284
+  owned_tasks:
+  - TASK-284
+  pending_reviews: []
+  recent_events:
+  - event_type: APPROVED
+    task_id: TASK-279
+    summary: Independent reviewer codex-lab-feta approved the generated active-state
+      implementation.
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-284
+    summary: Romi required deterministic release-state contradiction detection, explicit
+      details, fail-closed behavior, regression coverage, and point-in-time corpus-byte
+      clarification.
+  - event_type: PROGRESS
+    task_id: TASK-284
+    summary: Used sanctioned map_task.py rework, rechecked READY/unclaimed/collision-free
+      state, atomically claimed as codex-lab-meba, and synchronized mirrors.
+  touched_paths:
+  - MAP_System/artifacts/experiments/task284-source-aware-fingerprint-pilot.md
+  - MAP_System/scripts/task_fingerprint_production_pilot.py
+  - MAP_System/tests/test_task_fingerprint_production_pilot.py
+active_constraints:
+- scope: task
+  rule: Edit only TASK-284's three registered outputs and address Romi's single REQUIRED
+    finding plus point-in-time byte clarification.
+  source: TASK-284, task284-review-romi.md, and codex-lab-kazu hcom assignment
+- scope: task
+  rule: Compare task JSON release status against declared canonical SQLite and task-graph
+    mirror status deterministically, expose contradiction details distinctly, and
+    fail closed so contradicted records cannot be returned normally.
+  source: MAP_System/artifacts/reviews/task284-review-romi.md
+- scope: task
+  rule: Keep the pilot offline and noncanonical; do not tune retrieval scores or enable
+    routing.
+  source: TASK-284 review and coordinator assignment
+- scope: communication
+  rule: Report final evidence to bigboss and codex-lab-kazu; Romi remains the independent
+    re-reviewer.
+  source: codex-lab-kazu hcom assignment
+- scope: repo
+  rule: Preserve the large dirty worktree and unrelated agents' state, including unrelated
+    codex-lab-zori continuity drift.
+  source: AGENTS.md and current continuity validation
+forward_tasks:
+- task_id: TASK-284
+  next_action: fix
+  owner: codex-lab-meba
+  reason: Live rework claim is active. No implementation output was edited by this
+    session before rotation; the exact three inherited submission outputs are frozen
+    by checksum.
+  paths:
+  - MAP_System/artifacts/experiments/task284-source-aware-fingerprint-pilot.md
+  - MAP_System/scripts/task_fingerprint_production_pilot.py
+  - MAP_System/tests/test_task_fingerprint_production_pilot.py
+blockers: []
+lexicon:
+  fail_closed: Contradicted or unverifiable release state must exclude the record
+    from searchable candidates or force abstention.
+  canonical_status: The task lifecycle status in read-only MAP_System/map.db.
+  mirror_status: The lifecycle status projected in task JSON and workflow/task_graph.json.
+  frozen_holdout: The four fixed TASK-258-derived queries whose hash is stable; the
+    live evidence corpus bytes are only a point-in-time measurement.
+  raw_evidence_required: Retrieval projection output never substitutes for opening
+    its canonical evidence backlinks.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-284
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_graph.py
+- MAP_System/.venv/bin/python MAP_System/tests/test_task_fingerprint_production_pilot.py
+validation:
+- TASK-284 was CHANGES_REQUESTED with no claimant before sanctioned rework.
+- map_task.py rework returned TASK-284 to READY and synchronized mirrors.
+- validate_task_graph.py passed with no output collision.
+- runner named TASK-284 as the sole ready claim candidate.
+- Atomic claim returned claimed=true and reason=null; task mirrors were exported.
+- No implementation output was edited after the rework assignment in this session.
+rotation:
+  reason: threshold
+  summary: 'TASK-279 is independently APPROVED. For TASK-284, Romi found one required
+    gap: task JSON RELEASED state was trusted without comparing canonical or mirror
+    status, so a contradictory record could be returned normally. This session read
+    the task/review/three outputs, performed sanctioned rework, verified collision-free
+    READY state, atomically claimed, and synced mirrors. The intended narrow fix is
+    a three-way eligibility check across task JSON, read-only SQLite, and task_graph;
+    structured contradictions are excluded, with a regression fixture. Keep scores
+    and routing unchanged.'
+  next_action: Read this snapshot and Romi's review, ACK the exact checksum, wait
+    for finalize, then implement the three-way release-state contradiction check in
+    only TASK-284's three outputs.
+  used_tokens: 131529
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-26T19:22:47Z'
+  canonical_tasks:
+  - task_id: TASK-284
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: codex-lab-meba
+    lease_expires_at: '2026-07-26 19:51:20'
+    heartbeat_at: '2026-07-26 19:21:20'
+    updated_at: '2026-07-26 19:21:20'
+  canonical_tasks_sha256: 32acebe45ea816aed0402e92401dd140f8f6a5040a7eb7c7b00e5eef743ba449
+  touched_paths:
+  - path: MAP_System/artifacts/experiments/task284-source-aware-fingerprint-pilot.md
+    scope: workspace
+    sha256: c2ad129d74bbf5ec673eb1e6275a667388b09622ff54ef5c8af068779085d643
+    state: file
+  - path: MAP_System/scripts/task_fingerprint_production_pilot.py
+    scope: workspace
+    sha256: 4a94c81c856f662deef2dc8e2e09471a0447c3517a0e69f39b616e8fcd73ab33
+    state: file
+  - path: MAP_System/tests/test_task_fingerprint_production_pilot.py
+    scope: workspace
+    sha256: f74f1fd1d21c09b621219e1aefcaab06ad70259b13f06888b5bba1a9d7251715
+    state: file
+  touched_paths_sha256: 8958bee46c6381e475fc39fea6a90e01d4f8b40212e2b72290d60e17a81fd9ce

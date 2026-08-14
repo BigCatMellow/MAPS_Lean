@@ -1,0 +1,38 @@
+{
+  "task_id": "TASK-243",
+  "title": "Make CommandCenterUI attention history collapsible",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RETIRED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Place the sidebar Needs you alert history inside a collapsible section while keeping attention popups and alert actions available. Default the history closed to preserve sidebar space, and expand it when the popup Open action navigates there. Superseded by TASK-254, which owns independent review and release of the combined final UI state because later serial edits overwrote the earlier worktree snapshots.",
+  "input_paths": [],
+  "output_paths": [
+    "../../CommandCenterUI/src/chat.css",
+    "../../CommandCenterUI/src/chat.html",
+    "../../CommandCenterUI/src/chat.js",
+    "MAP_System/templates/install/command-center-ui/src/chat.css",
+    "MAP_System/templates/install/command-center-ui/src/chat.html",
+    "MAP_System/templates/install/command-center-ui/src/chat.js",
+    "MAP_System/tests/test_command_center_attention_history.py"
+  ],
+  "acceptance_criteria": [
+    "Needs you alert history is a collapsible sidebar section that remains accessible after an alert popup is dismissed.",
+    "The history is collapsed by default without suppressing attention popups or alert count.",
+    "Popup Open expands the history before scrolling to it; live/template parity and focused checks pass."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,138 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T19:37:39Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-romi
+session_id: 019f9f59-a7ad-76c0-a451-945c62ca0e7c
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: CONTEXT_ROTATION
+    task_id: null
+    summary: Checksum-ACKed codex-lab-lilo snapshot b2fd9b4b... and resumed as its
+      clean replacement.
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-284
+    summary: First review found absent canonical/mirror contradiction detection; second
+      review found task-JSON mismatches were silently skipped.
+  - event_type: APPROVED
+    task_id: TASK-284
+    summary: Final independent re-review approved union-based three-source contradiction
+      detection while retaining the offline failed-threshold boundary.
+  touched_paths:
+  - MAP_System/artifacts/reviews/task284-review-romi.md
+  - MAP_System/artifacts/reviews/task284-rereview-romi.md
+  - MAP_System/artifacts/reviews/task284-final-rereview-romi.md
+  - MAP_System/tasks/TASK-284.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/events/events.jsonl
+  - MAP_System/shared/context-continuity.md
+active_constraints:
+- scope: task
+  rule: TASK-284 is APPROVED as an offline negative experiment; its failed retrieval
+    thresholds do not authorize production routing.
+  source: MAP_System/artifacts/reviews/task284-final-rereview-romi.md
+- scope: task
+  rule: TASK-285 is the next ready lane and requires a core agent; the runner rejects
+    visible-helper dispatch because the task needs shell/network capability.
+  source: MAP_System/graph/runner.py current route
+- scope: safety
+  rule: Claude identities are unavailable through Wednesday; do not route work to
+    Claude.
+  source: MAP_System/agents/status.json; operator directive
+- scope: tool
+  rule: Any agent/helper launch must use a visible wezterm-tab; never use headless
+    unless explicitly authorized by the operator.
+  source: MAP_System/AGENTS.md
+- scope: repo
+  rule: Preserve the heavily dirty shared worktree and use sanctioned SQLite lifecycle
+    commands; do not overwrite unrelated agent work.
+  source: AGENTS.md; MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-285
+  next_action: claim
+  owner: command-center
+  reason: TASK-284 approval satisfied its dependency; runner routes TASK-285 as the
+    only ready legal core lane.
+  paths:
+  - MAP_System/tasks/TASK-285.json
+  - MAP_System/artifacts/experiments/task285-workstream-digest-pilot.md
+  - MAP_System/scripts/workstream_digest_pilot.py
+  - MAP_System/tests/test_workstream_digest_pilot.py
+blockers:
+- kind: approval
+  detail: TASK-265, TASK-274, and TASK-280 remain structural-policy gated.
+  unblock_by: Command Center records the required security-structural approval evidence.
+lexicon:
+  MAP: Reusable multi-agent delivery system under MAP_System.
+  STATE_SNAPSHOT: Checksum-bound durable handoff used for verified context rotation.
+  TASK-284: Approved offline source-aware fingerprint experiment; thresholds failed
+    and routing remains disabled.
+  TASK-285: Ready evidence-linked workstream-digest pilot; next core-agent lane.
+  fail_closed: Contradicted release candidates are recorded in excluded_records and
+    cannot enter searchable results.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- python3 -m json.tool MAP_System/tasks/TASK-285.json
+validation:
+- TASK-284 focused tests passed 5/5; adjacent fingerprint tests passed 22/22.
+- Independent task_json, sqlite, and task_graph mismatch fixtures each produced typed
+  exclusion and abstention.
+- TASK-284 final review record passed validate_review.py.
+- Task schema, mirror, and graph validators passed after sanctioned approval.
+- Runner routes TASK-285 to claim_or_assign; no submitted reviews remain.
+rotation:
+  reason: threshold
+  summary: Resumed through verified Lilo rotation, independently reviewed TASK-284
+    through two required corrections, and approved its final fail-closed offline pilot.
+    No live claims remain. TASK-285 is now ready for a core agent.
+  next_action: Validate this snapshot and current route, then atomically claim TASK-285
+    if it remains READY and unclaimed.
+  used_tokens: 135148
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-26T19:37:39Z'
+  canonical_tasks:
+  - task_id: TASK-285
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:48Z'
+  canonical_tasks_sha256: 18e52619d224ec5f51957a1193c3cf123efbfc430cc1355297a76f8cad837c59
+  touched_paths:
+  - path: MAP_System/artifacts/reviews/task284-final-rereview-romi.md
+    scope: workspace
+    sha256: c923ac2fff526e176de85082ed82d37c9a4780c51cbba9db5cb7bc55696e1fec
+    state: file
+  - path: MAP_System/artifacts/reviews/task284-rereview-romi.md
+    scope: workspace
+    sha256: 6d35507cc163cdaa7a83cd059137d60297a27e3abc676025709b55a6604ef08c
+    state: file
+  - path: MAP_System/artifacts/reviews/task284-review-romi.md
+    scope: workspace
+    sha256: e2b8fce7922c9b294aeb08b58f80cc984d5e8e86f4cd658d4480a7011872f6f9
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: 92ce4878e63a511435f954ca7263be95c12a82c24ea882a1335f9f0853bf91a3
+    state: file
+  - path: MAP_System/shared/context-continuity.md
+    scope: protocol_generated
+    sha256: null
+    state: tracked_by_ledger_revision
+  - path: MAP_System/tasks/TASK-284.json
+    scope: workspace
+    sha256: 5a71cb0c537c418155aa26d0d9d73624844a7b1e563b8250c119852e12b5e048
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: a1087b64d1cd060227c99165457f85b78a9c9c44f8af2e65296404d058f6adeb
+    state: file
+  touched_paths_sha256: 5341d9b1a7c417a336d614c190d572bebdb7299ebfe771783e2a2ad1d0e57f06
