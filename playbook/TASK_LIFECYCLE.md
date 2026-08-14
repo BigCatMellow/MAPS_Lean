@@ -106,6 +106,22 @@ specified review and required evidence is available.
 review are complete. Do not report a task done because time ended or the first
 implementation attempt looks plausible.
 
+### High-risk release visibility
+
+MAPS Lean does not add a universal `RELEASED` state after `DONE`.
+
+When `review_required` is `OPERATOR_VISIBLE_RELEASE_CHECK`, the final approved
+review/completion record must include the compact operator-visible release
+summary defined in [Checks and Balances](../docs/CHECKS_AND_BALANCES.md): what
+became true, verification reproduced, residual risk, any still-pending
+operator-gated action, and the exact artifact/revision when relevant.
+
+That summary is visibility, not permission. A destructive, external,
+security-sensitive, or otherwise operator-gated action still requires explicit
+operator approval. If deployment/release itself is substantive work, model it
+as its own task or policy-gated action instead of adding a second universal
+lifecycle.
+
 ## Conflicts
 
 When current authoritative sources materially disagree about scope, ownership,
