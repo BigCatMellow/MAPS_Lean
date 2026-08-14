@@ -43,9 +43,15 @@ class PolicyStateTests(unittest.TestCase):
         self.addCleanup(td.cleanup)
         return TaskStore(Path(td.name) / "maps.db")
 
+    def create_id(self, store):
+        result = store.create_task(title="x")
+        self.assertTrue(result.ok)
+        self.assertIsNotNone(result.task)
+        return result.task["task_id"]
+
     def test_policy_metadata_is_canonical_task_state(self):
         store = self.make_store()
-        task_id = store.create_task(title="x").data["task_id"]
+        task_id = self.create_id(store)
         result = store.update_contract(task_id, full_contract())
         self.assertTrue(result.ok)
         task = store.get_task(task_id)
@@ -54,7 +60,7 @@ class PolicyStateTests(unittest.TestCase):
 
     def test_operator_approval_requires_explicit_gate(self):
         store = self.make_store()
-        task_id = store.create_task(title="x").data["task_id"]
+        task_id = self.create_id(store)
         store.update_contract(task_id, full_contract())
         approval = store.record_operator_approval(
             task_id, approved_by="operator", note="approved exact destructive action"
@@ -66,7 +72,7 @@ class PolicyStateTests(unittest.TestCase):
 
     def test_reshaping_invalidates_prior_approval(self):
         store = self.make_store()
-        task_id = store.create_task(title="x").data["task_id"]
+        task_id = self.create_id(store)
         store.update_contract(task_id, full_contract())
         store.record_operator_approval(
             task_id, approved_by="operator", note="approved version one"
@@ -78,7 +84,7 @@ class PolicyStateTests(unittest.TestCase):
 
     def test_list_tasks_returns_policy_and_submission_context(self):
         store = self.make_store()
-        task_id = store.create_task(title="x").data["task_id"]
+        task_id = self.create_id(store)
         store.update_contract(task_id, full_contract(policy={
             "requires_operator_approval": False,
             "destructive_action": False,
