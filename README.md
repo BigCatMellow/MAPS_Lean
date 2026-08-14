@@ -14,6 +14,12 @@ sequence from this README.
 Resuming after a session break? Read [Current State](state/CURRENT.md) first;
 it points to the latest durable coordination handoff.
 
+For a project that spans sessions, multiple tasks, or multiple agents, use
+[Project Bootstrap](playbook/PROJECT_BOOTSTRAP.md) before creating the first
+implementation task. It follows a simple planning rule: inspect reality, define
+DONE, plan backward, challenge the draft, then execute forward and adapt from
+evidence.
+
 Once oriented, create a task record from [the task template](templates/task.md) before a
 multi-agent or consequential change and put reviews, decisions, and handoffs
 in `work/` using the templates.
