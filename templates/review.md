@@ -6,13 +6,33 @@
 
 ## Acceptance criteria check
 
-- `PASS | FAIL | PARTIAL` — <criterion and evidence>
+For each criterion, review against the agreed task. Do not invent new
+requirements during review.
+
+- `PASS | FAIL | PARTIAL` — <criterion>
+  - Evidence: <observable proof>
 
 ## Findings
 
-- `<severity>` — `<path>`: <observable issue, risk, and required correction>
+For each blocking finding:
+
+- Severity: <risk/severity>
+- Path / surface: <affected path, system, or behavior>
+- Failed criterion or control: <what requirement is not met>
+- Observable issue: <what is wrong>
+- Evidence: <how it was reproduced or observed>
+- Required correction: <what must change>
+- Do not change: <unaffected work that should remain intact>
+
+If an idea is only an improvement and does not reveal a correctness, safety,
+security, scope, or acceptance-criteria failure, record it as future work
+instead of blocking approval.
 
 ## Evidence checked
 
-- <commands, screenshots, or links>
+- <commands, screenshots, logs, links, artifacts, or reproduction steps>
 
+## Reviewer limits
+
+- Missing context/evidence: <none or blocker>
+- New requirements discovered: <none or route to future task/decision>
