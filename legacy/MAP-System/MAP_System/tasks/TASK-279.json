@@ -1,0 +1,41 @@
+{
+  "task_id": "TASK-279",
+  "title": "Generate active operational state from SQLite with separate annotations",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-276",
+    "TASK-277"
+  ],
+  "owner": "command-center",
+  "description": "Implement the approved TASK-277 generated-state slice using TASK-276 drift evidence. Replace hand-maintained lifecycle fields in the active-lane surface with an idempotent SQLite projection while preserving compact human rationale and gate annotations in a separate keyed source. Do not parse free prose as lifecycle truth.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task279-generated-active-state-delivery-note.md",
+    "MAP_System/scripts/render_active_state.py",
+    "MAP_System/shared/active-lane-annotations.json",
+    "MAP_System/shared/current-state.md",
+    "MAP_System/tests/test_render_active_state.py"
+  ],
+  "acceptance_criteria": [
+    "Active task lifecycle fields are generated from canonical map.db and cannot drift through ordinary claim, submit, approve, or release transitions.",
+    "Human-authored rationale and gate annotations are stored separately by task ID and survive idempotent regeneration.",
+    "The generator never treats free-prose task mentions as lifecycle state and reports orphan or stale annotations explicitly.",
+    "Focused tests cover each lifecycle transition, annotation preservation, deterministic ordering, and repeated no-op regeneration.",
+    "Current-state and task-mirror validators pass, with a migration and rollback note in the delivery artifact."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

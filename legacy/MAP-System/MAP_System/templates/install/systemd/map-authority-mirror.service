@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh the read-only MAP database mirror from its authority
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=__PROJECT_DIR__
+Environment=PATH=__LOCAL_BIN__:/usr/local/bin:/usr/bin:/bin
+Environment=MAP_AUTHORITY_CONFIG=__HOME__/.config/map-authority.json
+ExecStart=__LOCAL_BIN__/map-authority-sync

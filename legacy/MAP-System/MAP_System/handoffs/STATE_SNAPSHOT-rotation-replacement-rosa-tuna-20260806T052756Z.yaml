@@ -1,0 +1,218 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-06T05:27:56Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-rosa-tuna
+session_id: e7f44ca9-318f-4c94-a278-5f5946f6dcb2
+status: handing_off
+task_context:
+  current_task: TASK-318
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: ACKed context rotation from claude-lab-rosa (prior snapshot STATE_SNAPSHOT-claude-lab-rosa-20260806T051232Z.yaml),
+      resumed TASK-318 follow-on work. Operator asked in direct chat about saving
+      rosters/game state; explained the existing auto-save-to-localStorage + Export
+      Army Sheet (printable HTML) behavior, then operator asked for (1) export/import
+      to a real file for backup/transfer and (2) a way to browse and select among
+      multiple saved rosters. Operator replied "yep" to both.
+  - event_type: SUBMISSION
+    task_id: TASK-318
+    summary: 'Implemented a "Saved Rosters" feature on Terran Army.dc.html only so
+      far (Zerg/Protoss/Test not yet ported - see forward_tasks). Added: state.savedRosters
+      (array of named snapshots incl. army/tactical/ tacticalTapped/battleSupplyAvailable/scaleId/factionId),
+      persisted to a new localStorage key sctmg_terran_rosters_v1 (separate from the
+      existing single-slot sctmg_terran_v1 auto-save, which is untouched). New methods:
+      snapshotRoster/saveCurrentAsRoster/loadRoster/deleteRoster/exportRoster (downloads
+      a .sctmg.json via Blob+temporary <a> click, same technique the existing exportArmySheet
+      already used for its printable sheet) / importRosterFile (FileReader + JSON.parse,
+      adds as a new list entry rather than overwriting current state). New bottom-sheet
+      UI (sheet type "rosters", same modal pattern as the existing Round Tracker/Tier
+      Picker sheets) reachable via a new "Saved Rosters (N)" button next to the existing
+      "Export Army Sheet" button on the Roster tab: name+Save row, scrollable list
+      of saved rosters each with Load / per-roster Export (download) / two-tap inline
+      Delete (arm then Confirm/Cancel, no native confirm() - this app never uses native
+      dialogs anywhere), and an "Import Roster File" button wired to a hidden <input
+      type=file> via the existing `ref` callback pattern (same mechanic as the app''s
+      search input autofocus). Committed to the external repo as e60f23c "Add Saved
+      Rosters: name/save/load/delete roster snapshots, export/import as JSON files".'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Verified end-to-end in-browser via claude-in-chrome on the live Terran
+      Army.dc.html (not just Test Army) at localhost:8934: saved a roster named "Marine
+      Rush" (Save button correctly dims/lights based on whether the name input is
+      non-empty), added a second unit (Marauder) to prove state actually changes,
+      opened Saved Rosters and tapped Load on "Marine Rush" - roster correctly reverted
+      to just the original Marine and the sheet auto-closed. Tested delete two-tap
+      confirm/cancel (armed state showed Confirm/Cancel, Cancel correctly aborted
+      without deleting). Tested Export (downloaded Marine Rush.sctmg.json to ~/Downloads,
+      content inspected via cat - correct JSON shape) and Import (uploaded that same
+      file back via claude-in-chrome''s file_upload tool against the hidden file input''s
+      ref, since clicking the visible Import button would open an unautomatable native
+      OS file picker - list correctly grew to 2 entries). No console errors at any
+      point (checked via read_console_messages). Cleaned up all test artifacts afterward:
+      deleted both saved-roster entries via the UI (back to the real empty list),
+      confirmed roster reverted to the original single Marine, deleted the downloaded
+      test file from ~/Downloads and scratchpad.'
+  touched_paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html (live; Saved Rosters feature added and verified this session, commit
+    e60f23c)
+  - MAP_System/handoffs/ (this workspace's repo; ack of inherited rotation, and this
+    snapshot)
+active_constraints:
+- scope: task
+  rule: TASK-318's output_path is entirely outside this git repo, at "/home/mellow/Documents/Projects/StarCraftCA/StarCraft
+    RPG Companion Design". All read/write file work for this task happens there, not
+    under MAP_System/ or Projects/. That folder has its own local (non-global) git
+    identity and a baseline commit be1e49e - diff against that commit to see the full
+    session's changes (28 commits as of this snapshot, newest e60f23c).
+  source: inherited across multiple prior snapshots, still true
+- scope: task
+  rule: TASK-318 shows SUBMITTED in MAP's canonical task state with owner=claude-lab-gina
+    in the local task JSON mirror, but the real work has continued informally in direct
+    operator chat across at least three agent identities (gina, rosa, this session)
+    with no new MAP claim opened. MAP's task tracking does not reflect the real state
+    of the work. Next session should keep treating this as informal direct-chat iteration
+    outside MAP unless the operator says otherwise - do not re-claim or re-submit
+    TASK-318, it would not add information.
+  source: inherited, still true
+- scope: tool
+  rule: 'This host is confirmed read-only for MAP lifecycle writes: map_task.py show
+    (and presumably other mutating/show commands) now raise RemoteAuthorityRequired
+    pointing to map-authority on 100.127.80.108. Read task state via the local JSON
+    mirrors in MAP_System/tasks/*.json instead of map_task.py show.'
+  source: inherited, not re-verified this session
+- scope: repo
+  rule: Prior orientation thread (36-item emergence backlog triage) is still explicitly
+    on hold per operator instruction carried forward across multiple snapshots. Do
+    not resume it until the operator raises it again.
+  source: operator instruction, carried forward from earlier snapshots
+active_constraints_note: TASK-318's original 5 acceptance criteria (CSS centralization)
+  were DONE/SUBMITTED long before this session. Everything since (including this entire
+  session) is informal further operator-directed follow-on work with no formal acceptance
+  criteria of its own.
+forward_tasks:
+- task_id: TASK-318
+  next_action: continue
+  owner: rotation-replacement-rosa-tuna
+  reason: 'Saved Rosters (name/save/load/delete + export/import JSON) is implemented,
+    committed, and verified on Terran Army.dc.html ONLY. It still needs to be ported
+    to Zerg Army.dc.html, Protoss Army.dc.html, and Test Army.dc.html, the same way
+    the Battle tab feature was ported in an earlier session (see git log 95a2dd1/8190f29
+    in the external repo): diff old-Terran -> new-Terran, then for Zerg/Protoss apply
+    with `patch --fuzz` after color-substituting per faction theme (Terran rgba(98,169,247,*)/#62a9f7/#bcd9fd
+    -> Zerg rgba(176,110,247,*)/#b06ef7/#d9bafc, Protoss rgba(242,200,96,*)/#f2c860/#fae9c0
+    - confirm exact values via each file''s own --fc-primary-* CSS custom properties
+    before substituting, do not assume they are unchanged from that earlier session).
+    The localStorage key for the saved-list must be faction-specific on each port
+    (sctmg_terran_rosters_v1 -> e.g. sctmg_zerg_rosters_v1, sctmg_protoss_rosters_v1)
+    - do not reuse the Terran key. For Test Army.dc.html, mirror whatever key Test
+    already uses for its main save (sctmg_test_v1 per the lexicon) with the same _rosters_v1
+    suffix pattern. After each port, verify in-browser via claude-in-chrome on the
+    real (not sandbox) file with the same save/load/export/import/delete checks done
+    this session, then clean up any test data introduced before committing. No operator
+    acceptance criteria beyond "match what was done for Terran" - operator has not
+    seen Zerg/Protoss/Test yet, only approved the Terran-first approach implicitly
+    by not objecting.'
+  paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html
+blockers: []
+lexicon:
+  StarCraftCA / SCTMG / "StarCraft RPG Companion Design": The operator's personal,
+    non-MAP creative project - a tabletop-game companion web app (plain .dc.html component
+    files + a small Node build pipeline that regenerates *-data.js from uploads/*.html
+    rules/unit source). Lives entirely outside this git repo at /home/mellow/Documents/Projects/StarCraftCA/.
+  .dc.html: This project's own single-file component convention - each top-level screen
+    is one file using <dc-import> to embed sub-components like UnitDetail. The templating
+    engine (support.js) resolves double-brace expressions as dotted-path property
+    access plus leading negation, proven to work inside sc-for loop-variable scope
+    (e.g. a loop var r's r.confirming property negated) - but it does NOT support
+    arbitrary JS expressions, only paths, literals, top-level negation, and equality.
+    No native browser dialogs (alert/confirm/prompt) are used anywhere in this app;
+    any are-you-sure needs (like Saved Rosters delete) are built as inline two-tap
+    UI state instead.
+  Saved Rosters: New feature this session, Terran-only so far (needs porting - see
+    forward_tasks). Lets the operator save multiple NAMED snapshots of the current
+    roster+battle state (not just the single auto-saved "current" state), browse/load/delete
+    them from a bottom-sheet reached via a button next to "Export Army Sheet" on the
+    Roster tab, and export/import individual saved rosters as .sctmg.json files for
+    backup or transfer to another device/browser. Distinct from the pre-existing "Export
+    Army Sheet" button, which produces a printable/display-only HTML summary, not
+    a reloadable save file.
+  Test Army.dc.html: A sandbox copy of Terran Army.dc.html with its own isolated localStorage
+    keys (sctmg_test_v1, sctmg_play_test) so it can be broken freely without touching
+    the real Terran roster. Historically where Battle-tab-style prototyping happens
+    first, then kept in sync with the live faction files for structural consistency.
+  dev server: python3 -m http.server 8934, served from inside the external project
+    folder. Confirmed running at end of this session.
+resume_commands:
+- 'curl -sf http://localhost:8934/ >/dev/null && echo "dev server still up" || echo
+  "restart: cd ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion
+  Design'' && python3 -m http.server 8934"'
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git log --oneline be1e49e..HEAD
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git status --short
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git show --stat e60f23c
+validation:
+- git log in the external repo shows 28 commits on top of baseline be1e49e as of this
+  snapshot (newest e60f23c), working tree clean (verified via git status --short at
+  snapshot time).
+- Dev server confirmed responding on :8934 at snapshot time.
+- Saved Rosters save/load/export/import/delete-confirm all manually tested in-browser
+  via claude-in-chrome on the live Terran Army.dc.html (not Test Army.dc.html) - no
+  console errors at any point; all test data cleaned up afterward (verified via a
+  final screenshot showing the empty saved-rosters list and the original single-Marine
+  roster restored).
+- TASK-318 local task JSON mirror (MAP_System/tasks/TASK-318.json) still shows status=SUBMITTED,
+  owner=claude-lab-gina - stale (mirror sync still broken per inherited constraint),
+  intentionally not re-claimed (see active_constraints_note).
+rotation:
+  reason: checkpoint_due
+  summary: 'Automated advisory from limit_watcher: current estimate 130190 tokens
+    against soft=120000 / rotate=150000 thresholds. Chose to rotate now at a clean
+    stopping point (Terran port fully verified and committed) rather than mid-way
+    through porting to Zerg/Protoss/Test, since that port work is itself a multi-file
+    diff/patch/verify sequence that deserves a full token budget rather than being
+    started right at the checkpoint boundary.'
+  next_action: Port the Saved Rosters feature to Zerg Army.dc.html, Protoss Army.dc.html,
+    and Test Army.dc.html per forward_tasks, verifying each in-browser before committing.
+    If the operator has a different priority queued in chat, that takes precedence.
+  used_tokens: 130190
+  threshold_tokens: 150000
+  metric_source: limit_watcher_automated_advisory
+integrity:
+  prepared_at: '2026-08-06T05:27:56Z'
+  canonical_tasks:
+  - task_id: TASK-318
+    status: SUBMITTED
+    owner: claude-lab-gina
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-05 18:50:39'
+  canonical_tasks_sha256: a9bd814dc3ad8558e1975f31366f8d01bda2ce6fcb252baa9814e6258ee7f68f
+  touched_paths:
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+      Army.dc.html (live; Saved Rosters feature added and verified this session, commit
+      e60f23c)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: MAP_System/handoffs/ (this workspace's repo; ack of inherited rotation,
+      and this snapshot)
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  touched_paths_sha256: 91726e97c1383190f8e5e79629464a8709faffb5ed12cb668f60650be2003b02

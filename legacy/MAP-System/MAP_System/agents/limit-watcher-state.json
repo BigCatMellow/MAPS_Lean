@@ -1,0 +1,146 @@
+{
+  "nudged": {
+    "claude-lab-mira": "2026-07-15T04:11:00-04:00",
+    "claude-lab-toku": "2026-07-15T04:11:00-04:00",
+    "claude-lab-zera": "2026-07-15T04:11:00-04:00",
+    "claude-lab-zero": "2026-07-15T04:11:00-04:00",
+    "claude-lab-gome": "2026-07-18T05:05:00-04:00",
+    "claude-lab-lure": "2026-07-19T21:26:25-04:00",
+    "claude-lab-gabi": "2026-07-22T17:32:55-04:00",
+    "claude-lab-zaro": "2026-07-23T03:35:00-04:00",
+    "mapfinish-guru": "2026-07-28T12:45:00-04:00",
+    "mapfinish-kino": "2026-07-28T12:45:00-04:00",
+    "mapfinish-rafa": "2026-07-28T12:45:00-04:00",
+    "mapfinish2-dove": "2026-07-28T12:45:00-04:00",
+    "mapfinish2-zemi": "2026-07-28T12:45:00-04:00"
+  },
+  "warned_unparseable": {
+    "antigravity": "when operator restores token budget"
+  },
+  "silent_reported": [],
+  "last_live": [
+    "claude-lab-nene",
+    "codex-lab-mebo",
+    "codex-lab-replacement-valo",
+    "rotation-replacement-duma-bono"
+  ],
+  "incidents": {
+    "claude-lab-venu": {
+      "detected_at": "2026-07-27T16:34:38-04:00",
+      "reset_at": null,
+      "probes_sent": 6,
+      "reset_nudged": false,
+      "gave_up": true
+    },
+    "lili-replacement-nisa": {
+      "detected_at": "2026-07-28T13:37:37-04:00",
+      "reset_at": null,
+      "probes_sent": 6,
+      "reset_nudged": false,
+      "gave_up": true
+    },
+    "claude-lab-gina": {
+      "detected_at": "2026-08-05T18:12:12-04:00",
+      "reset_at": null,
+      "probes_sent": 6,
+      "reset_nudged": false,
+      "gave_up": true
+    }
+  },
+  "checkins": {},
+  "work_nudges": {},
+  "stale_claim_owner_nudges": {
+    "TASK-186": "2026-07-15T09:12:50-04:00",
+    "TASK-208": "2026-07-16T22:22:38-04:00",
+    "TASK-209": "2026-07-17T07:45:50-04:00",
+    "TASK-215": "2026-07-17T15:12:21-04:00",
+    "TASK-241": "2026-07-18T18:00:22-04:00",
+    "TASK-263": "2026-07-27T07:54:29-04:00",
+    "TASK-270": "2026-07-22T17:35:54-04:00",
+    "TASK-268": "2026-07-26T14:15:26-04:00",
+    "TASK-293": "2026-07-28T12:37:33-04:00",
+    "TASK-292": "2026-07-29T14:40:52-04:00",
+    "TASK-254": "2026-07-29T14:40:52-04:00",
+    "TASK-296": "2026-08-12T17:48:55-04:00",
+    "TASK-305": "2026-07-29T11:05:30-04:00",
+    "TASK-309": "2026-08-05T19:52:29-04:00",
+    "TASK-318": "2026-08-05T13:58:32-04:00",
+    "TASK-320": "2026-08-12T17:58:57-04:00",
+    "TASK-325": "2026-08-10T15:48:14-04:00",
+    "TASK-323": "2026-08-10T12:22:28-04:00"
+  },
+  "terminal_suppressed": {
+    "codex-lab-lime": "2026-07-22T18:42:59-04:00",
+    "codex-lab-kula": "2026-07-22T23:08:15-04:00",
+    "claude-lab-bima": "2026-07-23T05:13:52-04:00",
+    "codex-lab-lori": "2026-07-23T05:13:52-04:00",
+    "codex-lab-mubo": "2026-07-23T05:13:52-04:00",
+    "codex-lab-veto": "2026-07-26T15:16:30-04:00",
+    "codex-lab-lilo": "2026-07-26T15:21:31-04:00",
+    "codex-lab-lura": "2026-07-26T15:36:32-04:00",
+    "codex-lab-meba": "2026-07-26T15:36:32-04:00",
+    "task284-replacement-dosa": "2026-07-26T15:59:09-04:00",
+    "codex-lab-kazu": "2026-07-26T16:29:10-04:00",
+    "claude-lab-nora": "2026-07-27T16:34:38-04:00",
+    "claude-lab-ravo": "2026-08-05T14:31:37-04:00",
+    "claude-lab-rosa": "2026-08-06T01:18:18-04:00",
+    "rotation-replacement-rosa-tuna": "2026-08-06T01:38:22-04:00",
+    "rotation-replacement-tuna-gino": "2026-08-06T01:43:23-04:00",
+    "rotation-replacement-gino-zera": "2026-08-06T10:14:35-04:00",
+    "rotation-replacement-gino-rita": "2026-08-06T11:14:45-04:00",
+    "rotation-replacement-gino-dole": "2026-08-06T11:34:50-04:00",
+    "rotation-replacement-gino-rina": "2026-08-06T12:09:55-04:00",
+    "rotation-replacement-gino-mifa": "2026-08-06T13:15:09-04:00",
+    "claude-lab-luzo": "2026-08-09T21:14:36-04:00",
+    "claude-lab-neko": "2026-08-09T21:55:00-04:00",
+    "rotation-replacement-neko-mina": "2026-08-09T22:29:04-04:00",
+    "codex-lab-miro": "2026-08-09T23:05:09-04:00",
+    "rotation-replacement-miro-fela": "2026-08-09T23:33:12-04:00",
+    "rotation-replacement-fela-dune": "2026-08-09T23:46:13-04:00",
+    "rotation-replacement-dune-nizu": "2026-08-10T00:02:15-04:00"
+  },
+  "failed_nudges": {
+    "claude-lab-mira": {
+      "resume_after": "2026-07-15T14:05:00-04:00",
+      "last_failed_at": "2026-07-15T17:10:19-04:00"
+    },
+    "claude-lab-gome": {
+      "resume_after": "2026-07-18T15:15:00-04:00",
+      "last_failed_at": "2026-07-18T15:15:20-04:00"
+    },
+    "mapfinish-guru": {
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "last_failed_at": "2026-08-12T18:03:58-04:00"
+    },
+    "mapfinish-kino": {
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "last_failed_at": "2026-08-12T18:03:58-04:00"
+    },
+    "mapfinish-rafa": {
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "last_failed_at": "2026-08-12T18:03:58-04:00"
+    },
+    "mapfinish2-dove": {
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "last_failed_at": "2026-08-12T18:03:58-04:00"
+    },
+    "mapfinish2-zemi": {
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "last_failed_at": "2026-08-12T18:03:58-04:00"
+    },
+    "claude-lab-nene": {
+      "resume_after": "2026-08-10T02:12:05-04:00",
+      "last_failed_at": "2026-08-12T18:03:58-04:00"
+    }
+  },
+  "transcript_limit_events": {
+    "claude-lab-gome": "317de3781482bfedd7886a3315a992030cd334f1fe9fa35d2fc6543dfc41a4dc",
+    "claude-lab-lure": "153b0440d6aa37acf7ad8e18bce3e43a0c2ce3d3c4bd30d55e178f81df890e71"
+  },
+  "context_rotation_notifications": {
+    "claude-lab-nene": {
+      "fingerprint": "rotation_due:120000:150000",
+      "last_sent_at": "2026-08-12T17:48:55-04:00"
+    }
+  }
+}

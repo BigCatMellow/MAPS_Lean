@@ -1,0 +1,193 @@
+{
+  "experiment": "TASK-260",
+  "frozen_at": "2026-07-19T19:27:55Z",
+  "owner": "codex-lab-kiri",
+  "independent_author": "helper-index-fts-author-nuzi",
+  "author_hcom_event": 7726,
+  "retriever_sha256": "edd0b53ab6d9c480360e19f4d14d667f459fcaa3155748a9bd96e741b70cca27",
+  "retriever_tests_sha256": "58df22f41258c3cea27d48ddbf413bf1b0c9c63eead9016b58008718a677949f",
+  "harness_sha256": "65219824dc3c2d5f62b77923a0bd9cd3f6c21d3222ee9db9f3e5bcff723a83ff",
+  "harness_tests_sha256": "3d97e70c1624a714ae2620993959f7c23abf39cbc4cdca5a45aec149f2dacd0c",
+  "corpus_rule": "Completed TASK-206 through TASK-249, excluding non-completed TASK-236.",
+  "corpus_task_ids": [
+    "TASK-206", "TASK-207", "TASK-208", "TASK-209", "TASK-210",
+    "TASK-211", "TASK-212", "TASK-213", "TASK-214", "TASK-215",
+    "TASK-216", "TASK-217", "TASK-218", "TASK-219", "TASK-220",
+    "TASK-221", "TASK-222", "TASK-223", "TASK-224", "TASK-225",
+    "TASK-226", "TASK-227", "TASK-228", "TASK-229", "TASK-230",
+    "TASK-231", "TASK-232", "TASK-233", "TASK-234", "TASK-235",
+    "TASK-237", "TASK-238", "TASK-239", "TASK-240", "TASK-241",
+    "TASK-242", "TASK-243", "TASK-244", "TASK-245", "TASK-246",
+    "TASK-247", "TASK-248", "TASK-249"
+  ],
+  "retrieval_contract": {
+    "max_candidates_per_query": 6,
+    "max_sources_per_candidate": 2,
+    "max_selected_tasks_per_query": 2,
+    "max_selected_sources_per_query": 3,
+    "discovery_packet_max_estimated_tokens": 1900,
+    "delivery_mode": "one query packet at a time",
+    "helper_access": "current packet only; no truth, combined packet, generated JSON, task/source files, research, prior experiments, or repository search"
+  },
+  "queries": [
+    {
+      "id": "F1",
+      "question": "The game still had to open directly from disk while its monolithic engine was split apart. How do the extracted state and combat layers share mutable bindings and call across files, and what evidence shows the combat slice preserved behavior?",
+      "work_area": "clearfront_engine_modularity",
+      "expected_task_ids": ["TASK-212", "TASK-214"],
+      "expected_source_paths": [
+        "Projects/ClearFront/app/js/state.js",
+        "Projects/ClearFront/app/js/combat.js",
+        "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md"
+      ],
+      "expected_source_roles": ["implementation", "implementation", "test"],
+      "source_justifications": [
+        "Defines installStateModule(ctx), the getter/setter-backed mutable-state contract, CF publication, and the state-owned API.",
+        "Implements the extracted combat API against ctx.state and late-bound CF calls to the other layers.",
+        "Records the function inventory, final context contract, deterministic replay, blocking and AI coverage, undo preservation, and integrity checks."
+      ],
+      "ambiguity": "The current combat file includes the later render-module call form, but the state-sharing and combat-extraction seam asked about here was established by TASK-212 and TASK-214."
+    },
+    {
+      "id": "F2",
+      "question": "Replacing a hand card reveals hidden information. What prevents an older Undo snapshot from restoring the pre-replacement hand, while keeping normal one-step Undo, and how is that behavior covered below the DOM?",
+      "work_area": "clearfront_undo_safety",
+      "expected_task_ids": ["TASK-213", "TASK-220"],
+      "expected_source_paths": [
+        "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+        "Projects/ClearFront/tests/engine/rules.cases.mjs"
+      ],
+      "expected_source_roles": ["test", "test"],
+      "source_justifications": [
+        "Documents the clearUndo-before-replacement change and the browser regression proving ordinary Undo still works while revealed replacements cannot be reverted.",
+        "Contains deterministic engine cases for snapshot round trips, clearing an older snapshot, and play-then-replace disarming Undo."
+      ]
+    },
+    {
+      "id": "F3",
+      "question": "How does the local session-limit supervisor detect quota exhaustion in a still-live agent, reject stale or replayed evidence, persist the reset window, throttle retries, and wake the agent only when due?",
+      "work_area": "rns_limit_supervision",
+      "expected_task_ids": ["TASK-221"],
+      "expected_source_paths": [
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py",
+        "MAP_System/artifacts/tests/rns-persistent-supervisor.md"
+      ],
+      "expected_source_roles": ["implementation", "test", "outcome"],
+      "source_justifications": [
+        "Implements provider-provenance checks, bounded transcript-tail detection, event fingerprints, SQLite-first availability persistence, due-time selection, retry throttling, and nudge dispatch.",
+        "Exercises fresh-versus-stale transcript records, one-nudge-per-window behavior, due scheduling, retry throttling, and active-session fallback paths.",
+        "Summarizes the deployed 300-second user service and the focused, dry-run, stale-record, provenance, and live-service verification results."
+      ]
+    },
+    {
+      "id": "F4",
+      "question": "Which local Ollama model is allowed into the narrow advisory lane, and how are unapproved tags, remote hosts, hidden model work, and accidental Pi authority kept out?",
+      "work_area": "local_model_advisory",
+      "expected_task_ids": ["TASK-228"],
+      "expected_source_paths": [
+        "MAP_System/scripts/local_runner.py",
+        "MAP_System/tests/test_local_ollama_lane.py",
+        "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md"
+      ],
+      "expected_source_roles": ["implementation", "test", "outcome"],
+      "source_justifications": [
+        "Validates against the approved draft-model allowlist, forces the configured local host, records helper scope, and explicitly withholds task and release authority.",
+        "Checks qwen3.5:4b-only exposure, loopback enforcement despite ambient host settings, visible launcher wiring, and the absence of Pi or hidden shortcuts.",
+        "Records that no model download or hidden inference occurred, distinguishes proven from merely installed models, and defers broader reliability claims."
+      ]
+    },
+    {
+      "id": "F5",
+      "question": "Why could a visibly active manual helper disappear from capacity accounting, and what exact durable note metadata plus regression behavior makes that accounting reliable?",
+      "work_area": "helper_capacity",
+      "expected_task_ids": ["TASK-231"],
+      "expected_source_paths": [
+        "MAP_System/AGENTS.md",
+        "MAP_System/tests/test_runner_helper_notes.py"
+      ],
+      "expected_source_roles": ["guide", "test"],
+      "source_justifications": [
+        "Defines the canonical plain-bullet helper-note fields and the active values that consume capacity.",
+        "Proves scan_helper_notes counts an active manual note and excludes a completed note rather than relying on display-only prose."
+      ]
+    },
+    {
+      "id": "F6",
+      "question": "How does the operator attention UI queue unanswered requests, approval gates, and terminal prompts one at a time, preserve explicit operator action, and reflow structured Issue, Options, Recommendation, and Needed text for readability?",
+      "work_area": "command_center_attention",
+      "expected_task_ids": ["TASK-237", "TASK-240"],
+      "expected_source_paths": [
+        "MAP_System/templates/install/command-center-ui/src/chat.js",
+        "MAP_System/tests/test_command_center_attention_popup.py",
+        "MAP_System/tests/test_command_center_popup_formatting.py"
+      ],
+      "expected_source_roles": ["implementation", "test", "test"],
+      "source_justifications": [
+        "Implements keyed popup items, persisted dismiss and snooze state, one-visible-item selection, explicit reply/open actions, and structured-text formatting without automatic decisions.",
+        "Checks supported attention types, explicit controls, queue filtering, and absence of automatic approval or message sending.",
+        "Checks newline preservation, structured-field splitting, wrapping, and bounded popup rendering."
+      ]
+    },
+    {
+      "id": "F7",
+      "question": "A read-only task said not to restart services and was wrongly treated as destructive. How does pre-dispatch now distinguish a prohibition from a real destructive command without weakening the approval gate?",
+      "work_area": "pre_dispatch_safety",
+      "expected_task_ids": ["TASK-249"],
+      "expected_source_paths": [
+        "MAP_System/scripts/pre_dispatch_policy.py",
+        "MAP_System/tests/test_pre_dispatch_policy.py"
+      ],
+      "expected_source_roles": ["implementation", "test"],
+      "source_justifications": [
+        "Implements clause-bounded negation cues and uses contains_unnegated for destructive phrase detection.",
+        "Proves prohibition-only text is allowed while an imperative after a clause boundary and other unnegated destructive phrases still require approval."
+      ]
+    },
+    {
+      "id": "F8",
+      "question": "How should a repeatable MAP practice run be admitted, measured, stopped, and independently reviewed, and what did the measured kickoff exercise reveal about handoff races and deployment-source uncertainty?",
+      "work_area": "map_practice_evaluation",
+      "expected_task_ids": ["TASK-239", "TASK-233"],
+      "expected_source_paths": [
+        "MAP_System/notes/practice-scenario-runbook.md",
+        "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+      ],
+      "expected_source_roles": ["guide", "research"],
+      "source_justifications": [
+        "Defines the scenario packet, evidence routing, scorecard, authority boundaries, stop rules, independent review, and tuning loop.",
+        "Provides the measured KICK-01 execution, participant-turn and timing evidence, observed terminal/fallback race, review repair, and deployment-source admission gate."
+      ]
+    },
+    {
+      "id": "N1",
+      "question": "Where was real-time online multiplayer synchronization with reconnect support implemented for ClearFront?",
+      "work_area": "clearfront_networking",
+      "expected_task_ids": [],
+      "expected_source_paths": [],
+      "expected_source_roles": [],
+      "source_justifications": [],
+      "no_match_reason": "I checked every corpus task record from TASK-206 through TASK-235 and TASK-237 through TASK-249. ClearFront work covers bundle extraction, file-local modularization, rules and undo behavior, artwork, and tests, but no record implements a network server, multiplayer synchronization, or reconnect handling."
+    },
+    {
+      "id": "N2",
+      "question": "What implementation encrypts raw hcom transcripts at rest and automatically deletes each agent's transcript after a configurable retention period?",
+      "work_area": "transcript_security",
+      "expected_task_ids": [],
+      "expected_source_paths": [],
+      "expected_source_roles": [],
+      "source_justifications": [],
+      "no_match_reason": "I checked every corpus task record from TASK-206 through TASK-235 and TASK-237 through TASK-249. TASK-221 reads bounded local transcript tails for fresh provider-limit evidence, but no corpus task implements transcript encryption, per-agent retention settings, or automatic transcript deletion."
+    },
+    {
+      "id": "N3",
+      "question": "Where was a one-click automatic rollback mechanism implemented and tested for a failed CommandCenterUI deployment?",
+      "work_area": "command_center_deployment",
+      "expected_task_ids": [],
+      "expected_source_paths": [],
+      "expected_source_roles": [],
+      "source_justifications": [],
+      "no_match_reason": "I checked every corpus task record from TASK-206 through TASK-235 and TASK-237 through TASK-249. The corpus contains deployment-source audits and several UI changes, but none implements or tests automatic rollback of a deployed CommandCenterUI release."
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-322",
+  "title": "Release checklists: TASK-316/317/307/308 (Phase-0 authority chain, already APPROVED)",
+  "task_type": "release",
+  "role": "reviewer",
+  "status": "RETIRED",
+  "dependencies": [],
+  "owner": "claude-lab-sumi",
+  "description": "Write real, verified release checklists (not mechanical/low-risk auto-gen - all 4 classify as needing manual full checklist: 316=STRUCTURAL, 317=BLOCKING, 307/308=SECURITY) for 4 tasks stuck APPROVED since 2026-08-04, all in the map-authority/rotation-transfer chain the MAP Bedrock rotation-transfer rule depends on. Re-verify each task's acceptance criteria still hold against current code before writing the checklist - do not write a checklist from the old approval alone.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/releases/task-307-release-checklist.md",
+    "MAP_System/artifacts/releases/task-308-release-checklist.md",
+    "MAP_System/artifacts/releases/task-316-release-checklist.md",
+    "MAP_System/artifacts/releases/task-317-release-checklist.md"
+  ],
+  "acceptance_criteria": [
+    "Each of the 4 checklists is hand-verified against current code/tests, not templated",
+    "All 4 tasks reach RELEASED status via map-authority task release"
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

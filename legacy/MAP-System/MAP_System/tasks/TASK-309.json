@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-309",
+  "title": "MAP recovery Phase 2 integration epic",
+  "task_type": "recovery-epic",
+  "role": "coordinator",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "coordinator-replacement-rose",
+  "description": "Operator-authorized and independently approved recovery integration for MAP. Coordinate Biggie analysis and candidate preparation with Smalls as sole writable lifecycle authority. Enforce the kickoff change freeze and sequence WS-1 through WS-3 before WS-4 through WS-7. Approval evidence: MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System_Recovery_2026-07-29/00_control/phase2-status.md"
+  ],
+  "acceptance_criteria": [
+    "Durable phase status maps every bounded child task to owner, reviewer, authority revision, evidence, and gate outcome.",
+    "WS-1, WS-2, and WS-3 complete in order before active-core materialization, watcher cleanup, security deployment, or product proof begins.",
+    "All lifecycle mutations use map-authority against Smalls; Biggie map.db remains read-only.",
+    "No task approves its own substantive deliverable and all changes remain reversible."
+  ],
+  "decision_class": "SCOPE",
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": true,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

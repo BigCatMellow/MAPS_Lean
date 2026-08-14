@@ -1,0 +1,214 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 1
+created_at: "2026-07-28T13:56:05-04:00"
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: command-center-shutdown
+session_id: operator-shutdown-20260728T135605
+status: handing_off
+
+shutdown_reason: "Operator needs to power off the PC."
+source_of_truth:
+  task_state: MAP_System/map.db
+  task_mirrors: MAP_System/tasks/
+  coordination_log: MAP_System/events/events.jsonl
+  decisions: MAP_System/shared/decisions.md
+  this_checkpoint: MAP_System/handoffs/STATE_SNAPSHOT-command-center-shutdown-20260728T135605.yaml
+
+task_context:
+  current_task: null
+  owned_tasks: [TASK-254, TASK-292, TASK-296]
+  pending_reviews: [TASK-263, TASK-294, TASK-295]
+  recent_events:
+    - event_type: ASSIGNMENT
+      task_id: TASK-296
+      summary: "claude-lab-lili assigned docs-only DEC-035 reconciliation to mapfinish2-zemi; hcom message 21428."
+    - event_type: REVIEW_ASSIGNMENT
+      task_id: TASK-294
+      summary: "claude-lab-lili assigned independent review to mapfinish-rafa; hcom message 21440."
+    - event_type: REVIEW_ASSIGNMENT
+      task_id: TASK-295
+      summary: "claude-lab-lili assigned independent review to mapfinish-rafa; hcom message 21440."
+    - event_type: DEPENDENCY_BLOCK
+      task_id: TASK-254
+      summary: "TASK-254 must wait for the sanctioned amend-criteria verb in TASK-297; hcom message 21490."
+    - event_type: ASSIGNMENT
+      task_id: TASK-297
+      summary: "claude-lab-lili assigned implementation to mapreview-kuma; hcom message 21502."
+    - event_type: LIMIT
+      task_id: null
+      summary: "All remaining Claude sessions hit the monthly spend limit; UI reported reset near 17:41 America/New_York on 2026-07-28."
+  touched_paths:
+    - MAP_System/AGENTS.md
+    - MAP_System/notes/helper-agent-guide.md
+    - MAP_System/scripts/map_task.py
+    - MAP_System/tests/test_local_ollama_lane.py
+    - MAP_System/tests/test_map_task_retire.py
+    - MAP_System/scripts/run_tests.sh
+    - MAP_System/artifacts/planning/task291-commandcenterui-chat-feature-authorization.md
+    - MAP_System/tasks/TASK-254.json
+    - MAP_System/tasks/TASK-263.json
+    - MAP_System/tasks/TASK-292.json
+    - MAP_System/tasks/TASK-294.json
+    - MAP_System/tasks/TASK-295.json
+    - MAP_System/tasks/TASK-296.json
+    - MAP_System/tasks/TASK-297.json
+
+live_sessions_at_checkpoint:
+  - agent: claude-lab-lili
+    role: coordinator
+    session_id: d81f7b35-a3cb-4f03-9188-ab47b76ed4fa
+    state: "Monthly spend limit; coordinator summary showed 4 completed and 2 in-progress work items."
+    persistence: "hcom transcript exists and can be resumed by UUID."
+  - agent: mapreview-kuma
+    role: TASK-297 implementer
+    session_id: 949b6d21-ef13-47a0-aaa3-b1df0d2c8b5e
+    state: "Read map_task.py precedent, then stopped at the monthly spend-limit prompt before claiming/implementing TASK-297."
+    persistence: "Transcript file is missing; prefer a fresh agent using this checkpoint."
+  - agent: mapfinish2-zemi
+    role: TASK-296 implementer
+    session_id: dff64d02-7d7b-4694-a942-1c3a59b46751
+    state: "Updated Sonnet/Haiku helper-default documentation and ran the test suite; spend limit interrupted finalization."
+    persistence: "Transcript saving was disabled; prefer a fresh agent using task files and this checkpoint."
+  - agent: mapfinish-kino
+    role: TASK-292 implementer
+    session_id: 2e376ec1-253d-4514-81b2-ada989a1d5b4
+    state: "TASK-292 intentionally remains IN_PROGRESS because criterion 2 requires TASK-254 to become terminal first. TASK-294 was implemented and submitted."
+    persistence: "Transcript saving was disabled; the durable hcom report and task record contain the needed state."
+  - agent: mapfinish-guru
+    role: TASK-254 implementer
+    session_id: 0bdcae5f-c809-4bf1-a1f9-d378923225c8
+    state: "TASK-295 implemented/submitted. TASK-254 held until TASK-297 provides the sanctioned criteria-amendment verb."
+    persistence: "Transcript saving was disabled; hcom message 21490 and task records preserve the resume path."
+  - agent: mapfinish-rafa
+    role: independent reviewer for TASK-294 and TASK-295
+    session_id: c9e7913a-a018-41d4-838b-35c4354af906
+    state: "Claimed both reviews, inspected TASK-294 and ran focused/full tests, then hit the monthly spend limit before issuing verdicts."
+    persistence: "Transcript saving was disabled; restart review from the submitted task records and review guide."
+
+stopped_during_housekeeping:
+  - mapfinish2-dove
+  - task265-review-fera
+  - task288-review-valo
+  - lili-replacement-nisa
+  - pi-lab-mule
+
+active_constraints:
+  - scope: task
+    rule: "SQLite/map.db is canonical. Claim, review, submit, approve, release, and amend through sanctioned verbs; do not mutate canonical state with raw SQL."
+    source: MAP_System/AGENTS.md
+  - scope: task
+    rule: "No agent may independently review its own implementation."
+    source: MAP_System/AGENTS.md
+  - scope: tool
+    rule: "Every model-backed agent must be visible in wezterm-tab; never resume or spawn headless."
+    source: MAP_System/AGENTS.md
+  - scope: safety
+    rule: "TASK-297 requires operator/security-structural approval before dispatch; do not bypass the pre-dispatch gate."
+    source: MAP_System/tasks/TASK-297.json and graph runner output at shutdown
+  - scope: repo
+    rule: "The worktree contains extensive intentional uncommitted work from many agents. Preserve it; do not reset, clean, or overwrite unrelated paths."
+    source: git status at shutdown
+
+forward_tasks:
+  - task_id: TASK-297
+    next_action: ask_operator
+    owner: mapreview-kuma
+    reason: "READY but policy-gated for operator/security-structural approval. After approval, a fresh eligible implementer should build the sanctioned amend-criteria verb from TASK-293 precedent."
+    paths:
+      - MAP_System/tasks/TASK-297.json
+      - MAP_System/db/claims.py
+      - MAP_System/scripts/map_task.py
+  - task_id: TASK-296
+    next_action: continue
+    owner: mapfinish2-zemi
+    reason: "Docs were edited and tests were run, but the spend limit interrupted final verification/submission. Inspect current diff against DEC-035, rerun focused checks, then submit if criteria are met."
+    paths:
+      - MAP_System/tasks/TASK-296.json
+      - MAP_System/shared/decisions.md
+      - MAP_System/AGENTS.md
+      - MAP_System/notes/helper-agent-guide.md
+  - task_id: TASK-294
+    next_action: review
+    owner: mapfinish-rafa
+    reason: "SUBMITTED. Independent review began but no verdict was issued before the spend limit."
+    paths:
+      - MAP_System/tasks/TASK-294.json
+      - MAP_System/tests/test_local_ollama_lane.py
+      - MAP_System/notes/review-guide.md
+  - task_id: TASK-295
+    next_action: review
+    owner: mapfinish-rafa
+    reason: "SUBMITTED. Independently exercise the retire verb guardrails, verify lifecycle enumeration, and issue a sanctioned verdict."
+    paths:
+      - MAP_System/tasks/TASK-295.json
+      - MAP_System/scripts/map_task.py
+      - MAP_System/tests/test_map_task_retire.py
+      - MAP_System/artifacts/tests/task295-retire-verb-delivery-note.md
+  - task_id: TASK-263
+    next_action: review
+    owner: null
+    reason: "SUBMITTED and present in the graph review queue. Assign an eligible reviewer who did not implement the experiment."
+    paths:
+      - MAP_System/tasks/TASK-263.json
+      - MAP_System/notes/review-guide.md
+  - task_id: TASK-254
+    next_action: wait
+    owner: mapfinish-guru
+    reason: "IN_PROGRESS at attempt 4/4. Wait for TASK-297 approval and implementation; then amend criterion 4 with DEC-034 as authority, preserving old text in the event, and resubmit."
+    paths:
+      - MAP_System/tasks/TASK-254.json
+      - MAP_System/shared/decisions.md
+      - MAP_System/artifacts/planning/command-center-ui-serial-batch-reconciliation-2026-07-19.md
+  - task_id: TASK-292
+    next_action: wait
+    owner: mapfinish-kino
+    reason: "IN_PROGRESS. DEC-034 authorized Path A, but ownership transfer/output-path additions must wait until TASK-254 is terminal. Afterward add paths, reverify parity/syntax/tests, and submit."
+    paths:
+      - MAP_System/tasks/TASK-292.json
+      - MAP_System/artifacts/planning/task291-commandcenterui-chat-feature-authorization.md
+
+blockers:
+  - kind: approval
+    detail: "TASK-297 is policy-gated and requires operator plus security-structural approval."
+    unblock_by: "Record/confirm the required approval through the normal command-center gate."
+  - kind: dependency
+    detail: "TASK-254 cannot correctly amend criterion 4 until TASK-297 supplies the sanctioned verb."
+    unblock_by: "Approve, implement, and independently review TASK-297."
+  - kind: dependency
+    detail: "TASK-292 cannot take ownership of CommandCenterUI paths until TASK-254 is terminal."
+    unblock_by: "Complete TASK-254, then perform TASK-292 criterion 2."
+  - kind: tool_failure
+    detail: "Claude monthly spend limit paused all six remaining sessions."
+    unblock_by: "Resume after the account limit resets, or route fresh work to another available provider."
+  - kind: missing_context
+    detail: "Five child Claude sessions have no saved transcript because CLAUDE_CODE_CHILD_SESSION disabled persistence."
+    unblock_by: "Start fresh visible agents and give them this checkpoint plus the relevant task records."
+
+lexicon:
+  MAP: "The file- and SQLite-backed multi-agent project operating system."
+  hcom: "The local coordination and visible-terminal agent manager."
+  HPOM: "The task authority and review/release process enforced by MAP."
+  STATE_SNAPSHOT: "Durable YAML handoff used to reconstruct work after shutdown or session loss."
+  DEC-034: "Operator authority for the CommandCenterUI frontend feature and TASK-254 criterion correction."
+  DEC-035: "Operator-directed Sonnet plus auto-permission default; Haiku remains an explicit narrow-work override."
+
+resume_commands:
+  - "cd /home/mellow/Projects/MultiAgentProject/Source"
+  - "sed -n '1,260p' MAP_System/handoffs/STATE_SNAPSHOT-command-center-shutdown-20260728T135605.yaml"
+  - "MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate"
+  - "MAP_System/.venv/bin/python MAP_System/graph/runner.py"
+  - "hcom list -v"
+  - "hcom r d81f7b35-a3cb-4f03-9188-ab47b76ed4fa --terminal wezterm-tab --go"
+
+restart_guidance:
+  - "Start the AI Command Center Lab normally."
+  - "Resume claude-lab-lili by UUID if possible; it is the only remaining session with a readable hcom transcript."
+  - "For kuma, zemi, kino, guru, and rafa, prefer fresh visible agents because their transcript files are absent."
+  - "Give every fresh agent this checkpoint and exactly one relevant TASK-NNN.json file."
+  - "Run the graph runner before dispatch. Do not infer authority from which tabs happen to reopen."
+
+validation:
+  - "YAML parses with yaml.safe_load."
+  - "Task states were read directly from MAP_System/map.db at 2026-07-28T13:56:05-04:00."
+  - "All six live hcom names and session IDs were copied from hcom list --json."
+  - "The resume plan is independent of missing child-session transcripts."

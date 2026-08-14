@@ -1,0 +1,121 @@
+version: 1
+roles:
+  shaper:
+    mission: Turn an approved problem into a bounded, executable task shape.
+    owns: [scope, dependencies, acceptance_criteria]
+    may: [draft_tasks, clarify_boundaries, propose_architecture]
+    must: [record_inputs_and_outputs, surface_risks]
+    must_not: [claim_delivery_work, approve_own_work, rewrite_history]
+    required_input: [approved_problem, canonical_requirements]
+    required_output: [task_record, acceptance_criteria]
+    escalate: [scope_conflict, missing_approval, structural_risk]
+    complete_when: Task shape is reviewable, bounded, and dependency-linked.
+  scout:
+    mission: Locate relevant evidence, constraints, and prior art.
+    owns: [evidence_map, source_provenance]
+    may: [search, compare, summarize]
+    must: [cite_sources, distinguish_fact_from_inference]
+    must_not: [make_implementation_changes, approve_delivery]
+    required_input: [question, search_scope]
+    required_output: [evidence_note, source_links]
+    escalate: [missing_source, contradictory_evidence]
+    complete_when: Sufficient traceable evidence answers the bounded question.
+  delivery-implementer:
+    mission: Implement approved behavior within registered outputs.
+    owns: [implementation, focused_tests, delivery_note]
+    may: [edit_registered_outputs, run_validators, submit_task]
+    must: [preserve_compatibility, test_changes, report_residual_risk]
+    must_not: [expand_scope, self_review, alter_historical_records]
+    required_input: [claimed_ready_task, approved_requirements]
+    required_output: [registered_artifacts, test_evidence, submission]
+    escalate: [collision, missing_dependency, destructive_change]
+    complete_when: Registered outputs pass validation and are submitted for independent review.
+  independent-reviewer:
+    mission: Assess submitted work independently against acceptance criteria.
+    owns: [review_verdict, review_evidence]
+    may: [inspect, test, approve, request_changes]
+    must: [verify_scope, check_no_self_review, record_findings]
+    must_not: [review_own_delivery, silently_fix_implementation]
+    required_input: [submitted_artifacts, acceptance_criteria]
+    required_output: [review_artifact, sanctioned_verdict]
+    escalate: [independence_conflict, unverifiable_evidence]
+    complete_when: Evidence-backed verdict is recorded by a non-author.
+  state-steward:
+    mission: Keep canonical state, mirrors, leases, and lifecycle transitions coherent.
+    owns: [canonical_state, mirrors, leases]
+    may: [reconcile, validate, record_events]
+    must: [preserve_audit_trail, use_sanctioned_transitions]
+    must_not: [rewrite_history, bypass_claims, approve_own_work]
+    required_input: [canonical_state, transition_request]
+    required_output: [validated_state, event_record]
+    escalate: [drift, stale_lease, ledger_conflict]
+    complete_when: Canonical state and mirrors validate with an auditable transition.
+  researcher:
+    mission: Produce bounded research that informs an approved decision.
+    owns: [research_question, findings, uncertainty]
+    may: [investigate, synthesize, identify_unknowns]
+    must: [bound_search, cite_evidence, label_inference]
+    must_not: [present_free_prose_as_lifecycle_truth, approve_delivery]
+    required_input: [research_question, source_scope]
+    required_output: [research_note, evidence_and_limits]
+    escalate: [unsafe_conclusion, unresolved_conflict]
+    complete_when: Findings are reproducible, scoped, and decision-relevant.
+  escalation-analyst:
+    mission: Analyze blockers, policy gates, and risk requiring command-center action.
+    owns: [blocker_analysis, options, recommendation]
+    may: [triage, compare_options, request_approval]
+    must: [cite_policy, state_needed_decision, preserve_scope]
+    must_not: [bypass_approval, mutate_canonical_state_unilaterally]
+    required_input: [blocked_work, policy_context]
+    required_output: [escalation_record, decision_request]
+    escalate: [structural_risk, authority_gap, safety_boundary]
+    complete_when: The correct authority has a concise evidence-backed decision request.
+
+# Explicit, case-insensitive compatibility aliases for historical free-form values.
+# Stored task JSON is never rewritten; aliases are only a read-time normalization.
+compatibility:
+  implementer: delivery-implementer
+  implementation: delivery-implementer
+  engineer: delivery-implementer
+  maintainer: delivery-implementer
+  tester: delivery-implementer
+  tooling / cross-link checker: delivery-implementer
+  commandcenterui bugfix implementer: delivery-implementer
+  commandcenterui integration implementer: delivery-implementer
+  projectupdater ui implementer: delivery-implementer
+  projectupdater feature implementer: delivery-implementer
+  claude (projectupdater implementer): delivery-implementer
+  claude (implementer, hpom tier-1): delivery-implementer
+  map process implementer: delivery-implementer
+  map process auditor and corrective implementer: delivery-implementer
+  auditor: independent-reviewer
+  reviewer: independent-reviewer
+  technical editor: independent-reviewer
+  technical_editor: independent-reviewer
+  systems_auditor: independent-reviewer
+  analyst: escalation-analyst
+  escalation-analyst: escalation-analyst
+  evidence gatherer: scout
+  scout: scout
+  researcher: researcher
+  architect: shaper
+  shaper: shaper
+  planner: shaper
+  technical lead: shaper
+  technical_lead: shaper
+  claude (architecture critique, hpom tier-1): shaper
+  claude (prose/architecture, hpom tier-1): shaper
+  coordinator: state-steward
+  coordinator / project manager: state-steward
+  core: state-steward
+  state-steward: state-steward
+  state_steward: state-steward
+  codex folder-structure cleanup steward: state-steward
+  map-maintenance: state-steward
+  release-steward: state-steward
+  documenter: researcher
+  reporter: researcher
+  illustrator: researcher
+  systems_reporter: researcher
+  worker: delivery-implementer
+  claude, acting as process steward per promo-0007/idea-0012: state-steward

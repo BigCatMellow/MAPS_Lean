@@ -1,0 +1,40 @@
+{
+  "task_id": "TASK-223",
+  "title": "Operational learning promotion loop for startup orientation",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "Implement IDEA-0022/PROMO-0011: convert incident-derived operational notes into selectively promoted, canonical, scope-matched startup guidance. Reuse E/I as the capture and promotion funnel; do not create a second task authority or load raw emergence history into every session. Active lessons need provenance, scope, status, expiry/review trigger, and supersession. Startup orientation must surface relevant active lessons automatically, with validation/tests proving retrieval and retirement.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/agents/operational-lessons.json",
+    "MAP_System/notes/command-center-lab-restart-startup.md",
+    "MAP_System/notes/operational-learning-guide.md",
+    "MAP_System/scripts/operational_lessons.py",
+    "MAP_System/templates/install/bin/ai-command-center-lab-claude",
+    "MAP_System/templates/install/bin/ai-command-center-lab-codex",
+    "MAP_System/tests/test_operational_lessons.py"
+  ],
+  "acceptance_criteria": [
+    "Defines the lifecycle from raw note/Insight through reviewed promotion to active startup guidance, including expiry, supersession, and ownership.",
+    "Provides one canonical machine-readable active-lesson source or generated view rather than duplicating AGENTS, current-state, and task authority.",
+    "Startup orientation or its existing runner surfaces active scope-matched lessons without requiring agents to search arbitrary notes.",
+    "Includes a deterministic test using the Claude-to-Codex fallback, plus stale/conflict validation and retirement behavior.",
+    "Documents migration/usage and passes focused tests, emergence validation, task graph validation, and task mirror validation."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

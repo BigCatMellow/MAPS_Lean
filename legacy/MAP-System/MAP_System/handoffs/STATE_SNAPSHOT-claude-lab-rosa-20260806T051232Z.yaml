@@ -1,0 +1,306 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-06T05:12:32Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-rosa
+session_id: e111fe80-b6dd-46b8-b201-8375e5ac0392
+status: handing_off
+task_context:
+  current_task: TASK-318
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: ACKed context rotation from claude-lab-gina, resumed TASK-318 follow-on
+      work. claude-lab-gina (superseded, but still live in hcom) later contested one
+      revert via hcom claiming it was unauthorized operator-requested work from its
+      own session; resolved by pointing out the operator gave the instruction directly
+      in this chat and the change was already verified - gina did not push back further.
+      No MAP-tracked conflict, informal.
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Iterated on the Battle tab HUD in Test Army.dc.html sandbox per operator
+      chat requests: reverted an unauthorized-feeling inline-expanded round tracker
+      back to modal interaction (ff689e5), enlarged the modal only when opened from
+      Battle tab (e6ffd9d), made the on-screen HUD score the visual focus (fa1558c),
+      restructured the HUD into a scoreboard layout - score top-center round/phase
+      below (ebb35fc), then shrunk it to a centered plaque (daad4ad), then reverted
+      to full-width with round-left/score-center/phase-two-line-right per operator
+      feedback (49378c5) - operator liked this final layout and asked to apply it
+      to ALL tabs, not just Battle (545f645). Tactics tab card header was iterated
+      3x: merged onto one line (93a08c5), operator disliked it and asked for a fix
+      -> reverted to multi-row but tightened/desaturated the pill styling (e9f1a86),
+      then bumped pill font back from 10px to 11px for legibility (859af85).'
+  - event_type: SUBMISSION
+    task_id: TASK-318
+    summary: 'Operator explicitly asked to "push this to the live version." Confirmed
+      via AskUserQuestion that scope = Terran AND Zerg AND Protoss (all three faction
+      Army.dc.html files), not just Terran. Ported the entire Battle tab feature +
+      HUD/scoreboard rework + Tactics pill styling from the Test Army.dc.html sandbox
+      into all three real faction files. Method: for Terran (Test Army''s direct origin),
+      did a straight copy + 5-line naming substitution (banner text, title, 3 localStorage
+      keys) since the only diff between old-Terran and Test was those 5 lines plus
+      the new features - verified via diff before committing (95a2dd1). For Zerg/Protoss,
+      generated a unified diff of (old Terran -> new Terran), color-substituted it
+      per faction''s own theme variables (confirmed via each file''s --fc-primary-*
+      CSS custom properties and existing button examples, e.g. Terran rgba(98,169,247,*)/#62a9f7/#bcd9fd
+      -> Zerg rgba(176,110,247,*)/#b06ef7/#d9bafc, Protoss rgba(242,200,96,*)/#f2c860/#fae9c0),
+      applied with `patch --fuzz`, then manually fixed the one hunk that failed (tabDefs
+      array) because Zerg/Protoss use their own faction-tab labels (Brood/Nexus, not
+      Command) which weren''t part of the color-substitutable diff (8190f29). All
+      three verified end-to-end in-browser (real roster data, Battle tab model-loss/deploy-supply
+      tracking, Tactics tab pills) before committing.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Operator asked to reorganize the bottom nav tabs for better logical
+      flow. Asked a clarifying AskUserQuestion with 2 concrete orderings; operator
+      picked "Command, Library, Tactics, Roster, Battle, Codex" (build-then-play sequence:
+      pick faction -> add units -> add cards -> review roster -> play -> reference).
+      Applied via scripted find/replace of the tabDefs array (both the array itself
+      and the isRoster/isBattle/... flag list right below it) across Terran, Zerg,
+      Protoss, AND Test Army.dc.html for consistency (96af1a9). Verified in-browser
+      on Terran: nav order correct, default landing tab (Roster content) unchanged,
+      Command tab (now first) renders correctly.'
+  - event_type: BLOCKED
+    task_id: TASK-318
+    summary: 'Not blocked, but tangential: operator asked a Claude Code CLI question
+      (CLAUDE_CODE_FORCE_SESSION_PERSISTENCE) unrelated to TASK-318. Delegated to
+      claude-code-guide subagent first; its answer was vague/unverified so it was
+      cross-checked directly via WebSearch + WebFetch of the official docs (code.claude.com/docs/en/env-vars
+      and /data-usage). Confirmed real and narrow: only affects nested child claude
+      TUI sessions (CLAUDE_CODE_CHILD_SESSION=1) which are otherwise excluded from
+      --resume/--continue/history/agents-list. Initially told the operator this would
+      be a no-op for MAP rotations since the hcom binary (checked via `strings`) never
+      sets that env var itself. This was WRONG - operator later showed a runtime warning,
+      and `env | grep CLAUDE_CODE_CHILD_SESSION` in this actual live session confirmed
+      CLAUDE_CODE_CHILD_SESSION=1 IS set here (inherited through the hcom --terminal
+      wezterm-tab spawn chain by some mechanism not fully understood - corrected the
+      operator on this). Fix applied: added `CLAUDE_CODE_FORCE_SESSION_PERSISTENCE:
+      "1"` to the `env` block and `cleanupPeriodDays: 36500` at the top level of ~/.claude/settings.json
+      (global, not project-scoped) - the 36500 avoids a known upstream bug where `cleanupPeriodDays:
+      0` disables persistence entirely instead of meaning "never clean up". Documented
+      in MAP_System/AGENTS.md right after the rotation-order section: this is handled
+      globally via settings.json, no manual step needed at rotation time. Takes effect
+      on new sessions only (does not fix this already-running session).'
+  touched_paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design (all
+    work; see git log be1e49e..HEAD in that repo for the full diff, 27 commits as
+    of this snapshot, newest 96af1a9)
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html (sandbox, still the most-iterated file; kept in sync with the nav
+    reorder but Battle-tab prototyping historically happens here first)
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html (live; Battle tab + HUD rework + nav reorder all merged and verified)
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html (live; same, own purple theme + Brood Card + sctmg_zerg_v5 preserved)
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html (live; same, own gold theme + Nexus Card + sctmg_protoss_v1 preserved)
+  - /home/mellow/.claude/settings.json (global, outside any git repo - added CLAUDE_CODE_FORCE_SESSION_PERSISTENCE
+    and cleanupPeriodDays; not tracked by any of this project's repos)
+  - MAP_System/AGENTS.md (added a note after the rotation-order section documenting
+    the settings.json fix, this workspace's repo)
+  - MAP_System/events/events.jsonl (PROGRESS/SUBMISSION/BLOCKED entries for TASK-318,
+    this workspace's repo)
+active_constraints:
+- scope: task
+  rule: TASK-318's output_path is entirely outside this git repo, at "/home/mellow/Documents/Projects/StarCraftCA/StarCraft
+    RPG Companion Design". All read/write file work for this task happens there, not
+    under MAP_System/ or Projects/. That folder has its own local (non-global) git
+    identity and a baseline commit be1e49e - diff against that commit to see the full
+    session's changes.
+  source: inherited from claude-lab-gina's snapshot, still true
+- scope: task
+  rule: TASK-318 shows SUBMITTED in MAP's canonical task state with owner=claude-lab-gina
+    in the local task JSON mirror, but the real work has continued informally in direct
+    operator chat across at least two agent identities (gina, then rosa) with no new
+    MAP claim opened. MAP's task tracking does not reflect the real state of the work.
+    Next session should keep treating this as informal direct-chat iteration outside
+    MAP unless the operator says otherwise - do not re-claim or re-submit TASK-318,
+    it would not add information.
+  source: inherited, still true
+- scope: tool
+  rule: 'This host is confirmed read-only for MAP lifecycle writes: map_task.py show
+    (and presumably other mutating/show commands) now raise RemoteAuthorityRequired
+    pointing to map-authority on 100.127.80.108. Read task state via the local JSON
+    mirrors in MAP_System/tasks/*.json instead of map_task.py show.'
+  source: this session, re-confirmed
+- scope: tool
+  rule: MAP mirror sync (map_authority.py sync) was reported failing in the inherited
+    snapshot (map-rns-watcher.service must be disabled first) - not touched or re-verified
+    this session. Local task JSON/task_graph.json mirrors may still be stale.
+  source: inherited from claude-lab-gina's snapshot, not re-verified
+- scope: repo
+  rule: Prior orientation thread (36-item emergence backlog triage) is still explicitly
+    on hold per operator instruction carried forward across multiple snapshots. Do
+    not resume it until the operator raises it again.
+  source: operator instruction, carried forward from earlier snapshots
+- scope: tool
+  rule: CLAUDE_CODE_CHILD_SESSION=1 is set in this live session's own environment
+    (confirmed via `env` directly, not inferred) despite the hcom binary itself never
+    referencing that variable in its strings table. Root cause of the inheritance
+    is unconfirmed - do not assume it is fixed for the replacement session just because
+    settings.json now sets CLAUDE_CODE_FORCE_SESSION_PERSISTENCE; verify with `env
+    | grep CLAUDE_CODE` after rotation if transcript/resume behavior matters.
+  source: this session
+active_constraints_note: TASK-318's original 5 acceptance criteria (CSS centralization)
+  were already DONE/SUBMITTED before this session started (see claude-lab-gina's prior
+  snapshot). Everything in this snapshot is further informal operator-directed follow-on
+  work with no formal acceptance criteria of its own - the Battle tab feature and
+  HUD rework are now considered done and live across all three factions, not just
+  prototyped.
+forward_tasks:
+- task_id: TASK-318
+  next_action: continue
+  owner: claude-lab-rosa
+  reason: 'Battle tab + HUD scoreboard rework + Tactics pill styling + nav tab reorder
+    are all now live on Terran/Zerg/Protoss (and mirrored in the Test Army sandbox).
+    No specific next step is queued - wait for the operator''s next request in chat.
+    Plausible directions already hinted at in earlier snapshots and not yet revisited:
+    ability/status-effect tracking on the Battle tab (explicitly deferred as a bigger
+    design question), or the operator may just keep iterating on visual polish as
+    they play-test.'
+  paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html
+blockers: []
+lexicon:
+  StarCraftCA / SCTMG / "StarCraft RPG Companion Design": The operator's personal,
+    non-MAP creative project - a tabletop-game companion web app (plain .dc.html component
+    files + a small Node build pipeline that regenerates *-data.js from uploads/*.html
+    rules/unit source). Lives entirely outside this git repo at /home/mellow/Documents/Projects/StarCraftCA/.
+  .dc.html: This project's own single-file component convention - each top-level screen
+    is one file using <dc-import> to embed sub-components like UnitDetail.
+  Test Army.dc.html: A sandbox copy of Terran Army.dc.html with its own isolated localStorage
+    keys (sctmg_test_v1, sctmg_play_test) so it can be broken freely without touching
+    the real Terran roster or the shared round tracker. Header reads 'Sandbox - Not
+    Live Data'. Historically where Battle-tab prototyping happens first, now kept
+    in sync with the live faction files for nav-structure consistency (e.g. the tab
+    reorder).
+  Battle tab: Live on all three faction Army.dc.html files (and Test). Tracks live-game
+    state on top of the roster - per-unit model losses (with automatic tier-bracket/supply
+    recalculation as a unit shrinks), a Deployed/In-Reserves toggle per unit gated
+    against a manually-steppered Deployment Supply pool, and a Tapped/Ready toggle
+    for equipped tactical cards.
+  HUD scoreboard: The tap-to-open round/phase/VP bar at the top of every tab, now
+    on every tab, not just Battle. Round on the left, big VP score centered, Phase
+    as a two-line label+name stack on the right, full width matching other cards.
+    Tapping it still opens the same bottom-sheet Round Tracker modal as before; that
+    modal itself renders with bigger controls only when opened from the Battle tab.
+  Nav tab order: Command/Brood/Nexus, Library, Tactics, Roster, Battle, Codex - follows
+    the build-then-play sequence. Changed from the original Roster, Battle, Library,
+    Tactics, Command, Codex order this session. Default landing tab is still 'roster'
+    in app state regardless of nav position.
+  dev server: python3 -m http.server 8934, served from inside the external project
+    folder. Confirmed running at end of this session.
+  TASK-318: The MAP task that originally scoped the CSS-consolidation work; all 5
+    original acceptance criteria are DONE/SUBMITTED. Everything since (including this
+    entire session) is informal follow-on work under the same hcom hand-off chain,
+    not a new formal task.
+resume_commands:
+- 'curl -sf http://localhost:8934/ >/dev/null && echo "dev server still up" || echo
+  "restart: cd ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion
+  Design'' && python3 -m http.server 8934"'
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git log --oneline be1e49e..HEAD
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git status --short
+- env | grep -i CLAUDE_CODE_CHILD_SESSION
+validation:
+- git log in the external repo shows 27 commits on top of baseline be1e49e as of this
+  snapshot (newest 96af1a9), working tree clean (verified via git status --short at
+  snapshot time).
+- Dev server confirmed responding on :8934 at snapshot time.
+- Battle tab, HUD scoreboard layout, Tactics pill styling, and nav tab reorder each
+  manually tested in-browser via claude-in-chrome on the live Terran/Zerg/Protoss
+  files (not just Test Army.dc.html) - screenshots taken before every commit.
+- ~/.claude/settings.json validated as parseable JSON after edits (python3 -m json.tool).
+- TASK-318 confirmed status=SUBMITTED, owner=claude-lab-gina in the local task JSON
+  mirror (MAP_System/tasks/TASK-318.json) - stale (mirror sync still broken per inherited
+  constraint), reflects gina's last successful sync, not this session's identity;
+  intentionally not re-claimed (see active_constraints_note).
+rotation:
+  reason: threshold_exceeded
+  summary: 'Automated advisory from limit_watcher: current estimate 335293 tokens
+    against soft=120000 / rotate=150000 thresholds - roughly 2.2x the rotation threshold.
+    Finished the in-flight tab-reorder task (small, already committed) before starting
+    this snapshot rather than dropping it mid-edit; no destructive or half-applied
+    edits in flight - every commit this session was individually verified in-browser
+    and committed before moving to the next change.'
+  next_action: Wait for the operator's next request. If they don't have one ready,
+    a reasonable default is to ask whether the Battle tab is ready for real play-testing
+    or if more visual iteration is expected, and whether ability/status-effect tracking
+    (deferred in earlier snapshots) is worth tackling.
+  used_tokens: 335293
+  threshold_tokens: 150000
+  metric_source: limit_watcher_automated_advisory
+integrity:
+  prepared_at: '2026-08-06T05:12:32Z'
+  canonical_tasks:
+  - task_id: TASK-318
+    status: SUBMITTED
+    owner: claude-lab-gina
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-05 18:50:39'
+  canonical_tasks_sha256: a9bd814dc3ad8558e1975f31366f8d01bda2ce6fcb252baa9814e6258ee7f68f
+  touched_paths:
+  - path: /home/mellow/.claude/settings.json (global, outside any git repo - added
+      CLAUDE_CODE_FORCE_SESSION_PERSISTENCE and cleanupPeriodDays; not tracked by
+      any of this project's repos)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design
+      (all work; see git log be1e49e..HEAD in that repo for the full diff, 27 commits
+      as of this snapshot, newest 96af1a9)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+      Army.dc.html (live; same, own gold theme + Nexus Card + sctmg_protoss_v1 preserved)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+      Army.dc.html (live; Battle tab + HUD rework + nav reorder all merged and verified)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+      Army.dc.html (sandbox, still the most-iterated file; kept in sync with the nav
+      reorder but Battle-tab prototyping historically happens here first)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+      Army.dc.html (live; same, own purple theme + Brood Card + sctmg_zerg_v5 preserved)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: MAP_System/AGENTS.md (added a note after the rotation-order section documenting
+      the settings.json fix, this workspace's repo)
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  - path: MAP_System/events/events.jsonl (PROGRESS/SUBMISSION/BLOCKED entries for
+      TASK-318, this workspace's repo)
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  touched_paths_sha256: 6e8edf57dc07d375b4b3ab347b2fff12b20a4c4730097f65249de3b3fbf75ffe

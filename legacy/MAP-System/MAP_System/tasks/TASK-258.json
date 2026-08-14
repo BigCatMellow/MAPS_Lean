@@ -1,0 +1,43 @@
+{
+  "task_id": "TASK-258",
+  "title": "Test source-level fingerprints and compound-query retrieval",
+  "task_type": "experiment",
+  "role": "researcher",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Third durable-memory indexing experiment following TASK-257. Freeze a generic implementation that derives bounded source-level fingerprints from registered evidence, composes diverse evidence slots, and decomposes compound questions before any new truth set is authored. Run the known TASK-257 questions only as a labeled development regression, then use one fresh visible read-only helper to author a new older-corpus holdout including at least one valid no-match query and a different fresh visible helper to evaluate one compact packet at a time. Measure task/source precision and recall, no-match handling, context, latency, path health, and scope. Do not integrate into startup, routing, Command Center, or external services.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task-fingerprint-source-holdout-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-fingerprint-source-holdout-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-fingerprint-source-holdout-helper-packet-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-fingerprint-source-holdout-packets-2026-07-19/",
+    "MAP_System/artifacts/experiments/task-fingerprint-source-holdout-queries-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-fingerprint-source-regression-2026-07-19.json",
+    "MAP_System/artifacts/research/SUMMARY-map-durable-memory-retrieval-2026-07-19.md",
+    "MAP_System/inbox/helpers/helper-index-source-author-2026-07-19.md",
+    "MAP_System/inbox/helpers/helper-index-source-evaluator-2026-07-19.md",
+    "MAP_System/scripts/task_fingerprint_source_holdout.py",
+    "MAP_System/tests/test_task_fingerprint_source_holdout.py"
+  ],
+  "acceptance_criteria": [
+    "The retrieval implementation is frozen before the independent author produces the new truth set, and the known TASK-257 questions are clearly labeled development regression rather than holdout evidence.",
+    "Every registered source receives a deterministic bounded content-derived fingerprint with evidence role, task linkage, path health, and no owner-authored semantic answer fields; packet evidence selection enforces role diversity.",
+    "Compound-query decomposition is deterministic and bounded, and the fresh holdout contains at least one legitimate no-match question with explicit abstention scoring.",
+    "A fresh visible read-only author and a different fresh visible read-only evaluator stay within compact-packet scopes; the final report compares regression and fresh-holdout task/source metrics, context, latency, path health, and limitations without making an integration claim."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

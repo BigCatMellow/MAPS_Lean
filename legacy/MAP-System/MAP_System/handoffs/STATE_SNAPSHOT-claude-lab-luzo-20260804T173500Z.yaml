@@ -1,0 +1,195 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-04T17:35:00Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-luzo
+status: handing_off
+role: MAP coordinator. Operator explicitly requested this handoff (not a forced rotation, though context
+  is also genuinely exhausted at 733k tokens) specifically so THEY can personally instruct the next session
+  on how to approach the emergence/insight triage backlog below. Do not start autonomously triaging the
+  backlog -- wait for the operator's direction on approach, priorities, and how much autonomy to use,
+  same as they did for this handoff itself.
+task_context:
+  current_task: TASK-309
+  owned_tasks:
+  - TASK-309
+  pending_reviews: []
+  recent_events:
+  - event_type: SESSION_SUMMARY_PART1_MAP_RECOVERY
+    task_id: TASK-316/317
+    summary: 'This was a very long, highly productive session. Part 1 (MAP recovery): found and fixed
+      the STALE_AUTHORITY incident at its root (map-rns-watcher.service vs map-authority-mirror.service
+      conflict) -- TASK-316 (narrowed writer-service check + TOCTOU fix) and TASK-317 (missing describe
+      verb) both implemented, independently reviewed (zinu), deployed to Smalls with checksum verification,
+      formally APPROVED. Also found and merged a second stranded fix along the way: TASK-297''s amend-criteria
+      verb (already approved in lifecycle, code never committed) -- merged cleanly, added to ALLOWED_TASK_VERBS
+      which was also missing. TASK-309''s own missing phase2-status.md regenerated from current task state.'
+  - event_type: SESSION_SUMMARY_PART2_CROSS_HOST
+    task_id: null
+    summary: 'Part 2 (cross-host infrastructure, per operator''s explicit "we need smalls working" / "you
+      need to be able to reach smalls" direction): established real bidirectional SSH (Biggie<->Smalls,
+      restrict,pty keys both directions -- previously only a narrow forced-command gateway key existed
+      one-way). Built and deployed map-code-sync.timer on both boxes (fast-forward-only git pull every
+      5min) so reviewed fixes stop getting stranded on one checkout -- this directly enabled the TASK-316/317
+      deployment and later work. Discovered and fixed a real branch-divergence risk: Biggie was on agent/biggie-smalls-convergence,
+      Smalls was on main (only synced once by hand) -- unified both onto agent/biggie-smalls-convergence
+      properly (widened Smalls'' fetch refspec, created the local tracking branch, switched). Tried and
+      cleanly tore down a self-hosted local MQTT broker for hcom relay (dead end: hcom''s client hardcodes
+      trust to real public CAs only, ignores OS trust store even when the custom CA is properly installed
+      system-wide -- do not retry this approach without a real domain+cert).'
+  - event_type: SESSION_SUMMARY_PART3_UX_AND_NOTES
+    task_id: null
+    summary: 'Part 3 (operator-requested UX changes): changed the 8 "Command Center Lab" launcher scripts
+      (~/.local/bin/ai-command-center-lab*) so new agent sessions land at /home/mellow instead of the
+      project folder -- operator wants the lab not limited to one project. Each launcher''s bootstrap
+      prompt now opens with an explicit "cd Projects/MultiAgentProject/Source first" instruction so orientation
+      still works; infra scripts that only look up files (map-authority, langgraph-run, project-updater,
+      etc.) were deliberately left pointed at the real repo path, only the 8 interactive-session launchers
+      changed. Built a Biggie<->Smalls notes system per operator request: MAP_System/notes/{biggie-to-smalls,smalls-to-biggie}.md
+      (two separate files, one per direction, so no merge conflicts) plus a map-note "message" helper
+      script (installed both boxes) that appends+commits+pulls+pushes in one step -- verified working
+      round-trip both directions.'
+  - event_type: SESSION_SUMMARY_PART4_EI_TRIAGE_STARTED
+    task_id: null
+    summary: 'Part 4 (this handoff''s reason): ran the E/I (emergence_sentinel.py) scan + triage (map_emergence.py
+      stale/coverage) protocol on both boxes per operator request. Found and fixed two things along the
+      way: (1) a real bug -- repeated_rework signal''s evidence_refs line numbers don''t match their claimed
+      events at all (verified by direct search), captured as INS-0061; (2) stranded work -- codex-lab-vumo
+      had already correctly curated the two candidates that surfaced this bug, three days ago, but it
+      sat uncommitted on Smalls; restored vumo''s original correct resolutions (TASK-294->INS-0060, TASK-310->merged
+      into INS-0058/059) rather than letting my redo overwrite them. Both boxes now show identical, fully-synced
+      emergence state. The real finding: 36 of 60 open emergence records (insights/ideas/experiments/syntheses)
+      have gone unreviewed for 14+ days, oldest 31 days -- full list below. Operator wants to work on
+      this backlog next, but explicitly wants to personally instruct the approach rather than have it
+      done autonomously -- that''s why this handoff exists now instead of continuing straight through.'
+  touched_paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/map_task.py
+  - MAP_System/db/claims.py
+  - MAP_System/emergence/insights/INS-0060-security-property-tests-should-assert-executed-behavior-not-sour.md
+  - MAP_System/emergence/insights/INS-0061-emergence-sentinel-py-s-repeated-rework-signal-records-evidence-.md
+  - MAP_System/notes/biggie-to-smalls.md
+  - MAP_System/notes/smalls-to-biggie.md
+  - ~/.local/bin/map-note (both boxes)
+  - ~/.local/bin/ai-command-center-lab* (8 launcher scripts, Biggie)
+  - ~/.local/bin/map-code-sync + systemd units (both boxes)
+  - ~/.ssh/config, ~/.ssh/authorized_keys, ~/.ssh/id_ed25519_map_peer_biggie (Biggie)
+active_constraints:
+- scope: wait-for-operator-on-backlog
+  rule: The 36-item emergence backlog (full list below, under forward_tasks) is the explicit reason for
+    this handoff. Do NOT start triaging it autonomously. The operator said "make a new handoff and I will
+    instruct it from there" -- wait for their specific direction on approach (e.g., oldest-first? by kind?
+    by owner? bulk-dismiss vs individually-judged? how much autonomy to use per item) before touching
+    any of these records.
+  source: this session, direct operator instruction
+- scope: emergence-governance
+  rule: 'Core principle from MAP_System/emergence/README.md: "Ideas are allowed to emerge freely. Only
+    promoted ideas are allowed to change the project. An agent may notice and capture an idea. An agent
+    may not silently redirect the project because of that idea." Triaging this backlog means reviewing/updating
+    status and deciding ignore/park/task/idea/experiment/escalate-human per record -- it does NOT mean
+    unilaterally promoting ideas into tasks or changing project direction without going through the proper
+    promotion path (see IDEA_PROMOTION_RULES.md).'
+  source: MAP_System/emergence/README.md
+- scope: branch-and-sync-now-solid
+  rule: Both boxes are on the same branch (agent/biggie-smalls-convergence), same commit, with working
+    bidirectional code-sync timers (5min, fast-forward-only). If a sync fails, check for untracked/modified
+    files colliding with the incoming commit (has happened repeatedly -- files copied directly via scp
+    during earlier manual deployments, or Smalls' own regenerated task/state JSON) -- verify content matches
+    origin before clearing, don't assume.
+  source: this session
+forward_tasks:
+- task_id: (emergence backlog triage)
+  next_action: WAIT for operator's specific instruction on approach before starting. Full overdue list
+    (36 records) below in this entry's 'paths' field for reference.
+  owner: unassigned, awaiting operator direction
+  reason: This is what the operator wants to work on next, personally directing it.
+  paths:
+  - 'INS-0017 (insight, status=LINKED, owner=claude-lab-lori, 31d unreviewed): emergence/insights/INS-0017-turn-by-turn-self-audited-card-game-simulation-naming-every-card.md'
+  - 'INS-0018 (insight, status=LINKED, owner=claude-lab-lori, 31d unreviewed): emergence/insights/INS-0018-when-a-rules-heavy-generative-task-hits-a-genuinely-ambiguous-so.md'
+  - 'INS-0019 (insight, status=LINKED, owner=claude-lab-fimo, 30d unreviewed): emergence/insights/INS-0019-a-100-line-domain-validator-written-at-the-start-of-a-generative.md'
+  - 'INS-0020 (insight, status=LINKED, owner=claude-lab-fimo, 29d unreviewed): emergence/insights/INS-0020-when-a-derived-dataset-looks-ambiguous-one-targeted-check-of-the.md'
+  - 'INS-0022 (insight, status=RAW, owner=gune, 20d unreviewed): emergence/insights/INS-0022-obs-map-is-a-supervisor-durable-blackboard-swarm-handoff-hybrid-.md'
+  - 'INS-0023 (insight, status=RAW, owner=gune, 20d unreviewed): emergence/insights/INS-0023-obs-map-keeps-building-inward-infrastructure-without-a-working-b.md'
+  - 'IDEA-0018 (idea, status=CANDIDATE, owner=gune, 20d unreviewed): emergence/ideas/IDEA-0018-adopt-a-three-layer-eval-discipline-1-unit-evals-on-discrete-gat.md'
+  - 'IDEA-0020 (idea, status=CANDIDATE, owner=gune, 20d unreviewed): emergence/ideas/IDEA-0020-two-pizza-ownership-metrics-give-each-agent-lane-a-well-defined-.md'
+  - 'INS-0024 (insight, status=RAW, owner=claude-lab-gome, 19d unreviewed): emergence/insights/INS-0024-cdp-parity-gate-for-html-refactors.md'
+  - 'INS-0025 (insight, status=RAW, owner=claude-lab-gome, 18d unreviewed): emergence/insights/INS-0025-undo-reveals-hidden-info-in-replacement.md'
+  - 'INS-0026 (insight, status=RAW, owner=claude-lab-gome, 18d unreviewed): emergence/insights/INS-0026-decomposition-yields-free-headless-engine-seam.md'
+  - 'INS-0027 (insight, status=CLARIFIED, owner=codex-lab-lilo, 18d unreviewed): emergence/insights/INS-0027-operational-notes-are-durable-but-not-automatically-promoted-int.md'
+  - 'INS-0028 (insight, status=CLARIFIED, owner=codex-lab-lilo, 18d unreviewed): emergence/insights/INS-0028-a-useful-discovery-agent-is-a-visible-bounded-semantic-interpret.md'
+  - 'IDEA-0022 (idea, status=PROMISING, owner=codex-lab-lilo, 18d unreviewed): emergence/ideas/IDEA-0022-add-an-operational-learning-promotion-loop-from-e-i-into-canonic.md'
+  - 'EXP-0002 (experiment, status=PROPOSED, owner=codex-lab-lilo, 18d unreviewed): emergence/experiments/EXP-0002-pilot-a-local-e-i-sentinel-with-bounded-core-agent-curation.md'
+  - 'INS-0029 (insight, status=RAW, owner=claude-lab-gome, 17d unreviewed): emergence/insights/INS-0029-rns-active-session-fallback-nudges-live-agents.md'
+  - 'SYN-0002 (synthesis, status=CLARIFIED, owner=codex-lab-lilo, 17d unreviewed): emergence/synthesis/SYN-0002-a-goal-first-evidence-budgeted-practice-loop-makes-map-coordinat.md'
+  - 'INS-0030 (insight, status=CLARIFIED, owner=codex-lab-kiri, 16d unreviewed): emergence/insights/INS-0030-retrieval-failures-now-cluster-at-claim-to-evidence-alignment-an.md'
+  - 'INS-0031 (insight, status=OPEN, owner=claude-lab-lure, 16d unreviewed): emergence/insights/INS-0031-on-visual-fidelity-tasks-verify-by-screenshot-vs-reference-befor.md'
+  - 'INS-0032 (insight, status=OPEN, owner=claude-lab-lure, 16d unreviewed): emergence/insights/INS-0032-promoted-process-rules-stay-ineffective-unless-mechanically-surf.md'
+  - 'INS-0033 (insight, status=OPEN, owner=claude-lab-lure, 16d unreviewed): emergence/insights/INS-0033-design-work-destined-for-an-existing-app-should-be-prototyped-in.md'
+  - 'INS-0034 (insight, status=OPEN, owner=claude-lab-lure, 16d unreviewed): emergence/insights/INS-0034-the-coordination-friction-this-session-keeps-hitting-reviewers-d.md'
+  - 'SYN-0003 (synthesis, status=CLARIFIED, owner=codex-lab-kiri, 16d unreviewed): emergence/synthesis/SYN-0003-claim-addressed-evidence-units-connect-task-memory-to-exact-time.md'
+  - 'IDEA-0023 (idea, status=CANDIDATE, owner=codex-lab-kiri, 16d unreviewed): emergence/ideas/IDEA-0023-add-a-disposable-claim-evidence-projection-with-exact-anchors-ha.md'
+  - 'IDEA-0024 (idea, status=OPEN, owner=claude-lab-lure, 16d unreviewed): emergence/ideas/IDEA-0024-a-design-port-task-should-freeze-the-approved-mockup-as-the-acce.md'
+  - 'IDEA-0025 (idea, status=OPEN, owner=claude-lab-lure, 16d unreviewed): emergence/ideas/IDEA-0025-add-a-reusable-screenshot-at-viewport-verifier-for-browser-app-p.md'
+  - 'EXP-0006 (experiment, status=SCORED (pending independent review), owner=codex-lab-kiri, 16d unreviewed):
+    emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md'
+  - 'INS-0035 (insight, status=OPEN, owner=claude-lab-lure, 15d unreviewed): emergence/insights/INS-0035-the-retrieval-chain-s-100-percent-task-recall-is-highly-phrasing.md'
+  - 'INS-0036 (insight, status=OPEN, owner=claude-lab-lure, 15d unreviewed): emergence/insights/INS-0036-hcom-can-auto-derive-wait-records-from-request-metadata.md'
+  - 'INS-0008 (insight, status=CAPTURED, owner=codex-lab-limo, 14d unreviewed): emergence/insights/INS-0008-ei-should-proactively-surface-operator-friction-affordances.md'
+  - 'INS-0009 (insight, status=LINKED, owner=codex-lab-lema, 14d unreviewed): emergence/insights/INS-0009-e-i-should-proactively-scout-operator-workflow-friction-instead-.md'
+  - 'INS-0037 (insight, status=RAW, owner=claude-lab-niko, 14d unreviewed): emergence/insights/INS-0037-spawned-agent-blocks-on-firewall-approval.md'
+  - 'SYN-0001 (synthesis, status=CLARIFIED, owner=claude-lab-rose, 14d unreviewed): emergence/synthesis/SYN-0001-two-readers-one-truth.md'
+  - 'SYN-0004 (synthesis, status=CLARIFIED, owner=claude-lab-niko, 14d unreviewed): emergence/synthesis/SYN-0004-coverage-debt-lost-its-own-fix.md'
+  - 'IDEA-0013 (idea, status=APPROVED_FOR_EXPERIMENT, owner=claude-lab-valo, 14d unreviewed): emergence/ideas/IDEA-0013-add-an-idea-scouting-role-a-role-cadence-responsible-for-activel.md'
+  - 'EXP-0007 (experiment, status=PROPOSED, owner=claude-lab-niko, 14d unreviewed): emergence/experiments/EXP-0007-idea-scouting-as-cadence-not-role.md'
+- task_id: TASK-296
+  next_action: Still unresolved -- stale lease (claude-lab-dodo, expired since 2026-08-01). recover-orphan
+    doesn't apply. Needs expire_leases() run from Smalls.
+  owner: claude-lab-dodo (stale, not live)
+  reason: Low priority, docs-only task, been stuck a while, never blocking.
+  paths: []
+blockers: []
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror (this host)
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and sole writable MAP authority. Real SSH
+    now works both directions.
+resume_commands:
+- hcom list -v --json
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py route
+- 'MAP_System/.venv/bin/python MAP_System/scripts/map_emergence.py coverage --limit 0 --json  # the full
+  backlog, fresh'
+- cat MAP_System/notes/biggie-to-smalls.md MAP_System/notes/smalls-to-biggie.md
+- ssh smalls 'echo ok'
+- git log --oneline -15
+validation:
+- 'route: FRESH/wait_or_reconcile, no submitted/ready/blocked tasks.'
+- Both boxes on agent/biggie-smalls-convergence, synced, code-sync timers verified working both directions.
+- Notes system (map-note) verified working round-trip both directions.
+- Emergence state identical on both boxes as of this snapshot (19 candidates, 60 open records, 36 overdue).
+rotation:
+  reason: operator_requested
+  summary: Operator explicitly asked for a fresh handoff so they can personally direct the next phase
+    (emergence backlog triage), rather than have it done autonomously. Context is also genuinely exhausted
+    (733k tokens) independent of that request.
+  next_action: Read this snapshot fully, confirm you understand current state, then wait for the operator's
+    direction on the emergence backlog -- do not start triaging on your own initiative.
+  used_tokens: 733339
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-04T17:35:00Z'
+  canonical_tasks:
+  - task_id: TASK-309
+    status: IN_PROGRESS
+    owner: claude-lab-luzo
+    claimed_by: claude-lab-luzo
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-04'
+  - task_id: TASK-296
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: claude-lab-dodo
+    lease_expires_at: '2026-08-01 20:02:50'
+    heartbeat_at: '2026-08-01 19:32:50'
+    updated_at: '2026-08-01 19:32:50'
+  touched_paths: []

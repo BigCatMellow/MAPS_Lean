@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-222",
+  "title": "Research efficient multi-agent delivery from ClearFront evidence",
+  "task_type": "research",
+  "role": "researcher",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "Operator-directed comparative study of how ClearFront was handled, focused on process rather than another product/code audit. Use the project task/event/artifact/hcom record as empirical evidence; compare it with current primary-source guidance and published evidence on AI-agent orchestration, software delivery performance, lean flow, incident response, high-reliability operations, and organizational coordination. Identify what MAP does well, where it gets in its own way, which practices transfer, which do not, and a prioritized experiment-backed improvement roadmap. Broad learning is encouraged, but recommendations must reduce or measurably justify coordination cost rather than add ceremony.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/research/SUMMARY-clearfront-delivery-systems-comparative-study-2026-07-17.md"
+  ],
+  "acceptance_criteria": [
+    "Study uses concrete ClearFront lifecycle evidence and quantifies process characteristics where records allow.",
+    "Study compares at least four current agent-orchestration approaches using primary sources and distinguishes workflow patterns from marketing claims.",
+    "Study draws on at least four established real-world operating disciplines or business examples, with sourced mechanisms rather than analogy alone.",
+    "Recommendations identify adopt/avoid/pilot decisions, expected benefit, cost/risk, measurable success criteria, and implementation priority.",
+    "Artifact separates verified facts, source-backed inference, and proposals; includes citations/links and evidence limitations."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

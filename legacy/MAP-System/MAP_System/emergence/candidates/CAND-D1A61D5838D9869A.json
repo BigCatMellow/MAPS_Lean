@@ -1,0 +1,17 @@
+{
+  "candidate_id": "CAND-D1A61D5838D9869A",
+  "status": "accepted",
+  "signal_type": "repeated_rework",
+  "subject": "TASK-284",
+  "summary": "TASK-284 received 2 changes-requested events; inspect for a reusable prevention lesson.",
+  "evidence_refs": [
+    "MAP_System/events/events.jsonl:2938",
+    "MAP_System/events/events.jsonl:2945"
+  ],
+  "dedup_key": "d1a61d5838d9869a",
+  "detected_at": "2026-07-27T18:10:00Z",
+  "curated_at": "2026-07-27T18:10:58Z",
+  "curated_by": "claude-lab-nora",
+  "resolution_reason": "Genuine reusable pattern about multi-source-of-truth contradiction handling.",
+  "resolution_ref": "MAP_System/emergence/insights/INS-0052-indexers-reports-reading-multiple-sources-of-truth-task-json-mir.md"
+}

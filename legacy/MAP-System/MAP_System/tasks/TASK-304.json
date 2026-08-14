@@ -1,0 +1,46 @@
+{
+  "task_id": "TASK-304",
+  "title": "Enforce designated run coordinator at dispatch seam",
+  "task_type": "implementation",
+  "role": "state-steward",
+  "status": "RETIRED",
+  "dependencies": [
+    "TASK-303"
+  ],
+  "owner": "command-center",
+  "description": "Distinct runtime follow-on to TASK-303. Add one narrow, operator-controlled enforcement seam for a designated run coordinator identity/session/lease; expose Coordinator, task-owner, independent-reviewer, bounded-support, and idle/superseded runtime roles; allow only the live designated coordinator to consume LangGraph route recommendations and dispatch claim-bound workers; mechanically reject support dispatch and remove superseded sessions from active capacity; transfer an existing coordinator lease only during successful checksum-bound finalization. Preserve SQLite lifecycle authority and LangGraph as the route recommender; do not add a second scheduler.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/planning/run-coordinator-enforcement-2026-07-29.md",
+    "MAP_System/db/claims.py",
+    "MAP_System/graph/runner.py",
+    "MAP_System/migration/schema.sql",
+    "MAP_System/scripts/context_rotation.py",
+    "MAP_System/scripts/run_manifest.py",
+    "MAP_System/templates/install/command-center-ui/app/server.py",
+    "MAP_System/templates/install/command-center-ui/src/index.html",
+    "MAP_System/tests/test_coordinator_enforcement.py",
+    "MAP_System/workflow/role_registry.yaml"
+  ],
+  "acceptance_criteria": [
+    "SQLite has one auditable operator-set coordinator lease per active run/project, bound to an eligible core agent identity and exact live session with expiry, renewal, revocation, and compare-and-swap protection against two active coordinators.",
+    "LangGraph remains recommendation-only; a narrow dispatch gate permits route consumption and worker dispatch only for the exact live coordinator lease holder, while workers must have canonical task/review claims and support or idle roles are mechanically rejected from dispatch.",
+    "Runtime role projection visibly distinguishes Coordinator, task owner, independent reviewer, bounded support, idle, and superseded sessions without treating hcom terminal presence as authority; superseded sessions are excluded from active capacity.",
+    "Successful context-rotation finalization transfers an existing coordinator lease only when the frozen snapshot explicitly preserves it and the acknowledged replacement identity/session is live; prepare, ACK, failed finalize, or rollback never transfers or duplicates the lease.",
+    "Focused tests cover concurrent coordinator assignment, wrong/stale session, lease expiry/revocation, support-dispatch denial, claimless-worker denial, superseded-capacity exclusion, finalized rotation transfer, and rollback, while proving no second scheduler or alternative lifecycle authority was added.",
+    "Planning/delivery evidence defines migration and rollback, operator set/clear commands, UI role meanings, residual security/availability risks, and compatibility with TASK-303, RUKI authority, existing approval gates, and current LangGraph routes."
+  ],
+  "decision_class": "AUTHORITY",
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": true,
+  "destructive_action": null,
+  "final_review": true,
+  "final_decision": null,
+  "broad_architecture": true,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

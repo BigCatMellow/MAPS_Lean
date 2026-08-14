@@ -1,0 +1,38 @@
+{
+  "task_id": "TASK-032",
+  "title": "Task retry backoff in agent_loop",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-028"
+  ],
+  "owner": "codex",
+  "description": "When a handler fails (CalledProcessError), agent_loop releases the task but immediately reclaims on next cycle. Add configurable cooldown before retrying a task that was recently released due to handler failure.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/agent_loop_retry_cooldown_test.md",
+    "MAP_System/scripts/agent_loop.py",
+    "artifacts/tests/agent-loop-retry-cooldown-test.md",
+    "scripts/agent_loop.py"
+  ],
+  "acceptance_criteria": [
+    "Failed tasks are skipped for --retry-cooldown seconds (default 300) after release",
+    "Cooldown tracked in LoopState (not SQLite)",
+    "Operator can set --retry-cooldown 0 to disable",
+    "py_compile clean"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

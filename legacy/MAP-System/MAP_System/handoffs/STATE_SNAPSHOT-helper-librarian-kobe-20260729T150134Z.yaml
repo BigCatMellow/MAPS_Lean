@@ -1,0 +1,84 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T15:01:34Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: helper-librarian-kobe
+session_id: 019fac42-bae7-7240-87e1-c6335b303102
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: null
+    summary: Completed the reusable MAP librarian audit and recorded findings in MAP_System/inbox/helpers/helper-librarian.md.
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Completed codex-lab-mebo''s read-only Command Center Lab install/update/version/host-exclusion
+      inventory and reported it via hcom inform #1420.'
+  - event_type: TOOL_FAILURE
+    task_id: null
+    summary: 'Attempted to ACK hcom inform #1420; hcom correctly rejected ACK because
+      inform messages require no acknowledgment. Work and final inform report still
+      completed.'
+  touched_paths:
+  - MAP_System/inbox/helpers/helper-librarian.md
+active_constraints:
+- scope: repo
+  rule: Preserve durable MAP records and use the repository Git wrapper; make no destructive
+    changes.
+  source: AGENTS.md
+- scope: communication
+  rule: Use hcom inform for routine status and request only for blockers or operator
+    decisions.
+  source: MAP_System/AGENTS.md
+- scope: safety
+  rule: This helper has bounded librarian support authority only and owns no task,
+    review, release, policy, or routing decision.
+  source: MAP_System/AGENTS.md
+- scope: file
+  rule: Do not edit the dirty in-flight CommandCenterUI template or installed copy
+    without task ownership and explicit boundary authorization.
+  source: MAP_System/AGENTS.md
+forward_tasks: []
+blockers: []
+lexicon:
+  CCL: AI Command Center Lab and its bundled CommandCenterUI operator surface.
+  RUKI: The authoritative MAP host/database in the cross-PC authority design.
+  STATE_SNAPSHOT: Checksum-bound durable session handoff used by verified context
+    rotation.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py advise --agent
+  <replacement-agent>
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+validation:
+- SQLite has no task owned or claimed by helper-librarian-kobe and no open review
+  claim for this identity.
+- MAP task mirrors passed at the end of the librarian audit; the known TASK-295/TASK-297
+  output-path collision remains outside this helper's ownership.
+- The CCL inventory was read-only and its hcom report identified no version manifest,
+  update-only command, or whole-bundle installed parity gate.
+rotation:
+  reason: threshold
+  summary: Librarian audit and CCL alignment inventory are complete. No MAP task or
+    review is owned. The only edited path is the durable helper-librarian audit note.
+    No implementation remains in flight.
+  next_action: Read this snapshot and the helper-librarian note, verify no new librarian
+    request is pending, ACK the exact snapshot hash, then remain available for bounded
+    librarian work.
+  used_tokens: 152032
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-29T15:01:34Z'
+  canonical_tasks: []
+  canonical_tasks_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  touched_paths:
+  - path: MAP_System/inbox/helpers/helper-librarian.md
+    scope: workspace
+    sha256: 1674cfedcb728313e18202b76142ca7f24190e11f5d87a2c391e28be899a8468
+    size: 10149
+    state: file
+  touched_paths_sha256: 901dfa47cf86957b22ca616d2596de3d52c6c00412c15dd7dd2c59bc579cd47e

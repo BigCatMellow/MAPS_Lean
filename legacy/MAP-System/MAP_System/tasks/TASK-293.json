@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-293",
+  "title": "Add sanctioned map_task.py extend-attempts verb for attempt-budget repairs",
+  "task_type": "maintenance",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "Second occurrence of the same structural repair class in two days. REPAIR-0010 (TASK-280, 2026-07-27) raised max_attempts 3->4 via direct SQL because no sanctioned CLI verb exists, and explicitly wrote: 'Worth a permanent map_task.py extend-attempts verb if this recurs a second time.' REPAIR-0012 (TASK-263, 2026-07-28) is that second occurrence. Both tasks exhausted their attempt budget while the outstanding findings were small and mechanical, because max_attempts counts SUBMISSIONS not DEFECTS -- a sound task reviewed thoroughly can exhaust its budget faster than a task nobody looked at closely. Raw SQL is also now blocked by the harness permission classifier, so the one-off pattern is not merely undesirable but unavailable. Build the verb so attempt-budget changes are auditable, gated, and mirror-synchronized like every other lifecycle transition.\n\nCalibration judgment (TASK-293, mapfinish2-zemi, 2026-07-28): max_attempts default of 3 is LEFT AS-IS, not raised. Evidence: TASK-280 and TASK-263 (REPAIR-0010, REPAIR-0012) each exhausted attempt=3/max_attempts=3 needing exactly ONE more attempt to close small, mechanical findings from thorough independent review -- both are individually-thorough-review cases, not evidence the default itself is systematically too tight. max_attempts counts submissions (each review round consumes one), so a default of 3 allows exactly 2 revision cycles before requiring intervention -- a legitimate signal that something is not converging, not merely an inconvenience. Before this task the escape hatch was raw SQL plus bigboss STRUCTURAL approval plus a repair record; extend-attempts now makes it one audited CLI call, which removes the cost asymmetry that made 3 feel too tight, without weakening the signal a global default bump would blur. Recommendation: keep default=3; revisit only if a 3rd/4th occurrence recurs despite extend-attempts being available, which would then indicate the default itself, not just review thoroughness, is miscalibrated.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/db/claims.py",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/tests/test_map_task_extend_attempts.py"
+  ],
+  "acceptance_criteria": [
+    "map_task.py gains an extend-attempts verb taking a task_id, --actor, --max-attempts (or --add N), and a required --reason, which raises max_attempts on an existing task inside a SQLite transaction and re-exports task/graph mirrors like the other lifecycle verbs.",
+    "The verb refuses to LOWER max_attempts below the task's current attempt count, refuses a task in a terminal status (APPROVED/RELEASED/RETIRED), and requires a non-empty reason, so it cannot be used to quietly reset a task's history.",
+    "The action appends a durable canonical event naming the actor, task, old and new budget, and the reason, so an attempt extension is auditable rather than an invisible integer change.",
+    "Focused tests cover: successful extension, refusal on terminal status, refusal when lowering below current attempt, refusal on empty reason, and mirror re-export; wired into run_tests.sh and the suite passes.",
+    "The task record states whether the default max_attempts of 3 is correctly calibrated given that it counts submissions rather than defects, and either recommends a change with reasoning or explicitly justifies leaving it at 3."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "policy",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

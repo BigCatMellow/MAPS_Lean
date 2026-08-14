@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-230",
+  "title": "Record Pi health-check terminal-versus-hcom result",
+  "task_type": "maintenance",
+  "role": "maintainer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "Record the operator-authorized minimal health check against fresh visible Pi vema using qwen2.5-coder:7b-16k. The model displayed the exact acknowledgement in its terminal, but hcom emitted no outbound message event. Preserve the distinction and keep Pi excluded from coordination.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md",
+    "MAP_System/artifacts/releases/task-230-release-checklist.md",
+    "MAP_System/inbox/helpers/pi-healthcheck-vema-2026-07-18.md",
+    "MAP_System/notes/pi-agent-communication-guide.md"
+  ],
+  "acceptance_criteria": [
+    "Durable evidence records the visible model response and the absence of an hcom message event as a communication-check failure.",
+    "No Pi task, review, handoff, release, routing, or capacity authority is added."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

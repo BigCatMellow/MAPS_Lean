@@ -1,0 +1,82 @@
+{
+  "task_id": "TASK-263",
+  "title": "Run frozen claim-evidence retrieval holdout",
+  "task_type": "experiment",
+  "role": "engineer",
+  "status": "CHANGES_REQUESTED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Operator-approved execution of EXP-0006. Freeze independently authored source questions and acceptable evidence sets before treatment; build a disposable claim-evidence projection over completed MAP tasks with exact Markdown-section or code-symbol anchors, source hashes and time watermarks, and separate positive-proof and negative-boundary channels; compare against the recorded TASK-262 capsule baseline. Preserve existing TASK-260 through TASK-262 artifacts and production retrieval unchanged. This is experiment evidence only, not production integration or authority.",
+  "objective": "Measure whether disposable claim-addressed evidence units improve exact and historically correct proof retrieval beyond the 18/20 capsule baseline without changing production retrieval or canonical authority.",
+  "required_context": [
+    "MAP_System/emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md",
+    "MAP_System/artifacts/experiments/task-memory-capsule-development-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-memory-evidence-verifier-development-2026-07-19.md",
+    "MAP_System/notes/retrieval-capsule-guide.md",
+    "MAP_System/scripts/task_memory_capsule_pilot.py",
+    "MAP_System/scripts/task_memory_packet_selector.py"
+  ],
+  "files_in_scope": [
+    "MAP_System/emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md",
+    "MAP_System/inbox/helpers/helper-index-claim-holdout-2026-07-19.md",
+    "MAP_System/inbox/helpers/helper-index-claim-evaluator-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-memory-claim-evidence-holdout-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.md",
+    "MAP_System/scripts/task_memory_claim_evidence_pilot.py",
+    "MAP_System/tests/test_task_memory_claim_evidence_pilot.py"
+  ],
+  "forbidden_changes": [
+    "Do not modify TASK-260 through TASK-262 scripts, tests, reports, or frozen result artifacts.",
+    "Do not integrate the experiment into production retrieval, startup, routing, UI, task authority, or canonical policy.",
+    "Do not add embeddings, external services, a learned reranker, or a knowledge graph.",
+    "Do not author treatment against evaluation questions before the holdout is independently frozen."
+  ],
+  "expected_artifacts": [
+    "Independent frozen holdout and evaluator notes",
+    "Disposable claim-evidence pilot and focused tests",
+    "Machine-readable results plus a plain-English experiment report",
+    "EXP-0006 result and decision update"
+  ],
+  "reviewer_role": "Independent reviewer who did not implement the treatment and verifies frozen-label provenance, metrics, boundaries, hashes, and absence of production integration.",
+  "risk": "Treatment leakage, authority duplication, false positives from negative-boundary text, mistaking a current file hash for historical evidence, or overclaiming from a small MAP-specific holdout.",
+  "input_paths": [
+    "MAP_System/emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md",
+    "MAP_System/artifacts/experiments/task-memory-capsule-development-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-memory-evidence-verifier-development-2026-07-19.md",
+    "MAP_System/notes/retrieval-capsule-guide.md",
+    "MAP_System/scripts/task_memory_capsule_pilot.py",
+    "MAP_System/scripts/task_memory_packet_selector.py"
+  ],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-memory-claim-evidence-holdout-2026-07-19.json",
+    "MAP_System/emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md",
+    "MAP_System/inbox/helpers/helper-index-claim-evaluator-2026-07-19.md",
+    "MAP_System/inbox/helpers/helper-index-claim-holdout-2026-07-19.md",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/scripts/task_memory_claim_evidence_pilot.py",
+    "MAP_System/tests/test_task_memory_claim_evidence_pilot.py"
+  ],
+  "acceptance_criteria": [
+    "An independent helper freezes fresh source questions, acceptable evidence sets, and explicit negatives before the treatment is authored; a different helper evaluates blinded results after implementation.",
+    "The pilot derives disposable claim-evidence units with exact Markdown heading or code symbol anchors, proof role, source hash, and time watermark; positive proof and negative boundaries are indexed and scored separately and never act as authority.",
+    "The evaluation reports task recall, exact-source and anchored-evidence accuracy, abstention behavior, historical-version correctness, acceptable substitutes, packet size, authoring cost, and parser coverage against the recorded 18/20 capsule and 12/12 task-recall baselines.",
+    "Focused tests cover unit extraction, claim-card validation, positive-versus-boundary isolation, deterministic ranking, source-hash drift, acceptable evidence sets, and abstention; existing TASK-260 through TASK-262 candidate hashes and artifacts remain unchanged.",
+    "The report records pass, revise, or park without production integration, embeddings, a learned reranker, a full knowledge graph, canonical policy changes, or automatic promotion."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,38 @@
+{
+  "task_id": "TASK-009",
+  "title": "Add AI Help command-center option",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "DONE",
+  "dependencies": [],
+  "owner": "codex",
+  "description": "Expose an easy AI Help option in the command center so the operator can list available ai commands when needed.",
+  "input_paths": [
+    "MAP_System/scripts/ai-command-center-cli",
+    "MAP_System/scripts/ai-command-center-shell"
+  ],
+  "output_paths": [
+    "scripts/ai-command-center-cli",
+    "scripts/ai-command-center-shell",
+    "tasks/TASK-009.json",
+    "workflow/task_graph.json"
+  ],
+  "acceptance_criteria": [
+    "Command-center banner shows an AI Help option",
+    "ai help prints all available commands in clear groups",
+    "ai commands and ai ai-help are accepted aliases"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

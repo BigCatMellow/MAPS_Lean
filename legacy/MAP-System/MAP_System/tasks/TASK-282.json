@@ -1,0 +1,42 @@
+{
+  "task_id": "TASK-282",
+  "title": "Add criterion-level submission claims and independent verification records",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-268",
+    "TASK-278",
+    "TASK-281"
+  ],
+  "owner": "command-center",
+  "description": "Implement the approved TASK-277 structured-evidence slice after durable author identity and run manifests exist. Extend submissions with per-criterion claimed status and evidence references linked to task revision and run ID; keep reviewer verified status separate so review can reject one criterion without rewriting implementer claims. Output sequencing: shared lifecycle and base-schema paths must be registered only after TASK-278 and TASK-281 release; begin with task-specific module and migration outputs.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task282-structured-submission-delivery-note.md",
+    "MAP_System/migration/submission_record_schema.sql",
+    "MAP_System/scripts/submission_records.py",
+    "MAP_System/tests/test_submission_records.py",
+    "MAP_System/workflow/templates/submission_record.json"
+  ],
+  "acceptance_criteria": [
+    "Each acceptance criterion has a stable identifier and submission claimed status linked to canonical author, task revision, and run ID.",
+    "Required evidence references are existence-checked and a criterion cannot be claimed complete when mandatory evidence is missing.",
+    "Reviewer verified status is stored separately from implementer claims and can reject one criterion without mutating the original submission record.",
+    "Submission, review, rejection, rework, and resubmission preserve an auditable append-only history without creating a competing task authority.",
+    "Migration, compatibility, lifecycle, mirror, and event tests pass with a documented rollback path."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

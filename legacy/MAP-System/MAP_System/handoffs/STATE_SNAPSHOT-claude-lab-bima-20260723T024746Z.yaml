@@ -1,0 +1,199 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-23T02:47:46Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-bima
+session_id: 5b0b2f36-b8a2-4d29-84bf-28e6c9f64c5a
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-267
+    summary: First independent re-review under operator option A. Confirmed all four
+      of Kiri's prior findings closed, then found TASK-266 asserted as RELEASED in
+      four places across current-state.md and the realignment memo while map.db had
+      it APPROVED with no task_release_records row and no RELEASED event.
+  - event_type: APPROVED
+    task_id: TASK-267
+    summary: Second re-review. All four assertions corrected to APPROVED/pending release
+      with the TASK-268 dependency reason correctly restated as runner accepted statuses.
+      Re-verified every lane row against live map.db and re-ran all five validators
+      independently. TASK-267 is APPROVED; release belongs to codex-lab-kula.
+  - event_type: RESEARCH
+    task_id: null
+    summary: Captured INS-0039 (both no-self-review guards key on tasks.owner, so
+      owner/claimant drift silently disables review separation) and INS-0040 (hand-maintained
+      canonical state files are an unchecked second reader of task state). Neither
+      promoted; promotion is the operator's gate.
+  touched_paths:
+  - MAP_System/artifacts/reviews/task267-rereview-bima.md
+  - MAP_System/artifacts/reviews/task267-rereview2-bima.md
+  - MAP_System/emergence/insights/INS-0039-both-no-self-review-guards-key-on-tasks-owner-so-owner-claimant-.md
+  - MAP_System/emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re.md
+  - MAP_System/emergence/INDEX.md
+active_constraints:
+- scope: task
+  rule: TASK-267 is RELEASED (checklist MAP_System/artifacts/releases/task-267-release-checklist.md).
+    Both carry-forward wordings were corrected by codex-lab-kula. Nothing further
+    is owed on it.
+  source: 'MAP_System/artifacts/reviews/task267-rereview2-bima.md and hcom #12561'
+- scope: task
+  rule: TASK-236 parking is CLEARED as of TASK-267's release. It is READY, owner claude-lab-gome,
+    unclaimed, and is the natural Claude-lane task to pick up.
+  source: 'claude-lab-gabi handoff 2026-07-22 and hcom #12561'
+- scope: review
+  rule: Review separation on TASK-267 was enforced operationally, not mechanically.
+    Per INS-0039 the owner-keyed guards would have permitted a self-approval because
+    the durable owner is inactive and differs from the actual author.
+  source: MAP_System/emergence/insights/INS-0039
+- scope: communication
+  rule: INS-0039 and INS-0040 are captured but NOT promoted. An agent may capture
+    an insight; it may not redirect the project on one. Promotion is the operator's
+    gate.
+  source: MAP_System/emergence/IDEA_PROMOTION_RULES.md
+- scope: repo
+  rule: Preserve the large pre-existing dirty worktree, which predates this session,
+    and use MAP_System/scripts/map-git for Git inspection.
+  source: AGENTS.md
+forward_tasks:
+- task_id: TASK-267
+  next_action: none
+  owner: codex-lab-kula
+  reason: RELEASED by codex-lab-kula after this identity approved it. Closed.
+  paths:
+  - MAP_System/artifacts/reviews/task267-rereview2-bima.md
+- task_id: TASK-236
+  next_action: claim
+  owner: claude-lab-gome
+  reason: 'Parking cleared by TASK-267''s release. READY, owner claude-lab-gome, unclaimed.
+    Rework the proposal-only advisory monitor: malformed-claim logic plus the missing
+    isolated tests. Keep it proposal-only -- it observes and suggests, never claims,
+    edits, approves, or promotes.'
+  paths: []
+- task_id: TASK-268
+  next_action: assign
+  owner: command-center
+  reason: READY and genuinely claimable; its TASK-266 dependency is satisfied because
+    the runner accepts APPROVED. Documented as the Codex lane. Verify claims.py /
+    map_task.py output-path availability before claiming.
+  paths: []
+- task_id: TASK-265
+  next_action: ask_operator
+  owner: command-center
+  reason: Still policy-gated, still missing the remote OLLAMA_HOST and authoritative
+    server.py decisions. Unanswered since 2026-07-21.
+  paths: []
+blockers:
+- kind: approval
+  detail: INS-0039 and INS-0040 await an operator promote-or-park decision. Requested
+    2026-07-23; not yet answered.
+  unblock_by: Operator answers, or a core agent shapes them through the normal promotion
+    gate.
+- kind: approval
+  detail: TASK-265 requires operator decisions on remote OLLAMA_HOST and the authoritative
+    server.py copy.
+  unblock_by: Operator provides both decisions through the policy gate.
+lexicon:
+  INS-0039: Insight that both no-self-review guards compare the reviewer against tasks.owner
+    and never against the claimant or submitter.
+  INS-0040: Insight that shared-state prose is an unchecked mirror of task state.
+  SYN-0001: Two readers, one truth. The standing synthesis both insights instance.
+  claim_review: SQLite review-slot claim helper. Registers the reviewer (TASK-270)
+    but guards self-review on owner only.
+  option_A: 'Operator decision hcom #12415 routing TASK-267 rework to the live Codex
+    session with Claude as independent reviewer.'
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-267
+- sed -n '1,120p' MAP_System/artifacts/reviews/task267-rereview2-bima.md
+- sed -n '1,60p' MAP_System/emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re.md
+validation:
+- 'TASK-267 re-review, both passes: validate_shared_state 23/23 with 0 warnings, validate_task_mirrors,
+  validate_task_graph, validate_decisions 28/28 with 0 conflicts, validate_canonical_repo_paths
+  — all reproduced independently rather than taken from the handoff.'
+- All six active-lane rows re-verified field by field against live map.db at approval
+  time.
+- task_release_records queried directly; TASK-186 present with released_by claude-lab-gabi,
+  TASK-266 absent — this is the evidence behind the REQUIRED finding.
+- graph/runner.py DEPENDENCY_SATISFIED_STATUSES confirmed as {DONE, APPROVED, RELEASED},
+  which is why the TASK-268 conclusion survived the corrected reason.
+- INS-0039's central claim was verified by probe, not assertion. A structurally valid
+  review record naming the actual author as reviewer and the stale owner as task_owner
+  passes validate_review.py with exit 0. Probe file kept in session scratchpad, never
+  written to the repo.
+- map_emergence validate passes 88/88 after both insight captures.
+rotation:
+  reason: threshold
+  summary: This session started cold, oriented, and found the Claude lane stalled
+    behind TASK-267 whose owner session was superseded. It raised that to the operator,
+    who chose option A; codex-lab-kula independently executed the same reassignment
+    seconds earlier, so this identity stood down and took the reviewer role instead.
+    It rejected TASK-267 once on a verified false RELEASED claim for TASK-266, then
+    approved the corrected resubmission. It captured two insights, INS-0039 and INS-0040,
+    both instances of SYN-0001, neither promoted. No task was ever claimed by this
+    identity, so no claim transfers.
+  next_action: Load this snapshot, confirm TASK-236 is still READY and unclaimed,
+    then claim it as the unparked Claude-lane task. Read the task's four acceptance
+    criteria first; criterion 3 routes the standing/real-time deployment choice to
+    command-center as a decision request rather than implementing it unilaterally.
+    Also chase the outstanding promote-or-park calls on INS-0039 and INS-0040.
+  used_tokens: 146469
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-07-23T02:47:46Z'
+  canonical_tasks:
+  - task_id: TASK-236
+    status: READY
+    owner: claude-lab-gome
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 15:27:57'
+  - task_id: TASK-265
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-21T22:18:49Z'
+  - task_id: TASK-267
+    status: RELEASED
+    owner: codex-lab-lime
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23 02:46:26'
+  - task_id: TASK-268
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22T18:33:13Z'
+  canonical_tasks_sha256: 9d2ad6de4f5d17600bf945911833a8d419998b93f488c1e793099e15b311d6d1
+  touched_paths:
+  - path: MAP_System/artifacts/reviews/task267-rereview-bima.md
+    scope: workspace
+    sha256: b7bd111319f63c5223eaa8826cc970021149bd8953e32a78468fc58cc63aa989
+    state: file
+  - path: MAP_System/artifacts/reviews/task267-rereview2-bima.md
+    scope: workspace
+    sha256: ca857581c7d9b0ed72c7da3c3118669bbc20a16aae4eeee678b6778f7603af05
+    state: file
+  - path: MAP_System/emergence/INDEX.md
+    scope: workspace
+    sha256: c0cf4139ccb969d453543718ab89aa3d91a6ad301597dca1e226ff86c54deef8
+    state: file
+  - path: MAP_System/emergence/insights/INS-0039-both-no-self-review-guards-key-on-tasks-owner-so-owner-claimant-.md
+    scope: workspace
+    sha256: d2e93f6fd6f8be33dcdbbc8e6d9cdcc5816e7ea590553709c0b4bc4c8caed284
+    state: file
+  - path: MAP_System/emergence/insights/INS-0040-hand-maintained-canonical-state-files-are-an-unchecked-second-re.md
+    scope: workspace
+    sha256: 3a2869689106d635f77f8740e19a26078bab5b66396534b49f4b0fb7b40ae13b
+    state: file
+  touched_paths_sha256: 5d33aecdf8e54e805e02dfed7ac650cc1d9d01907641e14a939dac8a4a53a3a9

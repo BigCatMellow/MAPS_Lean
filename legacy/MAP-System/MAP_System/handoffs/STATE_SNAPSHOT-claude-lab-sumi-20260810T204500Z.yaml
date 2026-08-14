@@ -1,0 +1,189 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-10T19:45:00Z'
+project_id: MAP-BEDROCK-20260809
+agent_id: claude-lab-sumi
+session_id: 501add5f-ab41-47a1-adde-9e3fb3355018
+status: handing_off
+role: 'Program Coordinator for the MAP Bedrock program, per DEC-042 (claude-lab-sumi''s own coordinator
+  designation, effective 2026-08-10). Also serving as Claude architecture lead for Phase 1 per the plan''s
+  own recommended routing. Reason for handoff: proactive context-budget checkpoint at limit_watcher''s
+  direction (current estimate 389548 tokens, well past the 150000 rotate threshold), not task completion
+  or failure.'
+task_context:
+  current_task: null
+  current_task_note: 'No open MAP task_id right now (TASK-325 retired as moot; its targets were already
+    RELEASED via a different path). Current work is plan-level: Phase 1 P1.1 architecture decision packet,
+    routed to Codex for independent review (codex-lab-vumo:RUKI, notified via hcom + handoff file, not
+    yet returned) -- see forward_tasks_notes below and rotation.next_action.'
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PHASE0_EXIT_GATE_CLOSED
+    task_id: (program-level, not a single task)
+    summary: Closed the Phase 0 combined exit gate. P0.1 (authority/rotation incidents) already resolved
+      prior sessions. P0.2 (TASK-323, events.jsonl NUL corruption + TASK-315 backlink + 22 wikilink findings)
+      was claimed, its output artifacts corrected to reflect reality (the events.jsonl fix had actually
+      already landed durably on Smalls via helper-releases-batch2-bela, and TASK-315's backlink fix was
+      already applied but the repair record was stale claiming PROPOSED), submitted, independently reviewed
+      by a fresh helper (helper-review-task323-fenn, spawned specifically because I cannot review my own
+      submission), approved, and released. P0.3 (TASK-324 lifecycle backlog disposition) was already RELEASED
+      from a prior session. Wrote a single-revision baseline packet (artifacts/planning/phase0-baseline-packet-2026-08-10.md)
+      per the plan's own exit-gate requirement that P0.1/P0.2/P0.3 all pass together against one source+authority
+      revision, not as disconnected claims.
+  - event_type: DEC042_COORDINATOR_DESIGNATED
+    task_id: N/A
+    summary: Discovered that the checklist's prior D0 entry (citing DEC-039/map-coordinator-hobo) was
+      wrong. DEC-039 designated a coordinator for a different, now-closed effort (the original MAP recovery
+      epic, TASK-309, RELEASED 2026-08-10), not this Bedrock program. That old coordinator identity had
+      also informally drifted (hobo, then an untracked handoff to claude-lab-luzo, then coordinator-replacement-rose,
+      last active 2026-08-03) outside the formal rotation ledger. Surfaced this to the operator via AskUserQuestion;
+      operator chose me, this session, as Program Coordinator. Recorded as DEC-042 in shared/decisions.md,
+      updated shared/bedrock-role-bindings.json's Program Coordinator binding from map-coordinator-hobo
+      to claude-lab-sumi, re-ran the stale_role_bindings machine check (empty, clean).
+  - event_type: PHASE1_ARCHITECTURE_PACKET_DRAFTED
+    task_id: N/A
+    summary: Drafted the P1.1 architecture decision packet (artifacts/planning/phase1-architecture-decision-packet-2026-08-10.md),
+      grounded in the actual live system (map_authority.py's ALLOWED_TASK_VERBS, MIRROR_FILES, map.db's
+      live schema which has no version, idempotency, or dedup columns yet). Named the single highest-priority
+      open gap explicitly. actor identity today is a client-supplied --actor CLI flag, not server-authenticated;
+      no technical guarantee prevents spoofing another agent's identity. Routed to Codex for the plan's
+      required independent review via a handoff file (handoffs/HANDOFF-phase1-architecture-packet-review-to-codex-2026-08-10.md)
+      plus a live hcom notification to codex-lab-vumo:RUKI. Not yet reviewed or D1-approved.
+  - event_type: WEZTERM_TAB_CLEANUP
+    task_id: N/A
+    summary: At operator request, identified and closed 7 wezterm tabs for finished helper/reviewer sessions
+      (hiro, helper-bedrock-review-data, helper-task323-p02-tina, helper-task324-p03-fifi, helper-review-323-324-huro,
+      helper-releases-batch1-mive, rotation-replacement-nizu-zalu) via wezterm cli kill-pane, after the
+      operator added a Bash permission rule for it. Left rotation-replacement-bela-limo (was still tracked
+      as possibly relevant), helper-librarian-gare (standing role), and the operator's own tabs open.
+  - event_type: PROJECTUPDATER_STEPS_OUTLINE_GUIDE
+    task_id: N/A
+    summary: At operator request, wrote a standalone reference doc (Projects/ProjectUpdater/shared/steps-outline-guide.md)
+      documenting how to author project outlines that import cleanly into ProjectUpdater. checkbox/nesting
+      format, continuation-line support, progress-percent computation, the auto-generated letter labels
+      (a., b., c.) on sub-goals, and the three ways to apply an outline.
+  touched_paths:
+  - MAP_System/artifacts/planning/map-bedrock-phase-checklist-2026-08-10.md
+  - MAP_System/artifacts/planning/phase0-baseline-packet-2026-08-10.md
+  - MAP_System/artifacts/planning/phase1-architecture-decision-packet-2026-08-10.md
+  - MAP_System/shared/decisions.md
+  - MAP_System/shared/bedrock-role-bindings.json
+  - MAP_System/graph/runner.py
+  - MAP_System/artifacts/releases/task-323-release-checklist.md
+  - MAP_System/artifacts/recovery/p02-validation-debt-repair-2026-08-10.md
+  - MAP_System/repairs/REPAIR-0013-events-jsonl-line-18785-had-1526-leading-nul-bytes-prefixing-an-otherwise-valid.md
+  - MAP_System/repairs/REPAIR-0014-sqlite-task-release-records-checklist-path-for-task-315-still-points-to-the-none.md
+  - MAP_System/handoffs/HANDOFF-phase1-architecture-packet-review-to-codex-2026-08-10.md
+  - Projects/ProjectUpdater/app/index.html
+  - Projects/ProjectUpdater/scripts/project_updater_command.py
+  - Projects/ProjectUpdater/shared/project-brief.md
+  - Projects/ProjectUpdater/shared/steps-outline-guide.md
+  - AGENTS.md
+  - MAP_System/AGENTS.md
+active_constraints:
+- scope: authority
+  rule: Biggie is a read-only MAP mirror. All canonical lifecycle writes route through map-authority to
+    Smalls. map-authority claim is a top-level claim operation (map-authority claim TASK-ID AGENT-ID),
+    not a task subverb; ALLOWED_TASK_VERBS does not include claim. Never mutate local MAP_System/map.db
+    directly.
+  source: MAP_System/scripts/map_authority.py, this session
+- scope: coordinator-role
+  rule: claude-lab-sumi is the MAP Bedrock Program Coordinator per DEC-042. routes tasks/reviews, maintains
+    the dependency ledger and phase checklist, surfaces gates. Does NOT own every implementation or approve
+    own deliverables; delivery and review work route to helper agents and independent reviewers (e.g.
+    TASK-323 was independently reviewed by helper-review-task323-fenn, not self-approved).
+  source: MAP_System/shared/decisions.md DEC-042
+- scope: checklist-currency
+  rule: MAP_System/artifacts/planning/map-bedrock-phase-checklist-2026-08-10.md is the canonical, agent-readable
+    execution-state tracker for this program; read it before assuming map-2-research-adoption-implementation-program-2026-08-09.md
+    (the design document) alone reflects live status. Re-import into ProjectUpdater (python3 Projects/ProjectUpdater/scripts/project_updater_command.py
+    update "MAP Bedrock" --steps-file <checklist path>) after every edit to the checklist file; the two
+    must stay in sync.
+  source: the checklist file's own header comment, this session
+- scope: mirror-file-edit-trap
+  rule: events/events.jsonl, workflow/task_graph.json, agents/status.json, and shared/current-state.md
+    are all MIRROR_FILES; wholesale overwritten by every scheduled sync from Smalls. Never treat a local
+    edit to any of these as durable; a fix applied only on Biggie's copy (not on Smalls) will be silently
+    reverted with no error on the next sync. This exact mistake happened earlier this session with REPAIR-0013
+    and had to be re-applied at the authority host.
+  source: REPAIR-0013, this session
+- scope: architecture-packet-status
+  rule: The Phase 1 architecture decision packet (artifacts/planning/phase1-architecture-decision-packet-2026-08-10.md)
+    is drafted and routed to Codex for review (handoff file plus hcom notification to codex-lab-vumo:RUKI
+    sent, not yet returned). Do not treat its ten decisions as final or proceed to D1 operator approval
+    until Codex's independent review record exists and any named changes are incorporated. Do not self-approve
+    this packet; claude-lab-sumi authored it and per DEC-042's own rule cannot also be its reviewer.
+  source: this session
+forward_tasks:
+- label: Phase 1 architecture decision packet review
+  next_action: Check whether codex-lab-vumo (or any other live Codex identity) has produced an independent
+    review record; if not, check hcom transcript/events for progress, nudge again or route to a different
+    Codex identity if vumo is stuck.
+  owner: codex-lab-vumo:RUKI (requested; not yet actively working as of this snapshot)
+  reason: Phase 1's exit gate requires an independently approved schema/command specification and this
+    packet's own review before D1 operator approval can happen. See handoffs/HANDOFF-phase1-architecture-packet-review-to-codex-2026-08-10.md
+    for the full review checklist.
+  paths:
+  - MAP_System/artifacts/planning/phase1-architecture-decision-packet-2026-08-10.md
+  - MAP_System/handoffs/HANDOFF-phase1-architecture-packet-review-to-codex-2026-08-10.md
+- label: D1 operator approval
+  next_action: Once Codex review clears (approve or approve-with-changes), compute the packet's final
+    sha256, present to the operator for D1 approval tied to that exact hash, record as a DEC-0xx entry.
+  owner: unassigned (successor + operator)
+  reason: Per the plan, D1 is "operator approval on exact decision hash"; the packet's own Decision hash
+    section is a placeholder until finalized post-review.
+  paths:
+  - MAP_System/artifacts/planning/phase1-architecture-decision-packet-2026-08-10.md
+- label: P1.2 schema and command contract
+  next_action: Once D1 clears, Codex (per the plan's own recommended ownership) drafts the concrete DDL/migration
+    for the additive tables named in the architecture packet (map_events, command_dedup, operator_approvals,
+    projection_cursors, tasks.runtime_version).
+  owner: Codex (recommended by the plan; not yet started)
+  reason: P1.2 needs a stable, approved target from P1.1 before starting, per the plan's own sequencing.
+  paths: []
+lexicon:
+  Biggie: mellow@biggie, compute plane and read-only MAP mirror (this host)
+  Smalls: home@RUKI/MediaCenter, control plane and sole writable MAP authority
+resume_commands:
+- hcom list -v --json
+- cat MAP_System/artifacts/planning/map-bedrock-phase-checklist-2026-08-10.md
+- cat MAP_System/artifacts/planning/phase1-architecture-decision-packet-2026-08-10.md
+- cat MAP_System/handoffs/HANDOFF-phase1-architecture-packet-review-to-codex-2026-08-10.md
+- hcom transcript codex-lab-vumo:RUKI --last 20 --full
+- 'cat MAP_System/shared/decisions.md   # read DEC-039 through DEC-042 at minimum'
+- map-authority route
+validation:
+- TASK-323 RELEASED, confirmed via map-authority task show TASK-323.
+- Phase 0 combined exit gate CLOSED, confirmed via artifacts/planning/phase0-baseline-packet-2026-08-10.md.
+- DEC-042 recorded in shared/decisions.md; bedrock-role-bindings.json's Program Coordinator binding updated
+  to claude-lab-sumi; stale_role_bindings machine check re-run clean (empty list).
+- Phase 1 architecture decision packet exists at artifacts/planning/phase1-architecture-decision-packet-2026-08-10.md,
+  drafted but not yet reviewed or D1-approved.
+rotation:
+  reason: context_budget_exhausted
+  summary: 'limit_watcher flagged context rotation due: current estimate 389548 tokens, well past the
+    soft=120000/rotate=150000 thresholds. This is a proactive checkpoint at that automated signal, not
+    a completion or failure state; active work (Codex''s pending architecture-packet review) is genuinely
+    in-flight and needs a successor to keep watching for it.'
+  next_action: A successor (new coordinator session, or this same identity resumed) should. (1) check
+    whether Codex has returned an independent review of the Phase 1 architecture decision packet (hcom
+    transcript codex-lab-vumo:RUKI, or check for a new file under artifacts/reviews/phase1-architecture-packet-review-*.md),
+    (2) if reviewed, incorporate any named changes, compute the final sha256, and present the packet to
+    the operator for D1 approval, (3) if not yet reviewed after a reasonable wait, nudge codex-lab-vumo
+    again or route to a different live Codex identity (see hcom list), (4) continue serving as MAP Bedrock
+    Program Coordinator per DEC-042; keep the checklist and ProjectUpdater in sync as work lands, per
+    the operator's standing instruction to keep the tracker accurate without being asked each time.
+  used_tokens: 389548
+  threshold_tokens: 150000
+  metric_source: limit_watcher (RnS automated notification)
+integrity:
+  prepared_at: '2026-08-10T19:45:00Z'
+  canonical_tasks:
+  - task_id: TASK-323
+    status: RELEASED
+    owner: claude-lab-sumi
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-10 19:06:17'

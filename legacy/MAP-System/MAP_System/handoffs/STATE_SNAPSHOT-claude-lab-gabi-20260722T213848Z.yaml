@@ -1,0 +1,323 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-22T21:38:48Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-gabi
+session_id: gabi-20260722T154500-0400
+status: handing_off
+reason: 'Context rotation (271895 tokens vs rotate=150000) plus an operator-requested
+  RnS pause scheduled for 2026-07-22T21:32:55Z. No work is mid-edit; every task below
+  is in a terminal or reviewer-owned state.
+
+  '
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: APPROVED
+    task_id: TASK-186
+    summary: RnS terminal-session suppression fixed under operator option A; approved
+      by codex-lab-lime after functional + security-framed review.
+  - event_type: APPROVED
+    task_id: TASK-269
+    summary: Helper model tier added to the AGENTS.md helper-note contract and surfaced
+      by the graph; approved by codex-lab-lime.
+  - event_type: SUBMISSION
+    task_id: TASK-270
+    summary: claim_review false-negative fix submitted; NOT yet reviewed.
+touched_paths:
+- MAP_System/scripts/limit_watcher.py
+- MAP_System/tests/test_limit_watcher.py
+- MAP_System/artifacts/tests/task-186-rns-suppression-evidence.md
+- MAP_System/emergence/experiments/EXP-0001-dry-run-suppression-check-treat-inactive-session-superseded-and-.md
+- MAP_System/emergence/ideas/IDEA-0009-rns-should-ignore-superseded-and-disposable-sessions.md
+- MAP_System/emergence/insights/INS-0038-claim-task-writes-sqlite-but-never-syncs-file-mirrors-so-every-t.md
+- MAP_System/AGENTS.md
+- MAP_System/graph/runner.py
+- MAP_System/notes/helper-agent-guide.md
+- MAP_System/tests/test_runner_helper_notes.py
+- MAP_System/db/claims.py
+- MAP_System/notes/review-guide.md
+- MAP_System/tests/test_review_claims.py
+- MAP_System/artifacts/experiments/task-memory-claim-evidence-holdout-2026-07-19.json
+- MAP_System/inbox/helpers/helper-index-claim-holdout-2026-07-19.md
+completed_this_session:
+- id: task-186-terminal-suppression
+  summary: 'APPROVED. The feature was structurally unreachable, not merely buggy:
+    export_to_files.py lists both terminal reasons in NON_OPERATIONAL_REASONS and
+    drops those agents from status.json at line 132, while limit_watcher.py resolved
+    terminality FROM status.json at lines 851/859. The exporter deleted the row the
+    watcher needed. Measured on live state it fired for 2 of 11 incident-holding agents,
+    and those 2 survived the filter only because they happened to own active tasks.
+    Operator chose option A; terminality now resolves from the SQLite agents table
+    via load_durable_terminal_agents() and apply_durable_lifecycle(). Seven dead sessions
+    marked inactive/session_superseded.
+
+    '
+  residual: 'RELEASE GATE STILL OPEN. The live systemd unit map-rns-watcher.service
+    must be restarted to load the fixed code, plus one live post-restart poll captured.
+    The environment command classifier blocks systemctl from an agent session, so
+    this needs the operator. Marks are durable and correct in SQLite; the pre-fix
+    daemon simply cannot see them as terminal.
+
+    '
+- id: task-269-helper-model-tier
+  summary: 'APPROVED. helper-agent-guide.md always required the approved model tier
+    to be recorded, but the AGENTS.md helper-note contract had no field for it, so
+    6 of 82 notes carried one. Added `model:` to the contract, made the graph report
+    untiered ACTIVE helpers as helpers_missing_model_tier, and linked the guide to
+    the field. Reviewer challenged and upheld the active-only scope.
+
+    '
+  residual: 'lime logged a NON-BLOCKING note: metadata parsing detects presence but
+    does not validate tier vocabulary and does not restrict fields to the opening
+    block. Separate hardening only if abuse is actually observed. Do not pre-emptively
+    build it.
+
+    '
+- id: task-270-claim-review-false-negative
+  summary: 'SUBMITTED, NOT reviewed. Fixes the trap that cost a real reviewer a real
+    review this session. claim_review had no ensure_agent step while map_task.py has
+    had one at line 47, so an unregistered reviewer hit a FOREIGN KEY violation on
+    reviews.reviewer_id that was flattened into a bare False -- indistinguishable
+    from already-claimed, which review-guide.md told the reviewer to read as stand
+    down. Both halves fixed: registration added, and only the uniqueness violation
+    now means already-claimed. 11 tests pass (was 8), mutation-tested, live scenario
+    reproduced.
+
+    '
+  residual: Needs an independent reviewer. Author must not self-approve.
+- id: task-263-frozen-holdout
+  summary: 'Freeze authored and delivered as a bounded role, NOT ownership. TASK-263
+    was never claimed. 28 items (20 positive / 3 historical / 5 negative), SHA-256
+    635aa5f0b41bdded414fac6b6a7cf82cb2841395751813ad6213619eb0f75e3f, independently
+    re-verified by codex-lab-lime, which wrote HANDOFF-TASK-263-freeze-to-codex-lab-kiri.md.
+
+    '
+  residual: 'claude-lab-gabi is PERMANENTLY DISQUALIFIED from implementing or evaluating
+    TASK-263. A successor session inheriting this identity inherits that disqualification.
+    soba remains reserved for blind evaluation and must not see the questions.
+
+    '
+open_items:
+- task_id: TASK-186
+  next_action: ask_operator
+  owner: claude-lab-gabi
+  reason: 'Release gate: operator must restart map-rns-watcher.service and capture
+    one live closure poll.'
+- task_id: TASK-270
+  next_action: review
+  owner: unassigned
+  reason: SUBMITTED and unreviewed. Author disqualified. Route to codex-lab-lime or
+    another independent core agent.
+- task_id: TASK-271
+  next_action: continue
+  owner: codex-lab-lime
+  reason: 'Operator-authorised context-rotation lane, claimed by lime. Its outputs
+    are OFF LIMITS to other agents. lime invited a read-only challenge on ledger authority
+    and failure modes; not delivered before this session closed.
+
+    '
+- task_id: TASK-236
+  next_action: assign
+  owner: unassigned
+  reason: 'READY and genuinely unowned. Deliberately left unclaimed by agreement with
+    lime: it is a standing-observer proposal that overlaps the TASK-267 realignment
+    and should wait until that review lands so it is not scoped against a picture
+    about to change.
+
+    '
+- task_id: TASK-265
+  next_action: ask_operator
+  owner: command-center
+  reason: 'Unanswered since 2026-07-21: may CommandCenterUI ever reach a remote OLLAMA_HOST,
+    and which copy of server.py is authoritative.'
+active_constraints:
+- scope: safety
+  rule: 'Do not mark an agent terminal because a task text says a count. Mark only
+    sessions whose incidents are genuinely exhausted (gave_up true). The task text
+    claimed 8 dead sessions; live state had 7. Marking the literal 8 would have suppressed
+    RnS wake-ups for claude-lab-niko, which was alive and mid-rework on TASK-266 at
+    that moment. Verified, not hypothetical.
+
+    '
+  source: TASK-186; artifacts/reviews/task186-review-lime.md
+- scope: process
+  rule: 'Export mirrors IMMEDIATELY after claim_task. claim_task writes SQLite only,
+    so between claim and export the task JSON and workflow graph are knowably wrong.
+    This blocked another agent''s approvals twice in one session and silently moved
+    the suite from pass=70 fail=2 to pass=68 fail=4, which is easy to misread as a
+    self-inflicted regression.
+
+    '
+  source: INS-0038
+- scope: tool
+  rule: 'systemctl and other service control are blocked by the environment command
+    classifier from an agent session. Do not attempt workarounds; hand the command
+    to the operator on its own bare line for copy-paste.
+
+    '
+  source: TASK-186 release gate
+known_traps:
+- 'GREEN TESTS ARE NOT EVIDENCE A PATH IS REACHABLE. This bit twice in one session.
+  TASK-186: 32 tests passed, three written specifically for the terminal feature,
+  while the feature was completely dead, because the fixtures supplied the very condition
+  the real code path filtered out. TASK-269: unit tests passed while the field arrived
+  EMPTY in real runner output, because MapState is a TypedDict and the graph drops
+  undeclared keys. Both were caught only by running the REAL entry point. Always run
+  the real thing, and always mutation-test a new regression test by stubbing the fix
+  and confirming it fails.
+
+  '
+- 'Suite baseline is pass=70 fail=2 (was 69/2 before this session''s added tests).
+  Both failures are validate_events_no_new_warnings and validate_layer1_test, tracing
+  to one non-canonical TASK_SUBMITTED event at events/events.jsonl:2145 (codex-lab-kiri,
+  2026-07-19). Do NOT "fix" this by rewriting the append-only log. If you see 68/4,
+  check for an unexported task claim before suspecting code.
+
+  '
+- 'codex-lab-kiri is not reachable under that name from an hcom session; relay through
+  codex-lab-lime. Agent ids in map.db and hcom session names are not the same namespace.
+
+  '
+single_strongest_finding: 'SYN-0001 recurred FOUR times in this single session, and
+  each time the failure looked like an unrelated bug: the claim_review reviewer-registration
+  trap, the TASK-186 exporter/watcher terminality conflict, the helper-tier rule with
+  nowhere to write its answer (TASK-269), and claim_task updating SQLite without mirrors
+  (INS-0038). Every one is the same shape -- one piece of state, two readers, no declared
+  authority -- and SYN-0001 named that shape on 2026-07-02 and was recorded CLARIFIED
+  and never acted on. The sharpest detail is that MAP already contains the correct
+  pattern: declare_standby.py writes SQLite then exports in the same command and reports
+  "SQLite updated, mirrors exported". The system is not missing the idea. It is failing
+  to apply an idea it already had, and it will keep paying this tax per-incident until
+  SYN-0001 is landed as a rule rather than a note. That belongs above new feature
+  work in any realignment plan.
+
+  '
+forward_tasks:
+- task_id: TASK-270
+  next_action: review
+  note: 'SUBMITTED and unreviewed. Author (claude-lab-gabi) is disqualified from approving
+    it. Route to codex-lab-lime or another independent core agent. Fixes the claim_review
+    false negative that cost a real reviewer a real review earlier the same session.
+
+    '
+- task_id: TASK-186
+  next_action: ask_operator
+  note: 'APPROVED but the release gate is open. Operator must run `systemctl --user
+    restart map-rns-watcher.service` and capture one live post-restart poll. Agent
+    sessions are blocked from systemctl by the environment command classifier; do
+    not attempt a workaround.
+
+    '
+- task_id: TASK-271
+  next_action: continue
+  note: 'Owned by codex-lab-lime. Outputs are OFF LIMITS. A read-only challenge on
+    ledger authority and failure modes was invited and NOT delivered before rotation;
+    treat as not done. Suggested angle recorded in hcom: the old session dying between
+    writing the snapshot and receiving the resume ACK.
+
+    '
+- task_id: TASK-236
+  next_action: assign
+  note: 'READY and unowned by deliberate agreement with codex-lab-lime, pending the
+    TASK-267 realignment review. Do not claim it just because it looks free.
+
+    '
+- task_id: TASK-265
+  next_action: ask_operator
+  note: 'Unanswered since 2026-07-21: may CommandCenterUI ever reach a remote OLLAMA_HOST,
+    and which copy of server.py is authoritative.
+
+    '
+lexicon:
+  RnS: 'Rise & Shine, the deterministic limit watcher (scripts/limit_watcher.py).
+    Not an agent and not model-backed; it must keep working when every model is exhausted.
+
+    '
+  terminal session: 'A session durably recorded inactive with reason session_superseded
+    or disposable_session_ended. Dead on purpose. RnS must never probe, nudge or open
+    an incident for one. Distinct from out_of_tokens, which is coming back.
+
+    '
+  SYN-0001: 'The recurring MAP failure shape: one piece of state, two readers, no
+    declared authority. Recorded 2026-07-02, marked CLARIFIED, never acted on. Recurred
+    four separate times in this session alone.
+
+    '
+  mirrors: 'The file-backed views of SQLite task state (tasks/*.json and workflow/task_graph.json).
+    Written by migration/export_to_files.py. SQLite is canonical; mirrors drift the
+    instant a claim is not exported.
+
+    '
+  release gate: 'APPROVED means review passed; RELEASED means integrated. TASK-186
+    is approved and NOT released.
+
+    '
+  freeze author: 'The bounded TASK-263 role that authors a blinded truth set before
+    any treatment exists. Taking it permanently disqualifies the holder from implementing
+    or evaluating that experiment.
+
+    '
+rotation:
+  reason: context_exhaustion
+  used_tokens: 271895
+  threshold_tokens: 150000
+  metric_source: 'limit_watcher context rotation advisory, hcom #11244'
+  summary: 'Closed TASK-186 (approved, release gate open on an operator systemctl
+    restart), TASK-269 (approved), and TASK-270 (submitted, unreviewed). Delivered
+    the TASK-263 frozen holdout as a bounded non-owning role and am permanently disqualified
+    from that experiment. Recorded INS-0038. The load-bearing finding is that SYN-0001
+    recurred four times in one session and that MAP already contains the correct pattern
+    in declare_standby.py, so the system is failing to apply an idea it already had
+    rather than missing one.
+
+    '
+  next_action: 'Successor should route TASK-270 to an independent reviewer and ask
+    the operator to restart map-rns-watcher.service to close TASK-186''s release gate.
+    Claim nothing else: TASK-271 is lime''s and off limits, TASK-236 is deliberately
+    parked pending TASK-267, and TASK-263 is disqualified for this identity.
+
+    '
+integrity:
+  prepared_at: '2026-07-22T21:38:48Z'
+  canonical_tasks:
+  - task_id: TASK-186
+    status: APPROVED
+    owner: claude-lab-mira
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 18:46:09'
+  - task_id: TASK-236
+    status: READY
+    owner: claude-lab-gome
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 15:27:57'
+  - task_id: TASK-265
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-21T22:18:49Z'
+  - task_id: TASK-270
+    status: SUBMITTED
+    owner: claude-lab-gabi
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 21:36:15'
+  - task_id: TASK-271
+    status: APPROVED
+    owner: codex-lab-veto
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 20:13:58'
+  canonical_tasks_sha256: c496b689c247e55f610760d2ebeb3cd762d1dda363e37f70624422dea73e38be
+  touched_paths: []
+  touched_paths_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945

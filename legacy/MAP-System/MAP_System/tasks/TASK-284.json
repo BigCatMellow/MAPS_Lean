@@ -1,0 +1,39 @@
+{
+  "task_id": "TASK-284",
+  "title": "Pilot source-aware task fingerprints with frozen retrieval evaluation",
+  "task_type": "implementation",
+  "role": "researcher",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-256",
+    "TASK-277"
+  ],
+  "owner": "command-center",
+  "description": "Continue the approved TASK-277 retrieval lane from TASK-256 without making fingerprints canonical truth. Build a source-aware production pilot that derives compact fingerprints from released task, submission, review, decision, and primary-source evidence, links every projection back to canonical sources, and evaluates task recall, source recall, abstention, and token reduction on a frozen holdout.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task284-source-aware-fingerprint-pilot.md",
+    "MAP_System/scripts/task_fingerprint_production_pilot.py",
+    "MAP_System/tests/test_task_fingerprint_production_pilot.py"
+  ],
+  "acceptance_criteria": [
+    "Fingerprints are generated only from canonical released-task, submission, review, decision, and primary-source references and retain backlinks to each source.",
+    "A frozen holdout measures expected-task recall, expected-primary-source recall, abstention behavior, and context-byte reduction separately.",
+    "The pilot cannot silently substitute a fingerprint for raw evidence and clearly marks missing or contradictory source state.",
+    "Promotion thresholds and failure criteria are declared before evaluation; results do not enable default production routing automatically.",
+    "Focused deterministic tests pass and the artifact compares results directly with TASK-256 baseline evidence."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "KNOWLEDGE",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

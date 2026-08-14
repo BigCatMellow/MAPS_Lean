@@ -1,0 +1,11 @@
+[Unit]
+Description=Run MAP Command Center maintenance periodically
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=map-command-center-maintenance.service
+
+[Install]
+WantedBy=timers.target

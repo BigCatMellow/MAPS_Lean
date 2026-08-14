@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-058",
+  "title": "Fix Dark_Mellow wallpaper install settings",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "DONE",
+  "dependencies": [],
+  "owner": "codex-lab-maki",
+  "description": "Fix the Dark_Mellow GitHub installer so the wallpaper applies on another Mint/Cinnamon PC instead of showing only a solid color. Patch installer background gsettings, validate, review, and push to BigCatMellow/Dark_Mellow.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/DarkMellow/repo/install-mellow-dark.sh",
+    "https://github.com/BigCatMellow/Dark_Mellow"
+  ],
+  "acceptance_criteria": [
+    "Installer sets wallpaper URI for relevant Cinnamon/GNOME background keys",
+    "Installer sets picture-options so wallpaper is displayed instead of solid color",
+    "Shell syntax validates",
+    "Fix is pushed to GitHub after review"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

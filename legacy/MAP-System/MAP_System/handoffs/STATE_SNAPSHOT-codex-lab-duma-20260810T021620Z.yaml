@@ -1,0 +1,264 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-10T02:16:20Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-duma
+session_id: 019fe93c-7a0f-7d62-9fbc-a11c5f7c8e3a
+status: handing_off
+task_context:
+  current_task: TASK-320
+  owned_tasks:
+  - TASK-320
+  pending_reviews: []
+  recent_events:
+  - event_type: TASK_CLAIMED
+    task_id: TASK-320
+    summary: RUKI created and assigned the operator-directed Command Center retirement
+      task to codex-lab-duma.
+  - event_type: IMPLEMENTATION_PROGRESS
+    task_id: TASK-320
+    summary: Biggie startup configuration, installed prompts, installed retired launcher,
+      legacy Command Center surfaces, UI label, capability routing, research plan,
+      tests, and evidence were updated.
+  - event_type: VERIFICATION_PROGRESS
+    task_id: TASK-320
+    summary: Startup 13/13, retirement 6/6, deployment parity 7/7, shell syntax, task
+      mirrors, shared-state validation, and diff checks passed before RUKI final-state
+      verification.
+  - event_type: RUKI_PROGRESS
+    task_id: TASK-320
+    summary: RUKI marked antigravity offline/operator-retired, regenerated mirrors/current
+      state, verified runner non-routing, and confirmed its live startup config has
+      no Antigravity tab. Direct RUKI retired-stub installation was blocked by its
+      approval reviewer and was not retried.
+  touched_paths:
+  - /home/mellow/.config/wezterm/ai-command-center-lab.lua
+  - /home/mellow/.local/bin/ai-command-center-lab-antigravity
+  - /home/mellow/.local/bin/ai-command-center-lab-claude
+  - /home/mellow/.local/bin/ai-command-center-lab-codex
+  - /home/mellow/.local/bin/ai-command-center-lab-librarian
+  - /home/mellow/.local/bin/ai-command-center-lab-pi
+  - /home/mellow/Projects/CommandCenterUI/src/orchestrator.js
+  - MAP_System/artifacts/operations/antigravity-command-center-retirement-2026-08-10.md
+  - MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md
+  - MAP_System/scripts/agent-deck
+  - MAP_System/scripts/ai-command-center-antigravity
+  - MAP_System/scripts/ai-command-center-cli
+  - MAP_System/scripts/ai-command-center-shell
+  - MAP_System/shared/agent-capability-matrix.md
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.js
+  - MAP_System/templates/install/command-center-ui/version.json
+  - MAP_System/tests/test_antigravity_command_center_retirement.py
+  - MAP_System/tests/test_command_center_orchestrator_startup.py
+  - MAP_System/tasks/TASK-320.json
+  - MAP_System/workflow/task_graph.json
+active_constraints:
+- scope: authority
+  rule: Biggie is a read-only MAP mirror; use map-authority and never mutate local
+    map.db.
+  source: operator startup directive and MAP_System/AGENTS.md
+- scope: ownership
+  rule: TASK-320 owns only its registered output paths; preserve unrelated dirty worktree
+    changes.
+  source: TASK-320 and MAP_System/AGENTS.md
+- scope: review
+  rule: Codex cannot approve its own substantive deliverable; Claude must independently
+    review after submission.
+  source: MAP_System/AGENTS.md
+- scope: provider_boundary
+  rule: Remove the model from active Command Center surfaces while preserving historical
+    evidence and generic hcom provider tooling outside Command Center.
+  source: operator decision and TASK-320
+- scope: communication
+  rule: Use extremely concise MATOCP messages; retain complete reasoning for risks,
+    conflicts, exceptions, and decisions.
+  source: MAP_System/AGENTS.md Communication and Documentation Style
+forward_tasks:
+- task_id: TASK-320
+  next_action: continue
+  owner: codex-lab-duma
+  reason: Wait for codex-lab-rani:RUKI authority/status and RUKI live-install evidence,
+    then update the operation artifact and rerun final validators.
+  paths:
+  - MAP_System/agents/status.json
+  - MAP_System/shared/current-state.md
+  - /home/home/.config/wezterm/ai-command-center-lab.lua
+  - /home/home/.local/bin/ai-command-center-lab-antigravity
+- task_id: TASK-320
+  next_action: submit_and_review
+  owner: codex-lab-duma
+  reason: After final green checks, submit through map-authority and route conflict-separated
+    Claude review, including the research-plan ownership delta.
+  paths:
+  - MAP_System/artifacts/operations/antigravity-command-center-retirement-2026-08-10.md
+  - MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md
+blockers:
+- kind: remote_authority_completion
+  detail: RUKI authority/status/startup-config slice passed, but its direct ai-command-center-lab-antigravity
+    retired-stub installation was blocked by an approval reviewer.
+  unblock_by: Preserve the exact denial and obtain the normal approval/review path;
+    do not retry blindly.
+- kind: independent_review
+  detail: Claude reviewer lote is rotating; its replacement vule has not yet completed
+    takeover.
+  unblock_by: After TASK-320 submission, route review to the exact live Claude identity.
+failed_approaches:
+- lua5.4 was unavailable on Biggie; the repository startup test used its bounded structural
+  fallback and passed.
+- Running test_command_center_deployment_parity through unittest discovered zero tests
+  because it is a direct test script; running it directly passed all seven checks
+  after regenerating version.json.
+decisions:
+- No active Antigravity process or pane existed, so no process was killed and the
+  current Command Center was not restarted.
+- The direct Command Center launcher is a clear retired stub; generic antigravity-wrapper
+  and hcom provider support remain.
+- Command Center UI work in the research program is Codex-owned, Claude-reviewed,
+  and operator-accepted; no standing UI model dependency remains.
+lexicon:
+  MATOCP: Compact agent-to-agent tokens defined by MAP communication policy.
+  RUKI: Writable MAP lifecycle authority and second Command Center host.
+  Biggie: This read-only MAP mirror host, also called KUDU in some artifacts.
+  retired_stub: A launcher that exits 2 with an explicit retirement message and cannot
+    start the retired Command Center agent.
+resume_commands:
+- cd /home/mellow/Projects/MultiAgentProject/Source
+- map-authority task show TASK-320
+- map-authority heartbeat TASK-320 <replacement-exact-hcom-identity>
+- python3 MAP_System/tests/test_command_center_orchestrator_startup.py
+- python3 -m unittest MAP_System.tests.test_antigravity_command_center_retirement
+  -v
+- python3 MAP_System/tests/test_command_center_deployment_parity.py
+- python3 MAP_System/scripts/validate_task_mirrors.py
+- python3 MAP_System/scripts/validate_shared_state_tasks.py
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- git diff --check
+validation:
+- Snapshot is STATE_SNAPSHOT v2 and owned_tasks exactly matches the live TASK-320
+  claim.
+- All touched workspace paths are listed; outside-workspace Biggie live paths are
+  explicitly recorded.
+- No secrets, credentials, transcript bodies, or private user content are included.
+rotation:
+  reason: threshold
+  summary: TASK-320 removed the unusable model from active Biggie Command Center surfaces
+    and durable source/planning routes. Local tests pass. RUKI authority/live deployment
+    and independent Claude review remain.
+  next_action: Confirm RUKI completion evidence, update the operations artifact, run
+    final checks, submit TASK-320 through map-authority, and route Claude review.
+  used_tokens: 165859
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-08-10T02:16:20Z'
+  canonical_tasks:
+  - task_id: TASK-320
+    status: IN_PROGRESS
+    owner: codex-lab-duma
+    claimed_by: codex-lab-duma
+    lease_expires_at: '2026-08-10 02:41:26'
+    heartbeat_at: '2026-08-10 02:11:26'
+    updated_at: '2026-08-10 02:11:26'
+  canonical_tasks_sha256: 53232a57db5a71e887f99113246460eab1bc6aca38e37b231a23b5df831a109f
+  touched_paths:
+  - path: /home/mellow/.config/wezterm/ai-command-center-lab.lua
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/.local/bin/ai-command-center-lab-antigravity
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/.local/bin/ai-command-center-lab-claude
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/.local/bin/ai-command-center-lab-codex
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/.local/bin/ai-command-center-lab-librarian
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/.local/bin/ai-command-center-lab-pi
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Projects/CommandCenterUI/src/orchestrator.js
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: MAP_System/artifacts/operations/antigravity-command-center-retirement-2026-08-10.md
+    scope: workspace
+    sha256: 4839bc0a56bf7b68eb85fbaa5750465e0a5730e3234aae70b8970ba51ff8d1f7
+    size: 5233
+    state: file
+  - path: MAP_System/artifacts/planning/map-2-research-adoption-implementation-program-2026-08-09.md
+    scope: workspace
+    sha256: 58b687e1374546e315eaf8a1d6935580a5db599c2eb356866f2df8f4a7d86750
+    size: 51065
+    state: file
+  - path: MAP_System/scripts/agent-deck
+    scope: workspace
+    sha256: 407fc4c7586542adc127245e73e14c45d3491e9a59759b359c860354ceb623ed
+    size: 1247
+    state: file
+  - path: MAP_System/scripts/ai-command-center-antigravity
+    scope: workspace
+    sha256: 7cfbc10f87cf5445d44279e86f37f0566faf35f4885d6acf4dede78bf0f97724
+    size: 211
+    state: file
+  - path: MAP_System/scripts/ai-command-center-cli
+    scope: workspace
+    sha256: 9cbca647c939274e2e8805c040a3eb14afb093836f1347f77770811fdfed012d
+    size: 12344
+    state: file
+  - path: MAP_System/scripts/ai-command-center-shell
+    scope: workspace
+    sha256: 17f1d3b35f523368cdd8581b4261992fdc9fcaf357a47203adc84564f17e1eaa
+    size: 1322
+    state: file
+  - path: MAP_System/shared/agent-capability-matrix.md
+    scope: workspace
+    sha256: 2a2d64926fad235d7c2cca17f32e12828805b1e2031d8f9fb5b96e4dbcac3587
+    size: 5893
+    state: file
+  - path: MAP_System/tasks/TASK-320.json
+    scope: workspace
+    sha256: 1af97852ca5d7564f5684c61f7f293285c472f173ecf862b9fd4e019ff35eca5
+    size: 4742
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/src/orchestrator.js
+    scope: workspace
+    sha256: df3505e0479b78038530a8dc3ee0b0b54857894c1f130e3a8a91c9c0dd81e04b
+    size: 31886
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/version.json
+    scope: workspace
+    sha256: 69e7624f559ea460d066f2b97c77d88c690af667d09bab89d6d8b24feaf6c5bd
+    size: 2455
+    state: file
+  - path: MAP_System/tests/test_antigravity_command_center_retirement.py
+    scope: workspace
+    sha256: 0b820ab6a90e118603c1842e619bad83459489a896dc7ab4206388cdebe4411e
+    size: 3271
+    state: file
+  - path: MAP_System/tests/test_command_center_orchestrator_startup.py
+    scope: workspace
+    sha256: a717e867f879338e18964bb9f5556949dbe4369646d2226b8a8768da66f485aa
+    size: 6943
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 62df9bb7ede462c3f0b96cb9010afb57e2efb18fd03786aaa69cd18681617696
+    size: 516615
+    state: file
+  touched_paths_sha256: b6de6aa275a32100230c9e394f93bed86cd5767df368e23b6e7bcd2c9c90caf3

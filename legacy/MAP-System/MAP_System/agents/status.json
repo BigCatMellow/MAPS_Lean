@@ -1,0 +1,190 @@
+{
+  "agents": {
+    "antigravity": {
+      "status": "offline",
+      "reason": "operator_retired_unusable_token_limit",
+      "resume_after": null,
+      "notes": "TASK-320 retired Antigravity from active AI Command Center routing; preserve generic hcom provider history only."
+    },
+    "claude-lab-dodo": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "claude-lab-gina": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "claude-lab-lili": {
+      "status": "available",
+      "reason": "reactivated_by_operator_after_finalized_rotation: bigboss directed this session to continue coordinating MAP completion work on 2026-07-28 after the rotation to lili-replacement-nisa was already finalized. The rotation itself is NOT rescinded and remains in the continuity ledger as finalized; this records that the operator subsequently re-tasked the superseded identity, so agents/status.json and map.db stop contradicting observable reality. Flagged by lili-replacement-nisa, not self-noticed.",
+      "resume_after": null,
+      "notes": ""
+    },
+    "claude-lab-mimi": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "claude-lab-nene": {
+      "status": "standby",
+      "reason": "scheduled",
+      "resume_after": "2026-08-10T02:12:05-04:00",
+      "notes": ""
+    },
+    "claude-lab-sumi": {
+      "status": "standby",
+      "reason": "provider_unavailable",
+      "resume_after": "2026-07-29",
+      "notes": ""
+    },
+    "claude-lab-venu": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "codex-lab-kiri": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "codex-lab-mebo": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "codex-lab-replacement-valo": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "codex-lab-risa": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "codex-lab-vumo": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "codex-live": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "command-center": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "coordinator-replacement-rose": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "helper-fix-authority-316-bume": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "lili-replacement-nisa": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "map-coordinator-hobo": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "mapfinish-guru": {
+      "status": "standby",
+      "reason": "out_of_tokens",
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "notes": ""
+    },
+    "mapfinish-kino": {
+      "status": "standby",
+      "reason": "out_of_tokens",
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "notes": ""
+    },
+    "mapfinish-rafa": {
+      "status": "standby",
+      "reason": "out_of_tokens",
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "notes": ""
+    },
+    "mapfinish2-dove": {
+      "status": "standby",
+      "reason": "out_of_tokens",
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "notes": ""
+    },
+    "mapfinish2-zemi": {
+      "status": "standby",
+      "reason": "out_of_tokens",
+      "resume_after": "2026-07-28T17:41:18-04:00",
+      "notes": ""
+    },
+    "pi-lab-zulu": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "rotation-replacement-duma-bono": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "rotation-replacement-kite-veni": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "rotation-replacement-mimi-koda": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "rotation-replacement-mudo-hera": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "rotation-replacement-novu-rize": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    },
+    "zeno": {
+      "status": "available",
+      "reason": null,
+      "resume_after": null,
+      "notes": ""
+    }
+  }
+}

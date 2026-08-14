@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-295",
+  "title": "Add sanctioned map_task.py retire verb and close the missing-lifecycle-verb pattern",
+  "task_type": "maintenance",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "THIRD instance of one recurring pattern: a legitimate lifecycle transition has no sanctioned map_task.py verb, so agents fall back to direct SQL against canonical task state. (1) REPAIR-0009: output-path removal, no verb, raw SQL. (2) REPAIR-0010 then REPAIR-0012: max_attempts extension, no verb, raw SQL twice in two days -- now being fixed by TASK-293. (3) 2026-07-28: mapfinish-guru retired TASK-053 and reported 'No retire verb in map_task.py, so did it as a direct status mutation + PROGRESS event + exporter resync, same pattern TASK-241-248 used under TASK-254.' Sixteen tasks are now RETIRED and not one of them went through a gated, evented, mirror-synchronized verb. The harness permission classifier now also blocks raw SQL against canonical task state, so this fallback is becoming unavailable as well as undesirable. map_task.py currently exposes create/approve/reject/rework/submit/release/recover/reassign/add-output-path/show/log -- retire is a real terminal transition and is missing. Fix the specific gap AND state whether any other lifecycle transition is still verb-less, so this is the last instance of the pattern rather than the third.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task295-retire-verb-delivery-note.md",
+    "MAP_System/db/claims.py",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/tests/test_map_task_retire.py"
+  ],
+  "acceptance_criteria": [
+    "map_task.py gains a retire verb taking a task_id, --actor, and a required --reason, which moves a task to RETIRED inside a SQLite transaction, appends a durable canonical event naming actor and reason, and re-exports task/graph mirrors, matching the shape of the existing lifecycle verbs.",
+    "The verb refuses to retire a task that is already terminal (RELEASED/RETIRED/DONE) and refuses an empty reason, so retirement cannot silently overwrite a completed task's history.",
+    "Focused tests cover successful retirement, refusal on each terminal status, refusal on empty reason, and mirror re-export; wired into run_tests.sh and the suite passes.",
+    "The task record enumerates every tasks-table lifecycle transition an agent can legitimately need, states which now have a sanctioned verb after this task and TASK-293 land, and explicitly names any that still do not -- so the remaining gap is documented rather than rediscovered a fourth time."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "policy",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

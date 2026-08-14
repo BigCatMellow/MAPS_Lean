@@ -1,0 +1,113 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T19:12:09Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-lilo
+session_id: codex-lab-lilo-20260726T191200Z
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+  - TASK-284
+  recent_events:
+  - event_type: APPROVED
+    task_id: TASK-268
+    summary: Independently reviewed and approved synchronized submission and review-identity
+      lifecycle work.
+  - event_type: SUBMISSION
+    task_id: TASK-284
+    summary: Submitted source-aware fingerprint pilot; its frozen holdout missed promotion
+      thresholds and remains explicitly offline.
+  touched_paths:
+  - MAP_System/artifacts/reviews/task268-review-lilo.md
+  - MAP_System/artifacts/experiments/task284-source-aware-fingerprint-pilot.md
+  - MAP_System/scripts/task_fingerprint_production_pilot.py
+  - MAP_System/tests/test_task_fingerprint_production_pilot.py
+active_constraints:
+- scope: task
+  rule: TASK-284 is frozen in SUBMITTED state and needs a clean independent review;
+    do not self-review or promote the failed pilot.
+  source: MAP_System/tasks/TASK-284.json; MAP_System/artifacts/experiments/task284-source-aware-fingerprint-pilot.md
+- scope: safety
+  rule: Do not use Claude identities through Wednesday; any helper must be visible
+    wezterm-tab and never headless.
+  source: operator directive; MAP_System/AGENTS.md
+- scope: repo
+  rule: Preserve unrelated dirty worktree changes and use sanctioned lifecycle/SQLite
+    commands only.
+  source: AGENTS.md; MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-284
+  next_action: review
+  owner: command-center
+  reason: Submitted offline fingerprint pilot requires independent review; measured
+    thresholds failed by design and no promotion is authorized.
+  paths:
+  - MAP_System/artifacts/experiments/task284-source-aware-fingerprint-pilot.md
+  - MAP_System/scripts/task_fingerprint_production_pilot.py
+  - MAP_System/tests/test_task_fingerprint_production_pilot.py
+blockers:
+- kind: approval
+  detail: TASK-274 remains security-structural approval gated; do not start it absent
+    the required approval evidence.
+  unblock_by: operator/command-center records the required structural security approval.
+lexicon:
+  MAP: Reusable multi-agent delivery system under MAP_System.
+  STATE_SNAPSHOT: Checksum-bound handoff used for verified context rotation.
+  TASK-284: Offline, noncanonical source-aware fingerprint measurement pilot; raw
+    evidence remains authoritative.
+  SYN-0001: One piece of state with two readers and no declared authority.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- MAP_System/.venv/bin/python MAP_System/tests/test_task_fingerprint_production_pilot.py
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_mirrors.py --db MAP_System/map.db
+  --root MAP_System
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_graph.py
+validation:
+- TASK-268 review approved; mirrors and graph passed after the sanctioned transition.
+- TASK-284 focused tests pass 4/4; py_compile, schema, mirrors, and graph passed before
+  submission.
+- TASK-284 frozen holdout: task recall 33.33%, primary-source recall 33.33%, negative
+    abstention 0%, byte reduction 92.28%; therefore no promotion or routing change.
+rotation:
+  reason: threshold
+  summary: Completed independent TASK-268 review and submitted TASK-284's deliberately
+    non-promoted source-aware fingerprint pilot. No live task claims remain; the next
+    priority is routing TASK-284 to a clean reviewer.
+  next_action: Read this snapshot, validate continuity, inspect TASK-284 and its three
+    registered outputs, then atomically claim its independent review if still SUBMITTED
+    and unclaimed.
+  used_tokens: 176147
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-26T19:12:09Z'
+  canonical_tasks:
+  - task_id: TASK-284
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26 19:09:57'
+  canonical_tasks_sha256: 7fc3d7aa1188642fa1b377eb03fce46bc36f04234a269f0e9929e28920513449
+  touched_paths:
+  - path: MAP_System/artifacts/experiments/task284-source-aware-fingerprint-pilot.md
+    scope: workspace
+    sha256: c2ad129d74bbf5ec673eb1e6275a667388b09622ff54ef5c8af068779085d643
+    state: file
+  - path: MAP_System/artifacts/reviews/task268-review-lilo.md
+    scope: workspace
+    sha256: c2050d52503e39d5f116ea932df2c0a75febbf29e8f6d3e3a50ad5230d2459dd
+    state: file
+  - path: MAP_System/scripts/task_fingerprint_production_pilot.py
+    scope: workspace
+    sha256: 4a94c81c856f662deef2dc8e2e09471a0447c3517a0e69f39b616e8fcd73ab33
+    state: file
+  - path: MAP_System/tests/test_task_fingerprint_production_pilot.py
+    scope: workspace
+    sha256: f74f1fd1d21c09b621219e1aefcaab06ad70259b13f06888b5bba1a9d7251715
+    state: file
+  touched_paths_sha256: fc60b1d2475ec8378045b773dd98be2de424a3ca3cd0d6e86bc447f5f41c7361

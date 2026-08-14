@@ -1,0 +1,127 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-28T22:48:29Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-rosa
+session_id: 019faae2-2a86-7bb2-bb66-da78ff618b07
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  external_authority_current_task: TASK-302
+  external_authority_pending_reviews:
+  - TASK-302
+  recent_events:
+  - event_type: REVIEW_CLAIM
+    task_id: TASK-302
+    summary: RUKI authority granted open review REV-TASK-302-codex-lab-rosa-be5509b9
+      to codex-lab-rosa.
+  - event_type: REVIEW_COMPLETE
+    task_id: TASK-302
+    summary: Independent functional review passed; 12 startup tests, 2 tab-title tests,
+      shell/Lua validation, rendered-template parity, and live roster checks passed.
+  - event_type: BLOCKED
+    task_id: TASK-302
+    summary: Remote approval failed because the new KUDU review artifact is not yet
+      present at the identical RUKI path; bigboss request 29496 asks for one-file
+      transfer or wait-for-TASK-298 direction.
+  touched_paths:
+  - MAP_System/artifacts/reviews/task302-independent-review-codex-lab-rosa.md
+active_constraints:
+- scope: repo
+  rule: KUDU is a read-only MAP database mirror; RUKI is the sole writable task authority.
+  source: MAP_System/notes/cross-pc-map-authority.md and startup prompt
+- scope: task
+  rule: Keep the TASK-302 review claim open; record the verdict only through map-authority
+    after the review artifact exists on RUKI.
+  source: MAP_System/notes/review-guide.md
+- scope: task
+  rule: Do not edit TASK-302 implementation while acting as its independent reviewer.
+  source: MAP_System/AGENTS.md
+- scope: tool
+  rule: Every replacement/model-backed agent must remain visible in a WezTerm tab;
+    never launch headless.
+  source: MAP_System/AGENTS.md
+- scope: safety
+  rule: Do not clear or supersede codex-lab-rosa until the replacement ACKs this frozen
+    snapshot hash and finalize succeeds.
+  source: MAP_System/notes/context-rotation-guide.md
+forward_tasks: []
+external_authority_forward_tasks:
+- task_id: TASK-302
+  next_action: wait
+  owner: codex-live
+  reason: Review verdict is APPROVED and artifact is locally valid, but approval must
+    wait for the artifact to reach RUKI's identical path.
+  paths:
+  - MAP_System/artifacts/reviews/task302-independent-review-codex-lab-rosa.md
+  - MAP_System/artifacts/operations/command-center-fixed-roster-2026-07-28.md
+  - MAP_System/tasks/TASK-302.json
+blockers:
+- kind: dependency
+  detail: RUKI cannot validate the review record because MAP_System/artifacts/reviews/task302-independent-review-codex-lab-rosa.md
+    currently exists only on KUDU.
+  unblock_by: Transfer the single artifact through the approved KUDU-to-RUKI path
+    or complete TASK-298 convergence, then retry map-authority task approve.
+failed_approaches:
+- approach: Prepare a snapshot with TASK-302 in the standard current-task, pending-review,
+    and forward-task fields.
+  result: KUDU's local rotation validator rejected the unknown task because its read-only
+    database mirror has not synchronized TASK-302. The retry preserves it in explicitly
+    external-authority fields while keeping the local canonical inventory exact.
+- approach: Run map-authority task approve immediately after writing the KUDU review
+    artifact.
+  result: Authority request failed because RUKI did not yet have the review-record
+    file.
+- approach: Use KUDU's local map.db to inspect TASK-302.
+  result: The mirror lagged and did not contain TASK-302; all canonical task reads
+    and writes must remain routed through map-authority.
+lexicon:
+  KUDU: This /home/mellow host; authoritative source tree but read-only MAP database
+    mirror.
+  RUKI: The /home/home host; sole writable MAP task/database authority.
+  MAP: The durable file and SQLite-backed multi-agent project system.
+  STATE_SNAPSHOT: Checksum-frozen handoff used for verified context rotation.
+  TASK-302: Restores the fixed visible Command Center Lab roster.
+resume_commands:
+- cd /home/mellow/Projects/MultiAgentProject/Source
+- map-authority task show TASK-302
+- map-authority get-open-review TASK-302
+- python3 MAP_System/scripts/validate_review.py --review-record MAP_System/artifacts/reviews/task302-independent-review-codex-lab-rosa.md
+  --task-id TASK-302
+- map-authority task approve TASK-302 --reviewer <replacement-hcom-identity> --review-record
+  MAP_System/artifacts/reviews/task302-independent-review-codex-lab-rosa.md
+validation:
+- Review record validation passed locally.
+- python3 MAP_System/tests/test_command_center_orchestrator_startup.py passed 12/12.
+- python3 -m unittest MAP_System.tests.test_command_center_lab_tab_titles -v passed
+  2/2.
+- All four source and installed fixed-agent launchers passed sh -n.
+- Installed WezTerm config parsed; rendered-template diffs were empty.
+- map-authority confirmed TASK-302 SUBMITTED and the open review claim belongs to
+  codex-lab-rosa.
+- 'Review artifact SHA-256 before prepare: 303ae3bf99bed5344fc0de97611e94391d2170bbdab86f6e44646888615d3fec.'
+rotation:
+  reason: threshold
+  summary: Startup orientation completed; librarian findings were routed; TASK-302
+    independent review passed and has a valid durable review artifact. Approval is
+    blocked only by KUDU-to-RUKI artifact transfer. No implementation files or local
+    MAP database state were mutated.
+  next_action: Read the frozen snapshot, verify the live TASK-302 review claim and
+    blocker through map-authority, ACK the snapshot hash, then await/confirm artifact
+    transfer and retry remote approval.
+  used_tokens: 122388
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-28T22:48:29Z'
+  canonical_tasks: []
+  canonical_tasks_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  touched_paths:
+  - path: MAP_System/artifacts/reviews/task302-independent-review-codex-lab-rosa.md
+    scope: workspace
+    sha256: 303ae3bf99bed5344fc0de97611e94391d2170bbdab86f6e44646888615d3fec
+    size: 4442
+    state: file
+  touched_paths_sha256: 3facdf753dc938db924cde3473fe120bc4dc16019c6e1c6d8367187362ac9439

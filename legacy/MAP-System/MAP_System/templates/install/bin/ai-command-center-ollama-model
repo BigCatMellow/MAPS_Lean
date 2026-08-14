@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eu
+
+PROJECT_DIR="${PROJECT_DIR:-__PROJECT_DIR__}"
+MODEL="${1:-}"
+WEZTERM="${WEZTERM:-$(command -v wezterm 2>/dev/null || printf '%s' '__LOCAL_BIN__/wezterm')}"
+
+case "$MODEL" in
+  qwen3.5:4b) ;;
+  *)
+    printf 'Unsupported local advisory model: %s\n' "${MODEL:-<missing>}" >&2
+    printf 'Only qwen3.5:4b has passed the bounded MAP advisory drill.\n' >&2
+    exit 2
+    ;;
+esac
+
+if [ -z "${WEZTERM_PANE:-}" ]; then
+  if [ ! -x "$WEZTERM" ] && ! command -v wezterm >/dev/null 2>&1; then
+    printf 'WezTerm is required for a visible local-model session.\n' >&2
+    exit 127
+  fi
+  exec "$WEZTERM" start --cwd "$PROJECT_DIR" -- "$0" "$MODEL"
+fi
+
+cd "$PROJECT_DIR"
+export OLLAMA_HOST=127.0.0.1:11434
+printf 'Visible local advisory session: %s (draft-only; no task/review/authority scope)\n' "$MODEL"
+exec ollama run "$MODEL"

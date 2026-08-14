@@ -1,0 +1,17 @@
+{
+  "candidate_id": "CAND-92BD2DF2D15DFBB5",
+  "status": "dismissed",
+  "signal_type": "repeated_rework",
+  "subject": "TASK-266",
+  "summary": "TASK-266 received 2 changes-requested events; inspect for a reusable prevention lesson.",
+  "evidence_refs": [
+    "MAP_System/events/events.jsonl:2233",
+    "MAP_System/events/events.jsonl:2249"
+  ],
+  "dedup_key": "92bd2df2d15dfbb5",
+  "detected_at": "2026-07-22T18:48:22Z",
+  "curated_at": "2026-07-27T18:06:15Z",
+  "curated_by": "claude-lab-nora",
+  "resolution_reason": "Quick-checked: 2 changes-requested cycles, within normal review variance for this project. No distinct reusable pattern beyond ordinary review back-and-forth found on inspection; task is already resolved/released. Not promoting to avoid diluting the E/I backlog with routine review activity.",
+  "resolution_ref": null
+}

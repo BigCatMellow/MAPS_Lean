@@ -1,0 +1,120 @@
+{
+  "seed": 42,
+  "steps": [
+    {
+      "turn": 0,
+      "lifeYou": "20",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 0,
+      "boardCountEnemy": 2,
+      "log": [
+        "Enemy played Recruit as card 1 of 2.",
+        "Enemy started turn 1 with 3 cards.Deploy Iron Warden for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. The enemy goes first."
+      ]
+    },
+    {
+      "turn": 1,
+      "lifeYou": "19",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 0,
+      "boardCountEnemy": 2,
+      "log": [
+        "Enemy played Recruit as card 1 of 2.",
+        "Enemy started turn 1 with 3 cards.Deploy Iron Warden for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. The enemy goes first."
+      ]
+    },
+    {
+      "turn": 2,
+      "lifeYou": "15",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 0,
+      "boardCountEnemy": 2,
+      "log": [
+        "Enemy played Recruit as card 1 of 2.",
+        "Enemy started turn 1 with 3 cards.Deploy Iron Warden for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. The enemy goes first."
+      ]
+    },
+    {
+      "turn": 3,
+      "lifeYou": "15",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 0,
+      "boardCountEnemy": 3,
+      "log": [
+        "Enemy played Recruit as card 1 of 2.",
+        "Enemy started turn 1 with 3 cards.Deploy Iron Warden for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. The enemy goes first."
+      ]
+    },
+    {
+      "turn": 4,
+      "lifeYou": "11",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 0,
+      "boardCountEnemy": 5,
+      "log": [
+        "Enemy played Recruit as card 1 of 2.",
+        "Enemy started turn 1 with 3 cards.Deploy Iron Warden for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. The enemy goes first."
+      ]
+    },
+    {
+      "turn": 5,
+      "lifeYou": "11",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 0,
+      "boardCountEnemy": 5,
+      "log": [
+        "Enemy played Recruit as card 1 of 2.",
+        "Enemy started turn 1 with 3 cards.Deploy Iron Warden for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. The enemy goes first."
+      ]
+    },
+    {
+      "turn": 6,
+      "lifeYou": "6",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 0,
+      "boardCountEnemy": 6,
+      "log": [
+        "Enemy played Recruit as card 1 of 2.",
+        "Enemy started turn 1 with 3 cards.Deploy Iron Warden for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. The enemy goes first."
+      ]
+    },
+    {
+      "turn": 7,
+      "lifeYou": "6",
+      "lifeEnemy": "19",
+      "phase": "Enemy turn",
+      "handCount": 3,
+      "boardCountYou": 0,
+      "boardCountEnemy": 6,
+      "log": [
+        "Enemy played Recruit as card 1 of 2.",
+        "Enemy started turn 1 with 3 cards.Deploy Iron Warden for 6 mana when ready.",
+        "New game started. Ashen Murder vs Iron Covenant. The enemy goes first."
+      ]
+    }
+  ],
+  "consoleMsgCount": 0,
+  "exceptionCount": 0,
+  "exceptions": []
+}

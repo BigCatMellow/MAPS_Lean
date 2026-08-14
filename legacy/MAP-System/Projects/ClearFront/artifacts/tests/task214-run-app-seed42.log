@@ -1,0 +1,22 @@
+STEP pick deck: Emberwild
+STEP play hand card "Seedling" (cards played before: 0)
+STEP card played (Your hand · cards played 1/2, board 1)
+STEP end turn #1 (played=true attacked=false)
+STEP play hand card "Bark Guard" (cards played before: 0)
+STEP card played (Your hand · cards played 1/2, board 2)
+STEP select attacker (click own board unit)
+STEP confirm attack
+STEP attack resolved (life 20 vs 20)
+STEP end turn #2 (played=true attacked=true)
+STEP select blocker (own ready unit)
+STEP block assigned ("Take 1 damage" -> "Resolve: 0 damage")
+STEP resolve enemy attack: "Resolve: 0 damage"
+STEP close combat report
+STEP play hand card "Ash Runner" (cards played before: 0)
+STEP card played (Your hand · cards played 1/2, board 3)
+STEP all goals met; stopping at player main
+FINAL {"deckSelect":false,"clash":false,"combatReport":false,"blockOverlay":false,"gameOver":false,"phaseTitle":"Your turn","phaseHelp":"Cards played: 1/2. Deploy Ember Warden for 6 mana to activate your Champion.","btnText":"End turn","btnDisabled":false,"handLabel":"Your hand · cards played 1/2","handClickable":0,"handTotal":2,"boardClickable":3,"boardTotal":3,"playerLife":"20","enemyLife":"20","playerMana":"1/3"}
+GOALS {"deckPicked":true,"playedCard":true,"attacked":true,"endedTurn":2,"endedAfterAttack":true,"blocked":true,"aiTurnSeen":true}
+CONSOLE_COUNT 0
+EXCEPTION_COUNT 0
+RESULT PASS

@@ -1,0 +1,179 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-22T19:55:24Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-lime
+session_id: 019f8b0c-d848-7950-a056-fb4837dcdfdc
+status: handing_off
+task_context:
+  current_task: TASK-271
+  owned_tasks:
+  - TASK-271
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-271
+    summary: Implemented verified context rotation, continuity ledger, automatic watcher
+      notices, and rollback paths.
+  - event_type: VALIDATION
+    task_id: TASK-271
+    summary: Full suite 72/74; only pre-existing TASK_SUBMITTED event warning and
+      downstream Layer-1 aggregate fail.
+  touched_paths:
+  - MAP_System/AGENTS.md
+  - MAP_System/artifacts/reviews/task271-security-selfcheck-lime.md
+  - MAP_System/notes/context-rotation-guide.md
+  - MAP_System/scripts/agent_token_status.py
+  - MAP_System/scripts/context_rotation.py
+  - MAP_System/scripts/limit_watcher.py
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/shared/context-continuity.md
+  - MAP_System/templates/install/bin/ai-command-center-lab-claude
+  - MAP_System/templates/install/bin/ai-command-center-lab-codex
+  - MAP_System/tests/test_agent_token_status.py
+  - MAP_System/tests/test_context_rotation.py
+  - MAP_System/tests/test_limit_watcher.py
+  - MAP_System/workflow/templates/state_snapshot.yaml
+active_constraints:
+- scope: task
+  rule: TASK-271 remains claimed during rotation; only finalize may transfer it after
+    checksum-bound ACK.
+  source: MAP_System/AGENTS.md
+- scope: communication
+  rule: Use hcom inform for routine progress and request only for operator decisions
+    or blockers.
+  source: operator directive
+- scope: safety
+  rule: Never clear or stop the old session before the fresh visible replacement acknowledges
+    the exact snapshot hash.
+  source: MAP_System/notes/context-rotation-guide.md
+- scope: repo
+  rule: Preserve all unrelated dirty-worktree changes; use MAP_System/scripts/map-git.
+  source: AGENTS.md
+forward_tasks:
+- task_id: TASK-271
+  next_action: continue
+  owner: codex-lab-lime
+  reason: Dogfood ACK/finalize, submit the task, and obtain independent non-owner
+    review.
+  paths:
+  - MAP_System/scripts/context_rotation.py
+  - MAP_System/shared/context-continuity.md
+- task_id: TASK-267
+  next_action: fix
+  owner: codex-lab-lime
+  reason: 'Earlier realignment submission has Kiri CHANGES_REQUESTED: correct stale
+    TASK-186 status, lane owner/claimant fields, and DEC-014 canonical-repo conflict
+    after TASK-271.'
+  paths:
+  - MAP_System/artifacts/planning/map-project-realignment-2026-07-22.md
+blockers: []
+lexicon:
+  context_rotation: Verified checkpoint, immutable snapshot, checksum-bound replacement
+    ACK, then supersession.
+  continuity_ledger: Generated MAP_System/shared/context-continuity.md human and machine
+    view used to detect drift.
+  RnS: Existing deterministic limit watcher service; now also emits transition-based
+    context rotation informs.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-271
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+validation:
+- 'test_context_rotation.py: 11/11 pass'
+- 'test_agent_token_status.py: 2/2 pass'
+- 'test_limit_watcher.py: 38/38 pass'
+- 'run_tests.sh: 72 pass, 2 unrelated baseline failures'
+- Python compilation, launcher shell syntax, task mirrors, graph, schemas, decisions,
+  redaction, and integration pass
+rotation:
+  reason: manual
+  summary: TASK-271 is implemented. The master ledger embeds deterministic state and
+    snapshot hashes; prepare/ACK/finalize are lock-protected; exporter and final ledger
+    failures roll canonical state back; snapshots are redacted and never deleted.
+    The existing watcher sends one checkpoint and one rotation inform using current-context
+    estimates, not cumulative traffic. Focused and full validations pass except the
+    established event warning baseline. Remaining work is live protocol dogfood, submit,
+    independent review, and any review fixes.
+  next_action: Read this snapshot and context-continuity.md, run context_rotation.py
+    ack with the exact hash, report ACK to codex-lab-lime, then after claim transfer
+    submit TASK-271 for independent review.
+  used_tokens: 70925
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-22T19:55:24Z'
+  canonical_tasks:
+  - task_id: TASK-267
+    status: CHANGES_REQUESTED
+    owner: codex-lab-lime
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 19:09:43'
+  - task_id: TASK-271
+    status: IN_PROGRESS
+    owner: codex-lab-lime
+    claimed_by: codex-lab-lime
+    lease_expires_at: '2026-07-22 20:14:28'
+    heartbeat_at: '2026-07-22 19:44:28'
+    updated_at: '2026-07-22 19:44:28'
+  canonical_tasks_sha256: 436700b8e3afc1354e939737379d589b14f4eafe19843b8f2cd5a3faeab9c466
+  touched_paths:
+  - path: MAP_System/AGENTS.md
+    scope: workspace
+    sha256: 50bd95170576a072d9dbcb9c3991dc428769df64beeae023d2c00d471cb97ef1
+    state: file
+  - path: MAP_System/artifacts/reviews/task271-security-selfcheck-lime.md
+    scope: workspace
+    sha256: 87b1f12341b9e44b3db2935621902530388f64dcaa49806583826667de1730e0
+    state: file
+  - path: MAP_System/notes/context-rotation-guide.md
+    scope: workspace
+    sha256: a416e27a9c6836e2af910091ba0ca7e1fcadb0c3bf4b1c3172cf69bcefedea64
+    state: file
+  - path: MAP_System/scripts/agent_token_status.py
+    scope: workspace
+    sha256: 276972cd2725e757388de920386688c292aef094f27565af32920568f0bcda37
+    state: file
+  - path: MAP_System/scripts/context_rotation.py
+    scope: workspace
+    sha256: 5b860d2dba50ba2ee9d21bb5c5e11ff0f100085180714b43f2741002e4d55d2e
+    state: file
+  - path: MAP_System/scripts/limit_watcher.py
+    scope: workspace
+    sha256: 96e8d46f29223eacd95d1e13d9f2410d5ebe36ffbea62de39b39927b64ceecda
+    state: file
+  - path: MAP_System/scripts/run_tests.sh
+    scope: workspace
+    sha256: 4347cad754f9cefb3d50317ae922f83bf5880cf7af1f87feb1add965acccaece
+    state: file
+  - path: MAP_System/shared/context-continuity.md
+    scope: protocol_generated
+    sha256: null
+    state: tracked_by_ledger_revision
+  - path: MAP_System/templates/install/bin/ai-command-center-lab-claude
+    scope: workspace
+    sha256: 46b675f9bee2f440d8a921da5cf120bf57395799f70f5863980b51302d80f130
+    state: file
+  - path: MAP_System/templates/install/bin/ai-command-center-lab-codex
+    scope: workspace
+    sha256: 0db6af7686880ca780932a456d37f5a3428a9a3e3b8e2fc55cf5bd0718ce19fe
+    state: file
+  - path: MAP_System/tests/test_agent_token_status.py
+    scope: workspace
+    sha256: fb2d4e5b3b40601a2911f1797b4771c67e50afd36a07111f5024f90bd9835587
+    state: file
+  - path: MAP_System/tests/test_context_rotation.py
+    scope: workspace
+    sha256: b446d9a9609d9b6ac3bd4e5b097bcb119f4b76bcd8f44f9e8439f869f94900dc
+    state: file
+  - path: MAP_System/tests/test_limit_watcher.py
+    scope: workspace
+    sha256: cae4550d5af850343898485936c6eb38e656fb24372f23d31a2c823d0da57d96
+    state: file
+  - path: MAP_System/workflow/templates/state_snapshot.yaml
+    scope: workspace
+    sha256: ef42fccbf436d7e105e92e51e11e70a55bc9ffa3148c658bfca5cf459a68cfa1
+    state: file
+  touched_paths_sha256: b68cb4f77f487d1539e1b46792741e2987cd785fcd15a428882f79bb879161f0

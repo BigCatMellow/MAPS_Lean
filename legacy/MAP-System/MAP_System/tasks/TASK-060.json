@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-060",
+  "title": "Patch CommandCenterUI hcom send CSRF guard",
+  "task_type": "fix",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-maki",
+  "description": "Patch the local CommandCenterUI app server so send-enabled hcom POSTs reject cross-origin browser submissions and malformed numeric inputs return clean 400 responses.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/CommandCenterUI/app/server.py",
+    "Projects/CommandCenterUI/artifacts/task060-validation.md"
+  ],
+  "acceptance_criteria": [
+    "POST /api/hcom/send rejects cross-origin Origin or Referer when present",
+    "Same-origin or no-origin localhost tool requests continue to work through existing hcom identity gates",
+    "Malformed limit and Content-Length inputs return clean 400 JSON responses"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

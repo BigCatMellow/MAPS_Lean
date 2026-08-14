@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-291",
+  "title": "Add shared-state drift check to startup orientation cadence",
+  "task_type": "maintenance",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "SYN-0001 cadence gap found 2026-07-28. shared/current-state.md's generated active-lane table drifted from canonical map.db for 6 days (TASK-263/265/274/276 rows all wrong). The control that detects this, scripts/validate_shared_state_tasks.py, already exists and is wired into scripts/run_tests.sh line 40 -- it worked correctly and is how the drift was found. The gap is cadence, not capability: nothing runs it at agent startup, so an agent that reads current-state.md during orientation can act on stale lifecycle data without ever being told it is stale. AGENTS.md Core Protocol rule 11 already establishes exactly this pattern for the emergence sentinel (check it as part of routine startup, because it has no cadence of its own). Extend the same treatment to shared-state drift. Deliberately NOT proposing auto-regeneration on read: current-state.md is a shared canonical file and silently rewriting it during another agent's orientation would be a new SYN-0001 instance, not a fix.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/AGENTS.md",
+    "MAP_System/notes/command-center-lab-restart-startup.md"
+  ],
+  "acceptance_criteria": [
+    "AGENTS.md Core Protocol documents running validate_shared_state_tasks.py (or render_active_state.py --check) as part of the standing startup habit, in the same place and style as the existing rule 11 emergence-sentinel check.",
+    "The startup note in notes/command-center-lab-restart-startup.md names the concrete command and states what an agent should do when drift is reported (regenerate via render_active_state.py and fix stale annotations), rather than only reporting it.",
+    "The guidance explicitly does NOT introduce automatic rewriting of shared/current-state.md during another agent's startup, and says why.",
+    "No executable behavior changes; this is a cadence/documentation task and run_tests.sh still passes."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

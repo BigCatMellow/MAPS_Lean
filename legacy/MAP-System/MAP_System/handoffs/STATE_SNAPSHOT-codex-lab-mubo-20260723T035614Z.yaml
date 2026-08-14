@@ -1,0 +1,197 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-23T03:56:14Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-mubo
+session_id: 019f8d14-6b4a-7162-89b5-64e56f9709eb
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+  - TASK-273
+  recent_events:
+  - event_type: RELEASED
+    task_id: TASK-236
+    summary: Independently re-reviewed and released the proposal-only advisory monitor
+      after verifying the busy-owner correction and bounded roster limitation.
+  - event_type: SUBMISSION
+    task_id: TASK-273
+    summary: Implemented and submitted sanctioned task-owner reassignment with focused
+      and full-suite verification.
+  touched_paths:
+  - MAP_System/artifacts/releases/task-236-release-checklist.md
+  - MAP_System/artifacts/reviews/task236-rereview-mubo.md
+  - MAP_System/db/claims.py
+  - MAP_System/events/events.jsonl
+  - MAP_System/scripts/map_task.py
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/tasks/TASK-236.json
+  - MAP_System/tasks/TASK-273.json
+  - MAP_System/tests/test_reassign_owner.py
+  - MAP_System/workflow/task_graph.json
+failed_approaches:
+- TASK-236 live monitor output was initially summarized with the wrong JSON shape;
+  direct inspection confirmed the expected 23 findings and correct split.
+- TASK-236's delivery note changed after submission and again after approval. Each
+  change was disclosed, reloaded, hash-checked, and incorporated into the independent
+  review/release evidence; future submissions must stay frozen.
+- TASK-273 cannot use a map_task synchronized submit verb yet because that is TASK-268's
+  sequenced scope; submission used the existing low-level submit_task plus canonical
+  event and mirror export.
+active_constraints:
+- scope: repo
+  rule: Preserve the unrelated dirty worktree and use MAP_System/scripts/map-git for
+    Git inspection.
+  source: AGENTS.md
+- scope: task
+  rule: TASK-273 is SUBMITTED and requires independent review before release. Do not
+    self-review or mutate its submitted outputs.
+  source: TASK-273 and MAP_System/AGENTS.md
+- scope: task
+  rule: TASK-268 shares claims.py, map_task.py, and run_tests.sh and must remain unclaimed
+    until TASK-273 is reviewed and released.
+  source: task output paths and task-graph collision gate
+- scope: task
+  rule: INS-0039/no-self-review implementation is separately scoped and sequenced
+    behind TASK-273 and TASK-268.
+  source: TASK-273 acceptance criteria and zaro hcom coordination
+- scope: communication
+  rule: Use hcom request only for decisions, approvals, blockers, conflicts, privacy/scope
+    risks, or questions; routine progress is inform.
+  source: operator startup directive
+- scope: tool
+  rule: Any hcom-spawned agent or helper must use --terminal wezterm-tab and must
+    not use --headless.
+  source: MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-273
+  next_action: review
+  owner: claude-lab-zaro
+  reason: Submitted with independent review requested; focused 5/5 and full suite
+    72 pass / 3 disclosed baseline failures.
+  paths:
+  - MAP_System/db/claims.py
+  - MAP_System/scripts/map_task.py
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/tests/test_reassign_owner.py
+- task_id: TASK-268
+  next_action: wait
+  owner: command-center
+  reason: Wait for TASK-273 release, then claim and register the overlapping synchronized
+    submission/review-identity outputs.
+  paths:
+  - MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+- task_id: TASK-265
+  next_action: ask_operator
+  owner: command-center
+  reason: Still policy-gated on security/structural approval and authority decisions.
+  paths:
+  - MAP_System/templates/install/command-center-ui/app/server.py
+blockers:
+- kind: dependency
+  detail: TASK-268 overlaps TASK-273's lifecycle files.
+  unblock_by: Independently approve and release TASK-273.
+- kind: approval
+  detail: TASK-265 requires command-center security/structural approval and authority
+    decisions.
+  unblock_by: Operator records the decisions and satisfies the policy gate.
+lexicon:
+  HPOM: Human-Paced Orchestration Model for worker fit and authority routing.
+  MAP: File-backed multi-agent delivery system with SQLite claim coordination.
+  MATOCP: Compact agent communication tokens such as !ACK, !REQ, and !LGTM.
+  TASK-273: Sanctioned task-owner reassignment verb, now submitted for review.
+  TASK-268: Synchronized submission lifecycle verb, sequenced after TASK-273 release.
+  INS-0039: Separate no-self-review authority defect; do not fold into TASK-273.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-273
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-268
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- MAP_System/scripts/map-git status --short
+validation:
+- TASK-236 focused suite passed 25/25; full suite reproduced 71/3 baseline; independent
+  review validated; task released; mirrors and graph passed.
+- TASK-273 focused suite passed 5/5; no-self-review tests passed 2/2 and review claim
+  tests passed 12/12; full suite passed 72 with the same 3 baseline failures.
+- TASK-273 task mirrors, graph, schema, py_compile, and scoped diff-check passed.
+rotation:
+  reason: threshold
+  summary: Replaced Lori through a verified rotation, independently reviewed and released
+    TASK-236, then implemented and submitted TASK-273. Owner reassignment now has
+    a sanctioned function and CLI, identity registration, auditable events, terminal
+    refusal, and exact adjacent-field preservation. TASK-273 awaits Zaro review; TASK-268
+    and INS-0039 remain sequenced behind its release.
+  next_action: Validate continuity, inspect Zaro's TASK-273 review status, release
+    if independently approved, then claim TASK-268 and register its overlapping implementation
+    outputs before editing.
+  used_tokens: 131164
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-23T03:56:14Z'
+  canonical_tasks:
+  - task_id: TASK-265
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-21T22:18:49Z'
+  - task_id: TASK-268
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23 03:28:44'
+  - task_id: TASK-273
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23 03:55:07'
+  canonical_tasks_sha256: cc45d99d153aa28d00392feb6b968a3058baa12e2b529d3f44907689a8e7eb4c
+  touched_paths:
+  - path: MAP_System/artifacts/releases/task-236-release-checklist.md
+    scope: workspace
+    sha256: 24995c0a7ba6898284edde0d021dac06072ae2b0dc382eec28569804c086cffb
+    state: file
+  - path: MAP_System/artifacts/reviews/task236-rereview-mubo.md
+    scope: workspace
+    sha256: 882437f9cd36881e51f6a33ab57f95cd5ab8194450dc0590858db195855936b7
+    state: file
+  - path: MAP_System/db/claims.py
+    scope: workspace
+    sha256: 8f2499bb1114ba0f5643149e7402c7b79048405a7c0b1c66f9f1fd73ad2c41bd
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: e38b384cda79cfc19dc246b3865210888233d9ebd76c772d79b684d5d13c0877
+    state: file
+  - path: MAP_System/scripts/map_task.py
+    scope: workspace
+    sha256: 1c7329b085ac45fc9a1c62a3243c88e8148dc6ebbca13594ef46e1ea7af15b91
+    state: file
+  - path: MAP_System/scripts/run_tests.sh
+    scope: workspace
+    sha256: 2b52a6712f0aa64b6a3dbf55243b85f14da210303ef3a0b5f02ccb9cf156ac71
+    state: file
+  - path: MAP_System/tasks/TASK-236.json
+    scope: workspace
+    sha256: a2a1ad7bc46ec4f554f9919fea3c577c9ca72ab8661b38df90b15dd1fcd58481
+    state: file
+  - path: MAP_System/tasks/TASK-273.json
+    scope: workspace
+    sha256: bcdfce894e23806f5d6038dcdff7fb2e35dd3a09400e4a8a3752e8e670c4ddee
+    state: file
+  - path: MAP_System/tests/test_reassign_owner.py
+    scope: workspace
+    sha256: 0883c42756ed5a7dccde48841e71f357a3bb64a11b2632c7bd02f287aee5a0b4
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 2dd0313467c1af5d0abd14f16056d0d6c069a219d72fac432e2b8b26d36ecca4
+    state: file
+  touched_paths_sha256: 4277cdb6fdfbda0dc097935b338d4ee36b1da205172b3e4612000c8d913ef74b

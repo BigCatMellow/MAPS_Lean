@@ -1,0 +1,41 @@
+{
+  "task_id": "TASK-288",
+  "title": "Reconcile release-checklist requirement with risk-tiered review policy (F5)",
+  "task_type": "maintenance",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "release_task.py's REQUIRED_CHECKS unconditionally demands 5 checked boxes (shared-file updates, decisions recorded, follow-up tasks, event log entry, emergence capture) to move any task from APPROVED to RELEASED, regardless of risk tier. This contradicts notes/review-guide.md's 2026-07-17 Risk-Tiered Review policy, which says low-risk changes should 'skip a standalone release checklist unless the change is operator-visible enough to warrant one,' and CHANGE_CONTROL_SYSTEM.md, which ties the checklist requirement to whether output touches shared/, templates/, or another system's canonical file -- a third, different rule. release_task.py implements none of these conditions; map_task.py release is a thin wrapper with no alternate path. This is tracked as open finding F5 in notes/system-improvement-implementation-plan.md ('review/release-tier disagreement between the 2026-07-17 review guide and CHANGE_CONTROL_SYSTEM.md/release_task.py'), previously deferred pending a decision or repeat incident. That incident has occurred: as of 2026-07-28, 90 tasks sit APPROVED and unreleased (some since 2026-07-17), and the last RELEASE event in the entire system was 2026-07-23 -- 5 days with zero releases. Reconcile the three sources into one rule, implement it in release_task.py, and provide a path to clear the existing backlog.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/CHANGE_CONTROL_SYSTEM.md",
+    "MAP_System/migration/schema.sql",
+    "MAP_System/notes/review-guide.md",
+    "MAP_System/notes/system-improvement-implementation-plan.md",
+    "MAP_System/scripts/batch_release_low_risk.py",
+    "MAP_System/scripts/release_task.py",
+    "MAP_System/shared/decisions.md",
+    "MAP_System/tests/test_release_gate.py"
+  ],
+  "acceptance_criteria": [
+    "notes/review-guide.md's risk-tier checklist rule and CHANGE_CONTROL_SYSTEM.md's output-path-scope checklist rule are reconciled into a single stated rule for when a standalone release checklist is required, referenced identically by both docs.",
+    "release_task.py's REQUIRED_CHECKS enforcement matches that single rule in code (e.g. low-risk / non-canonical-path tasks can release with a reduced or single-line justification instead of all 5 boxes), not just in docs.",
+    "Existing tests for release_task.py are updated/extended to cover the new tier-aware behavior and still pass; no regression on the STRUCTURAL/canonical-path case, which keeps the full checklist.",
+    "A documented path (batch script or explicit per-task justification) exists to clear the current APPROVED backlog (90 tasks as of 2026-07-28) under the reconciled rule without hand-authoring 90 full checklists, unless the reviewer explicitly determines a given task is high/medium risk.",
+    "Finding F5 in notes/system-improvement-implementation-plan.md is marked resolved with a reference to this task's decision record in shared/decisions.md."
+  ],
+  "decision_class": "POLICY",
+  "risk_class": "PROCESS",
+  "risk_severity": "BLOCKING",
+  "task_tier": "policy",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

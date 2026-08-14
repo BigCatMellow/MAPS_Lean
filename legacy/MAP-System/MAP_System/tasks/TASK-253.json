@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-253",
+  "title": "Preserve ClearFront UI prototype and prepare continuity QA packet",
+  "task_type": "documentation",
+  "role": "tester",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Preserve Claude\u2019s current ClearFront side-rails prototype outside volatile scratch storage and create a durable continuity/QA packet covering locked operator feedback, prototype state, user-supplied asset readiness, baseline evidence, post-integration checks, and a collision-free handback. Do not modify ClearFront production HTML, CSS, JavaScript, game mechanics, or source provenance.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/notes/ui-redesign-continuity-qa-2026-07-19.md",
+    "Projects/ClearFront/prototypes/clearfront-side-rails-2026-07-19.html"
+  ],
+  "acceptance_criteria": [
+    "The preserved prototype is byte-identical to Claude\u2019s latest scratchpad file and its source path, timestamp, size, and SHA-256 are recorded.",
+    "The continuity packet distinguishes already-applied prototype changes, outstanding operator corrections, known asset mappings, asset-readiness limitations, and decisions that must not be inferred.",
+    "The packet records the green pre-integration automated-test baseline and defines observable desktop, mobile, interaction, readability, asset, and regression checks with evidence destinations.",
+    "Only the two registered continuity outputs are added; ClearFront production code, mechanics, and governing source files are untouched."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

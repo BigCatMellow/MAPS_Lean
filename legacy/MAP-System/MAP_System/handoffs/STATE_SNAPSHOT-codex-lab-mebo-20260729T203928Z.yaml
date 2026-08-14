@@ -1,0 +1,187 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T20:39:28Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-mebo
+session_id: 019fac42-bb78-7461-8200-31b9dd9a25d1
+status: handing_off
+
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+    - TASK-305
+    - TASK-308
+  recent_events:
+    - event_type: GITHUB_PUSH_VERIFIED
+      task_id: null
+      summary: >
+        Biggie accumulated source is at origin/main commit
+        ebf145493f6b8c953ac3162a408a7181d2fb9d62. This is source publication
+        only and has not been deployed to Smalls.
+    - event_type: PUBLICATION_RISK
+      task_id: null
+      summary: >
+        GitHub repository BigCatMellow/MultiAgentProject is PUBLIC. Existing
+        history contains Source/MAP_System/map.db-shm, an empty map.db-wal,
+        and an empty Source/map.db. Further broad pushes are on hold. Mebo
+        requested approval from bigboss to make the repository private and
+        prepare, but not execute, reviewed history cleanup.
+    - event_type: RNS_CONTAINMENT
+      task_id: TASK-305
+      summary: >
+        Stale RnS incident reopened Valo twice after a safe-stop audit. Valo
+        had no claim, lease, review, background process, or pending mutation.
+        The KUDU-local incident was advanced to the existing terminal probe
+        state; dry-run emits no Valo relaunch.
+    - event_type: GATE_PENDING
+      task_id: TASK-308
+      summary: >
+        Exact gateway patch is independently code/security approved but not
+        deployed. TASK-308 remains READY and policy-gated for a durable
+        command-center operator plus SECURITY/STRUCTURAL approval record.
+    - event_type: CCL_ALIGNMENT_PENDING
+      task_id: TASK-306
+      summary: >
+        Biggie canonical CCL bundle is versioned as
+        2026-07-29-orchestrator-v2-recap. Smalls deployment and parity remain
+        incomplete, so TASK-306 is CHANGES_REQUESTED.
+  touched_paths:
+    - MAP_System/agents/limit-watcher-state.json
+    - MAP_System/artifacts/operations/rns-cross-pc-stale-reset-loop-2026-07-29.md
+
+active_constraints:
+  - scope: authority
+    rule: >
+      Biggie/KUDU is a read-only MAP mirror. All canonical task, review,
+      agent, and rotation lifecycle writes route through map-authority to
+      Smalls/RUKI. Never mutate local MAP_System/map.db.
+    source: AGENTS.md, MAP_System/AGENTS.md, cross-PC authority protocol
+  - scope: deployment
+    rule: >
+      Do not write to Smalls until TASK-308 receives a durable command-center
+      approval record. Deploy only the independently approved exact hashes,
+      with backup, staging, checksum verification, fail-closed live probes,
+      and independent final review.
+    source: TASK-308
+  - scope: publication
+    rule: >
+      Hold further broad GitHub pushes. Do not rewrite history, force-push,
+      change repository visibility, or delete published data without explicit
+      operator approval and an exact reviewed plan.
+    source: hcom github-publication-risk thread
+  - scope: rotation
+    rule: >
+      The operator prefers four fixed CCL windows. Do not launch another
+      replacement tab, prepare/finalize a rotation, or supersede this session
+      without an approved same-window path or explicit legacy-tab decision.
+    source: operator chat and hcom fixed-window-rotation thread
+  - scope: cleanup
+    rule: >
+      Before stopping an agent, confirm no live claim, background process, or
+      unfinished handoff. Preserve the fixed Biggie roster and current Smalls
+      continuity holders.
+    source: operator chat and agent-cleanup evidence
+
+forward_tasks:
+  - task_id: TASK-308
+    next_action: ask_operator
+    owner: claude-lab-nene
+    reason: >
+      Await durable command-center operator and SECURITY/STRUCTURAL approval.
+      Then Nene claims, checksum-stages, backs up, deploys, and live-verifies
+      the reviewed gateway patch on RUKI.
+    paths:
+      - MAP_System/artifacts/operations/gateway-rotation-ops-live-deployment-2026-07-29.md
+      - MAP_System/artifacts/reviews/task307-smalls-rereview3-codex-lab-vumo.md
+  - task_id: TASK-306
+    next_action: wait
+    owner: claude-lab-nene
+    reason: >
+      After TASK-308 deployment, align Smalls to the exact Biggie CCL bundle
+      using timestamped backup, staged checksums, recoverable activation,
+      smoke tests, parity proof, and independent review.
+    paths:
+      - MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+      - MAP_System/notes/command-center-cross-pc-sync.md
+  - task_id: TASK-305
+    next_action: review
+    owner: codex-lab-replacement-valo
+    reason: >
+      INS-0054 through INS-0057 changes are SUBMITTED. Independent rereview
+      evidence exists on Biggie, but RUKI artifact visibility/task-level
+      approval remains unresolved. Do not auto-resume Valo.
+    paths:
+      - MAP_System/artifacts/tests/ins0054-0057-integration-delivery-note.md
+
+blockers:
+  - kind: approval
+    detail: >
+      TASK-308 lacks a machine-readable command-center operator and
+      SECURITY/STRUCTURAL approval record.
+    unblock_by: bigboss records bounded approval for the exact reviewed deployment
+  - kind: publication_risk
+    detail: >
+      The GitHub repository is public and existing history contains runtime DB
+      sidecar artifacts. No live credential pattern was found beyond a
+      redaction-test fixture, but the broad publication was not independently
+      reviewed.
+    unblock_by: operator approves private visibility, then reviewed audit and cleanup plan
+  - kind: protocol
+    detail: >
+      Current verified context rotation launches extra tabs and the gateway
+      operations needed for safe cross-PC rotation are not deployed.
+    unblock_by: TASK-308 deployment plus approved fixed-window rotation implementation
+  - kind: operational
+    detail: >
+      KUDU RnS cannot clear stale authoritative availability state by writing
+      its read-only mirror, causing repeated false reset prompts to Nene.
+    unblock_by: post-TASK-308 allowlisted authority-side availability-clear operation
+
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and sole writable MAP authority
+  fixed window: persistent Codex, Claude, Pi, or Librarian terminal slot with fresh model process loaded in place
+  canonical CCL version: 2026-07-29-orchestrator-v2-recap
+  GitHub synchronization point: ebf145493f6b8c953ac3162a408a7181d2fb9d62 on origin/main
+
+resume_commands:
+  - hcom list -v --json --name mebo
+  - map-authority status
+  - map-authority task show TASK-308
+  - map-authority task show TASK-306
+  - map-authority task show TASK-305
+  - map-authority route
+  - MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+  - MAP_System/.venv/bin/python MAP_System/graph/runner.py
+  - MAP_System/scripts/map-git rev-parse HEAD
+  - gh repo view --json nameWithOwner,visibility,url,defaultBranchRef
+
+validation:
+  - Biggie and Smalls hcom relays are connected and cross-device messaging works.
+  - Live roster is Biggie mebo/nene/sage/kobe plus Smalls veni/vumo/noze.
+  - No MAP task is currently IN_PROGRESS.
+  - TASK-308 is READY, unclaimed, and policy-gated.
+  - TASK-306 is CHANGES_REQUESTED and Smalls CCL parity is incomplete.
+  - TASK-305 is SUBMITTED with no claim, lease, or open review.
+  - HEAD and origin/main both resolve to ebf145493f6b8c953ac3162a408a7181d2fb9d62.
+  - Valo is absent from the live roster and RnS dry-run emits no Valo action.
+  - No Smalls CCL or gateway deployment has occurred.
+
+rotation:
+  reason: command_center_restart
+  summary: >
+    Established working Biggie-Smalls hcom communication, versioned Biggie as
+    the canonical CCL source, independently reviewed the cross-PC gateway
+    security patch, created the workflow-safe TASK-308 deployment continuation,
+    cleaned stale agents, diagnosed and contained obsolete RnS relaunches, and
+    verified the GitHub synchronization commit. Smalls deployment remains
+    gated. A public-repository publication risk is awaiting operator action.
+  next_action: >
+    On restart, orient from this snapshot and the live roster. Preserve all
+    holds. First resolve the public GitHub visibility decision and TASK-308
+    canonical approval; then deploy and verify the gateway before CCL parity
+    or fixed-window rotation implementation.
+  used_tokens: 160910
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens

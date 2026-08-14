@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-210",
+  "title": "Fix limit_watcher.py invalid hcom sender name (same class as TASK-206)",
+  "task_type": "maintenance",
+  "role": "implementer",
+  "status": "RETIRED",
+  "dependencies": [],
+  "owner": "claude-lab-gome",
+  "description": "Diagnosed by codex-lab-lilo during RnS 2026-07-17 01:25 session-reset handling (clearfront-map hcom thread #852): MAP_System/scripts/limit_watcher.py:43 sets SENDER = 'limit-watcher' (hyphenated), used as hcom --name at lines 564, 589, 793, 818, 844. hcom instance names must be underscore-safe (same class of bug TASK-206 fixed for the ai/ai-command-center-monitor wrappers), so limit_watcher's active-session nudge to claude-lab-gome failed at the 01:25:23 fire. A stray host-level watcher process (PID 33852) then retried the failing send roughly once/minute until lilo manually killed it. Fix SENDER to an underscore-safe name (e.g. limit_watcher), verify all 5 call sites, and confirm a real nudge send succeeds end-to-end. Check whether other hardcoded --name literals in MAP_System/scripts/ have the same hyphen problem while in there (grep for --name literals) and note findings even if out of scope to fix here. Unclaimed and open to any available core agent -- not ClearFront-specific. Superseded by operator-directed TASK-221, which includes the sender-name repair and broader persistent-supervisor hardening.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task-210-superseded-by-task-221.md"
+  ],
+  "acceptance_criteria": [
+    "SENDER (or equivalent) is underscore-safe and every hcom send call site uses it consistently.",
+    "A live end-to-end test proves the watcher's hcom send succeeds (not just that the script runs without a Python exception).",
+    "No stray/orphaned watcher process is left behind by the fix or its test.",
+    "A brief note records whether any other MAP_System/scripts/ file has the same hyphenated --name pattern."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

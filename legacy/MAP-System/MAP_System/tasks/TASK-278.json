@@ -1,0 +1,45 @@
+{
+  "task_id": "TASK-278",
+  "title": "Enforce review separation using durable submission authorship",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-274",
+    "TASK-277"
+  ],
+  "owner": "command-center",
+  "description": "Implement the approved TASK-277 P0 integrity slice after TASK-274 preserves submission authorship. Add a canonical author identity that survives submission and owner reassignment, then key review claim and terminal review gates to that identity while preserving atomic duplicate-review arbitration. Existing submissions with unknown authorship must follow an explicit safe migration or escalation rule. Output sequencing: MAP_System/db/claims.py remains owned by TASK-274 and MAP_System/scripts/map_task.py remains owned by TASK-268. Register each deferred path with map_task.py add-output-path only after its predecessor releases, before editing that path.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task278-review-authorship-delivery-note.md",
+    "MAP_System/db/claims.py",
+    "MAP_System/db/review_authorship.py",
+    "MAP_System/migration/schema.sql",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/validate_review.py",
+    "MAP_System/tests/test_review_authorship.py",
+    "MAP_System/tests/test_review_claims.py",
+    "MAP_System/tests/test_review_gate.py"
+  ],
+  "acceptance_criteria": [
+    "Canonical submission author identity survives SUBMITTED transitions, owner reassignment, rejection, rework, and resubmission without relying on reviewer-authored artifact text.",
+    "claim_review and approve or reject prevent the actual submission author from reviewing even when tasks.owner differs, while allowing a genuinely independent reviewer.",
+    "Legacy or open submissions with unknown author identity are handled by an explicit conservative migration or escalation rule; absence is never interpreted as proof of independence.",
+    "Atomic duplicate-review arbitration remains separate and unchanged in behavior, with race and owner-author-drift regression tests.",
+    "Focused lifecycle, mirror, event, and review validators pass and the delivery note records compatibility, rollback, and residual risk."
+  ],
+  "decision_class": "AUTHORITY",
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

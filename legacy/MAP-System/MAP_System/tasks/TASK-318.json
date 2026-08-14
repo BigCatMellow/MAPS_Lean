@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-318",
+  "title": "StarCraft RPG Companion: centralize shared CSS, preserve per-army themes",
+  "task_type": "feature",
+  "role": "implementer",
+  "status": "SUBMITTED",
+  "dependencies": [],
+  "owner": "claude-lab-gina",
+  "description": "Operator directive picked up from a separate, non-hcom Claude Code session (transcript: ~/.claude/projects/-home-mellow/3bf298ea-f64e-4f48-b280-18d66a2e1115.jsonl) working in '/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design'. Prior session status carried over: (1) DONE - Node build pipeline (scripts/build-{units,missions,rules,all}.mjs) parses uploads/*.html into terran-data.js/zerg-data.js/protoss-data.js/missions-data.js/rules-data.js, validated via diff against committed output, wired to npm run build; docs/updating-data.md written. (2) DONE, unverified visually - Command Center.dc.html splash/intro fixed to only play once per browser via localStorage sctmg_intro_seen flag instead of on every navigation back to the Command Center; local server was at localhost:8934, Chrome extension was disconnected so the fix was never confirmed visually. (3) OPEN, unclarified - user reported 'unit details are appearing in the cards that extend' (UnitDetail expands inline in unit cards via en.expanded -> dc-import UnitDetail); assistant asked a clarifying AskUserQuestion that was interrupted before being answered, then user said they weren't using the right server link. Root issue not yet confirmed as real vs. a red herring from viewing the app wrong. (4) ACTIVE TASK (this task's scope) - operator asked to centralize shared CSS (things like border thickness) into one central stylesheet/html for consistency across Command Center.dc.html, Terran/Zerg/Protoss Army.dc.html, Rules.dc.html, Missions.dc.html, UnitDetail.dc.html, while preserving per-army theme values (colors) in each army's own file. Prior session entered Plan Mode and ran a read-only Explore agent that had just confirmed #38d3e8 cyan is a universal gas/resource+Tactical Cards semantic color reused identically across factions (not itself a faction theme color) before the session's transcript ends. No plan was proposed/approved yet. A baseline git commit (be1e49e) was made in this previously non-version-controlled folder before any further edits, as a safety net.",
+  "input_paths": [],
+  "output_paths": [
+    "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  ],
+  "acceptance_criteria": [
+    "A single shared stylesheet/partial holds non-color, cross-army-consistent style rules (e.g. border thickness, spacing, layout primitives) used by all .dc.html pages.",
+    "Per-army color/theme values remain defined in each army's own .dc.html (Terran/Zerg/Protoss) and are not hardcoded into the shared stylesheet.",
+    "All existing pages (Command Center, Terran/Zerg/Protoss Army, Rules, Missions, UnitDetail) render with no visual regression versus the pre-change baseline commit (be1e49e).",
+    "The splash-intro localStorage fix is visually verified working (plays once, skipped on return trips) since the prior session could not confirm it.",
+    "The 'unit details appearing in the cards that extend' report is either reproduced and fixed, or confirmed as expected behavior / a viewing-setup red herring, with the reasoning recorded."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

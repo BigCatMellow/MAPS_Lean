@@ -1,0 +1,41 @@
+{
+  "task_id": "TASK-312",
+  "title": "WS-3: Restore one reproducible green MAP baseline",
+  "task_type": "verification-repair",
+  "role": "tester",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-311"
+  ],
+  "owner": "zeno",
+  "description": "Child of TASK-309, gated on TASK-311. Reproduce and resolve the approved recovery baseline failures without broad refactoring: separate environmental fixture limitations from product defects, repair truthful stale assertions and invalid active evidence, and publish one canonical command plus result. Do not begin active-core moves or new subsystem work.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/recovery/ws3-green-baseline.md",
+    "MAP_System/artifacts/research/SUMMARY-herdr-comparison-2026-07-22.md",
+    "MAP_System/events/warning_baseline.json",
+    "MAP_System/shared/active-lane-annotations.json",
+    "MAP_System/shared/current-state.md",
+    "MAP_System/tests/test_chaos_resilience.py",
+    "MAP_System/tests/test_liveness_reaper.py"
+  ],
+  "acceptance_criteria": [
+    "A single documented baseline command runs in the declared environment and passes, or each remaining non-product environmental limitation is independently demonstrated and isolated.",
+    "The baseline addresses the seven captured failures, including collision checks, invalid herdr evidence, new event warnings, TASK-294 stale assertions, and the Layer1 derivative.",
+    "No unrelated user changes are overwritten and every code or evidence change has a focused regression test or validator.",
+    "A different core agent independently reproduces the final baseline before approval."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "BLOCKING",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

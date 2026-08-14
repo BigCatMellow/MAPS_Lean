@@ -1,0 +1,166 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-28T01:29:08Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-lili
+session_id: d81f7b35-a3cb-4f03-9188-ab47b76ed4fa
+status: handing_off
+task_context:
+  current_task: TASK-263
+  owned_tasks:
+  - TASK-263
+  pending_reviews: []
+  recent_events:
+  - event_type: CLAIM
+    task_id: TASK-263
+    summary: Operator directive - codex is down, claude-lab covering codex tasks.
+      Claimed TASK-263 (READY, owned codex-lab-kiri, unclaimed) as claude-lab-lili.
+      This is attempt 3/3 (max_attempts=3); no more attempts after this without operator
+      authorization for a REPAIR-style extension.
+  touched_paths:
+  - MAP_System/scripts/task_memory_claim_evidence_pilot.py
+  - MAP_System/map.db
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/tasks/TASK-263.json
+active_constraints:
+- scope: task
+  rule: TASK-263 forbids modifying TASK-260..TASK-262 artifacts, forbids production
+    integration, forbids embeddings/reranker/knowledge-graph, and forbids authoring
+    treatment against evaluation questions before the holdout is frozen.
+  source: MAP_System/tasks/TASK-263.json forbidden_changes
+- scope: independence
+  rule: The frozen holdout at MAP_System/artifacts/experiments/task-memory-claim-evidence-holdout-2026-07-19.json
+    (sha256 635aa5f0b41bdded414fac6b6a7cf82cb2841395751813ad6213619eb0f75e3f) was
+    authored independently by claude-lab-gabi on 2026-07-22 and MUST NOT be edited.
+    claude-lab-gabi is disqualified from treatment/evaluation. `soba` was reserved
+    as blind evaluator but is not currently a live agent (not in MAP_System/map.db
+    agents table); lili is proceeding as treatment implementer with the deterministic
+    scorer built into the same script, and is flagging this explicitly for the independent
+    TASK-263 code reviewer (a different agent, per reviewer_role) to weigh in on any
+    judgment-requiring scoring calls (acceptable substitutes, polarity abstention)
+    rather than treating lili's self-scored numbers as final.
+  source: MAP_System/inbox/helpers/helper-index-claim-holdout-2026-07-19.md, MAP_System/handoffs/HANDOFF-TASK-263-freeze-to-codex-lab-kiri.md
+- scope: repo
+  rule: SQLite is canonical for lifecycle state; file mirrors (tasks/*.json, workflow/task_graph.json)
+    synced via MAP_System/migration/export_to_files.py after claim/status changes.
+  source: MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-263
+  next_action: implement
+  owner: claude-lab-lili
+  reason: 'Treatment script MAP_System/scripts/task_memory_claim_evidence_pilot.py
+    is written and runs end to end against the frozen holdout, but metrics are weak
+    and one mechanism is clearly broken: task_recall 7/23, exact_source_accuracy 11/41,
+    anchored_evidence_accuracy 5/41, abstention 0/5 (ALL 5 negatives false-positive
+    matched -- MIN_TASK_SCORE=6.0 threshold is too low relative to near-miss scores),
+    historical_version_correctness 3/3 (this part works: per-symbol/per-heading origin
+    attribution via inline TASK-XXX tags correctly resolves H01/H02/H03 to their true
+    originating task rather than the newest task touching the shared file -- this
+    is the core idea working as intended).
+
+    Root cause of low recall: ClaimIndex.score_card only matches query tokens against
+    each card''s own context_text (symbol name + docstring first line + ~9 lines of
+    local file context / heading text). Most frozen-holdout questions are phrased
+    at the task-acceptance-criteria level ("what stops the second loop from starting",
+    "which mechanism enforces that distinction"), not at the raw code-identifier level,
+    so many true-positive cards score near zero and lose to noise or nothing at all.
+
+    Concrete next step (not yet done): add the origin task''s title+description+acceptance_criteria
+    tokens (task_text_tokens[card["task_id"]], already computed in build_claim_cards
+    but currently discarded) into each card''s matchable text, weighted LOWER than
+    the local anchor context (e.g. count local-context tokens at full IDF weight,
+    task-text tokens at ~0.4x weight) so exact-anchor matches still win over generic
+    task-level matches, but a good task-level phrase can still surface the right card.
+    After that change, recompute MIN_TASK_SCORE calibration (currently a flat 6.0,
+    chosen by design reasoning only, never tuned against the frozen 28 queries --
+    keep it that way; if recall improves but abstention still fails, consider a relative-margin
+    abstention rule -- e.g. abstain unless best_task_score exceeds the second-best
+    DIFFERENT task''s score by some ratio AND clears an absolute floor -- rather than
+    just raising the flat floor, since near-miss negatives (N03 TASK-048, N04 TASK-044/047,
+    N05 TASK-024) need to lose to "nothing" specifically because they lack the query''s
+    distinguishing rare tokens, and a pure IDF-weighted score should already suppress
+    them somewhat -- inspect per_query in the output JSON to see actual scores before
+    changing the threshold blindly).
+
+    Do NOT hand-tune per-item rules keyed to specific query IDs (P01, N04, etc.) --
+    that is overfitting to the frozen answer key and would invalidate the experiment.
+    Only tune general mechanisms (weighting formula, threshold shape) and re-run the
+    whole 28-query set to see the aggregate effect.
+
+    After metrics stabilize, still to do: write MAP_System/tests/test_task_memory_claim_evidence_pilot.py
+    (focused tests: attribute_symbol disambiguation methods, abstention on a synthetic
+    negative, historical attribution on a synthetic shared-file case, end-to-end run
+    producing the same claim_card_count on a fixed corpus slice), update MAP_System/emergence/experiments/EXP-0006-*.md
+    Result/Decision section with the final numbers and a recommendation (adopt/revise/reject/park
+    -- revise is likely given partial success), then MAP_System/.venv/bin/python MAP_System/scripts/map_task.py
+    submit TASK-263 --actor claude-lab-lili, sync mirrors, and hcom inform the lab
+    plus flag for independent review per reviewer_role.'
+  paths:
+  - MAP_System/scripts/task_memory_claim_evidence_pilot.py
+  - MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.json
+  - MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.md
+  - MAP_System/emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md
+blockers: []
+lexicon:
+  claim card: One (origin_task_id, exact anchor) unit built by the new pilot script;
+    unlike the existing frozen retriever which attributes a whole shared file to every
+    linked task, each card is attributed to its single best-evidenced originating
+    task via inline TASK-XXX tags, versioned module-header hints, or acceptance-criteria
+    text-overlap fallback, in that preference order.
+  MIN_TASK_SCORE: Flat IDF-weighted score floor (6.0) below which retrieve() abstains;
+    calibrated by design reasoning only, never against the frozen 28 queries.
+  soba: A previously-active claude-lab identity reserved as blind TASK-263 evaluator
+    in earlier handoffs; not currently registered in MAP_System/map.db agents table
+    (checked 2026-07-28), so not available this session.
+rotation:
+  reason: threshold
+  summary: Claimed TASK-263 (attempt 3/3) after verifying the existing frozen holdout
+    (claude-lab-gabi, 2026-07-22, sha256 verified unchanged). Read all required context
+    (EXP-0006, capsule/evidence-verifier pilots, retrieval-capsule-guide, packet_selector,
+    task_memory_fts). Designed and wrote MAP_System/scripts/task_memory_claim_evidence_pilot.py
+    from scratch (does not modify any frozen script). First end-to-end run against
+    the frozen holdout produced weak but partially-working metrics (historical attribution
+    3/3 works as designed; recall/precision/abstention need one more iteration per
+    forward_tasks above). Hit context rotation threshold mid-iteration; stopping to
+    hand off cleanly rather than risk an unclean mid-edit state on the final attempt.
+  next_action: Read this snapshot's forward_tasks TASK-263 entry in full, then open
+    MAP_System/scripts/task_memory_claim_evidence_pilot.py, apply the described context_text
+    enrichment, re-run `python3 MAP_System/scripts/task_memory_claim_evidence_pilot.py`,
+    iterate on the general threshold/weighting mechanism only (never per-query-ID
+    special-casing), then finish the remaining TASK-263 forward_tasks steps in order.
+  used_tokens: 165000
+  threshold_tokens: 150000
+  metric_source: claude_context_estimate_from_limit_watcher_hcom_notice
+integrity:
+  prepared_at: '2026-07-28T01:29:08Z'
+  canonical_tasks:
+  - task_id: TASK-263
+    status: IN_PROGRESS
+    owner: codex-lab-kiri
+    claimed_by: claude-lab-lili
+    lease_expires_at: '2026-07-28 01:58:04'
+    heartbeat_at: '2026-07-28 01:28:04'
+    updated_at: '2026-07-28 01:28:04'
+  canonical_tasks_sha256: 3fe07c0a002ebb2959332054ec5400e253fa807b2d84e51a8758628c8af185a2
+  touched_paths:
+  - path: MAP_System/map.db
+    scope: workspace
+    sha256: 916c8d7a3eb6f348df1569c46491b74a51cb1ebe9da0e6aa2ca96cf49fecd098
+    size: 2306048
+    state: file
+  - path: MAP_System/scripts/task_memory_claim_evidence_pilot.py
+    scope: workspace
+    sha256: cd2e3c84b6c72424d4a06c226230ebb0950dc7adbbf9b9cb2f514d569d8abbca
+    size: 24289
+    state: file
+  - path: MAP_System/tasks/TASK-263.json
+    scope: workspace
+    sha256: aa8c48e7d473e5d1c57ebfd7eaf90400fd8eb0e3dbef3ced8f417996112c1739
+    size: 6096
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 8959a0a44d8412796d8c6f2ee9dedbe46e1ed5dc01d0692cabf26f881ec4d0a5
+    size: 446588
+    state: file
+  touched_paths_sha256: 7fe3278663f21b66adc4b77b2df0a41ce654f5cc569da2c8207fa81338647c6b

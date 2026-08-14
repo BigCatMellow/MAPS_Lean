@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-275",
+  "title": "Consolidate CommandCenterUI loopback constants behind one config point",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-zaro",
+  "description": "Implements the near-term action of DEC-029. EXTERNAL EDIT \u2014 carries all six elements the CommandCenterUI boundary gate requires. (1) EXPLICIT OPERATOR APPROVAL NAMING THE EXTERNAL PATH, given directly by bigboss in session on 2026-07-23, verbatim: 'Approved: claude-lab-zaro may edit /home/mellow/Projects/CommandCenterUI/app/server.py to consolidate the three loopback constants behind one config point. No behaviour change, no remote support, no new controls.' (2) OUTPUT PATH: /home/mellow/Projects/CommandCenterUI/app/server.py and only that file, plus a delivery note inside the canonical MAP repo for evidence. (3) OUTSIDE-SCOPE NOTE: this is outside the canonical MAP repo's normal writable scope; CommandCenterUI is a separate codebase with its own runtime and restart lifecycle. (4) VALIDATION PLAN: restart via ~/Projects/CommandCenterUI/run-command-center-app.sh --server-only (backend) or without the flag for the GTK/WebKit window, port from COMMAND_CENTER_UI_PORT default 8765; verify the server starts cleanly, local model discovery still lists models, a launched local helper still targets loopback, and setting OLLAMA_HOST in the environment before start does NOT redirect anything. (5) READ-ONLY VS WRITE-CAPABLE: neither \u2014 this is an internal refactor of an existing surface, adding no controls and no endpoints, so the write-control spec requirement does not apply. (6) N/A \u2014 not write-capable control work. WHY NOW: DEC-029 permits a remote OLLAMA_HOST only as explicit, UI-visible configuration and keeps ambient env inheritance forbidden. Three hardcoded sites make the eventual second-machine change expensive and likely to be done in a hurry by someone who reverts the hardening to make it work. Consolidating now is a no-behaviour-change refactor that makes that future change small and reviewable. SCOPE DISCIPLINE: exactly three call sites plus one new configuration constant. If the refactor wants to touch more, STOP and report rather than widen \u2014 this is a running operator surface in an external repo.",
+  "input_paths": [],
+  "output_paths": [
+    "/home/mellow/Projects/CommandCenterUI/app/server.py",
+    "MAP_System/artifacts/tests/task-ccui-loopback-consolidation-delivery-note.md"
+  ],
+  "acceptance_criteria": [
+    "All three loopback sites resolve from a single configuration point defaulting to 127.0.0.1:11434: OLLAMA_URL (was line 100) and the two env['OLLAMA_HOST'] assignments (were lines 424 and 846). Line numbers verified at edit time, not taken from the description.",
+    "The configuration point does NOT read an ambient OLLAMA_HOST. Proven by running the app with OLLAMA_HOST set to a different value and showing behaviour is unchanged and no traffic is redirected \u2014 this is the property DEC-029 rests on and the one most likely to be broken by a well-meaning refactor.",
+    "No behaviour change: the server starts cleanly, local model discovery still lists models, and a launched local helper still targets loopback, evidenced by an actual restart rather than assertion.",
+    "No remote support, no new endpoints, no new controls, and no changes outside the constant consolidation. Diff is limited to server.py and touches only the three sites plus the added constant.",
+    "DEC-029 is referenced in the code comment as the reason the consolidation exists, so a future reader finds the policy rather than guessing at intent.",
+    "Evidence recorded via the TASK-219 delivery-note template and routed to an independent reviewer who is neither claude-lab-zaro nor claude-lab-bima."
+  ],
+  "decision_class": null,
+  "risk_class": "SECURITY",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

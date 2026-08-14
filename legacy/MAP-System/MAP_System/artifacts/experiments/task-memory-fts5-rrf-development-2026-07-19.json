@@ -1,0 +1,677 @@
+{
+  "architecture": {
+    "channels": [
+      "task Porter",
+      "source Porter",
+      "path trigram"
+    ],
+    "engine": "SQLite FTS5 weighted BM25",
+    "fusion": "reciprocal rank fusion k=60",
+    "temporal_model": "unique source_documents + task_source_links; current shared content downweighted and never cloned into task text"
+  },
+  "benchmarks": [
+    {
+      "build": {
+        "build_ms": 579.041,
+        "database_bytes": 823296,
+        "missing_task_ids": [],
+        "reused_source_count": 40,
+        "source_document_count": 242,
+        "task_count": 45,
+        "task_source_link_count": 309,
+        "temporal_mode_counts": {
+          "current_shared": 36,
+          "current_unique": 154,
+          "task_snapshot": 45,
+          "unresolved": 7
+        },
+        "unresolved_link_instances": 12
+      },
+      "label": "TASK-257-known-development",
+      "metrics": {
+        "abstention_accuracy": 1.0,
+        "abstention_hits": 8,
+        "compound_complete": 1,
+        "compound_total": 1,
+        "expected_source_visibility": 0.8125,
+        "per_query": [
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/session_replay.py",
+              "MAP_System/tests/test_session_replay.py"
+            ],
+            "expected_tasks": [
+              "TASK-173"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H1",
+            "missing_tasks": [],
+            "query_coverage": 0.4,
+            "query_ms": 22.641,
+            "query_parts": [
+              "How can I rebuild a disposable local view of task and event history, query it by task, agent, or trace, and avoid treating the view as healthy when its canonical sources drift?",
+              "How can I rebuild a disposable local view of task and event history, query it by task, agent",
+              "trace, and avoid treating the view as healthy when its canonical sources drift"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-170",
+              "TASK-181",
+              "TASK-173",
+              "TASK-183",
+              "TASK-179",
+              "TASK-172"
+            ],
+            "supporting_channels": 17,
+            "visible_expected_sources": [
+              "MAP_System/scripts/session_replay.py",
+              "MAP_System/tests/test_session_replay.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/librarian.py",
+              "MAP_System/tests/test_librarian.py"
+            ],
+            "expected_tasks": [
+              "TASK-179"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H2",
+            "missing_tasks": [],
+            "query_coverage": 0.2222,
+            "query_ms": 17.456,
+            "query_parts": [
+              "Related-files entries in nested documents were being skipped when they used a repository-root prefix or a sibling filename. Where was path resolution corrected?",
+              "Related-files entries in nested documents were being skipped when they used a repository-root prefix",
+              "a sibling filename. Where was path resolution corrected",
+              "Related-files entries in nested documents were being skipped when they used a repository-root prefix or a sibling filename"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-181",
+              "TASK-179",
+              "TASK-174",
+              "TASK-192",
+              "TASK-176",
+              "TASK-196"
+            ],
+            "supporting_channels": 14,
+            "visible_expected_sources": [
+              "MAP_System/scripts/librarian.py",
+              "MAP_System/tests/test_librarian.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/redaction.py",
+              "MAP_System/tests/test_redaction.py"
+            ],
+            "expected_tasks": [
+              "TASK-191"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/scripts/redaction.py"
+            ],
+            "id": "H3",
+            "missing_tasks": [],
+            "query_coverage": 0.4444,
+            "query_ms": 9.741,
+            "query_parts": [
+              "How do we keep API keys, URL passwords, credential assignments, and suspicious high-entropy tokens out of durable capture records without rejecting the capture itself?"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-191",
+              "TASK-181",
+              "TASK-161",
+              "TASK-163",
+              "TASK-162",
+              "TASK-193"
+            ],
+            "supporting_channels": 3,
+            "visible_expected_sources": [
+              "MAP_System/tests/test_redaction.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/db/claims.py",
+              "MAP_System/tests/test_review_claims.py"
+            ],
+            "expected_tasks": [
+              "TASK-199"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H4",
+            "missing_tasks": [],
+            "query_coverage": 0.4286,
+            "query_ms": 17.378,
+            "query_parts": [
+              "Two reviewers can race to review the same submitted task. What prevents duplicate ownership while also blocking the task owner from reviewing their own work?",
+              "Two reviewers can race to review the same submitted task. What prevents duplicate ownership",
+              "also blocking the task owner from reviewing their own work",
+              "Two reviewers can race to review the same submitted task"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-199",
+              "TASK-183",
+              "TASK-181",
+              "TASK-200",
+              "TASK-197",
+              "TASK-194"
+            ],
+            "supporting_channels": 22,
+            "visible_expected_sources": [
+              "MAP_System/db/claims.py",
+              "MAP_System/tests/test_review_claims.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/workflow/runtime_policy.yaml",
+              "MAP_System/tests/test_halt_authority_window.py"
+            ],
+            "expected_tasks": [
+              "TASK-201"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/workflow/runtime_policy.yaml"
+            ],
+            "id": "H5",
+            "missing_tasks": [],
+            "query_coverage": 0.55,
+            "query_ms": 17.807,
+            "query_parts": [
+              "Can deterministic validators ever set a real halt instead of merely reporting telemetry, and how is that authority kept disabled by default, time-bounded, scope-limited, and operator-clearable?",
+              "Can deterministic validators ever set a real halt instead of merely reporting telemetry",
+              "how is that authority kept disabled by default, time-bounded, scope-limited, and operator-clearable"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-201",
+              "TASK-181",
+              "TASK-183",
+              "TASK-162",
+              "TASK-180",
+              "TASK-174"
+            ],
+            "supporting_channels": 14,
+            "visible_expected_sources": [
+              "MAP_System/tests/test_halt_authority_window.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "Projects/ProjectUpdater/app/index.html",
+              "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+            ],
+            "expected_tasks": [
+              "TASK-205"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H6",
+            "missing_tasks": [],
+            "query_coverage": 0.4091,
+            "query_ms": 11.491,
+            "query_parts": [
+              "How can a ProjectUpdater user export and restore every stored project field, keep the older status snapshot intact, reject malformed input safely, and require confirmation before overwriting current data?"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-205",
+              "TASK-181",
+              "TASK-198",
+              "TASK-162",
+              "TASK-193",
+              "TASK-174"
+            ],
+            "supporting_channels": 4,
+            "visible_expected_sources": [
+              "Projects/ProjectUpdater/app/index.html",
+              "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/cost_yield.py",
+              "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+            ],
+            "expected_tasks": [
+              "TASK-190"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+            ],
+            "id": "H7",
+            "missing_tasks": [],
+            "query_coverage": 0.25,
+            "query_ms": 9.594,
+            "query_parts": [
+              "Where can I compare per-task effort proxies with delivery outcomes and see productive versus discarded work without inventing token costs or dollar amounts?",
+              "Where can I compare per-task effort proxies with delivery outcomes and see productive",
+              "discarded work without inventing token costs"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-190",
+              "TASK-203",
+              "TASK-162",
+              "TASK-165",
+              "TASK-193",
+              "TASK-199"
+            ],
+            "supporting_channels": 9,
+            "visible_expected_sources": [
+              "MAP_System/scripts/cost_yield.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/limit_watcher.py",
+              "MAP_System/tests/test_limit_watcher.py"
+            ],
+            "expected_tasks": [
+              "TASK-187",
+              "TASK-195"
+            ],
+            "hidden_expected_sources": [],
+            "id": "H8",
+            "missing_tasks": [],
+            "query_coverage": 0.2381,
+            "query_ms": 17.487,
+            "query_parts": [
+              "A scheduled recovery nudge may fail because the target session is already live, or it may hang during resume. Which completed fixes cover those two distinct failure modes?",
+              "A scheduled recovery nudge may fail because the target session is already live",
+              "it may hang during resume. Which completed fixes cover those two distinct failure modes",
+              "A scheduled recovery nudge may fail because the target session is already live, or it may hang during resume"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-181",
+              "TASK-187",
+              "TASK-173",
+              "TASK-198",
+              "TASK-161",
+              "TASK-195"
+            ],
+            "supporting_channels": 20,
+            "visible_expected_sources": [
+              "MAP_System/scripts/limit_watcher.py",
+              "MAP_System/tests/test_limit_watcher.py"
+            ]
+          }
+        ],
+        "query_latency_ms": {
+          "max": 22.641,
+          "median": 17.456,
+          "min": 9.594
+        },
+        "source_hits": 13,
+        "source_mrr": 0.3197,
+        "task_hits": 9,
+        "task_mrr": 0.7708,
+        "task_recall_at_6": 1.0,
+        "total_expected_sources": 16,
+        "total_expected_tasks": 9,
+        "total_queries": 8
+      },
+      "source_spec": "MAP_System/artifacts/experiments/task-fingerprint-holdout-queries-2026-07-19.json"
+    },
+    {
+      "build": {
+        "build_ms": 489.849,
+        "database_bytes": 897024,
+        "missing_task_ids": [],
+        "reused_source_count": 45,
+        "source_document_count": 268,
+        "task_count": 60,
+        "task_source_link_count": 395,
+        "temporal_mode_counts": {
+          "current_shared": 39,
+          "current_unique": 155,
+          "task_snapshot": 61,
+          "unresolved": 13
+        },
+        "unresolved_link_instances": 19
+      },
+      "label": "TASK-258-known-development",
+      "metrics": {
+        "abstention_accuracy": 1.0,
+        "abstention_hits": 9,
+        "compound_complete": 1,
+        "compound_total": 1,
+        "expected_source_visibility": 0.8667,
+        "per_query": [
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/validate_research_artifacts.py",
+              "MAP_System/tests/test_validate_research_artifacts.py"
+            ],
+            "expected_tasks": [
+              "TASK-104"
+            ],
+            "hidden_expected_sources": [],
+            "id": "S1",
+            "missing_tasks": [],
+            "query_coverage": 0.3125,
+            "query_ms": 17.857,
+            "query_parts": [
+              "A completed research packet still contains template placeholders or is missing a mandatory section. What mechanism should catch it, and which failure cases prove that behavior?",
+              "A completed research packet still contains template placeholders",
+              "is missing a mandatory section. What mechanism should catch it",
+              "which failure cases prove that behavior"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-109",
+              "TASK-157",
+              "TASK-104",
+              "TASK-122",
+              "TASK-141",
+              "TASK-126"
+            ],
+            "supporting_channels": 12,
+            "visible_expected_sources": [
+              "MAP_System/scripts/validate_research_artifacts.py",
+              "MAP_System/tests/test_validate_research_artifacts.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/graph/runner.py",
+              "MAP_System/tests/test_runner_task_classification.py"
+            ],
+            "expected_tasks": [
+              "TASK-116"
+            ],
+            "hidden_expected_sources": [],
+            "id": "S2",
+            "missing_tasks": [],
+            "query_coverage": 0.3571,
+            "query_ms": 11.851,
+            "query_parts": [
+              "Why does a ready follow-up become dispatchable after its prerequisite reaches RELEASED, and where is that rule protected against regression?",
+              "Why does a ready follow-up become dispatchable after its prerequisite reaches RELEASED",
+              "where is that rule protected against regression"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-116",
+              "TASK-125",
+              "TASK-129",
+              "TASK-157",
+              "TASK-158",
+              "TASK-140"
+            ],
+            "supporting_channels": 9,
+            "visible_expected_sources": [
+              "MAP_System/graph/runner.py",
+              "MAP_System/tests/test_runner_task_classification.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/artifacts/audits/task-130-map-systems-real-usage-evidence.md"
+            ],
+            "expected_tasks": [
+              "TASK-130"
+            ],
+            "hidden_expected_sources": [],
+            "id": "S3",
+            "missing_tasks": [],
+            "query_coverage": 0.5333,
+            "query_ms": 18.302,
+            "query_parts": [
+              "After the first MAP system-building wave, which subsystems had real operating evidence and which still existed mostly as specifications or templates?",
+              "After the first MAP system-building wave, which subsystems had real operating evidence",
+              "which still existed mostly as specifications"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-141",
+              "TASK-130",
+              "TASK-103",
+              "TASK-105",
+              "TASK-102",
+              "TASK-126"
+            ],
+            "supporting_channels": 6,
+            "visible_expected_sources": [
+              "MAP_System/artifacts/audits/task-130-map-systems-real-usage-evidence.md"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/artifacts/TASK-135-muva-integration-boundary-note.md",
+              "Projects/ProjectUpdater/app/index.html"
+            ],
+            "expected_tasks": [
+              "TASK-135",
+              "TASK-136"
+            ],
+            "hidden_expected_sources": [],
+            "id": "S4",
+            "missing_tasks": [],
+            "query_coverage": 0.5714,
+            "query_ms": 10.295,
+            "query_parts": [
+              "How can CommandCenterUI receive a ProjectUpdater status snapshot without taking ownership of browser-local data, and what user action produces that snapshot?",
+              "How can CommandCenterUI receive a ProjectUpdater status snapshot without taking ownership of browser-local data",
+              "what user action produces that snapshot"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-136",
+              "TASK-135",
+              "TASK-133",
+              "TASK-158",
+              "TASK-139",
+              "TASK-134"
+            ],
+            "supporting_channels": 12,
+            "visible_expected_sources": [
+              "MAP_System/artifacts/TASK-135-muva-integration-boundary-note.md",
+              "Projects/ProjectUpdater/app/index.html"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/scripts/validate_task_mirrors.py",
+              "MAP_System/tests/test_validate_task_mirrors.py"
+            ],
+            "expected_tasks": [
+              "TASK-143"
+            ],
+            "hidden_expected_sources": [],
+            "id": "S5",
+            "missing_tasks": [],
+            "query_coverage": 0.5333,
+            "query_ms": 18.895,
+            "query_parts": [
+              "What check exposes drift when SQLite disagrees with either a task JSON record or the workflow graph, including status and output-path mismatches?",
+              "What check exposes drift when SQLite disagrees with either a task JSON record",
+              "the workflow graph, including status and output-path mismatches"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-101",
+              "TASK-116",
+              "TASK-143",
+              "TASK-148",
+              "TASK-144",
+              "TASK-100"
+            ],
+            "supporting_channels": 18,
+            "visible_expected_sources": [
+              "MAP_System/scripts/validate_task_mirrors.py",
+              "MAP_System/tests/test_validate_task_mirrors.py"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/artifacts/planning/map-liveness-reaper-spec.md",
+              "MAP_System/artifacts/planning/mission-control-tui-spec.md"
+            ],
+            "expected_tasks": [
+              "TASK-150"
+            ],
+            "hidden_expected_sources": [
+              "MAP_System/artifacts/planning/map-liveness-reaper-spec.md",
+              "MAP_System/artifacts/planning/mission-control-tui-spec.md"
+            ],
+            "id": "S6",
+            "missing_tasks": [
+              "TASK-150"
+            ],
+            "query_coverage": 0.3125,
+            "query_ms": 13.661,
+            "query_parts": [
+              "What should operators see when an agent goes quiet, and how should recovery progress from suspicion to nudge or reclaim without turning the dashboard into another state store?",
+              "What should operators see when an agent goes quiet",
+              "how should recovery progress from suspicion to nudge",
+              "reclaim without turning the dashboard into another state store"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-158",
+              "TASK-112",
+              "TASK-155",
+              "TASK-119",
+              "TASK-110",
+              "TASK-105"
+            ],
+            "supporting_channels": 11,
+            "visible_expected_sources": []
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/artifacts/planning/map-cost-governance-spec.md",
+              "MAP_System/artifacts/planning/map-kill-switch-spec.md"
+            ],
+            "expected_tasks": [
+              "TASK-151"
+            ],
+            "hidden_expected_sources": [],
+            "id": "S7",
+            "missing_tasks": [],
+            "query_coverage": 0.6875,
+            "query_ms": 15.887,
+            "query_parts": [
+              "How should MAP react to runaway paid-model spend, how is that different from an execution-failure breaker, and who may clear a broad emergency halt?",
+              "How should MAP react to runaway paid-model spend, how is that different from an execution-failure breaker",
+              "who may clear a broad emergency halt"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-151",
+              "TASK-159",
+              "TASK-156",
+              "TASK-152",
+              "TASK-153",
+              "TASK-155"
+            ],
+            "supporting_channels": 10,
+            "visible_expected_sources": [
+              "MAP_System/artifacts/planning/map-cost-governance-spec.md",
+              "MAP_System/artifacts/planning/map-kill-switch-spec.md"
+            ]
+          },
+          {
+            "expected_abstention": false,
+            "expected_sources": [
+              "MAP_System/artifacts/planning/map-local-helper-lanes-spec.md",
+              "MAP_System/artifacts/planning/map-task-tiering-spec.md"
+            ],
+            "expected_tasks": [
+              "TASK-153"
+            ],
+            "hidden_expected_sources": [],
+            "id": "S8",
+            "missing_tasks": [],
+            "query_coverage": 0.4375,
+            "query_ms": 12.36,
+            "query_parts": [
+              "Which narrow jobs may a local helper draft, and which dispatch fields determine whether work stays in a local lane or escalates to core or operator authority?",
+              "Which narrow jobs may a local helper draft",
+              "which dispatch fields determine whether work stays in a local lane",
+              "escalates to core"
+            ],
+            "recommendation": "candidate_set",
+            "returned_tasks": [
+              "TASK-153",
+              "TASK-129",
+              "TASK-156",
+              "TASK-159",
+              "TASK-147",
+              "TASK-138"
+            ],
+            "supporting_channels": 14,
+            "visible_expected_sources": [
+              "MAP_System/artifacts/planning/map-local-helper-lanes-spec.md",
+              "MAP_System/artifacts/planning/map-task-tiering-spec.md"
+            ]
+          },
+          {
+            "expected_abstention": true,
+            "expected_sources": [],
+            "expected_tasks": [],
+            "hidden_expected_sources": [],
+            "id": "S9",
+            "missing_tasks": [],
+            "query_coverage": 0.1818,
+            "query_ms": 8.822,
+            "query_parts": [
+              "Which historical task implemented automatic secret scanning and redaction for MAP event records before they are committed?"
+            ],
+            "recommendation": "no_strong_match",
+            "returned_tasks": [
+              "TASK-153",
+              "TASK-144",
+              "TASK-149",
+              "TASK-105",
+              "TASK-142",
+              "TASK-155"
+            ],
+            "supporting_channels": 1,
+            "visible_expected_sources": []
+          }
+        ],
+        "query_latency_ms": {
+          "max": 18.895,
+          "median": 13.661,
+          "min": 8.822
+        },
+        "source_hits": 13,
+        "source_mrr": 0.1794,
+        "task_hits": 8,
+        "task_mrr": 0.6146,
+        "task_recall_at_6": 0.8889,
+        "total_expected_sources": 15,
+        "total_expected_tasks": 9,
+        "total_queries": 9
+      },
+      "source_spec": "MAP_System/artifacts/experiments/task-fingerprint-source-holdout-queries-2026-07-19.json"
+    }
+  ],
+  "experiment": "TASK-259-development-regression",
+  "generated_at": "2026-07-19T19:15:46Z",
+  "projection_authority": "none; disposable local retrieval benchmark",
+  "truth_provenance": "known TASK-257 and TASK-258 truth; not fresh holdout evidence"
+}

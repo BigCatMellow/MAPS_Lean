@@ -1,0 +1,276 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-27T12:43:49Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-nora
+session_id: nora-20260727T120916Z
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: DECISION_RECORDED
+    task_id: TASK-278
+    event_id: 1743
+    summary: bigboss directly authorized claude-lab-nora to resume TASK-278, the REPAIR-0009
+      output-path defer, and TASK-263 orphan recovery in the active chat turn.
+  - event_type: PROGRESS
+    task_id: TASK-280
+    event_id: 1741
+    summary: 'REPAIR-0009: deferred TASK-280 output_paths registration of MAP_System/scripts/map_task.py
+      (collided with TASK-278''s prior registration).'
+  - event_type: PROGRESS
+    task_id: TASK-280
+    event_id: 1742
+    summary: 'REPAIR-0009: deferred TASK-280 output_paths registration of MAP_System/scripts/pre_dispatch_policy.py
+      (collided with TASK-283''s prior registration).'
+  - event_type: SUBMISSION
+    task_id: TASK-278
+    event_id: 1744
+    summary: TASK-278 submitted for independent review by claude-lab-nora.
+  touched_paths:
+  - MAP_System/repairs/REPAIR-0009-task280-output-path-defer.md
+  - MAP_System/artifacts/tests/task278-review-authorship-delivery-note.md
+  - MAP_System/tasks/TASK-278.json
+  - MAP_System/tasks/TASK-280.json
+  - MAP_System/tasks/TASK-263.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/agents/status.json
+  - MAP_System/events/events.jsonl
+active_constraints:
+- scope: task
+  rule: claude-lab-nora submitted TASK-278 and must not claim its independent review;
+    task278-levi is also excluded as the original implementer.
+  source: TASK-278 acceptance criteria / AGENTS.md no-self-review rule
+- scope: file
+  rule: TASK-280 rework may not re-register MAP_System/scripts/map_task.py or MAP_System/scripts/pre_dispatch_policy.py
+    until TASK-278 (map_task.py) and TASK-283 (pre_dispatch_policy.py) both reach
+    a terminal status.
+  source: REPAIR-0009
+- scope: repo
+  rule: No remove-output-path verb exists in map_task.py; any future output-path collision
+    needs the same one-off sanctioned-script pattern used for REPAIR-0008/0009, filed
+    as a STRUCTURAL repair record with explicit operator approval before applying.
+  source: INS-0042, REPAIR-0008, REPAIR-0009
+- scope: task
+  rule: TASK-285's canonical reject/rework is correctly blocked by UNKNOWN SUBMISSION
+    AUTHOR until TASK-278 is approved and its migration/escalation rule is applied.
+  source: task285-independent-review-nita.md
+- scope: communication
+  rule: Use hcom --intent request only for operator decisions/approvals/blockers;
+    --intent inform for routine progress; --terminal wezterm-tab for any spawned helper,
+    never --headless without explicit instruction.
+  source: operator system prompt
+forward_tasks:
+- task_id: TASK-278
+  next_action: review
+  owner: null
+  reason: SUBMITTED and unclaimed; implementation is complete and focused-tested (7/7,
+    7/7, 3/3, 12/12, 3/3, 5/5, 2/2 across the suites named in the delivery note).
+    Needs an independent reviewer who is neither task278-levi nor claude-lab-nora.
+  paths:
+  - MAP_System/artifacts/tests/task278-review-authorship-delivery-note.md
+  - MAP_System/db/review_authorship.py
+- task_id: TASK-285
+  next_action: wait
+  owner: null
+  reason: SUBMITTED, CHANGES_REQUESTED verdict already on file (task285-independent-review-nita.md);
+    rework needs TASK-278's author-identity migration rule once TASK-278 is approved,
+    plus fixes for the two disclosed evidence/metric findings.
+  paths: []
+- task_id: TASK-280
+  next_action: continue
+  owner: null
+  reason: READY, attempt 2/3. Prior attempt (codex-lab-feta) found real gaps per task280-independent-review-nita.md
+    (unknown roles accepted at task creation; tier-2 policy rereads raw roles; tests
+    omit both paths). Output-path collision is now cleared by REPAIR-0009; resume
+    rework only after re-registering map_task.py/pre_dispatch_policy.py is safe (i.e.
+    after TASK-278/TASK-283 go terminal, or with a fresh explicit ownership check).
+  paths:
+  - MAP_System/artifacts/reviews/task280-independent-review-nita.md
+- task_id: TASK-263
+  next_action: continue
+  owner: null
+  reason: Stale lease (expired 2026-07-22) reclaimed via liveness_reaper.py --act
+    on 2026-07-27; READY again with attempt 2/3, fresh claim slot available.
+  paths: []
+- task_id: TASK-281
+  next_action: wait
+  owner: null
+  reason: READY but blocked on TASK-280 approval per roadmap resume order.
+  paths: []
+- task_id: TASK-282
+  next_action: wait
+  owner: null
+  reason: READY but blocked on TASK-278 and TASK-281 approval per roadmap resume order.
+  paths: []
+- task_id: TASK-283
+  next_action: wait
+  owner: null
+  reason: READY; operator-authorized (event 1721) but its pre_dispatch_policy.py output
+    path was shared with TASK-280 until REPAIR-0009 cleared it. Dispatch after ownership
+    is confirmed clean at claim time.
+  paths: []
+- task_id: TASK-286
+  next_action: wait
+  owner: null
+  reason: READY, operator-authorized (event 1720); blocked on TASK-280 approval per
+    roadmap resume order.
+  paths: []
+- task_id: TASK-287
+  next_action: wait
+  owner: null
+  reason: READY; final evidence-linked orchestration report, run only after every
+    other roadmap dependency is independently approved.
+  paths: []
+blockers:
+- kind: approval
+  detail: TASK-278 needs an independent reviewer distinct from task278-levi and claude-lab-nora.
+  unblock_by: Route to any other available core agent (e.g. a codex-lab identity)
+    or command-center review claim.
+- kind: dependency
+  detail: TASK-285 rework depends on TASK-278's approved author-identity migration
+    rule.
+  unblock_by: Approve TASK-278, then apply its migration rule to TASK-285's UNKNOWN
+    SUBMISSION AUTHOR row before reworking task285's two disclosed findings.
+lexicon:
+  REPAIR-0009: This session's structural repair deferring TASK-280's two colliding
+    output-path registrations back to their prior owners (TASK-278, TASK-283).
+  canonical_author: task_submission_authorship.author_id, the durable current-submitter
+    identity TASK-278 introduces.
+  unknown_author: Missing authorship evidence; TASK-278's review and terminal-verdict
+    gates fail closed rather than infer independence.
+  map_db: MAP_System/map.db, authoritative SQLite task/claim/event state; MAP_System/tasks/*.json
+    and workflow/task_graph.json are synced mirrors, never edited directly.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_graph.py
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_mirrors.py --db MAP_System/map.db
+  --root MAP_System
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-278
+validation:
+- 'validate_task_graph.py: pass (REPAIR-0009 clears both TASK-280 collisions)'
+- 'validate_task_mirrors.py: pass'
+- 'validate_task_schema.py: pass'
+- 'TASK-278 focused suites: test_review_authorship 7/7, test_submission_event 7/7,
+  test_task268_lifecycle 3/3, test_review_claims 12/12, test_review_gate 3/3, test_reassign_owner
+  5/5, test_no_self_review 2/2 -- all pass'
+- 'Full scripts/run_tests.sh: 74 pass / 5 fail; all 5 failures are pre-existing and
+  unrelated to TASK-278 or REPAIR-0009 (role_registry_test missing langgraph, validate_research_artifacts
+  malformed historical summary, validate_shared_state_tasks stale current-state.md,
+  validate_events_no_new_warnings historical line 2145, validate_layer1_test derivative)'
+rotation:
+  reason: threshold
+  summary: Repaired the TASK-280 output-path collision blocking the entire roles-roadmap
+    READY queue (REPAIR-0009), reclaimed TASK-263's stale lease via liveness_reaper.py
+    --act, then claimed, validated, and canonically submitted TASK-278 (durable review
+    authorship) with all focused suites and full validators green. No claims held
+    at handoff; TASK-278 awaits an independent reviewer.
+  next_action: Read this snapshot, confirm TASK-278/TASK-280/TASK-263 canonical state
+    matches the integrity block below, then route TASK-278 to an independent reviewer
+    (not task278-levi, not claude-lab-nora).
+  used_tokens: 157286
+  threshold_tokens: 150000
+  metric_source: claude_code_context_estimate
+integrity:
+  prepared_at: '2026-07-27T12:43:49Z'
+  canonical_tasks:
+  - task_id: TASK-263
+    status: READY
+    owner: codex-lab-kiri
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-27 12:09:32'
+  - task_id: TASK-278
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-27 12:27:59'
+  - task_id: TASK-280
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26 20:22:43'
+  - task_id: TASK-281
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:47Z'
+  - task_id: TASK-282
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:47Z'
+  - task_id: TASK-283
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:47Z'
+  - task_id: TASK-285
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26 19:58:41'
+  - task_id: TASK-286
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T19:45:15Z'
+  - task_id: TASK-287
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T19:45:31Z'
+  canonical_tasks_sha256: dfe77117d3d4cc6bd371c2b0b5e4bd1de12853e793522b90f196a63dbe8ac880
+  touched_paths:
+  - path: MAP_System/agents/status.json
+    scope: workspace
+    sha256: 8380074a387248dfba99a7a512a9808c770ee788e1a023777dd72dcec8bd30d9
+    state: file
+  - path: MAP_System/artifacts/tests/task278-review-authorship-delivery-note.md
+    scope: workspace
+    sha256: 4f748af08a4b414fa4b65bf0203670511139b27e2932876dc1dd89924c5b5140
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: c34edabd670b83bcd2019681f59c147be789e86649e190fb9ec064ade51b4cd5
+    state: file
+  - path: MAP_System/repairs/REPAIR-0009-task280-output-path-defer.md
+    scope: workspace
+    sha256: 4d94cc29aa73216b0234f8f0a0c334f96fc9a9acaace28db7019812e828caa9f
+    state: file
+  - path: MAP_System/tasks/TASK-263.json
+    scope: workspace
+    sha256: b60bc9caab1097ac019c0ac96604038b9f92333256939c121cb2cedeeec3e663
+    state: file
+  - path: MAP_System/tasks/TASK-278.json
+    scope: workspace
+    sha256: 8ef5a0f08197a82160cc2b33a14aa994f8e82f2d140e3508e733e512b08f5c8e
+    state: file
+  - path: MAP_System/tasks/TASK-280.json
+    scope: workspace
+    sha256: a436ce35a958b62420f3a03c81ce081c827a4df774ac1f4091cee8a7a1beba9a
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: da54257a70b98a818763aa9148472071be3e987d7106112d9ba47e3f9a62a92b
+    state: file
+  touched_paths_sha256: 616e2d19fa15abda083322870e3a6ba31bcba003e2f280cb72786f3856cd4909

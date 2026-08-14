@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-251",
+  "title": "Create a collaborative MAP improvement kickoff and execution roadmap",
+  "task_type": "planning",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Synthesize the operator, Codex, and Claude assessments into a durable kickoff plan for MAP. Establish the current evidence baseline, desired outcomes, weaknesses, measurable goals, phased improvement path, role assignments, decision gates, risks, and evidence needed to prove progress. Separate immediate operational cleanup, bounded experiments, and longer-term architecture work.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/planning/map-project-improvement-kickoff-2026-07-19.md"
+  ],
+  "acceptance_criteria": [
+    "The plan integrates current runtime evidence and independent Codex/Claude perspectives into a candid state assessment.",
+    "The plan defines measurable goals, phased workstreams, dependencies, decision gates, risks, and explicit non-goals.",
+    "Each workstream has a bounded accountable role, supporting roles, operator decision points, and durable outputs.",
+    "Immediate cleanup, controlled practice experiments, and longer-term improvements are clearly separated so planning does not silently authorize implementation."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,35 @@
+{
+  "task_id": "TASK-298",
+  "title": "Converge KUDU and RUKI on one authoritative MAP and Command Center tree",
+  "task_type": "infrastructure",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-live",
+  "description": "Make the KUDU /home/mellow working tree authoritative, preserve RUKI-only work and runtime state, transfer via dedicated key-only SSH, atomically switch RUKI to the staged tree, reinstall generated Command Center launchers, and verify equivalence and rollback.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/operations/cross-pc-convergence-2026-07-28.md"
+  ],
+  "acceptance_criteria": [
+    "RUKI divergent tracked, untracked, Git, and MAP database state is archived with a manifest before replacement.",
+    "KUDU is transferred to a staging path and a documented manifest proves program-file equivalence before activation, excluding only host-local caches, locks, virtual environments, and logs.",
+    "All RUKI agents are quiescent before an atomic recoverable directory swap; the old repository remains available as a timestamped backup and rollback commands are recorded.",
+    "The installer regenerates RUKI launchers for /home/home paths and focused Command Center/MAP health checks pass from the activated tree.",
+    "SSH uses the dedicated ED25519 key, disables password and interactive authentication, denies root login, and is restricted to the home user from the LAN.",
+    "A separate functional review and security-framed review verify the convergence evidence before the backup is eligible for removal."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "DATA",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "operator",
+  "requires_operator_approval": true,
+  "destructive_action": true,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": true,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": true,
+  "trust_boundary_crossing": true
+}

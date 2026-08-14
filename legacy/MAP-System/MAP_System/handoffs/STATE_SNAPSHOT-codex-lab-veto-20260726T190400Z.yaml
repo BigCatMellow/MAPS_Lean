@@ -1,0 +1,97 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T19:04:00Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-veto
+session_id: 019f8b63-6f14-7df3-8214-1c386d775f1b
+status: handing_off
+task_context:
+  current_task: TASK-279
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: ORIENTATION
+    task_id: TASK-279
+    summary: Read repository rules, canonical requirements/decisions, TASK-279,
+      Kazu's newest relevant snapshot, TASK-276 drift evidence, and the approved
+      TASK-277 roadmap.
+  - event_type: ROUTING
+    task_id: TASK-279
+    summary: Runner reports TASK-279 READY; validate_task_graph passes with no
+      output collision. No claim has been made before rotation.
+  touched_paths:
+  - MAP_System/handoffs/STATE_SNAPSHOT-codex-lab-veto-20260726T190400Z.yaml
+active_constraints:
+- scope: task
+  rule: Implement only TASK-279's five registered outputs; generate active
+    lifecycle state from SQLite and keep durable human annotations separate.
+  source: TASK-279 and operator instruction
+- scope: task
+  rule: Do not parse free prose as lifecycle truth; explicitly report stale and
+    orphan annotations.
+  source: TASK-279 acceptance criteria and TASK-276 evidence
+- scope: task
+  rule: Claim atomically only while TASK-279 is READY and collision-free; submit
+    through map_task.py submit and do not self-review.
+  source: MAP_System/AGENTS.md and operator instruction
+- scope: communication
+  rule: Keep routine progress visible to @bigboss with hcom inform and report
+    the completed result to @kazu.
+  source: operator instruction
+- scope: tool
+  rule: Claude is unavailable through Wednesday; every hcom launch must be
+    visible in wezterm-tab and never headless.
+  source: operator instruction
+- scope: repo
+  rule: Preserve the large pre-existing dirty worktree and unrelated agents'
+    changes.
+  source: AGENTS.md and Kazu handoff
+forward_tasks:
+- task_id: TASK-279
+  next_action: claim
+  owner: command-center
+  reason: Task remains READY, dependencies TASK-276/TASK-277 are approved, and
+    validate_task_graph reports no output collision.
+  paths:
+  - MAP_System/artifacts/tests/task279-generated-active-state-delivery-note.md
+  - MAP_System/scripts/render_active_state.py
+  - MAP_System/shared/active-lane-annotations.json
+  - MAP_System/shared/current-state.md
+  - MAP_System/tests/test_render_active_state.py
+blockers: []
+lexicon:
+  active_lane: The designated current-state table whose lifecycle columns must
+    be generated from SQLite rather than hand-maintained.
+  annotations: Human-authored rationale and gate text keyed by task ID in a
+    separate durable JSON source.
+  canonical_state: MAP_System/map.db task lifecycle fields.
+  STATE_SNAPSHOT: Checksum-bound YAML handoff used for verified context rotation.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py advise --agent <replacement-agent>
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_graph.py
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-279
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+validation:
+- context_rotation.py validate reported one unrelated global issue,
+  codex-lab-zori:touched_path_drift; TASK-279 paths were not implicated.
+- context_rotation.py advise reported checkpoint_due at 120553 tokens,
+  soft=120000 and rotate=150000.
+- validate_task_graph.py passed.
+- TASK-279 was READY, unclaimed, and collision-free at checkpoint time.
+rotation:
+  reason: threshold
+  summary: >-
+    Oriented for operator-authorized TASK-279 implementation. No owned output
+    was edited and no task claim was taken. The relevant design is the first
+    approved TASK-277 roadmap slice: replace the hand-maintained active lane
+    with a deterministic SQLite projection, preserve rationale in a separate
+    keyed annotation file, and surface stale/orphan annotations. The current
+    table and TASK-276 validator evidence were read. Continuity is globally
+    non-clean only because of unrelated codex-lab-zori touched-path drift.
+  next_action: Read this exact snapshot, ACK its checksum, wait for old-session
+    finalize, then recheck TASK-279 READY/collision-free state and atomically
+    claim it before implementing only the five registered outputs.
+  used_tokens: 120553
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens

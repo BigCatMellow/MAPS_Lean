@@ -1,0 +1,248 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T17:38:21Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-lura
+session_id: 019f9f66-5e94-7f12-a880-31ddbfb4e1c9
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: APPROVED
+    task_id: TASK-277
+    summary: Fresh independent Codex re-review approved the corrected role-system
+      roadmap; all five acceptance criteria passed.
+  - event_type: TASK_DECOMPOSITION
+    task_id: TASK-277
+    summary: Approved roadmap converted into separately scoped TASK-278 through TASK-285
+      with numeric P0/P1/P2 priorities and real dependencies.
+  - event_type: AVAILABILITY
+    task_id: null
+    summary: All nonterminal Claude identities were durably set standby/provider_unavailable
+      through 2026-07-29.
+  touched_paths:
+  - MAP_System/agents/status.json
+  - MAP_System/artifacts/planning/roles-system-map-improvement-review.md
+  - MAP_System/artifacts/reviews/task277-independent-review-bire.md
+  - MAP_System/artifacts/reviews/task277-rereview-muse.md
+  - MAP_System/inbox/helpers/helper-review-task277-2026-07-26.md
+  - MAP_System/inbox/helpers/helper-rereview-task277-2026-07-26.md
+  - MAP_System/tasks/TASK-277.json
+  - MAP_System/tasks/TASK-278.json
+  - MAP_System/tasks/TASK-279.json
+  - MAP_System/tasks/TASK-280.json
+  - MAP_System/tasks/TASK-281.json
+  - MAP_System/tasks/TASK-282.json
+  - MAP_System/tasks/TASK-283.json
+  - MAP_System/tasks/TASK-284.json
+  - MAP_System/tasks/TASK-285.json
+  - MAP_System/workflow/task_graph.json
+active_constraints:
+- scope: repo
+  rule: Preserve the large pre-existing dirty worktree; do not clean, discard, or
+    rewrite unrelated durable MAP evidence.
+  source: AGENTS.md and inherited Kazu handoff
+- scope: task
+  rule: TASK-277 is approved but not released; its recommendations are decomposed
+    into TASK-278 through TASK-285 and must not be implemented as one rewrite.
+  source: TASK-277 approved roadmap and operator directive
+- scope: task
+  rule: Preserve runner priority on existing TASK-268 before claiming new roadmap
+    implementation work.
+  source: runner output and codex-lab-kazu hcom inform 15487
+- scope: task
+  rule: Contended integration outputs for TASK-278, TASK-281, and TASK-282 are intentionally
+    deferred and must be registered only after predecessor ownership clears.
+  source: validate_task_graph collision correction and task descriptions
+- scope: communication
+  rule: Use hcom request only for decisions, blockers, approvals, risks, or needed
+    responses; routine progress uses inform.
+  source: MAP operating rules
+- scope: tool
+  rule: Any hcom-spawned agent or helper must use --terminal wezterm-tab and never
+    --headless unless explicitly directed.
+  source: MAP_System/AGENTS.md
+- scope: safety
+  rule: Do not depend on any Claude identity before 2026-07-29; runner and durable
+    availability state exclude Claude capacity.
+  source: operator directive relayed by codex-lab-kazu
+forward_tasks:
+- task_id: TASK-268
+  next_action: claim
+  owner: command-center
+  reason: Current runner recommendation and prerequisite for TASK-274 and TASK-282;
+    core-agent canonical mutation, not helper work.
+  paths:
+  - MAP_System/tasks/TASK-268.json
+  - MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+- task_id: TASK-279
+  next_action: claim
+  owner: command-center
+  reason: Approved P0 generated-active-state slice is ready, but existing TASK-268
+    retains runner priority.
+  paths:
+  - MAP_System/tasks/TASK-279.json
+- task_id: TASK-284
+  next_action: claim
+  owner: command-center
+  reason: Approved P2 source-aware fingerprint pilot is ready after TASK-256/TASK-277,
+    but follows higher-priority lifecycle work.
+  paths:
+  - MAP_System/tasks/TASK-284.json
+- task_id: TASK-278
+  next_action: wait
+  owner: command-center
+  reason: Author-keyed review enforcement waits for durable submission authorship
+    in TASK-274.
+  paths:
+  - MAP_System/tasks/TASK-278.json
+blockers:
+- kind: dependency
+  detail: TASK-274 waits for TASK-268; TASK-278 then waits for TASK-274; TASK-282
+    waits for TASK-268, TASK-278, and TASK-281.
+  unblock_by: Complete and independently review prerequisite tasks in dependency order.
+- kind: approval
+  detail: Runner policy-gates TASK-280 as a structural architecture task; TASK-283
+    explicitly requires operator approval for security containment work.
+  unblock_by: Record the required command-center approval before dispatch.
+- kind: tool_failure
+  detail: Claude provider capacity is unavailable through 2026-07-29.
+  unblock_by: Use clean Codex reviewers/helpers or wait until the recorded resume
+    date.
+lexicon:
+  MAP: Reusable multi-agent delivery system under MAP_System.
+  HPOM: Human-Paced Orchestration Model separating worker/model fit from authority.
+  STATE_SNAPSHOT: Checksum-bound YAML handoff used for verified session rotation.
+  author_keyed_review: No-self-review enforcement based on canonical submission author
+    identity rather than mutable task owner or artifact text.
+  generated_active_state: SQLite-derived lifecycle projection with separate human
+    annotations.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_schema.py --tasks-dir
+  MAP_System/tasks
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_mirrors.py
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_graph.py
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+validation:
+- TASK-277 review artifact validated successfully with validate_review.py.
+- TASK-277 canonical status APPROVED and review claim completed as APPROVED.
+- TASK-278 through TASK-285 task schema validation passed.
+- Task mirror validation passed after task creation and path-collision correction.
+- Task graph validation passed after deferring contended integration paths.
+- Runner next route is claim_or_assign and recommends TASK-268; ready tasks are TASK-268,
+  TASK-279, and TASK-284.
+rotation:
+  reason: threshold
+  summary: Replaced Kazu through a verified ACK, routed TASK-277 to an independent
+    Codex reviewer, integrated one material review-authorship correction, obtained
+    fresh independent approval, excluded Claude capacity through 2026-07-29, and decomposed
+    the approved roadmap into validated TASK-278 through TASK-285. The first creation
+    attempt failed harmlessly because priority is numeric; the second exposed output
+    collisions, which were fixed by deferring contended integration-path registration
+    until predecessor release.
+  next_action: Read this snapshot and TASK-268, run the current runner, ACK the snapshot
+    hash, then claim or assign TASK-268 before starting new roadmap tasks.
+  used_tokens: 124188
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-26T17:38:21Z'
+  canonical_tasks:
+  - task_id: TASK-268
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23 03:28:44'
+  - task_id: TASK-278
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:46Z'
+  - task_id: TASK-279
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:46Z'
+  - task_id: TASK-284
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:48Z'
+  canonical_tasks_sha256: 2b65222a41081d2982b42f6f36021b98af3b18d59ec468dbd030808650be62f9
+  touched_paths:
+  - path: MAP_System/agents/status.json
+    scope: workspace
+    sha256: 3bf140a044efd2f809e2f4c07157c488d1ffbdeaaaf6b5fed91893ac64a45d86
+    state: file
+  - path: MAP_System/artifacts/planning/roles-system-map-improvement-review.md
+    scope: workspace
+    sha256: 2060afc4b09427298d25c708a7a0f412a07b265e997f42410144694a28d4e6f0
+    state: file
+  - path: MAP_System/artifacts/reviews/task277-independent-review-bire.md
+    scope: workspace
+    sha256: e2be5af3316c18602c5c0d53bd4f03fa651dfd5ce6b9b46cab7748d5ed726411
+    state: file
+  - path: MAP_System/artifacts/reviews/task277-rereview-muse.md
+    scope: workspace
+    sha256: 45522c3e168afdbfe6fcc4c08ec2876f0c37774639cb6b94d1600faa6b5672cf
+    state: file
+  - path: MAP_System/inbox/helpers/helper-rereview-task277-2026-07-26.md
+    scope: workspace
+    sha256: d9759c8bac588f6276afb1ce2ffa30ab17ea6cc36e057ed8f982a3b871e5403e
+    state: file
+  - path: MAP_System/inbox/helpers/helper-review-task277-2026-07-26.md
+    scope: workspace
+    sha256: 9854b44618119f20acaef73931cd5b6f8bc487a5ee76c538d30250449de16528
+    state: file
+  - path: MAP_System/tasks/TASK-277.json
+    scope: workspace
+    sha256: 48338f4dad0bc44e763f4293388385d45f25c84789baa1006eee0082972d311c
+    state: file
+  - path: MAP_System/tasks/TASK-278.json
+    scope: workspace
+    sha256: 81ca2acd50f7d99d54431b9e7c66646dcda627f14002c6539a876d80683eeea8
+    state: file
+  - path: MAP_System/tasks/TASK-279.json
+    scope: workspace
+    sha256: c0374c8492094ec00ca6b3122d661d11f824f182c80fe1ba37706dc4345df671
+    state: file
+  - path: MAP_System/tasks/TASK-280.json
+    scope: workspace
+    sha256: ae840a563134a0ee4b1999674d0e20bd1ce19ed51f30db7e3d8b2a86e2247afb
+    state: file
+  - path: MAP_System/tasks/TASK-281.json
+    scope: workspace
+    sha256: 7c7358d0b3e4326cc552a667964dcdc40d6534f9067fd19eff5f0fa749f5208a
+    state: file
+  - path: MAP_System/tasks/TASK-282.json
+    scope: workspace
+    sha256: 0575a7c36f45a30d4d6e0fcbee059dc2343da018a256fe2532d3d03e33ce57cb
+    state: file
+  - path: MAP_System/tasks/TASK-283.json
+    scope: workspace
+    sha256: c47ef8bb78fa7f5a5635fe852bb233f4f65a6521d5ed4651d074867af2951412
+    state: file
+  - path: MAP_System/tasks/TASK-284.json
+    scope: workspace
+    sha256: c62524d4efe508dc5425a9999f4af33c47403870b21fe13d6f6fbd9d0b941078
+    state: file
+  - path: MAP_System/tasks/TASK-285.json
+    scope: workspace
+    sha256: 225be0b2d32495ec762e42c75f06cf0e4aeca39c3c551de3fb08f939d4b89c5d
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: def3ce315ef1d9b2816db608151a9307540171f3ba51ea04ed44b46841a5d3d3
+    state: file
+  touched_paths_sha256: 87df6b16ce38a1fc6aa9cfa952cc0b2b70e17cf180d0f370ac9f89d82aaa59f4

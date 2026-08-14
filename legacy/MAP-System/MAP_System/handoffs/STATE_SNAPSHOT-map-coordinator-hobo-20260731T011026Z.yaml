@@ -1,0 +1,354 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-31T01:10:26Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: map-coordinator-hobo
+status: handing_off
+role: MAP recovery coordinator (per DEC-039) -- routing, task assignment,
+  DEC-037 audit response, blocker triage only. Does not claim, own, or
+  implement substantive tasks. Reason for handoff: this session is nearly
+  out of context tokens, not task completion.
+task_context:
+  current_task: TASK-309
+  owned_tasks:
+  - TASK-309
+  pending_reviews:
+  - task_id: TASK-314
+    reviewer: ws1-review-lilo
+    status: review started, then reviewer hit a rate-limit failure mid-review
+      (see blockers)
+  recent_events:
+  - event_type: DEC039_COORDINATOR_HANDOFF_ACCEPTED
+    task_id: TASK-309
+    summary: 'Accepted DEC-039 coordinator handoff from claude-lab-mimi.
+      Independently verified before acting: DEC-039 in decisions.md names
+      map-coordinator-hobo as successor with the operator''s own quoted
+      words; state snapshot sha256 matched exactly
+      (5a377a40cb8d0f7b9d89ec1eee1885c252705d041bf645b558d2cada5b5d9f69).
+      First action: reassigned TASK-309 ownership from stale codex-lab-risa
+      (lease expired 2026-07-30 04:08:11) to self, then claimed it, both via
+      codex-lab-vumo:RUKI on Smalls (Biggie is read-only). Recorded in
+      events.jsonl.'
+  - event_type: DEC040_TASK306_SPLIT
+    task_id: TASK-306
+    summary: 'Librarian tara audited TASK-306 (CHANGES_REQUESTED, operator-tier,
+      destructive, trust-boundary-crossing, owner claude-lab-nene not live) and
+      flagged it plus TASK-309''s coordinator self-ownership as needing operator
+      disposition, not coordinator judgment. Brought both to bigboss directly
+      via AskUserQuestion. Approved: (1) TASK-306 retired preserving evidence,
+      split into TASK-314 (local/template-only WS-1 Command Center consumer,
+      no remote write), Smalls cross-PC deployment half deferred to a future
+      WS-6 task (not yet created); (2) TASK-309 coordinator-epic
+      ownership/claim confirmed as a narrow bookkeeping exception, not scope
+      creep. Recorded as DEC-040. Executed via codex-lab-vumo on Smalls.'
+  - event_type: DEC041_LIVE_CCUI_APPROVAL_AND_MIMI_HANDOFF
+    task_id: TASK-314
+    summary: 'Mimi implemented TASK-314''s freshness display in the template
+      only, which broke test_command_center_deployment_parity.py because
+      DEC-030 requires merge direction live-to-template. Editing the live
+      CommandCenterUI requires named operator approval per
+      commandcenterui-boundary-decision.md. Brought to bigboss via
+      AskUserQuestion; approved. Recorded as DEC-041 with the full boundary-doc
+      checklist (named path /home/mellow/Projects/CommandCenterUI, exact
+      output files, validation/restart plan, read-only-vs-write statement).
+      Output paths registered via vumo. Shortly after, claude-lab-mimi handed
+      off both TASK-310 and TASK-314 mid-work (operator closing her session);
+      she had already done real diligence (live files backed up at
+      /home/mellow/Projects/CommandCenterUI/.map-task314-backup-20260730T222819Z/,
+      template verified, diffed clean).'
+  - event_type: TASK314_REROUTED_AND_COMPLETED
+    task_id: TASK-314
+    summary: 'Routed TASK-314 to pi-lab-zulu first; zulu acked twice but never
+      executed a single tool call (confirmed via hcom events -- no claim
+      request ever reached vumo, no file changes). Reassigned to
+      rotation-replacement-mimi-koda instead (confirmed reliable via real tool
+      calls in its event stream, unlike zulu). Koda completed the full punch
+      list: copied verified template files to live, chmod 755 server.py,
+      regenerated version.json manifest, restarted live server (PID 276733 ->
+      2219603), smoke-checked /api/map/authority returns live FRESH payload,
+      confirmed served JS/CSS contain the new badge code,
+      test_command_center_deployment_parity.py 7/7 pass, added 5 new focused
+      tests (test_command_center_authority_freshness.py), full suite 83
+      pass/1 fail (the 1 fail is TASK-312''s pre-existing, already-diagnosed,
+      unrelated Smalls-mirror-timer infra limitation). Wrote
+      MAP_System/artifacts/recovery/ws1-command-center-consumer-local.md.
+      Submitted TASK-314.'
+  - event_type: TASK314_REVIEW_ROUTING
+    task_id: TASK-314
+    summary: 'DEC-038 requires TASK-310/314 review from outside the
+      claude-lab-mimi / rotation-replacement-mimi-koda lineage. Tried
+      codex-lab-risa (only other Biggie-local core agent, needed to verify the
+      live CommandCenterUI directly) -- risa correctly declined, citing a
+      standing operator "take no further action" restriction from earlier in
+      the session that DEC-036--041 do not explicitly lift; did not push it.
+      Spawned a fresh, fully unentangled agent instead: `hcom 1 claude --tag
+      ws1-review --terminal wezterm-tab` -> ws1-review-lilo. Briefed it with
+      full context and a 5-point verification checklist (read koda''s
+      evidence; verify template changes; verify the LIVE CommandCenterUI
+      directly since lilo is Biggie-local; re-run both parity and the new
+      freshness tests; confirm no remote Smalls write / no write-capable
+      control surface added). Lilo acked, started a real review (multiple
+      Bash calls: read server.py, ran run_tests.sh, checked
+      events.jsonl, checked map-authority claim-review/release-review verbs
+      for how to submit its verdict) -- then hit a rate_limit failure and went
+      inactive mid-review. See blockers.'
+  touched_paths:
+  - MAP_System/shared/decisions.md
+  - MAP_System_Recovery_2026-07-29/00_control/phase2-status.md
+  - MAP_System/events/events.jsonl
+active_constraints:
+- scope: authority
+  rule: 'Biggie/KUDU is a read-only MAP mirror. All canonical lifecycle writes
+    route through map-authority to Smalls/RUKI. Never mutate local
+    MAP_System/map.db. codex-lab-vumo:RUKI has been the reliable Smalls-side
+    executor all session for every map-authority mutation (reassign-owner,
+    claim, add-output-path).'
+  source: AGENTS.md, MAP_System/AGENTS.md
+- scope: coordinator-role
+  rule: 'map-coordinator-hobo is the MAP recovery coordinator per DEC-039:
+    routing, task assignment, DEC-037 audit response, blocker triage only.
+    Does NOT claim/own/implement substantive tasks. Owning TASK-309 itself
+    (the coordination-tracking epic, role: coordinator) is a narrow,
+    operator-confirmed bookkeeping exception (DEC-040), not license to expand
+    scope further. Do not resume acting as a substantive task owner from this
+    identity.'
+  source: MAP_System/shared/decisions.md DEC-039, DEC-040
+- scope: review-independence
+  rule: 'TASK-310 and TASK-314 must both be reviewed by an agent outside the
+    claude-lab-mimi / rotation-replacement-mimi-koda lineage, per DEC-037''s
+    audit finding and DEC-038''s resolution. codex-lab-risa has a standing
+    operator restriction and declined; do not push it without an explicit
+    reactivation citation. ws1-review-lilo is the current reviewer assignment
+    for TASK-314 but is rate-limited/inactive -- resume or reassign.'
+  source: MAP_System/shared/decisions.md DEC-037, DEC-038
+- scope: sequencing
+  rule: 'No further WS-3/WS-4+ work beyond what is already claimed (TASK-312,
+    TASK-294, both held/paused under koda) proceeds until TASK-310 is
+    submitted and independently reviewed. TASK-298/305 downstream actions
+    (deploy, backup removal, further release/backlog ceremony) stay held
+    until WS-1-3 stabilization completes.'
+  source: MAP_System/shared/decisions.md DEC-038
+- scope: external-edit-boundary
+  rule: 'Editing the live CommandCenterUI at /home/mellow/Projects/CommandCenterUI
+    requires explicit named operator approval per
+    MAP_System/artifacts/planning/commandcenterui-boundary-decision.md''s
+    checklist (named path, exact output files, validation/restart plan,
+    read-only-vs-write statement). DEC-041 satisfies this specifically for
+    TASK-314''s scope; it does not blanket-authorize further live edits.'
+  source: MAP_System/artifacts/planning/commandcenterui-boundary-decision.md,
+    MAP_System/shared/decisions.md DEC-030, DEC-041
+- scope: agent-reliability
+  rule: 'pi-lab-zulu acked twice under this coordinator but executed zero
+    real tool calls both times (verified via hcom events -- text-only
+    HCOM_OUT replies, no Bash/claim activity ever reached vumo). Do not
+    route further work to it without direct evidence of real tool execution
+    first. rotation-replacement-mimi-koda and codex-lab-vumo:RUKI have both
+    been confirmed reliable (real tool calls, completed deliverables) this
+    session.'
+  source: this session, hcom events for pi-lab-zulu vs
+    rotation-replacement-mimi-koda / codex-lab-vumo
+forward_tasks:
+- task_id: TASK-314
+  next_action: unblock its stalled review
+  owner: rotation-replacement-mimi-koda (implementer, done, SUBMITTED)
+  reason: 'ws1-review-lilo started a real independent review (multiple
+    verification Bash calls against live CommandCenterUI, template, and
+    tests) then hit a rate_limit failure and went inactive
+    (2026-07-31T00:25:51Z). Resume lilo (`hcom r ws1-review-lilo` or similar)
+    once its rate limit clears, or spawn/route to a different agent outside
+    the mimi/koda lineage if it does not recover. Do not accept a review from
+    mimi, koda, or (per its own decline) codex-lab-risa without an explicit
+    reactivation citation.'
+  paths:
+  - MAP_System/artifacts/recovery/ws1-command-center-consumer-local.md
+  - MAP_System/templates/install/command-center-ui/
+  - /home/mellow/Projects/CommandCenterUI/
+- task_id: TASK-310
+  next_action: watch lease, then route for submission + independent review
+  owner: claude-lab-mimi (stepped back, session ended, not heartbeating)
+  reason: '3 of 4 Required Consumers done and tested (map-authority status,
+    route with fail-closed freshness gate, shared/current-state.md). The 4th
+    (Command Center display) is complete via TASK-314, pending TASK-314''s
+    own review clearing. Lease was 2026-07-30 22:53:45 as of last check (may
+    already be stale by the time this snapshot is read) -- reclaim via
+    reassign-owner-then-claim through codex-lab-vumo:RUKI if stale, same
+    pattern used for TASK-309 and TASK-314. Not submitted. Review must come
+    from outside the mimi/koda lineage, same reviewer-sourcing problem as
+    TASK-314.'
+  paths:
+  - MAP_System/artifacts/recovery/ws1-truthful-authority-state.md
+  - MAP_System/graph/runner.py
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/map_authority_notify.py
+  - MAP_System/scripts/render_active_state.py
+- task_id: TASK-312
+  next_action: wait
+  owner: rotation-replacement-mimi-koda
+  reason: 'WS-3, 1 genuine failure remaining (Smalls-mirror-timer clobbers
+    Biggie-local shared/current-state.md regeneration within ~60s -- needs a
+    Smalls-side fix). Held per DEC-038; resume only after TASK-310 clears.'
+  paths: []
+- task_id: TASK-294
+  next_action: wait
+  owner: rotation-replacement-mimi-koda
+  reason: 'Fixed and verified green, not submitted. Held per DEC-038
+    alongside TASK-312.'
+  paths: []
+- task_id: (none yet -- WS-6 deferred task)
+  next_action: create when WS-6 begins
+  owner: unassigned
+  reason: 'TASK-306''s Smalls cross-PC deployment/parity half was deferred,
+    not abandoned, per DEC-040. Create as its own task with full
+    operator/security/rollback gates when WS-6 actually starts -- do not
+    create it early, that itself would be a freeze-adjacent premature
+    workstream advance.'
+  paths: []
+post_snapshot_update:
+  timestamp: '2026-07-31T01:35:00Z'
+  summary: 'Two events after this snapshot was first written, before session
+    end: (1) ws1-review-lilo never recovered from rate_limit (confirmed by
+    tara). Spawned a second fresh reviewer, ws1-review2-muvi (Codex this
+    time), which independently reproduced the full TASK-314 review from
+    scratch (did not inherit lilo''s partial work, per tara''s guidance) and
+    APPROVED it: canonical release-review ok=true/released=true,
+    get-open-review claim:null, durable record at
+    MAP_System/artifacts/reviews/task314-independent-review-ws1-review2-muvi.md
+    (validate_review.py PASS). Verified live endpoint, badge, SHA-256
+    live/template parity, deployment parity 7/7, freshness tests 5/5,
+    security pass (read-only, no write control). One nonblocking note from
+    muvi: evidence artifact says 82+1=83 total tests, run_tests.sh/relay says
+    83+1=84 -- a documentation count mismatch, not a functional issue; worth
+    a quick fix but not blocking. TASK-314 remains formally SUBMITTED pending
+    the normal approval-transition step (map-authority task approve, not yet
+    run). (2) TASK-310''s lease was confirmed still stale (22:53:45, well
+    past). Dispatched to codex-lab-vumo:RUKI: reassign-owner TASK-310 to
+    rotation-replacement-mimi-koda, then claim -- SENT BUT NOT YET CONFIRMED
+    when this session ended. First thing a successor should do: check
+    whether that reassign+claim landed (`map-authority task show TASK-310`),
+    then have koda verify TASK-310''s tests pass and submit it, then route
+    ITS independent review the same way TASK-314''s was just resolved
+    (spawn a fresh outside-lineage reviewer, do not reuse mimi/koda/risa,
+    lilo may still be rate-limited).'
+blockers:
+- kind: task-approval-transition
+  detail: 'TASK-314 passed independent review (release-review completed,
+    APPROVED) but the task record itself may still need the formal
+    map-authority task approve transition to move out of SUBMITTED. Check
+    `map-authority task show TASK-314` status first -- if still SUBMITTED,
+    run the approve step (reviewer=ws1-review2-muvi) via vumo.'
+  unblock_by: map-authority task approve TASK-314 --reviewer ws1-review2-muvi
+    (via codex-lab-vumo:RUKI on Smalls), if not already done.
+- kind: reviewer-availability
+  detail: 'RESOLVED for TASK-314 (see post_snapshot_update above). Still
+    applies to TASK-310: needs the same outside-mimi/koda-lineage reviewer
+    treatment once koda finishes and submits it. codex-lab-risa should be
+    avoided per tara (formerly owned/authored TASK-310''s own contract, so
+    not independent for this specific task). ws1-review-lilo may or may not
+    have recovered from its rate_limit by the time TASK-310 needs a
+    reviewer -- check before assuming it is available.'
+  unblock_by: 'Spawn a fresh reviewer the same way muvi was spawned
+    (`hcom 1 codex --tag ws1-review --terminal wezterm-tab`) once TASK-310
+    is submitted.'
+- kind: infrastructure
+  detail: 'shared/current-state.md cannot be durably regenerated from Biggie --
+    Smalls'' map-authority-mirror.timer overwrites it from canonical export
+    roughly every 60 seconds. This is TASK-312''s one remaining failure,
+    already root-caused by koda, documented in
+    MAP_System/artifacts/recovery/ws3-readonly-fixture-finding.md.'
+  unblock_by: run render_active_state.py on Smalls, or add a mirror
+    exclusion/regeneration step there. Not urgent -- TASK-312 is paused per
+    DEC-038 regardless.
+- kind: infrastructure
+  detail: 'Checksum-bound context-rotation ack/finalize (the technical
+    handoff pipeline) remains structurally blocked on the undeployed
+    TASK-307/308 gateway patch. This is why this snapshot uses the
+    operator-statement + durable-decision-record + hcom-broadcast pattern
+    instead, same as DEC-036/039.'
+  unblock_by: TASK-308 deployment (separately gated on operator + security
+    approval)
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror
+    (this host)
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and sole
+    writable MAP authority
+resume_commands:
+- hcom list -v --json
+- map-authority route
+- map-authority task show TASK-310
+- map-authority task show TASK-314
+- cat MAP_System/shared/decisions.md   # read DEC-036 through DEC-041 at minimum
+- cat MAP_System_Recovery_2026-07-29/00_control/phase2-status.md
+- hcom events --agent ws1-review-lilo --last 20   # check if it recovered from rate_limit
+- hcom transcript ws1-review-lilo --last 5 --full
+validation:
+- TASK-309 owned+claimed by map-coordinator-hobo, lease was current as of
+  2026-07-30 22:18:36 (may need a heartbeat/reclaim by the time this is read
+  -- coordinator role itself has no hard deadline pressure, but check).
+- TASK-306 RETIRED, evidence preserved, confirmed via map-authority task show.
+- TASK-314 SUBMITTED, owner rotation-replacement-mimi-koda, full test suite
+  83 pass/1 pre-existing-unrelated-fail, confirmed via koda's own report and
+  partially via lilo's in-progress independent verification before it stalled.
+- DEC-036 through DEC-041 all recorded in shared/decisions.md.
+- phase2-status.md reflects current truth as of this snapshot's timestamp.
+rotation:
+  reason: context_budget_exhausted
+  summary: 'Coordinator session (map-coordinator-hobo) is nearly out of
+    context tokens. This is a proactive checkpoint at the operator''s
+    request, not a completion or failure state -- active work
+    (TASK-310 lease watch, TASK-314 review recovery) is genuinely
+    in-flight and needs a successor to keep watching hcom and routing.'
+  next_action: 'A successor (new coordinator session, or this same identity
+    resumed) should: (1) check TASK-310''s lease and reclaim if stale, (2)
+    check whether ws1-review-lilo recovered from its rate_limit and resume
+    or reassign its TASK-314 review, (3) once TASK-314 clears review, confirm
+    TASK-310''s 4th consumer is unblocked and push toward TASK-310
+    submission, (4) keep watching for any further DEC-037 audit findings
+    from helper-librarian-tara, (5) do not let TASK-312/294/298/305 advance
+    until TASK-310 clears, per DEC-038.'
+  used_tokens: null
+  threshold_tokens: null
+  metric_source: operator-reported ("tokens are almost all run out")
+integrity:
+  prepared_at: '2026-07-31T01:10:26Z'
+  canonical_tasks:
+  - task_id: TASK-309
+    status: IN_PROGRESS
+    owner: map-coordinator-hobo
+    claimed_by: map-coordinator-hobo
+    lease_expires_at: '2026-07-30 22:18:36'
+    heartbeat_at: '2026-07-30 21:48:36'
+    updated_at: '2026-07-30 21:48:36'
+  - task_id: TASK-310
+    status: IN_PROGRESS
+    owner: claude-lab-mimi
+    claimed_by: claude-lab-mimi
+    lease_expires_at: '2026-07-30 22:53:45'
+    heartbeat_at: '2026-07-30 22:23:45'
+    updated_at: '2026-07-30 22:23:45'
+  - task_id: TASK-314
+    status: SUBMITTED
+    owner: rotation-replacement-mimi-koda
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-31 00:02:22'
+  - task_id: TASK-306
+    status: RETIRED
+    owner: claude-lab-nene
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-30 22:16:02'
+  touched_paths:
+  - path: MAP_System/shared/decisions.md
+    scope: workspace
+    sha256: dcdda257699575239aa197d7364ed070947262c4e530ba0c91458afd47a898d9
+    state: file
+  - path: MAP_System_Recovery_2026-07-29/00_control/phase2-status.md
+    scope: workspace
+    sha256: a016adde7fe23ffec80aaf37e3fbba1698e0847a00fedec2e953ee568005de62
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: ee68aa52e6a2e175845625b6dbf9810cfb2ef4f0c043182c1fb7a90ac9a2aa80
+    state: file

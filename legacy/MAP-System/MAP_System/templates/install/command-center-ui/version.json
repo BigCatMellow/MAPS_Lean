@@ -1,0 +1,81 @@
+{
+  "version": "2026-08-10-orchestrator-v7-antigravity-retirement",
+  "generated_at": "2026-08-10T02:12:22Z",
+  "source_host": "Biggie (KUDU, mellow@100.97.156.74)",
+  "source_path": "/home/mellow/Projects/CommandCenterUI",
+  "managed_files": {
+    "AGENTS.md": {
+      "sha256": "1eabe609db7cf80fb7afea52900608b01aa4c6ce4ad332983cac15537738c3df",
+      "size": 573
+    },
+    ".gitignore": {
+      "sha256": "9b9dc66af90f9ff99fa79101a6e3eb357e4d8b53cafcf51e9a8d2e2e32ca7dbb",
+      "size": 28
+    },
+    "launch-command-center-ui.sh": {
+      "sha256": "f9b96c7fbc8583a0c7695563f3ba9237d7c3e2fdd0e79845007702f6336982a6",
+      "size": 131
+    },
+    "run-command-center-app.sh": {
+      "sha256": "31b378fd5bd1d88d07bf0915627cbf9fefbf60f25a96cfd9b335727980c4acb1",
+      "size": 652
+    },
+    "README.md": {
+      "sha256": "773d8c792d36a65907b496a8560bc4bb71133ca205e2374bd4be6a67193d8521",
+      "size": 2528
+    },
+    "app/server.py": {
+      "sha256": "c6356e0e05b1c211a608a7dea629fc529a2a85af9b68b7ef2a6911d498ba07e8",
+      "size": 96610
+    },
+    "app/window.py": {
+      "sha256": "03a5489cf59d97ae3e06f6f3c82545d9ecff5c1faf4448e48f70e3dced324cbe",
+      "size": 3702
+    },
+    "src/bcmagent.svg": {
+      "sha256": "6e702aaef040541e258f746f4ca811b64f24f8f854e3ea689bc2c40d4bb9a4f3",
+      "size": 10171
+    },
+    "src/orchestrator.css": {
+      "sha256": "7508cc15d1b596c27f36e9d1badc6d6ebfe1214ff7ae83eeec29eafcf93d5e87",
+      "size": 17719
+    },
+    "src/orchestrator.html": {
+      "sha256": "fd79548cd93ff8d4b23f7278f24934aeda3d794e5e46f386e56a0d62203c7af8",
+      "size": 5838
+    },
+    "src/orchestrator.js": {
+      "sha256": "df3505e0479b78038530a8dc3ee0b0b54857894c1f130e3a8a91c9c0dd81e04b",
+      "size": 31886
+    }
+  },
+  "excluded_runtime_patterns": [
+    "runtime/*",
+    "runtime/**",
+    "**/__pycache__/*",
+    "__pycache__/*",
+    "*.pyc",
+    "_legacy-ui-removed-2026-07-29/*",
+    "_legacy-ui-removed-2026-07-29/**"
+  ],
+  "excluded_host_rendered": [
+    "CommandCenterUI.desktop"
+  ],
+  "excluded_legacy_out_of_scope": [
+    "src/app.html",
+    "src/app.js",
+    "src/app-live.css",
+    "src/app-live.js",
+    "src/assets/pasted-1782846261949-0.png",
+    "src/assets/pasted-1782846275994-0.png",
+    "src/assets/pasted-1782846286125-0.png",
+    "src/chat.css",
+    "src/chat.html",
+    "src/chat.js",
+    "src/index.html",
+    "src/studio.css",
+    "src/studio.html",
+    "src/studio.js",
+    "src/styles.css"
+  ]
+}

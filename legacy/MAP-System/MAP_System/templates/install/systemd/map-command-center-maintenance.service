@@ -1,0 +1,9 @@
+[Unit]
+Description=MAP Command Center read-only reconciliation and liveness check
+After=map-rns-watcher.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=__PROJECT_DIR__
+Environment=PATH=__LOCAL_BIN__:/usr/local/bin:/usr/bin:/bin
+ExecStart=__PROJECT_DIR__/MAP_System/scripts/command_center_maintenance.sh

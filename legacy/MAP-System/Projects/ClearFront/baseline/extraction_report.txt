@@ -1,0 +1,17 @@
+source: /home/mellow/Projects/MultiAgentProject/Source/Projects/ClearFront/source/game-card-combat-effects/Clearfront.html
+manifest entries: 6
+  7c9ae1fc-8916-4304-8a6e-5d4e107bbe80  mime=image/png  compressed=False  bytes=512216  sha256[:12]=fe86e35c502b  -> assets/7c9ae1fc-8916-4304-8a6e-5d4e107bbe80.png
+  3fc6801a-1429-48f4-aae2-0925e8d8f075  mime=image/png  compressed=False  bytes=481324  sha256[:12]=fdbfd3cc2b58  -> assets/3fc6801a-1429-48f4-aae2-0925e8d8f075.png
+  70860df9-40a4-403e-b892-e4e57f9b31d0  mime=image/png  compressed=False  bytes=456601  sha256[:12]=0d2d6b7fd863  -> assets/70860df9-40a4-403e-b892-e4e57f9b31d0.png
+  9300c284-a8d8-400c-a349-2d33c0ec4225  mime=image/png  compressed=False  bytes=529807  sha256[:12]=2fbb44a827ba  -> assets/9300c284-a8d8-400c-a349-2d33c0ec4225.png
+  d65247e2-9572-41cd-b478-c0a6a5c04f7c  mime=image/png  compressed=False  bytes=510866  sha256[:12]=a7310b9d8f54  -> assets/d65247e2-9572-41cd-b478-c0a6a5c04f7c.png
+  7b0690f1-7002-48aa-9ade-5c9856207594  mime=image/png  compressed=False  bytes=487756  sha256[:12]=79f11d1e3d8d  -> assets/7b0690f1-7002-48aa-9ade-5c9856207594.png
+ext_resources entries: 6
+  id='deck_lion' -> uuid=3fc6801a-1429-48f4-aae2-0925e8d8f075 -> assets/3fc6801a-1429-48f4-aae2-0925e8d8f075.png
+  id='deck_badger' -> uuid=7c9ae1fc-8916-4304-8a6e-5d4e107bbe80 -> assets/7c9ae1fc-8916-4304-8a6e-5d4e107bbe80.png
+  id='deck_raven' -> uuid=70860df9-40a4-403e-b892-e4e57f9b31d0 -> assets/70860df9-40a4-403e-b892-e4e57f9b31d0.png
+  id='deck_owl' -> uuid=9300c284-a8d8-400c-a349-2d33c0ec4225 -> assets/9300c284-a8d8-400c-a349-2d33c0ec4225.png
+  id='deck_stag' -> uuid=d65247e2-9572-41cd-b478-c0a6a5c04f7c -> assets/d65247e2-9572-41cd-b478-c0a6a5c04f7c.png
+  id='deck_fox' -> uuid=7b0690f1-7002-48aa-9ade-5c9856207594 -> assets/7b0690f1-7002-48aa-9ade-5c9856207594.png
+OK: zero raw manifest UUIDs remain in the emitted HTML
+emitted: /home/mellow/Projects/MultiAgentProject/Source/Projects/ClearFront/baseline/index.html  bytes=172306

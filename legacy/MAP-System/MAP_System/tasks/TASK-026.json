@@ -1,0 +1,40 @@
+{
+  "task_id": "TASK-026",
+  "title": "STATE_SNAPSHOT handoff format",
+  "task_type": "design",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-019"
+  ],
+  "owner": "codex",
+  "description": "Define YAML schema for inter-agent session handoffs carried in handoffs/ dir. Agents emit on session end, load on resume. Enables context continuity across session boundaries without re-deriving state from files.",
+  "input_paths": [],
+  "output_paths": [
+    "AGENTS.md",
+    "MAP_System/AGENTS.md",
+    "MAP_System/shared/decisions.md",
+    "MAP_System/workflow/templates/state_snapshot.yaml",
+    "shared/decisions.md",
+    "workflow/templates/state_snapshot.yaml"
+  ],
+  "acceptance_criteria": [
+    "YAML schema covers: agent_id, session_id, task context, active constraints, forward_tasks, lexicon",
+    "Example snapshot for end-of-session claude handoff included",
+    "DEC-010 filled in at shared/decisions.md (placeholder already reserved)",
+    "AGENTS.md updated with emit/load instructions"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

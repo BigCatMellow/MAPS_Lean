@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-269",
+  "title": "Make the helper model tier durable and checkable",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-gabi",
+  "description": "helper-agent-guide.md:148,152 requires every helper record to capture the requested and approved model tier and whether a lower tier was skipped, but the helper-note metadata contract in AGENTS.md:137-145 has no model field: it defines status, owner, provider, created_at, scope only, and provider only distinguishes codex/claude/local, not tier. Measured 2026-07-22: of 82 notes in inbox/helpers/, 6 record any model or tier field and 2 name a model at all. The tier rubric is therefore unenforceable because the approved tier is not written anywhere a reader or the graph can see. Operator raised this directly (hcom #10496) as agents not being used at the right model level. Add model to the documented contract and make its absence visible in runner output so the existing policy becomes checkable rather than aspirational. No change to the rubric itself.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/AGENTS.md",
+    "MAP_System/graph/runner.py",
+    "MAP_System/notes/helper-agent-guide.md",
+    "MAP_System/tests/test_runner_helper_notes.py"
+  ],
+  "acceptance_criteria": [
+    "The helper-note metadata contract in AGENTS.md documents a model field carrying the approved tier, and states that the approver and any intentionally skipped lower tier belong in the note.",
+    "graph/runner.py surfaces active helper notes that record no model tier, so an unrecorded tier is visible in the normal route output instead of silently absent.",
+    "notes/helper-agent-guide.md points at the contract field so the tier-recording requirement and the place to record it are not in two disconnected documents.",
+    "Focused tests cover an active helper with a recorded tier, an active helper missing one, and a non-active helper missing one which must not be reported.",
+    "Existing helper-capacity accounting and active_helper_notes behavior are unchanged."
+  ],
+  "decision_class": "POLICY",
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "policy",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": true,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

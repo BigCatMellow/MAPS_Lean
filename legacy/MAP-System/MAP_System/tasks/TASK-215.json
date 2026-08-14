@@ -1,0 +1,49 @@
+{
+  "task_id": "TASK-215",
+  "title": "ClearFront: extract js/render.js (rendering + clash animation)",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-214"
+  ],
+  "owner": "claude-lab-gome",
+  "description": "Third engine-layer decomposition slice, scoped precisely in DEC-CF-006 (Projects/ClearFront/shared/decisions.md) by direct inspection of post-TASK-214 app/index.html. Extract these 28 functions verbatim into Projects/ClearFront/app/js/render.js, published via CF.installRenderModule(ctx) mirroring the installStateModule/installCombatModule pattern: clashDelay, buildClashCard, buildClashFx, spawnClashNumber, showClashHit, flagClashCard, stageImpact, runBlockedClash, runHeroClash, playClashSequence, updateBoardScrollIndicator, updateBoardScrollbars, bindBoardScrollbar, render, renderEnemyHand, renderRelics, renderChampionSlot, renderBoard, renderHand, createCardElement, renderCardCatalog, getBlockingSnapshot, predictCombat, renderBlockReview, renderCombatReport, renderPhase, renderLog, escapeHtml. This resolves the clash-animation cluster's home (deferred twice: TASK-208's original module map, then again in DEC-CF-005 during TASK-214). Make clashTimers a render.js-private module-scoped let (NOT a ctx accessor) -- DEC-CF-006 confirms every read/write of it falls inside this function set. ctx contract changes: REMOVE render, playClashSequence, renderCombatReport (moving into render.js, becoming window.CF-published); KEEP the 5 mutable accessors (render.js reads ctx.state ~72 times, never reassigns) and $/refs (~90 refs. sites). KNOWN REQUIRED SIBLING EDIT (disclosed upfront so this is not a mid-task discovery like TASK-214's state.js edit was): combat.js's installCombatModule(ctx) currently destructures render/playClashSequence/renderCombatReport from ctx into local consts and calls them bare -- drop those three from that destructure line, and convert every bare call site (render() x22, playClashSequence() x1, renderCombatReport() x1) to CF.render(...)/CF.playClashSequence(...)/CF.renderCombatReport(...). state.js needs NO change (confirmed by grep it never destructured these three). render.js itself calls into state.js/combat.js via CF.canUndo, CF.championDef, CF.controllerLabel, CF.sideOf, CF.blockTargetReason, CF.canAttack, CF.effectiveCost, CF.getCardCondition, CF.handleHandCard, CF.handleUnitTarget, CF.handUnavailableReason, CF.isCardPlayable -- all via CF.*, never ctx (ctx is reserved for the 5 mutable-reassignment bindings only). showDeckSelect() and other state.js/combat.js bootstrap/listener calls in the remaining inline script need NO CF. prefix -- they stay locally destructured consts in the inline script's own scope, unaffected by this task (this was double-checked after an initial drafting error). Load order: data.js -> state.js -> combat.js -> render.js -> inline script. No ES modules, no build step, no server (DEC-CF-002). Do not touch source/ or baseline/, and do not move the input IIFE (initCardPeek, js/input.js is a separate later task).",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/app/index.html",
+    "Projects/ClearFront/app/js/combat.js",
+    "Projects/ClearFront/app/js/render.js",
+    "Projects/ClearFront/app/js/state.js",
+    "Projects/ClearFront/artifacts/tests/screenshots/task215-app-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task215-baseline-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/task-215-render-parity.md",
+    "Projects/ClearFront/artifacts/tests/task215-run-app-seed42.json",
+    "Projects/ClearFront/artifacts/tests/task215-run-app-seed7.json",
+    "Projects/ClearFront/artifacts/tests/task215-run-baseline-seed42.json",
+    "Projects/ClearFront/artifacts/tests/task215-run-baseline-seed7.json",
+    "Projects/ClearFront/artifacts/tests/task215-seeded-replay.mjs",
+    "Projects/ClearFront/artifacts/tests/task215-undo-check.mjs"
+  ],
+  "acceptance_criteria": [
+    "All 28 listed functions moved verbatim (same verbatim-move-proof standard as TASK-212/214: disclose and justify every non-mechanical-prefix diff) into app/js/render.js; clashTimers is a private module-scoped variable, not a ctx accessor.",
+    "ctx contract updated exactly per DEC-CF-006 point 3: render/playClashSequence/renderCombatReport removed. combat.js's destructure and all 24 bare call sites (22+1+1) converted to CF.* per point 4. Document the final ctx shape (list every key) and confirm state.js needed no change.",
+    "app/index.html opens directly via file:// and is visually + functionally identical to the pre-TASK-215 app/index.html: byte-identical champion-select screenshot, and a deterministic seeded-replay CDP test (reuse/extend the TASK-212/214 technique, at least 2 seeds) covering card play, attacking, blocking, combat resolution (incl. the clash animation actually firing, not just completing instantly), end turn, and a full AI turn, with zero console errors/exceptions.",
+    "TASK-213's undo fix and the full undo trio still function correctly (reuse/extend task212-undo-check.mjs).",
+    "node --check passes on render.js, the edited combat.js, and the remaining inline script.",
+    "source/ and baseline/ untouched, hashes independently reproduced in the parity report (not just asserted)."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

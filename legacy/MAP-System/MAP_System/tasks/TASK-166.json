@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-166",
+  "title": "Add read-only mission-control drilldowns",
+  "task_type": "implementation",
+  "role": "core",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-mozu",
+  "description": "Add read-only drilldown data and TUI views for selected task, agent, and attention items in mission-control, reusing canonical MAP sources and preserving the no-write contract.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/scripts/_mission_control_app.py",
+    "MAP_System/scripts/mission_control_tui.py",
+    "MAP_System/tests/test_mission_control_tui.py"
+  ],
+  "acceptance_criteria": [
+    "Mission-control exposes task, agent, and attention drilldown data derived from existing canonical snapshots/events without recomputing routing or writing state.",
+    "The curses TUI provides read-only drilldown navigation for task, agent, event/attention focus while disabled intervention keys remain non-mutating.",
+    "Focused mission-control tests, validators, and the full MAP test suite pass."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-077",
+  "title": "Phase 0: canonical repo decision record and stale-copy freeze",
+  "task_type": "maintenance",
+  "role": "state_steward",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-064"
+  ],
+  "owner": "claude-lab-rose",
+  "description": "Record DEC-012 declaring /home/home/Downloads/MultiAgentProject canonical (report F1/Phase 0; decision authority delegated by command-center hcom #14454), add a freeze marker to ~/Projects/MultiAgentProject warning against pushes/edits until reconciled, and define the end-of-batch commit+reclone plan. Companion to TASK-065's shared/canonical-repo.md.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/shared/decisions.md"
+  ],
+  "acceptance_criteria": [
+    "DEC-012 recorded and validate_decisions.py passes",
+    "Freeze marker present in stale copy",
+    "Reconciliation steps written down, no push performed"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

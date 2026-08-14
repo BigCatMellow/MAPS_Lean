@@ -1,0 +1,31 @@
+{
+  "task_id": "TASK-289",
+  "title": "Reconcile ORCHESTRATION_ENTRYPOINT_SYSTEM.md's stale task_tier enum with the live one",
+  "task_type": "maintenance",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "TASK-288's independent review (task288-review-valo, 2026-07-28, RECOMMENDED finding) found that ORCHESTRATION_ENTRYPOINT_SYSTEM.md line 70 documents a task_tier enum (shaping, local, core, helper, approval) that does not match the enum pre_dispatch_policy.py actually enforces and live tasks.task_tier data actually uses (policy, operator, architecture, bounded, mechanical). Pre-existing drift, not caused by TASK-288, and does not affect classify_release()'s correctness (which follows the live enum). Reconcile the doc to match reality: either update ORCHESTRATION_ENTRYPOINT_SYSTEM.md's Dispatch Packet table to the live enum, or if the documented enum describes a different, not-yet-built concept (a dispatch-packet-stage tier distinct from tasks.task_tier), state that distinction explicitly so the two are not read as the same field.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/ORCHESTRATION_ENTRYPOINT_SYSTEM.md"
+  ],
+  "acceptance_criteria": [
+    "ORCHESTRATION_ENTRYPOINT_SYSTEM.md's task_tier documentation matches either the live tasks.task_tier enum (policy/operator/architecture/bounded/mechanical) used by pre_dispatch_policy.py, or explicitly states why it is a distinct concept with a different name recommended.",
+    "grep for task_tier across scripts/pre_dispatch_policy.py, scripts/map_task.py, and a live map.db query confirm the doc now matches reality (or the distinction is explicit)."
+  ],
+  "decision_class": "POLICY",
+  "risk_class": "KNOWLEDGE",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

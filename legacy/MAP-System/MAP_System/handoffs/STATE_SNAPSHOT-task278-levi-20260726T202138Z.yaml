@@ -1,0 +1,178 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T20:21:38Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: task278-levi
+session_id: 019fa002-b11f-7c01-be4f-0555c124e578
+status: handing_off
+task_context:
+  current_task: TASK-278
+  owned_tasks:
+  - TASK-278
+  pending_reviews: []
+  recent_events:
+  - event_type: DECISION_RECORDED
+    task_id: TASK-278
+    event_id: 1727
+    summary: bigboss cleared TASK-278 authority and structural/security pre-dispatch
+      approval.
+  - event_type: PROGRESS
+    task_id: TASK-278
+    event_id: 17901
+    summary: Concurrent TASK-280 ownership created a map_task.py collision; shared-path
+      edits paused.
+  - event_type: PROGRESS
+    task_id: TASK-278
+    event_id: 18017
+    summary: Focused lifecycle and authorship regressions are green; canonical submission
+      awaits ownership repair.
+  touched_paths:
+  - MAP_System/artifacts/tests/task278-review-authorship-delivery-note.md
+  - MAP_System/db/review_authorship.py
+  - MAP_System/db/claims.py
+  - MAP_System/migration/schema.sql
+  - MAP_System/scripts/map_task.py
+  - MAP_System/scripts/validate_review.py
+  - MAP_System/tests/test_review_authorship.py
+  - MAP_System/tests/test_review_claims.py
+  - MAP_System/tests/test_review_gate.py
+  - MAP_System/tasks/TASK-278.json
+  - MAP_System/workflow/task_graph.json
+active_constraints:
+- scope: task
+  rule: Implement only TASK-278 registered outputs; do not edit unrelated files or
+    self-review.
+  source: TASK-278
+- scope: task
+  rule: Unknown legacy submission authorship must fail closed; never infer independence
+    from owner or absent events.
+  source: TASK-278 acceptance criteria
+- scope: file
+  rule: Do not edit map_task.py while TASK-280 concurrently owns that output path.
+  source: live validate_task_graph collision
+- scope: communication
+  rule: Keep @kazu and @bigboss informed through hcom; no helpers or headless execution.
+  source: operator instruction
+- scope: safety
+  rule: Independent review is mandatory; task278-levi cannot review TASK-278.
+  source: AGENTS.md and TASK-278
+forward_tasks:
+- task_id: TASK-278
+  next_action: wait
+  owner: task278-levi
+  reason: Implementation and focused evidence are complete; clear TASK-280/TASK-278
+    and TASK-280/TASK-283 output collisions, then re-run graph/full validators, submit
+    canonically, and route independent review.
+  paths:
+  - MAP_System/scripts/map_task.py
+  - MAP_System/scripts/pre_dispatch_policy.py
+- task_id: TASK-285
+  next_action: ask_operator
+  owner: task285-replacement-solo
+  reason: Canonical reject is correctly blocked by UNKNOWN SUBMISSION AUTHOR; operator
+    must provide migration evidence or disposition.
+  paths: []
+blockers:
+- kind: ownership_conflict
+  detail: TASK-280 is IN_PROGRESS under codex-lab-feta and owns MAP_System/scripts/map_task.py;
+    TASK-280 and READY TASK-283 also collide on pre_dispatch_policy.py.
+  unblock_by: Command-center sequencing/structural ownership repair.
+lexicon:
+  canonical_author: task_submission_authorship.author_id, durable current submitter
+    identity
+  unknown_author: Missing authorship evidence; all review gates fail closed
+  map_db: MAP_System/map.db, authoritative SQLite task state
+  DECISION_RECORDED_1727: bigboss approval that makes pre-dispatch approval advisory
+    for TASK-278
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/db/claims.py heartbeat is not a CLI; use
+  heartbeat('TASK-278','task278-levi') before handoff
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_graph.py
+- MAP_System/.venv/bin/python MAP_System/scripts/test_review_authorship.py
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py submit TASK-278 --actor
+  <replacement-or-current-claimant>
+validation:
+- 'test_review_authorship.py: 7/7'
+- 'test_submission_event.py: 7/7'
+- 'test_task268_lifecycle.py: 3/3'
+- 'test_review_claims.py: 12/12'
+- 'test_review_gate.py: 3/3'
+- 'test_reassign_owner.py: 5/5'
+- 'test_no_self_review.py: 2/2'
+- 'validate_task_schema.py and validate_task_mirrors.py: pass'
+- 'Full runner: 72 pass / 7 fail, with failures attributed to live collisions, missing
+  langgraph, and pre-existing baseline drift.'
+rotation:
+  reason: threshold
+  summary: TASK-278 durable review authorship implementation is complete and focused-tested.
+    Submission is held by a live output collision introduced by paused TASK-280; do
+    not bypass graph ownership.
+  next_action: Read this snapshot and current TASK-278/TASK-280 state, then coordinate
+    ownership repair with @kazu before graph validation or canonical submission.
+  used_tokens: 150468
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-26T20:21:38Z'
+  canonical_tasks:
+  - task_id: TASK-278
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: task278-levi
+    lease_expires_at: '2026-07-26 20:51:38'
+    heartbeat_at: '2026-07-26 20:21:38'
+    updated_at: '2026-07-26 20:21:38'
+  - task_id: TASK-285
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26 19:58:41'
+  canonical_tasks_sha256: 7b8d36891dad46f2ccead1a5eaa1b1697da19dba3cce35a9ffa571484a808dc3
+  touched_paths:
+  - path: MAP_System/artifacts/tests/task278-review-authorship-delivery-note.md
+    scope: workspace
+    sha256: 33b0ad86c25c6f8b9c9afe76b34832194b6659156d1161a488245ba88d42ef40
+    state: file
+  - path: MAP_System/db/claims.py
+    scope: workspace
+    sha256: 7aa0cc1942f34ca6a065b0e598bfab5ce41d317d9ea1dd3e68f33f2fe3d571f0
+    state: file
+  - path: MAP_System/db/review_authorship.py
+    scope: workspace
+    sha256: c1e3614620f83f50971e06d4bdc50b4c95d11226b5e8e339ac5d174840adc10b
+    state: file
+  - path: MAP_System/migration/schema.sql
+    scope: workspace
+    sha256: 299b329b3597d8c5c7cc75935fbd64f8d59fb3fd2f76580acac5990205a3afa9
+    state: file
+  - path: MAP_System/scripts/map_task.py
+    scope: workspace
+    sha256: 43239c76f34922e7ca489892e26162b38cc217dbdea4020c70a8de3a77bd71ef
+    state: file
+  - path: MAP_System/scripts/validate_review.py
+    scope: workspace
+    sha256: f0e9aba9756b2b9d7c27d50087b824323a5e8b637603b899ee483591701d12b3
+    state: file
+  - path: MAP_System/tasks/TASK-278.json
+    scope: workspace
+    sha256: cc557d4c3aadffc4e225f035058bee8ee420271b1ed3e968ee8fdb0b916d981b
+    state: file
+  - path: MAP_System/tests/test_review_authorship.py
+    scope: workspace
+    sha256: 1b3393a5ce275d4dbfea5aff5f76112b7a885601926369a0b9a8479099fcddb9
+    state: file
+  - path: MAP_System/tests/test_review_claims.py
+    scope: workspace
+    sha256: 76dea89461cf5b4ed32db8f4f3510491649bb76ee446912fa0b715dd00f23122
+    state: file
+  - path: MAP_System/tests/test_review_gate.py
+    scope: workspace
+    sha256: f3d090e351ebf1c503bf586d4ecafc0e64379cded73cf5e70c22ca94c47a45ae
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 92947bdba773f927161953e12e5654f329af295157c83c5afdcd44ed4cdaba5a
+    state: file
+  touched_paths_sha256: 7aee38dea01b0b4231f721cfa9883033034acd83f70e0d5c321b6fe845e64231

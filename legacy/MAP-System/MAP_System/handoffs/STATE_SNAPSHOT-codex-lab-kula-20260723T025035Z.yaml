@@ -1,0 +1,233 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-23T02:50:35Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-kula
+session_id: 019f8ccf-e9c4-7d31-9f78-bf6d0e631f2a
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: RELEASED
+    task_id: TASK-267
+    summary: Released the MAP project realignment after Kiri and Bima independent
+      review, two rework cycles, and all release gates.
+  - event_type: APPROVED
+    task_id: TASK-267
+    summary: Bima independently approved the final six registered outputs; shared-state
+      23/23, mirrors, graph, decisions 28/28, and canonical-path validation passed.
+  - event_type: PROGRESS
+    task_id: TASK-267
+    summary: Post-release current-state refresh removed TASK-267 from active lanes
+      and cleared TASK-236's parking condition.
+  failed_approaches:
+  - First TASK-267 submission repeated stale TASK-186 state and conflated owner, claimant,
+    and worker fit.
+  - Second submission described TASK-266 as RELEASED although SQLite showed APPROVED
+    and no release record existed.
+  - Reviewer separation could not rely on the existing owner-only guards; operator
+    routing and explicit non-self-review discipline were required (INS-0039).
+  touched_paths:
+  - MAP_System/artifacts/planning/map-project-realignment-2026-07-22.md
+  - MAP_System/artifacts/releases/task-267-release-checklist.md
+  - MAP_System/events/events.jsonl
+  - MAP_System/handoffs/HANDOFF-TASK-267-kula-to-bima.md
+  - MAP_System/shared/agent-capability-matrix.md
+  - MAP_System/shared/canonical-repo.md
+  - MAP_System/shared/current-state.md
+  - MAP_System/shared/hpom.md
+  - MAP_System/shared/project-brief.md
+  - MAP_System/tasks/TASK-267.json
+  - MAP_System/workflow/task_graph.json
+active_constraints:
+- scope: repo
+  rule: Preserve the unrelated dirty worktree and use MAP_System/scripts/map-git for
+    Git inspection.
+  source: AGENTS.md
+- scope: communication
+  rule: Use hcom request only for operator decisions, approvals, blockers, conflicts,
+    privacy/scope risks, or questions; routine progress is inform.
+  source: operator startup directive
+- scope: tool
+  rule: Any hcom-spawned agent/helper must use --terminal wezterm-tab and must not
+    use --headless.
+  source: operator startup directive and MAP_System/AGENTS.md
+- scope: task
+  rule: TASK-236 parking is cleared by TASK-267 release, but its durable owner remains
+    claude-lab-gome; coordinate ownership before mutation.
+  source: MAP_System/shared/current-state.md and TASK-236
+- scope: task
+  rule: TASK-265 remains policy-gated on operator decisions about remote Ollama and
+    authoritative server.py plus security/structural approval.
+  source: MAP_System/tasks/TASK-265.json and graph runner
+- scope: safety
+  rule: Do not stop or supersede codex-lab-kula until a fresh visible replacement
+    ACKs this exact snapshot hash and finalize succeeds.
+  source: MAP_System/notes/context-rotation-guide.md
+forward_tasks:
+- task_id: TASK-236
+  next_action: wait
+  owner: claude-lab-gome
+  reason: READY and no longer parked; runner proposes a helper, but ownership must
+    be coordinated before implementation or helper integration.
+  paths:
+  - MAP_System/scripts/advisory_monitor.py
+  - MAP_System/tests/test_advisory_monitor.py
+  - MAP_System/artifacts/tests/task-advisory-monitor-delivery-note.md
+- task_id: TASK-268
+  next_action: wait
+  owner: command-center
+  reason: READY; TASK-266 dependency is satisfied at APPROVED. Runner rejects visible-helper
+    canonical mutation, so a core agent must own implementation.
+  paths:
+  - MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+- task_id: TASK-265
+  next_action: ask_operator
+  owner: command-center
+  reason: Policy-gated on security/structural approval and two operator decisions.
+  paths:
+  - MAP_System/templates/install/command-center-ui/app/server.py
+- task_id: TASK-254
+  next_action: wait
+  owner: codex-lab-kiri
+  reason: CHANGES_REQUESTED on the CommandCenterUI final-state reconciliation; do
+    not touch another owner's output paths.
+  paths: []
+- task_id: TASK-263
+  next_action: wait
+  owner: codex-lab-kiri
+  reason: IN_PROGRESS with codex-lab-kiri recorded as claimant, but its lease is expired;
+    use sanctioned recovery/coordination rather than assuming liveness.
+  paths: []
+blockers:
+- kind: approval
+  detail: TASK-265 cannot dispatch without command-center security/structural approval
+    and the remote-Ollama/server.py decisions.
+  unblock_by: Operator records both decisions and satisfies the policy gate.
+- kind: ownership_conflict
+  detail: TASK-236 is ready but still durably owned by claude-lab-gome.
+  unblock_by: Coordinate an explicit ownership/worker handoff before editing its registered
+    outputs.
+lexicon:
+  HPOM: Human-Paced Orchestration Model for worker fit and authority routing.
+  MAP: File-backed multi-agent delivery system with SQLite claim coordination.
+  TASK-267: Released project realignment and current operating picture.
+  SYN-0001: 'Recurring pattern: one state, multiple readers, no declared authority
+    contract.'
+  context_rotation: Prepare immutable v2 snapshot, fresh visible replacement ACK,
+    finalize, then supersede.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-236
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-268
+- MAP_System/scripts/map-git status
+validation:
+- TASK-267 is RELEASED with release record and artifacts/releases/task-267-release-checklist.md.
+- validate_shared_state.py passed 23/23 with zero warnings.
+- validate_task_mirrors.py, validate_task_graph.py, validate_decisions.py 28/28, and
+  validate_canonical_repo_paths.py passed.
+- Scoped map-git diff --check passed across TASK-267 registered outputs, checklist,
+  and handoff.
+- Current runner route is propose_helper; ready tasks are TASK-236 and TASK-268; TASK-265
+  remains policy-gated.
+rotation:
+  reason: threshold
+  summary: This session oriented as codex-lab-kula, resumed TASK-267 from Lime's finalized
+    handoff, closed Kiri's four findings, corrected Bima's TASK-266 status finding,
+    enforced independent review despite owner-only self-review guards, released TASK-267,
+    and refreshed current-state. No task is currently claimed. TASK-236 and TASK-268
+    are READY; TASK-265 is operator-gated; TASK-254 and TASK-263 remain under Kiri
+    ownership.
+  next_action: Validate continuity, inspect the current runner and TASK-236/TASK-268,
+    then coordinate a single core-owned next lane without auto-spawning a helper.
+  used_tokens: 129021
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-23T02:50:35Z'
+  canonical_tasks:
+  - task_id: TASK-236
+    status: READY
+    owner: claude-lab-gome
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 15:27:57'
+  - task_id: TASK-254
+    status: CHANGES_REQUESTED
+    owner: codex-lab-kiri
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 15:48:38'
+  - task_id: TASK-263
+    status: IN_PROGRESS
+    owner: codex-lab-kiri
+    claimed_by: codex-lab-kiri
+    lease_expires_at: '2026-07-22 22:03:00'
+    heartbeat_at: '2026-07-22 20:03:00'
+    updated_at: '2026-07-22 20:03:00'
+  - task_id: TASK-265
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-21T22:18:49Z'
+  - task_id: TASK-268
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22T18:33:13Z'
+  canonical_tasks_sha256: f8d111c5f3b8f297bd51b5b7d0efdf3729af34bd9bf6f7c2a466449a29f04506
+  touched_paths:
+  - path: MAP_System/artifacts/planning/map-project-realignment-2026-07-22.md
+    scope: workspace
+    sha256: e2245ed0ca17cb5db6d518a21eff5c9e25e53c825afe345070683ecf552be68b
+    state: file
+  - path: MAP_System/artifacts/releases/task-267-release-checklist.md
+    scope: workspace
+    sha256: be9bfaa67857605f8b07948763688eef853b115c2b4a44a29df977cb1af57554
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: 8d1c63bf18ea313c638538b66f42ae231cf29ae1865fdc8a201167f34084aff2
+    state: file
+  - path: MAP_System/handoffs/HANDOFF-TASK-267-kula-to-bima.md
+    scope: workspace
+    sha256: db9eed6d18730c52c2de9c969f226ecc0daee0386a60e067e1cc57150e1f4344
+    state: file
+  - path: MAP_System/shared/agent-capability-matrix.md
+    scope: workspace
+    sha256: 0ea9db6b711b6736ea397964b9e2b8e2738578570d0b0ff94c10618a30689fe3
+    state: file
+  - path: MAP_System/shared/canonical-repo.md
+    scope: workspace
+    sha256: 14aa75774748c7513581bda78d65b8fea96fb2d4ed6270d2ad0e00098b19963f
+    state: file
+  - path: MAP_System/shared/current-state.md
+    scope: workspace
+    sha256: 2e85cb06714e348a5fbf5a6e13022ecfba98de3e93db8eb132466b0e4c4b7e8b
+    state: file
+  - path: MAP_System/shared/hpom.md
+    scope: workspace
+    sha256: 851a36c55f78263a9379b266ec7d1e4a82ce0c7a7adea3e3d7b4ee544df722b8
+    state: file
+  - path: MAP_System/shared/project-brief.md
+    scope: workspace
+    sha256: 0a354836db36b83a4eb7a04e5691cbd20464344f5195559dd67be8335dc04f71
+    state: file
+  - path: MAP_System/tasks/TASK-267.json
+    scope: workspace
+    sha256: 08e0a3bfddabe75ffed3a3bc538ae5bb716607376ed8b1f87369367f5e189e4a
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 764c99d0ed462aeee81cc61f468e3655e44bfa0c5da3653d37513763cbd71b66
+    state: file
+  touched_paths_sha256: 899c9e6a9e6f1e447f39b1670968059dc2a92d145f007e5a33cf3cbc033c8163

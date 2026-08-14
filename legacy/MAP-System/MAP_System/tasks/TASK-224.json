@@ -1,0 +1,40 @@
+{
+  "task_id": "TASK-224",
+  "title": "Pilot local E/I sentinel and bounded curator queue",
+  "task_type": "experiment",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-223"
+  ],
+  "owner": "codex-lab-lilo",
+  "description": "Implement EXP-0002 from reopened IDEA-0013. Build a token-free deterministic sentinel that reads durable MAP signals and writes non-promoted E/I candidates to a review queue. Its status, last run, outputs, errors, and stop control must be visible in Command Center; it is not a hidden agent. Add a bounded core-agent curation command/report that runs only in an operator-visible terminal/session. Retrospectively test against recent known insights, then make the scanner runnable on a low-frequency local schedule. No automatic promotion, policy changes, raw transcript collection, continuous paid-model session, or background/headless agent.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/agents/emergence-sentinel-state.json",
+    "MAP_System/artifacts/tests/emergence-sentinel-pilot.md",
+    "MAP_System/emergence/candidates/README.md",
+    "MAP_System/scripts/emergence_sentinel.py",
+    "MAP_System/tests/test_emergence_sentinel.py"
+  ],
+  "acceptance_criteria": [
+    "Sentinel reads only approved durable sources and produces candidate records with evidence links, signal type, deduplication key, and detected timestamp.",
+    "No candidate is automatically promoted into an Insight, Idea, task, decision, or policy.",
+    "Retrospective evaluation reports recall against INS-0024 through INS-0027, false positives/duplicates, runtime, and limitations.",
+    "Provides bounded curation actions for accept/merge/park/dismiss; every model-backed curator runs in a visible terminal/session, while deterministic scan status and controls are visible in Command Center.",
+    "Focused tests, emergence validation, task graph validation, and mirror validation pass; independent review is required before adoption."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

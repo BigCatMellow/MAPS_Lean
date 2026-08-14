@@ -1,0 +1,57 @@
+#!/bin/sh
+set -u
+
+PROJECT_DIR="${PROJECT_DIR:-__PROJECT_DIR__}"
+AI="${AI:-$(command -v ai 2>/dev/null || printf '%s' '__LOCAL_BIN__/ai')}"
+
+cd "$PROJECT_DIR" || exit 1
+
+while :; do
+  clear 2>/dev/null || true
+  cat <<'EOF'
+Start a New Agent
+
+Choose what kind of agent you want:
+
+  1  Codex  - good for building, fixing, and investigating
+  2  Claude - good for reading, writing, and second opinions
+  q  Close this tab
+
+You only need to describe the job in ordinary language.
+EOF
+
+  printf '\nYour choice: '
+  IFS= read -r choice || exit 0
+
+  case "$choice" in
+    1|codex|Codex) provider="codex" ;;
+    2|claude|Claude) provider="claude" ;;
+    q|Q|quit|exit) exit 0 ;;
+    *)
+      printf '\nPlease type 1, 2, or q. Press Enter to try again.'
+      IFS= read -r ignored || exit 0
+      continue
+      ;;
+  esac
+
+  printf '\nWhat should the new agent do?\n> '
+  IFS= read -r scope || exit 0
+  if [ -z "$scope" ]; then
+    printf '\nNo job was entered, so no agent was started. Press Enter to try again.'
+    IFS= read -r ignored || exit 0
+    continue
+  fi
+
+  slug="new-$(date +%Y%m%d-%H%M%S)"
+  printf '\nOpening a new %s agent tab...\n' "$provider"
+  if "$AI" helper start "$provider" "$slug" "$scope"; then
+    printf 'Agent started. Its new tab may take a few seconds to appear.\n'
+  else
+    printf 'The agent could not be started. This launcher is still open so you can try again.\n' >&2
+  fi
+  printf '\nPress Enter to start another agent, or type q and Enter to close this launcher: '
+  IFS= read -r again || exit 0
+  case "$again" in
+    q|Q|quit|exit) exit 0 ;;
+  esac
+done

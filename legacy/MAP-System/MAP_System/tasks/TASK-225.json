@@ -1,0 +1,44 @@
+{
+  "task_id": "TASK-225",
+  "title": "Build visible local MAP Steward attention assistant",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-223",
+    "TASK-224"
+  ],
+  "owner": "codex-lab-lilo",
+  "description": "Build the operator-approved local Jarvis-style MAP Steward. Combine deterministic health/task/RnS/E-I/lesson signals into a read-only attention packet, optionally ask local Ollama qwen3.5:4b to summarize that bounded packet, and expose status, last run, recommendations, errors, model use, and controls through the Command Center UI. The steward is advisory: it cannot edit code/policy, approve/promote, claim tasks, message the operator autonomously, or spawn agents. Every model-backed interactive/curation session remains visible in wezterm-tab; no headless/background agent is allowed.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/agents/map-steward-state.json",
+    "MAP_System/artifacts/command-center-ui/map-steward.md",
+    "MAP_System/scripts/map_steward.py",
+    "MAP_System/templates/install/command-center-ui/app/server.py",
+    "MAP_System/templates/install/command-center-ui/src/chat.css",
+    "MAP_System/templates/install/command-center-ui/src/chat.html",
+    "MAP_System/templates/install/command-center-ui/src/chat.js",
+    "MAP_System/tests/test_map_steward.py"
+  ],
+  "acceptance_criteria": [
+    "Deterministically aggregates actionable task/review queues, agent availability/RnS, active operational lessons, and E/I sentinel candidates into a bounded attention packet.",
+    "Optional qwen3.5:4b interpretation receives only the bounded packet and produces advisory structured output; deterministic fallback works when Ollama is unavailable or times out.",
+    "Command Center visibly shows steward status, last run, inputs, recommendations, model/fallback mode, errors, and explicit refresh/stop controls.",
+    "The steward cannot mutate tasks, policy, E/I promotion state, approvals, agent sessions, or operator messages; every model-backed working session follows the visible-terminal rule.",
+    "Focused unit/integration tests pass, including malformed model output, Ollama failure, privacy/source bounds, and no-action guarantees; task graph and mirrors validate."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

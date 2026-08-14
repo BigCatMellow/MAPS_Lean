@@ -1,0 +1,203 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-10T02:23:24Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-neko-mina
+session_id: rotation-replacement-neko-mina
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: HANDOFF
+    task_id: null
+    summary: Acknowledged context-rotation handoff from claude-lab-neko (snapshot
+      STATE_SNAPSHOT-claude-lab-neko-20260810T014449Z.yaml, sha256 verified, phase
+      now acknowledged). The ack command's real flags differ from what the handoff
+      message stated - use --old-agent/--replacement-agent/--replacement-session/--snapshot-sha256,
+      and replacement-session must be the live hcom session UUID (hcom list --json),
+      not the agent name.
+  - event_type: PROGRESS
+    task_id: null
+    summary: claude-lab-neko reported finalize failing - context_rotation.py finalize
+      -> map_authority.py rotation-transfer over SSH returns "authority request failed
+      (1):" with empty stderr, both before and after confirming authority freshness.
+      Diagnosed root cause via a harmless bogus-agent-pair diagnostic call (raw ssh,
+      no mutation) - map_authority.py's remote_request() only surfaces stderr on non-zero
+      exit; the real error is structured JSON on stdout, which gets silently discarded.
+      Reproduced cleanly - remote returned {"ok":false,"error":"old or replacement
+      agent is absent from SQLite"} instantly, proving the authority host and forced-command
+      dispatch are healthy. Reported this to claude-lab-neko with the exact raw-ssh
+      diagnostic command to get their real error text. My own attempt to run it with
+      neko's real args (claude-lab-neko / rotation-replacement-neko-mina) was blocked
+      by this session's local Bash permission classifier (same class of block neko
+      hit earlier on the systemctl restart) - so I don't have neko's real error text.
+      Neko hit the identical classifier block on their own retry and is now asking
+      the human operator directly, with a fallback idea (codex-lab-rani, already on
+      the authority host, reading local logs without needing outbound SSH). finalize
+      for claude-lab-neko is still NOT complete as of this snapshot - do not treat
+      this session as live-superseding old_agent claude-lab-neko; neko is intentionally
+      staying active per rotation protocol until finalize clears.
+  - event_type: PROGRESS
+    task_id: null
+    summary: helper-review-standing-zolu broadcast a live AGENTS.md Communication
+      rule update (effective immediately, not yet committed to git) - "be extremely
+      concise, sacrifice grammar for concision" for hcom messages/event summaries,
+      with a carve-out that Documentation Style still needs complete sentences for
+      risk/tradeoff/exception/conflict/decision reasoning. Applying it to messages
+      going forward; no action needed beyond that.
+  - event_type: HANDOFF
+    task_id: null
+    summary: Operator reported pi-lab-tapa repeatedly hitting "max output token limit"
+      errors and asked for a fix (not a MAP task - informal operator request). Diagnosed
+      root cause via config/hardware inspection - hcom's HCOM_PI_ARGS pointed pi at
+      qwen2.5-coder:7b-16k (Ollama, num_ctx 16384), too small a context budget for
+      agentic sessions once tool schemas/history/output all have to fit inside it;
+      confirmed other installed local models have even smaller (stock Ollama default)
+      context, so this was already the best available before the fix. Built and verified
+      a new qwen2.5-coder:7b-32k Ollama tag (doubled context), test-loaded it - runs
+      92% GPU/8% CPU offload on the RTX 2060 Super (8GB), ~6.7GB VRAM, fits with headroom.
+      Operator approved; updated MAP_System-external ~/.hcom/config.toml [launch.pi]
+      args to the 32k model (config.toml persists this for all future pi spawns).
+      Discovered hcom's `hcom r <name>` (resume) does not read this config for an
+      existing identity - it replays stale/duplicated --model flags from hcom's own
+      stored per-identity history regardless of current config or shell env (tested
+      twice, confirmed empirically), so resuming tapa kept re-adding the old 16k plus
+      an unrelated qwen3.5:9b from session-recovered state. Killed tapa (was idle/listening,
+      no work in flight) and used a clean fresh spawn instead (`hcom 1 pi --tag pi-lab
+      --go`) after unsetting the stale HCOM_PI_ARGS env var inherited from this session's
+      own launch context (Bash tool shell state does not persist between tool calls,
+      so the unset and the spawn command must run in the same tool invocation or the
+      stale var reappears). First fresh-spawn attempt (pi-lab-demo) still got the
+      stale 16k because I forgot the unset that call; killed it (no work lost, seconds
+      old) and respawned correctly as pi-lab-gula, verified via `ps` that its actual
+      process args are `--model ollama/qwen2.5-coder:7b-32k --offline`. pi-lab-tapa
+      no longer exists; pi-lab-gula is its replacement, same tag (pi-lab), new random
+      identity, no conversation history carried over (tapa was idle so nothing of
+      substance was lost, and a fresh session also clears whatever history bloat was
+      contributing to the original context-limit problem).
+  touched_paths:
+  - /home/mellow/.hcom/config.toml
+active_constraints:
+- scope: repo
+  rule: claude-lab-neko's context-rotation finalize is still blocked (not resolved
+    by this session) - map_authority.py rotation-transfer over SSH fails, root cause
+    identified as remote_request() discarding the real stdout JSON error on non-zero
+    exit and only showing (empty) stderr. The authority host itself responds correctly
+    to well-formed requests (verified via a safe bogus-pair diagnostic). Getting neko's
+    actual real-args error text requires either a harness permission grant for raw
+    ssh calls, or authority-host-side log access (e.g. via codex-lab-rani who is already
+    on that host) - neko has escalated to the human operator directly in chat. Do
+    not blind-retry the same finalize call; do not attempt to bypass the local Bash
+    permission classifier when it blocks this.
+  source: this session, corroborated by claude-lab-neko
+- scope: repo
+  rule: Do not treat this session as live-superseding claude-lab-neko yet. The ack
+    succeeded (phase=acknowledged) but finalize has not - claude-lab-neko is intentionally
+    staying active per rotation protocol until finalize clears, exactly as documented
+    in superseded-sessions-do-not-resume-work guidance for the old agent side. This
+    replacement session (and its own replacement) should hold, not race ahead, and
+    should support neko/operator on unblocking finalize rather than starting unrelated
+    MAP task work.
+  source: this session
+- scope: repo
+  rule: helper-review-standing-zolu broadcast (bigboss via zolu) a live AGENTS.md
+    Communication rule change - concise/ungrammatical hcom messages and event summaries
+    now, except Documentation Style still needs complete sentences for risk/tradeoff/exception/conflict/decision
+    reasoning. Not yet committed to git as of this session. Apply it; don't wait for
+    a restart or a git commit to start following it.
+  source: helper-review-standing-zolu, broadcast on behalf of bigboss
+- scope: infra
+  rule: hcom `resume` (hcom r <name>) is unreliable for changing an existing identity's
+    launch model/tool args - it replays stale per-identity history (observed duplicate/contradictory
+    --model flags) regardless of current config.toml or shell env. For a config change
+    that must actually take effect, kill and do a clean fresh spawn instead (`hcom
+    <n> <tool> --tag ... --go`), after confirming the relevant HCOM_*_ARGS env var
+    is not still exported in the same shell call (Bash tool shell state does not persist
+    between separate tool calls, so unset and spawn must be one call).
+  source: this session, empirically reproduced twice
+forward_tasks:
+- task_id: null
+  next_action: wait
+  owner: claude-lab-neko
+  reason: finalize for claude-lab-neko's rotation is still blocked on the rotation-transfer/remote_request
+    stdout-discard issue; operator has been asked directly by neko. Once finalize
+    succeeds, this replacement session (or whichever session is live by then) becomes
+    the sole active identity for this lane.
+  paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/scripts/context_rotation.py
+- task_id: null
+  next_action: ask_operator
+  owner: null
+  reason: claude-lab-neko's original unanswered priorities request to bigboss (carried
+    forward from the prior snapshot) is still open as far as this session knows -
+    not independently re-checked this session, worth re-surfacing if it comes up.
+  paths: []
+- task_id: null
+  next_action: none
+  owner: null
+  reason: pi-lab-gula (new identity replacing pi-lab-tapa) is running qwen2.5-coder:7b-32k
+    correctly - verified, no further action needed unless it starts hitting output-limit
+    errors again, in which case the next step would be a further context bump (VRAM
+    headroom was only ~1GB free at 32k) or moving that workload off local Ollama entirely.
+  paths: []
+blockers:
+- kind: dependency
+  detail: Same as inherited from claude-lab-neko's snapshot - rotation-transfer over
+    SSH to the authority host fails for claude-lab-neko's real finalize attempt. Now
+    additionally diagnosed - local remote_request() error reporting discards the real
+    stdout error on non-zero exit, so nobody has actually seen the real error text
+    for neko's specific case yet. Both neko and this session hit the same local harness
+    Bash-permission block when trying to get that real error via a raw ssh call.
+  unblock_by: Either the operator grants permission for a raw ssh diagnostic call
+    (exact command captured in this session's hcom message to neko), or an agent already
+    on the authority host (e.g. codex-lab-rani) reads the local map-authority logs
+    directly without needing outbound SSH from Biggie.
+lexicon:
+  pi-lab-gula: New pi-tool hcom identity spawned this session to replace pi-lab-tapa,
+    running qwen2.5-coder:7b-32k (Ollama) instead of the old 16k context model.
+  remote_request-stdout-discard: This session's diagnosis of why claude-lab-neko's
+    rotation-transfer finalize attempt reports an uninformative "authority request
+    failed (1)" with nothing after it - map_authority.py's remote_request() only includes
+    stderr in its raised error, but the real structured JSON error from the authority
+    host comes back on stdout and is silently dropped.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py route
+- hcom list --name <replacement-name>
+- hcom transcript claude-lab-neko --last 20 --name <replacement-name>
+- hcom transcript bigboss --last 10 --name <replacement-name>
+validation:
+- pi-lab-gula confirmed via `ps -eo pid,cmd` to be running with `--model ollama/qwen2.5-coder:7b-32k
+  --offline`.
+- ~/.hcom/config.toml [launch.pi] args confirmed set to the 32k model string.
+rotation:
+  reason: threshold
+  summary: Acknowledged claude-lab-neko's context-rotation handoff (ack succeeded,
+    finalize still blocked - not this session's bug, root-caused to a local error-reporting
+    gap in map_authority.py and reported to neko). Applied a live AGENTS.md communication
+    rule-update broadcast (no code change, just behavior). Diagnosed and fixed an
+    operator-reported local-model context-limit problem for pi-lab-tapa by building
+    a 32k-context Ollama model variant, updating hcom's config.toml, and replacing
+    tapa with a freshly-spawned pi-lab-gula after discovering hcom's resume path is
+    unreliable for model-config changes. No MAP task claimed or owned. Nothing committed
+    to git.
+  next_action: Support claude-lab-neko/operator on unblocking the rotation-transfer
+    finalize (see active_constraints and blockers). Do not claim or dispatch MAP tasks
+    until that clears and this session (or its replacement) is confirmed live-superseding.
+    Watch for further pi-lab-gula output-limit issues.
+  used_tokens: 148500
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-10T02:23:24Z'
+  canonical_tasks: []
+  canonical_tasks_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  touched_paths:
+  - path: /home/mellow/.hcom/config.toml
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  touched_paths_sha256: 68836bcad4b93f39321f5d74401a7f9531309757e9ba6990eca6567f010b556c

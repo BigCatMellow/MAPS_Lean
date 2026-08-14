@@ -1,0 +1,140 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T19:53:49Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: task284-replacement-dosa
+session_id: 019f9fe1-e269-7761-a90e-5a8e4d962972
+status: handing_off
+task_context:
+  current_task: TASK-285
+  owned_tasks:
+  - TASK-285
+  pending_reviews: []
+  recent_events:
+  - event_type: APPROVED
+    task_id: TASK-284
+    summary: Romi independently approved the final three-way contradiction fix.
+  - event_type: CLAIMED
+    task_id: TASK-285
+    summary: Continuity was clean, runner named TASK-285 sole ready core lane, graph
+      collision validation passed, and atomic claim returned true.
+  - event_type: PROGRESS
+    task_id: TASK-285
+    summary: Implemented the first bounded offline workstream-digest pilot across
+      five three-way RELEASED lifecycle-integrity tasks; 4 focused tests and compile
+      pass, and a temporary report reproduced 100% retention/traceability/health detection
+      with 99.61% point-in-time byte reduction.
+  touched_paths:
+  - MAP_System/artifacts/experiments/task285-workstream-digest-pilot.md
+  - MAP_System/scripts/workstream_digest_pilot.py
+  - MAP_System/tests/test_workstream_digest_pilot.py
+active_constraints:
+- scope: task
+  rule: Edit only TASK-285's three registered outputs and implement the bounded evidence-linked
+    workstream digest pilot.
+  source: TASK-285 and operator directive
+- scope: task
+  rule: Require at least five related tasks with task JSON, read-only SQLite, and
+    task-graph status all RELEASED; preserve decisions, failures, key files, open
+    risks, and raw-evidence backlinks.
+  source: TASK-285 acceptance criteria and TASK-277 approved roadmap
+- scope: task
+  rule: Keep the digest offline, noncanonical, raw-evidence-required, and disconnected
+    from startup, routing, Command Center, and task authority.
+  source: TASK-285 and approved TASK-284 boundary
+- scope: safety
+  rule: Claude is unavailable; do not route work to Claude. Any helper would need
+    a bounded durable note and visible wezterm-tab, but no helper is currently needed.
+  source: operator directive and Romi handoff
+- scope: repo
+  rule: Preserve the heavily dirty shared worktree and use sanctioned SQLite lifecycle
+    commands; do not touch unrelated agent outputs.
+  source: AGENTS.md and MAP_System/AGENTS.md
+- scope: communication
+  rule: Report progress to bigboss and codex-lab-kazu; send final result to Kazu;
+    do not self-review.
+  source: operator directive
+forward_tasks:
+- task_id: TASK-285
+  next_action: continue
+  owner: task284-replacement-dosa
+  reason: Mandatory context threshold interrupted final hardening before the registered
+    report was generated and full validators/submission ran.
+  paths:
+  - MAP_System/artifacts/experiments/task285-workstream-digest-pilot.md
+  - MAP_System/scripts/workstream_digest_pilot.py
+  - MAP_System/tests/test_workstream_digest_pilot.py
+blockers: []
+lexicon:
+  workstream_digest: A disposable compact retrieval projection derived from hashed
+    canonical evidence, never project truth.
+  lifecycle_integrity_workstream: TASK-143, TASK-199, TASK-266, TASK-270, and TASK-273;
+    all five must be three-way RELEASED.
+  three_way_released: Task JSON, canonical read-only SQLite, and task graph all agree
+    on RELEASED.
+  frozen_evaluation: Fixed required-fact IDs, five-task threshold, related task IDs,
+    and healthy/missing/stale/contradictory probes.
+  raw_evidence_required: Digest claims are locators only; agents must open backlinks
+    before relying on them.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-285
+- MAP_System/.venv/bin/python MAP_System/tests/test_workstream_digest_pilot.py
+- MAP_System/.venv/bin/python MAP_System/scripts/workstream_digest_pilot.py --report
+  /tmp/task285-report.md
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_graph.py
+validation:
+- Continuity validate returned ok=true at revision 49.
+- Context advice was initially below threshold at 103368 tokens; limit watcher later
+  reported rotation_due at 154186 tokens.
+- Runner named TASK-285 as sole ready core lane; task graph collision validator passed.
+- Atomic TASK-285 claim returned claimed=true/reason=null and mirrors synchronized.
+- 4/4 focused tests pass.
+- py_compile passes for script and focused tests.
+- Temporary live report retains 9/9 required facts, traces 9/9, detects 4/4 health
+  probes, and measures 99.61% byte reduction.
+- 'Known hardening item before final generation: source_ref currently treats the existing
+  directory output MAP_System/tasks as missing because digest() handles files only;
+  support deterministic directory manifests or classify directory evidence honestly,
+  then rerun.'
+rotation:
+  reason: threshold
+  summary: 'TASK-284 is independently APPROVED. TASK-285 was cleanly claimed and its
+    three registered outputs now contain a bounded lifecycle-integrity digest pilot
+    with a five-released-task threshold, evidence-linked decisions/failures/key files/open
+    risk, frozen retention/traceability/health/token evaluation, and noncanonical
+    refresh/invalidation/review/rollback rules. Focused tests and compile pass. No
+    report generation, full validators, submission, or review routing has occurred.
+    One known hardening issue remains: a real directory backlink is falsely labeled
+    missing because hashing currently supports files only.'
+  next_action: Read and verify this snapshot, task, and three output hashes; ACK the
+    exact checksum, wait for finalize, then add deterministic directory evidence hashing/classification
+    before regenerating and validating the report.
+  used_tokens: 154186
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-26T19:53:49Z'
+  canonical_tasks:
+  - task_id: TASK-285
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: task284-replacement-dosa
+    lease_expires_at: '2026-07-26 20:16:44'
+    heartbeat_at: '2026-07-26 19:46:44'
+    updated_at: '2026-07-26 19:46:44'
+  canonical_tasks_sha256: 8b419a8dc93bd205d3ea7b5f8f3b026ef2d441fdbbf9dae536b6ee983d070639
+  touched_paths:
+  - path: MAP_System/artifacts/experiments/task285-workstream-digest-pilot.md
+    scope: workspace
+    sha256: af27d4dd48d8b66a943a2094c90d1d316dc5ff60f9788ffe56ea481ba80a93de
+    state: file
+  - path: MAP_System/scripts/workstream_digest_pilot.py
+    scope: workspace
+    sha256: 28c39e8b2dc6835b3189f24322752e02be1c72659df0827630066225a43bf8e2
+    state: file
+  - path: MAP_System/tests/test_workstream_digest_pilot.py
+    scope: workspace
+    sha256: 5793e9b3b72225283905383ee2129ba987b560ce27f2880deccac5829b10b725
+    state: file
+  touched_paths_sha256: 8ee516fe30365fdc1b73989ecb850786e81746ba529aacf4f14d25aba63381aa

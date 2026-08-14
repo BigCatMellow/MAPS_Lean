@@ -1,0 +1,188 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-05T18:27:50Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-ravo
+session_id: d3dc294b-b24d-4cd1-9dd7-7a08c8fdea1f
+status: handing_off
+task_context:
+  current_task: TASK-318
+  owned_tasks:
+  - TASK-318
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Operator asked to pull status from a separate, non-hcom Claude Code
+      session working on a StarCraft companion app and continue the work through MAP.
+      Read that session''s full transcript (~/.claude/projects/-home-mellow/3bf298ea-f64e-4f48-b280-18d66a2e1115.jsonl)
+      to extract state, then created TASK-318 via map_authority.py task create (remote
+      authority write, this host is a read-only mirror), claimed it under claude-lab-ravo.
+      Output path is external to this git repo: "/home/mellow/Documents/Projects/StarCraftCA/StarCraft
+      RPG Companion Design" -- that folder had no VCS at all, so git-initialized it
+      (local-only user.email/user.name, not --global) and made a baseline commit be1e49e
+      before touching anything, as a safety net for the CSS-consolidation work.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Verified acceptance criterion 4 (splash-intro fix): the prior session''s
+      fix was unverified because its Chrome extension was disconnected. Confirmed
+      it here via mcp__claude-in-chrome -- with localStorage.sctmg_intro_seen cleared,
+      first load of "Command Center.dc.html" (server already running at localhost:8934)
+      shows the full splash/boot screen; after dismissing it, navigating to "Terran
+      Army.dc.html" and back to Command Center skips the splash entirely. Fix confirmed
+      working as designed. This criterion is DONE.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Started investigating criterion 5 (the "unit details appearing in the
+      cards that extend" report, never clarified by the operator in the other session).
+      On Terran Army.dc.html the Roster tab started empty ("NO UNITS MUSTERED"); opened
+      the Library tab and clicked "+" on Marine to add one to the roster. Was about
+      to switch back to the Roster tab to inspect the actual expanding-card behavior
+      when a browser tool call hit a 5-hour session rate limit (unrelated to MAP/task
+      state, a Claude account usage limit) and then the context rotation checkpoint
+      fired at 149,380 tokens. NOT YET REPRODUCED OR DIAGNOSED -- next session should
+      resume here: browser tab 2039321948 (group 500128574) should still be on Terran
+      Army.dc.html with a Marine just added; switch to the Roster tab (bottom nav)
+      and click the Marine card to see if/how UnitDetail expands inline, decide whether
+      it''s a real bug or the interrupted clarifying question (AskUserQuestion, never
+      answered in the other session) actually matters here.'
+  touched_paths:
+  - MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-ravo-20260805T182655Z.yaml (this
+    file)
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/.git
+    (created)
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design (baseline
+    commit be1e49e only so far; no CSS-consolidation edits made yet)
+active_constraints:
+- scope: task
+  rule: TASK-318's output_path is entirely outside this git repo. All read/write file
+    work for this task happens in "/home/mellow/Documents/Projects/StarCraftCA/StarCraft
+    RPG Companion Design", not under MAP_System/ or Projects/. That folder now has
+    its own local (non-global) git identity and a baseline commit be1e49e -- diff
+    against that commit to check for regressions, do not assume the MAP repo's git
+    history covers this work.
+  source: this session
+- scope: task
+  rule: Do not resume/interfere with the other, non-hcom Claude Code session (transcript
+    3bf298ea-f64e-4f48-b280-18d66a2e1115.jsonl) that was originally working this app
+    -- it may still be the operator's live interactive session. This session only
+    read its transcript for information, per the operator's explicit instruction ("get
+    the information from it"), and picked up the work independently through MAP (TASK-318)
+    rather than taking it over.
+  source: operator instruction, this session
+- scope: repo
+  rule: 'Prior orientation thread (36-item emergence backlog triage awaiting operator
+    direction, per STATE_SNAPSHOT-claude-lab-luzo-20260804T173500Z) is explicitly
+    on hold: operator said "put the other stuff on the back burner until next time"
+    when assigning TASK-318. Do not resume that thread or claim anything else from
+    it until the operator raises it again.'
+  source: operator instruction, this session
+- scope: tool
+  rule: Antigravity's token/context limit is very low per the operator -- do not route
+    any TASK-318 work to antigravity-lab-nake that risks running long enough to get
+    interrupted by that limit. Pi (pi-lab-voru) and Claude helpers remain fine to
+    use.
+  source: operator instruction, this session
+active_constraints_note: TASK-318's full acceptance criteria (5 total) are recorded
+  on the task itself (map_task.py show TASK-318 / MAP_System/tasks/TASK-318.json)
+  -- not restated here to avoid drift; read the task record as canonical, this snapshot
+  only tracks progress against it.
+forward_tasks:
+- task_id: TASK-318
+  next_action: continue
+  owner: claude-lab-ravo
+  reason: 'In-progress, claimed, lease actively heartbeat this session. Splash-intro
+    criterion verified DONE; unit-detail-card criterion investigation started but
+    not concluded; CSS-consolidation criteria (the task''s main scope) not started
+    at all -- prior non-hcom session had just gotten a read-only Explore agent to
+    confirm #38d3e8 cyan is a universal cross-faction semantic color (gas/resource
+    + Tactical Cards) before its transcript ended; no consolidation plan was ever
+    proposed there. The next session should pick this up fresh (re-run its own CSS
+    audit or re-derive from that transcript) rather than assume a plan exists.'
+  paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Command
+    Center.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Zerg
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Protoss
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Rules.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Missions.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/UnitDetail.dc.html
+blockers: []
+lexicon:
+  StarCraftCA / SCTMG / "StarCraft RPG Companion Design": The operator's personal,
+    non-MAP creative project -- a tabletop-game companion web app (plain .dc.html
+    component files + a small Node build pipeline that regenerates *-data.js from
+    uploads/*.html rules/unit source). Lives entirely outside this git repo at /home/mellow/Documents/Projects/StarCraftCA/.
+  .dc.html: This project's own single-file component convention (not a MAP or Claude
+    Code term) -- each top-level screen is one file using <dc-import> to embed sub-components
+    like UnitDetail.
+  TASK-318: The MAP task formalizing this work; see map_task.py show TASK-318 for
+    full scope/criteria.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py sync
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-318
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py heartbeat TASK-318
+  claude-lab-ravo
+- curl -sf http://localhost:8934/ >/dev/null && echo "dev server still up" || echo "restart: cd
+    '/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design' &&
+    python3 -m http.server 8934"
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git log --oneline -5
+validation:
+- TASK-318 confirmed IN_PROGRESS, owner claude-lab-ravo, via map_task.py show TASK-318
+  after mirror sync.
+- Splash-intro fix visually verified in-browser this session (see recent_events above);
+  not just re-reading the prior session's claim.
+- Baseline commit be1e49e exists and is the diff root for any future regression check
+  in the external project folder.
+rotation:
+  reason: threshold
+  summary: Mid-investigation on TASK-318's unit-detail-card criterion when the checkpoint
+    fired at 149,380 tokens (soft=120000, rotate=150000). No destructive or half-applied
+    edits in flight -- only a UI interaction (added one Marine to an in-memory roster
+    via the app's own Library button, not a file edit) was left mid-sequence in the
+    browser tab. Splash-intro criterion is cleanly verified and closed out. CSS consolidation
+    (the task's core scope) has not been started, so there is no in-progress refactor
+    to lose.
+  next_action: Re-open browser tab context (mcp__claude-in-chrome tabs_context_mcp),
+    confirm/resume Terran Army.dc.html Roster tab state, and finish diagnosing the
+    unit-detail-card report (criterion 5) before moving to the CSS-consolidation criteria
+    (1-3), which need their own fresh investigation per forward_tasks above.
+  used_tokens: 149380
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-05T18:27:50Z'
+  canonical_tasks:
+  - task_id: TASK-318
+    status: IN_PROGRESS
+    owner: claude-lab-ravo
+    claimed_by: claude-lab-ravo
+    lease_expires_at: '2026-08-05 18:56:23'
+    heartbeat_at: '2026-08-05 18:26:23'
+    updated_at: '2026-08-05 18:26:23'
+  canonical_tasks_sha256: 0d0cfbd27820959443a3271cfa2f09e081b6ab526c25ee7baaf049d445ea7e4c
+  touched_paths:
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design
+      (baseline commit be1e49e only so far; no CSS-consolidation edits made yet)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/.git
+      (created)
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-ravo-20260805T182655Z.yaml
+      (this file)
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  touched_paths_sha256: fb8538dae987d5b680492eceb8fdfc616d997d109d3c28fd307af4f20257abbd

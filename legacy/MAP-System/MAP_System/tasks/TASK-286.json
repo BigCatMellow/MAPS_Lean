@@ -1,0 +1,39 @@
+{
+  "task_id": "TASK-286",
+  "title": "Make Command Center Lab startup minimal and orchestrator-driven",
+  "task_type": "implementation",
+  "role": "state-steward",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-280"
+  ],
+  "owner": "command-center",
+  "description": "Implement the operator-directed lifecycle correction revealed during the roles-roadmap run. Default CCL startup must open only the operator surfaces and one core Codex orchestrator; Claude, scout/helper, Pi, and Librarian lanes remain available on demand but do not auto-start. The orchestrator prompt must route from SQLite/runner, start only bounded visible workers when work requires them, mark finished identities standby or terminal, avoid replacement rotation when no live claim remains, and preserve all no-headless, approval, privacy, review-separation, and continuity safeguards. Do not bind permanent providers to organizational roles.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/notes/command-center-orchestrator-lifecycle.md",
+    "MAP_System/templates/install/bin/ai-command-center-lab-codex",
+    "MAP_System/templates/install/wezterm/ai-command-center-lab.lua",
+    "MAP_System/tests/test_command_center_orchestrator_startup.py"
+  ],
+  "acceptance_criteria": [
+    "Default CCL topology starts Shell, Monitor, and one Codex orchestrator only; Claude, Pi, Librarian, and scout/helper launchers remain available but are not automatically opened.",
+    "The Codex orchestrator startup contract routes from canonical SQLite and runner state, uses visible wezterm-tab workers only when needed, and records durable progress without treating open terminals as availability truth.",
+    "Completed or review-waiting workers are durably placed in standby or terminal state and no replacement rotation is launched when an identity has no live claim or continuation obligation.",
+    "Focused tests prove default topology, preserved on-demand launchers, no fixed provider-to-role binding, no headless launch path, and no regression to Monitor/Shell availability.",
+    "Delivery evidence documents migration, rollback, residual privacy/approval boundaries, and the distinction between orchestrator routing and autonomous authority."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": true,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": true,
+  "trust_boundary_crossing": null
+}

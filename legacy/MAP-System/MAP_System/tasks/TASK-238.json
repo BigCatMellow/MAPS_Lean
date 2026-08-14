@@ -1,0 +1,31 @@
+{
+  "task_id": "TASK-238",
+  "title": "Fix librarian autofix/resolver disambiguation for ROOT-top-level files sharing a stem",
+  "task_type": "improvement",
+  "role": "map-maintenance",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-lure",
+  "description": "librarian.py cannot disambiguate a ROOT-top-level markdown file whose stem collides with a nested file. resolve_wikilink() does stem lookup before the path branch and only takes the direct-path branch when the name contains '/'; a top-level file's relative_to(root) has no slash. add_wikilinks_to_related_section() therefore emits the bare ambiguous form (e.g. [[AGENTS]]) for MAP_System/AGENTS.md, which validate then flags. Found while resolving 3 bare [[AGENTS]] backlinks (dora #5380), worked around manually with [[./AGENTS.md]]. Will recur for any future top-level doc sharing a stem. Fix: make the autofixer emit a resolver-accepted disambiguation for top-level files (e.g. './NAME.md' prefix, or detect post-relative-path ambiguity) and/or teach resolve_wikilink to treat a bare top-level stem as unambiguous when an exact ROOT/NAME.md exists. Add a regression test.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/scripts/librarian.py"
+  ],
+  "acceptance_criteria": [
+    "A ROOT-top-level file sharing a stem with a nested file (e.g. AGENTS.md) can be linked with a stable form that librarian.py validate accepts as unambiguous, produced by the autofixer without manual editing.",
+    "A regression test covers the top-level-stem-collision case for both resolve_wikilink and the related-section autofixer."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

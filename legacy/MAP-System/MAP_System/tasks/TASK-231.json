@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-231",
+  "title": "Make helper-note activity metadata explicit and testable",
+  "task_type": "maintenance",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "A visible, active helper assignment was silently excluded from LangGraph helper capacity because its durable note used display-only status text rather than the runner-parsed bullet metadata. Define the canonical manual-helper note metadata and add a focused regression test so active helper capacity stays truthful.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/AGENTS.md",
+    "MAP_System/graph/README.md",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/tests/test_runner_helper_notes.py"
+  ],
+  "acceptance_criteria": [
+    "AGENTS.md gives a copyable manual helper-note metadata block with status, owner, scope, and creation fields, and names the active values recognized by the runner.",
+    "Graph documentation identifies helper-note metadata as the source of helper-capacity accounting and points to the canonical contract.",
+    "A focused regression test proves a manually authored active helper note is counted by scan_helper_notes, while a non-active note is not.",
+    "The focused regression test is included in run_tests.sh and passes with the existing runner."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

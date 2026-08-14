@@ -1,0 +1,517 @@
+{
+  "build": {
+    "build_ms": 595.262,
+    "database_bytes": 704512,
+    "missing_task_ids": [],
+    "reused_source_count": 22,
+    "source_document_count": 193,
+    "task_count": 43,
+    "task_source_link_count": 250,
+    "temporal_mode_counts": {
+      "current_shared": 22,
+      "current_unique": 125,
+      "task_snapshot": 43,
+      "unresolved": 3
+    },
+    "unresolved_link_instances": 3
+  },
+  "combined_packet_estimated_tokens": 16138,
+  "experiment": "TASK-260-fresh-holdout",
+  "generated_at": "2026-07-19T19:29:31Z",
+  "harness_sha256": "65219824dc3c2d5f62b77923a0bd9cd3f6c21d3222ee9db9f3e5bcff723a83ff",
+  "metrics_before_helper": {
+    "abstention_accuracy": 0.6364,
+    "abstention_hits": 7,
+    "compound_complete": 4,
+    "compound_total": 4,
+    "expected_source_visibility": 0.75,
+    "per_query": [
+      {
+        "expected_abstention": false,
+        "expected_sources": [
+          "Projects/ClearFront/app/js/state.js",
+          "Projects/ClearFront/app/js/combat.js",
+          "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md"
+        ],
+        "expected_tasks": [
+          "TASK-212",
+          "TASK-214"
+        ],
+        "hidden_expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md"
+        ],
+        "id": "F1",
+        "missing_tasks": [],
+        "query_coverage": 0.4167,
+        "query_ms": 16.33,
+        "query_parts": [
+          "The game still had to open directly from disk while its monolithic engine was split apart. How do the extracted state and combat layers share mutable bindings and call across files, and what evidence shows the combat slice preserved behavior?",
+          "The game still had to open directly from disk",
+          "its monolithic engine was split apart. How do the extracted state and combat layers share mutable bindings and call across files",
+          "what evidence shows the combat slice preserved behavior"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-214",
+          "TASK-212",
+          "TASK-216",
+          "TASK-220",
+          "TASK-215",
+          "TASK-207"
+        ],
+        "supporting_channels": 21,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-214",
+          "TASK-216",
+          "TASK-212",
+          "TASK-215",
+          "TASK-220",
+          "TASK-219"
+        ],
+        "visible_expected_sources": [
+          "Projects/ClearFront/app/js/state.js",
+          "Projects/ClearFront/app/js/combat.js"
+        ]
+      },
+      {
+        "expected_abstention": false,
+        "expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+          "Projects/ClearFront/tests/engine/rules.cases.mjs"
+        ],
+        "expected_tasks": [
+          "TASK-213",
+          "TASK-220"
+        ],
+        "hidden_expected_sources": [],
+        "id": "F2",
+        "missing_tasks": [],
+        "query_coverage": 0.1905,
+        "query_ms": 14.69,
+        "query_parts": [
+          "Replacing a hand card reveals hidden information. What prevents an older Undo snapshot from restoring the pre-replacement hand, while keeping normal one-step Undo, and how is that behavior covered below the DOM?",
+          "Replacing a hand card reveals hidden information. What prevents an older Undo snapshot from restoring the pre-replacement hand",
+          "keeping normal one-step Undo",
+          "how is that behavior covered below the DOM"
+        ],
+        "recommendation": "no_strong_match",
+        "returned_tasks": [
+          "TASK-215",
+          "TASK-217",
+          "TASK-213",
+          "TASK-216",
+          "TASK-214",
+          "TASK-220"
+        ],
+        "supporting_channels": 12,
+        "task_only_missing_tasks": [
+          "TASK-213"
+        ],
+        "task_only_returned_tasks": [
+          "TASK-214",
+          "TASK-220",
+          "TASK-207",
+          "TASK-215",
+          "TASK-219",
+          "TASK-209"
+        ],
+        "visible_expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+          "Projects/ClearFront/tests/engine/rules.cases.mjs"
+        ]
+      },
+      {
+        "expected_abstention": false,
+        "expected_sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/tests/test_limit_watcher.py",
+          "MAP_System/artifacts/tests/rns-persistent-supervisor.md"
+        ],
+        "expected_tasks": [
+          "TASK-221"
+        ],
+        "hidden_expected_sources": [
+          "MAP_System/artifacts/tests/rns-persistent-supervisor.md"
+        ],
+        "id": "F3",
+        "missing_tasks": [],
+        "query_coverage": 0.6818,
+        "query_ms": 15.029,
+        "query_parts": [
+          "How does the local session-limit supervisor detect quota exhaustion in a still-live agent, reject stale or replayed evidence, persist the reset window, throttle retries, and wake the agent only when due?",
+          "How does the local session-limit supervisor detect quota exhaustion in a still-live agent, reject stale",
+          "replayed evidence, persist the reset window, throttle retries, and wake the agent only when due"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-221",
+          "TASK-228",
+          "TASK-225",
+          "TASK-224",
+          "TASK-223",
+          "TASK-229"
+        ],
+        "supporting_channels": 12,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-221",
+          "TASK-210",
+          "TASK-220",
+          "TASK-229",
+          "TASK-224",
+          "TASK-215"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/tests/test_limit_watcher.py"
+        ]
+      },
+      {
+        "expected_abstention": false,
+        "expected_sources": [
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_ollama_lane.py",
+          "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md"
+        ],
+        "expected_tasks": [
+          "TASK-228"
+        ],
+        "hidden_expected_sources": [
+          "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md"
+        ],
+        "id": "F4",
+        "missing_tasks": [],
+        "query_coverage": 0.5882,
+        "query_ms": 10.651,
+        "query_parts": [
+          "Which local Ollama model is allowed into the narrow advisory lane, and how are unapproved tags, remote hosts, hidden model work, and accidental Pi authority kept out?",
+          "Which local Ollama model is allowed into the narrow advisory lane",
+          "how are unapproved tags, remote hosts, hidden model work, and accidental Pi authority kept out"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-228",
+          "TASK-232",
+          "TASK-225",
+          "TASK-230",
+          "TASK-229",
+          "TASK-220"
+        ],
+        "supporting_channels": 18,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-228",
+          "TASK-220",
+          "TASK-225",
+          "TASK-221",
+          "TASK-230",
+          "TASK-229"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_ollama_lane.py"
+        ]
+      },
+      {
+        "expected_abstention": false,
+        "expected_sources": [
+          "MAP_System/AGENTS.md",
+          "MAP_System/tests/test_runner_helper_notes.py"
+        ],
+        "expected_tasks": [
+          "TASK-231"
+        ],
+        "hidden_expected_sources": [
+          "MAP_System/AGENTS.md"
+        ],
+        "id": "F5",
+        "missing_tasks": [],
+        "query_coverage": 0.5,
+        "query_ms": 12.451,
+        "query_parts": [
+          "Why could a visibly active manual helper disappear from capacity accounting, and what exact durable note metadata plus regression behavior makes that accounting reliable?",
+          "Why could a visibly active manual helper disappear from capacity accounting",
+          "what exact durable note metadata plus regression behavior makes that accounting reliable"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-231",
+          "TASK-229",
+          "TASK-230",
+          "TASK-221",
+          "TASK-228",
+          "TASK-223"
+        ],
+        "supporting_channels": 12,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-231",
+          "TASK-229",
+          "TASK-221",
+          "TASK-230",
+          "TASK-238",
+          "TASK-223"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/tests/test_runner_helper_notes.py"
+        ]
+      },
+      {
+        "expected_abstention": false,
+        "expected_sources": [
+          "MAP_System/templates/install/command-center-ui/src/chat.js",
+          "MAP_System/tests/test_command_center_attention_popup.py",
+          "MAP_System/tests/test_command_center_popup_formatting.py"
+        ],
+        "expected_tasks": [
+          "TASK-237",
+          "TASK-240"
+        ],
+        "hidden_expected_sources": [
+          "MAP_System/tests/test_command_center_attention_popup.py"
+        ],
+        "id": "F6",
+        "missing_tasks": [],
+        "query_coverage": 0.6957,
+        "query_ms": 6.387,
+        "query_parts": [
+          "How does the operator attention UI queue unanswered requests, approval gates, and terminal prompts one at a time, preserve explicit operator action, and reflow structured Issue, Options, Recommendation, and Needed text for readability?"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-237",
+          "TASK-239",
+          "TASK-225",
+          "TASK-240",
+          "TASK-249",
+          "TASK-229"
+        ],
+        "supporting_channels": 5,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-237",
+          "TASK-240",
+          "TASK-225",
+          "TASK-239",
+          "TASK-249",
+          "TASK-224"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/templates/install/command-center-ui/src/chat.js",
+          "MAP_System/tests/test_command_center_popup_formatting.py"
+        ]
+      },
+      {
+        "expected_abstention": false,
+        "expected_sources": [
+          "MAP_System/scripts/pre_dispatch_policy.py",
+          "MAP_System/tests/test_pre_dispatch_policy.py"
+        ],
+        "expected_tasks": [
+          "TASK-249"
+        ],
+        "hidden_expected_sources": [],
+        "id": "F7",
+        "missing_tasks": [],
+        "query_coverage": 0.5263,
+        "query_ms": 12.986,
+        "query_parts": [
+          "A read-only task said not to restart services and was wrongly treated as destructive. How does pre-dispatch now distinguish a prohibition from a real destructive command without weakening the approval gate?",
+          "A read-only task said not to restart services and was wrongly treated as destructive",
+          "How does pre-dispatch now distinguish a prohibition from a real destructive command without weakening the approval gate"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-249",
+          "TASK-235",
+          "TASK-228",
+          "TASK-223",
+          "TASK-225",
+          "TASK-237"
+        ],
+        "supporting_channels": 11,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-249",
+          "TASK-220",
+          "TASK-235",
+          "TASK-239",
+          "TASK-211",
+          "TASK-228"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/scripts/pre_dispatch_policy.py",
+          "MAP_System/tests/test_pre_dispatch_policy.py"
+        ]
+      },
+      {
+        "expected_abstention": false,
+        "expected_sources": [
+          "MAP_System/notes/practice-scenario-runbook.md",
+          "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+        ],
+        "expected_tasks": [
+          "TASK-239",
+          "TASK-233"
+        ],
+        "hidden_expected_sources": [],
+        "id": "F8",
+        "missing_tasks": [],
+        "query_coverage": 0.3684,
+        "query_ms": 14.007,
+        "query_parts": [
+          "How should a repeatable MAP practice run be admitted, measured, stopped, and independently reviewed, and what did the measured kickoff exercise reveal about handoff races and deployment-source uncertainty?",
+          "How should a repeatable MAP practice run be admitted, measured, stopped, and independently reviewed",
+          "what did the measured kickoff exercise reveal about handoff races and deployment-source uncertainty"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-233",
+          "TASK-239",
+          "TASK-235",
+          "TASK-234",
+          "TASK-207",
+          "TASK-224"
+        ],
+        "supporting_channels": 11,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-239",
+          "TASK-233",
+          "TASK-235",
+          "TASK-222",
+          "TASK-234",
+          "TASK-226"
+        ],
+        "visible_expected_sources": [
+          "MAP_System/notes/practice-scenario-runbook.md",
+          "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+        ]
+      },
+      {
+        "expected_abstention": true,
+        "expected_sources": [],
+        "expected_tasks": [],
+        "hidden_expected_sources": [],
+        "id": "N1",
+        "missing_tasks": [],
+        "query_coverage": 0.2222,
+        "query_ms": 5.276,
+        "query_parts": [
+          "Where was real-time online multiplayer synchronization with reconnect support implemented for ClearFront?"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-222",
+          "TASK-226",
+          "TASK-220",
+          "TASK-207",
+          "TASK-208",
+          "TASK-233"
+        ],
+        "supporting_channels": 3,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-220",
+          "TASK-234",
+          "TASK-222",
+          "TASK-207",
+          "TASK-226",
+          "TASK-242"
+        ],
+        "visible_expected_sources": []
+      },
+      {
+        "expected_abstention": true,
+        "expected_sources": [],
+        "expected_tasks": [],
+        "hidden_expected_sources": [],
+        "id": "N2",
+        "missing_tasks": [],
+        "query_coverage": 0.2667,
+        "query_ms": 6.332,
+        "query_parts": [
+          "What implementation encrypts raw hcom transcripts at rest and automatically deletes each agent's transcript after a configurable retention period?"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-226",
+          "TASK-208",
+          "TASK-221",
+          "TASK-223",
+          "TASK-235",
+          "TASK-224"
+        ],
+        "supporting_channels": 3,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-224",
+          "TASK-221",
+          "TASK-223",
+          "TASK-219",
+          "TASK-226",
+          "TASK-235"
+        ],
+        "visible_expected_sources": []
+      },
+      {
+        "expected_abstention": true,
+        "expected_sources": [],
+        "expected_tasks": [],
+        "hidden_expected_sources": [],
+        "id": "N3",
+        "missing_tasks": [],
+        "query_coverage": 0.2,
+        "query_ms": 6.328,
+        "query_parts": [
+          "Where was a one-click automatic rollback mechanism implemented and tested for a failed CommandCenterUI deployment?"
+        ],
+        "recommendation": "candidate_set",
+        "returned_tasks": [
+          "TASK-235",
+          "TASK-234",
+          "TASK-208",
+          "TASK-237",
+          "TASK-217",
+          "TASK-223"
+        ],
+        "supporting_channels": 4,
+        "task_only_missing_tasks": [],
+        "task_only_returned_tasks": [
+          "TASK-235",
+          "TASK-217",
+          "TASK-234",
+          "TASK-237",
+          "TASK-226",
+          "TASK-224"
+        ],
+        "visible_expected_sources": []
+      }
+    ],
+    "source_hits": 15,
+    "task_hits": 12,
+    "task_only_hits": 11,
+    "task_only_recall_at_6": 0.9167,
+    "task_recall_at_6": 1.0,
+    "total_expected_sources": 20,
+    "total_expected_tasks": 12,
+    "total_queries": 11
+  },
+  "packet_estimated_tokens": {
+    "F1": 1563,
+    "F2": 1469,
+    "F3": 1459,
+    "F4": 1455,
+    "F5": 1401,
+    "F6": 1429,
+    "F7": 1472,
+    "F8": 1507,
+    "N1": 1439,
+    "N2": 1407,
+    "N3": 1411
+  },
+  "projection_authority": "none; frozen retriever evaluation only",
+  "retriever_sha256": "edd0b53ab6d9c480360e19f4d14d667f459fcaa3155748a9bd96e741b70cca27",
+  "source_spec": "MAP_System/artifacts/experiments/task-memory-fts5-rrf-holdout-queries-2026-07-19.json"
+}

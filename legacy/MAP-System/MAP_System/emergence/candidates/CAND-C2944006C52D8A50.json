@@ -1,0 +1,17 @@
+{
+  "candidate_id": "CAND-C2944006C52D8A50",
+  "status": "accepted",
+  "signal_type": "repeated_rework",
+  "subject": "TASK-294",
+  "summary": "TASK-294 received 2 changes-requested events; inspect for a reusable prevention lesson.",
+  "evidence_refs": [
+    "MAP_System/events/events.jsonl:5270",
+    "MAP_System/events/events.jsonl:9636"
+  ],
+  "dedup_key": "c2944006c52d8a50",
+  "detected_at": "2026-08-01T19:35:20Z",
+  "curated_at": "2026-08-01T19:43:36Z",
+  "curated_by": "codex-lab-vumo",
+  "resolution_reason": "Genuine reusable review pattern: security-property tests should assert executed behavior/computed values rather than source spelling. Captured as INS-0060 from TASK-294's repeated review churn and final approved behavioral-test fix.",
+  "resolution_ref": "MAP_System/emergence/insights/INS-0060-security-property-tests-should-assert-executed-behavior-not-sour.md"
+}

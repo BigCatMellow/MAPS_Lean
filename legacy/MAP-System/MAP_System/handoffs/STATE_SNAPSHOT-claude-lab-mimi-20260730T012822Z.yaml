@@ -1,0 +1,102 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-30T01:28:22Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-mimi
+session_id: 849c721b-210c-4fba-8627-c9794c3c9c12
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PLAN_REVIEW_COMPLETE
+    task_id: null
+    summary: 'Independent review of MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_KICKOFF.md
+      complete. Verdict CHANGES_REQUESTED with 1 BLOCKER: the preserved map.db/-shm/-wal
+      copy sits at a git path the root .gitignore does not cover (its map.db patterns
+      are anchored to repo root, unlike .venv/ and __pycache__/ which are unanchored),
+      so a routine git add -A would stage a live ~2.6MB database, reproducing today''s
+      github-publication-risk incident with real content instead of empty sidecars.
+      Preservation integrity (hash diffs, catalog reconciliation), authority boundaries,
+      and one-writer separation all verified PASS. Review written to 03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md;
+      codex-lab-risa informed via hcom (reply-to #5615).
+
+      '
+  touched_paths:
+  - MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md
+active_constraints:
+- scope: authority
+  rule: 'Biggie/KUDU is a read-only MAP mirror. Never mutate local MAP_System/map.db.
+    All canonical lifecycle writes route through map-authority to Smalls/RUKI.
+
+    '
+  source: AGENTS.md, MAP_System/AGENTS.md
+- scope: review
+  rule: 'As independent reviewer of the MAP recovery kickoff plan, do not edit the
+    plan or implement recovery work. Verdict is recorded; no further action pending
+    unless codex-lab-risa resubmits after the BLOCKER fix.
+
+    '
+  source: MAP_System_Recovery_2026-07-29/00_control/reviews/plan-review-assignment.md
+forward_tasks:
+- task_id: null
+  next_action: wait
+  owner: codex-lab-risa
+  reason: 'Awaiting codex-lab-risa to fix the git-exposure BLOCKER (gitignore the
+    recovery directory or relocate the map.db copy outside the git tree, fold the
+    fix into WS-6) and resubmit. No re-review of the preservation/authority material
+    is needed once the BLOCKER is closed.
+
+    '
+  paths:
+  - MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md
+  - MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_KICKOFF.md
+blockers:
+- kind: review
+  detail: 'MAP recovery kickoff plan is CHANGES_REQUESTED pending a .gitignore/relocation
+    fix for the preserved map.db copy.
+
+    '
+  unblock_by: codex-lab-risa applies the fix and resubmits for confirmation
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and sole writable MAP
+    authority
+resume_commands:
+- hcom list -v --json --name mimi
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- cat MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md
+validation:
+- MAP recovery plan review complete and durable at 03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md.
+- codex-lab-risa informed via hcom, reply-to
+- No MAP task claimed by this session; no live SQLite claim to hand off.
+rotation:
+  reason: checkpoint_due
+  summary: 'Oriented at startup, sent bigboss one status/priority request, then received
+    and completed an independent-review assignment from codex-lab-risa on the MAP
+    recovery kickoff plan. Verdict CHANGES_REQUESTED with one BLOCKER (git-exposed
+    map.db copy). No MAP lifecycle task claimed this session.
+
+    '
+  next_action: 'On resume, check whether codex-lab-risa has resubmitted the recovery
+    plan after fixing the BLOCKER; if so, verify the fix and confirm APPROVED without
+    redoing the preservation/authority checks already passed. Otherwise check hcom/bigboss
+    for new priorities.
+
+    '
+  used_tokens: 147574
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-07-30T01:28:22Z'
+  canonical_tasks: []
+  canonical_tasks_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  touched_paths:
+  - path: MAP_System_Recovery_2026-07-29/03_kickoff/MAP_RECOVERY_PLAN_REVIEW.md
+    scope: workspace
+    sha256: 7ec671d13f52204c5d4244f0d53bb1f8fdeb9da7ecf5e6c9f5746713149fe802
+    size: 7859
+    state: file
+  touched_paths_sha256: 59e8a84131efab67446c0de9d9b29c1d8620b0e69cc360aa5936bd60732a844d

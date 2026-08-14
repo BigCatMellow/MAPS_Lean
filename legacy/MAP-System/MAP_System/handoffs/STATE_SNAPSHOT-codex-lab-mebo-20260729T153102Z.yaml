@@ -1,0 +1,132 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T15:31:02Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-mebo
+session_id: 019fac42-bb78-7461-8200-31b9dd9a25d1
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: SUBMISSION
+    task_id: TASK-306
+    summary: claude-lab-nene submitted the locally versioned Biggie Command Center Lab source for independent functional and security review.
+  - event_type: REVIEW_CLAIM
+    task_id: TASK-306
+    summary: claude-lab-muza claimed the independent review at 2026-07-29T15:26:14Z.
+  - event_type: POST_SUBMISSION_DRIFT
+    task_id: TASK-306
+    summary: A later operator-directed RECAP-card edit changed Biggie live orchestrator.js and orchestrator.css, so submitted live/template manifest parity now fails. Nene stopped edits and awaits the reviewer verdict.
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-306
+    summary: Muza independently reproduced the two-file parity drift and required version/template regeneration plus durable registration of test_command_center_deployment_parity.py in run_tests.sh.
+  - event_type: RELAY_RECOVERY
+    task_id: null
+    summary: Biggie hcom relay was restored to connected after the corrupt PID marker containing host kernel PID 8 was quarantined at /tmp/hcom-relay.pid.stale-20260729T1505Z and the user service restarted.
+  touched_paths:
+  - MAP_System/tasks/TASK-306.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+  - MAP_System/notes/command-center-cross-pc-sync.md
+  - MAP_System/scripts/command_center_version.py
+  - MAP_System/templates/install/command-center-ui/README.md
+  - MAP_System/templates/install/command-center-ui/app/server.py
+  - MAP_System/templates/install/command-center-ui/src/bcmagent.svg
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.css
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.html
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.js
+  - MAP_System/templates/install/command-center-ui/version.json
+  - MAP_System/tests/test_command_center_agent_identity.py
+  - MAP_System/tests/test_command_center_attention_history.py
+  - MAP_System/tests/test_command_center_composer_alignment.py
+  - MAP_System/tests/test_command_center_deployment_parity.py
+  - MAP_System/tests/test_command_center_message_intent_copy.py
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/artifacts/reviews/task306-review-muza.md
+active_constraints:
+- scope: repo
+  rule: Biggie/KUDU is a read-only MAP database mirror. All lifecycle reads and writes route through map-authority to RUKI; never mutate local MAP_System/map.db.
+  source: MAP_System/AGENTS.md and MAP_System/notes/cross-pc-map-authority.md
+- scope: task
+  rule: TASK-306 is CHANGES_REQUESTED, owned by claude-lab-nene, with no open review. Mebo owns no task and must not edit or approve the deliverable.
+  source: authoritative map-authority task show/get-open-review at 2026-07-29T15:32Z
+- scope: file
+  rule: Biggie live /home/mellow/Projects/CommandCenterUI/src/orchestrator.js and orchestrator.css changed after TASK-306 submission; command_center_version.py verify now fails and review evidence is stale.
+  source: hcom events 1778-1783 and claude-lab-nene inform 1820
+- scope: safety
+  rule: Do not deploy to or modify Smalls until its exact hostname/IP, SSH user, and hcom device identity are confirmed and the documented dry-run/backup/staging checks pass.
+  source: TASK-306 acceptance criteria and MAP_System/notes/command-center-cross-pc-sync.md
+- scope: safety
+  rule: Do not treat RUKI/MediaCenter as Smalls without operator confirmation, and never change RUKI MAP authority topology as part of CCL synchronization.
+  source: operator identity request pending with bigboss
+- scope: task
+  rule: TASK-305 remains SUBMITTED despite APPROVED rereview because its KUDU-only review artifact is unavailable to RUKI validation. Do not retry approval or transfer the artifact without operator authorization.
+  source: MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md and prior bigboss request
+- scope: tool
+  rule: Context rotation ACK is known to fail because RUKI does not expose the local register-agent operation. Never finalize or supersede without checksum-bound ACK.
+  source: failed rotations for mebo, valo, nene, and kobe on 2026-07-29
+forward_tasks:
+- task_id: TASK-306
+  next_action: fix
+  owner: claude-lab-nene
+  reason: "Apply Muza's two REQUIRED findings: port the current live RECAP-card JS/CSS into the template, regenerate version.json and parity evidence as the final pre-submit step, and register test_command_center_deployment_parity.py in run_tests.sh before revalidating and resubmitting."
+  paths:
+  - MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+  - MAP_System/notes/command-center-cross-pc-sync.md
+  - MAP_System/scripts/command_center_version.py
+  - MAP_System/templates/install/command-center-ui/
+  - MAP_System/tests/test_command_center_deployment_parity.py
+- task_id: TASK-306
+  next_action: ask_operator
+  owner: claude-lab-nene
+  reason: After any required rework and approval of the local source, obtain the exact Smalls endpoint/device identity before the remote dry-run and deployment phase.
+  paths:
+  - MAP_System/notes/command-center-cross-pc-sync.md
+  - MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+- task_id: TASK-305
+  next_action: ask_operator
+  owner: codex-lab-replacement-valo
+  reason: Await operator authorization for a checksum-verified placement of the approved review artifact on RUKI, then have claude-lab-nene rerun the exact approve command.
+  paths:
+  - MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+blockers:
+- kind: missing_context
+  detail: Smalls is not visible in Biggie DNS/mDNS/SSH discovery or the hcom relay roster. Only offline RUKI is registered.
+  unblock_by: bigboss provides or confirms Smalls hostname/IP, SSH user, and hcom device label.
+- kind: dependency
+  detail: TASK-306 is CHANGES_REQUESTED because live RECAP-card changes invalidated two manifest hashes and the new parity test was not registered in run_tests.sh.
+  unblock_by: claude-lab-nene completes Muza's two REQUIRED fixes, revalidates as the final pre-submit step, and resubmits for independent rereview.
+- kind: tool_failure
+  detail: RUKI forced-command gateway lacks register-agent, so verified context rotation ACK is structurally blocked.
+  unblock_by: operator-approved, independently reviewed RUKI gateway deployment or another approved continuity path.
+- kind: approval
+  detail: TASK-305 approval requires its approved review artifact to exist at the identical RUKI path.
+  unblock_by: operator authorizes a checksum-verified one-file transfer or provides another reviewed artifact-placement path.
+lexicon:
+  Biggie: Local hostname and operator-designated source for the newest Command Center Lab UI.
+  Smalls: Intended destination PC; exact technical identity remains unconfirmed.
+  KUDU: Biggie's hcom device label and read-only MAP mirror role.
+  RUKI: Offline hcom device label and sole writable MAP authority at MediaCenter/192.168.1.153; not proven to be Smalls.
+  CCL: AI Command Center Lab and its installed CommandCenterUI surface.
+  RECAP: Client-side highlighted card for inform messages whose text begins with RECAP.
+resume_commands:
+- map-authority task show TASK-306
+- map-authority get-open-review TASK-306
+- MAP_System/.venv/bin/python MAP_System/scripts/command_center_version.py verify --source MAP_System/templates/install/command-center-ui --installed /home/mellow/Projects/CommandCenterUI
+- hcom relay --name mebo
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+validation:
+- Authoritative TASK-306 state is CHANGES_REQUESTED, owner claude-lab-nene, unclaimed, attempt 1, updated 2026-07-29 15:31:47.
+- TASK-306 has no open review; Muza's durable CHANGES_REQUESTED artifact SHA-256 is 87fca4bc7ad8be5d0a5d46cec49e49c961c4e33cc613bd5695474c3a7f74b86e.
+- Biggie hcom relay reported connected after stale PID quarantine and service restart.
+- No Smalls or RUKI CCL files were modified during TASK-306 local implementation.
+- Nene independently confirmed command_center_version.py verify fails on orchestrator.js and orchestrator.css after the post-submission edit.
+rotation:
+  reason: threshold
+  summary: Routed operator-directed cross-PC CCL alignment into TASK-306, repaired Biggie hcom relay, confirmed Biggie live UI as desired source, and preserved remote safety gates. TASK-306 is CHANGES_REQUESTED after a RECAP-card edit changed live JS/CSS post-submission and review found the parity test absent from run_tests.sh. Nene owns the two bounded fixes. Smalls identity and RUKI rotation/artifact paths remain blocked on operator direction.
+  next_action: Let Nene rework TASK-306 against Muza's two REQUIRED findings; do not edit, deploy, finalize rotation, or infer Smalls identity.
+  used_tokens: 153838
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens

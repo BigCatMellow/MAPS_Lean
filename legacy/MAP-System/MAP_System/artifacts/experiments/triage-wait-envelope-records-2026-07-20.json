@@ -1,0 +1,170 @@
+[
+  {
+    "request_id": 5213,
+    "requested_at": "2026-07-18T14:38:44",
+    "owner": "lilo",
+    "requester": "gome",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-18T14:39:08",
+    "latency_s": 24.0,
+    "waiting_for": "Issue: the new advisory_monitor.py (TASK-236, real-time coordination-health monitor -- read-only, proposal-onl"
+  },
+  {
+    "request_id": 5258,
+    "requested_at": "2026-07-18T14:43:16",
+    "owner": "lilo",
+    "requester": "gome",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-18T14:43:24",
+    "latency_s": 8.0,
+    "waiting_for": "TASK-227 RELEASED -- thanks for the two-round review, your readiness audits carried most of the rework. TASK-2"
+  },
+  {
+    "request_id": 5615,
+    "requested_at": "2026-07-18T19:36:19",
+    "owner": "kiri",
+    "requester": "lure",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-18T19:36:39",
+    "latency_s": 20.0,
+    "waiting_for": "TASK-237 review DONE -> APPROVED. Record: MAP_System/artifacts/reviews/task237-review-lure.md (validate_review"
+  },
+  {
+    "request_id": 5622,
+    "requested_at": "2026-07-18T19:36:39",
+    "owner": "lure",
+    "requester": "kiri",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-18T19:50:27",
+    "latency_s": 828.0,
+    "waiting_for": "Issue: TASK-237 is approved, but review found the existing Send as message-intent control is live-only; a fres"
+  },
+  {
+    "request_id": 6014,
+    "requested_at": "2026-07-19T03:16:28",
+    "owner": "kiri",
+    "requester": "lure",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-19T03:16:36",
+    "latency_s": 8.0,
+    "waiting_for": "Independent review request \u2014 TASK-249. Task: TASK-249 \"Fix pre-dispatch is_destructive false positive on prohi"
+  },
+  {
+    "request_id": 6095,
+    "requested_at": "2026-07-19T03:41:22",
+    "owner": "hana",
+    "requester": "lure",
+    "state": "STRANDED",
+    "detected_at": "2026-07-19T03:41:23",
+    "latency_s": 1.0,
+    "waiting_for": "Re-ping: TASK-235 independent review still open (you went idle before responding). If you have bandwidth, the ",
+    "why": "hana stopped at 2026-07-19T03:41:23 without responding",
+    "resumes_when": "hana returns ready, or the request is rerouted",
+    "reroute_candidates": [
+      "kiri",
+      "lilo"
+    ],
+    "timeout_action": "reroute to kiri",
+    "impact": "requester blocked awaiting an independent response"
+  },
+  {
+    "request_id": 6123,
+    "requested_at": "2026-07-19T03:44:38",
+    "owner": "lure",
+    "requester": "kiri",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-19T03:45:07",
+    "latency_s": 29.0,
+    "waiting_for": "Issue: TASK-250 is submitted with a new 8,137-word plain-English academic deep dive of the current MAP system."
+  },
+  {
+    "request_id": 6163,
+    "requested_at": "2026-07-19T04:00:27",
+    "owner": "kiri",
+    "requester": "lure",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-19T04:00:42",
+    "latency_s": 15.0,
+    "waiting_for": "Reviewer scarcity: lilo and hana sessions have both stopped (lilo status.json still says available, but its pt"
+  },
+  {
+    "request_id": 6325,
+    "requested_at": "2026-07-19T12:35:24",
+    "owner": "lure",
+    "requester": "kiri",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-19T12:36:51",
+    "latency_s": 87.0,
+    "waiting_for": "Issue: The operator wants a joint project-kickoff assessment and full MAP improvement plan with goals, weaknes"
+  },
+  {
+    "request_id": 6352,
+    "requested_at": "2026-07-19T12:42:06",
+    "owner": "lure",
+    "requester": "kiri",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-19T12:44:03",
+    "latency_s": 117.0,
+    "waiting_for": "Issue: The synthesized TASK-251 kickoff draft is complete at MAP_System/artifacts/planning/map-project-improve"
+  },
+  {
+    "request_id": 6372,
+    "requested_at": "2026-07-19T12:44:03",
+    "owner": "kiri",
+    "requester": "lure",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-19T12:44:56",
+    "latency_s": 53.0,
+    "waiting_for": "lure challenge pass on TASK-251 kickoff draft. Verdict at bottom. I did not edit the file.  BLOCKER: none. The"
+  },
+  {
+    "request_id": 6388,
+    "requested_at": "2026-07-19T12:46:43",
+    "owner": "lure",
+    "requester": "kiri",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-19T13:29:51",
+    "latency_s": 2588.0,
+    "waiting_for": "Issue: All five challenge findings are now addressed in the TASK-251 draft. R1 adds a frozen no-MAP counterfac"
+  },
+  {
+    "request_id": 6526,
+    "requested_at": "2026-07-19T14:19:33",
+    "owner": "kiri",
+    "requester": "lure",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-19T14:19:55",
+    "latency_s": 22.0,
+    "waiting_for": "ClearFront G1 UI redesign is GO \u2014 operator locked the direction. Full brief: Projects/ClearFront/notes/ui-rede"
+  },
+  {
+    "request_id": 8585,
+    "requested_at": "2026-07-20T03:28:55",
+    "owner": "kiri",
+    "requester": "lure",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-20T03:29:28",
+    "latency_s": 33.0,
+    "waiting_for": "Re-routing an independent review (lilo dropped): operator-APPROVED promotion of the visual-fidelity rule into "
+  },
+  {
+    "request_id": 8657,
+    "requested_at": "2026-07-20T03:48:23",
+    "owner": "kiri",
+    "requester": "lure",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-20T03:48:36",
+    "latency_s": 13.0,
+    "waiting_for": "PROMO-0012 independent review is stranded a THIRD time \u2014 lilo then hana both idled out and are now flapping ba"
+  },
+  {
+    "request_id": 8719,
+    "requested_at": "2026-07-20T13:25:56",
+    "owner": "kiri",
+    "requester": "lure",
+    "state": "RESOLVED",
+    "detected_at": "2026-07-20T13:26:07",
+    "latency_s": 11.0,
+    "waiting_for": "Independent probe of your retrieval chain \u2014 reproduction CONFIRMS you, but one conclusion needs reopening. Rep"
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-270",
+  "title": "claim_review must not report an unregistered reviewer as already-claimed",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-gabi",
+  "description": "Proven live on 2026-07-22: codex-lab-lime attempted to claim the TASK-266 review, got False from db/claims.py claim_review, and stood down reading it as already-claimed exactly as notes/review-guide.md line 38 instructs. It was a false negative. The reviews table for TASK-266 was empty and the task owner was command-center, so there was no claim and no self-review conflict. Cause: reviews.reviewer_id is a foreign key to agents(agent_id), claim_review has no agent-registration step while scripts/map_task.py has ensure_agent at line 47, and claim_review catches sqlite3.IntegrityError broadly and returns a bare False. An unregistered reviewer therefore produces a result indistinguishable from an already-claimed slot, and the guide tells the reviewer to stand down. The reviewer self-ejects from the queue and the submission stalls with nobody reviewing it. Recorded as a known trap by claude-lab-niko before this session and it still fired. Two defects to fix: the missing registration, and the indiscriminate exception flattening that hides every other integrity failure behind the same return value.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/db/claims.py",
+    "MAP_System/notes/review-guide.md",
+    "MAP_System/tests/test_review_claims.py"
+  ],
+  "acceptance_criteria": [
+    "A reviewer that is not yet in the agents table can claim an open review; registration happens through the same INSERT OR IGNORE path map_task.py ensure_agent uses, so identity handling is consistent across the two modules.",
+    "Only the open-claim uniqueness violation is treated as already-claimed. Any other IntegrityError propagates instead of being flattened into False, so an unexpected integrity failure is loud rather than silently telling a reviewer to stand down.",
+    "The genuine already-claimed, self-review, non-SUBMITTED and unknown-task cases still return False without raising, preserving the documented contract.",
+    "Focused tests cover an unregistered reviewer succeeding, a real second claimant being refused, self-review refusal, non-SUBMITTED refusal, and that a non-uniqueness IntegrityError is not swallowed.",
+    "notes/review-guide.md no longer instructs a reviewer to read False as already-claimed without qualification, since that instruction is what converted the defect into a stand-down."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "BLOCKING",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

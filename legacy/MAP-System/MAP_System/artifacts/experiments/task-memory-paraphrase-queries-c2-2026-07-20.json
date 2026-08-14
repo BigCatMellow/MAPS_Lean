@@ -1,0 +1,243 @@
+{
+  "experiment": "LURE-paraphrase-robustness-probe-corpus2",
+  "frozen_at": "2026-07-19T18:43:47Z",
+  "owner": "codex-lab-kiri",
+  "independent_author": "helper-index-source-author-remi",
+  "author_hcom_event": 7344,
+  "implementation_sha256": "e595c4ba05e9adf8e271bceaceea5da3dd50d3aa831c18910ca764f961a6e5d9",
+  "fingerprint_mode": "deterministic task records plus bounded extracts from registered sources; no owner-authored semantic answer fields",
+  "corpus_rule": "Completed TASK-100 through TASK-159 inclusive.",
+  "contract_note": "Truth labels froze at event 7344. The packet ceiling was raised from an initial owner estimate of 1250 to 1700 after the unchanged renderer measured S1 at 1466; rankings, candidates, implementation, and truth were not changed.",
+  "corpus_task_ids": [
+    "TASK-100",
+    "TASK-101",
+    "TASK-102",
+    "TASK-103",
+    "TASK-104",
+    "TASK-105",
+    "TASK-106",
+    "TASK-107",
+    "TASK-108",
+    "TASK-109",
+    "TASK-110",
+    "TASK-111",
+    "TASK-112",
+    "TASK-113",
+    "TASK-114",
+    "TASK-115",
+    "TASK-116",
+    "TASK-117",
+    "TASK-118",
+    "TASK-119",
+    "TASK-120",
+    "TASK-121",
+    "TASK-122",
+    "TASK-123",
+    "TASK-124",
+    "TASK-125",
+    "TASK-126",
+    "TASK-127",
+    "TASK-128",
+    "TASK-129",
+    "TASK-130",
+    "TASK-131",
+    "TASK-132",
+    "TASK-133",
+    "TASK-134",
+    "TASK-135",
+    "TASK-136",
+    "TASK-137",
+    "TASK-138",
+    "TASK-139",
+    "TASK-140",
+    "TASK-141",
+    "TASK-142",
+    "TASK-143",
+    "TASK-144",
+    "TASK-145",
+    "TASK-146",
+    "TASK-147",
+    "TASK-148",
+    "TASK-149",
+    "TASK-150",
+    "TASK-151",
+    "TASK-152",
+    "TASK-153",
+    "TASK-154",
+    "TASK-155",
+    "TASK-156",
+    "TASK-157",
+    "TASK-158",
+    "TASK-159"
+  ],
+  "retrieval_contract": {
+    "max_candidates_per_query": 6,
+    "max_sources_per_candidate": 2,
+    "max_selected_sources_per_query": 2,
+    "discovery_packet_max_estimated_tokens": 1700,
+    "delivery_mode": "one query packet at a time",
+    "helper_access": "current query packet only; no index, truth, task, source, research, regression, or repository search"
+  },
+  "queries": [
+    {
+      "id": "S1",
+      "question": "A finished research write-up still has unfilled boilerplate or is missing a required part. What automatically spots that, and what cases demonstrate the behaviour?",
+      "expected_task_ids": [
+        "TASK-104"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/validate_research_artifacts.py",
+        "MAP_System/tests/test_validate_research_artifacts.py"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": [
+        "The validator is the executable authority for required template fragments, empty or unknown artifacts, and placeholders left in final research records.",
+        "The focused tests directly prove acceptance of a valid template set and rejection of a missing summary section and final placeholders."
+      ]
+    },
+    {
+      "id": "S2",
+      "question": "Why can a waiting piece of work only start once the thing it depends on is completely finished and shipped, and what stops that rule from silently breaking later?",
+      "expected_task_ids": [
+        "TASK-116"
+      ],
+      "expected_source_paths": [
+        "MAP_System/graph/runner.py",
+        "MAP_System/tests/test_runner_task_classification.py"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": [
+        "The runner defines RELEASED in DEPENDENCY_SATISFIED_STATUSES and uses that set to build the completed dependency IDs that unlock READY work.",
+        "The focused regression constructs a RELEASED prerequisite and asserts that its dependent task enters the ready queue rather than the blocked queue."
+      ]
+    },
+    {
+      "id": "S3",
+      "question": "After the initial build-out, which parts of the system were actually being used in practice versus only written down as plans?",
+      "expected_task_ids": [
+        "TASK-130"
+      ],
+      "expected_source_paths": [
+        "MAP_System/artifacts/audits/task-130-map-systems-real-usage-evidence.md"
+      ],
+      "expected_source_roles": [
+        "outcome"
+      ],
+      "source_justifications": [
+        "This findings-only audit is the direct corpus result that classifies each subsystem by operational evidence, including genuinely used, partially used, mostly specification, and not yet exercised states."
+      ]
+    },
+    {
+      "id": "S4",
+      "question": "How can CommandCenterUI show ProjectUpdater's current summary without becoming the owner of data that lives in the browser, and what does the person click to produce it?",
+      "expected_task_ids": [
+        "TASK-135",
+        "TASK-136"
+      ],
+      "expected_source_paths": [
+        "MAP_System/artifacts/TASK-135-muva-integration-boundary-note.md",
+        "Projects/ProjectUpdater/app/index.html"
+      ],
+      "expected_source_roles": [
+        "guide",
+        "implementation"
+      ],
+      "source_justifications": [
+        "The integration boundary note explains why CommandCenterUI must not read or re-host ProjectUpdater localStorage and defines the safe read-only integration boundary.",
+        "The application source implements the Export status action, calculates the snapshot fields, and downloads project-updater-status.json for an external reader."
+      ]
+    },
+    {
+      "id": "S5",
+      "question": "What catches it when the database and the on-disk task files or the graph disagree, for example different states or different registered files?",
+      "expected_task_ids": [
+        "TASK-143"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/validate_task_mirrors.py",
+        "MAP_System/tests/test_validate_task_mirrors.py"
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": [
+        "The validator loads canonical task fields from SQLite and compares scalar and list fields against both file mirrors, reporting missing, extra, and mismatched records.",
+        "The focused tests prove matching mirrors pass while status and output_paths drift both fail."
+      ]
+    },
+    {
+      "id": "S6",
+      "question": "What should the human see when a worker stops responding, and how does the system move from suspecting it is stuck to prodding it or taking the job back, without the display becoming a second source of truth?",
+      "expected_task_ids": [
+        "TASK-150"
+      ],
+      "expected_source_paths": [
+        "MAP_System/artifacts/planning/map-liveness-reaper-spec.md",
+        "MAP_System/artifacts/planning/mission-control-tui-spec.md"
+      ],
+      "expected_source_roles": [
+        "artifact",
+        "artifact"
+      ],
+      "source_justifications": [
+        "The liveness specification defines durable agent fields, state vocabulary, timeout defaults, the suspect-to-broken action ladder, sanctioned reclaim behavior, and dead-letter requirements.",
+        "The mission-control specification defines the operator panels, heartbeat display, attention queue, drill-downs, durable data sources, and the read-only-first rule that prevents a second source of truth."
+      ]
+    },
+    {
+      "id": "S7",
+      "question": "How does the system respond when paid model usage runs away, how is that different from the breaker for repeated failures, and who is allowed to lift a full emergency stop?",
+      "expected_task_ids": [
+        "TASK-151"
+      ],
+      "expected_source_paths": [
+        "MAP_System/artifacts/planning/map-cost-governance-spec.md",
+        "MAP_System/artifacts/planning/map-kill-switch-spec.md"
+      ],
+      "expected_source_roles": [
+        "artifact",
+        "artifact"
+      ],
+      "source_justifications": [
+        "The cost-governance specification defines spend telemetry, budget scopes, breaker stages, paid-lane behavior, and the explicit distinction between cost velocity and failure signals.",
+        "The kill-switch specification defines durable halt states, permitted lanes, set and clear authority, evidence required for clearing, and runner or agent-loop response."
+      ]
+    },
+    {
+      "id": "S8",
+      "question": "What limited kinds of work can a small on-machine model produce a first draft of, and which fields decide whether it stays local or has to go to a bigger agent or the human?",
+      "expected_task_ids": [
+        "TASK-153"
+      ],
+      "expected_source_paths": [
+        "MAP_System/artifacts/planning/map-local-helper-lanes-spec.md",
+        "MAP_System/artifacts/planning/map-task-tiering-spec.md"
+      ],
+      "expected_source_roles": [
+        "artifact",
+        "artifact"
+      ],
+      "source_justifications": [
+        "The local-helper specification enumerates the six allowed bounded lanes, their outputs and stop conditions, draft-only limits, and escalation triggers.",
+        "The tiering specification defines gap_score, task_tier, local_lane, escalation_reason, scoring bands, and the promotion and dispatch expectations tied to those fields."
+      ]
+    },
+    {
+      "id": "S9",
+      "question": "Which earlier work added automatic detection and masking of sensitive strings in the activity log before saving?",
+      "expected_task_ids": [],
+      "expected_source_paths": [],
+      "expected_source_roles": [],
+      "source_justifications": [],
+      "no_match_reason": "All 60 TASK-100 through TASK-159 records were checked by title, description, registered outputs, and acceptance criteria. TASK-112 formalizes security and secret-handling policy, and TASK-156 plans governance and threat-model work, but no task in this corpus implements an event-log secret scanner or automatic redaction path."
+    }
+  ],
+  "note": "Second corpus. Proper nouns retained (realistic), only descriptive vocabulary changed. Less adversarial than corpus-1 probe."
+}

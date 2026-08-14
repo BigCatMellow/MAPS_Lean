@@ -1,0 +1,35 @@
+{
+  "task_id": "TASK-292",
+  "title": "Authorize CommandCenterUI terminal-message/timestamp/composer-intent frontend feature (untracked 2026-07-21 edit)",
+  "task_type": "architecture",
+  "role": "architect",
+  "status": "RETIRED",
+  "dependencies": [
+    "TASK-254"
+  ],
+  "owner": "command-center",
+  "description": "The untracked 2026-07-21 edit (artifacts/audits/task254-untracked-edit-2026-07-21.md) added a coherent frontend feature to CommandCenterUI's chat.html/chat.css/chat.js: operator terminal prompts merged into the chat feed, timestamps on every message/attention item, and a composer intent selector. TASK-254 (an administrative reconciliation explicitly scoped to change NO UI behavior) folded this feature's live files into its template counterpart to restore live/template parity, without any task authorizing the feature itself; codex-lab-lilo's review (artifacts/reviews/task254-review-lilo.md) correctly rejected that as untracked behavior riding inside an administrative task. This task is the separately-scoped home for that authorization question, parallel to how TASK-264/265 and DEC-029/030/033 already settled the SECURITY half of this same untracked edit (Ollama allowlist, remote-host policy, live/template merge direction for server.py) -- none of those decisions settled whether the frontend feature itself is wanted as shipped product behavior, which is the open question here. TASK-254 is being restored to an administrative-only record in parallel; this task, not TASK-254, is the authorization source for the frontend feature.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/planning/task291-commandcenterui-chat-feature-authorization.md"
+  ],
+  "acceptance_criteria": [
+    "An explicit operator decision record states whether the terminal-message/timestamp/composer-intent frontend feature is authorized to remain as shipped CommandCenterUI product behavior, analogous to DEC-029/030/033 for the backend half of the same untracked edit.",
+    "If authorized: this task becomes the sole active owner of chat.html/chat.css/chat.js (live and installer-template) and the four TASK-254-owned focused tests, added via add-output-path only after TASK-254 reaches a terminal status, so no active output-path collision exists during the handoff.",
+    "If not authorized: a decision record states the required remediation and this task executes it (e.g. narrowing or removing the unauthorized behavior), with live/template parity re-verified afterward either way.",
+    "Live/template parity, node --check, and the 4 focused + 2 adjacent CommandCenterUI test files are re-verified and cited as current evidence after whichever path is taken."
+  ],
+  "decision_class": "AUTHORITY",
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

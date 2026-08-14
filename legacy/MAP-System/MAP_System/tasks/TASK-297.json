@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-297",
+  "title": "Add sanctioned map_task.py amend-criteria verb with authority-citation and old-text preservation",
+  "task_type": "maintenance",
+  "role": "engineer",
+  "status": "APPROVED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "FOURTH instance of the missing-lifecycle-verb pattern, and the most dangerous one. mapfinish-guru needed to amend TASK-254's acceptance criterion 4, which is factually false about TASK-254's own fold action, using DEC-034 as the authority an independent reviewer said it required. No verb exists, and the harness classifier now hard-blocks the scoped SQL fallback, so the amendment is currently impossible by any route. Prior instances: REPAIR-0009 (output paths), REPAIR-0010/0012 (attempt budgets, fixed by TASK-293), retire (fixed by TASK-295). Unlike those three, amending acceptance criteria is the single most abusable lifecycle mutation in MAP: it is exactly how an agent would retroactively lower a bar it failed to clear, and it would leave a task looking cleanly APPROVED against criteria that were rewritten to fit the delivery. This verb must therefore be harder to misuse than the thing it replaces, not merely more convenient. The old criterion text must survive in the durable record, and the amendment must cite recorded authority rather than the amending agent's own judgment.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/db/claims.py",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/tests/test_map_task_amend_criteria.py"
+  ],
+  "acceptance_criteria": [
+    "map_task.py gains an amend-criteria verb taking a task_id, --criterion-id, --new-text, --actor, --reason, and a REQUIRED --authority naming a recorded DEC-NNN or REPAIR-NNNN; it refuses if the cited authority does not exist as a real record, so an agent cannot self-authorize an amendment.",
+    "The durable event preserves the COMPLETE prior criterion text verbatim alongside the new text, so a reader can always reconstruct what the task originally promised and judge whether the bar moved.",
+    "The verb refuses to amend a task in a terminal status (APPROVED/RELEASED/RETIRED/DONE), so criteria cannot be rewritten after a task has already passed review against them.",
+    "Focused tests cover: successful amendment, refusal on nonexistent authority, refusal on each terminal status, refusal on empty reason or empty new text, and verification that the old text appears in full in the emitted event; wired into run_tests.sh and the suite passes.",
+    "The task record states plainly that this verb makes retroactive bar-lowering easier to DO and therefore must make it easier to DETECT, and names where a reviewer should look to audit whether a task's criteria were amended mid-lifecycle."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "policy",
+  "requires_operator_approval": true,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

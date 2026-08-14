@@ -1,0 +1,41 @@
+{
+  "task_id": "TASK-257",
+  "title": "Run uncurated fingerprint holdout with typed evidence ranking",
+  "task_type": "experiment",
+  "role": "researcher",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Second TASK-256 indexing experiment. Use older completed tasks with deterministic, uncurated fingerprints; have one fresh visible read-only helper independently author paraphrased holdout queries and expected evidence, freeze that truth set, then have a different fresh visible read-only helper evaluate query packets. Add query-aware typed evidence-role ranking without modifying TASK-256 outputs. Measure task recall/selection, exact evidence visibility/selection, token use, latency, path health, and scope adherence. Do not integrate into startup, routing, Command Center, or external services.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/task-fingerprint-holdout-2026-07-19.json",
+    "MAP_System/artifacts/experiments/task-fingerprint-holdout-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-fingerprint-holdout-helper-packet-2026-07-19.md",
+    "MAP_System/artifacts/experiments/task-fingerprint-holdout-packets-2026-07-19/",
+    "MAP_System/artifacts/experiments/task-fingerprint-holdout-queries-2026-07-19.json",
+    "MAP_System/inbox/helpers/helper-index-author-2026-07-19.md",
+    "MAP_System/inbox/helpers/helper-index-holdout-evaluator-2026-07-19.md",
+    "MAP_System/scripts/task_fingerprint_holdout.py",
+    "MAP_System/tests/test_task_fingerprint_holdout.py"
+  ],
+  "acceptance_criteria": [
+    "An independent fresh helper authors the paraphrased query and expected-source truth set from an older completed-task corpus before the evaluator or ranking analysis sees it.",
+    "The generated fingerprints use deterministic task records without owner-curated semantic fields, and the source ranker labels evidence roles and what each source can prove.",
+    "A different fresh helper receives only the frozen compact retrieval packet, performs no broad repository search or writes, and reports task/source selections, confidence, and uncertainty under the token budget.",
+    "The final report compares task and evidence recall/precision, token use, latency, path health, and limitations against TASK-256, preserving negative results and making no integration claim."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

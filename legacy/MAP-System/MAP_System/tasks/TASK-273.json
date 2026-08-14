@@ -1,0 +1,40 @@
+{
+  "task_id": "TASK-273",
+  "title": "Add a sanctioned owner-reassignment verb for tasks whose owner agent no longer exists",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-266"
+  ],
+  "owner": "command-center",
+  "description": "Operator directive 2026-07-23: agents come and go with every session, so tasks end up owned by agents that no longer exist. Triage in MAP_System/artifacts/planning/stale-task-owner-triage-2026-07-23.md established that such tasks are NOT mechanically stuck -- every nonterminal state has an owner-free path forward, and release_task.py gates only on status==APPROVED plus ensure_agent(released_by). The real defect is that tasks.owner is write-once: only 'create' sets it, claim_task() sets claimed_by and never owner, and rework() leaves it untouched, while AGENTS.md forbids hand-editing SQLite. So a dead owner is permanent and unfixable through sanctioned means. Live instance: TASK-267 kept owner=codex-lab-lime (inactive/session_superseded) through the entire rework and release by codex-lab-kula, forcing the alignment memo to describe its own owner field as a reconciliation gap in prose. Measured scope at triage time: 21 nonterminal tasks carry inactive or standby owners (codex-lab-mozu x11, codex-lab-limo x6, claude-lab-lure x3, codex-lab-nivo x1), all APPROVED and awaiting release. Add one auditable reassignment verb modeled on recover-orphan, which TASK-266 already established as the pattern for recovering a stuck field. NON-GOAL: do not change the no-self-review guards. That is INS-0039 scope, is not covered by these acceptance criteria, and must not be folded in here -- it awaits a separate operator promote-or-park decision.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/db/claims.py",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/tests/test_reassign_owner.py"
+  ],
+  "acceptance_criteria": [
+    "A sanctioned function and CLI verb reassigns tasks.owner on a nonterminal task, requiring an actor, a new owner, and a written reason, and refusing any task in a terminal status.",
+    "The new owner is registered via the same ensure_agent contract used elsewhere, so reassignment cannot create a dangling agent reference.",
+    "The action appends a durable event naming the actor, the prior owner, the new owner, and the reason, so ownership changes are auditable rather than silent.",
+    "Reassignment changes only owner; status, claimed_by, lease_expires_at, heartbeat_at, and attempt are provably untouched.",
+    "Tests cover the happy path, refusal on a terminal task, refusal on a missing or empty new owner, refusal on an unknown task, and non-mutation of the adjacent claim fields; registered in run_tests.sh with the suite green and task mirrors passing.",
+    "The no-self-review guards in claim_review() and validate_review.py are left unchanged; any change there is out of scope and belongs to INS-0039's separate decision."
+  ],
+  "decision_class": "OWNERSHIP",
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

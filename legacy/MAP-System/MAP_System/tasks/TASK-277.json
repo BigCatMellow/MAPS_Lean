@@ -1,0 +1,34 @@
+{
+  "task_id": "TASK-277",
+  "title": "Review role-system design and derive MAP improvement roadmap",
+  "task_type": "architecture",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lura",
+  "description": "Review /home/mellow/Projects/MultiAgentProject/roles_in_MAP_system.md end-to-end, emphasizing the mature architecture near the end. Compare its role, skill, routing, run-manifest, evidence, retrieval, and memory proposals against current reusable MAP behavior. Produce a grounded adoption roadmap that distinguishes existing capability, useful extension, risky over-design, and concrete implementation sequence.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/planning/roles-system-map-improvement-review.md"
+  ],
+  "acceptance_criteria": [
+    "The review explains the document's progression from persona prompts to operational role contracts and identifies the strongest late-stage ideas.",
+    "Each major proposal is mapped to current MAP evidence as already present, partial, missing, or intentionally rejected, with file/script references.",
+    "Recommendations are prioritized by behavior and failure-mode impact, not by adding documentation or directories.",
+    "The roadmap separates near-term changes from experiments and deferred architecture, and states risks, dependencies, and verification for each.",
+    "The report explicitly identifies ideas MAP should not adopt as written and why."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "KNOWLEDGE",
+  "risk_severity": "DRIFT",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": true,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

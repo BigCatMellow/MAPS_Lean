@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-137",
+  "title": "Remove ProjectUpdater Areas sidebar section",
+  "task_type": "implementation",
+  "role": "ProjectUpdater UI implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-neko",
+  "description": "Operator requested removing the visible Areas section from the ProjectUpdater sidebar. Keep project area data and existing project cards/forms intact; remove only the sidebar area shortcut section and related dead rendering code.",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ProjectUpdater/app/index.html",
+    "Projects/ProjectUpdater/scripts/validate_project_updater.py"
+  ],
+  "acceptance_criteria": [
+    "ProjectUpdater sidebar no longer shows an Areas heading or dynamic area shortcut list",
+    "Project area fields and card area badges remain intact",
+    "Existing ProjectUpdater regression validator still passes"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-234",
+  "title": "Audit CommandCenter deployment-source parity before coordination-card implementation",
+  "task_type": "research",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "Run the read-only, evidence-bounded deployment-source parity audit recommended by KICK-01. Establish which checkout or installer template actually updates the operator Command Center, identify any unavailable source boundary or mismatch, and shape a later UI task only after the evidence is sufficient. Do not edit UI, deployment state, policy, authority, or TASK-227.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/command-center-deployment-source-parity-audit-2026-07-18.md"
+  ],
+  "acceptance_criteria": [
+    "The audit records candidate live and template source locations, observed accessibility, and evidence for or against each as the deployable source without modifying any source.",
+    "The audit documents the actual or unavailable update and verification path, including the exact uncertainty that prevents a deployment claim.",
+    "The audit lists only evidence-supported future UI output paths and names discrepancies that must be resolved before implementation.",
+    "The audit makes no UI, deployment, policy, authority, shared-state, or TASK-227 change and produces a durable recommendation for the next lifecycle test."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

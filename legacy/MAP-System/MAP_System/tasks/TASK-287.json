@@ -1,0 +1,43 @@
+{
+  "task_id": "TASK-287",
+  "title": "Audit roles-roadmap orchestration failures and publish final completion report",
+  "task_type": "audit",
+  "role": "escalation-analyst",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-274",
+    "TASK-278",
+    "TASK-280",
+    "TASK-281",
+    "TASK-282",
+    "TASK-283",
+    "TASK-285",
+    "TASK-286"
+  ],
+  "owner": "command-center",
+  "description": "After every remaining roles-system roadmap task and the CCL lifecycle correction are independently approved, publish the operator-requested full report explaining why MAP did not advance, route, review, rotate, and clean up this work more effectively. Reconstruct the durable timeline; distinguish deliberate safety gates from control-plane defects; identify manual interventions, approval-consumption gaps, terminal-versus-durable-state drift, over-eager rotations, review-routing friction, attempt-budget behavior, and startup topology effects. Link every claim to canonical evidence and end with implemented fixes, remaining risks, and measurable follow-up recommendations.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/audits/roles-roadmap-orchestration-final-report.md"
+  ],
+  "acceptance_criteria": [
+    "Report provides an evidence-linked timeline from TASK-277 approval through final approval of every roadmap and CCL lifecycle task, including manual hcom interventions and state transitions.",
+    "Root-cause analysis distinguishes intentional safety controls from defects or missing automation across intake, approval consumption, dispatch, review routing, context rotation, standby/cleanup, and operator attention surfaces.",
+    "Each identified orchestration failure names the affected component, observable impact, why existing controls did not prevent it, and whether it was fixed, deferred, or accepted.",
+    "Report measures completed tasks, attempts, review cycles, unnecessary sessions, operator approvals, and remaining blocked work from canonical SQLite/events/hcom evidence without inventing unavailable data.",
+    "Final recommendations are prioritized, bounded, and linked to implemented artifacts or explicit follow-up tasks; validators pass and the report does not become a competing source of project truth."
+  ],
+  "decision_class": "POLICY",
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

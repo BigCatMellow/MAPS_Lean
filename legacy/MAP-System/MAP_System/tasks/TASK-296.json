@@ -1,0 +1,35 @@
+{
+  "task_id": "TASK-296",
+  "title": "Update helper-tier docs to match DEC-035 Sonnet+auto default",
+  "task_type": "maintenance",
+  "role": "engineer",
+  "status": "IN_PROGRESS",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "DEC-035 (2026-07-28) changed the spawned-Claude default from Haiku to Sonnet with --permission-mode auto, at the operator's explicit instruction, and persisted it in ~/.hcom/config.toml under [launch.claude] args. TASK-194 is RELEASED and its guidance in notes/helper-agent-guide.md, plus the matching paragraph in MAP_System/AGENTS.md 'Elastic Helper Agents', still document Haiku as the default. Those docs now describe behavior the system does not have. Found by mapfinish2-zemi while release-verifying TASK-194 -- it checked the documented default against the live config instead of assuming, which is exactly how this class of drift should be caught. Note zemi's partial misdiagnosis, worth not repeating: it concluded the setting was env-only because ~/.hcom/config.toml had no claude_args KEY -- the value is actually persisted under the [launch.claude] args TOML path, so 'grep for the key name' is not a reliable way to check hcom config persistence. This is documentation reconciliation only; do NOT change the live config, which is operator-directed and correct as-is.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/AGENTS.md",
+    "MAP_System/notes/helper-agent-guide.md"
+  ],
+  "acceptance_criteria": [
+    "notes/helper-agent-guide.md states Sonnet with --permission-mode auto as the current spawn default, cites DEC-035, and preserves Haiku as a deliberate per-spawn override for narrowly-scoped low-friction work rather than deleting Haiku guidance entirely.",
+    "The AGENTS.md 'Elastic Helper Agents' paragraph no longer asserts the Haiku default as current, and cites DEC-035.",
+    "The TASK-194 escalation-request process for going ABOVE the default to Opus is explicitly preserved, since DEC-035 moved only the default and did not repeal that process.",
+    "Docs record that the original friction was a missing --permission-mode auto flag rather than a Haiku model-tier restriction, and state what evidence would show the restriction is real (a Haiku spawn still blocking under auto mode), so the earlier unverified 'Haiku cannot use auto mode' claim is not silently re-inherited.",
+    "No live configuration is changed by this task and no executable behavior changes; run_tests.sh still passes."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

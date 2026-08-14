@@ -1,0 +1,14 @@
+[Unit]
+Description=MAP Rise and Shine agent limit watcher
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=__PROJECT_DIR__
+Environment=PATH=__LOCAL_BIN__:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/python3 -u __PROJECT_DIR__/MAP_System/scripts/limit_watcher.py --interval 300
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,195 @@
+{
+  "experiment": "TASK-256",
+  "frozen_at": "2026-07-19T13:45:00-04:00",
+  "owner": "codex-lab-kiri",
+  "helper": "helper-index-neko",
+  "corpus_rule": "Recent TASK-207 through TASK-240 excluding retired TASK-209/TASK-210, plus TASK-249 and TASK-252 through TASK-255.",
+  "corpus_task_ids": [
+    "TASK-207", "TASK-208", "TASK-211", "TASK-212", "TASK-213",
+    "TASK-214", "TASK-215", "TASK-216", "TASK-217", "TASK-218",
+    "TASK-219", "TASK-220", "TASK-221", "TASK-222", "TASK-223",
+    "TASK-224", "TASK-225", "TASK-226", "TASK-227", "TASK-228",
+    "TASK-229", "TASK-230", "TASK-231", "TASK-232", "TASK-233",
+    "TASK-234", "TASK-235", "TASK-236", "TASK-237", "TASK-238",
+    "TASK-239", "TASK-240", "TASK-249", "TASK-252", "TASK-253",
+    "TASK-254", "TASK-255"
+  ],
+  "retrieval_contract": {
+    "max_candidates_per_query": 6,
+    "candidate_summary_max_words": 80,
+    "discovery_packet_max_estimated_tokens": 1200,
+    "max_primary_source_expansions": 2,
+    "search_mode": "deterministic local lexical scoring over compact fingerprints",
+    "helper_access": "helper packet only; no truth set and no broad repository search"
+  },
+  "scoring": {
+    "retrieval_recall_at_6": "expected task IDs present in algorithm candidates divided by all expected task IDs",
+    "critical_miss": "an expected task ID absent from its query's top six",
+    "helper_selection_precision": "helper-selected expected task IDs divided by all selected task IDs",
+    "source_choice_precision": "helper-selected primary sources matching frozen expected source paths divided by all selected source paths",
+    "scope_adherence": "no broad search, no non-packet repository inspection, and no writes",
+    "token_measure": "ceil(packet characters divided by four), an explicit approximation rather than a model tokenizer"
+  },
+  "curation": {
+    "TASK-207": {
+      "result": "Preserved and hashed the generated bundle, extracted it reproducibly, and established an editable baseline before refactoring.",
+      "concepts": ["reproducible extraction", "source preservation", "hash manifest", "baseline parity", "browser refactor"],
+      "unexpected": "The original HTML was a self-extracting artifact bundle rather than ordinary editable source."
+    },
+    "TASK-208": {
+      "result": "Established the first multi-file app skeleton and paired screenshots with a dependency-free CDP interaction smoke check.",
+      "concepts": ["multi-file extraction", "screenshot parity", "CDP interaction", "file URL", "CSS data split"],
+      "unexpected": "The cheap screenshot-plus-interaction gate became reusable evidence for later HTML extraction work."
+    },
+    "TASK-211": {
+      "result": "Audited rules against the parity-proven implementation and identified the replacement undo hidden-information exploit among the deviations.",
+      "concepts": ["rules conformance", "hidden information", "card replacement", "undo exploit", "read-only audit"],
+      "unexpected": "Undo saved state before revealing a random replacement, allowing a free peek and reversal."
+    },
+    "TASK-213": {
+      "result": "Removed undo availability from the hidden-information replacement branch while preserving ordinary reversible undo and added focused regression evidence.",
+      "concepts": ["replacement undo", "hidden information", "regression test", "reversible action", "game rules"],
+      "unexpected": "A narrow behavior fix closed the exploit without changing the broader undo system."
+    },
+    "TASK-214": {
+      "result": "Extracted the combat engine behind a ctx and window.CF installation contract while retaining seeded browser parity evidence.",
+      "concepts": ["combat extraction", "ctx accessors", "window CF", "headless seam", "seeded parity"],
+      "unexpected": "The module boundary made the unchanged engine loadable under a small non-DOM host."
+    },
+    "TASK-220": {
+      "result": "Built a deterministic Node-based rule-engine matrix below the DOM using the extraction seam, real modules, a small host stub, and deviation-tagged cases.",
+      "concepts": ["headless engine", "deterministic matrix", "Node vm", "below DOM", "ctx host", "rules regression"],
+      "unexpected": "The existing modules required no application-code changes to run headlessly."
+    },
+    "TASK-224": {
+      "result": "Built a deterministic proposal-only E/I sentinel, but retrospective recall was only one of four known insights.",
+      "concepts": ["E/I sentinel", "recall 25 percent", "positive discovery", "operator correction", "candidate queue"],
+      "friction": "Transition-only signals missed positive architecture discoveries and corrections not encoded as typed durable events."
+    },
+    "TASK-226": {
+      "result": "Ran a visible Discovery Agent against a pre-frozen ClearFront truth set and preserved known, refined, novel, weak, and drift classifications.",
+      "concepts": ["discovery truth set", "frozen findings", "semantic discovery", "ClearFront retrospective", "proposal only"],
+      "unexpected": "The truth set supplies positive findings that deterministic failure-transition scanning could not see."
+    },
+    "TASK-229": {
+      "result": "Recorded Pi's failed no-write communication requalification and kept it excluded from operational coordination and capacity.",
+      "concepts": ["Pi", "hcom acknowledgement", "malformed delivery claim", "coordination boundary", "local model"],
+      "friction": "The terminal implied delivery without an observed outbound hcom acknowledgement."
+    },
+    "TASK-230": {
+      "result": "Confirmed that exact acknowledgement text appearing in Pi's terminal did not produce an outbound hcom message event.",
+      "concepts": ["Pi health check", "terminal versus hcom", "message event", "communication failure", "coordination exclusion"],
+      "friction": "Visible terminal output was not equivalent to agent-to-agent delivery."
+    },
+    "TASK-234": {
+      "result": "Audited which Command Center checkout and template could update the operator-visible application before authorizing UI implementation.",
+      "concepts": ["Command Center", "deployment source parity", "installed copy", "template", "read-only audit"],
+      "unexpected": "A correct template edit could still miss the operator-visible installed source."
+    },
+    "TASK-235": {
+      "result": "Created a durable deployment-source manifest and repeatable provenance check for launcher, installed-copy drift, and listener uncertainty.",
+      "concepts": ["deployment manifest", "runtime provenance", "installed drift", "launcher chain", "Command Center"],
+      "unexpected": "Configured target identity and a currently running listener are distinct facts."
+    },
+    "TASK-249": {
+      "result": "Made destructive-phrase matching clause-aware so prohibitions no longer classify safe read-only work as destructive while preserving imperative detection.",
+      "concepts": ["pre-dispatch", "false positive", "prohibition clause", "negation aware", "destructive classifier"],
+      "friction": "A read-only task was blocked because its safety guardrail named actions it explicitly prohibited."
+    },
+    "TASK-253": {
+      "result": "Preserved the ClearFront side-rails prototype and documented continuity, canonical-stat mismatches, validation steps, and asset-readiness hazards without touching production.",
+      "concepts": ["side rails", "prototype continuity", "static stats", "baked checkerboard", "asset readiness", "ClearFront UI"],
+      "unexpected": "Most square user assets were RGB images with checkerboards baked into the pixels rather than transparent RGBA."
+    },
+    "TASK-254": {
+      "result": "Retired eight serial UI snapshot tasks in favor of one final-state Command Center review boundary with combined focused tests and live-template parity.",
+      "concepts": ["rapid UI feedback", "task consolidation", "final-state review", "output collision", "Command Center"],
+      "friction": "One continuous feedback conversation had been represented as overlapping tasks owning the same files."
+    },
+    "TASK-255": {
+      "result": "Separated governing-document navigation from generated historical retrieval and proposed token-bounded fingerprints, digests, and explainable waits.",
+      "concepts": ["task fingerprint", "workstream digest", "token budget", "historical retrieval", "navigation authority", "explainable wait"],
+      "unexpected": "MAP already had most storage and governance substrate; the missing layer was compact ranked retrieval rather than another agent."
+    }
+  },
+  "queries": [
+    {
+      "id": "Q1",
+      "question": "I am changing card replacement and undo behavior. Which prior work found and fixed the hidden-information exploit, and what evidence should I open?",
+      "expected_task_ids": ["TASK-211", "TASK-213"],
+      "expected_source_paths": [
+        "Projects/ClearFront/artifacts/research/rules-conformance-audit.md",
+        "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md"
+      ]
+    },
+    {
+      "id": "Q2",
+      "question": "I need to refactor a browser game out of one HTML file while proving behavior did not change. Which work established reproducible extraction and a cheap screenshot and interaction parity gate?",
+      "expected_task_ids": ["TASK-207", "TASK-208"],
+      "expected_source_paths": [
+        "Projects/ClearFront/artifacts/tests/task-extraction-parity.md",
+        "Projects/ClearFront/artifacts/tests/task-208-skeleton-parity.md"
+      ]
+    },
+    {
+      "id": "Q3",
+      "question": "I want deterministic game-rule tests below the DOM. Which prior task built the headless engine matrix, and which combat extraction exposed the ctx-based seam it uses?",
+      "expected_task_ids": ["TASK-220", "TASK-214"],
+      "expected_source_paths": [
+        "Projects/ClearFront/artifacts/tests/task-220-delivery-note.md",
+        "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md"
+      ]
+    },
+    {
+      "id": "Q4",
+      "question": "A local Pi helper reports success in its terminal but fails to acknowledge through hcom. Which evidence defines whether it can take critical coordination work?",
+      "expected_task_ids": ["TASK-229", "TASK-230"],
+      "expected_source_paths": [
+        "MAP_System/artifacts/experiments/pi-local-capability-trial-2026-07-18.md",
+        "MAP_System/notes/pi-agent-communication-guide.md"
+      ]
+    },
+    {
+      "id": "Q5",
+      "question": "The E/I sentinel is missing positive architectural discoveries and operator corrections. Which pilot quantified that blind spot, and which discovery work supplies a frozen truth set?",
+      "expected_task_ids": ["TASK-224", "TASK-226"],
+      "expected_source_paths": [
+        "MAP_System/artifacts/tests/emergence-sentinel-pilot.md",
+        "MAP_System/artifacts/experiments/clearfront-discovery-known-findings-2026-07-17.md"
+      ]
+    },
+    {
+      "id": "Q6",
+      "question": "Before editing Command Center UI, I need to know whether templates and the operator-visible installed app are aligned. Which audit and manifest should I consult?",
+      "expected_task_ids": ["TASK-234", "TASK-235"],
+      "expected_source_paths": [
+        "MAP_System/artifacts/experiments/command-center-deployment-source-parity-audit-2026-07-18.md",
+        "MAP_System/artifacts/audits/command-center-deployment-source-manifest-2026-07-18.md"
+      ]
+    },
+    {
+      "id": "Q7",
+      "question": "A safe read-only task is classified as destructive because its description says dangerous actions are prohibited. Which fix addressed this false positive?",
+      "expected_task_ids": ["TASK-249"],
+      "expected_source_paths": ["MAP_System/tests/test_pre_dispatch_policy.py"]
+    },
+    {
+      "id": "Q8",
+      "question": "We have many rapid Command Center UI tweaks touching the same files. Which record consolidated them into one final review boundary?",
+      "expected_task_ids": ["TASK-254"],
+      "expected_source_paths": ["MAP_System/artifacts/planning/command-center-ui-serial-batch-reconciliation-2026-07-19.md"]
+    },
+    {
+      "id": "Q9",
+      "question": "Where is the preserved ClearFront side-rail prototype and the continuity warning about static stats and baked checkerboard assets?",
+      "expected_task_ids": ["TASK-253"],
+      "expected_source_paths": ["Projects/ClearFront/notes/ui-redesign-continuity-qa-2026-07-19.md"]
+    },
+    {
+      "id": "Q10",
+      "question": "Which plan separates navigation authority from generated historical retrieval and defines task fingerprints, workstream digests, and a hard discovery token budget?",
+      "expected_task_ids": ["TASK-255"],
+      "expected_source_paths": ["MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md"]
+    }
+  ]
+}

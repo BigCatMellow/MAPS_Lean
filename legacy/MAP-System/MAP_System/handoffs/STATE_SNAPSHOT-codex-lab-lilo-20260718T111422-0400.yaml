@@ -1,0 +1,116 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 1
+created_at: "2026-07-18T11:14:22-04:00"
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-lilo
+session_id: lilo-20260718T111422-0400
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks:
+    - TASK-235
+  pending_reviews: []
+  recent_events:
+    - event_type: RELEASED
+      task_id: TASK-227
+      summary: "System-improvement implementation plan released after independent re-review; plan is the current implementation spine."
+    - event_type: CHANGES_REQUESTED
+      task_id: TASK-236
+      summary: "Read-only advisory-monitor design passed boundary review but needs complete fixtures and accurate malformed-claim handling."
+    - event_type: BLOCKED
+      task_id: TASK-235
+      summary: "Static pre-dispatch policy requires command-center approval even though the operator gave direct chat approval; no record/resume path exists."
+    - event_type: QUESTION
+      task_id: TASK-186
+      summary: "Orphaned IN_PROGRESS RnS task is held unchanged pending operator A/B/C disposition."
+  touched_paths:
+    - MAP_System/artifacts/reviews/task227-rereview-lilo.md
+    - MAP_System/artifacts/releases/task-227-release-checklist.md
+    - MAP_System/artifacts/reviews/task236-review-lilo.md
+    - MAP_System/scripts/advisory_monitor.py
+    - MAP_System/tests/test_advisory_monitor.py
+    - MAP_System/artifacts/tests/task-advisory-monitor-delivery-note.md
+    - MAP_System/artifacts/experiments/pi-visible-retrial-vema-vega-2026-07-18.md
+active_constraints:
+  - scope: task
+    rule: "SQLite map.db is canonical for task state. Use map_task.py/claims APIs and export mirrors after state changes; never hand-edit task JSON or SQLite."
+    source: MAP_System/AGENTS.md; DEC-009
+  - scope: communication
+    rule: "Use hcom --intent request only for operator decisions, approvals, blockers, conflicts, privacy/scope risks, or questions; routine progress is inform."
+    source: operator instruction; MAP_System/AGENTS.md
+  - scope: tool
+    rule: "Every model-backed helper must be visible; hcom spawns require --terminal wezterm-tab and never --headless."
+    source: MAP_System/AGENTS.md
+  - scope: task
+    rule: "Do not mutate TASK-186 or bypass TASK-235's policy gate. TASK-186 needs an operator disposition; TASK-235 needs a sanctioned approval-record/resume mechanism."
+    source: TASK-186 evidence; graph runner; operator direction
+  - scope: safety
+    rule: "Pi is paused for operational work. The Vema/Vega retry showed relay reachability but insufficient durable quality and a Vega scope breach; do not route task-critical work to Pi without a new operator-authorized visible trial."
+    source: MAP_System/artifacts/experiments/pi-visible-retrial-vema-vega-2026-07-18.md
+forward_tasks:
+  - task_id: TASK-235
+    next_action: ask_operator
+    owner: codex-lab-lilo
+    reason: "Runner routes it to policy_gate (REQUIRE_CORE_DESTRUCTIVE_APPROVAL). The operator previously approved it in chat, but policy code has no safe durable way to record or consume that approval. Do not bypass the gate."
+    paths:
+      - MAP_System/tasks/TASK-235.json
+      - MAP_System/artifacts/experiments/command-center-deployment-source-parity-audit-2026-07-18.md
+      - MAP_System/artifacts/audits/command-center-deployment-source-manifest-2026-07-18.md
+  - task_id: TASK-236
+    next_action: fix
+    owner: claude-lab-gome
+    reason: "CHANGES_REQUESTED. Add isolated mirror-drift/event-health fixtures and full clean-state coverage; flag missing/malformed/inconsistent leases accurately without inventing heartbeat facts; then resubmit. Gome is currently out_of_tokens until 2026-07-18T15:15:00-04:00."
+    paths:
+      - MAP_System/artifacts/reviews/task236-review-lilo.md
+      - MAP_System/scripts/advisory_monitor.py
+      - MAP_System/tests/test_advisory_monitor.py
+      - MAP_System/artifacts/tests/task-advisory-monitor-delivery-note.md
+  - task_id: TASK-186
+    next_action: ask_operator
+    owner: claude-lab-mira
+    reason: "Canonical state is IN_PROGRESS with no claimant, lease, or heartbeat; it is a true orphan and first real advisory-monitor catch. Last work contains an unresolved RnS design choice, so neither core agent should mutate it unilaterally."
+    paths:
+      - MAP_System/tasks/TASK-186.json
+      - MAP_System/artifacts/tests/task-186-rns-suppression-evidence.md
+      - MAP_System/handoffs/HANDOFF-20260715-session-close-codex-lab-nivo.md
+      - MAP_System/scripts/limit_watcher.py
+  - task_id: TASK-227
+    next_action: wait
+    owner: claude-lab-gome
+    reason: "Released. Use the plan as the durable design spine; do not reopen it without new evidence."
+    paths:
+      - MAP_System/notes/system-improvement-implementation-plan.md
+      - MAP_System/artifacts/reviews/task227-rereview-lilo.md
+      - MAP_System/artifacts/releases/task-227-release-checklist.md
+blockers:
+  - kind: approval
+    detail: "TASK-186 needs bigboss to choose: A attribution-aware incident pruning while preserving lean status (Mira recommendation); B exporter carveout retaining terminal agents while incidents stay open; or C accept generic prune and close the terminal-suppression path with the conflict documented. Leave the task unchanged until selected."
+    unblock_by: "Operator decision A, B, or C through hcom request response."
+  - kind: approval
+    detail: "TASK-235's no-write research task is lexically classified as destructive because its description mentions restart services only to prohibit them. Direct operator approval was received, but current pre-dispatch policy does not persist/consume it."
+    unblock_by: "A sanctioned approval-record/resume path or an explicit operator direction on how to handle the policy false-positive."
+  - kind: ownership_conflict
+    detail: "TASK-236 is owned by claude-lab-gome and is in CHANGES_REQUESTED. Lilo has completed the review; do not edit its registered output paths."
+    unblock_by: "Gome reworks, submits, and requests re-review."
+lexicon:
+  MAP: "Multi-Agent Project durable coordination system."
+  HPOM: "Human-Paced Orchestration Model; assignment/routing discipline layered over MAP."
+  hcom: "Visible inter-agent command-center communication."
+  RnS: "Rise & Shine limit-watcher/resume nudge system."
+  E/I: "Emergence/Insight discovery and promotion system; candidates never auto-promote."
+  STATE_SNAPSHOT: "Compact YAML recovery handoff; durable paths, not chat, are authoritative."
+  map_db: "MAP_System/map.db, canonical task claim and status coordinator."
+  TASK-227: "Released implementation plan for system improvements."
+  TASK-235: "Read-only CommandCenter deployment-source manifest, policy-gated."
+  TASK-236: "Proposal-only advisory monitor, currently in review rework."
+  TASK-186: "Orphaned RnS terminal-suppression task awaiting operator A/B/C decision."
+resume_commands:
+  - "sed -n '1,260p' MAP_System/handoffs/STATE_SNAPSHOT-codex-lab-lilo-20260718T111422-0400.yaml"
+  - "python3 MAP_System/scripts/declare_standby.py codex-lab-lilo --back"
+  - "MAP_System/.venv/bin/python MAP_System/graph/runner.py"
+  - "MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-235"
+  - "MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-236"
+  - "MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-186"
+validation:
+  - "MAP_System/.venv/bin/python -c \"import yaml; yaml.safe_load(open('MAP_System/handoffs/STATE_SNAPSHOT-codex-lab-lilo-20260718T111422-0400.yaml'))\""
+  - "MAP_System/.venv/bin/python MAP_System/scripts/validate_task_mirrors.py"

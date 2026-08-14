@@ -1,0 +1,17 @@
+{
+  "candidate_id": "CAND-00AE794CA511599C",
+  "status": "dismissed",
+  "signal_type": "repeated_rework",
+  "subject": "TASK-280",
+  "summary": "TASK-280 received 2 changes-requested events; inspect for a reusable prevention lesson.",
+  "evidence_refs": [
+    "MAP_System/events/events.jsonl:2975",
+    "MAP_System/events/events.jsonl:3038"
+  ],
+  "dedup_key": "00ae794ca511599c",
+  "detected_at": "2026-07-27T18:10:00Z",
+  "curated_at": "2026-07-27T18:10:58Z",
+  "curated_by": "claude-lab-nora",
+  "resolution_reason": "2-cycle rework, both findings are task-specific validation-completeness bugs already fixed (role registry unknown-role acceptance, test-runner exact-command mismatch), not a distinct reusable meta-lesson beyond existing coverage.",
+  "resolution_ref": null
+}

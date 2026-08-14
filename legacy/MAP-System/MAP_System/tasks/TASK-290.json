@@ -1,0 +1,38 @@
+{
+  "task_id": "TASK-290",
+  "title": "Orchestrator auto-spawns an independent reviewer for unclaimed SUBMITTED tasks",
+  "task_type": "implementation",
+  "role": "state-steward",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "Extends TASK-286's orchestrator-routing contract (notes/command-center-orchestrator-lifecycle.md, templates/install/bin/ai-command-center-lab-codex) so the default Codex orchestrator acts on graph/runner.py's existing next_route=review signal instead of leaving it for a human or agent to notice. When the runner route reports next_route=review with submitted_tasks entries, and MAP_System/db/claims.py's get_open_review_claim shows no live claim on a given task, the orchestrator spawns one visible, tagged reviewer helper (hcom N claude --tag task<id>-review --terminal wezterm-tab, never --headless) with a durable helper note per notes/helper-agent-guide.md's metadata contract -- the same pattern used ad hoc for TASK-288's review this session (MAP_System/inbox/helpers/helper-review-task-288.md). This is on-demand spawning triggered by actual SUBMITTED state, not a new standing role or an addition to CCL's default auto-start lanes -- TASK-286's 'a lane opens only when the runner route or an actual READY/SUBMITTED task genuinely needs it' principle is extended, not reversed. Session context: this idea surfaced after an independent reviewer (spawned manually, not automatically) caught a real gap in TASK-288 that self-review missed; three prior MAP ideas proposing a standing scouting/adherence role (IDEA-0010, IDEA-0012, IDEA-0013) were each redirected to a bounded cadence/audit instead of a permanent role, so this task deliberately follows that same cadence-not-role shape rather than proposing a new standing lane. Must not weaken independent review: the spawn logic must confirm the candidate reviewer is not the submission author (db/review_authorship.get_submission_author) and not that author's recorded predecessor/replacement identity in shared/context-continuity.md (closing the gap TASK-288's own context-rotation handoff this session exposed: the literal-agent_id self-review check alone would not have caught a same-lineage reviewer).",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/notes/command-center-orchestrator-lifecycle.md",
+    "MAP_System/scripts/review_routing.py",
+    "MAP_System/templates/install/bin/ai-command-center-lab-codex",
+    "MAP_System/tests/test_review_routing.py"
+  ],
+  "acceptance_criteria": [
+    "notes/command-center-orchestrator-lifecycle.md documents the new behavior: when the runner route shows next_route=review and a submitted task has no live review claim, the orchestrator spawns one visible tagged reviewer helper with a durable helper note, instead of waiting for a human or another agent to notice.",
+    "The ai-command-center-lab-codex prompt is updated to include this routing step, consistent in form with TASK-286's existing orchestrator-routing paragraph.",
+    "The spawn/eligibility check explicitly excludes the submission author and that author's recorded predecessor/replacement identity from shared/context-continuity.md, not just a literal agent_id string match.",
+    "No duplicate reviewer is spawned for a task that already has a live, unexpired review claim (get_open_review_claim).",
+    "This remains additive to TASK-286: no lane auto-starts at CCL boot as a result of this task; spawning only happens on-demand against live SUBMITTED state.",
+    "At least one test or documented dry-run demonstrates correct behavior for: a SUBMITTED task with no claim (spawns), a SUBMITTED task with a live claim (does not duplicate-spawn), and a SUBMITTED task whose only eligible reviewer pool member is the author or the author's replacement identity (escalates to the operator instead of silently proceeding, per the pattern already used when TASK-288 itself hit this exact situation)."
+  ],
+  "decision_class": "ARCHITECTURE",
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": true,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

@@ -1,0 +1,240 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-03T18:31:45Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-luzo
+status: handing_off
+role: 'MAP coordinator, operator-designated this session (bigboss said ''your the coordinator... talk
+  to smalls, and other agents and get it back on track... you shouldnt be working on things, just make
+  sure theyre doing their jobs''). map-coordinator-hobo (DEC-039''s named successor) is not in the live
+  hcom roster and its lease on TASK-309 was stale, so this session took over the coordinator role and
+  TASK-309''s bookkeeping claim, same as the operator''s own DEC-040 precedent for hobo. Reason for handoff:
+  context rotation due (151,628 tokens, past the 150,000 rotate threshold), not task completion -- active
+  coordination work is genuinely in-flight.'
+task_context:
+  current_task: TASK-309
+  owned_tasks:
+  - TASK-309
+  pending_reviews: []
+  recent_events:
+  - event_type: STALE_AUTHORITY_ROOT_CAUSE_FOUND
+    task_id: TASK-316
+    summary: 'graph/runner.py next_route was pinned at STALE_AUTHORITY (system-wide dispatch degraded
+      to review-only) with reason ''local database is writable or authority writer services are active'',
+      naming map-rns-watcher.service. Verified via systemctl --user (the probe uses --user scope, not
+      system scope -- checking system scope first gave a false ''unit not found'' result, corrected on
+      the second check) and journalctl --user -u map-authority-mirror.service: map-rns-watcher.service
+      (the always-on RnS/limit-watcher, Restart=always, WantedBy=default.target, legitimately supposed
+      to run continuously on Biggie) restarted at 2026-08-03T14:20:42-04:00. Every map-authority-mirror.service
+      sync since (roughly one attempt per minute) has failed with ''local writer services must be disabled
+      before mirror sync: map-rns-watcher.service''. limit_watcher.py only ever writes MAP_System/agents/limit-watcher-state.json,
+      never map.db, so this looks like an overly-broad writer-service scope bug in map_authority.py''s
+      active_local_writer_services() (added by TASK-310, which touched this exact file) rather than a
+      real dual-writer hazard. Last successful mirror sync was 2026-08-03T18:20:28Z (authority revision
+      sha256:b010338c47517eac6a3db263cf98cb1136c544307b1a20fa36d48bb87db8334f) -- the underlying data
+      is not badly stale, but the freshness check will report INVALID forever while rns-watcher keeps
+      running, which it is designed to do permanently.'
+  - event_type: TASK316_CREATED
+    task_id: TASK-316
+    summary: Created TASK-316 via map_authority.py task create (routed through the sanctioned gateway
+      to Smalls/RUKI, confirmed live) to track and fix the writer-service scope bug. Output paths MAP_System/scripts/map_authority.py
+      and MAP_System/tests/test_map_authority.py; 5 acceptance criteria documenting the root cause, requiring
+      confirmation of limit_watcher.py's actual write targets before narrowing the check, requiring the
+      fix still block a genuine second-authority writer, and requiring independent review since this touches
+      TASK-310's AUTHORITY-classified, trust-boundary-crossing contract code. Landed in status NEEDS_SHAPING,
+      not READY -- map_task.py:179 defaults new tasks to NEEDS_SHAPING; has NOT yet been promoted to READY
+      or claimed by anyone. owner field is a placeholder ('command-center'), claimed_by is null.
+  - event_type: TASK309_COORDINATOR_HANDOFF_TAKEN
+    task_id: TASK-309
+    summary: 'Reassigned TASK-309 (owner) from map-coordinator-hobo to claude-lab-luzo via map_authority.py
+      task reassign-owner (gateway to Smalls, succeeded), then claimed it via map_authority.py claim TASK-309
+      claude-lab-luzo 5400 (succeeded, claimed=true). hobo''s prior lease had expired 2026-07-30 22:18:36
+      and hobo is not in the live hcom roster (verified via hcom list -v: only claude-lab-luzo and pi-lab-dora
+      are currently alive locally; no codex-lab-vumo or other Smalls-side session is currently connected
+      to hcom either).'
+  - event_type: TASK296_RECOVERY_ATTEMPTED_AND_BLOCKED
+    task_id: TASK-296
+    summary: 'Tried map_authority.py task recover-orphan TASK-296 to reclaim its stale lease (claude-lab-dodo,
+      expired 2026-08-01 20:02:50, dodo not live) -- failed cleanly. Read db/claims.py:recover_orphan_task()
+      docstring: that verb only matches status IN_PROGRESS with claimed_by IS NULL; TASK-296 still shows
+      claimed_by=claude-lab-dodo (lease expired but claimant field not cleared), so it does not match
+      the orphan shape. The correct reconciliation path is expire_leases() (db/claims.py), which is only
+      ever invoked by scripts meant to run ON the authority host (agent_loop.py, liveness_reaper.py, reconcile.py)
+      -- no map_authority.py gateway verb exposes it remotely, and running it locally against Biggie''s
+      map.db would violate the read-only-mirror rule. Left unresolved for the next session; low severity
+      (docs-only maintenance task, priority 3), and RnS/limit_watcher is already sending periodic nudges
+      to dodo (see events.jsonl ~14:11 and ~14:20 today).'
+  touched_paths:
+  - MAP_System/tasks/TASK-309.json
+  - MAP_System/tasks/TASK-316.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/events/events.jsonl
+active_constraints:
+- scope: coordinator-role
+  rule: 'claude-lab-luzo is MAP coordinator this session by direct operator instruction: routing, task
+    assignment, blocker triage, talking to Smalls and other agents -- explicitly NOT substantive implementation
+    (''you shouldnt be working on things, just make sure theyre doing their jobs''). TASK-309 self-claim
+    is bookkeeping only (no deliverable beyond MAP_System_Recovery_2026-07-29/00_control/phase2-status.md,
+    which is itself currently missing from disk -- see infrastructure blocker below), same narrow exception
+    the operator already approved for hobo under DEC-040. Do not expand this into owning/implementing
+    TASK-316 or any other substantive task from this identity.'
+  source: this session (direct operator instruction), MAP_System/shared/decisions.md DEC-039, DEC-040
+- scope: authority
+  rule: Biggie/KUDU is a read-only MAP mirror. All canonical lifecycle writes route through map_authority.py
+    (the sanctioned gateway) to Smalls/RUKI. Confirmed live and working this session (task show/reassign-owner/claim/task
+    create all succeeded through the gateway from Biggie -- no dedicated Smalls-side hcom agent session
+    is required to 'talk to Smalls' for sanctioned verbs, the CLI itself relays over the forced-command
+    SSH channel). Never mutate local MAP_System/map.db directly, and note the local task-JSON file mirror
+    is currently stale/incomplete for very recent writes (TASK-316.json does not exist locally yet) because
+    the mirror-sync service itself is the thing broken -- prefer map_authority.py task show TASK-NNN over
+    reading local tasks/*.json until TASK-316 is fixed.
+  source: AGENTS.md, MAP_System/AGENTS.md, this session
+- scope: bug-fix-review-independence
+  rule: TASK-316 touches MAP_System/scripts/map_authority.py, which is one of TASK-310's (RELEASED, AUTHORITY-classified,
+    trust_boundary_crossing) output paths. Its own acceptance criteria require independent core-agent
+    review before release -- do not let whoever fixes it also approve it.
+  source: MAP_System/tasks/TASK-316 acceptance criteria (this session), MAP_System/AGENTS.md Review Standard
+- scope: agent-availability
+  rule: As of this snapshot, the only live hcom sessions are claude-lab-luzo (this session, rotating out)
+    and pi-lab-dora (Pi/local model, idle, listening). No Codex or Claude core agent, and no Smalls-side
+    agent (codex-lab-vumo or otherwise), is currently connected. hcom relay is enabled (HCOM_RELAY_ENABLED=1,
+    broker configured) but nothing remote is showing as alive. The replacement will likely need to spawn
+    a fresh visible helper (wezterm-tab, Sonnet+auto default per DEC-035) to actually claim and fix TASK-316,
+    since this identity should not do that work itself per the coordinator-role constraint above.
+  source: hcom list -v (this session)
+forward_tasks:
+- task_id: TASK-316
+  next_action: promote out of NEEDS_SHAPING to READY (or confirm why shaping is needed), then get a live
+    agent to claim and fix it
+  owner: command-center (placeholder, unclaimed)
+  reason: 'This is the actual blocker keeping MAP off-track: it is why graph/runner.py route is pinned
+    at STALE_AUTHORITY / review-only system-wide. Root cause and fix guidance are fully documented in
+    the task''s acceptance criteria (see TASK316_CREATED event above and map_authority.py task show TASK-316).
+    Spawn a visible Codex or Claude helper (hcom N codex|claude --tag helper-fix-authority --terminal
+    wezterm-tab) if no core agent becomes available; brief it with this snapshot''s root-cause summary
+    so it does not have to re-derive it.'
+  paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/tests/test_map_authority.py
+- task_id: TASK-296
+  next_action: find a reconciliation path other than recover-orphan (which does not match), or wait for
+    RnS/liveness automation to clear the stale claude-lab-dodo lease, then let a live agent resume/submit/release
+    it
+  owner: claude-lab-dodo (stale, not live)
+  reason: Docs-only maintenance task (update helper-tier docs to match DEC-035), low severity, priority
+    3. Not urgent relative to TASK-316.
+  paths:
+  - MAP_System/AGENTS.md
+  - MAP_System/notes/helper-agent-guide.md
+- task_id: (talk to Smalls, ongoing)
+  next_action: send a message toward codex-lab-vumo (or whichever Smalls-side identity comes up) once
+    one is live, summarizing TASK-316 and asking it to help verify the fix from the authority side once
+    ready; none was reachable this session (hcom list --stopped vumo/codex-lab-vumo found no local event
+    history for that name at all).
+  owner: unassigned
+  reason: Operator explicitly asked the coordinator to 'talk to smalls, and other agents.' Sanctioned-CLI
+    connectivity to Smalls/RUKI is confirmed live and working (see authority scope constraint above);
+    a live conversational agent session on the Smalls side specifically was not found this session.
+  paths: []
+blockers:
+- kind: infrastructure
+  detail: 'map-authority-mirror.service (systemd --user, Biggie) has failed every ~60s cycle since 2026-08-03T14:21:31-04:00
+    with ''local writer services must be disabled before mirror sync: map-rns-watcher.service''. This
+    is the STALE_AUTHORITY root cause; TASK-316 tracks the fix.'
+  unblock_by: fix and release TASK-316, then confirm systemctl --user status map-authority-mirror.service
+    shows a clean run and map_authority.py status / graph/runner.py route both report freshness OK.
+- kind: missing-deliverable
+  detail: TASK-309's own output path, MAP_System_Recovery_2026-07-29/00_control/phase2-status.md, does
+    not exist on disk (checked this session; the 00_control directory only contains __pycache__ files,
+    no phase2-status.md, and git has no history for that path -- it was apparently always untracked/local-only
+    and is now simply gone). Prior coordinator snapshots (e.g. hobo's 2026-07-31 one) referenced it as
+    reflecting 'current truth' as of their timestamp, so it existed at some point between 2026-07-31 and
+    now. Not investigated further this session (context ran out) -- worth finding out whether it was deleted,
+    never durably regenerated, or gitignored by design before recreating it from scratch.
+  unblock_by: locate git/backup history for that path if any exists; otherwise regenerate it per TASK-309's
+    acceptance criteria (maps every bounded child task to owner/reviewer/authority-revision/evidence/gate
+    outcome) as the next coordinator bookkeeping action.
+- kind: reviewer-availability
+  detail: No core agent is currently live to claim TASK-316 or to serve as its required independent reviewer
+    once fixed.
+  unblock_by: spawn a visible helper/core agent (wezterm-tab); see forward_tasks above.
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror (this host)
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and sole writable MAP authority
+resume_commands:
+- hcom list -v --json
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py route
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py task show TASK-316
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py task show TASK-296
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py status
+- systemctl --user status map-authority-mirror.service
+- cat MAP_System/shared/decisions.md
+validation:
+- TASK-309 owned+claimed by claude-lab-luzo, lease set for 5400s from 2026-08-03T18:29Z (confirmed via
+  map_authority.py claim ok=true).
+- TASK-316 created (confirmed via map_authority.py task show TASK-316), status NEEDS_SHAPING, unclaimed.
+- TASK-296 unchanged (still IN_PROGRESS, claude-lab-dodo, lease expired 2026-08-01 20:02:50) -- recover-orphan
+  attempt was a no-op (correctly rejected, did not corrupt state).
+- 'Sent one hcom --intent inform message to @bigboss (event #13764 reply window) with the full diagnosis
+  and action summary before this snapshot was written.'
+rotation:
+  reason: context_budget_exhausted
+  summary: 'claude-lab-luzo is at 151,628 tokens, past the 150,000 rotate threshold (limit_watcher notified
+    via hcom inform #13764). Proactive checkpoint per MAP_System/AGENTS.md Verified Context Rotation,
+    not a completion or failure state -- active coordinator work (TASK-316 needs a claimant, TASK-296
+    needs reconciliation, Smalls-side conversation still pending) is genuinely in-flight.'
+  next_action: 'A successor (new coordinator session, or this same identity resumed) should: (1) re-run
+    map_authority.py route to see if TASK-316''s fix has landed and STALE_AUTHORITY has cleared; (2) if
+    not, promote TASK-316 out of NEEDS_SHAPING and spawn a visible helper to claim and fix it, continuing
+    to NOT do the implementation from the coordinator identity itself; (3) find a reconciliation path
+    for TASK-296''s stale lease; (4) investigate TASK-309''s missing phase2-status.md deliverable; (5)
+    keep trying to reach a live Smalls-side agent per the operator''s ''talk to smalls'' instruction.'
+  used_tokens: 151628
+  threshold_tokens: 150000
+  metric_source: 'claude_latest_prompt_input_estimate (limit_watcher hcom notification #13764)'
+integrity:
+  prepared_at: '2026-08-03T18:31:45Z'
+  canonical_tasks:
+  - task_id: TASK-309
+    status: IN_PROGRESS
+    owner: claude-lab-luzo
+    claimed_by: claude-lab-luzo
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: 2026-08-03T18:29Z (approx, via map_authority claim)
+  - task_id: TASK-316
+    status: NEEDS_SHAPING
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-03T18:30:53Z'
+  - task_id: TASK-296
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: claude-lab-dodo
+    lease_expires_at: '2026-08-01 20:02:50'
+    heartbeat_at: '2026-08-01 19:32:50'
+    updated_at: '2026-08-01 19:32:50'
+  touched_paths:
+  - path: MAP_System/tasks/TASK-309.json
+    scope: workspace
+    sha256: 11afffd110fd0084ea1e94509e80253013bb4e227d94329968e62959a5af35f6
+    state: file
+  - path: MAP_System/tasks/TASK-296.json
+    scope: workspace
+    sha256: b4baa9e791287683030c5cbefe4237127e22f6f63392c8b3351378ebf87acfa4
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: 3c246a3e3009f55a6f290e2703bf823362c8cbd074656d30da93524369d26a7b
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: 66e3ea8b59768c0e88b825476f2daba5f21955d77b9bb1a3c105ca52f8cbbca1
+    state: file
+  - path: MAP_System/tasks/TASK-316.json
+    scope: workspace
+    sha256: null
+    state: missing_local_mirror_stale_sync
+session_id: 3cad3ed5-4053-484e-b1a7-9158d688fae0

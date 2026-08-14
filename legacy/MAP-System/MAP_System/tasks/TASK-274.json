@@ -1,0 +1,42 @@
+{
+  "task_id": "TASK-274",
+  "title": "Emit a durable SUBMISSION event naming the submitting agent",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-268",
+    "TASK-273"
+  ],
+  "owner": "command-center",
+  "description": "Promoted from IDEA-0027 via PROMO-0013, on evidence from EXP-0008 and EXP-0009. MAP has no durable record of who submitted a task for review. db/claims.py submit_task() delegates to release_task(), which emits no event and sets claimed_by = NULL in the same UPDATE, so the authoring identity is destroyed and never recorded by the only sanctioned submit path. Measured: 50 approved tasks have no SUBMISSION event, and 36 of 69 approvals since 2026-07-15 (52%) lack one, so the rate is worsening rather than decaying from legacy. Worse than absent, the record actively misattributes: TASK-236's durable log still credits claude-lab-gome for work claude-lab-zaro submitted twice on 2026-07-23. This blocks INS-0039/IDEA-0026 (parked), which cannot re-key the no-self-review guards onto authorship that is not recorded. EXP-0009 proved the fix on a scratch DB: status UPDATE and commit, THEN append a canonical SUBMISSION event; return contract unchanged, exactly one event per submit, no duplicate when the guarded UPDATE matches no row. SEQUENCING: db/claims.py is a contended output path of TASK-268 and TASK-273; this task depends on both and must not start until they release. SCOPE LIMITS: does not change any review guard, does not backfill the 50 historical tasks, does not alter tasks.owner semantics.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/tests/task-submission-event-delivery-note.md",
+    "MAP_System/db/claims.py",
+    "MAP_System/scripts/map_task.py",
+    "MAP_System/scripts/run_tests.sh",
+    "MAP_System/tests/test_submission_event.py"
+  ],
+  "acceptance_criteria": [
+    "submit_task() through db/claims.py emits exactly one canonical SUBMISSION event naming the submitting agent as actor, with the task_id and a trace_id; the existing bool return contract and the resulting task row (SUBMITTED, claimed_by NULL) are unchanged.",
+    "The event is appended AFTER the status commit, so a crash loses the authorship record rather than recording a submission that never happened; a repeat submit whose guarded UPDATE matches no row emits no event.",
+    "Absence of a SUBMISSION event is documented as UNKNOWN AUTHOR, never as evidence that no self-review occurred; this is stated in the delivery note so any future guard consuming the event cannot infer innocence from absence.",
+    "Isolated tests in MAP_System/tests/test_submission_event.py cover: event emitted with correct actor, no duplicate on repeat submit, row state unchanged, and absence-means-unknown documented behaviour; registered in run_tests.sh and green.",
+    "validate_events.py --fail-on-new reports no NEW warnings from the added emission (the canonical type SUBMISSION is used, not TASK_SUBMITTED, which already trips the validator at events.jsonl line 2145).",
+    "Evidence recorded via the TASK-219 delivery-note template, citing EXP-0008 for the gap and EXP-0009 for the proven mechanism; reviewed by an independent reviewer who is neither the author nor claude-lab-bima."
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

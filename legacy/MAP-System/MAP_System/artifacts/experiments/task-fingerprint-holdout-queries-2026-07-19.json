@@ -1,0 +1,143 @@
+{
+  "experiment": "TASK-257",
+  "frozen_at": "2026-07-19T14:05:00-04:00",
+  "owner": "codex-lab-kiri",
+  "independent_author": "helper-index-author-bono",
+  "author_hcom_event": 7014,
+  "fingerprint_mode": "deterministic task record only; no owner-curated semantic fields",
+  "corpus_rule": "Completed TASK-160 through TASK-205, excluding non-completed TASK-186.",
+  "corpus_task_ids": [
+    "TASK-160", "TASK-161", "TASK-162", "TASK-163", "TASK-164",
+    "TASK-165", "TASK-166", "TASK-167", "TASK-168", "TASK-169",
+    "TASK-170", "TASK-171", "TASK-172", "TASK-173", "TASK-174",
+    "TASK-175", "TASK-176", "TASK-177", "TASK-178", "TASK-179",
+    "TASK-180", "TASK-181", "TASK-182", "TASK-183", "TASK-184",
+    "TASK-185", "TASK-187", "TASK-188", "TASK-189", "TASK-190",
+    "TASK-191", "TASK-192", "TASK-193", "TASK-194", "TASK-195",
+    "TASK-196", "TASK-197", "TASK-198", "TASK-199", "TASK-200",
+    "TASK-201", "TASK-202", "TASK-203", "TASK-204", "TASK-205"
+  ],
+  "retrieval_contract": {
+    "max_candidates_per_query": 6,
+    "max_sources_per_candidate": 2,
+    "max_selected_sources_per_query": 2,
+    "discovery_packet_max_estimated_tokens": 1200,
+    "delivery_mode": "one query packet at a time",
+    "helper_access": "current query packet only; no index, truth set, broad search, or named-source reads"
+  },
+  "queries": [
+    {
+      "id": "H1",
+      "question": "How can I rebuild a disposable local view of task and event history, query it by task, agent, or trace, and avoid treating the view as healthy when its canonical sources drift?",
+      "expected_task_ids": ["TASK-173"],
+      "expected_source_paths": [
+        "MAP_System/scripts/session_replay.py",
+        "MAP_System/tests/test_session_replay.py"
+      ],
+      "expected_source_roles": ["implementation", "test"],
+      "source_justifications": [
+        "Builds the disposable SQLite read model, records source high-water metadata and drift findings, and exposes task, agent, trace, and status queries.",
+        "Proves deterministic queries plus unsafe status on malformed events, missing task references, and mirror-validation failures."
+      ]
+    },
+    {
+      "id": "H2",
+      "question": "Related-files entries in nested documents were being skipped when they used a repository-root prefix or a sibling filename. Where was path resolution corrected?",
+      "expected_task_ids": ["TASK-179"],
+      "expected_source_paths": [
+        "MAP_System/scripts/librarian.py",
+        "MAP_System/tests/test_librarian.py"
+      ],
+      "expected_source_roles": ["implementation", "test"],
+      "source_justifications": [
+        "Contains the multi-base related-bullet resolver and the conversion path that consumes it.",
+        "Covers repository-root-relative paths, source-directory sibling paths, end-to-end conversion, and intentional Guidelines exclusion."
+      ]
+    },
+    {
+      "id": "H3",
+      "question": "How do we keep API keys, URL passwords, credential assignments, and suspicious high-entropy tokens out of durable capture records without rejecting the capture itself?",
+      "expected_task_ids": ["TASK-191"],
+      "expected_source_paths": [
+        "MAP_System/scripts/redaction.py",
+        "MAP_System/tests/test_redaction.py"
+      ],
+      "expected_source_roles": ["implementation", "test"],
+      "source_justifications": [
+        "Defines known-secret patterns, false-positive guards, placeholder replacement, and warn-and-redact behavior before persistence.",
+        "Exercises credential families, entropy true and false positives, idempotence, warnings, and on-disk capture integration."
+      ]
+    },
+    {
+      "id": "H4",
+      "question": "Two reviewers can race to review the same submitted task. What prevents duplicate ownership while also blocking the task owner from reviewing their own work?",
+      "expected_task_ids": ["TASK-199"],
+      "expected_source_paths": [
+        "MAP_System/db/claims.py",
+        "MAP_System/tests/test_review_claims.py"
+      ],
+      "expected_source_roles": ["implementation", "test"],
+      "source_justifications": [
+        "Provides atomic review claiming, open-claim lookup, self-review rejection, and holder-only release behavior.",
+        "Proves one-winner review races, self-review rejection, submitted-status gating, and release by the actual holder."
+      ]
+    },
+    {
+      "id": "H5",
+      "question": "Can deterministic validators ever set a real halt instead of merely reporting telemetry, and how is that authority kept disabled by default, time-bounded, scope-limited, and operator-clearable?",
+      "expected_task_ids": ["TASK-201"],
+      "expected_source_paths": [
+        "MAP_System/workflow/runtime_policy.yaml",
+        "MAP_System/tests/test_halt_authority_window.py"
+      ],
+      "expected_source_roles": ["current_state", "test"],
+      "source_justifications": [
+        "Shows the halt-authority window with no expiry grant and empty scope, making the live default disabled.",
+        "Proves disabled, expired, and scope-mismatched windows only log, while active scoped windows create operator-clearable halts."
+      ]
+    },
+    {
+      "id": "H6",
+      "question": "How can a ProjectUpdater user export and restore every stored project field, keep the older status snapshot intact, reject malformed input safely, and require confirmation before overwriting current data?",
+      "expected_task_ids": ["TASK-205"],
+      "expected_source_paths": [
+        "Projects/ProjectUpdater/app/index.html",
+        "Projects/ProjectUpdater/artifacts/task-projectupdater-backup-verification.md"
+      ],
+      "expected_source_roles": ["implementation", "test"],
+      "source_justifications": [
+        "Implements separate backup controls, a full-model envelope, import normalization, overwrite confirmation, save, and re-render while retaining exportStatus.",
+        "Records a real export-clear-import round trip preserving omitted fields and a malformed-JSON check leaving storage unchanged."
+      ]
+    },
+    {
+      "id": "H7",
+      "question": "Where can I compare per-task effort proxies with delivery outcomes and see productive versus discarded work without inventing token costs or dollar amounts?",
+      "expected_task_ids": ["TASK-190"],
+      "expected_source_paths": [
+        "MAP_System/scripts/cost_yield.py",
+        "MAP_System/artifacts/reports/cost-yield-rollup-2026-07-14.md"
+      ],
+      "expected_source_roles": ["implementation", "outcome"],
+      "source_justifications": [
+        "Joins event volume, activity span, attempts, and rework with explicit outcome classes and productive, abandoned, pending, and legacy buckets.",
+        "Records the real repository run, proxy disclaimer, class definitions, spend split, JSON summary, and caveats."
+      ]
+    },
+    {
+      "id": "H8",
+      "question": "A scheduled recovery nudge may fail because the target session is already live, or it may hang during resume. Which completed fixes cover those two distinct failure modes?",
+      "expected_task_ids": ["TASK-187", "TASK-195"],
+      "expected_source_paths": [
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/tests/test_limit_watcher.py"
+      ],
+      "expected_source_roles": ["implementation", "test"],
+      "source_justifications": [
+        "Detects the still-active resume response and sends to the live session while separately catching resume timeouts and returning failure.",
+        "Distinguishes visible-terminal resume, active-session fallback success/failure, and timeout behavior for both task IDs."
+      ],
+      "ambiguity": "Compound label: TASK-187 covers already-active fallback and TASK-195 covers resume timeouts; neither alone is complete."
+    }
+  ]
+}

@@ -1,0 +1,430 @@
+{
+  "authoring_cost": {
+    "body_rewrite": "none; additive capsule blocks only",
+    "capsule_words_median": 88,
+    "capsule_words_total": 519,
+    "documents": 6
+  },
+  "authority": "none; descriptive metadata and development projection only",
+  "build": {
+    "build_ms": 600.142,
+    "database_bytes": 704512,
+    "missing_task_ids": [],
+    "reused_source_count": 22,
+    "source_document_count": 193,
+    "task_count": 43,
+    "task_source_link_count": 250,
+    "temporal_mode_counts": {
+      "current_shared": 22,
+      "current_unique": 125,
+      "task_snapshot": 43,
+      "unresolved": 3
+    },
+    "unresolved_link_instances": 3
+  },
+  "capsule_contract": {
+    "evidence_types": [
+      "current_state",
+      "decision",
+      "governing_rule",
+      "implementation",
+      "measured_outcome",
+      "procedure",
+      "release_record",
+      "research",
+      "task_scope",
+      "test_evidence"
+    ],
+    "required_fields": [
+      "Purpose",
+      "Proves",
+      "Applies to",
+      "Does not provide",
+      "Evidence type",
+      "Status"
+    ],
+    "source_budget": 3,
+    "status_values": [
+      "current",
+      "draft",
+      "historical",
+      "superseded"
+    ],
+    "word_range": [
+      60,
+      120
+    ]
+  },
+  "experiment": "TASK-262",
+  "frozen_task261_hashes": {
+    "MAP_System/artifacts/experiments/task-memory-evidence-verifier-development-2026-07-19.json": {
+      "actual": "537a2128fcc63116e62440cc59553f5f6af633674f89f6fab313ec0480bec725",
+      "expected": "537a2128fcc63116e62440cc59553f5f6af633674f89f6fab313ec0480bec725",
+      "unchanged": true
+    },
+    "MAP_System/artifacts/experiments/task-memory-evidence-verifier-development-2026-07-19.md": {
+      "actual": "414d419948f67a17c511fdd1b7b0d197aab2f6f387f6d360bafb171461d36693",
+      "expected": "414d419948f67a17c511fdd1b7b0d197aab2f6f387f6d360bafb171461d36693",
+      "unchanged": true
+    },
+    "MAP_System/scripts/task_memory_packet_selector.py": {
+      "actual": "1c33ed6c84189168e1cb1abc793495f3beeaebac872bb57d8d1a5d2f4e68b8f6",
+      "expected": "1c33ed6c84189168e1cb1abc793495f3beeaebac872bb57d8d1a5d2f4e68b8f6",
+      "unchanged": true
+    },
+    "MAP_System/tests/test_task_memory_packet_selector.py": {
+      "actual": "cbadf1c6a6dcb2e108fc769d2a0556d0368b22f05a26a5828a5ba907b1544d86",
+      "expected": "cbadf1c6a6dcb2e108fc769d2a0556d0368b22f05a26a5828a5ba907b1544d86",
+      "unchanged": true
+    }
+  },
+  "metrics": {
+    "capsule_hits": 18,
+    "capsule_visibility": 0.9,
+    "current_fallback_hits_after_document_edits": 16,
+    "current_fallback_visibility_after_document_edits": 0.8,
+    "evaluation_mode": "known TASK-260/TASK-261 task-conditioned development",
+    "expected_sources": 20,
+    "median_selection_ms": 9.171,
+    "per_query": [
+      {
+        "capsule_hidden_expected_sources": [
+          "Projects/ClearFront/app/js/combat.js"
+        ],
+        "capsule_hits": 2,
+        "capsule_selected_sources": [
+          {
+            "evidence_type": null,
+            "path": "Projects/ClearFront/artifacts/tests/task-212-state-parity.md",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": "test_evidence",
+            "path": "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md",
+            "provenance": "validated_capsule"
+          },
+          {
+            "evidence_type": null,
+            "path": "Projects/ClearFront/app/js/state.js",
+            "provenance": "fallback"
+          }
+        ],
+        "capsule_visible_expected_sources": [
+          "Projects/ClearFront/app/js/state.js",
+          "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md"
+        ],
+        "current_fallback_hits": 2,
+        "expected_sources": [
+          "Projects/ClearFront/app/js/state.js",
+          "Projects/ClearFront/app/js/combat.js",
+          "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md"
+        ],
+        "id": "F1",
+        "recorded_task261_hits": 2,
+        "selection_ms": 10.745
+      },
+      {
+        "capsule_hidden_expected_sources": [],
+        "capsule_hits": 2,
+        "capsule_selected_sources": [
+          {
+            "evidence_type": null,
+            "path": "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": null,
+            "path": "Projects/ClearFront/app/index.html",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": null,
+            "path": "Projects/ClearFront/tests/engine/rules.cases.mjs",
+            "provenance": "fallback"
+          }
+        ],
+        "capsule_visible_expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+          "Projects/ClearFront/tests/engine/rules.cases.mjs"
+        ],
+        "current_fallback_hits": 2,
+        "expected_sources": [
+          "Projects/ClearFront/artifacts/tests/task213-replacement-undo-regression.md",
+          "Projects/ClearFront/tests/engine/rules.cases.mjs"
+        ],
+        "id": "F2",
+        "recorded_task261_hits": 2,
+        "selection_ms": 7.253
+      },
+      {
+        "capsule_hidden_expected_sources": [],
+        "capsule_hits": 3,
+        "capsule_selected_sources": [
+          {
+            "evidence_type": "measured_outcome",
+            "path": "MAP_System/artifacts/tests/rns-persistent-supervisor.md",
+            "provenance": "validated_capsule"
+          },
+          {
+            "evidence_type": null,
+            "path": "MAP_System/scripts/limit_watcher.py",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": null,
+            "path": "MAP_System/tests/test_limit_watcher.py",
+            "provenance": "fallback"
+          }
+        ],
+        "capsule_visible_expected_sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/tests/test_limit_watcher.py",
+          "MAP_System/artifacts/tests/rns-persistent-supervisor.md"
+        ],
+        "current_fallback_hits": 3,
+        "expected_sources": [
+          "MAP_System/scripts/limit_watcher.py",
+          "MAP_System/tests/test_limit_watcher.py",
+          "MAP_System/artifacts/tests/rns-persistent-supervisor.md"
+        ],
+        "id": "F3",
+        "recorded_task261_hits": 3,
+        "selection_ms": 9.171
+      },
+      {
+        "capsule_hidden_expected_sources": [],
+        "capsule_hits": 3,
+        "capsule_selected_sources": [
+          {
+            "evidence_type": null,
+            "path": "MAP_System/tests/test_local_ollama_lane.py",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": null,
+            "path": "MAP_System/scripts/local_runner.py",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": "measured_outcome",
+            "path": "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md",
+            "provenance": "validated_capsule"
+          }
+        ],
+        "capsule_visible_expected_sources": [
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_ollama_lane.py",
+          "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md"
+        ],
+        "current_fallback_hits": 2,
+        "expected_sources": [
+          "MAP_System/scripts/local_runner.py",
+          "MAP_System/tests/test_local_ollama_lane.py",
+          "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md"
+        ],
+        "id": "F4",
+        "recorded_task261_hits": 2,
+        "selection_ms": 9.634
+      },
+      {
+        "capsule_hidden_expected_sources": [],
+        "capsule_hits": 2,
+        "capsule_selected_sources": [
+          {
+            "evidence_type": null,
+            "path": "MAP_System/tests/test_runner_helper_notes.py",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": "governing_rule",
+            "path": "MAP_System/AGENTS.md",
+            "provenance": "validated_capsule"
+          },
+          {
+            "evidence_type": null,
+            "path": "MAP_System/scripts/run_tests.sh",
+            "provenance": "fallback"
+          }
+        ],
+        "capsule_visible_expected_sources": [
+          "MAP_System/AGENTS.md",
+          "MAP_System/tests/test_runner_helper_notes.py"
+        ],
+        "current_fallback_hits": 1,
+        "expected_sources": [
+          "MAP_System/AGENTS.md",
+          "MAP_System/tests/test_runner_helper_notes.py"
+        ],
+        "id": "F5",
+        "recorded_task261_hits": 1,
+        "selection_ms": 4.238
+      },
+      {
+        "capsule_hidden_expected_sources": [
+          "MAP_System/templates/install/command-center-ui/src/chat.js"
+        ],
+        "capsule_hits": 2,
+        "capsule_selected_sources": [
+          {
+            "evidence_type": null,
+            "path": "MAP_System/artifacts/tests/task237-attention-popup.md",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": null,
+            "path": "MAP_System/tests/test_command_center_popup_formatting.py",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": null,
+            "path": "MAP_System/tests/test_command_center_attention_popup.py",
+            "provenance": "fallback"
+          }
+        ],
+        "capsule_visible_expected_sources": [
+          "MAP_System/tests/test_command_center_attention_popup.py",
+          "MAP_System/tests/test_command_center_popup_formatting.py"
+        ],
+        "current_fallback_hits": 2,
+        "expected_sources": [
+          "MAP_System/templates/install/command-center-ui/src/chat.js",
+          "MAP_System/tests/test_command_center_attention_popup.py",
+          "MAP_System/tests/test_command_center_popup_formatting.py"
+        ],
+        "id": "F6",
+        "recorded_task261_hits": 2,
+        "selection_ms": 11.71
+      },
+      {
+        "capsule_hidden_expected_sources": [],
+        "capsule_hits": 2,
+        "capsule_selected_sources": [
+          {
+            "evidence_type": null,
+            "path": "MAP_System/scripts/pre_dispatch_policy.py",
+            "provenance": "fallback"
+          },
+          {
+            "evidence_type": null,
+            "path": "MAP_System/tests/test_pre_dispatch_policy.py",
+            "provenance": "fallback"
+          }
+        ],
+        "capsule_visible_expected_sources": [
+          "MAP_System/scripts/pre_dispatch_policy.py",
+          "MAP_System/tests/test_pre_dispatch_policy.py"
+        ],
+        "current_fallback_hits": 2,
+        "expected_sources": [
+          "MAP_System/scripts/pre_dispatch_policy.py",
+          "MAP_System/tests/test_pre_dispatch_policy.py"
+        ],
+        "id": "F7",
+        "recorded_task261_hits": 2,
+        "selection_ms": 4.203
+      },
+      {
+        "capsule_hidden_expected_sources": [],
+        "capsule_hits": 2,
+        "capsule_selected_sources": [
+          {
+            "evidence_type": "measured_outcome",
+            "path": "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md",
+            "provenance": "validated_capsule"
+          },
+          {
+            "evidence_type": "procedure",
+            "path": "MAP_System/notes/practice-scenario-runbook.md",
+            "provenance": "validated_capsule"
+          },
+          {
+            "evidence_type": null,
+            "path": "MAP_System/artifacts/planning/map-practice-scenario-queue-2026-07-18.md",
+            "provenance": "fallback"
+          }
+        ],
+        "capsule_visible_expected_sources": [
+          "MAP_System/notes/practice-scenario-runbook.md",
+          "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+        ],
+        "current_fallback_hits": 2,
+        "expected_sources": [
+          "MAP_System/notes/practice-scenario-runbook.md",
+          "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md"
+        ],
+        "id": "F8",
+        "recorded_task261_hits": 2,
+        "selection_ms": 4.362
+      }
+    ],
+    "recorded_task261_hits": 16,
+    "recorded_task261_visibility": 0.8,
+    "selected_capsule_sources": 6,
+    "selected_sources": 24
+  },
+  "pilot_documents": {
+    "documents": [
+      {
+        "errors": [],
+        "evidence_type": "governing_rule",
+        "path": "MAP_System/AGENTS.md",
+        "pre_capsule_sha256": "2ae3f82bd279e9f103924e9e9f64367463fe8284ae7619744597b3c3f9e4da4c",
+        "sha256": "d2227fc33d555ff094923e328882ee7424c6573d54dcf03d6a8156b13d53125d",
+        "status": "current",
+        "valid": true,
+        "word_count": 79
+      },
+      {
+        "errors": [],
+        "evidence_type": "procedure",
+        "path": "MAP_System/notes/practice-scenario-runbook.md",
+        "pre_capsule_sha256": "d16d97c75c7d94143e385632ba1feb2ce1c2d6b54f3ceb2195821c5f8fcca139",
+        "sha256": "0da14db19e49bf7f400ee93969da92faf75ad021b677c710c678f210bc7dce3f",
+        "status": "current",
+        "valid": true,
+        "word_count": 84
+      },
+      {
+        "errors": [],
+        "evidence_type": "measured_outcome",
+        "path": "MAP_System/artifacts/tests/rns-persistent-supervisor.md",
+        "pre_capsule_sha256": "471b440bb9aee50517b9c8b0eb95c738fce4ac6fc6790ca40999ee810bf2ccc5",
+        "sha256": "99e224a95210e94cdb5884c421d0618f9a58c8e25d7468288de5e4f37bf7d677",
+        "status": "historical",
+        "valid": true,
+        "word_count": 88
+      },
+      {
+        "errors": [],
+        "evidence_type": "measured_outcome",
+        "path": "MAP_System/artifacts/tests/local-ollama-advisory-lane-test-2026-07-18.md",
+        "pre_capsule_sha256": "7a356737f43b6e98856cfcc7af27648d4faa9b28ad438936cfd5f40beffb342c",
+        "sha256": "09c1b8e1ed5f8981bb0d0d9988da1468f4c26a48c296ca656c2f91df37ac3acc",
+        "status": "historical",
+        "valid": true,
+        "word_count": 91
+      },
+      {
+        "errors": [],
+        "evidence_type": "test_evidence",
+        "path": "Projects/ClearFront/artifacts/tests/task-214-combat-parity.md",
+        "pre_capsule_sha256": "12a9dff284b067a4b20cbe082540c705013fe87d1e63d366046965b2eb57491f",
+        "sha256": "6251130f21ef9f6aebc084eb944804e4a0f25da515b2cb70e30f346c56000c3d",
+        "status": "historical",
+        "valid": true,
+        "word_count": 93
+      },
+      {
+        "errors": [],
+        "evidence_type": "measured_outcome",
+        "path": "MAP_System/artifacts/experiments/map-kickoff-alignment-scenario-2026-07-18.md",
+        "pre_capsule_sha256": "147a3e9260d81301c4828e3c27d08ba740eb975e105266ae2236b0b4f2d8e614",
+        "sha256": "7b706a1b3accc3bb9c2e895e42a60ba48e8dfb29d697515430a6ead1051c43e5",
+        "status": "historical",
+        "valid": true,
+        "word_count": 84
+      }
+    ],
+    "valid": true
+  }
+}

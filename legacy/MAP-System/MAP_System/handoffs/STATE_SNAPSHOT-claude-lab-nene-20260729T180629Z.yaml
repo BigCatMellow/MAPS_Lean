@@ -1,0 +1,479 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-29T18:06:29Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-nene
+session_id: 8920c704-d1d2-4dd0-a771-0cb8a7900510
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Long single session. Early startup orientation and an initial MAP routing
+      request to bigboss (TASK-294/295 review triage, librarian findings) were superseded
+      when the human operator opened a direct, non-MAP task in this same chat: implement
+      a UI redesign from "~/Desktop/Command Center UI redesign/" into the live CommandCenterUI
+      app at /home/mellow/Projects/CommandCenterUI. That work is DONE and stable -
+      see the CommandCenterUI section below. Everything after that became a long MAP-side
+      detour (TASK-305, TASK-306, TASK-307, the Biggie/Smalls action plan) triggered
+      by review requests and a cross-PC alignment question that arrived via hcom mid-session.
+      Both threads are independently summarized below; read whichever is relevant
+      to what you are resuming.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'CommandCenterUI (direct operator work, stable, not currently blocked
+      on anything): orchestrator.html/js/css + bcmagent.svg are the sole live UI at
+      /home/mellow/Projects/CommandCenterUI/src/ (server.py default route serves orchestrator.html;
+      old chat.html/ app.html/index.html/studio.html/room.* were moved, not deleted,
+      to _legacy-ui-removed-2026-07-29/ at the repo root). Rooms/tree are derived
+      from real hcom agent `tag` (no fictional multi-project concept - none exists
+      in the real backend). Features added and live-verified working against real
+      data (not just DOM checks - used a scripted Chrome DevTools Protocol click-through
+      for the interactive ones): a per-agent live terminal panel (/api/term + /api/term/inject,
+      ported from the old chat.js screen panel, already name-allowlisted server-side);
+      an operator attention popup (unanswered requests / MAP approval gates / blocked-terminal
+      prompts, with Reply/Approve-Deny/Open-terminal/Snooze/Dismiss, plus a tree-row
+      "!" badge that force-reopens a specific agent''s popup even if previously dismissed);
+      a favicon (bcmagent.svg); and a "RECAP:"-prefixed message renderer (claude-lab-muza''s
+      proposal - an hcom inform starting with "RECAP:" renders as a highlighted card
+      instead of a plain row; pure client-side convention, no backend/ hcom changes).
+      No open feature requests from the operator as of this snapshot.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'TASK-305 (owner codex-lab-mebo/codex-lab-replacement-valo, unrelated
+      MAP work, not CommandCenterUI): independently reviewed twice by claude-lab-nene.
+      First pass CHANGES_REQUESTED (a real but narrow finding - the task-authoring-guide.md
+      diff silently also completed a different, older, already-approved promotion,
+      PROMO-0012/IDEA-0024/INS-0031, undisclosed in the delivery note). Rework fixed
+      it exactly as requested. Rereview: APPROVED (verdict recorded via `map-authority
+      release-review`, which closes the review-claim row). Discovered afterward: `map-authority
+      task approve TASK-305 --reviewer ... --review-record ...` fails with an opaque
+      `authority request failed (1)` - later diagnosed (by codex-lab-replacement-valo,
+      confirmed by codex-lab-mebo) as RUKI''s validate_review.py being unable to read
+      a review-record file that only exists on KUDU/Biggie (never synced). This is
+      gateway sub-problem "1b" - see the Biggie/Smalls section. Net: TASK-305''s review
+      claim is closed/APPROVED but its task-level status could not be transitioned
+      by `task approve`; I used `map_authority task reject TASK-305 --reviewer claude-lab-nene
+      --reason ...` instead (a different verb that worked) after mebo pointed out
+      release-review alone does not move task status. Current TASK-305 status: last
+      known state was successfully transitioned via that reject call during this session;
+      not independently re-checked at snapshot time - verify with `map-authority task
+      show TASK-305` on resume.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Cross-PC alignment request from codex-lab-mebo: asked claude-lab-nene
+      to report authority/stability/canonical-file-set/ test-coverage for the CommandCenterUI
+      work before designating this machine (Biggie) as the sync source for Smalls.
+      Report (read-only, nothing changed) found two real structural gaps: (1) the
+      live CommandCenterUI directory has no git repo at all - nothing to name as an
+      "approved revision"; (2) the installer template at MAP_System/templates/install/command-center-ui/
+      was never updated to match - completely stale, would produce the old UI on a
+      fresh install. This led directly to TASK-306.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'TASK-306 (owner claude-lab-nene, "Version and align Biggie canonical
+      Command Center Lab with Smalls"): implemented the local- only half exactly as
+      scoped by mebo (Smalls/RUKI writes explicitly blocked). Imported orchestrator.html/js/css
+      + bcmagent.svg into the installer template; updated template server.py default
+      route + README.md; built MAP_System/scripts/command_center_version.py (generate/verify
+      checksum-manifest tool, MANAGED_FILES list, three documented exclusion classes:
+      runtime state, host-rendered files like CommandCenterUI.desktop''s Exec= line,
+      and pre-existing legacy template content out of scope); generated version.json;
+      wrote 7 focused tests in MAP_System/tests/test_command_center_deployment_parity.py;
+      wrote MAP_System/notes/command-center-cross-pc-sync.md (the Biggie-to-Smalls
+      protocol - document only, nothing executed against Smalls); wrote the evidence
+      record at MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md.
+      Along the way found and fixed 4 unrelated pre-existing regression tests broken
+      by the earlier chat.js retirement (test_command_center_ agent_identity/composer_alignment/message_intent_copy/
+      attention_history) - skipped their now-obsolete live-vs-template comparison
+      methods with a clear reason, registered as an incidental TASK-306 output path
+      first, fully disclosed in the evidence record (operator explicitly chose this
+      option over leaving them broken or expanding scope to rewrite for orchestrator.js).'
+  - event_type: BLOCKED
+    task_id: null
+    summary: 'TASK-306 review saga, in order: (1) submitted, muza APPROVED, but `task
+      approve` hit the same 1b gateway problem as TASK-305 - reported as a 4th data
+      point. (2) Escalated the accumulating gateway evidence to bigboss as a formal
+      request. (3) codex-lab-mebo did a more precise causal analysis: split what looked
+      like one bug into two real causes - "1a" (register-agent/rotation-transfer/rotation-
+      restore fail because that code, written by an earlier session rotation-replacement-damo-nivo,
+      was never deployed to Smalls/RUKI at all - RUKI genuinely lacks it) and "1b"
+      (task approve fails because RUKI cannot read a KUDU-only review-record file
+      - a transport problem, not a code gap). Also determined `add-output-path` was
+      never a real bug - nene''s one failure there was a syntax mistake (missing --path/--actor),
+      corrected and worked every time after. (4) Mid all this, nene made a real mistake:
+      edited live orchestrator.js/css for the recap-card feature (see CommandCenterUI
+      section) WHILE TASK-306 was sitting in review, invalidating its submitted live/template
+      parity evidence - mebo caught it via `command_center_version.py verify` failing.
+      Fixed by `task rework` -> re-sync the two files into the template -> regenerate
+      version.json -> register+add test_command_center_deployment_parity.py to MAP_System/scripts/run_tests.sh
+      (so this exact drift class is now mechanical, not manual) -> resubmit. (5) muza
+      reviewed again: APPROVED, but then self-corrected to CHANGES_REQUESTED - a real,
+      separate finding: TASK-306''s own literal recorded `acceptance_criteria` still
+      require Smalls-installed-parity-and- communication proof (criterion 5), which
+      was never attempted because the "local only" scoping was only ever communicated
+      informally over hcom, never used to canonically narrow the task record. Design/engineering
+      itself needs no rework per muza - this is purely a task-scoping gap.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Current TASK-306 disposition, per mebo''s explicit instruction: stays
+      at CHANGES_REQUESTED. Do NOT resubmit the same local-only work again. The real
+      Smalls-side work (criterion 5) is deferred to a properly governed follow-up
+      once action-plan prerequisites (gateway repair, password-rotation confirmation,
+      WP-1 approval) are done - resume TASK-306 itself at that point for its originally-recorded
+      dry-run/deployment/post-parity phase, do not try to rescope it unilaterally.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Biggie/Smalls action plan (MAP_System/artifacts/planning/biggie-smalls-orchestration-action-plan-2026-07-29.md):
+      authored by nene after the operator approved the direction of a separate proposal
+      doc (kudu-ruki-orchestration-plan-2026-07-28.md) but explicitly did NOT approve
+      full immediate execution. Naming: Biggie=KUDU=this machine (mellow@192.168.1.177,
+      compute plane), Smalls=RUKI=MediaCenter (home@192.168.1.153, control plane/writable
+      map.db) - conversational convention only, no files mechanically renamed. Corrected
+      twice since authoring: once to record the escalation to bigboss, once (2026-07-29,
+      per mebo) to split the gateway-bug causal analysis into 1a/1b as described above
+      and remove the false-positive add-output-path finding. Step 1 (gateway fix)
+      is in progress via TASK-307. Steps 2 (password rotation) and 3 (WP-1 architecture-decision
+      task) are NOT started - nobody has picked them up yet.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'TASK-307 ("Revalidate, review, and deploy the damo-nivo map-authority
+      gateway patch to Smalls", owner claude-lab-nene, risk_class=SECURITY, risk_severity=BLOCKING,
+      requires_operator_approval=true): created by nene per mebo''s exact spec after
+      bigboss/mebo prioritized fixing gateway sub-problem 1a. Scope: revalidate the
+      existing uncommitted damo-nivo patch (MAP_System/db/claims.py, scripts/map_authority.py,
+      scripts/context_rotation.py, tests/test_context_rotation.py), get independent
+      functional AND independent security-framed review (distinct passes), checksum-stage
+      and deploy the exact reviewed files to Smalls only after both approve, then
+      verify register- agent/rotation-transfer/rotation-restore actually work against
+      live RUKI. Explicitly excludes: fixing 1b, any manual TASK-305/306 status transition,
+      any direct SQL against map.db, any deployment before both reviews approve. Revalidation
+      done and evidence recorded (MAP_System/artifacts/operations/gateway-rotation-ops-deployment-2026-07-29.md):
+      all four files are byte-for-byte identical (verified sha256) to the exact checksums
+      damo-nivo''s own STATE_SNAPSHOT recorded - zero drift since being left uncommitted.
+      Compile clean; 20/20 test_context_rotation.py (up from the original 19/19 -
+      the one formerly-failing unrelated test now passes too, not investigated, out
+      of scope), 17/17 test_map_authority.py, 6/6 test_map_authority_notify.py. Per
+      mebo''s explicit instruction, task was then SUBMITTED (not left IN_PROGRESS)
+      so muza can claim a pre-deploy review (functional + security, as two distinct
+      passes). mebo''s specific plan to route around gateway bug 1b for this task:
+      muza releases the review claim as APPROVED without calling `task approve` (which
+      would hit 1b) - this leaves TASK-307 sitting SUBMITTED with an approved review
+      claim, same pattern as TASK-305/ 306 hit unintentionally, but here deliberate.
+      After that verdict, the plan is: nene does `task rework` + reclaim, performs
+      ONLY the checksum-staged deployment + live verification (still no code changes
+      - the files are already reviewed/frozen), then resubmits for a second, post-deploy
+      review pass.'
+  - event_type: BLOCKED
+    task_id: null
+    summary: 'As of this snapshot: TASK-307 is SUBMITTED, awaiting claude-lab-muza
+      to claim and perform the pre-deploy functional + security review. Nothing has
+      been deployed to Smalls. This is the single open thread blocking further Biggie/Smalls
+      progress - everything else (TASK-305, TASK-306, the CommandCenterUI work) is
+      either done or deliberately parked pending this.'
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Rotation housekeeping: an earlier prepared rotation from ~05:22Z (STATE_SNAPSHOT-claude-lab-nene-20260729T052244Z.yaml)
+      was formally abandoned via `context_rotation.py abandon` just before this snapshot
+      was prepared, because its successor (claude-lab-muza) never successfully ACKed
+      - that ack attempt hit the exact 1b/1a- adjacent register-agent gateway gap
+      this session spent most of its time chasing down (see above). The operator directed
+      continuing in-session past threshold at that time rather than blocking on the
+      unresolved rotation. Expect the SAME ack failure risk again this time: acknowledge_rotation()
+      routes through map_authority.py''s register-agent operation on mirror hosts
+      (this machine), and that code is real and present locally (damo-nivo''s patch,
+      still uncommitted) but per gateway sub-problem 1a, RUKI does not have it deployed
+      yet - TASK-307 exists specifically to fix that, and is not finished. A fresh
+      session attempting `context_rotation.py ack` here will likely hit register-agent
+      failing the same way. Do not force a workaround if so - report it, it is expected
+      and already tracked (TASK-307), and ask the operator whether to hold or continue
+      in-session again, same as last time.'
+  touched_paths:
+  - MAP_System/artifacts/planning/biggie-smalls-orchestration-action-plan-2026-07-29.md
+  - MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+  - MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+  - MAP_System/artifacts/operations/gateway-rotation-ops-deployment-2026-07-29.md
+  - MAP_System/scripts/command_center_version.py
+  - MAP_System/tests/test_command_center_deployment_parity.py
+  - MAP_System/notes/command-center-cross-pc-sync.md
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.html
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.js
+  - MAP_System/templates/install/command-center-ui/src/orchestrator.css
+  - MAP_System/templates/install/command-center-ui/src/bcmagent.svg
+  - MAP_System/templates/install/command-center-ui/app/server.py
+  - MAP_System/templates/install/command-center-ui/README.md
+  - MAP_System/templates/install/command-center-ui/version.json
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/tests/test_command_center_agent_identity.py
+  - MAP_System/tests/test_command_center_composer_alignment.py
+  - MAP_System/tests/test_command_center_message_intent_copy.py
+  - MAP_System/tests/test_command_center_attention_history.py
+  - /home/mellow/Projects/CommandCenterUI/src/orchestrator.html
+  - /home/mellow/Projects/CommandCenterUI/src/orchestrator.js
+  - /home/mellow/Projects/CommandCenterUI/src/orchestrator.css
+  - /home/mellow/Projects/CommandCenterUI/src/bcmagent.svg
+  - /home/mellow/Projects/CommandCenterUI/app/server.py
+  - /home/mellow/Projects/CommandCenterUI/README.md
+active_constraints:
+- scope: repo
+  rule: MAP_System/db/claims.py, MAP_System/scripts/map_authority.py, MAP_System/scripts/context_rotation.py,
+    and MAP_System/tests/test_context_rotation.py remain untracked/uncommitted (the
+    damo-nivo patch). Revalidated clean this session (TASK-307) but still not independently
+    reviewed or deployed to Smalls. Do not commit or deploy them outside TASK-307's
+    own process.
+- scope: task
+  rule: Do not manually transition TASK-305, TASK-306, or TASK-307 status via any
+    workaround (direct SQL, hand-editing task JSON/mirrors, etc.) to route around
+    the known gateway gaps. Report the exact failure and hold, per the remote-authority
+    rule TASK-305 itself added to MAP_System/AGENTS.md this session.
+- scope: task
+  rule: TASK-306 stays at CHANGES_REQUESTED. Do not resubmit the same local-only work
+    again - the real gap is a scope/acceptance-criteria mismatch (Smalls-side work
+    was never canonically descoped), not an engineering defect. Any rescoping is nene/operator's
+    decision, not a reviewer's to informally paper over (muza's own framing).
+- scope: task
+  rule: TASK-307 must not deploy anything to Smalls before BOTH an independent functional
+    review AND an independent security-framed review approve. No self-review (nene
+    authored/revalidated it).
+- scope: repo
+  rule: CommandCenterUI work (both the live directory and its now-imported template
+    copy) is direct-operator-directed work layered on top of, but distinct from, TASK-306/307's
+    MAP-governed packaging/deployment work. Do not make further live-CommandCenterUI
+    edits while a TASK-306/307-adjacent review is in flight without checking parity
+    first (command_center_version.py verify) - this session already hit that exact
+    mistake once.
+- scope: tool
+  rule: Every model-backed agent must be visible in wezterm-tab; never resume or spawn
+    headless.
+  source: MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-307
+  next_action: coordinate_with_agent
+  owner: claude-lab-muza
+  reason: TASK-307 is SUBMITTED awaiting muza's pre-deploy functional + security review
+    claim/verdict. If APPROVED (review claim released without calling task approve,
+    per mebo's plan to route around gateway 1b), the next holder should do task rework
+    + reclaim on TASK-307, perform ONLY the checksum-staged deployment to Smalls +
+    live register-agent/rotation-* verification, then resubmit for a second post-deploy
+    review pass. If CHANGES_REQUESTED, address findings first.
+  paths:
+  - MAP_System/artifacts/operations/gateway-rotation-ops-deployment-2026-07-29.md
+  - MAP_System/artifacts/planning/biggie-smalls-orchestration-action-plan-2026-07-29.md
+- task_id: TASK-306
+  next_action: ask_operator
+  owner: null
+  reason: Deliberately parked at CHANGES_REQUESTED. Its real gap (Smalls-installed-parity
+    criterion, never canonically descoped) can only be resolved once TASK-307 (gateway)
+    + password rotation + WP-1 are done, per mebo's sequencing. Do not touch until
+    those land.
+  paths: []
+- task_id: null
+  next_action: ask_operator
+  owner: null
+  reason: Biggie/Smalls action-plan steps 2 (Smalls/RUKI password rotation - previously
+    flagged as exposed in setup transcript history) and 3 (WP-1 architecture-decision
+    task, naming roles/authority boundaries formally) have not been started by anyone.
+    Worth raising once TASK-307 lands.
+  paths:
+  - MAP_System/artifacts/planning/biggie-smalls-orchestration-action-plan-2026-07-29.md
+lexicon:
+  Biggie: This machine (KUDU, mellow@192.168.1.177). Compute plane in the Biggie/Smalls
+    orchestration plan.
+  Smalls: The other machine (RUKI, home@192.168.1.153, hostname MediaCenter). Control
+    plane; sole writable map.db authority, reached only via MAP_System/scripts/map_authority.py
+    over a forced-command SSH key.
+  gateway sub-problem 1a: register-agent/rotation-transfer/rotation-restore fail because
+    that code (the damo-nivo patch) was never deployed to Smalls - RUKI genuinely
+    lacks it. TASK-307's whole purpose.
+  gateway sub-problem 1b: task approve fails because RUKI's validate_review.py cannot
+    read a review-record file that only exists on Biggie (never synced). A transport
+    gap, not a code gap. Explicitly out of TASK-307's scope; unresolved as of this
+    snapshot. Current workaround - `task reject`/`task rework` work fine (don't need
+    the review-record file); only `task approve` is affected.
+  CommandCenterUI: Live desktop app at /home/mellow/Projects/CommandCenterUI, now
+    also packaged (as of TASK-306) in MAP_System/templates/install/command-center-ui/.
+    orchestrator.html is the sole UI on both sides, verified byte-for-byte identical
+    via MAP_System/scripts/command_center_version.py.
+resume_commands:
+- cd /home/mellow/Projects/MultiAgentProject/Source
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py task show TASK-307
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py get-open-review
+  TASK-307
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py task show TASK-306
+- hcom transcript search 'TASK-307'
+validation:
+- 'TASK-307 revalidation: 4/4 files sha256-identical to damo-nivo''s original snapshot;
+  py_compile clean; 20/20 + 17/17 + 6/6 tests pass across the three affected suites.'
+- 'TASK-306 (post-rework): command_center_version.py verify clean both directions
+  (template and live); 7/7 deployment-parity tests; 4 previously-broken regression
+  tests fixed and clean (1 skip each).'
+rotation:
+  reason: context_checkpoint_due
+  summary: 'Extremely long session (518072 estimated tokens at nudge time, far past
+    the 150000 threshold). Two large, mostly-independent bodies of work: (1) direct-operator
+    CommandCenterUI redesign work, complete and stable; (2) a long MAP-side detour
+    spanning TASK-305 (reviewed twice, approved), TASK-306 (built, reviewed, reworked
+    once for a real live-edit mistake, reworked again for a scope/acceptance-criteria
+    mismatch, currently parked at CHANGES_REQUESTED on purpose), the Biggie/Smalls
+    action plan (authored, corrected twice for accuracy), and TASK-307 (created, revalidated,
+    submitted, awaiting muza''s pre-deploy review). An earlier prepared rotation from
+    ~05:22Z was abandoned in this same session after its successor''s ack failed on
+    the exact register-agent gateway gap TASK-307 exists to fix - expect the same
+    failure risk on this rotation''s ack too, and do not force a workaround if it
+    recurs.'
+  next_action: Check TASK-307's status - if muza has returned a pre-deploy verdict,
+    act on it per forward_tasks above. If not, hold and monitor hcom. Do not touch
+    TASK-306. If the ack for this rotation itself fails on register-agent, report
+    it plainly and ask the operator whether to hold or continue in-session, same precedent
+    as this session's own earlier rotation attempt.
+  used_tokens: 518072
+  threshold_tokens: 150000
+  metric_source: limit_watcher_checkpoint_notice
+integrity:
+  prepared_at: '2026-07-29T18:06:29Z'
+  canonical_tasks:
+  - task_id: TASK-306
+    status: CHANGES_REQUESTED
+    owner: claude-lab-nene
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-29 15:40:10'
+  - task_id: TASK-307
+    status: SUBMITTED
+    owner: claude-lab-nene
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-29 15:45:22'
+  canonical_tasks_sha256: 275cb37a6710e6e216d0efd21b0603fe392750e062ad78fb8a290741ca2c6ece
+  touched_paths:
+  - path: /home/mellow/Projects/CommandCenterUI/README.md
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Projects/CommandCenterUI/app/server.py
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Projects/CommandCenterUI/src/bcmagent.svg
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Projects/CommandCenterUI/src/orchestrator.css
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Projects/CommandCenterUI/src/orchestrator.html
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: /home/mellow/Projects/CommandCenterUI/src/orchestrator.js
+    scope: outside_workspace
+    sha256: null
+    size: null
+    state: unverified
+  - path: MAP_System/artifacts/operations/command-center-cross-pc-alignment-2026-07-29.md
+    scope: workspace
+    sha256: d866831e90ee62141a83469f004a2d504055f80a21b3584069028775007f64d9
+    size: 9234
+    state: file
+  - path: MAP_System/artifacts/operations/gateway-rotation-ops-deployment-2026-07-29.md
+    scope: workspace
+    sha256: e5ba064e6529decd1897a49d91eee5c5b0fcb18d5ddc863fe5eb1b81d5baf1ae
+    size: 4279
+    state: file
+  - path: MAP_System/artifacts/planning/biggie-smalls-orchestration-action-plan-2026-07-29.md
+    scope: workspace
+    sha256: 371aa25d4725128a7eeadaff063a7b00ade558261d1557bb1c5458a46affad5c
+    size: 8714
+    state: file
+  - path: MAP_System/artifacts/reviews/task305-independent-review-claude-lab-nene.md
+    scope: workspace
+    sha256: 2f42ef1477087c5f290d81a894366cecb277e8fde2873ae7f74d5af577074c7c
+    size: 8782
+    state: file
+  - path: MAP_System/notes/command-center-cross-pc-sync.md
+    scope: workspace
+    sha256: 73c20fe08372e6f8ac04e0b2d0ef9e320cea4c3b1f44a46781f20b02ff64fcd6
+    size: 5757
+    state: file
+  - path: MAP_System/scripts/command_center_version.py
+    scope: workspace
+    sha256: de9747595d8b7c91c0b164a71964ec9a444c0186cf9f92cd4e7975725e8678cd
+    size: 10117
+    state: file
+  - path: MAP_System/scripts/run_tests.sh
+    scope: workspace
+    sha256: bcd309f6cad4fa39271b12f685c3f0e32d1df1cc22e2d31dc47d26f11e071511
+    size: 7877
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/README.md
+    scope: workspace
+    sha256: 354ba0a4e003cc2516b591189eff5b0a5003cb1816ae7ba0da1b4eba5acdde59
+    size: 2121
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/app/server.py
+    scope: workspace
+    sha256: b148f4e1d10ba5de6d85e6a8401a6caa7309305c13bd2c9ca0312cc3a463353d
+    size: 95541
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/src/bcmagent.svg
+    scope: workspace
+    sha256: 6e702aaef040541e258f746f4ca811b64f24f8f854e3ea689bc2c40d4bb9a4f3
+    size: 10171
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/src/orchestrator.css
+    scope: workspace
+    sha256: 77a28792d86e3c046b87f435e5d2018fe2725687832026b204821e8faed188bb
+    size: 11837
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/src/orchestrator.html
+    scope: workspace
+    sha256: 0c006894279f6589c4c135b5d3bc02989979f0bbeb4d903dfd925c7474506282
+    size: 4628
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/src/orchestrator.js
+    scope: workspace
+    sha256: 8a63cd0b0b66896381ac5792ebce616a09a9a36514bed2d495dd1bcf31590878
+    size: 21565
+    state: file
+  - path: MAP_System/templates/install/command-center-ui/version.json
+    scope: workspace
+    sha256: 6299b6a0b665ff54097955d375cea1e85e2259294a5f7c67d4d69497ae4972a7
+    size: 2438
+    state: file
+  - path: MAP_System/tests/test_command_center_agent_identity.py
+    scope: workspace
+    sha256: 51c0b7d530dd3e7bef4a256e855adf134376109ee72914b254d44eead761b6d9
+    size: 1952
+    state: file
+  - path: MAP_System/tests/test_command_center_attention_history.py
+    scope: workspace
+    sha256: a148246056ec0015f84c087ecc4ba3127a55081b137a15c870d608c888799f82
+    size: 1939
+    state: file
+  - path: MAP_System/tests/test_command_center_composer_alignment.py
+    scope: workspace
+    sha256: f987a8c25dd93e9f90494b35175e6f4604e65825f2e05de67afe7375f8cac3f8
+    size: 1272
+    state: file
+  - path: MAP_System/tests/test_command_center_deployment_parity.py
+    scope: workspace
+    sha256: ef922d02e0c12d28f7c1ab3e98fc6b84e0c153ca6681ac1f30bc24aa08b24450
+    size: 5784
+    state: file
+  - path: MAP_System/tests/test_command_center_message_intent_copy.py
+    scope: workspace
+    sha256: 67baaccc6cbfd76168f18c6ad03669c88ba561c6791e0253790c4419b0d3ae02
+    size: 2023
+    state: file
+  touched_paths_sha256: 29fd738f8b6de3d79bbff89bd2a38807544bbe81a7c935d3738efc0f5bd7441c

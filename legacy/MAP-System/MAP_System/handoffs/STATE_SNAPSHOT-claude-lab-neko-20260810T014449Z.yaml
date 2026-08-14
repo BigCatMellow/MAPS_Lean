@@ -1,0 +1,190 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-10T01:44:49Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-neko
+session_id: claude-lab-neko-20260809T1600Z
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: null
+    summary: Startup orientation complete (AGENTS.md, MAP_System/AGENTS.md, continuity
+      validate/advise, operational_lessons orientation, emergence_sentinel list -
+      0 pending, current-state.md matched map.db, graph/runner.py). Sent single startup
+      status/priorities-request to bigboss per protocol.
+  - event_type: PROGRESS
+    task_id: null
+    summary: Diagnosed STALE_AUTHORITY reports from codex-lab-duma and antigravity-lab-hone.
+      Initially misdiagnosed as self-resolving (15s writer quiet-window on map-rns-watcher.service
+      vs mirror sync); reproduced STALE_AUTHORITY myself via sanctioned map_authority.py
+      route/sync and corrected the record - under current multi-agent write load to
+      events.jsonl the quiet window rarely opens, so it is not self-resolving. Reported
+      corrected diagnosis with 3 options to bigboss/duma; held all routing/dispatch
+      per AGENTS.md (do not treat a stale route recommendation as current).
+  - event_type: DECISION_RECORDED
+    task_id: null
+    summary: Operator said "Option 1" via codex-lab-duma - authorized a brief stop/restart
+      of map-rns-watcher.service. My attempt was blocked by this session's local tool-permission
+      classifier (not a MAP/hcom issue); duma executed the cycle instead through its
+      own escalation boundary. Result (duma, inform msg 17436) - watcher stopped/restarted
+      successfully, but a clean sync still failed closed because another local writer
+      touched events.jsonl mid-cycle. Freshness NOT proven; do not route. This is
+      an open problem, not resolved by the stop/restart alone.
+  - event_type: PROGRESS
+    task_id: null
+    summary: 'Operator asked (chat, not hcom) about a standing review-only helper
+      instead of one-off review helpers. Recommended: standing helper drafts review
+      packets, but approve/release authority stays with a core agent (Codex/Claude)
+      per AGENTS.md authority-hierarchy item 4 (helpers get no review/release authority)
+      - avoids needing a governance change. Operator approved; set it up.'
+  - event_type: HANDOFF
+    task_id: null
+    summary: Spawned standing review helper helper-review-standing-zolu (tag helper-review-standing,
+      wezterm-tab, batch 5f405209). Wrote durable note MAP_System/inbox/helpers/helper-review-standing-01.md
+      (sit-and-wait scope, hard boundaries, no claim/approve/release/routing/policy
+      authority, must check authority freshness before acting). Sent full briefing
+      over hcom; zolu acked understanding correctly (inform msg 17463). Helper capacity
+      now 4/4 (was 3/4) - reported to bigboss/duma not to spawn another without freeing
+      one first.
+  touched_paths:
+  - MAP_System/inbox/helpers/helper-review-standing-01.md
+active_constraints:
+- scope: repo
+  rule: MAP authority freshness is STALE as of duma's last report (inform msg 17436)
+    - stop/restart of map-rns-watcher.service alone did not prove freshness because
+    another local writer touched events.jsonl mid-cycle under multi-agent load. Do
+    not route or dispatch submitted tasks (TASK-309, TASK-318) until map_authority.py
+    route reports non-stale, or the operator explicitly overrides.
+  source: this session, corroborated by codex-lab-duma
+- scope: repo
+  rule: Helper capacity is 4/4 (max) after adding helper-review-standing-zolu. Do
+    not spawn another helper without first stopping/completing an existing one (candidates
+    to check for staleness - helper-local-map-advisor-4b-2026-07-18 is missing its
+    model tier per graph runner and may be worth closing out).
+  source: this session
+- scope: task
+  rule: TASK-318 (StarCraft RPG Companion CSS work) shows SUBMITTED in MAP with owner
+    claude-lab-gina, but per the inherited STATE_SNAPSHOT chain (rotation-replacement-gino-mifa
+    and earlier) the real work is happening informally in direct operator chat outside
+    MAP, entirely outside this git repo at /home/mellow/Documents/Projects/StarCraftCA/.
+    Do not re-claim or re-submit it through MAP; treat as informal.
+  source: inherited from STATE_SNAPSHOT-rotation-replacement-gino-mifa-20260806T171159Z.yaml,
+    not independently re-verified this session
+- scope: communication
+  rule: The new standing review helper (helper-review-standing-zolu) has no approve/release/claim/routing/policy
+    authority per AGENTS.md item 4. A core agent (Codex or Claude) who is not the
+    task owner must still perform the formal approve, even when using zolu's review
+    packet as input.
+  source: this session, operator-approved design
+- scope: safety
+  rule: Do not attempt to bypass the local harness's Bash permission classifier when
+    it blocks an operator-authorized action (happened this session on `systemctl --user
+    stop map-rns-watcher.service`). Report the block and let either the operator grant
+    permission in this session or another agent with the needed access execute it
+    instead.
+  source: this session
+forward_tasks:
+- task_id: TASK-309
+  next_action: wait
+  owner: coordinator-replacement-rose
+  reason: SUBMITTED, next_route=review per graph runner, but blocked by STALE_AUTHORITY.
+    Do not dispatch/claim review until authority freshness is confirmed non-stale.
+  paths:
+  - MAP_System_Recovery_2026-07-29/00_control/phase2-status.md
+- task_id: TASK-296
+  next_action: wait
+  owner: command-center
+  reason: IN_PROGRESS, not owned by this session, no action needed unless operator
+    redirects.
+  paths:
+  - MAP_System/AGENTS.md
+  - MAP_System/notes/helper-agent-guide.md
+- task_id: null
+  next_action: ask_operator
+  owner: null
+  reason: This session's original priorities request to bigboss (sent at startup)
+    never got an explicit reply before rotation; re-surface it. Also confirm whether
+    the operator wants further action on the still-unresolved authority freshness
+    problem (duma's stop/restart cycle was insufficient; may need a code fix to the
+    writer-quiet-window collision logic per AGENTS.md's remote-authority-failure protocol
+    - do not blindly retry).
+  paths: []
+blockers:
+- kind: dependency
+  detail: MAP authority mirror sync keeps failing closed because map-rns-watcher.service
+    writes to events/events.jsonl often enough under current multi-agent load that
+    the required quiet window rarely opens; a one-time stop/restart (operator-authorized,
+    executed by codex-lab-duma) was not sufficient because another writer touched
+    the file mid-cycle. Blocks any review/dispatch routing through the sanctioned
+    map-authority path.
+  unblock_by: Either a quiet window with all agents' event-writing paused long enough
+    for one clean sync, or a code fix to the collision/quiet-window logic in MAP_System/scripts/map_authority.py
+    (active_local_writer_services / install_snapshot) - would need its own task +
+    independent review per Security Second Pass if it touches write paths.
+lexicon:
+  STALE_AUTHORITY: next_route value map_authority.py's apply_freshness_gate() forces
+    when the mirror's authority freshness is STALE/UNAVAILABLE/INVALID - fails closed
+    so a prior route recommendation is never presented as current.
+  map-rns-watcher.service: systemd --user service running MAP_System/scripts/limit_watcher.py
+    (context-checkpoint notifier). Its writes to events/events.jsonl collide with
+    mirror install_snapshot()'s 15s writer-quiet-window check (RNS_WATCHER_WRITE_QUIET_SECONDS).
+  helper-review-standing-zolu: The new standing (sit-and-wait) independent review
+    helper this session set up. Tag helper-review-standing. No approve/release authority
+    - see active_constraints.
+  zolu: Short name for helper-review-standing-zolu.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py route
+- hcom list --name <replacement-name>
+- hcom transcript codex-lab-duma --last 10 --name <replacement-name>
+- hcom transcript bigboss --last 10 --name <replacement-name>
+validation:
+- helper-review-standing-zolu sent a correct, complete acknowledgment of its scope/boundaries
+  back over hcom (inform msg 17463) before this snapshot was written.
+- MAP_System/inbox/helpers/helper-review-standing-01.md exists and follows the AGENTS.md
+  helper-note metadata contract (status/owner/provider/model/created_at/scope bullets
+  first).
+rotation:
+  reason: threshold
+  summary: Fresh startup session for claude-lab-neko. No MAP task claimed or owned.
+    Did continuity/orientation, corrected a STALE_AUTHORITY misdiagnosis after reproducing
+    it directly, held routing per protocol through an operator-authorized but only
+    partially-successful service stop/restart (executed by duma after my own harness
+    blocked the command), and set up a standing sit-and-wait review helper (operator-requested)
+    with no approve/release authority. Nothing committed to git; only new untracked
+    file is the helper note.
+  next_action: Check map_authority.py route freshness first. If fresh, route TASK-309
+    to independent review per the graph runner recommendation (respecting no-self-review;
+    coordinator-replacement-rose owns it). Re-surface the still-unanswered priorities
+    request to bigboss. Otherwise continue holding per active_constraints.
+  used_tokens: 142964
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-10T01:44:49Z'
+  canonical_tasks:
+  - task_id: TASK-296
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: claude-lab-dodo
+    lease_expires_at: '2026-08-01 20:02:50'
+    heartbeat_at: '2026-08-01 19:32:50'
+    updated_at: '2026-08-01 19:32:50'
+  - task_id: TASK-309
+    status: SUBMITTED
+    owner: coordinator-replacement-rose
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-06 00:17:14'
+  canonical_tasks_sha256: 9b53af6190f6e82d2f1ef5b457d1db650811b39394fa7263649c9bf1dd37401f
+  touched_paths:
+  - path: MAP_System/inbox/helpers/helper-review-standing-01.md
+    scope: workspace
+    sha256: 517b1cdff0c0c5b4de47d9a6c1bb7f8bc773180f0908a565984619cfbde48348
+    size: 2739
+    state: file
+  touched_paths_sha256: 3b39dfdea2efc4c1312f38f4380a4d6805e026b76ab2afa0b808be9910388435

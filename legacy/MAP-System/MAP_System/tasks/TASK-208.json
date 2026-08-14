@@ -1,0 +1,45 @@
+{
+  "task_id": "TASK-208",
+  "title": "ClearFront: extract CSS+data module, establish multi-file skeleton",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-207"
+  ],
+  "owner": "claude-lab-gome",
+  "description": "Follow-on to TASK-207 (baseline extraction, APPROVED-pending-review). Per DEC-CF-002/DEC-CF-003 (Projects/ClearFront/shared/decisions.md) and the module map (Projects/ClearFront/artifacts/planning/clearfront-module-map-2026-07-16.md): split Projects/ClearFront/baseline/index.html into a directly-editable multi-file skeleton, starting with the lowest-risk pieces. (1) Move the <style> block (lines 10-1399) to Projects/ClearFront/app/styles/clearfront.css, linked via <link rel=stylesheet>. (2) Move constants + CARD_LIBRARY + PLAYER_DECKLIST/AI_DECKLIST/DECKS/FACTION_POOLS/HERO_NAMES (lines 1655-1799) to Projects/ClearFront/app/js/data.js, attached to a shared window.CF namespace object (NOT bare globals, NOT ES modules -- see DEC-CF-002, must keep working via plain file:// open, no build step, no server). (3) Leave the rest of the current IIFE (engine/render/input, lines ~1800-3797) inline in index.html for now -- those move in follow-on tasks (TASK-209+). (4) Write the new Projects/ClearFront/app/index.html referencing the CSS + data.js via plain <script src> in the correct load order before the existing inline script. Do not touch Projects/ClearFront/baseline/ (that stays the extraction-parity reference) or Projects/ClearFront/source/ (untouched original).",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/app/assets/",
+    "Projects/ClearFront/app/index.html",
+    "Projects/ClearFront/app/js/data.js",
+    "Projects/ClearFront/app/styles/clearfront.css",
+    "Projects/ClearFront/artifacts/tests/screenshots/task208-app-after-champion-click.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task208-app-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task208-baseline-after-champion-click.png",
+    "Projects/ClearFront/artifacts/tests/screenshots/task208-baseline-champion-select.png",
+    "Projects/ClearFront/artifacts/tests/task-208-skeleton-parity.md",
+    "Projects/ClearFront/artifacts/tests/task208-cdp-smoke.mjs"
+  ],
+  "acceptance_criteria": [
+    "app/styles/clearfront.css contains exactly the CSS from baseline/index.html's <style> block, byte-identical modulo the removed <style></style> tags.",
+    "app/js/data.js defines CARD_LIBRARY, PLAYER_DECKLIST, AI_DECKLIST, DECKS, FACTION_POOLS, HERO_NAMES, and the 5 top constants (MAX_BOARD etc.) on a single shared window.CF object; no bare new globals introduced.",
+    "app/index.html opens directly via file:// (no server, no build step) and is visually + functionally identical to baseline/index.html: same headless-Chromium screenshot at champion-select, and the same CDP click-through smoke test (deploy a champion, reach turn 1 with a 3-card hand) with zero console errors/exceptions.",
+    "baseline/ and source/ are untouched by this task.",
+    "Parity evidence recorded in artifacts/tests/task-208-skeleton-parity.md following the TASK-207 report's format."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

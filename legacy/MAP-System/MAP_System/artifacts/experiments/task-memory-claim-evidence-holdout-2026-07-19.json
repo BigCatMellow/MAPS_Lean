@@ -1,0 +1,979 @@
+{
+  "experiment": "EXP-0006 / TASK-263 frozen claim-evidence retrieval holdout",
+  "artifact_role": "frozen_holdout_truth_set",
+  "frozen_at": "2026-07-22T18:52:07Z",
+  "owner": "codex-lab-kiri",
+  "independent_author": "claude-lab-gabi",
+  "author_hcom_event": "10637",
+  "authority": "Experiment evidence only. This file is not production truth, not a policy, and confers no authority. It must not be edited after freeze; supersede it with a new dated artifact instead.",
+  "independence_declaration": {
+    "author_read": [
+      "TASK-263 task record",
+      "EXP-0006",
+      "TASK-257/258/260 frozen query sets (for non-reuse only)"
+    ],
+    "author_did_not_read": [
+      "any TASK-263 treatment",
+      "task_memory_claim_evidence_pilot.py (does not exist at freeze time)",
+      "the two prior freeze authors' private drafts (never written to disk)"
+    ],
+    "author_must_not": [
+      "implement the treatment",
+      "evaluate blinded results",
+      "serve as the TASK-263 evaluator"
+    ],
+    "verified_pre_treatment": "No task-memory-claim-evidence-* artifact existed in MAP_System/artifacts/experiments/ at freeze time; the pre-treatment boundary is uncontaminated."
+  },
+  "corpus_rule": "Completed MAP tasks TASK-001..TASK-099 and TASK-250..TASK-266, EXCLUDING TASK-256..TASK-262. The first range is disjoint from all three prior holdouts (which covered TASK-100..TASK-249), so zero answer overlap is guaranteed by construction rather than by author vigilance. TASK-256..262 are the prior retrieval experiments themselves and are excluded so the holdout does not test the retrieval machinery on its own development history.",
+  "corpus_task_ids": [
+    "TASK-001",
+    "TASK-002",
+    "TASK-003",
+    "TASK-004",
+    "TASK-005",
+    "TASK-006",
+    "TASK-007",
+    "TASK-008",
+    "TASK-009",
+    "TASK-010",
+    "TASK-011",
+    "TASK-012",
+    "TASK-013",
+    "TASK-014",
+    "TASK-015",
+    "TASK-016",
+    "TASK-017",
+    "TASK-018",
+    "TASK-019",
+    "TASK-020",
+    "TASK-021",
+    "TASK-022",
+    "TASK-023",
+    "TASK-024",
+    "TASK-025",
+    "TASK-026",
+    "TASK-027",
+    "TASK-028",
+    "TASK-029",
+    "TASK-030",
+    "TASK-031",
+    "TASK-032",
+    "TASK-033",
+    "TASK-034",
+    "TASK-035",
+    "TASK-036",
+    "TASK-037",
+    "TASK-038",
+    "TASK-039",
+    "TASK-040",
+    "TASK-041",
+    "TASK-042",
+    "TASK-043",
+    "TASK-044",
+    "TASK-045",
+    "TASK-046",
+    "TASK-047",
+    "TASK-048",
+    "TASK-049",
+    "TASK-050",
+    "TASK-051",
+    "TASK-052",
+    "TASK-053",
+    "TASK-054",
+    "TASK-055",
+    "TASK-056",
+    "TASK-057",
+    "TASK-058",
+    "TASK-059",
+    "TASK-060",
+    "TASK-061",
+    "TASK-062",
+    "TASK-063",
+    "TASK-064",
+    "TASK-065",
+    "TASK-075",
+    "TASK-077",
+    "TASK-078",
+    "TASK-079",
+    "TASK-080",
+    "TASK-081",
+    "TASK-082",
+    "TASK-083",
+    "TASK-084",
+    "TASK-085",
+    "TASK-086",
+    "TASK-087",
+    "TASK-088",
+    "TASK-089",
+    "TASK-090",
+    "TASK-091",
+    "TASK-092",
+    "TASK-093",
+    "TASK-094",
+    "TASK-095",
+    "TASK-097",
+    "TASK-098",
+    "TASK-099",
+    "TASK-250",
+    "TASK-251",
+    "TASK-252",
+    "TASK-253",
+    "TASK-255",
+    "TASK-264"
+  ],
+  "non_reuse_check": {
+    "prior_sets_examined": [
+      "task-memory-fts5-rrf-holdout-queries-2026-07-19.json",
+      "task-fingerprint-holdout-queries-2026-07-19.json",
+      "task-fingerprint-source-holdout-queries-2026-07-19.json"
+    ],
+    "prior_question_count": 28,
+    "prior_answer_task_ids_count": 30,
+    "question_overlap": 0,
+    "answer_task_overlap": 0,
+    "also_avoided": "The negative phrasing 'zephyr quasar encryption' used inside tests/test_task_memory_fts.py, and the prior negatives about ClearFront multiplayer, transcript encryption, deployment rollback, and event secret-redaction."
+  },
+  "shape": {
+    "positives": 20,
+    "historical": 3,
+    "negatives": 5,
+    "total": 28,
+    "note": "Matches the 20/3/5 shape recorded in EXP-0006 by the first (unfinished) holdout helper."
+  },
+  "negative_sourcing": "Every negative is a REAL corpus gap verified by grep over MAP_System sources at freeze time, not a constructed absence. Each is also a deliberate near miss to an in-corpus task, so a retriever that matches topic instead of polarity will fail visibly. A question that is unanswerable only because the author built it that way measures the fixture, not the system.",
+  "scoring_contract": {
+    "task_recall": "expected_task_ids retrieved",
+    "exact_source_accuracy": "expected_source_paths selected",
+    "anchored_evidence_accuracy": "expected_anchors matched at heading/symbol granularity",
+    "acceptable_substitutes": "scored and REPORTED SEPARATELY; a legitimate alternate source must never be counted as failure (EXP-0006 note)",
+    "abstention": "negatives must abstain; returning any task ID is a false positive",
+    "historical_version_correctness": "the historical items must resolve to the ORIGINATING task, not the newest task touching the same file",
+    "baselines_to_beat": {
+      "capsule_exact_source": "18/20",
+      "task_recall": "12/12"
+    }
+  },
+  "source_hashes_at_freeze": {
+    "MAP_System/scripts/agent_loop.py": "361b511a3c1548ff67208674d686a0722d69d7fdf2c27aab5b60411d12f47a9a",
+    "MAP_System/graph/runner.py": "9239a58a0fc584665e86a0a639e6860763caaed660c4d0bc5cc5c61839c7aaab",
+    "MAP_System/scripts/release_task.py": "f945fda6164726a9f709638b271f5d033f206b1587045baa10f03f912b518f44",
+    "MAP_System/templates/release-checklist.md": "5834b573f1aa7e52661c8f8d98292f54f2736c0e245a60bc1b8e610799d5aec5",
+    "MAP_System/scripts/flag_conflict.py": "a99d73093cfd59edc1c4a5c5fc1b4afd64bd0ed36fec67c858bfc50b34f32cd0",
+    "MAP_System/templates/conflict.md": "83d8e18a37541faa0f19b7400e93cb261ce713643b203625fefd3c3000014326",
+    "MAP_System/scripts/validate_decisions.py": "960cfb5ee1525f1984c7a2e0a7a93753d74fab63654ebdb6d392ef9cb236829b",
+    "MAP_System/db/claims.py": "05dee09e84d42e3612962441ddcf56e15d9299d1ef5f8ce7da375216a1ecac7f",
+    "MAP_System/tests/test_no_self_review.py": "edce54b3b36e9ca3c1fb49bf37af3c49f0920b787cfdc66a9e3e24d494e6cc0a",
+    "MAP_System/migration/export_to_files.py": "64cc7912d785bb179c8522620783ed8a02eea4b8b7f9befb04042de108b848f7",
+    "MAP_System/tests/test_exporter_hpom_fields.py": "880b5796e676a8c91ee2ac0f18bab0feb1f8f09b6c5aeb141e14e3e691634b6c",
+    "MAP_System/scripts/validate_review.py": "60acd533a86da2396b761bea969f7c3b78d1be5ecb6606c28915f0ad8c331de0",
+    "MAP_System/templates/review-record.md": "ff8f6aaaead27a5ebeb629c71c693333096d5c1c636f6dfc80d50085ad479150",
+    "MAP_System/scripts/local_runner.py": "b4d921d2345fff6a0390a04039d4eaa67a63f8085ada2b84f18660aefe11e8df",
+    "MAP_System/tests/test_local_runner.py": "6596469985c167db4f21d2abf256c76a653f219953a51d4e59033e85af16abfb",
+    "MAP_System/scripts/map_emergence.py": "4ba8db8fef3dee2fa9aea898b20da24c49cf3ebd3e6212174a91c55d51d1b1c4",
+    "MAP_System/emergence/README.md": "0605b67b3290807cc0326731c25b72de9df4affc3b13414eb8f0225b0b66ec93",
+    "MAP_System/scripts/limit_watcher.py": "1fe6c65166ca13f03933bc46f6e2b742c733272b9de8fba44f6b0da201f1fcd3",
+    "MAP_System/notes/limit-exhaustion-protocol.md": "d5148a817b64705009a44e64070abed240698adb96780451b6994a07d7e84ed8",
+    "MAP_System/agents/README.md": "c7e85a95924aa0b8140946cffb0b42984785ff95e0dd1bff357ba1161b7fb3c0",
+    "MAP_System/scripts/integration_test.py": "11d2f23be1c33963d93c8122ecbdb6a9ca9e66b19c05377b111d1630644fef61",
+    "MAP_System/scripts/map_status.py": "ce3f6ce5dc6a68c20549ebc2725a925965a1ad213ad7d7e7e3ed3000db71bfeb",
+    "MAP_System/scripts/map_metrics.py": "feffbd8b5d90e96c00dc12f6a64263da62f7ce0a8be803b0abc12ecfe0c27bb7",
+    "MAP_System/tests/test_map_metrics.py": "a4a64142a8bc8b1a111e9d5d05e64192c0ba123558547372f9769710a2fe8f7e",
+    "MAP_System/scripts/git_operation_lock.py": "cd335b1735168b9b7282337a8aa764b1c879b89ea3af8bbf7cf524703e44545f",
+    "MAP_System/tests/test_git_operation_lock.py": "dd4774ea03e6f5f9a5b84f20beadf70f97841899e41317634724ceee72a206d5",
+    "MAP_System/notes/map-system-deep-dive.md": "817ec2e2cfe1ec9c22e19745f4780aa7f078bfebe48d2881f861903a49e95453",
+    "MAP_System/artifacts/planning/map-project-improvement-kickoff-2026-07-19.md": "2b0d2d0a212403210731668891bf065fbfc3908c95b439aee188826777df1b09",
+    "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md": "28dec3a13631ba0ddc91480c44767c5d149382b8b0aba96d560596436b181ffc"
+  },
+  "queries": [
+    {
+      "id": "P01",
+      "kind": "positive",
+      "question": "Two copies of the same agent's autonomous loop could run against one database at the same time. What stops the second one from starting, and how does it avoid being fooled by a leftover file from a crashed run?",
+      "expected_task_ids": [
+        "TASK-024"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/agent_loop.py",
+        "MAP_System/scripts/agent_loop.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/agent_loop.py",
+          "anchor_type": "code_symbol",
+          "anchor": "acquire_loop_lock"
+        },
+        {
+          "path": "MAP_System/scripts/agent_loop.py",
+          "anchor_type": "code_symbol",
+          "anchor": "pid_is_running"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "implementation"
+      ],
+      "source_justifications": "acquire_loop_lock writes and guards the per-agent lockfile; pid_is_running is what distinguishes a live holder from a stale lockfile left by a crash.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/scripts/agent_loop.py",
+          "anchor": "read_lock_pid",
+          "why": "reads the pid the staleness check consumes; acceptable as supporting evidence, not alone"
+        }
+      ]
+    },
+    {
+      "id": "P02",
+      "kind": "positive",
+      "question": "The graph runner used to stop at only the first pending approval gate. What changed so that every pending gate is surfaced and worked through in order?",
+      "expected_task_ids": [
+        "TASK-030"
+      ],
+      "expected_source_paths": [
+        "MAP_System/graph/runner.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/graph/runner.py",
+          "anchor_type": "code_symbol",
+          "anchor": "evaluate_tasks"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation"
+      ],
+      "source_justifications": "runner.py is the sole implementation path; evaluate_tasks is where per-task gate evaluation is produced for the interrupt payload.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/tests/test_multigate_regression.py",
+          "anchor": "multi-gate approve-then-reject",
+          "why": "regression proof if present in corpus"
+        }
+      ]
+    },
+    {
+      "id": "P03",
+      "kind": "positive",
+      "question": "Passing review is not the same as being integrated. Which mechanism enforces that distinction, and what must be filled in before the second state can be reached?",
+      "expected_task_ids": [
+        "TASK-038"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/release_task.py",
+        "MAP_System/templates/release-checklist.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/release_task.py",
+          "anchor_type": "code_symbol",
+          "anchor": "validate_checklist"
+        },
+        {
+          "path": "MAP_System/templates/release-checklist.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "Checklist"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "template"
+      ],
+      "source_justifications": "validate_checklist is the enforcement point that blocks RELEASED on an incomplete checklist; the template defines what must be completed.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/tests/test_release_gate.py",
+          "anchor": "test_incomplete_checklist_blocks_release",
+          "why": "direct behavioral proof of the gate"
+        }
+      ]
+    },
+    {
+      "id": "P04",
+      "kind": "positive",
+      "question": "When agents discover two durable sources that contradict each other, work is supposed to stop rather than continue on a guess. What creates that freeze, and what record has to be produced?",
+      "expected_task_ids": [
+        "TASK-040"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/flag_conflict.py",
+        "MAP_System/templates/conflict.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/flag_conflict.py",
+          "anchor_type": "code_symbol",
+          "anchor": "move_task_to_conflict"
+        },
+        {
+          "path": "MAP_System/templates/conflict.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "Conflicting Sources"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "template"
+      ],
+      "source_justifications": "move_task_to_conflict performs the status freeze; the template's Conflicting Sources section is the required durable record.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/scripts/flag_conflict.py",
+          "anchor": "create_conflict_record",
+          "why": "the record-creation half of the same mechanism"
+        }
+      ]
+    },
+    {
+      "id": "P05",
+      "kind": "positive",
+      "question": "How does MAP catch a decision entry that is missing required fields, and how does it notice that one recorded decision quietly contradicts another on the same subject?",
+      "expected_task_ids": [
+        "TASK-041"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/validate_decisions.py",
+        "MAP_System/scripts/validate_decisions.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/validate_decisions.py",
+          "anchor_type": "code_symbol",
+          "anchor": "check_block"
+        },
+        {
+          "path": "MAP_System/scripts/validate_decisions.py",
+          "anchor_type": "code_symbol",
+          "anchor": "check_decision_conflicts"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "implementation"
+      ],
+      "source_justifications": "check_block validates required fields per decision; check_decision_conflicts is the distinct subject-overlap contradiction check the question's second half asks for.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "P06",
+      "kind": "positive",
+      "question": "Blocking self-review at review-writing time still leaves a window open. Where is the earlier, database-level block that stops an agent taking the review in the first place?",
+      "expected_task_ids": [
+        "TASK-044"
+      ],
+      "expected_source_paths": [
+        "MAP_System/db/claims.py",
+        "MAP_System/tests/test_no_self_review.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/db/claims.py",
+          "anchor_type": "code_symbol",
+          "anchor": "claim_block_reason"
+        },
+        {
+          "path": "MAP_System/tests/test_no_self_review.py",
+          "anchor_type": "code_symbol",
+          "anchor": "test_same_agent_blocked"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": "claim_block_reason plus _is_review_task is the claim-time SQLite gate, distinct from validate_review.py's review-time check; the test pins the behavior.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/db/claims.py",
+          "anchor": "_is_review_task",
+          "why": "the predicate the gate depends on"
+        }
+      ]
+    },
+    {
+      "id": "P07",
+      "kind": "positive",
+      "question": "Writing task records back out to files was silently dropping fields the schema did not know about. What was lost, and what now preserves it?",
+      "expected_task_ids": [
+        "TASK-045"
+      ],
+      "expected_source_paths": [
+        "MAP_System/migration/export_to_files.py",
+        "MAP_System/tests/test_exporter_hpom_fields.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/migration/export_to_files.py",
+          "anchor_type": "code_symbol",
+          "anchor": "load_task_values"
+        },
+        {
+          "path": "MAP_System/tests/test_exporter_hpom_fields.py",
+          "anchor_type": "code_symbol",
+          "anchor": "test_hpom_fields_survive_export"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": "The exporter previously emitted only known keys, erasing HPOM fields; load_task_values carries the extra values through, and the test is the regression guard.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "P08",
+      "kind": "positive",
+      "question": "Before a task can be marked approved, a review record has to exist and hold up. Which checks does that record have to survive?",
+      "expected_task_ids": [
+        "TASK-047"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/validate_review.py",
+        "MAP_System/templates/review-record.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/validate_review.py",
+          "anchor_type": "code_symbol",
+          "anchor": "validate"
+        },
+        {
+          "path": "MAP_System/templates/review-record.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "Acceptance Criteria Check"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "template"
+      ],
+      "source_justifications": "validate composes the self-review, verdict, criteria, files-reviewed and forbidden-changes checks; the template heading defines the required criteria section.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/scripts/validate_review.py",
+          "anchor": "check_self_review",
+          "why": "single most load-bearing sub-check"
+        }
+      ]
+    },
+    {
+      "id": "P09",
+      "kind": "positive",
+      "question": "A local model helper must not be able to quietly reach a model or a host it was never approved for. Where is that boundary enforced, and what proves it holds?",
+      "expected_task_ids": [
+        "TASK-048"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/local_runner.py",
+        "MAP_System/tests/test_local_runner.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/local_runner.py",
+          "anchor_type": "code_symbol",
+          "anchor": "validate_model"
+        },
+        {
+          "path": "MAP_System/tests/test_local_runner.py",
+          "anchor_type": "code_symbol",
+          "anchor": "test_runner_forces_local_ollama_host"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": "validate_model rejects unapproved tags; the named test is the direct proof that the host cannot be redirected away from local.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "P10",
+      "kind": "positive",
+      "question": "How can an agent capture an insight, idea or experiment as a durable record without that record being able to smuggle itself into the task queue?",
+      "expected_task_ids": [
+        "TASK-052"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/map_emergence.py",
+        "MAP_System/emergence/README.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/map_emergence.py",
+          "anchor_type": "code_symbol",
+          "anchor": "create_artifact"
+        },
+        {
+          "path": "MAP_System/emergence/README.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "How emergence connects to HPOM"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "guide"
+      ],
+      "source_justifications": "create_artifact is the CLI entry that materializes an emergence record from its template; the README section is where the separation from HPOM promotion is stated.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/emergence/IDEA_PROMOTION_RULES.md",
+          "anchor": "promotion",
+          "why": "states the approval requirement the question's second clause refers to"
+        }
+      ]
+    },
+    {
+      "id": "P11",
+      "kind": "positive",
+      "question": "An agent stops because it ran out of quota and does record when it will be back. What deterministic component acts on that recorded time, and why is it deliberately not a model?",
+      "expected_task_ids": [
+        "TASK-080"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/notes/limit-exhaustion-protocol.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/limit_watcher.py",
+          "anchor_type": "code_symbol",
+          "anchor": "parse_resume_after"
+        },
+        {
+          "path": "MAP_System/notes/limit-exhaustion-protocol.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "The watcher (TASK-080)"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "guide"
+      ],
+      "source_justifications": "parse_resume_after consumes the recorded resume time in the original v1 path; the protocol heading explains why the watcher must stay deterministic and usable when models are exhausted.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/scripts/limit_watcher.py",
+          "anchor": "decide_nudges",
+          "why": "the v1 decision function paired with parse_resume_after"
+        }
+      ]
+    },
+    {
+      "id": "P12",
+      "kind": "positive",
+      "question": "Sometimes a session dies without ever writing down that it hit a limit, and the chat surface still shows it as present. How is that case detected?",
+      "expected_task_ids": [
+        "TASK-083"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/notes/limit-exhaustion-protocol.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/limit_watcher.py",
+          "anchor_type": "code_symbol",
+          "anchor": "detect_silent_stops"
+        },
+        {
+          "path": "MAP_System/notes/limit-exhaustion-protocol.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "v2: sessions that die with no final turn (TASK-083)"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "guide"
+      ],
+      "source_justifications": "detect_silent_stops is the v2 addition for sessions with no final turn; the protocol heading names that exact scenario.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/scripts/limit_watcher.py",
+          "anchor": "detect_presumed_down",
+          "why": "downstream half of the same v2 path"
+        }
+      ]
+    },
+    {
+      "id": "P13",
+      "kind": "positive",
+      "question": "After a database reseed, long-dead sessions reappeared as routable workers. What stopped historical identities from being offered work again?",
+      "expected_task_ids": [
+        "TASK-097"
+      ],
+      "expected_source_paths": [
+        "MAP_System/migration/export_to_files.py",
+        "MAP_System/agents/README.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/migration/export_to_files.py",
+          "anchor_type": "code_symbol",
+          "anchor": "load_agents"
+        },
+        {
+          "path": "MAP_System/agents/README.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "Identity kinds (F6 semantics, reconciled 2026-07-02, TASK-082)"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "guide"
+      ],
+      "source_justifications": "load_agents applies the non-operational filter that keeps dead identities out of the routing view; the README defines the identity kinds that filter relies on.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "P14",
+      "kind": "positive",
+      "question": "What proves end to end, against a real handler rather than mocks, that a task can be claimed, kept alive, submitted, and written back out to files?",
+      "expected_task_ids": [
+        "TASK-023"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/integration_test.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/integration_test.py",
+          "anchor_type": "code_symbol",
+          "anchor": "run_agent_loop"
+        }
+      ],
+      "expected_source_roles": [
+        "test"
+      ],
+      "source_justifications": "integration_test.py seeds a temp DB and drives the real loop through claim, heartbeat, submit and export.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/scripts/integration_test.py",
+          "anchor": "build_handler",
+          "why": "constructs the real handler the test asserts against"
+        }
+      ]
+    },
+    {
+      "id": "P15",
+      "kind": "positive",
+      "question": "Where can an operator see, in one human-readable place, who currently holds which task, when those holds expire, and which approvals are still pending?",
+      "expected_task_ids": [
+        "TASK-029"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/map_status.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/map_status.py",
+          "anchor_type": "code_symbol",
+          "anchor": "print_table"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation"
+      ],
+      "source_justifications": "map_status.py is the CLI that renders claims, lease expiry and pending gates as a table.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "P16",
+      "kind": "positive",
+      "question": "Which component reports system health numbers such as how much work is waiting on review and how often changes are sent back, without those numbers becoming authority over dispatch?",
+      "expected_task_ids": [
+        "TASK-043"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/map_metrics.py",
+        "MAP_System/tests/test_map_metrics.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/map_metrics.py",
+          "anchor_type": "code_symbol",
+          "anchor": "collect_metrics"
+        },
+        {
+          "path": "MAP_System/tests/test_map_metrics.py",
+          "anchor_type": "code_symbol",
+          "anchor": "test_json_metrics"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": "collect_metrics assembles the health dashboard payload; the test pins its shape.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/scripts/map_metrics.py",
+          "anchor": "task_counts",
+          "why": "the status-count component of the same report"
+        }
+      ]
+    },
+    {
+      "id": "P17",
+      "kind": "positive",
+      "question": "Two agents running repository operations at the same time can corrupt each other's work. What coordinates them, and where is that guarantee tested?",
+      "expected_task_ids": [
+        "TASK-065"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/git_operation_lock.py",
+        "MAP_System/tests/test_git_operation_lock.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/git_operation_lock.py",
+          "anchor_type": "code_symbol",
+          "anchor": "acquire"
+        },
+        {
+          "path": "MAP_System/tests/test_git_operation_lock.py",
+          "anchor_type": "code_symbol",
+          "anchor": "test_lock_acquire_blocks_second_owner_and_releases"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": "git_operation_lock.acquire is the coordination primitive; the named test proves a second owner is blocked and the lock is released.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "P18",
+      "kind": "positive",
+      "question": "Where is it explained, for a reader who is not already inside the project, why holding a capability is not the same as holding the authority to use it?",
+      "expected_task_ids": [
+        "TASK-250"
+      ],
+      "expected_source_paths": [
+        "MAP_System/notes/map-system-deep-dive.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/notes/map-system-deep-dive.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "1.3 Capability and authority are different things"
+        }
+      ],
+      "expected_source_roles": [
+        "guide"
+      ],
+      "source_justifications": "The deep dive is the durable plain-English explanation and this heading is the exact section that develops the capability-versus-authority distinction.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "P19",
+      "kind": "positive",
+      "question": "When the operator and both core agents each assessed the system separately, what did they jointly conclude was actually causing the strain, as opposed to the symptoms each had listed?",
+      "expected_task_ids": [
+        "TASK-251"
+      ],
+      "expected_source_paths": [
+        "MAP_System/artifacts/planning/map-project-improvement-kickoff-2026-07-19.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/artifacts/planning/map-project-improvement-kickoff-2026-07-19.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "4. Root-cause model"
+        }
+      ],
+      "expected_source_roles": [
+        "artifact"
+      ],
+      "source_justifications": "The kickoff synthesizes the three assessments and section 4 is where symptoms are separated from root cause.",
+      "acceptable_substitutes": [
+        {
+          "path": "MAP_System/artifacts/planning/map-project-improvement-kickoff-2026-07-19.md",
+          "anchor": "2. Joint conclusion",
+          "why": "the agreed conclusion the root-cause model supports"
+        }
+      ]
+    },
+    {
+      "id": "P20",
+      "kind": "positive",
+      "question": "An operator handed over a page of loose conversation notes. Which of those ideas turned out to already exist in the system, and which were genuine gaps?",
+      "expected_task_ids": [
+        "TASK-255"
+      ],
+      "expected_source_paths": [
+        "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md",
+        "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "3. What MAP already has"
+        },
+        {
+          "path": "MAP_System/artifacts/planning/conversation-notes-ei-triage-intake-2026-07-19.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "4. The actual gaps"
+        }
+      ],
+      "expected_source_roles": [
+        "artifact",
+        "artifact"
+      ],
+      "source_justifications": "The intake explicitly separates existing capability from real gaps in these two adjacent sections; both are needed for a complete answer.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "H01",
+      "kind": "historical",
+      "question": "When the resume watcher was first introduced, it only handled agents that had already recorded their own reset time. Which task delivered that original behavior?",
+      "expected_task_ids": [
+        "TASK-080"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/limit_watcher.py",
+        "MAP_System/notes/limit-exhaustion-protocol.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/limit_watcher.py",
+          "anchor_type": "code_symbol",
+          "anchor": "decide_nudges"
+        },
+        {
+          "path": "MAP_System/notes/limit-exhaustion-protocol.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "The watcher (TASK-080)"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "guide"
+      ],
+      "source_justifications": "The question is scoped to the ORIGINAL recorded-reset-only behavior, which is TASK-080.",
+      "temporal_trap": "limit_watcher.py has since accumulated TASK-083 silent-stop detection, TASK-084 check-ins, TASK-095 work nudges and TASK-186 terminal-session suppression. A retriever that answers from the file's CURRENT content may wrongly attribute the original behavior to a later task, or return the newest watcher task. Answering TASK-083/084/095/186 is INCORRECT.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "H02",
+      "kind": "historical",
+      "question": "Which task added the claim-time block that prevents an agent from reviewing its own submitted work?",
+      "expected_task_ids": [
+        "TASK-044"
+      ],
+      "expected_source_paths": [
+        "MAP_System/db/claims.py",
+        "MAP_System/tests/test_no_self_review.py"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/db/claims.py",
+          "anchor_type": "code_symbol",
+          "anchor": "claim_block_reason"
+        },
+        {
+          "path": "MAP_System/tests/test_no_self_review.py",
+          "anchor_type": "code_symbol",
+          "anchor": "test_same_agent_blocked"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "test"
+      ],
+      "source_justifications": "The no-self-review claim gate is TASK-044's contribution to db/claims.py.",
+      "temporal_trap": "db/claims.py now also contains claim_review (TASK-199) and recover_orphan_task (TASK-266), both added much later. Attributing the self-review gate to either, or answering with the newest task that touched claims.py, is INCORRECT.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "H03",
+      "kind": "historical",
+      "question": "Which task first made emergence records creatable, indexable and validatable from the command line?",
+      "expected_task_ids": [
+        "TASK-052"
+      ],
+      "expected_source_paths": [
+        "MAP_System/scripts/map_emergence.py",
+        "MAP_System/emergence/README.md"
+      ],
+      "expected_anchors": [
+        {
+          "path": "MAP_System/scripts/map_emergence.py",
+          "anchor_type": "code_symbol",
+          "anchor": "create_artifact"
+        },
+        {
+          "path": "MAP_System/emergence/README.md",
+          "anchor_type": "markdown_heading",
+          "anchor": "Command-line capture"
+        }
+      ],
+      "expected_source_roles": [
+        "implementation",
+        "guide"
+      ],
+      "source_justifications": "TASK-052 introduced the emergence CLI itself; create_artifact is its record-creation entry point.",
+      "temporal_trap": "map_emergence.py later gained stale reporting (TASK-065) and a coverage ledger (2026-07-21). Answering with a later task that extended the same file is INCORRECT; the question asks which task FIRST created the CLI.",
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "N01",
+      "kind": "negative",
+      "question": "Which completed task replaced lexical search with vector embeddings and a learned reranker for durable-memory retrieval?",
+      "expected_task_ids": [],
+      "expected_source_paths": [],
+      "expected_anchors": [],
+      "expected_source_roles": [],
+      "correct_behavior": "abstain",
+      "absence_verified_by": "grep for embedding|reranker|sentence-transformer across MAP_System *.py and *.sql returned no implementation (the one 'embedding' hit is same-origin iframe embedding in an unrelated server file).",
+      "acceptable_behavior": "Abstain. Citing a note or emergence record that names embeddings/rerankers as an explicit NON-GOAL is acceptable context, but attributing an implementation to any completed task is a false positive."
+    },
+    {
+      "id": "N02",
+      "kind": "negative",
+      "question": "Which completed task added per-user login with password or OAuth authentication to the operator surface?",
+      "expected_task_ids": [],
+      "expected_source_paths": [],
+      "expected_anchors": [],
+      "expected_source_roles": [],
+      "correct_behavior": "abstain",
+      "absence_verified_by": "grep for OAuth|login|authentication|bcrypt|passlib|jwt across MAP_System *.py returned nothing.",
+      "acceptable_behavior": "Abstain. Any task ID is a false positive."
+    },
+    {
+      "id": "N03",
+      "kind": "negative",
+      "question": "Which completed task fine-tuned or trained a local model on MAP's own task and event history?",
+      "expected_task_ids": [],
+      "expected_source_paths": [],
+      "expected_anchors": [],
+      "expected_source_roles": [],
+      "correct_behavior": "abstain",
+      "absence_verified_by": "grep for fine-tun|finetune|train a model|training run across MAP_System *.py returned nothing. Local model work is invocation-only (local_runner.py).",
+      "acceptable_behavior": "Abstain. TASK-048 (local_runner) is a near miss and must NOT be returned: it invokes an existing model, it does not train one."
+    },
+    {
+      "id": "N04",
+      "kind": "negative",
+      "question": "Which completed task allowed an agent to approve its own deliverable when no other reviewer was available?",
+      "expected_task_ids": [],
+      "expected_source_paths": [],
+      "expected_anchors": [],
+      "expected_source_roles": [],
+      "correct_behavior": "abstain",
+      "absence_verified_by": "No such affordance exists. AGENTS.md Core Protocol rule 9 forbids it and TASK-044/TASK-047 add gates enforcing it; no completed task creates an exception path.",
+      "acceptable_behavior": "Abstain. TASK-044 and TASK-047 are strong near misses and are INCORRECT answers: they prohibit this, they do not enable it. Returning them indicates the retriever matched topic rather than polarity."
+    },
+    {
+      "id": "N05",
+      "kind": "negative",
+      "question": "Which completed task replaced the single-host lockfile with a distributed lock service so agent loops could coordinate across multiple machines?",
+      "expected_task_ids": [],
+      "expected_source_paths": [],
+      "expected_anchors": [],
+      "expected_source_roles": [],
+      "correct_behavior": "abstain",
+      "absence_verified_by": "grep for distributed lock|redis|etcd|zookeeper across MAP_System *.py returned no implementation. TASK-024's guard is a single-host PID/lockfile.",
+      "acceptable_behavior": "Abstain. TASK-024 is a near miss and is INCORRECT: it is explicitly single-host."
+    }
+  ]
+}

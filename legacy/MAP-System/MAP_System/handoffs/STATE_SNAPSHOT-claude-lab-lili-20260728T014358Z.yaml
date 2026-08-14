@@ -1,0 +1,246 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-28T01:43:58Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-lili
+session_id: d81f7b35-a3cb-4f03-9188-ab47b76ed4fa
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: CLAIM
+    task_id: TASK-263
+    summary: 'Operator directive - codex is down, claude-lab covering codex tasks.
+
+      Claimed TASK-263 (READY, owned codex-lab-kiri, unclaimed) as
+
+      claude-lab-lili at attempt 3 of 3 (max_attempts=3).'
+  - event_type: SUBMISSION
+    task_id: TASK-263
+    summary: 'Built MAP_System/scripts/task_memory_claim_evidence_pilot.py from
+
+      scratch (disposable claim-evidence retrieval treatment for EXP-0006),
+
+      wrote 9 passing focused tests, ran it against the frozen holdout
+
+      (sha256 635aa5f0...75e3f, verified unchanged, authored independently by
+
+      claude-lab-gabi 2026-07-22), updated EXP-0006 with a "revise" decision
+
+      and full metrics, and submitted TASK-263 for independent review via
+
+      map_task.py submit --actor claude-lab-lili. Mirrors synced. No live
+
+      claim remains -- SQLite claimed_by cleared on submit.'
+  touched_paths:
+  - MAP_System/scripts/task_memory_claim_evidence_pilot.py
+  - MAP_System/tests/test_task_memory_claim_evidence_pilot.py
+  - MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.json
+  - MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.md
+  - MAP_System/emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md
+  - MAP_System/tasks/TASK-263.json
+  - MAP_System/workflow/task_graph.json
+  - MAP_System/map.db
+active_constraints:
+- scope: task
+  rule: 'TASK-263 is SUBMITTED, attempt 3 of 3 (max_attempts). If the independent
+
+    reviewer requests changes, no further attempts are available without an
+
+    operator-authorized REPAIR-style extension (see TASK-280 REPAIR-0010 for
+
+    precedent). Do not self-claim the TASK-263 review -- claude-lab-lili
+
+    implemented the treatment and is disqualified from reviewing it
+
+    (self-review is also blocked at the SQLite claim layer).'
+  source: MAP_System/tasks/TASK-263.json, MAP_System/AGENTS.md no-self-review rule
+- scope: disclosure
+  rule: 'TASK-263''s acceptance criterion 1 calls for a different helper to
+
+    blind-score treatment output. "soba", the identity reserved for this in
+
+    prior handoffs, is not currently a live registered agent (checked
+
+    MAP_System/map.db agents table 2026-07-28). claude-lab-lili self-scored
+
+    with a deterministic, reproducible script and disclosed this prominently
+
+    in EXP-0006, the submission JSON (blind_evaluation_disclosure field),
+
+    and an hcom request to bigboss. This is flagged, not hidden -- the
+
+    independent reviewer should re-run the script and treat the numbers as
+
+    implementer-reported pending that re-run.'
+  source: MAP_System/emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md
+- scope: task
+  rule: 'TASK-254 (CommandCenterUI reconciliation, owner codex-lab-kiri,
+
+    CHANGES_REQUESTED) is stale since 2026-07-22 with two prior rejection
+
+    rounds and is NOT surfaced by graph/runner.py as ready work. It was
+
+    deliberately left unclaimed this session per the operator''s "claim
+
+    codex''s tasks" directive being interpreted as ready/actionable work, not
+
+    stale rejected work; flagged to the operator directly rather than
+
+    silently skipped.'
+  source: MAP_System/tasks/TASK-254.json, MAP_System/events/events.jsonl
+- scope: repo
+  rule: SQLite is canonical for lifecycle state; file mirrors synced via MAP_System/migration/export_to_files.py
+    after claim/submit/status changes.
+  source: MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-263
+  next_action: review
+  owner: null
+  reason: 'Awaiting an independent reviewer (not claude-lab-gabi who froze the
+
+    holdout, not claude-lab-lili who implemented treatment). hcom request
+
+    already sent to bigboss (2026-07-28) summarizing results (task_recall
+
+    12/23, exact_source_accuracy 17/41, anchored_evidence_accuracy 7/41,
+
+    abstention 2/5, historical_version_correctness 2/3, decision=revise) and
+
+    the disclosed blind-evaluation gap, asking whether to (1) let normal
+
+    review proceed, (2) pre-authorize a REPAIR-style attempt-4 extension in
+
+    case of CHANGES_REQUESTED, or (3) route to a second live agent for blind
+
+    re-scoring first. No reply received as of this snapshot.'
+  paths:
+  - MAP_System/scripts/task_memory_claim_evidence_pilot.py
+  - MAP_System/tests/test_task_memory_claim_evidence_pilot.py
+  - MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.json
+  - MAP_System/emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md
+- task_id: TASK-254
+  next_action: review
+  owner: null
+  reason: 'Stale CHANGES_REQUESTED task from 2026-07-22, two prior rejection rounds
+
+    (rose, then lilo). Not claimed this session. Operator has not yet
+
+    weighed in on whether it should be revived, reassigned, or left parked;
+
+    surfaced for awareness only.'
+  paths:
+  - MAP_System/tasks/TASK-254.json
+blockers: []
+lexicon:
+  claim card: 'One (origin_task_id, exact anchor) unit built by
+
+    task_memory_claim_evidence_pilot.py; attributed to its single
+
+    best-evidenced originating task via inline TASK-XXX tags, versioned
+
+    module-header hints, or acceptance-criteria text-overlap fallback, in
+
+    that preference order -- unlike the existing frozen retriever which
+
+    attributes a whole shared file to every task that ever touched it.'
+  soba: 'A previously-active claude-lab identity reserved as blind TASK-263
+
+    evaluator in earlier handoffs; not currently registered in
+
+    MAP_System/map.db agents table (checked 2026-07-28).'
+rotation:
+  reason: threshold
+  summary: 'Completed TASK-263 to submission (attempt 3 of 3): claimed the unowned
+
+    READY task while codex was down, verified the pre-existing
+
+    independently-frozen holdout, designed and implemented a from-scratch
+
+    claim-evidence retrieval treatment, iterated twice on general (non-overfit)
+
+    scoring mechanics while disclosing that iteration transparently, wrote and
+
+    passed 9 focused tests, updated EXP-0006 with a "revise" decision, and
+
+    submitted for independent review. Flagged the disclosed blind-evaluation
+
+    gap and the stale TASK-254 to the operator via hcom. This snapshot
+
+    supersedes the abandoned STATE_SNAPSHOT-claude-lab-lili-20260728T012908Z.yaml,
+
+    which went stale once TASK-263 moved from claimed to submitted.'
+  next_action: 'No live MAP claim to resume. If picking this up as a replacement
+
+    session, first check whether bigboss replied to the pending hcom request
+
+    about TASK-263''s disclosed gap, then check whether an independent
+
+    reviewer has claimed the TASK-263 review. Do not re-open or duplicate
+
+    TASK-263 work; it is submitted and awaiting review, not in-progress.'
+  used_tokens: 165000
+  threshold_tokens: 150000
+  metric_source: claude_context_estimate_from_limit_watcher_hcom_notice
+integrity:
+  prepared_at: '2026-07-28T01:43:58Z'
+  canonical_tasks:
+  - task_id: TASK-254
+    status: CHANGES_REQUESTED
+    owner: codex-lab-kiri
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-22 15:48:38'
+  - task_id: TASK-263
+    status: SUBMITTED
+    owner: codex-lab-kiri
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-28 01:36:47'
+  canonical_tasks_sha256: 0a27485629ddd65c2449a8749f37d3763fde8ac10300d15dd0dbe26d0974dae1
+  touched_paths:
+  - path: MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.json
+    scope: workspace
+    sha256: 56be110f3aa0b60e60598d57722d849337b8a029bc0d02e5c661088b103c709f
+    size: 59564
+    state: file
+  - path: MAP_System/artifacts/experiments/task-memory-claim-evidence-development-2026-07-19.md
+    scope: workspace
+    sha256: fc4f484ee6cd056d4e5fa3f9911e6b272eff575a8268a1f7ad40d08a5605a1e3
+    size: 750
+    state: file
+  - path: MAP_System/emergence/experiments/EXP-0006-a-frozen-holdout-can-test-claim-evidence-units-against-capsules-.md
+    scope: workspace
+    sha256: 6199cc2de6537e8a37860c4c8252d0ee1bf0f91efd886c3601bd4376fdc4faab
+    size: 9614
+    state: file
+  - path: MAP_System/map.db
+    scope: workspace
+    sha256: af88887b9e8c30aa8874bd788068cb2505f3c74dfbe48145cd440a9e8f3b47db
+    size: 2306048
+    state: file
+  - path: MAP_System/scripts/task_memory_claim_evidence_pilot.py
+    scope: workspace
+    sha256: 6422f6ec374d74006f8a10a4b866d3050f3e1b5d8483c3c1759fd45ed60a56c1
+    size: 28980
+    state: file
+  - path: MAP_System/tasks/TASK-263.json
+    scope: workspace
+    sha256: 02dffb444c63f0de8dfa7b599c724e71b8a954db493cc393bc3fb1cd0a9e8178
+    size: 6094
+    state: file
+  - path: MAP_System/tests/test_task_memory_claim_evidence_pilot.py
+    scope: workspace
+    sha256: 2b5f5769e69e9de07d15ff036f06719f67c9940fe4bb5e99b27b3aa6f5f87a43
+    size: 7950
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: d070dbeff1ed517e2f4742a8aa0e536a525880a4119b897ff98c52167bc5d435
+    size: 446586
+    state: file
+  touched_paths_sha256: d298309e5ada9bea07f1837bbe48cf1415f2275138570c91aa7b5c3d3d7d4463

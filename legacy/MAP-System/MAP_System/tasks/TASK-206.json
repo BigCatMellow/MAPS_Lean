@@ -1,0 +1,35 @@
+{
+  "task_id": "TASK-206",
+  "title": "Fix Command Center hcom instance names",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-hana",
+  "description": "Replace invalid hyphenated hcom --name defaults in the AI Command Center wrapper and monitor with underscore-safe base names, update installed launchers, and verify operator commands no longer raise instance-name validation errors.",
+  "input_paths": [],
+  "output_paths": [
+    "/home/mellow/.local/bin/ai",
+    "/home/mellow/.local/bin/ai-command-center-monitor",
+    "MAP_System/templates/install/bin/ai",
+    "MAP_System/templates/install/bin/ai-command-center-monitor"
+  ],
+  "acceptance_criteria": [
+    "The ai wrapper runs hcom control commands without an agent --name and ai status completes without an instance-name error.",
+    "The monitor queries hcom events without an agent --name and does not suppress an instance-name error.",
+    "Operator messages remain attributed through --from command-center, while repository templates and installed launchers match."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

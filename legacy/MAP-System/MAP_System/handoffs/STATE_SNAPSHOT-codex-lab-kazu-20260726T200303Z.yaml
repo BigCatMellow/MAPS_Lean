@@ -1,0 +1,253 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-26T20:03:03Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-kazu
+session_id: 019f9f5c-16c5-7583-9cb9-9c1e54fefe84
+status: handing_off
+task_context:
+  current_task: TASK-287
+  owned_tasks: []
+  pending_reviews:
+  - TASK-285
+  recent_events:
+  - event_type: APPROVED
+    task_id: TASK-274
+    summary: Durable canonical SUBMISSION authorship was independently reviewed by
+      codex-lab-feta and approved.
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-280
+    summary: Independent reviewer codex-lab-nita found task creation still accepted
+      unknown roles and tier-2 policy still consumed raw roles.
+  - event_type: SUBMISSION
+    task_id: TASK-285
+    summary: Workstream digest pilot submitted by task285-replacement-solo after checksum-bound
+      rotation; independent review routed to Nita.
+  - event_type: PROGRESS
+    task_id: TASK-278
+    summary: Fresh visible Codex worker task278-levi claimed after operator approval
+      event 1727 and collision checks.
+  touched_paths:
+  - MAP_System/artifacts/planning/roles-system-map-improvement-review.md
+  - MAP_System/artifacts/reviews/task274-independent-review-feta.md
+  - MAP_System/artifacts/reviews/task280-independent-review-nita.md
+  - MAP_System/tasks/TASK-286.json
+  - MAP_System/tasks/TASK-287.json
+active_constraints:
+- scope: operator
+  rule: Complete every remaining roles-system roadmap task and TASK-286/TASK-287 without
+    stopping, then provide a full evidence-linked report explaining orchestration
+    failures.
+  source: current operator directive
+- scope: provider
+  rule: Claude is unavailable through Wednesday 2026-07-29; use Codex and do not count
+    on Claude.
+  source: operator directive
+- scope: lifecycle
+  rule: Keep the visible roster minimal; durably standby or supersede finished identities
+    and close their processes, but preserve checksum-bound overlap for live-claim
+    rotation.
+  source: operator directive and MAP_System context rotation protocol
+- scope: review
+  rule: Every submission requires an independent reviewer; implementers cannot review
+    their own submission.
+  source: MAP_System/AGENTS.md and MAP_System/notes/review-guide.md
+- scope: authority
+  rule: Operator authorization is durable at events 1716, 1717, 1720, 1721, and 1727,
+    but pre-dispatch remains advisory because it does not consume approvals automatically.
+  source: MAP_System/map.db events
+- scope: communication
+  rule: Use hcom request only for operator decisions, approvals, blockers, conflicts,
+    privacy/scope risks, or questions; routine progress uses inform.
+  source: operator startup instruction
+- scope: tool
+  rule: Any hcom-spawned worker or replacement must be visible with --terminal wezterm-tab
+    and must never be headless.
+  source: operator startup instruction
+forward_tasks:
+- task_id: TASK-278
+  next_action: continue_implementation_then_review
+  owner: task278-levi
+  reason: Claimed attempt 1; implement durable submission-author review separation
+    and submit for independent review.
+  paths:
+  - MAP_System/tasks/TASK-278.json
+  - MAP_System/artifacts/tests/task278-review-authorship-delivery-note.md
+- task_id: TASK-280
+  next_action: rework_then_rereview
+  owner: codex-lab-feta
+  reason: Attempt 1 received CHANGES_REQUESTED; Feta is fixing create-path validation
+    and normalized tier-2 policy consumption.
+  paths:
+  - MAP_System/tasks/TASK-280.json
+  - MAP_System/artifacts/reviews/task280-independent-review-nita.md
+- task_id: TASK-285
+  next_action: independent_review
+  owner: codex-lab-nita
+  reason: Submitted by Solo; Nita is assigned to reproduce evidence, stale detection,
+    metrics, and rollback constraints.
+  paths:
+  - MAP_System/tasks/TASK-285.json
+  - MAP_System/artifacts/experiments/task285-workstream-digest-pilot.md
+- task_id: TASK-281
+  next_action: dispatch_after_TASK-280_approval
+  owner: command-center
+  reason: Normalized roles are its prerequisite.
+  paths:
+  - MAP_System/tasks/TASK-281.json
+- task_id: TASK-286
+  next_action: dispatch_after_TASK-280_approval
+  owner: command-center
+  reason: Implements minimal Shell/Monitor/one-Codex-orchestrator CCL startup and
+    lifecycle.
+  paths:
+  - MAP_System/tasks/TASK-286.json
+- task_id: TASK-282
+  next_action: dispatch_after_TASK-278_and_TASK-281_approval
+  owner: command-center
+  reason: Structured criterion-level submission evidence depends on authorship and
+    run manifests.
+  paths:
+  - MAP_System/tasks/TASK-282.json
+- task_id: TASK-283
+  next_action: dispatch_after_TASK-281_approval
+  owner: command-center
+  reason: Scope and retry budget enforcement; security/structural approval is event
+    1721.
+  paths:
+  - MAP_System/tasks/TASK-283.json
+- task_id: TASK-287
+  next_action: final_audit_after_all_dependencies_approved
+  owner: command-center
+  reason: Operator-requested evidence-linked report on why MAP orchestration was ineffective.
+  paths:
+  - MAP_System/tasks/TASK-287.json
+  - MAP_System/artifacts/audits/roles-roadmap-orchestration-final-report.md
+blockers:
+- kind: control_plane_gap
+  detail: Pre-dispatch policy raises approval gates but does not consume durable DECISION_RECORDED
+    approvals, so workers must cite event IDs and use sanctioned advisory override.
+  unblock_by: Continue under recorded operator events; document and remediate through
+    roadmap/final audit.
+- kind: terminal_cleanup
+  detail: hcom often terminates finished processes but times out closing old WezTerm
+    panes, leaving empty operator-surface tabs.
+  unblock_by: Keep process state canonical and include the pane-control defect in
+    TASK-287; TASK-286 addresses startup/lifecycle policy.
+lexicon:
+  MAP: Reusable multi-agent delivery system under MAP_System.
+  CCL: AI Command Center Lab, whose default topology is corrected by TASK-286.
+  HPOM: Human-Paced Orchestration Model separating authority, role, worker, provider,
+    and model.
+  roles_roadmap: TASK-277 recommendations implemented by TASK-278 through TASK-286.
+  STATE_SNAPSHOT: Immutable checksum-bound YAML continuity handoff.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- sqlite3 -header -column MAP_System/map.db "select task_id,status,claimed_by,attempt
+  from tasks where task_id between 'TASK-274' and 'TASK-287' order by task_id;"
+- hcom list -v --json --name REPLACEMENT
+validation:
+- TASK-274 is APPROVED after independent review artifact task274-independent-review-feta.md.
+- TASK-280 is CHANGES_REQUESTED with two reproduced integration failures; Feta is
+  assigned attempt 2.
+- TASK-285 is SUBMITTED with a canonical SUBMISSION event; Nita is assigned independent
+  review.
+- TASK-278 is IN_PROGRESS and claimed by task278-levi after approval event 1727.
+- Context rotation ledger validated cleanly before this preparation.
+rotation:
+  reason: threshold
+  summary: Coordinated the approved roles-system roadmap from TASK-277 through three
+    active lanes, added TASK-286 minimal CCL startup and TASK-287 final orchestration
+    audit, recorded operator approvals durably, closed unnecessary sessions, approved
+    TASK-274, routed TASK-280 rework, routed TASK-285 review, and dispatched TASK-278.
+    The lab now has three bounded Codex lanes plus the coordinator.
+  next_action: Verify and acknowledge this exact snapshot, finalize Kazu rotation,
+    then monitor Levi/Feta/Nita; route each submission independently, advance TASK-281
+    and TASK-286 after TASK-280 approval, then TASK-282/TASK-283, and finish with
+    reviewed TASK-287.
+  used_tokens: 126614
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-26T20:03:03Z'
+  canonical_tasks:
+  - task_id: TASK-278
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: task278-levi
+    lease_expires_at: '2026-07-26 20:31:31'
+    heartbeat_at: '2026-07-26 20:01:31'
+    updated_at: '2026-07-26 20:01:31'
+  - task_id: TASK-280
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: codex-lab-feta
+    lease_expires_at: '2026-07-26 20:31:40'
+    heartbeat_at: '2026-07-26 20:01:40'
+    updated_at: '2026-07-26 20:01:40'
+  - task_id: TASK-281
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:47Z'
+  - task_id: TASK-282
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:47Z'
+  - task_id: TASK-283
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T17:35:47Z'
+  - task_id: TASK-285
+    status: SUBMITTED
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26 19:58:41'
+  - task_id: TASK-286
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T19:45:15Z'
+  - task_id: TASK-287
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-26T19:45:31Z'
+  canonical_tasks_sha256: 8528d9b969314f983477227bbc2fa2f7072b973469cd93a8b6cfca738ebbc937
+  touched_paths:
+  - path: MAP_System/artifacts/planning/roles-system-map-improvement-review.md
+    scope: workspace
+    sha256: 2060afc4b09427298d25c708a7a0f412a07b265e997f42410144694a28d4e6f0
+    state: file
+  - path: MAP_System/artifacts/reviews/task274-independent-review-feta.md
+    scope: workspace
+    sha256: b119a06f14ada2fadff89a2f488aa5af5f2324c5abebedb4cfd1efa0367c921d
+    state: file
+  - path: MAP_System/artifacts/reviews/task280-independent-review-nita.md
+    scope: workspace
+    sha256: b254054fef05291a9ac16b5ac93acdbba65ec44735977121e13597cfbe5295ca
+    state: file
+  - path: MAP_System/tasks/TASK-286.json
+    scope: workspace
+    sha256: 397db82f70e46a0f0e94c6e7a22c195cf9ae40cdc74b19303f65c72726c87e22
+    state: file
+  - path: MAP_System/tasks/TASK-287.json
+    scope: workspace
+    sha256: 6e5599c897009da7cfd4c4414965aa41d5b0b9ae4d0a511b576dd7de8df7a25b
+    state: file
+  touched_paths_sha256: b546cde1c55195e072add83c613f5c8ca5027beb16286cfccdbaafdef6b858ba

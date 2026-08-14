@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show *)",
+      "Bash(MAP_System/.venv/bin/python MAP_System/scripts/map_task.py log *)",
+      "Bash(MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py task show *)",
+      "Bash(MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py task log *)",
+      "Bash(MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py status)",
+      "Bash(MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py route)",
+      "Bash(MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py get-open-review *)",
+      "Bash(python3 MAP_System/scripts/map_authority.py task show *)",
+      "Bash(python3 MAP_System/scripts/map_authority.py status)",
+      "Bash(python3 MAP_System/scripts/map_authority.py route)",
+      "Bash(python3 MAP_System/scripts/map_authority.py get-open-review *)",
+      "Bash(map-authority task show *)",
+      "Bash(map-authority task log *)",
+      "Bash(map-authority status)",
+      "Bash(map-authority route)",
+      "Bash(systemctl is-active *)",
+      "Bash(systemctl is-enabled *)",
+      "Bash(systemctl status *)",
+      "Bash(systemctl list-units *)",
+      "Bash(systemctl list-timers *)",
+      "Bash(systemctl cat *)",
+      "Bash(systemctl show *)",
+      "Bash(systemctl --failed)"
+    ]
+  }
+}

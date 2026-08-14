@@ -1,0 +1,238 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-07-23T03:45:39Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: codex-lab-lori
+session_id: 019f8ce2-33a1-7aa3-85b0-475a3dda4d43
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: RELEASED
+    task_id: TASK-266
+    summary: Independently verified the approved orphan-recovery task, wrote its release
+      checklist, and released it.
+  - event_type: PROGRESS
+    task_id: TASK-268
+    summary: Wrote the lifecycle authority contract, then returned the claim to READY
+      because TASK-273 already owns the overlapping implementation paths.
+  - event_type: CHANGES_REQUESTED
+    task_id: TASK-236
+    summary: Independent re-review closed both prior findings but rejected the added
+      owner-liveness scope because it misclassifies busy owners as departed.
+  touched_paths:
+  - MAP_System/agents/status.json
+  - MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+  - MAP_System/artifacts/releases/task-266-release-checklist.md
+  - MAP_System/artifacts/reviews/task236-rereview-lori.md
+  - MAP_System/events/events.jsonl
+  - MAP_System/shared/context-continuity.md
+  - MAP_System/tasks/TASK-236.json
+  - MAP_System/tasks/TASK-266.json
+  - MAP_System/tasks/TASK-268.json
+  - MAP_System/workflow/task_graph.json
+failed_approaches:
+- TASK-268 could not register claims.py/map_task.py/run_tests.sh while TASK-266 was
+  APPROVED and owned them; TASK-266 was released after independent evidence verification.
+- After TASK-266 released, TASK-273 was already READY with the same source paths,
+  so retaining TASK-268's claim would have created a new active-output collision.
+  TASK-268 was returned to READY.
+- A direct ACK to the stopped limit_watcher identity failed; the stale-claim resolution
+  was reported to bigboss and claude-lab-zaro instead.
+active_constraints:
+- scope: repo
+  rule: Preserve the unrelated dirty worktree and use MAP_System/scripts/map-git for
+    Git inspection.
+  source: AGENTS.md
+- scope: task
+  rule: TASK-273 and TASK-268 both require claims.py, map_task.py, and run_tests.sh.
+    Sequence TASK-273 first; do not claim or mutate both lanes concurrently.
+  source: task output paths and task-graph collision gate
+- scope: task
+  rule: TASK-236 is CHANGES_REQUESTED under claude-lab-zaro rework. Do not edit its
+    outputs; independent review is MAP_System/artifacts/reviews/task236-rereview-lori.md.
+  source: TASK-236 review event
+- scope: task
+  rule: Do not change no-self-review guards inside TASK-273 or TASK-268; INS-0039
+    is separately scoped.
+  source: TASK-273 acceptance criteria and INS-0039
+- scope: task
+  rule: TASK-265 remains operator-gated on security/structural approval and the remote-Ollama/server.py
+    authority decisions.
+  source: TASK-265 and graph runner
+- scope: communication
+  rule: Use hcom request only for operator decisions, approvals, blockers, conflicts,
+    privacy/scope risks, or questions; routine progress is inform.
+  source: operator startup directive
+- scope: tool
+  rule: Any hcom-spawned agent/helper must use --terminal wezterm-tab and must not
+    use --headless.
+  source: MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-273
+  next_action: claim
+  owner: command-center
+  reason: READY after TASK-266 release; it already owns claims.py/map_task.py/run_tests.sh
+    and must land before TASK-268 registers those paths.
+  paths:
+  - MAP_System/db/claims.py
+  - MAP_System/scripts/map_task.py
+  - MAP_System/scripts/run_tests.sh
+  - MAP_System/tests/test_reassign_owner.py
+- task_id: TASK-268
+  next_action: wait
+  owner: command-center
+  reason: READY with lifecycle contract written; wait for TASK-273 release, then reclaim
+    and register all implementation outputs before editing.
+  paths:
+  - MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+- task_id: TASK-236
+  next_action: fix
+  owner: claude-lab-gome
+  reason: 'CHANGES_REQUESTED to submitter claude-lab-zaro: treat busy as live or use
+    a distinct truthful signal, add a fixture, and align the delivery note.'
+  paths:
+  - MAP_System/scripts/advisory_monitor.py
+  - MAP_System/tests/test_advisory_monitor.py
+  - MAP_System/artifacts/tests/task-advisory-monitor-delivery-note.md
+- task_id: TASK-265
+  next_action: ask_operator
+  owner: command-center
+  reason: Policy-gated on security/structural approval and two authority decisions.
+  paths:
+  - MAP_System/templates/install/command-center-ui/app/server.py
+- task_id: TASK-263
+  next_action: wait
+  owner: codex-lab-kiri
+  reason: IN_PROGRESS with an expired lease under another owner; use sanctioned recovery/coordination
+    rather than touching its outputs.
+  paths: []
+blockers:
+- kind: ownership_conflict
+  detail: TASK-273 and TASK-268 need the same canonical lifecycle files.
+  unblock_by: Complete and release TASK-273 before reclaiming and registering TASK-268
+    implementation paths.
+- kind: approval
+  detail: TASK-265 cannot dispatch without command-center security/structural approval
+    and the remote-Ollama/server.py decisions.
+  unblock_by: Operator records the decisions and satisfies the policy gate.
+lexicon:
+  HPOM: Human-Paced Orchestration Model for worker fit and authority routing.
+  MAP: File-backed multi-agent delivery system with SQLite claim coordination.
+  MATOCP: Compact agent communication tokens such as !ACK, !REQ, and !NOTE.
+  RnS: Rise and Shine recovery/limit-watcher workflow.
+  INS-0039: 'Captured but separately scoped defect: self-review guards key on stale
+    task owner instead of durable submission author.'
+  TASK-273: Sanctioned task-owner reassignment verb; first Codex implementation lane.
+  TASK-268: Synchronized submission lifecycle verb; must follow TASK-273 because of
+    shared outputs.
+resume_commands:
+- MAP_System/.venv/bin/python MAP_System/scripts/context_rotation.py validate
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-273
+- MAP_System/.venv/bin/python MAP_System/scripts/map_task.py show TASK-268
+- MAP_System/scripts/map-git status --short
+validation:
+- TASK-266 focused recovery tests passed 10/10; final independent review record validated;
+  task/graph mirrors passed; TASK-266 is RELEASED.
+- TASK-236 focused advisory-monitor tests passed 23/23; read-only hashes were unchanged;
+  full suite reproduced pass=71 fail=3 baseline; review recorded CHANGES_REQUESTED.
+- Task mirror and task graph validation passed after TASK-268 returned to READY.
+- Context continuity validate passed revision 20 before prepare.
+rotation:
+  reason: threshold
+  summary: Resumed from Kula, released TASK-266 to clear a real output collision,
+    wrote TASK-268's authority contract but returned its claim because TASK-273 now
+    owns the same implementation files, and independently reviewed TASK-236. The review
+    closed prior findings but found one required busy-owner false positive. No task
+    is currently claimed. TASK-273 is the first Codex lane, TASK-268 follows it, TASK-236
+    is back with Zaro, and TASK-265 remains operator-gated.
+  next_action: Validate continuity, inspect TASK-273, atomically claim it as the single
+    Codex implementation lane, export mirrors, and implement only its registered owner-reassignment
+    scope before returning to TASK-268.
+  used_tokens: 157970
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-07-23T03:45:39Z'
+  canonical_tasks:
+  - task_id: TASK-236
+    status: CHANGES_REQUESTED
+    owner: claude-lab-gome
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23 03:43:27'
+  - task_id: TASK-263
+    status: IN_PROGRESS
+    owner: codex-lab-kiri
+    claimed_by: codex-lab-kiri
+    lease_expires_at: '2026-07-22 22:03:00'
+    heartbeat_at: '2026-07-22 20:03:00'
+    updated_at: '2026-07-22 20:03:00'
+  - task_id: TASK-265
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-21T22:18:49Z'
+  - task_id: TASK-268
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23 03:28:44'
+  - task_id: TASK-273
+    status: READY
+    owner: command-center
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-07-23T03:01:08Z'
+  canonical_tasks_sha256: b91a3284b82872e3009c31f4aa55d35b6bb2376d9eb40b47bba63bac925e06ae
+  touched_paths:
+  - path: MAP_System/agents/status.json
+    scope: workspace
+    sha256: 04227c5040743442cc97146b8eeee862ac1fa162ce00438712bf36322a3848a0
+    state: file
+  - path: MAP_System/artifacts/planning/task268-lifecycle-authority-contract.md
+    scope: workspace
+    sha256: 0a080e00f5b804dc35f390886fac8415f276eb8b9398f3341ab186afd8ac1bd9
+    state: file
+  - path: MAP_System/artifacts/releases/task-266-release-checklist.md
+    scope: workspace
+    sha256: 7a7a41fed7e805fa047a2ac82ac4fd4bd93bd98ecd5ffb564bdba8eda65f745f
+    state: file
+  - path: MAP_System/artifacts/reviews/task236-rereview-lori.md
+    scope: workspace
+    sha256: 100fd770d1432f71b9ebde8d185d1c4ef46e374af72990c170ea0447facd139c
+    state: file
+  - path: MAP_System/events/events.jsonl
+    scope: workspace
+    sha256: 1a0922ae1df7e529638d171c120fccb5a6cc3aebc0a855bcd7e8da0d6c04784c
+    state: file
+  - path: MAP_System/shared/context-continuity.md
+    scope: protocol_generated
+    sha256: null
+    state: tracked_by_ledger_revision
+  - path: MAP_System/tasks/TASK-236.json
+    scope: workspace
+    sha256: 66ec3853af51daa51855337d51ff5afe92ba6107ddf9d080c9be147496585ce1
+    state: file
+  - path: MAP_System/tasks/TASK-266.json
+    scope: workspace
+    sha256: 4390802e45402fa86718d4b5ab3368ffa72792b9bbbe050e0d8c5367da1cbfb1
+    state: file
+  - path: MAP_System/tasks/TASK-268.json
+    scope: workspace
+    sha256: 5643ee9b9a5be9e1a1326dd85ea353ab98ff43b44a61be49f1178f57321852d8
+    state: file
+  - path: MAP_System/workflow/task_graph.json
+    scope: workspace
+    sha256: c4952b88ab8c63b389a789d05d8ea828ac669e37dd46dec736708333fe962729
+    state: file
+  touched_paths_sha256: 50de1c481488d98499c99c5be8c1c6c6dc33f89cb97c5b01beaccc9e967c5e3c

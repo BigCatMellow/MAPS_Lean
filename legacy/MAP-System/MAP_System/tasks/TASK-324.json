@@ -1,0 +1,31 @@
+{
+  "task_id": "TASK-324",
+  "title": "Phase-0 P0.3: disposition record for lifecycle backlog (TASK-295/297/298/299-303/305/309/311/313)",
+  "task_type": "audit",
+  "role": "engineer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-sumi",
+  "description": "Per map-2 plan P0.3: for each APPROVED task not covered by TASK-322 (295,297,298,299,300,301,302,303,305,309,311,313), record an explicit disposition - released/deliberately-deferred/superseded/blocked - with evidence. batch_release_low_risk.py --dry-run already confirmed none auto-qualify as low-risk (all touch canonical paths or carry SECURITY/STRUCTURAL/BLOCKING signal), so each needs a real hand-verified checklist or an explicit deferral reason, not a batch action.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/reports/p03-lifecycle-backlog-disposition-2026-08-10.md"
+  ],
+  "acceptance_criteria": [
+    "Every listed task has an explicit disposition record with evidence, no silent gaps",
+    "Tasks actually ready for release get real checklists and are released; genuinely blocked/deferred ones are documented as such"
+  ],
+  "decision_class": null,
+  "risk_class": "PROCESS",
+  "risk_severity": "DRIFT",
+  "task_tier": "bounded",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

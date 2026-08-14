@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+exec __PROJECT_DIR__/MAP_System/.venv/bin/python \
+  __PROJECT_DIR__/MAP_System/scripts/map_authority.py "$@"

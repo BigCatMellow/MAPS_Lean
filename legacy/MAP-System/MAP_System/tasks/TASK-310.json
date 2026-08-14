@@ -1,0 +1,40 @@
+{
+  "task_id": "TASK-310",
+  "title": "WS-1: Make MAP authority freshness truthful",
+  "task_type": "architecture",
+  "role": "state-steward",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "zeno",
+  "description": "Child of TASK-309. Define and implement one authority-revision and freshness contract across map-authority, generated current state, runner output, and Command Center-facing health so a stale but internally consistent Biggie mirror cannot present as globally healthy. Start with a durable contract and collision scan; add implementation output paths only after ownership is proven.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/recovery/ws1-truthful-authority-state.md",
+    "MAP_System/graph/runner.py",
+    "MAP_System/scripts/map_authority.py",
+    "MAP_System/scripts/map_authority_notify.py",
+    "MAP_System/scripts/render_active_state.py",
+    "MAP_System/tests/test_map_authority.py",
+    "MAP_System/tests/test_map_authority_notify.py",
+    "MAP_System/tests/test_render_active_state.py"
+  ],
+  "acceptance_criteria": [
+    "Every operator-facing state view names authority host, authority revision, last successful sync time, and freshness classification.",
+    "Disconnecting or making Smalls unreachable produces STALE or UNAVAILABLE, never green/current.",
+    "Biggie remains read-only and no second lifecycle authority, scheduler, or derived truth source is created.",
+    "Focused tests cover fresh, stale, unavailable, clock-skew, rollback, and last-good-snapshot behavior; an independent core agent reviews the result."
+  ],
+  "decision_class": "AUTHORITY",
+  "risk_class": "DATA",
+  "risk_severity": "STRUCTURAL",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": true,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": true
+}

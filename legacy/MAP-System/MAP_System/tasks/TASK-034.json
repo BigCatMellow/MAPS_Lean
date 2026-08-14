@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-034",
+  "title": "Add multi-gate approval regression test",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [
+    "TASK-030"
+  ],
+  "owner": "codex-tori",
+  "description": "Add a targeted regression fixture covering approve-then-reject decisions across two pending approval gates so TASK-030's interrupt-position bug cannot return unnoticed.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/scripts/multigate_regression_test.py",
+    "MAP_System/scripts/run_tests.sh",
+    "scripts/multigate_regression_test.py",
+    "scripts/run_tests.sh"
+  ],
+  "acceptance_criteria": [
+    "run_tests.sh invokes a targeted multi-gate approve-then-reject fixture",
+    "fixture fails if SQLite stores GATE-B as approved after --reject GATE-B",
+    "MAP_System/scripts/run_tests.sh passes"
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

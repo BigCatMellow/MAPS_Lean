@@ -1,0 +1,123 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-06T00:20:00Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: claude-lab-luzo
+status: handing_off
+role: MAP coordinator. Context is at ~795k tokens (way past the 150k threshold), many rotation reminders
+  sent and unaddressed until now. Two prior replacement attempts this session (miso, veto) were both killed
+  shortly after spawning, and a resume attempt on veto failed with a terminal-launch restriction error
+  ("terminal or session creation may be restricted... rerun with approval/escalation") -- spawning a stable
+  visible replacement from within this session has not been reliable. This snapshot plus a durable commit
+  is the fallback per DEC-036/039 precedent when the technical rotation pipeline is unreliable.
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: TASK309_SUBMITTED
+    task_id: TASK-309
+    summary: 'RnS/limit_watcher sent ~13 repeated `request`-intent nags about TASK-309''s stale claim
+      (expired lease under claude-lab-luzo). Resolved: submitted TASK-309 (its only deliverable, phase2-status.md,
+      was already done and committed in an earlier session) rather than keep renewing a bookkeeping claim
+      indefinitely. Status now SUBMITTED.'
+  - event_type: STALE_AUTHORITY_RECURRENCE_CHECKED_BENIGN
+    task_id: TASK-316
+    summary: 'map-authority route briefly showed STALE_AUTHORITY/INVALID again (same class of incident
+      as the original TASK-316 fix). Checked map-authority status immediately after: freshness=STALE (not
+      INVALID), topology_valid=true, local_writer_services=[] (empty), last_successful_sync_at very recent,
+      last_error still showed the old ''must be disabled'' message from a moments-earlier attempt. This
+      looks like the TASK-316 fix working as designed -- an occasional transient block during map-rns-watcher.service''s
+      legitimate periodic write, self-recovering once quiet -- not a regression. Not fully re-verified
+      end-to-end due to context exhaustion; worth a quick confirming check (map-authority route, twice,
+      a minute apart) at the start of the next session before assuming either way.'
+  - event_type: CONTEXT_GAP_NOTE
+    task_id: null
+    summary: Significant real time appears to have passed since the last active work in this session (date
+      rolled from 2026-08-04 to 2026-08-06; TASK-309's lease, set for 6 hours, was long expired; ~25 queued
+      hcom messages had accumulated, mostly repeated automated reminders). Unrelated work from other agents/projects
+      is also visible in the task board now (e.g. TASK-318, a different project's CSS task, owner claude-lab-gina)
+      -- not a MAP System concern, just noting the shared task board is active with non-MAP work too.
+  touched_paths: []
+active_constraints:
+- scope: replacement-spawning-unreliable
+  rule: 'Two coordinator-replacement spawns this session (miso, veto) were both killed shortly after starting,
+    with no real work done by either. A resume attempt (hcom r veto --terminal wezterm-tab --go) failed
+    with: "terminal or session creation may be restricted... rerun with approval/escalation." Do not assume
+    a fresh spawn will work reliably from within an existing session; if it fails once, don''t loop on
+    retrying -- fall back to the durable-snapshot-plus-hcom-broadcast pattern (this snapshot is exactly
+    that) and let the operator or a genuinely fresh Command Center Lab launch pick it up instead.'
+  source: this session
+- scope: task-309-closed
+  rule: TASK-309 (coordinator epic bookkeeping) is now SUBMITTED, not IN_PROGRESS. Don't reclaim it reflexively
+    at startup the way earlier sessions this thread did (DEC-040's bookkeeping-claim precedent) -- check
+    its actual status first; it may already be appropriately closed.
+  source: this session
+forward_tasks:
+- task_id: (confirm STALE_AUTHORITY is transient, not regressed)
+  next_action: Run map-authority route / status a couple of times a minute apart. If freshness stays FRESH
+    and local_writer_services stays empty across repeated checks, the TASK-316 fix is working as designed
+    and this is a non-issue. If it stays INVALID/topology_valid=false persistently, that would be a real
+    regression worth investigating fresh.
+  owner: unassigned
+  reason: Seen once, looked transient/self-recovering, not fully re-verified due to context exhaustion
+    at the time.
+  paths: []
+- task_id: TASK-296
+  next_action: Still unresolved -- stale lease (claude-lab-dodo, expired since 2026-08-01, now several
+    days). recover-orphan doesn't apply (claimed_by isn't null). Needs expire_leases() run from Smalls.
+  owner: claude-lab-dodo (stale, not live)
+  reason: Low priority, docs-only task, never blocking anything.
+  paths: []
+- task_id: (emergence backlog, 36 items -- operator wants to personally direct)
+  next_action: See STATE_SNAPSHOT-claude-lab-luzo-20260804T173500Z.yaml (previous handoff) for the full
+    list and context. Operator explicitly wants to instruct this work directly, not have it done autonomously
+    -- wait for their direction, same as before.
+  owner: unassigned, awaiting operator direction
+  reason: Operator's own stated priority as of the last active exchange in this session.
+  paths: []
+blockers: []
+lexicon:
+  Biggie: KUDU, mellow@192.168.1.177, compute plane and read-only MAP mirror (this host)
+  Smalls: RUKI/MediaCenter, home@192.168.1.153, control plane and sole writable MAP authority. Real SSH
+    works both directions (see the 2026-08-04T17:35Z snapshot for setup detail).
+resume_commands:
+- hcom list -v --json
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py route
+- MAP_System/.venv/bin/python MAP_System/scripts/map_authority.py status
+- 'cat MAP_System/handoffs/STATE_SNAPSHOT-claude-lab-luzo-20260804T173500Z.yaml  # prior handoff, emergence
+  backlog detail'
+- ssh smalls 'echo ok'
+validation:
+- 'TASK-309: SUBMITTED (was stuck IN_PROGRESS with an expired lease, causing repeated RnS nags).'
+- 'map-authority: mode=mirror, seen both STALE and FRESH readings within a couple minutes of each other
+  -- likely transient, see forward_tasks.'
+rotation:
+  reason: context_budget_exhausted
+  summary: ~795k tokens, far past the 150k threshold, many reminders unaddressed until this turn. Replacement-spawning
+    has been unreliable this session (2 kills, 1 launch-restricted resume) -- this snapshot plus commit
+    is the durable fallback.
+  next_action: 'Whoever/whatever picks this up next: read this snapshot, confirm the STALE_AUTHORITY reading
+    was transient (see forward_tasks), and otherwise the system is in a normal, unremarkable state --
+    no active crisis, just an overdue rotation.'
+  used_tokens: 795066
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-06T00:20:00Z'
+  canonical_tasks:
+  - task_id: TASK-309
+    status: SUBMITTED
+    owner: claude-lab-luzo
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-06'
+  - task_id: TASK-296
+    status: IN_PROGRESS
+    owner: command-center
+    claimed_by: claude-lab-dodo
+    lease_expires_at: '2026-08-01 20:02:50'
+    heartbeat_at: '2026-08-01 19:32:50'
+    updated_at: '2026-08-01 19:32:50'
+  touched_paths: []

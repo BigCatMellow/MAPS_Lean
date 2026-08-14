@@ -1,0 +1,272 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-06T16:47:21Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-gino-fola
+session_id: 1a1b6e53-6b11-4ced-8443-d01a73e1c4e8
+status: handing_off
+task_context:
+  current_task: TASK-318
+  owned_tasks: []
+  pending_reviews: []
+  recent_events:
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Acked context rotation from rotation-replacement-gino-puma (snapshot
+      STATE_SNAPSHOT-rotation-replacement-gino-puma-20260806T162700Z.yaml) via context_rotation.py
+      ack. Checked puma''s hcom transcript for any operator reply on the 8-URL Terran
+      tactics-card report - none visible there (same known blind spot: hcom cannot
+      see the direct-chat channel the operator actually uses). Sent ack confirmation
+      back to puma via hcom.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Operator replied in normal chat (not hcom) with a single word: "download"
+      - explicit approval to download the 8 Terran tactical-card art URLs puma had
+      reported and wire them into the app.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Downloaded all 8 official Terran tactical-card art images (Academy,
+      Armory, Barracks/BarracksProxy covering base+Proxy+Tech Lab, Dropship, Engineering
+      Bay, Factory, Orbital Command, Supply Depot) from the static.wikia.nocookie.net
+      URLs puma had sourced, via curl into a new portraits/terran-tactics/ folder.
+      Discovered the wiki serves these as WebP content despite the URL/filename ending
+      in .png (curl -A "Mozilla/5.0" did not change this) - ImageMagick convert failed
+      silently (no cwebp/dwebp delegate binaries installed on this host, only the
+      libwebp7 library), so used Python PIL (confirmed available: python3 -c "from
+      PIL import Image") to re-decode and re-save each as a genuine PNG. Verified
+      via `file` that all 8 are now real PNG image data.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: Added a tacticalPortrait(t) method to Terran Army.dc.html (~line 854,
+      right after the existing portrait(u) method for units), mapping tactical card
+      id -> {src, size, pos} using the exact 10 ids from terran-data.js D.TACTICAL_CARDS
+      (academy, armory, barracks, barracks-proxy, barracks-tech-lab, dropship, engineering-bay,
+      factory, orbital-command, supply-depot - barracks-proxy and barracks-tech-lab
+      both point at barracks.png since only one TMG art piece exists for the whole
+      Barracks family). Used background-size:cover / background-position:center for
+      all 8 (no per-card crop tuning like the unit portraits have, since these are
+      wide landscape card-art images, not character portraits needing precise cropping
+      - a reasonable simplification, not a placeholder). Wired ...this.tacticalPortrait(t)
+      into the tacticalGroups cards.map() (~line 1379) and added the same sc-if portrait-overlay
+      + gradient markup pattern used for unit cards into the Tactics tab template
+      (~line 356-358, plus added position:relative to the outer card div and to the
+      expanded-abilities div at ~376 so those layers paint above the absolute-positioned
+      art overlay, mirroring the unit-card structure exactly).
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: 'Verified live in-browser via claude-in-chrome. IMPORTANT DISCOVERY:
+      a plain page reload after editing Terran Army.dc.html did NOT pick up the new
+      tacticalPortrait wiring - the app''s custom runtime (support.js, registry.get(name).html
+      via runtime.templateSource) served a stale cached template (confirmed missing
+      "tc.portrait" in window.__dcTemplateSource( "Terran Army") even though a fresh
+      no-store fetch() of the same URL from within the page DID contain it, and the
+      JS Logic class prototype already had the new tacticalPortrait method). Root
+      cause not fully diagnosed (did not chase further to conserve budget) but a cache-busted
+      reload (?cb=2 query string appended to the URL) immediately fixed it - all 8
+      cards then rendered correct art, and expanding a card (tested on Factory) showed
+      ability text still readable over the dimmed overlay, matching the unit-card
+      pattern. If this recurs on any other .dc.html file after an edit, try a cache-busted
+      URL or hard refresh before assuming the wiring is broken.'
+  - event_type: PROGRESS
+    task_id: TASK-318
+    summary: Did NOT commit anything - portraits/terran-tactics/ is a new untracked
+      directory and Terran Army.dc.html now shows as modified alongside the pre-existing
+      uncommitted Missions.dc.html and Test Army.dc.html changes. Reported completion
+      to the operator in chat and sent a summary to puma via hcom.
+  touched_paths:
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+      Army.dc.html
+    note: added tacticalPortrait() method and wired it into the Tactics tab template;
+      still uncommitted
+  - path: /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/portraits/terran-tactics/
+    note: new folder, 8 downloaded+PIL-converted PNG files (academy, armory, barracks,
+      dropship, engineering-bay, factory, orbital-command, supply-depot); untracked
+  - path: MAP_System/handoffs/
+    note: this workspace's repo; ack of inherited rotation, and this snapshot
+active_constraints:
+- scope: task
+  rule: TASK-318's output_path is entirely outside this git repo, at "/home/mellow/Documents/Projects/StarCraftCA/StarCraft
+    RPG Companion Design". All read/write file work for this task happens there, not
+    under MAP_System/ or Projects/. That folder has its own local (non-global) git
+    identity. Do not run any git commands there without operator approval - same as
+    always.
+  source: inherited across multiple prior snapshots, still true
+- scope: task
+  rule: 'THREE independent layers of uncommitted change still sit in Test Army.dc.html,
+    unchanged this session - do not conflate them when reporting or committing. LAYER
+    1 (oldest, awaiting review): the Abilities/Upgrades table redesign in printAbilityRows,
+    printUpgradeRows, and printSheetCss - operator asked "take a look?" long ago and
+    never explicitly replied; still treat as open, not superseded. LAYER 2 (older
+    session): the mission-follows-supply feature - operator has seen and implicitly
+    approved this. LAYER 3 (prior session): mapId sync / warRoomLabel / badge / tab=setup
+    link - operator gave feedback, implemented, verified, but final iteration report
+    never got an explicit final reply.'
+  source: carried forward unchanged from prior snapshots
+- scope: task
+  rule: 'Missions.dc.html also has an uncommitted "Print Sheet" export (added several
+    sessions ago: printEsc, printMapSvgString, printMissionHtml, printMapHtml, printSheetCss,
+    exportBattleSheet, plus button and renderVals wiring) - verified live in-browser,
+    reported to operator, still no explicit reply visible from any session since.
+    Separate, distinct diff from the three Test Army.dc.html layers and from this
+    session''s Terran Army.dc.html tactics-portrait change - do not bundle when summarizing.'
+  source: carried forward
+- scope: task
+  rule: Terran Army.dc.html and the new portraits/terran-tactics/ folder are this
+    session's work (Terran tactical-card art, approved by operator this session via
+    the single word "download"). Protoss and Zerg tactical cards were explicitly deferred
+    by the operator in an earlier session (chose "Terran tactics only" when asked
+    to scope) and still have zero images and zero sourcing research done - same starcraft.fandom.com
+    approach (TMG_Art thumbnail href via claude-in-chrome, since WebFetch is blocked
+    on that domain) would need repeating per-faction if the operator wants those too.
+  source: this session
+- scope: reference
+  rule: 'This app (StarCraft RPG Companion Design / SCTMG) is a companion tool for
+    a REAL commercial product: Archon Studio''s "StarCraft: Tabletop Miniatures Game"
+    (TMG), released 2026-03-31. starcraft.fandom.com has per-building/unit wiki pages
+    with dedicated "StarCraft Tabletop Miniatures Game" sections and official card
+    art files named "<CardName>_TMG_Art<N>.png" hosted at static.wikia.nocookie.net
+    (served as WebP content despite the .png-looking URL/filename - convert with Python
+    PIL, not ImageMagick, since this host lacks cwebp/dwebp delegate binaries) - first
+    place to look for any future tactics/unit/mission art needs, any of the three
+    factions.'
+  source: inherited, refined this session (WebP gotcha + conversion method)
+- scope: tool
+  rule: WebFetch fails on both starcraft.fandom.com (HTTP 402) and liquipedia.net
+    (HTTP 403). claude-in-chrome browser navigation works fine on both. Use the browser
+    tools for any future StarCraft wiki research, not WebFetch.
+  source: inherited
+- scope: tool
+  rule: 'After editing a .dc.html file, a plain browser reload of that file may serve
+    a stale cached template from the app''s own custom runtime (support.js) even though
+    the JS Logic class itself picks up fresh code - symptom is new fields/methods
+    existing on the Logic prototype but their template bindings (e.g. sc-if on a new
+    field) not rendering. Root cause not fully diagnosed. Workaround that worked:
+    reload with a cache-busting query string (e.g. ?cb=2) appended to the URL. Try
+    this before assuming new template wiring is broken.'
+  source: discovered this session
+- scope: task
+  rule: Two side-topics remain UNSTARTED, still true. First, exportArmySheet's (and
+    exportBattleSheet's) blob URL self-revokes after 30 seconds and cannot be saved
+    - operator said to skip it for now. Second, LAYER 1 table redesign is still fully
+    unreviewed - do not assume dropped.
+  source: carried forward
+- scope: task
+  rule: TASK-318 shows SUBMITTED in MAP's canonical task state with owner=claude-lab-gina
+    in the local task JSON mirror, but the real work has continued informally in direct
+    operator chat across many agent identities with no new MAP claim opened. Keep
+    treating this as informal direct-chat iteration outside MAP unless the operator
+    says otherwise - do not re-claim or re-submit TASK-318.
+  source: inherited, still true
+- scope: tool
+  rule: 'This host is confirmed read-only for MAP lifecycle writes: map_task.py show
+    raises RemoteAuthorityRequired pointing to map-authority on 100.127.80.108. Read
+    task state via the local JSON mirrors in MAP_System/tasks/*.json instead.'
+  source: inherited, not re-verified this session
+- scope: repo
+  rule: Prior orientation thread (36-item emergence backlog triage) is still explicitly
+    on hold per operator instruction carried forward across multiple snapshots. Do
+    not resume it until the operator raises it again.
+  source: operator instruction, carried forward
+active_constraints_note: This session acked the inherited rotation from puma, then
+  received explicit operator approval ("download") for the Terran tactical-card art
+  work puma had scoped and reported. Downloaded and PIL-converted all 8 images, wrote
+  a tacticalPortrait() method mirroring the unit portrait() pattern, wired it into
+  the Tactics tab template, and verified it live in-browser (after discovering and
+  working around a stale-template-cache quirk in the app's custom runtime). Nothing
+  was committed. The three older open threads (LAYER 1 table redesign, Print Sheet
+  report, Protoss/Zerg tactics art) remain untouched and still awaiting any explicit
+  operator reply.
+forward_tasks:
+- task_id: TASK-318
+  next_action: wait
+  owner: null
+  reason: Terran tactical-card art is done and verified. Next session's first action
+    should be checking chat for any further operator feedback on this (e.g. whether
+    the art crop/positioning looks right - cover/center was used generically, not
+    hand-tuned per card like the unit portraits are) and whether to proceed with Protoss/Zerg
+    tactics art next. Also keep in mind the still-open LAYER 1 table-redesign thread
+    and the not-yet-confirmed Print Sheet report - both still awaiting any explicit
+    operator reply, unrelated to this session's work.
+  paths:
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Terran
+    Army.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/portraits/terran-tactics/
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Missions.dc.html
+  - /home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design/Test
+    Army.dc.html
+blockers: []
+lexicon:
+  StarCraft Tabletop Miniatures Game (TMG): The real, commercially released (2026-03-31)
+    Archon Studio miniatures game that this personal project (StarCraft RPG Companion
+    Design / SCTMG naming) is a digital companion app for. Official card art is catalogued
+    on starcraft.fandom.com as "<CardName>_TMG_Art<N>.png" files (actually WebP content).
+  Tactical Cards: An app feature (D.TACTICAL_CARDS per faction, rendered in each Army
+    file's Tactics tab) representing buildings/tech. Terran's 8 cards now have official
+    card art via tacticalPortrait() (this session); Protoss and Zerg still have none.
+  tacticalPortrait(): New method in Terran Army.dc.html (~line 854), mirrors the existing
+    portrait() method (unit id -> {src,size,pos}) but keyed by tactical card id, pointing
+    at portraits/terran-tactics/*.png with background-size:cover/position:center.
+  dev server: python3 -m http.server 8934, served from inside the external project
+    folder.
+resume_commands:
+- 'curl -sf http://localhost:8934/ >/dev/null && echo "dev server still up" || echo
+  "restart: cd ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion
+  Design'' && python3 -m http.server 8934"'
+- cd "/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG Companion Design"
+  && git status --short && git diff --stat
+validation:
+- 'Verified live in browser (claude-in-chrome): all 8 Terran tactical cards (Academy,
+  Armory, Barracks, Barracks Proxy, Barracks Tech Lab, Dropship, Engineering Bay,
+  Factory, Orbital Command, Supply Depot) render their official art on the Tactics
+  tab after a cache-busted reload; expanding Factory''s card showed ability text still
+  readable over the dimmed art overlay.'
+rotation:
+  reason: threshold
+  summary: Acked inherited rotation from puma, received explicit operator approval
+    ("download") for the previously-reported 8 Terran tactical-card art URLs, downloaded
+    and PIL-converted them from WebP to real PNG, wrote tacticalPortrait() mirroring
+    the existing portrait() method, wired it into the Tactics tab template, and verified
+    live in-browser after working around a stale-template-cache quirk (cache-busted
+    reload fixed it). Nothing committed. Reported completion to operator in chat and
+    to puma via hcom.
+  next_action: Next session's first action should be checking chat for any further
+    operator feedback on the Terran tactics art (crop/positioning, or whether to proceed
+    with Protoss/Zerg next). Also keep the still-open LAYER 1 table-redesign thread
+    and the unconfirmed Print Sheet report in mind - unrelated open items, not superseded.
+  used_tokens: 137297
+  threshold_tokens: 150000
+  metric_source: claude_latest_prompt_input_estimate
+integrity:
+  prepared_at: '2026-08-06T16:47:21Z'
+  canonical_tasks:
+  - task_id: TASK-318
+    status: SUBMITTED
+    owner: claude-lab-gina
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-05 18:50:39'
+  canonical_tasks_sha256: a9bd814dc3ad8558e1975f31366f8d01bda2ce6fcb252baa9814e6258ee7f68f
+  touched_paths:
+  - path: '{''path'': ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG
+      Companion Design/Terran Army.dc.html'', ''note'': ''added tacticalPortrait()
+      method and wired it into the Tactics tab template; still uncommitted''}'
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  - path: '{''path'': ''/home/mellow/Documents/Projects/StarCraftCA/StarCraft RPG
+      Companion Design/portraits/terran-tactics/'', ''note'': ''new folder, 8 downloaded+PIL-converted
+      PNG files (academy, armory, barracks, dropship, engineering-bay, factory, orbital-command,
+      supply-depot); untracked''}'
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  - path: '{''path'': ''MAP_System/handoffs/'', ''note'': "this workspace''s repo;
+      ack of inherited rotation, and this snapshot"}'
+    scope: workspace
+    sha256: null
+    size: null
+    state: missing
+  touched_paths_sha256: 72deb44f028a19c615a581d22ecaf8f35dcbf81ec72c623f59a110491cc6045a

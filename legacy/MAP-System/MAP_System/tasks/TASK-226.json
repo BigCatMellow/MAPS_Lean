@@ -1,0 +1,37 @@
+{
+  "task_id": "TASK-226",
+  "title": "Discovery Agent pilot on completed ClearFront phase",
+  "task_type": "experiment",
+  "role": "researcher",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "Execute EXP-0003 using the operator-provided seven-pass, non-forcing Discovery Agent method. A new visible Codex helper performs proposal-only discovery over the completed ClearFront decomposition phase. Freeze the known-findings set before receiving helper output. Adjudicate each finding as known duplicate, useful refinement, genuinely new useful finding, weak/speculative, or scope drift. Do not implement or automatically promote findings.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/experiments/clearfront-discovery-agent-adjudication-2026-07-17.md",
+    "MAP_System/artifacts/experiments/clearfront-discovery-agent-pilot-2026-07-17.md",
+    "MAP_System/artifacts/experiments/clearfront-discovery-known-findings-2026-07-17.md",
+    "MAP_System/notes/discovery-agent-guide.md"
+  ],
+  "acceptance_criteria": [
+    "Discovery helper runs visibly in wezterm-tab, makes no implementation edits, and may report no findings.",
+    "Every reported finding uses exactly one allowed classification and the required evidence/scoring format.",
+    "Known-findings truth set is frozen before helper output and covers existing audit, E/I, Sentinel, and operator-raised findings.",
+    "Coordinator adjudicates novelty, value, requirement-label accuracy, scope drift, duplicates, rejected ideas, and curation time.",
+    "Pilot conclusion recommends adopt, revise, or reject with measured evidence; no finding is automatically promoted or implemented."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

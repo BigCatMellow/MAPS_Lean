@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-265",
+  "title": "Reconcile live CommandCenterUI server.py with the MAP template and decide the remote-Ollama scope question",
+  "task_type": "architecture",
+  "role": "architect",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "command-center",
+  "description": "Follow-up flagged by claude-lab-bozo in artifacts/audits/task254-untracked-edit-2026-07-21.md and left out of TASK-254 and TASK-264 on purpose. The live CommandCenterUI app/server.py (2376 lines) and the MAP template copy (2119 lines) have diverged substantially: the live file carries real feature work from the untracked 2026-07-21 edit that the template does not have, and the template carries security hardening the live file had lost. TASK-264 restored the hardening in the live file only. Nothing has folded the live feature work back into the template, so the two copies remain two readers of one truth with no declared authority, which is the SYN-0001 pattern this workspace hit five separate times on 2026-07-21. Also open: whether the UI process should ever be permitted to reach a remote OLLAMA_HOST, or whether loopback-only is permanent. TASK-264 chose loopback-only as the secure default under operator authority but explicitly did not settle the policy.",
+  "input_paths": [],
+  "output_paths": [
+    "/home/mellow/Projects/CommandCenterUI/app/server.py",
+    "MAP_System/artifacts/tests/task265-commandcenterui-reconciliation-delivery-note.md",
+    "MAP_System/templates/install/command-center-ui/app/server.py",
+    "MAP_System/tests/test_command_center_ollama_allowlist.py"
+  ],
+  "acceptance_criteria": [
+    "A decision record states whether the CommandCenterUI process may reach a remote OLLAMA_HOST, and if so by what explicit and visible opt-in mechanism.",
+    "One copy of server.py is declared authoritative and the other is derived from it, with the direction of sync written down.",
+    "Live feature work from the 2026-07-21 edit is either folded into the authoritative copy or explicitly rejected with reasons.",
+    "A mechanical drift check exists so live-vs-template divergence is detected rather than discovered during an unrelated review."
+  ],
+  "decision_class": "SCOPE",
+  "risk_class": "SECURITY",
+  "risk_severity": "DRIFT",
+  "task_tier": "architecture",
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

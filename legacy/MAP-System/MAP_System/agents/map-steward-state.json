@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "idle",
+  "last_run": "2026-07-18T01:48:24Z",
+  "mode": "deterministic",
+  "model": null,
+  "last_error": null,
+  "inputs": {
+    "actionable_tasks": 6,
+    "unavailable_agents": 5,
+    "active_lessons": 2,
+    "lesson_errors": 0,
+    "emergence_sentinel": {
+      "schema_version": 1,
+      "status": "idle",
+      "last_run": "2026-07-18T01:46:38Z",
+      "last_success": "2026-07-18T01:46:38Z",
+      "last_error": null,
+      "candidates_new": 7,
+      "candidates_total": 7,
+      "runtime_ms": 11.98,
+      "stop_requested": false
+    },
+    "new_ei_candidates": 7
+  },
+  "recommendations": [
+    {
+      "priority": "high",
+      "kind": "rework",
+      "text": "1 task(s) need rework.",
+      "refs": [
+        "TASK-220"
+      ]
+    },
+    {
+      "priority": "normal",
+      "kind": "review",
+      "text": "4 submitted task(s) need independent review.",
+      "refs": [
+        "TASK-221",
+        "TASK-223",
+        "TASK-224",
+        "TASK-225"
+      ]
+    },
+    {
+      "priority": "normal",
+      "kind": "emergence",
+      "text": "7 E/I candidate(s) await visible curation.",
+      "refs": [
+        "CAND-0F54844BFC978ADD",
+        "CAND-4E1F484A05BFCCA1",
+        "CAND-76EC1E5E6F6C436B",
+        "CAND-CA152F475CC3E594",
+        "CAND-E2DC97B8A022D8C6",
+        "CAND-E32900738E634987",
+        "CAND-F31FEAF6A92ECD05"
+      ]
+    }
+  ],
+  "stop_requested": false
+}

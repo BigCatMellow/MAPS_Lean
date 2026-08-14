@@ -1,0 +1,38 @@
+{
+  "task_id": "TASK-220",
+  "title": "ClearFront: deterministic rule-engine test matrix (headless, below the DOM)",
+  "task_type": "implementation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-gome",
+  "description": "Implements the audit's second P0 (rule-engine regression evidence too narrow for future gameplay changes) using the seam proven by INS-0026: data.js+state.js+combat.js load unmodified in Node via node:vm with a ~50-line host stub (window.CF, __resources proxy, setTimeout->manual-drain queue, matchMedia stub, refs Proxy, 3-function render stub with playClashSequence completing synchronously). Deliverables: (1) Projects/ClearFront/tests/engine/engine-host.mjs -- the reusable headless host (builds ctx accessors over harness-owned bindings, installs real modules, exposes fresh-game + direct-state-setup helpers and the timer drain). (2) Projects/ClearFront/tests/engine/rules.cases.mjs -- table-driven cases covering: all 7 keywords (Stun asserted at its CURRENT behavior -- flag never set -- explicitly tagged as documenting the known gap, not fantasy spec behavior), combat math (blocked/unblocked/simultaneous-lethal/mutual-destruction/draw), persistent damage, champion lifecycle (deploy gating, counts-as-play, return-to-slot +2 cost escalation, all 4 champion passives incl. once-per-cycle semantics), fatigue (incl. the hand-limit-guard-precedes-fatigue nuance the probe surfaced), board/relic limits incl. full-zone play rejection, target legality, effectiveCost/2-card play limits, engine-level undo semantics (snapshot/restore/clear incl. TASK-213 replacement clearing). Every case that encodes a KNOWN rules-doc deviation (fatigue, 15/15 deck split, Rush narrowness, Drain combat-only, Stun absent -- per the released TASK-211 audit) carries a deviation tag referencing the audit section, so the matrix doubles as decision-support for the pending bigboss conformance disposition: flipping tagged expectations = the implement-to-spec TODO list. (3) Projects/ClearFront/tests/engine/run-rules.mjs -- runner, fail-loud nonzero exit, compact per-case output. (4) One-line wiring into scripts/test_all.mjs as an additional check (small disclosed sibling edit to TASK-219's released file). Medium-risk lane per DEC-CF-008: one review at completion. No app-code changes -- the engine seam requires none (INS-0026).",
+  "input_paths": [],
+  "output_paths": [
+    "Projects/ClearFront/artifacts/tests/task-220-delivery-note.md",
+    "Projects/ClearFront/scripts/test_all.mjs",
+    "Projects/ClearFront/tests/engine/engine-host.mjs",
+    "Projects/ClearFront/tests/engine/rules.cases.mjs",
+    "Projects/ClearFront/tests/engine/run-rules.mjs"
+  ],
+  "acceptance_criteria": [
+    "node tests/engine/run-rules.mjs runs the full matrix headless (no Chromium, no app-code changes) and exits 0 iff all cases pass; a deliberately broken expectation exits nonzero.",
+    "Matrix covers at minimum: 7 keywords, blocked/unblocked/simultaneous-lethal combat, persistent damage, champion deploy/return/+2/passives, fatigue incl. hand-limit nuance, board+relic limits, target legality, play limits, engine-level undo incl. TASK-213 semantics.",
+    "Every known rules-doc deviation case carries an explicit deviation tag citing the TASK-211 audit section; the runner prints a deviation summary distinct from failures.",
+    "scripts/test_all.mjs gains the engine matrix as one additional check; full runner still exits 0 with everything passing.",
+    "Evidence recorded using the TASK-219 delivery-note template (first real use), not the legacy three-document trio; source/ and baseline/ untouched."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

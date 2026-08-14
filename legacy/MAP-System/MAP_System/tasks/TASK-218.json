@@ -1,0 +1,32 @@
+{
+  "task_id": "TASK-218",
+  "title": "MAP: document risk-tiered review convention (from ClearFront audit)",
+  "task_type": "documentation",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "claude-lab-gome",
+  "description": "Reusable MAP-level half of the ClearFront process-improvement batch (operator-directed, hcom thread clearfront-map #1851, following the independent audit at Projects/ClearFront/artifacts/reviews/clearfront-independent-delivery-audit-2026-07-17.md). Add a Risk-Tiered Review section to MAP_System/notes/review-guide.md: three lanes (high/medium/low) with concrete criteria for what each requires, so any MAP project -- not just ClearFront -- can calibrate review/release ceremony to actual risk instead of applying the full pipeline uniformly. References Projects/ClearFront/shared/decisions.md DEC-CF-008 as the worked example and origin. Low-risk documentation change per the very convention it introduces -- self-verified, one light cross-read from lilo, no independent-reproduction review cycle.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/notes/review-guide.md"
+  ],
+  "acceptance_criteria": [
+    "review-guide.md gains a Risk-Tiered Review section defining high/medium/low lanes with concrete process requirements per lane.",
+    "The new section cross-references DEC-CF-008 as the worked example and the audit as the source finding.",
+    "No change to existing sections (Claim Before Reviewing, Debate) -- purely additive."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

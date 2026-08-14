@@ -1,0 +1,145 @@
+kind: STATE_SNAPSHOT
+snapshot_version: 2
+created_at: '2026-08-10T03:29:03Z'
+project_id: MAP-BOOTSTRAP-20260617
+agent_id: rotation-replacement-miro-fela
+session_id: 019fe99f-2219-7c60-b304-53c2dcfccfca
+status: handing_off
+task_context:
+  current_task: null
+  owned_tasks: []
+  pending_reviews:
+  - TASK-321
+  recent_events:
+  - event_type: CONTEXT_ROTATION_FINALIZED
+    task_id: TASK-321
+    summary: codex-lab-miro transferred TASK-321 continuity to rotation-replacement-miro-fela;
+      frozen snapshot SHA-256 c2db1cffd66d7c1a93b857a16ca8cdb084515b3d849fc600fa799895b0696a11.
+  - event_type: MIRROR_RECONCILED
+    task_id: TASK-321
+    summary: Repaired stale post-finalize owner mirrors through sanctioned same-owner
+      Smalls re-export and Biggie sync; validate_task_mirrors passes.
+  - event_type: SUBMISSION
+    task_id: TASK-321
+    summary: Implemented fail-closed cgroup-v2 fallback, added focused tests and Phase
+      0 evidence, verified live FRESH sandbox route, and submitted through Smalls.
+  - event_type: REVIEW_REQUESTED
+    task_id: TASK-321
+    summary: claude-lab-sumi accepted functional review and separate security-review
+      routing; its visible replacement rotation-replacement-sumi-mige is active and
+      should take this as first work.
+  touched_paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/tests/test_map_authority.py
+  - MAP_System/artifacts/recovery/map2-phase0-trustworthy-baseline-2026-08-10.md
+active_constraints:
+- scope: safety
+  rule: Smalls remains the sole writable lifecycle authority; Biggie remains a read-only
+    mirror and lifecycle mutations use map-authority.
+  source: TASK-321 and MAP_System/AGENTS.md
+- scope: safety
+  rule: Do not treat an unproven writer state as clean; populated maintenance service
+    cgroups, recent watcher writes, malformed evidence, and unrelated systemctl errors
+    fail closed.
+  source: TASK-321 acceptance criteria
+- scope: task
+  rule: TASK-321 is SUBMITTED and must receive independent functional review plus
+    a separate security-framed pass before approval.
+  source: TASK-321 acceptance criteria and MAP_System/AGENTS.md Review Standard
+- scope: communication
+  rule: Biggie names this PC and Smalls names the sole writable authority PC; preserve
+    older aliases only as historical identifiers.
+  source: operator instruction
+- scope: safety
+  rule: Do not self-review or approve the TASK-321 deliverable.
+  source: MAP_System/AGENTS.md
+forward_tasks:
+- task_id: TASK-321
+  next_action: wait
+  owner: rotation-replacement-miro-fela
+  reason: Wait for rotation-replacement-sumi-mige functional review and its separately
+    routed security-framed review; address any BLOCKER/REQUIRED findings, otherwise
+    carry approval/release through Smalls.
+  paths:
+  - MAP_System/scripts/map_authority.py
+  - MAP_System/tests/test_map_authority.py
+  - MAP_System/artifacts/recovery/map2-phase0-trustworthy-baseline-2026-08-10.md
+blockers: []
+failed_approaches:
+- Treating sandboxed systemctl user-bus failure as host writer state produced a false
+  INVALID topology.
+- A first direct mirror sync after rotation reproduced stale Smalls file mirrors;
+  a sanctioned same-owner re-export was required before Biggie could validate cleanly.
+- A sync attempted inside the real 15-second watcher collision window correctly failed
+  closed; retrying after the window succeeded.
+decisions:
+- Use cgroup v2 only for the narrow Failed to connect to bus diagnostic; preserve
+  systemctl as primary and fail closed on all other errors.
+- Check process-bearing writer services through cgroup.events; the processless maintenance
+  timer is not inferred, while its oneshot service remains covered.
+lexicon:
+  Biggie: This PC and read-only MAP mirror.
+  Smalls: Remote PC and sole writable MAP lifecycle authority.
+  writer_probe: Local check proving no conflicting Biggie writer is active before
+    trusting or installing a mirror snapshot.
+  collision_window: Fifteen seconds after an overlapping watcher write, during which
+    mirror installation and route health remain fail closed.
+resume_commands:
+- cd /home/mellow/Projects/MultiAgentProject/Source
+- hcom list --json --name <replacement-short-name>
+- map-authority task show TASK-321
+- MAP_System/.venv/bin/python -m unittest MAP_System.tests.test_map_authority MAP_System.tests.test_map_authority_notify
+- MAP_System/.venv/bin/python MAP_System/scripts/validate_task_mirrors.py
+- MAP_System/.venv/bin/python MAP_System/graph/runner.py
+validation:
+- Snapshot source from codex-lab-miro verified at SHA-256 c2db1cffd66d7c1a93b857a16ca8cdb084515b3d849fc600fa799895b0696a11
+  and finalized at 2026-08-10T03:03:44Z.
+- TASK-321 is SUBMITTED on Smalls with owner rotation-replacement-miro-fela and no
+  live claim.
+- Focused unittest suite passed 55 tests.
+- validate_task_mirrors.py passed after sanctioned mirror reconciliation.
+- validate_shared_state_tasks.py passed.
+- Live sandbox status and route reached FRESH with topology_valid true after the retained
+  collision window cleared.
+- graph/runner.py routed review; transient INVALID immediately after watcher-overlap
+  writes remains expected fail-closed behavior.
+rotation:
+  reason: threshold
+  summary: Replaced codex-lab-miro, repaired post-finalize mirror drift, implemented
+    and verified TASK-321's sandbox-safe cgroup-v2 writer fallback, submitted the
+    task, and routed independent functional and security review. No task claim remains;
+    review is pending.
+  next_action: Contact rotation-replacement-sumi-mige, confirm it begins TASK-321
+    functional review and routes a distinct security-framed pass, then address findings
+    or carry clean review to approval/release through Smalls.
+  used_tokens: 135182
+  threshold_tokens: 150000
+  metric_source: codex_last_context_tokens
+integrity:
+  prepared_at: '2026-08-10T03:29:03Z'
+  canonical_tasks:
+  - task_id: TASK-321
+    status: SUBMITTED
+    owner: rotation-replacement-miro-fela
+    claimed_by: null
+    lease_expires_at: null
+    heartbeat_at: null
+    updated_at: '2026-08-10 03:24:38'
+  canonical_tasks_sha256: 3c9f5f803e43ce0305276817d8f968f6a5ed5858bc7f289a4990bedd927d79ec
+  touched_paths:
+  - path: MAP_System/artifacts/recovery/map2-phase0-trustworthy-baseline-2026-08-10.md
+    scope: workspace
+    sha256: 372d322ee959a74db3c916f4915b34965d1052a95389469c2a3dded79d277b29
+    size: 5077
+    state: file
+  - path: MAP_System/scripts/map_authority.py
+    scope: workspace
+    sha256: fc1967a72ae5fb917d79ce768956ef8ccb9c0ae99687157b844cc9ba237637f6
+    size: 41523
+    state: file
+  - path: MAP_System/tests/test_map_authority.py
+    scope: workspace
+    sha256: 4feed11665ac056dcd6bf5e6e95cbdd3fb0de8153f550e041670af81666ef8b4
+    size: 40241
+    state: file
+  touched_paths_sha256: a4545eebc5ead067a6878efe003d569e5daa830a24bf872bf60c42cbd37b83f6

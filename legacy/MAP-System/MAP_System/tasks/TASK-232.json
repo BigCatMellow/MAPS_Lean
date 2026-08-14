@@ -1,0 +1,33 @@
+{
+  "task_id": "TASK-232",
+  "title": "Normalize the HPOM comparative research artifact",
+  "task_type": "maintenance",
+  "role": "implementer",
+  "status": "RELEASED",
+  "dependencies": [],
+  "owner": "codex-lab-lilo",
+  "description": "The only current full-suite failure is an advisory HPOM comparative research report placed under artifacts/research with an unrecognized filename and no Research System summary shape. Preserve its findings and source links while moving it to a validator-recognized SUMMARY artifact, updating current synthesis navigation only.",
+  "input_paths": [],
+  "output_paths": [
+    "MAP_System/artifacts/research/SUMMARY-HPOM-OPERATING-MODELS-2026-07-18.md",
+    "MAP_System/emergence/synthesis/SYN-0002-a-goal-first-evidence-budgeted-practice-loop-makes-map-coordinat.md"
+  ],
+  "acceptance_criteria": [
+    "The comparative research findings and source links are preserved in a filename recognized by validate_research_artifacts.py and satisfy the SUMMARY required headings.",
+    "Current synthesis navigation points to the normalized artifact; historical review/test evidence is not rewritten.",
+    "validate_research_artifacts.py passes after the change, and no policy, task, or decision is introduced."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}

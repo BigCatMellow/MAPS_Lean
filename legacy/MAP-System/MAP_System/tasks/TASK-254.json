@@ -1,0 +1,43 @@
+{
+  "task_id": "TASK-254",
+  "title": "Consolidate CommandCenterUI rapid-feedback edits into one reviewable final state",
+  "task_type": "maintenance",
+  "role": "release-steward",
+  "status": "RETIRED",
+  "dependencies": [],
+  "owner": "codex-lab-kiri",
+  "description": "Reconcile the serial operator-feedback implementations recorded as TASK-241 through TASK-248 into one independently reviewable final-state batch. Preserve each original timeline, retire the overwritten snapshot cards as superseded, establish one active owner for the shared live/template UI files and focused tests, verify the combined requirements and parity, and make no UI behavior change during reconciliation.",
+  "input_paths": [],
+  "output_paths": [
+    "../../CommandCenterUI/src/chat.css",
+    "../../CommandCenterUI/src/chat.html",
+    "../../CommandCenterUI/src/chat.js",
+    "MAP_System/artifacts/planning/command-center-ui-serial-batch-reconciliation-2026-07-19.md",
+    "MAP_System/templates/install/command-center-ui/src/chat.css",
+    "MAP_System/templates/install/command-center-ui/src/chat.html",
+    "MAP_System/templates/install/command-center-ui/src/chat.js",
+    "MAP_System/tests/test_command_center_agent_identity.py",
+    "MAP_System/tests/test_command_center_attention_history.py",
+    "MAP_System/tests/test_command_center_composer_alignment.py",
+    "MAP_System/tests/test_command_center_message_intent_copy.py"
+  ],
+  "acceptance_criteria": [
+    "TASK-241 through TASK-248 are preserved in history and explicitly superseded by TASK-254 rather than presented as eight independently recoverable worktree snapshots.",
+    "Exactly one active task owns the live/template chat HTML, CSS, JavaScript, and the focused tests covering all eight operator feedback changes.",
+    "The final-state packet maps every original acceptance criterion to current code/test evidence and records live/template parity, JavaScript syntax, and focused test results.",
+    "Task graph and task mirrors validate after reconciliation, and no CommandCenterUI source or behavior is changed by the administrative repair."
+  ],
+  "decision_class": null,
+  "risk_class": null,
+  "risk_severity": null,
+  "task_tier": null,
+  "requires_operator_approval": false,
+  "destructive_action": null,
+  "final_review": null,
+  "final_decision": null,
+  "broad_architecture": null,
+  "broad_rewrite": null,
+  "canonical_map_mutation": null,
+  "shell_required": null,
+  "trust_boundary_crossing": null
+}
