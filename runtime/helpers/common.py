@@ -70,7 +70,12 @@ def _norm(path: str | Path, repo: Path) -> Path:
     candidate = Path(path)
     if not candidate.is_absolute():
         candidate = repo / candidate
-    return candidate.resolve()
+    resolved = candidate.resolve()
+    try:
+        resolved.relative_to(repo)
+    except ValueError as exc:
+        raise HelperError(f"helper path escapes repository: {path}") from exc
+    return resolved
 
 
 def path_in_scope(path: str | Path, allowed: Sequence[str], repo: str | Path) -> bool:
