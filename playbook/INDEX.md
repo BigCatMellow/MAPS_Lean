@@ -1,8 +1,8 @@
 # Lean Project Playbook
 
-These are active, provider-neutral methods harvested from the original MAP
-system. Use the smallest method that fits the project. They govern work in this
-repository; `legacy/` provides the full historical source material.
+These are the active, provider-neutral MAPS methods. Use the smallest method
+that fits the project. Historical behavior worth retaining is curated under
+`migration/`; ordinary agents should not need the old `legacy/` tree.
 
 | Need | Use | Do not confuse it with |
 | --- | --- | --- |
@@ -10,6 +10,7 @@ repository; `legacy/` provides the full historical source material.
 | Install/verify SQLite, LangGraph, and hcom on a fresh clone | [Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md) | Combining their databases or letting transport/routing become task authority. |
 | Decide whether instructions are formally ready for execution | [AGI_STANDARD.md](AGI_STANDARD.md) | Treating a capable model's ability to guess as proof the instruction is good. |
 | Write instructions an agent can execute without guessing | [AGENT_GRADE_INSTRUCTIONS.md](AGENT_GRADE_INSTRUCTIONS.md) | Making prompts longer without making outcomes, boundaries, or proof clearer. |
+| Freeze context/scope for a consequential run, handle conflicts, or preserve reviewer independence | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) | Turning every tiny edit into a run-manifest ceremony. |
 | Apply tool/provider-specific operating guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Making MAPS depend on one vendor's UI or commands. |
 | Route by actual model/harness capability | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Assuming model brand, price, context size, or tool support proves competence. |
 | Evaluate a workflow, document set, or usability path | [RESEARCH.md](RESEARCH.md) | Treating a low-risk evaluation as implementation authority. |
@@ -31,24 +32,29 @@ repository; `legacy/` provides the full historical source material.
 
 - **SQLite:** canonical mutable task state—atomic claims, leases, submissions,
   reviews, and task events.
-- **LangGraph:** deterministic route selection from the task graph, policy,
-  availability, helpers, and gates. Its checkpoint database is separate from
-  MAPS task truth. It recommends; accountable agents act.
+- **LangGraph:** deterministic route selection from task/dependency state,
+  policy, availability, helpers, and gates. Its checkpoint database is
+  separate from MAPS task truth. It recommends; accountable agents act.
 - **RnS:** deterministic restart/limit recovery. It relies on durable handoffs
-  and currently uses hcom for session inspection, resume, and nudging.
-- **hcom:** cross-provider messages, session control, and RnS transport. Its own
-  local state is not MAPS task authority.
-- **WezTerm Command Center:** optional terminal presentation. Replace or omit
-  it without removing the above controls.
+  and hcom/session adapters rather than terminal authority.
+- **hcom:** cross-provider messages, session control, and current RnS transport.
+  Its own local state is not MAPS task authority.
+- **WezTerm or any other terminal UI:** optional presentation only.
 
-## Original sources
+## Legacy audit and migration sources
 
-The original full specifications and templates are retained under:
+The full legacy archive is temporary. Durable findings and selected source/tests
+are being moved into:
 
-- `legacy/MAP-System/MAP_System/shared/hpom.md`
-- `legacy/MAP-System/MAP_System/{PROJECT_BOOTSTRAPPING_SYSTEM.md,NEW_PROJECT_WIZARD.md,RESEARCH_SYSTEM.md,RISK_SYSTEM.md,CHANGE_CONTROL_SYSTEM.md}`
-- `legacy/MAP-System/MAP_System/emergence/`
-- `legacy/MAP-System/Projects/ProjectUpdater/shared/steps-outline-guide.md`
+- [Legacy Knowledge Audit](../migration/LEGACY_KNOWLEDGE_AUDIT.md)
+- [Legacy Promotion Ledger](../migration/LEGACY_PROMOTION_LEDGER.md)
+- [Legacy Removal Checklist](../migration/LEGACY_REMOVAL_CHECKLIST.md)
+- `migration/legacy-runtime-source/` — first control-plane extraction
+- `migration/legacy-knowledge-source/` — second execution/knowledge extraction
 
-See [the source catalog](SOURCE_CATALOG.md) for the complete audit, including each portable source
-that informed this playbook and the presentation/runtime separation.
+Migration snapshots are reference source only. Active runtime code must not
+import or execute from them.
+
+See [the source catalog](SOURCE_CATALOG.md) for earlier source mapping; where it
+conflicts with the newer migration audit, the newer audit/ledger governs the
+legacy-removal decision.
