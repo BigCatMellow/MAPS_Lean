@@ -20,6 +20,9 @@ class WorkerProfile:
 
     @classmethod
     def from_mapping(cls, value: Mapping[str, Any]) -> "WorkerProfile":
+        for field in ("available", "can_mutate", "can_review"):
+            if field in value and not isinstance(value[field], bool):
+                raise ValueError(f"{field} must be boolean")
         worker_id = str(value.get("worker_id", "")).strip()
         worker_class = str(value.get("worker_class", "")).strip().lower()
         supported = value.get("supported_task_types", ("*",))
@@ -30,13 +33,13 @@ class WorkerProfile:
         profile = cls(
             worker_id=worker_id,
             worker_class=worker_class,
-            available=bool(value.get("available", True)),
+            available=value.get("available", True),
             supported_task_types=tuple(
                 str(item).upper() for item in supported if str(item).strip()
             ),
             max_risk=str(value.get("max_risk", "HIGH")).strip().upper(),
-            can_mutate=bool(value.get("can_mutate", True)),
-            can_review=bool(value.get("can_review", False)),
+            can_mutate=value.get("can_mutate", True),
+            can_review=value.get("can_review", False),
             cost_rank=int(value.get("cost_rank", 100)),
         )
         profile.validate()
