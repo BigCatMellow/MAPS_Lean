@@ -7,9 +7,9 @@ requirement for WezTerm as the agent-window cockpit.
 ## Start here
 
 For your first task, [follow the canonical first-run route](docs/FIRST_RUN.md).
-It starts with [AGENTS.md](AGENTS.md) and tells you exactly when to read current state,
-the control plane, and a playbook method. Do not construct a second orientation
-sequence from this README.
+It starts with [AGENTS.md](AGENTS.md) and tells you exactly when to read current
+state, the control plane, and a playbook method. Do not construct a second
+orientation sequence from this README.
 
 Resuming after a session break? Read [Current State](state/CURRENT.md) first.
 
@@ -27,12 +27,13 @@ For a fresh runtime setup, start with [Fresh Clone Setup](docs/FRESH_INSTALL.md)
 For component-level installation and migration details, use
 [Control-Plane Setup](docs/CONTROL_PLANE_SETUP.md).
 
-## Runtime review stack
+## Active runtime
 
-The current stacked branches implement:
+PR #16 promoted the reviewed replacement runtime to `main`.
 
 - **SQLite task truth + AGI gate** — canonical task lifecycle, atomic claims,
-  leases, durable submission authorship, review separation, and rework.
+  leases, durable submission authorship, scoped reservations, review separation,
+  rework, and explicit policy state.
 - **LangGraph routing** — read-first recommendations using explicit worker
   capability profiles and policy gates; checkpoint DB is separate from task truth.
 - **hcom adapter** — project-isolated messaging/session transport; no task authority.
@@ -42,10 +43,19 @@ The current stacked branches implement:
   helpers cannot approve or complete parent tasks.
 - **Fresh-clone setup/smoke** — preview-first installer and disposable end-to-end
   lifecycle verification.
+- **Execution integrity** — immutable run/context binding, task/context staleness,
+  writable/forbidden Git scope proof, run-budget checks, continuity-aware review,
+  and optional criterion-level evidence.
 
-GitHub Actions has verified the combined stack with **64/64 passing tests** plus
-a disposable SQLite/LangGraph smoke. Independent review and merge are intentionally
-still pending; `main` should not be described as containing this whole stack yet.
+The integration review is recorded in
+[`work/reviews/RUNTIME_INTEGRATION_REVIEW.md`](work/reviews/RUNTIME_INTEGRATION_REVIEW.md).
+The final active dependency sweep is recorded in
+[`migration/FINAL_LEGACY_DEPENDENCY_SWEEP.md`](migration/FINAL_LEGACY_DEPENDENCY_SWEEP.md).
+
+Latest removal-readiness verification on the cleanup branch passed **93/93 unit
+tests**, SQLite/LangGraph smoke, installer checks, static/security/dependency
+checks, and a mechanical scan of 50 active executable/config files with no
+active dependency on `legacy/` or the curated migration snapshots.
 
 ## Core responsibility boundaries
 
@@ -55,19 +65,20 @@ LangGraph   = routing recommendation + checkpoint memory
 hcom        = communication / session control
 RnS         = recovery of known active sessions
 helpers     = bounded delegated work
+integrity   = frozen execution contract + proof; no new authority
 Markdown    = durable human-readable project record
 WezTerm     = optional presentation
 ```
 
 Capability never grants authority. A router recommendation, active hcom session,
-helper result, or successful recovery command does not by itself change MAPS task
-truth.
+helper result, recovery command, or run manifest does not by itself change MAPS
+task truth.
 
 ## What is deliberately retained
 
 - A named owner, scope, output paths, and observable acceptance criteria.
-- Independent review for medium- and high-risk changes.
-- Risk-proportionate evidence and release checks.
+- Independent review where the active task/risk policy requires it.
+- Risk-proportionate evidence and operator gates.
 - Compact handoffs and durable decisions when work spans sessions or tools.
 
 ## What is deliberately removed from the active default
@@ -76,21 +87,24 @@ truth.
 - The assumption that every control-plane signal must become operator-facing
   terminal noise.
 - Ceremony for small, low-risk, single-agent edits.
+- A universal second `APPROVED → RELEASED` lifecycle.
 
 ## Layout
 
 | Path | Purpose |
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | Active operating contract. |
-| `runtime/` | Provider-neutral runtime implementation. |
+| `runtime/` | Provider-neutral active runtime implementation. |
 | `tests/` | Active runtime regression tests. |
 | `docs/` | Workflow, setup, and quality guidance. |
 | `playbook/` | Reusable methods: planning, task lifecycle, research, risk, routing, repair. |
 | `templates/` | Task, review, handoff, decision, context, worker/task examples. |
 | [state/CURRENT.md](state/CURRENT.md) | Compact shared continuation state. |
-| `work/` | Active task records and durable outputs. |
-| `migration/` | Curated source/evidence retained during promotion. |
-| `legacy/` | Historical original source; not an execution dependency of the new stack. |
+| `work/` | Task records and durable outputs. |
+| `migration/` | Curated source/evidence retained during promotion and removal proof. |
+| `legacy/` | Historical original source; no longer an active execution dependency. |
 
-`legacy/` is intentionally still present. Delete it only after deferred review/
-merge, the final dependency/privacy sweep, and explicit operator removal approval.
+`legacy/` is intentionally still present. The runtime is merged, current
+preservation/privacy and active dependency gates pass, and the only remaining
+migration action is a **separate explicit operator-approved deletion of
+`legacy/`**.

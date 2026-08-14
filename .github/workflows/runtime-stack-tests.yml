@@ -6,6 +6,7 @@ on:
       - agent/fresh-clone-install-smoke
       - agent/execution-integrity-runtime
       - agent/runtime-integration-review
+      - agent/legacy-removal-ready
       - main
   workflow_dispatch:
 
@@ -22,6 +23,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Verify no active legacy dependency remains
+        run: python scripts/check_legacy_removal_readiness.py
 
       - name: Install active runtime dependencies
         run: |

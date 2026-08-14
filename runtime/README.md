@@ -1,9 +1,9 @@
 # MAPS Lean Runtime
 
-This directory is the active provider-neutral MAPS runtime in the current review
-stack.
+This directory is the active provider-neutral MAPS runtime merged to `main` by
+PR #16.
 
-Implemented slices:
+Implemented components:
 
 - `runtime/state/` — SQLite task truth, structural AGI `READY` gate, claims,
   leases, submission evidence, review, policy, continuity, immutable run
@@ -18,10 +18,13 @@ Implemented slices:
   sessions with bounded retry/backoff and no WezTerm requirement.
 - `runtime/helpers/` — bounded Ollama/Aider helper lanes that inherit parent
   task scope but never parent ownership/review authority.
-- `runtime/integrity/` — execution-time contract/context/scope proof and
-  read-only Git run-scope verification.
+- `runtime/integrity/` — immutable execution-time contract/context binding,
+  staleness checks, writable/forbidden Git scope proof, run-budget checks,
+  continuity-aware review support, and optional criterion evidence.
 
 Active runtime does not import executable code from `legacy/` or `migration/`.
+The final removal-readiness gate additionally scans active runtime/tests/scripts/
+workflow/config surfaces for old execution dependencies.
 
 ## Responsibility boundaries
 
@@ -47,6 +50,7 @@ manifest does not itself change task authority.
 .maps/state/halt.json                  dispatch halt state
 .maps/state/recovery.json              RnS incident/retry state
 .maps/state/helper-runs.json           helper invocation evidence
+.maps/state/escalations/               budget/escalation evidence
 .hcom/                                 hcom message/session/process state
 ```
 
@@ -66,7 +70,7 @@ ACTIVE
     │ implementation + evidence
     ▼
 READY_FOR_REVIEW
-    │ independent review
+    │ required review
     ├─ APPROVED ─────────► DONE
     ├─ CHANGES_REQUESTED ► CHANGES_REQUESTED ─► ACTIVE
     └─ BLOCKED ──────────► BLOCKED
@@ -91,8 +95,9 @@ what a specific worker actually received:
 - runtime limits;
 - optional Git base revision.
 
-Run manifests/context refs are SQLite-immutable. Staleness and Git-scope checks
-report drift; they never auto-reset, restore, or clean the worktree.
+Run manifests/context refs are SQLite-immutable. Staleness, Git-scope, and budget
+checks report or persist evidence; they do not auto-reset, restore, clean, widen
+authority, or silently re-dispatch work.
 
 See `runtime/integrity/README.md`.
 
@@ -101,9 +106,9 @@ See `runtime/integrity/README.md`.
 Submission authorship is durable. Continuity links additionally record when a
 replacement identity inherited the author's in-flight context/obligations.
 
-Independent review rejects the author **and the whole connected continuity
-lineage**. This is enforced by route selection and canonical review transitions,
-including a final re-check at approval time.
+When independent review is required, the author **and the whole connected
+continuity lineage** are ineligible. This is enforced by route selection and
+canonical review transitions, including a final re-check at approval time.
 
 ## Criterion evidence
 
@@ -117,7 +122,8 @@ reviewer verdict: confirmed / rejected
 ```
 
 Overall `APPROVED` then requires every current acceptance criterion to be
-complete + confirmed. Reviewer verdicts never rewrite implementer claims.
+complete + confirmed. Claims/verdicts are SQLite-immutable audit records and
+reviewer verdicts never rewrite implementer claims.
 
 ## Routing and policy
 
@@ -133,7 +139,8 @@ wait_or_reconcile
 ```
 
 Worker profiles describe actual capability/availability/cost. Provider names do
-not grant capability or authority.
+not grant capability or authority. Blocked low-ID work does not prevent the
+router from considering later independent routable work.
 
 Explicit policy flags:
 
@@ -146,14 +153,16 @@ broad_architecture
 paid_execution
 ```
 
-Reshaping invalidates a prior operator approval.
+Reshaping and policy changes are one transaction and invalidate prior operator
+approval atomically.
 
 ## Communication, recovery, and helpers
 
 hcom is live transport/session control only. RnS may recover a session only when
 an existing `ACTIVE` task, current claimant, and explicit worker/session binding
-still agree. Helpers require an `ACTIVE` parent task and stay inside its output
-scope.
+still agree; ambiguous one-worker/multiple-task bindings are not guessed.
+Helpers require an `ACTIVE` parent task and stay inside its output scope. Bounded
+Aider additionally requires a clean worktree so its changes are attributable.
 
 None of those mechanisms can mark work `DONE`, approve review, or widen task
 authority.
@@ -174,12 +183,14 @@ bash scripts/install_maps.sh --apply --run-smoke
 
 See `docs/FRESH_INSTALL.md` and `docs/CONTROL_PLANE_SETUP.md`.
 
-## Tests
+## Verification
 
 ```bash
+python scripts/check_legacy_removal_readiness.py
 python -m unittest discover -s tests -v
+python -m runtime.smoke --with-langgraph
 ```
 
-Latest stacked verification: GitHub Actions run `31847038026`, **79/79 tests
-passing**, plus disposable SQLite/LangGraph smoke and installer preview/syntax
-checks.
+Removal-readiness Actions run `31851301307` passed the legacy dependency gate,
+compile/Ruff/Bandit/pip checks, **93/93 unit tests**, disposable SQLite/LangGraph
+smoke, and installer syntax/preview.

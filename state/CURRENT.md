@@ -1,51 +1,57 @@
 # Current State
 
-- Current goal: Promote the retained MAPS control plane into a small active,
-  provider-neutral runtime without restoring legacy cockpit complexity.
-- Review status: operator explicitly deferred independent review. PRs #9–#14
-  remain open/draft in a stacked chain; TASK-015 / PR #15 is
-  `READY_FOR_REVIEW`. Nothing in this stack has been merged to `main`.
-- Stacked implementation now contains:
-  1. SQLite task truth + structural AGI `READY` gate + claims/review (`PR #9`);
-  2. explicit policy/worker profiles + read-first LangGraph routing (`PR #10`);
-  3. project-isolated hcom transport/session adapter (`PR #11`);
-  4. deterministic RnS recovery without WezTerm (`PR #12`);
-  5. bounded Ollama/Aider helper lanes (`PR #13`);
-  6. preview-first fresh-clone installer and disposable smoke (`PR #14`);
-  7. immutable run manifests, context/task staleness proof, Git run-scope proof,
-     continuity-aware review, and optional criterion-level evidence (`PR #15`).
-- Verification: GitHub Actions run `31847038026` passed **79/79 tests** on
-  Python 3.12 with ResourceWarnings treated as errors. The disposable smoke
-  passed `NEEDS_SHAPING → READY → ACTIVE → READY_FOR_REVIEW → DONE`, verified
-  `foreign_keys=1`, WAL, 5000 ms busy timeout, and created a separate LangGraph
-  checkpoint DB with route `wait_or_reconcile`. Installer syntax/preview passed.
-- Execution-integrity proof includes SQLite-immutable run manifests/context
-  hashes, stable task revision checks, report-only Git scope verification,
-  transitive continuity lineage at routing/claim/final review, and optional
-  criterion claims whose reviewer verdicts remain separate.
-- Release decision: Lean does **not** restore a universal `APPROVED → RELEASED`
-  state machine. For `OPERATOR_VISIBLE_RELEASE_CHECK`, the approved high-risk
-  review/completion summary is the operator-visible release summary. A real
-  deploy/destructive/external action remains its own policy-gated task/action.
-- Privacy/secret sweep: `migration/PRESERVATION_PRIVACY_SWEEP.md` records a
-  PASS for the current preservation set. No checked credential/private-key
-  patterns or copied live DB/sidecar, transcript/inbox/message store, log/JSONL,
-  settings/status/state snapshot, screenshot/image, or machine-private home path
-  was identified in the two curated migration snapshots/current indexed tree.
-  This is explicitly a current-tree audit, not a forensic scan of all historical
-  Git objects.
-- Decisions that matter now: SQLite is canonical task truth; LangGraph only
-  recommends; hcom is transport; RnS only recovers known active bindings;
-  helpers stay bounded; run-integrity records constrain/prove execution but add
-  no authority; WezTerm is optional presentation.
-- Legacy status: useful implementation/knowledge is preserved outside
-  `legacy/`. Execution-integrity follow-ups are implemented or deliberately
-  rejected and the current preservation privacy gate is closed.
-- Remaining legacy-deletion blockers:
-  1. deferred independent review of PRs #9–#15;
-  2. merge the reviewed stack to `main`;
-  3. run the final active reference/dependency sweep against the merged tree;
-  4. explicit operator approval for the legacy-removal change.
-- Next action: keep review deferred as requested. No further architecture is
-  required before review; the next productive phase is review/fix/merge when
-  the operator chooses to begin it.
+- Current goal: complete the MAPS Lean migration while leaving deletion of
+  top-level `legacy/` as the final separate operator-approved action.
+- Replacement runtime status: **MERGED TO `main`** by PR #16, squash commit
+  `78791fca0d5cd0def5bae2c5b2eb9addcbf0770e`.
+- Former stacked PRs #9–#15 are closed as superseded by PR #16 and remain only
+  as detailed implementation/review history.
+- Review truth: `work/reviews/RUNTIME_INTEGRATION_REVIEW.md` records a fresh
+  adversarial integration review. It was performed by the same assistant
+  continuity that participated in implementation, so it is not represented as
+  an independent model/human review. Independent verification is mechanical and
+  GitHub-hosted: compile, Ruff, Bandit, dependency checks, regression tests,
+  LangGraph/SQLite smoke, installer checks, and the active legacy-dependency gate.
+- Active runtime now contains:
+  1. canonical SQLite task truth + structural AGI `READY` gate + atomic claims,
+     leases, submission/review state, and scoped output reservations;
+  2. explicit policy/worker profiles + operator approval/halt gates;
+  3. read-first LangGraph routing with checkpoint state separate from task truth;
+  4. project-isolated hcom transport with no task authority;
+  5. deterministic RnS recovery for known current ACTIVE claims only;
+  6. bounded Ollama/Aider helper lanes;
+  7. preview-first fresh-clone installer and disposable smoke;
+  8. immutable run/context binding, staleness proof, writable/forbidden Git
+     scope proof, run-budget checks, continuity-aware review, and optional
+     criterion-level evidence.
+- Integration hardening fixed transactional policy shaping, parent/child output
+  conflicts, repo path escape, rename-aware scope proof, dirty-worktree Aider
+  attribution, typed capability booleans, scoped-halt targets, routing
+  head-of-line blocking, ambiguous RnS binding, criterion-record immutability,
+  writable/forbidden overlap, run-budget enforcement, and artifact filename
+  containment.
+- Verification on merged `main`: Actions run `31850974870` passed the full
+  runtime workflow after PR #16 merged.
+- Final dependency/reference sweep: **PASS**. Actions run `31851301307` scanned
+  50 active executable/config files, found no active legacy/migration execution
+  dependency, then passed compile/Ruff/Bandit/pip checks, **93/93 unit tests**,
+  disposable SQLite/LangGraph smoke, and installer syntax/preview. See
+  `migration/FINAL_LEGACY_DEPENDENCY_SWEEP.md`.
+- Preservation privacy/secret sweep: **PASS — current preservation set**. See
+  `migration/PRESERVATION_PRIVACY_SWEEP.md`; this is a current-tree/snapshot
+  audit, not a forensic scan of all historical Git objects.
+- Release decision remains: Lean does **not** restore a universal
+  `APPROVED → RELEASED` state machine. Real deploy/destructive/external actions
+  are explicit policy-gated tasks/actions.
+- Historical Markdown/task/report files may still mention `legacy/`; they are
+  provenance/safety records and are not execution dependencies.
+- The curated preservation snapshots remain under `migration/` and are evidence,
+  not runtime dependencies.
+
+## Remaining migration action
+
+**Only one migration action remains:** explicit operator-approved deletion of
+ top-level `legacy/`.
+
+Do not infer deletion authority from this status file. The deletion must be a
+separate explicit operator instruction/change.
