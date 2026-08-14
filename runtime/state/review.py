@@ -6,6 +6,7 @@ import sqlite3
 
 from .common import MutationResult, iso_z, utc_now
 
+
 class ReviewMixin:
     def claim_review(
         self,
@@ -13,7 +14,7 @@ class ReviewMixin:
         reviewer_id: str,
         *,
         now: datetime | None = None,
-        ) -> MutationResult:
+    ) -> MutationResult:
         if not reviewer_id.strip():
             return MutationResult(
                 False,
@@ -47,16 +48,23 @@ class ReviewMixin:
                     "MISSING_SUBMISSION",
                     "review requires durable submission authorship",
                 )
-            if (
-                task["review_required"] != "OWNER_CHECK"
-                and submission["author_id"] == reviewer_id
-            ):
-                conn.rollback()
-                return MutationResult(
-                    False,
-                    "SELF_REVIEW_FORBIDDEN",
-                    "independent review cannot be claimed by the current submission author",
+            if task["review_required"] != "OWNER_CHECK":
+                disqualified = self._continuity_component_conn(
+                    conn, submission["author_id"]
                 )
+                if reviewer_id in disqualified:
+                    conn.rollback()
+                    code = (
+                        "SELF_REVIEW_FORBIDDEN"
+                        if reviewer_id == submission["author_id"]
+                        else "CONTINUITY_REVIEW_FORBIDDEN"
+                    )
+                    return MutationResult(
+                        False,
+                        code,
+                        "independent review cannot be claimed by the submission "
+                        "author or a continuation identity in the same lineage",
+                    )
 
             try:
                 cursor = conn.execute(
@@ -103,7 +111,7 @@ class ReviewMixin:
         summary: str,
         *,
         now: datetime | None = None,
-        ) -> MutationResult:
+    ) -> MutationResult:
         verdict = verdict.strip().upper()
         if verdict not in {"APPROVED", "CHANGES_REQUESTED", "BLOCKED"}:
             return MutationResult(
@@ -147,6 +155,35 @@ class ReviewMixin:
                     "NOT_REVIEWABLE",
                     "task is no longer READY_FOR_REVIEW",
                 )
+            submission = conn.execute(
+                "SELECT * FROM task_submissions WHERE task_id = ?", (task_id,)
+            ).fetchone()
+            if submission is None:
+                conn.rollback()
+                return MutationResult(
+                    False, "MISSING_SUBMISSION", "review requires durable submission"
+                )
+            if task["review_required"] != "OWNER_CHECK":
+                disqualified = self._continuity_component_conn(
+                    conn, submission["author_id"]
+                )
+                if reviewer_id in disqualified:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "CONTINUITY_REVIEW_FORBIDDEN",
+                        "reviewer is no longer independent from submission author",
+                    )
+
+            if verdict == "APPROVED":
+                criterion_issues = self._criterion_approval_issues_conn(conn, task_id)
+                if criterion_issues:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "CRITERION_VERIFICATION_INCOMPLETE",
+                        "; ".join(criterion_issues),
+                    )
 
             new_status = {
                 "APPROVED": "DONE",
