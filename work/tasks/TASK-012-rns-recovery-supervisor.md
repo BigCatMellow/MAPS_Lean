@@ -1,6 +1,6 @@
 # Task: Promote deterministic RnS recovery
 
-- Status: `READY`
+- Status: `ACTIVE`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `implementation-agent`
@@ -13,34 +13,38 @@
 - Authoritative sources: canonical MAPS task state for whether work is still active; recovery incident state for retry timing; hcom only for session liveness/control.
 - Dependencies: TASK-009 state and TASK-011 hcom adapter branches.
 
-## Change boundary
-
-- MAY CHANGE: `runtime/recovery/**`, targeted hcom resume prompt support, tests, runtime docs, this task record.
-- MUST NOT CHANGE: task ownership/status through RnS, routing decisions, review/approval state, legacy source.
-- OPERATOR APPROVAL REQUIRED: none for fake tests; production resume is only for pre-existing explicitly bound work.
-
-## Decision authority
-
-- Owner may decide: incident schema, backoff, liveness classification, deterministic prompts.
-- Owner must escalate: any design where RnS creates/claims/reassigns tasks or guesses new work.
-
 ## Acceptance criteria
 
-- [ ] Recovery incidents persist outside hcom state.
-- [ ] Due recovery checks canonical task status/claimant before any resume.
-- [ ] Changed/missing/non-active claims suppress recovery rather than stealing work.
-- [ ] Live sessions resolve incidents without resume.
-- [ ] Stopped sessions may be resumed headlessly with capped backoff.
-- [ ] Terminal/superseded sessions are never resumed.
-- [ ] Silent-stop detection requires a known prior-live session and explicit worker→session binding.
-- [ ] No RnS code calls task mutation methods.
-- [ ] No WezTerm dependency.
+- [x] Recovery incidents persist outside hcom state in `.maps/state/recovery.json`.
+- [x] Due recovery checks canonical task status/claimant before any resume.
+- [x] Changed/missing/non-active claims suppress recovery rather than stealing work.
+- [x] Live sessions resolve incidents without resume.
+- [x] Stopped sessions may be resumed headlessly with capped backoff.
+- [x] Terminal/superseded sessions are never resumed.
+- [x] Silent-stop detection requires a known prior-live session and explicit worker→session binding.
+- [x] RnS source contains no task mutation calls.
+- [x] No WezTerm dependency.
+- [ ] Recovery regression suite executed on a configured checkout.
 
 ## Verification and evidence
 
-- Verification: pure/fake adapter tests; source-boundary assertions.
-- Evidence: test output and PR diff.
+- Verification: `tests/test_recovery_supervisor.py` covers scheduled/due recovery, live resolution, claim-change suppression, inactive-task suppression, terminal sessions, retry exhaustion, silent-stop detection, liveness, and source-boundary checks.
+- Evidence: test output remains pending because the current sandbox cannot clone the branch.
 - Review required: `INDEPENDENT_REVIEW`
+
+## Important behavior
+
+```text
+known ACTIVE task + existing claim + explicit worker/session binding
+→ prior-live session stops OR scheduled resume becomes due
+→ verify task still ACTIVE and claimant unchanged
+→ terminal? suppress
+→ already live? resolve
+→ stopped + due? resume headlessly
+→ verify later; bounded backoff; eventually fail loudly
+```
+
+First observation of an already-dead session does not invent a recovery incident.
 
 ## Stop / escalate
 
@@ -58,7 +62,7 @@ Stop if recovery would require changing task truth, inventing a task, or guessin
 
 ## Completion / handoff
 
-- Completed: task shaped.
-- Not completed: implementation/tests/docs.
-- Current blocker: none.
-- Next action: implement recovery record/store and supervisor.
+- Completed: durable incident store, liveness classifier, silent-stop observer, deterministic supervisor, bounded retry/backoff, terminal suppression, docs, regression tests.
+- Not completed: configured-checkout test execution and independent review.
+- Current blocker: current sandbox cannot clone/fetch the branch for local execution.
+- Next action: run recovery tests later; continue helper/installer migration separately.
