@@ -1,0 +1,108 @@
+runtime_policy:
+  storage_mode: file_backed
+  future_storage_mode: sqlite
+  maximum_active_workers: 2
+  core_agents_always_open:
+    - codex
+    - claude
+    - antigravity
+  helper_agents:
+    enabled: true
+    launch_mode: operator_or_core_agent_requested
+    terminal_mode: command_center_managed
+    default_terminal: wezterm-tab
+    headless_backend_allowed: true
+    headless_allowed_only_when: ai_command_center_exposes_inspect_send_approve_stop
+    operator_surface_required: true
+    tag_prefix: helper
+    notes_dir: inbox/helpers
+    maximum_active_helpers: 8
+    idle_timeout_minutes: 20
+    require_named_scope: true
+  maximum_parallel_tasks: 2
+  task_lease_seconds: 1800
+  reconciliation_interval_seconds: 60
+  event_log: events/events.jsonl
+  agent_status_path: agents/status.json
+  halt_authority_window:
+    enabled_until: null
+    granted_by: null
+    scope: []
+  unavailable_agent_policy:
+    continue_without_unavailable_agents: true
+    require_handoff_for_owned_work: true
+    wait_only_when_task_requires_unavailable_agent: true
+
+agent_ids:
+  codex: Codex coding agent
+  claude: Claude Code agent
+  antigravity: Google Antigravity agent
+  gemini: Gemini agent, manually coordinated by the operator when hcom communication is unreliable
+
+claiming:
+  current_mode: manual
+  future_mode: atomic_sqlite_claim
+
+human_approval_required:
+  - destructive_actions
+  - external_network_calls
+  - publication
+  - final_release
+
+approval_handling:
+  operator_reachable_surface_required: true
+  visible_terminal_or_ai_command_center_required: true
+  prefer_session_level_approval_for_in_scope_work: true
+  approval_prompt_commands:
+    inspect: ai screen <agent>
+    accept_selected: ai approve <agent>
+    choose_option: ai approve <agent> <option>
+
+# TASK-283: deterministic run-path scope contracts and retry/runtime
+# budgets, consumed by scripts/verify_run_scope.py and
+# scripts/run_manifest.py. Additive to this file -- runtime_policy,
+# agent_ids, claiming, human_approval_required, and approval_handling above
+# are unchanged and still consumed exactly as before by graph/runner.py and
+# scripts/halt_state.py (both read only the top-level `runtime_policy` key).
+#
+# containment_level is deliberately not "harness_enforced": nothing in this
+# workspace prevents a worker from writing outside its declared scope or
+# exceeding its declared budget at the OS/process level. This section only
+# supports (1) a dispatch-preflight self-consistency check on a declared
+# contract, and (2) post-run detection of an out-of-scope write or budget
+# exhaustion. See artifacts/tests/task283-scope-budget-delivery-note.md for
+# the full three-tier distinction this task's acceptance criteria require.
+scope_budget_contracts:
+  version: 1
+  containment_level: preflight_reject_and_post_run_diff_detection
+  default_readable_paths:
+    - "."
+  default_forbidden_paths:
+    - .git
+    - MAP_System/.venv
+    - MAP_System/map.db
+    - MAP_System/map.db-wal
+    - MAP_System/map.db-shm
+    - MAP_System/.locks
+  retry_budgets:
+    tier0_command_center:
+      max_attempts: null
+      max_tool_failures: null
+      max_runtime_seconds: null
+    tier1_core_agent:
+      max_attempts: 3
+      max_tool_failures: 20
+      max_runtime_seconds: 7200
+    tier2_visible_helper:
+      max_attempts: 2
+      max_tool_failures: 10
+      max_runtime_seconds: 3600
+    tier3_local_assistant:
+      max_attempts: 2
+      max_tool_failures: 10
+      max_runtime_seconds: 3600
+    tier4_aider_wrapper:
+      max_attempts: 1
+      max_tool_failures: 5
+      max_runtime_seconds: 1800
+  escalation_artifact_dir: artifacts/escalations

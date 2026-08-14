@@ -1,0 +1,1052 @@
+#!/usr/bin/env python3
+"""Tests for limit_watcher decision logic (TASK-080). Pure functions only."""
+
+import sys
+import json
+import tempfile
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+
+from limit_watcher import decide_nudges, detect_silent_stops, parse_resume_after
+
+NOW = datetime(2026, 7, 2, 12, 0, 0, tzinfo=timezone.utc)
+
+
+def status(**agents):
+    return {"agents": agents}
+
+
+def entry(status_val="standby", reason="out_of_tokens", resume_after=None):
+    return {"status": status_val, "reason": reason, "resume_after": resume_after}
+
+
+def test_parse_resume_after():
+    assert parse_resume_after("2026-07-02T11:00:00+00:00") is not None
+    assert parse_resume_after("2026-07-02T11:00:00Z") is not None
+    naive = parse_resume_after("2026-07-02T11:00:00")
+    assert naive is not None and naive.tzinfo is not None  # naive -> local tz
+    assert parse_resume_after("when operator restores token budget") is None
+    assert parse_resume_after(None) is None
+    assert parse_resume_after("") is None
+
+
+def test_context_rotation_notices_are_transition_based_and_use_current_context():
+    from limit_watcher import decide_context_rotation_notifications
+
+    rows = {"agents": [
+        {"name": "codex-lab-hot", "tool": "codex", "metrics": {
+            "last_tokens": 150000, "context_window": 258400,
+        }},
+        {"name": "claude-lab-warm", "tool": "claude", "metrics": {
+            "latest_context_tokens": 120000, "cumulative_input_tokens": 900000,
+            "context_window": 200000,
+        }},
+    ]}
+    due, markers = decide_context_rotation_notifications(
+        rows, {"codex-lab-hot", "claude-lab-warm"}, {}, now=NOW,
+    )
+    assert [item[0]["state"] for item in due] == ["rotation_due", "checkpoint_due"]
+    assert due[1][0]["used_tokens"] == 120000  # not cumulative traffic
+    assert [item[0].get("renotify") for item in due] == [False, False]  # first notice, not a repeat
+    sent_markers = {advice["agent"]: marker for advice, marker in due}
+    for marker in sent_markers.values():
+        assert set(marker) == {"fingerprint", "last_sent_at"}
+
+    # Immediately re-checking (no time elapsed) must not repeat either notice.
+    repeated, same = decide_context_rotation_notifications(
+        rows, {"codex-lab-hot", "claude-lab-warm"},
+        sent_markers, now=NOW,
+    )
+    assert repeated == [] and same == sent_markers
+
+    rows["agents"][0]["metrics"]["last_tokens"] = 1000
+    _, reset = decide_context_rotation_notifications(
+        rows, {"codex-lab-hot", "claude-lab-warm"}, sent_markers, now=NOW,
+    )
+    assert "codex-lab-hot" not in reset
+
+
+def test_rotation_due_renotifies_after_the_escalation_window_but_checkpoint_due_never_does():
+    """The reported failure mode: an agent ignores the first rotation_due
+    notice and keeps working. It must get reminded again once the
+    escalation window passes -- unlike checkpoint_due, which stays one-shot
+    since it's only the soft/early advisory."""
+    from limit_watcher import ROTATION_DUE_RENOTIFY_SECONDS, decide_context_rotation_notifications
+
+    rows = {"agents": [
+        {"name": "codex-lab-hot", "tool": "codex", "metrics": {
+            "last_tokens": 150000, "context_window": 258400,
+        }},
+        {"name": "claude-lab-warm", "tool": "claude", "metrics": {
+            "latest_context_tokens": 120000, "cumulative_input_tokens": 900000,
+            "context_window": 200000,
+        }},
+    ]}
+    due, markers = decide_context_rotation_notifications(
+        rows, {"codex-lab-hot", "claude-lab-warm"}, {}, now=NOW,
+    )
+    sent_markers = {advice["agent"]: marker for advice, marker in due}
+
+    # Well before the escalation window: still no repeat for either agent.
+    soon = NOW + timedelta(seconds=ROTATION_DUE_RENOTIFY_SECONDS - 1)
+    still_none, _ = decide_context_rotation_notifications(
+        rows, {"codex-lab-hot", "claude-lab-warm"}, sent_markers, now=soon,
+    )
+    assert still_none == []
+
+    # Past the escalation window: rotation_due (hard threshold) re-fires,
+    # checkpoint_due (soft threshold) does not.
+    later = NOW + timedelta(seconds=ROTATION_DUE_RENOTIFY_SECONDS + 1)
+    due_again, updated_again = decide_context_rotation_notifications(
+        rows, {"codex-lab-hot", "claude-lab-warm"}, sent_markers, now=later,
+    )
+    assert [item[0]["agent"] for item in due_again] == ["codex-lab-hot"]
+    assert due_again[0][0]["renotify"] is True
+    # The proposed new marker (committed by the caller only after a
+    # confirmed send, same discipline as every other nudge path) carries the
+    # later timestamp.
+    assert due_again[0][1]["last_sent_at"] == later.isoformat(timespec="seconds")
+    # Nothing due this round stays exactly as it was in `updated` (decide
+    # never commits ahead of a confirmed send).
+    assert updated_again["codex-lab-hot"] == sent_markers["codex-lab-hot"]
+    # claude-lab-warm's checkpoint_due marker is untouched (still one-shot).
+    assert updated_again["claude-lab-warm"] == sent_markers["claude-lab-warm"]
+
+
+def test_bare_string_prior_marker_upgrades_without_crashing():
+    """Pre-escalation persisted state (a plain fingerprint string) must not
+    crash decoding -- it's treated as the same fingerprint with no known
+    send time."""
+    from limit_watcher import decide_context_rotation_notifications
+
+    rows = {"agents": [{
+        "name": "codex-lab-hot", "tool": "codex",
+        "metrics": {"last_tokens": 150000, "context_window": 258400},
+    }]}
+    old_style_prior = {"codex-lab-hot": "rotation_due:120000:150000"}
+    due, _ = decide_context_rotation_notifications(
+        rows, {"codex-lab-hot"}, old_style_prior, now=NOW,
+    )
+    # Same fingerprint, but no recorded last_sent_at -> treated as due now,
+    # which starts the escalation clock going forward.
+    assert due[0][0]["agent"] == "codex-lab-hot"
+    assert due[0][0]["renotify"] is True
+
+
+def test_context_notice_marker_survives_later_poll_failure():
+    """A delivered notice is durable before unrelated recovery work can block."""
+    import agent_token_status
+    import context_rotation
+    import limit_watcher as lw
+
+    with tempfile.TemporaryDirectory() as td:
+        base = Path(td)
+        status_file = base / "status.json"
+        state_file = base / "watcher-state.json"
+        status_file.write_text(json.dumps({"agents": {}}))
+        rows = {"agents": [{
+            "name": "codex-lab-hot", "tool": "codex",
+            "metrics": {"last_tokens": 150000, "context_window": 258400},
+        }]}
+        snapshot = {"codex-lab-hot": {
+            "status": "listening", "status_age_seconds": 0, "process_bound": True,
+        }}
+        sent = []
+        saved = {
+            "STATE_FILE": lw.STATE_FILE,
+            "STATUS_FILE": lw.STATUS_FILE,
+            "apply_durable_lifecycle": lw.apply_durable_lifecycle,
+            "hcom_snapshot": lw.hcom_snapshot,
+            "detect_fresh_transcript_limits": lw.detect_fresh_transcript_limits,
+            "append_event": lw.append_event,
+            "build_status": agent_token_status.build_status,
+            "notify_agent": context_rotation.notify_agent,
+        }
+        try:
+            lw.STATE_FILE = state_file
+            lw.STATUS_FILE = status_file
+            lw.apply_durable_lifecycle = lambda value: value
+            lw.hcom_snapshot = lambda: snapshot
+            lw.append_event = lambda *args, **kwargs: None
+            agent_token_status.build_status = lambda **kwargs: rows
+            context_rotation.notify_agent = lambda advice: sent.append(advice["agent"]) or True
+
+            def fail_later(*args, **kwargs):
+                raise RuntimeError("synthetic later poll failure")
+
+            lw.detect_fresh_transcript_limits = fail_later
+            for _ in range(2):
+                try:
+                    lw.poll_once()
+                except RuntimeError as exc:
+                    assert "later poll failure" in str(exc)
+            persisted = json.loads(state_file.read_text())
+            assert persisted["context_rotation_notifications"]["codex-lab-hot"]["fingerprint"].startswith(
+                "rotation_due:"
+            )
+            assert persisted["context_rotation_notifications"]["codex-lab-hot"]["last_sent_at"]
+            assert sent == ["codex-lab-hot"]
+        finally:
+            lw.STATE_FILE = saved["STATE_FILE"]
+            lw.STATUS_FILE = saved["STATUS_FILE"]
+            lw.apply_durable_lifecycle = saved["apply_durable_lifecycle"]
+            lw.hcom_snapshot = saved["hcom_snapshot"]
+            lw.detect_fresh_transcript_limits = saved["detect_fresh_transcript_limits"]
+            lw.append_event = saved["append_event"]
+            agent_token_status.build_status = saved["build_status"]
+            context_rotation.notify_agent = saved["notify_agent"]
+
+
+def test_fresh_live_transcript_limit_is_detected_once():
+    from limit_watcher import detect_fresh_transcript_limits
+
+    with tempfile.TemporaryDirectory() as td:
+        transcript = Path(td) / "session.jsonl"
+        transcript.write_text(json.dumps({
+            "timestamp": "2026-07-02T11:58:00Z",
+            "error": "rate_limit",
+            "apiErrorStatus": 429,
+            "message": {"content": [{"text":
+                "You've hit your session limit · resets 3pm (America/New_York)"}]},
+        }) + "\n")
+        snapshot = {"claude-lab-test": {"status": "listening",
+                    "process_bound": True, "transcript_path": str(transcript)}}
+        st = status(**{"claude-lab-test": entry(
+            status_val="available", reason=None, resume_after=None)})
+        state = {"transcript_limit_events": {}}
+        found = detect_fresh_transcript_limits(snapshot, st, state, NOW)
+        assert len(found) == 1
+        name, resume_after, fingerprint = found[0]
+        assert name == "claude-lab-test"
+        # NOW is 08:00 America/New_York; provider reset 15:00 + five-minute grace.
+        assert resume_after.hour == 15 and resume_after.minute == 5
+        state["transcript_limit_events"][name] = fingerprint
+        assert detect_fresh_transcript_limits(snapshot, st, state, NOW) == []
+
+
+def test_stale_or_quoted_transcript_limit_is_ignored():
+    from limit_watcher import detect_fresh_transcript_limits
+
+    with tempfile.TemporaryDirectory() as td:
+        transcript = Path(td) / "session.jsonl"
+        rows = [
+            {"timestamp": "2026-07-02T06:00:00Z", "error": "rate_limit", "text":
+             "You've hit your session limit · resets 7am"},  # six hours old
+            {"timestamp": "2026-07-02T11:59:00Z", "text":
+             "Peer said session limit resets 3pm"},  # not provider marker
+            {"timestamp": "2026-07-02T11:59:30Z", "text":
+             "You've hit your session limit · resets 3pm"},  # exact quote, no provider provenance
+        ]
+        transcript.write_text("".join(json.dumps(row) + "\n" for row in rows))
+        snapshot = {"codex-lab-test": {"status": "listening",
+                    "process_bound": True, "transcript_path": str(transcript)}}
+        st = status(**{"codex-lab-test": entry(
+            status_val="available", reason=None, resume_after=None)})
+        assert detect_fresh_transcript_limits(
+            snapshot, st, {"transcript_limit_events": {}}, NOW) == []
+
+
+def test_due_agent_is_nudged():
+    past = (NOW - timedelta(minutes=5)).isoformat()
+    nudges, unparseable = decide_nudges(
+        status(codex=entry(resume_after=past)), {"nudged": {}}, NOW)
+    assert nudges == [("codex", past)]
+    assert unparseable == []
+
+
+def test_scheduled_reason_is_equally_nudgeable():
+    """An operator-scheduled resume (declare_standby.py --resume-at) must be
+    picked up by the exact same due-check as an auto-detected rate limit --
+    it is a different reason string, not different machinery."""
+    past = (NOW - timedelta(minutes=5)).isoformat()
+    nudges, unparseable = decide_nudges(
+        status(codex=entry(reason="scheduled", resume_after=past)), {"nudged": {}}, NOW)
+    assert nudges == [("codex", past)]
+    assert unparseable == []
+
+
+def test_unrecognized_reason_is_never_nudged():
+    """A reason outside {out_of_tokens, scheduled} (e.g. a future extension of
+    the declared-idle protocol) must not be silently treated as nudgeable."""
+    past = (NOW - timedelta(minutes=5)).isoformat()
+    nudges, _ = decide_nudges(
+        status(codex=entry(reason="some_future_reason", resume_after=past)), {"nudged": {}}, NOW)
+    assert nudges == []
+
+
+def test_scheduled_reason_gets_the_scheduled_prompt():
+    from limit_watcher import NUDGE_PROMPT, SCHEDULED_NUDGE_PROMPT, nudge_prompt_for_reason
+
+    assert nudge_prompt_for_reason("scheduled") == SCHEDULED_NUDGE_PROMPT
+    assert nudge_prompt_for_reason("out_of_tokens") == NUDGE_PROMPT
+    assert nudge_prompt_for_reason(None) == NUDGE_PROMPT
+    assert "not a detected usage limit" in SCHEDULED_NUDGE_PROMPT
+    assert SCHEDULED_NUDGE_PROMPT != NUDGE_PROMPT
+
+
+def test_not_yet_due_is_skipped():
+    future = (NOW + timedelta(hours=2)).isoformat()
+    nudges, _ = decide_nudges(
+        status(codex=entry(resume_after=future)), {"nudged": {}}, NOW)
+    assert nudges == []
+
+
+def test_one_nudge_per_window():
+    past = (NOW - timedelta(minutes=5)).isoformat()
+    state = {"nudged": {"codex": past}}
+    nudges, _ = decide_nudges(status(codex=entry(resume_after=past)), state, NOW)
+    assert nudges == []  # spawn-loop guard
+    # but a NEW resume_after value (next limit event) is nudgeable again
+    newer = (NOW - timedelta(minutes=1)).isoformat()
+    nudges, _ = decide_nudges(status(codex=entry(resume_after=newer)), state, NOW)
+    assert nudges == [("codex", newer)]
+
+
+def test_failed_recorded_reset_retry_throttle():
+    past = (NOW - timedelta(minutes=5)).isoformat()
+    recent_failure = {
+        "nudged": {},
+        "failed_nudges": {
+            "codex": {
+                "resume_after": past,
+                "last_failed_at": (NOW - timedelta(minutes=2)).isoformat(),
+            }
+        },
+    }
+    nudges, _ = decide_nudges(status(codex=entry(resume_after=past)), recent_failure, NOW)
+    assert nudges == []
+
+    old_failure = {
+        "nudged": {},
+        "failed_nudges": {
+            "codex": {
+                "resume_after": past,
+                "last_failed_at": (NOW - timedelta(minutes=6)).isoformat(),
+            }
+        },
+    }
+    nudges, _ = decide_nudges(status(codex=entry(resume_after=past)), old_failure, NOW)
+    assert nudges == [("codex", past)]
+
+
+def test_live_due_recorded_reset_is_clearable():
+    from limit_watcher import clear_recorded_reset_status, live_due_recorded_resets
+
+    past = (NOW - timedelta(minutes=5)).isoformat()
+    st = status(
+        codex={
+            "status": "standby",
+            "reason": "out_of_tokens",
+            "resume_after": past,
+            "notes": "keep me | [command-center-token-refresh] reset note",
+        }
+    )
+    snapshot = {"codex": {"status": "listening", "status_age_seconds": 0, "process_bound": True}}
+
+    assert live_due_recorded_resets(st, {"nudged": {}}, snapshot, NOW) == [("codex", past)]
+    assert clear_recorded_reset_status(st, "codex") is True
+    assert st["agents"]["codex"] == {
+        "status": "available",
+        "reason": None,
+        "resume_after": None,
+        "notes": "keep me",
+    }
+
+
+def test_live_due_recorded_reset_works_for_scheduled_reason():
+    from limit_watcher import live_due_recorded_resets
+
+    past = (NOW - timedelta(minutes=5)).isoformat()
+    st = status(codex=entry(reason="scheduled", resume_after=past))
+    snapshot = {"codex": {"status": "listening", "status_age_seconds": 0, "process_bound": True}}
+    assert live_due_recorded_resets(st, {"nudged": {}}, snapshot, NOW) == [("codex", past)]
+
+
+def test_live_due_recorded_reset_retry_is_throttled():
+    from limit_watcher import live_due_recorded_resets
+
+    past = (NOW - timedelta(minutes=5)).isoformat()
+    st = status(codex=entry(resume_after=past))
+    snapshot = {
+        "codex": {"status": "listening", "status_age_seconds": 0, "process_bound": True}
+    }
+    recent_failure = {
+        "failed_nudges": {
+            "codex": {
+                "resume_after": past,
+                "last_failed_at": (NOW - timedelta(minutes=2)).isoformat(),
+            }
+        }
+    }
+    assert live_due_recorded_resets(st, recent_failure, snapshot, NOW) == []
+
+    recent_failure["failed_nudges"]["codex"]["last_failed_at"] = (
+        NOW - timedelta(minutes=6)).isoformat()
+    assert live_due_recorded_resets(st, recent_failure, snapshot, NOW) == [("codex", past)]
+
+
+def test_hcom_sender_is_external_and_underscore_safe():
+    import re
+    import limit_watcher as lw
+
+    assert re.fullmatch(r"[a-z0-9_]{1,64}", lw.SENDER)
+
+    class FakeResult:
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    calls = []
+    real_run = lw.subprocess.run
+    try:
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            return FakeResult()
+
+        lw.subprocess.run = fake_run
+        assert lw.send_active_session_nudge("claude-lab-mira") is True
+    finally:
+        lw.subprocess.run = real_run
+
+    assert "--from" in calls[0]
+    assert calls[0][calls[0].index("--from") + 1] == "limit_watcher"
+    assert "--name" not in calls[0]
+
+
+def test_unparseable_reported_once():
+    raw = "when operator restores token budget"
+    st = status(antigravity=entry(resume_after=raw))
+    nudges, unparseable = decide_nudges(st, {"nudged": {}, "warned_unparseable": {}}, NOW)
+    assert nudges == []
+    assert unparseable == [("antigravity", raw)]
+    nudges, unparseable = decide_nudges(
+        st, {"nudged": {}, "warned_unparseable": {"antigravity": raw}}, NOW)
+    assert unparseable == []  # already warned for this exact value
+
+
+def test_available_or_other_reason_never_nudged():
+    past = (NOW - timedelta(minutes=5)).isoformat()
+    nudges, _ = decide_nudges(
+        status(a=entry(status_val="available", resume_after=past),
+               b=entry(reason="long_term_unavailable", resume_after=past)),
+        {"nudged": {}}, NOW)
+    assert nudges == []
+
+
+def test_silent_stop_detection():
+    st = status(rose={"status": "available"}, limo={"status": "standby", "reason": "out_of_tokens"})
+    # rose vanished without status update -> silent; limo recorded standby -> not silent
+    stops = detect_silent_stops(["rose", "limo"], [], st, set())
+    assert stops == ["rose"]
+    # already reported -> not repeated
+    assert detect_silent_stops(["rose"], [], st, {"rose"}) == []
+    # still live -> nothing
+    assert detect_silent_stops(["rose"], ["rose"], st, set()) == []
+
+
+def test_empty_hcom_list_is_data_not_failure():
+    """Regression (TASK-080 review finding 1, carried into v2's hcom_snapshot):
+    a successful empty hcom list must return {}, not None, so presumed-down
+    detection still runs when ALL previously live agents have vanished."""
+    import limit_watcher as lw
+
+    class FakeResult:
+        def __init__(self, code, stdout):
+            self.returncode = code
+            self.stdout = stdout
+
+    real_run = lw.subprocess.run
+    try:
+        lw.subprocess.run = lambda *a, **k: FakeResult(0, "[]")
+        assert lw.hcom_snapshot() == {}  # empty success -> data
+        lw.subprocess.run = lambda *a, **k: FakeResult(
+            0, '[{"name":"rose","status":"active","status_age_seconds":1}]')
+        assert list(lw.hcom_snapshot()) == ["rose"]
+        lw.subprocess.run = lambda *a, **k: FakeResult(1, "")
+        assert lw.hcom_snapshot() is None  # failure -> None
+        lw.subprocess.run = lambda *a, **k: FakeResult(0, "not json")
+        assert lw.hcom_snapshot() is None  # garbage -> None
+    finally:
+        lw.subprocess.run = real_run
+    # all-vanished end-to-end: everyone previously live becomes an incident
+    from limit_watcher import detect_presumed_down
+    st = status(rose={"status": "available"}, limo={"status": "available"})
+    assert detect_presumed_down(["rose", "limo"], {}, st, incidents={}) == ["limo", "rose"]
+
+
+def test_overnight_incident_shape():
+    """Regression (TASK-083, hcom #15260): a session dies with no final turn.
+    It stays LISTED in hcom with its last status, but status_age grows
+    unbounded, and status.json still says available. v1 missed this entirely;
+    v2 must classify it not-live and open an incident."""
+    from limit_watcher import classify_live, detect_presumed_down
+
+    dead = {"status": "active", "status_age_seconds": 21600}   # 6h stale
+    fresh = {"status": "listening", "status_age_seconds": 5}
+    assert classify_live(dead) is False
+    assert classify_live(fresh) is True
+    assert classify_live({"status": "stopped", "status_age_seconds": 2}) is False
+
+    snapshot = {"rose": dead, "limo": fresh}
+    st = status(rose={"status": "available"}, limo={"status": "available"})
+    down = detect_presumed_down(["rose", "limo"], snapshot, st, incidents={})
+    assert down == ["rose"]
+    # deliberately recorded agents are NOT incidents (v1 path owns them)
+    st2 = status(rose={"status": "standby", "reason": "out_of_tokens",
+                       "resume_after": "2026-07-02T15:00:00"}, limo={"status": "available"})
+    assert detect_presumed_down(["rose", "limo"], snapshot, st2, incidents={}) == []
+    # open incident not re-detected
+    assert detect_presumed_down(["rose"], {"rose": dead}, st, incidents={"rose": {}}) == []
+
+
+def test_prune_absent_session_tracking_removes_historical_helpers():
+    """TASK-176: RnS must not keep probe-resuming stale helper sessions that
+    survived only in limit-watcher-state.json across lab restarts."""
+    from limit_watcher import prune_absent_session_tracking
+
+    state = {
+        "last_live": ["codex-lab-mozu", "map613-old-helper"],
+        "incidents": {
+            "claude-lab-fimo": {"probes_sent": 0},
+            "durable-agent": {"probes_sent": 1},
+        },
+    }
+    st = {"agents": {"durable-agent": {"status": "available"}}}
+    snapshot = {"codex-lab-mozu": {"status": "active", "status_age_seconds": 1}}
+
+    pruned = prune_absent_session_tracking(state, st, snapshot)
+
+    assert pruned == {
+        "pruned_incidents": ["claude-lab-fimo"],
+        "pruned_last_live": ["map613-old-helper"],
+    }
+    assert state["last_live"] == ["codex-lab-mozu"]
+    assert list(state["incidents"]) == ["durable-agent"]
+
+
+def test_prune_preserves_registered_agent_for_presumed_down_detection():
+    """A durable registered agent missing from hcom is still a real
+    presumed-down candidate; pruning must only remove names absent from both
+    sources."""
+    from limit_watcher import detect_presumed_down, prune_absent_session_tracking
+
+    state = {"last_live": ["rose"], "incidents": {}}
+    st = status(rose={"status": "available"})
+    snapshot = {}
+
+    pruned = prune_absent_session_tracking(state, st, snapshot)
+
+    assert pruned == {"pruned_incidents": [], "pruned_last_live": []}
+    assert detect_presumed_down(state["last_live"], snapshot, st, incidents={}) == ["rose"]
+
+
+def test_probe_backoff_schedule():
+    from limit_watcher import probe_action, PROBE_SCHEDULE_MINUTES
+
+    detected = NOW.isoformat()
+    inc = {"detected_at": detected, "reset_at": None, "probes_sent": 0,
+           "reset_nudged": False, "gave_up": False}
+    assert probe_action(inc, NOW + timedelta(minutes=5)) == "wait"
+    assert probe_action(inc, NOW + timedelta(minutes=16)) == "nudge"
+    inc["probes_sent"] = 1
+    assert probe_action(inc, NOW + timedelta(minutes=20)) == "wait"
+    assert probe_action(inc, NOW + timedelta(minutes=46)) == "nudge"
+    inc["probes_sent"] = len(PROBE_SCHEDULE_MINUTES)
+    assert probe_action(inc, NOW + timedelta(hours=9)) == "give_up"
+    inc["gave_up"] = True
+    assert probe_action(inc, NOW + timedelta(hours=10)) == "wait"  # gives up once
+
+
+def test_probe_action_with_known_reset():
+    """Regression (TASK-083 review finding 1): retries after the scheduled
+    reset nudge must anchor to the nudge time, not detected_at — otherwise
+    every earlier backoff slot is instantly overdue and consecutive polls
+    fire probes back-to-back."""
+    from limit_watcher import probe_action
+
+    inc = {"detected_at": NOW.isoformat(),
+           "reset_at": (NOW + timedelta(hours=2)).isoformat(),
+           "probes_sent": 0, "reset_nudged": False, "gave_up": False}
+    assert probe_action(inc, NOW + timedelta(minutes=30)) == "wait"   # before reset: no probes
+    assert probe_action(inc, NOW + timedelta(hours=2, minutes=1)) == "nudge"
+    # reset nudge fires; retries re-anchor to its timestamp
+    nudge_time = NOW + timedelta(hours=2, minutes=1)
+    inc["reset_nudged"] = True
+    inc["reset_nudged_at"] = nudge_time.isoformat()
+    assert probe_action(inc, nudge_time + timedelta(minutes=2)) == "wait"   # NOT instantly overdue
+    assert probe_action(inc, nudge_time + timedelta(minutes=16)) == "nudge" # first retry slot
+    inc["probes_sent"] = 1
+    assert probe_action(inc, nudge_time + timedelta(minutes=20)) == "wait"
+    assert probe_action(inc, nudge_time + timedelta(minutes=46)) == "nudge"
+
+
+def test_reset_time_parsing():
+    from limit_watcher import parse_reset_time_from_text
+
+    now = NOW.replace(hour=10)  # 10:00 UTC
+    got = parse_reset_time_from_text("5-hour limit reached ... resets 3pm", now)
+    assert got is not None and (got.hour, got.minute) == (15, 0) and got > now
+    got = parse_reset_time_from_text("limit reached. resets at 9:30am", now)
+    assert got is not None and (got.hour, got.minute) == (9, 30) and got > now  # tomorrow
+    got = parse_reset_time_from_text("usage resets at 23:15 tonight", now)
+    assert got is not None and (got.hour, got.minute) == (23, 15)
+    assert parse_reset_time_from_text("no limit text here", now) is None
+    # last mention wins
+    got = parse_reset_time_from_text("resets 1pm ... actually resets 4pm", now)
+    assert got.hour == 16
+
+
+def test_process_bound_liveness_contract():
+    """TASK-084: process_bound separates idle-but-alive (check-in territory)
+    from dead-with-frozen-status (incident territory). Age heuristic remains
+    the fallback when process_bound is absent (TASK-083 incident shape)."""
+    from limit_watcher import classify_live
+
+    assert classify_live({"status": "listening", "status_age_seconds": 3 * 3600,
+                          "process_bound": True}) is True     # idle but alive
+    assert classify_live({"status": "active", "status_age_seconds": 3 * 3600,
+                          "process_bound": False}) is False   # zombie entry
+    assert classify_live({"status": "active", "status_age_seconds": 21600}) is False  # fallback
+    assert classify_live({"status": "listening", "status_age_seconds": 5,
+                          "process_bound": True}) is True
+
+
+def test_checkin_decision_logic():
+    """TASK-084 / IDEA-0007: check-in nudges hit only live agents idle 2h+
+    with no claim and no declaration. Every safety boundary from the idea
+    card is a suppression case."""
+    from limit_watcher import decide_checkins
+
+    idle3h = {"status": "listening", "status_age_seconds": 3 * 3600, "process_bound": True}
+    idle1h = {"status": "listening", "status_age_seconds": 3600, "process_bound": True}
+    working = {"status": "active", "status_age_seconds": 3 * 3600, "process_bound": True}
+    dead = {"status": "listening", "status_age_seconds": 7 * 3600, "process_bound": False}
+
+    st = status(rose={"status": "available"}, limo={"status": "available"})
+
+    # the drifted agent gets a check-in
+    assert decide_checkins({"rose": idle3h}, st, set(), {"checkins": {}}, NOW) == ["rose"]
+    # blocked/waiting sessions are stuck, not drifting -- never check-in nudged
+    # (TASK-084 review finding 1)
+    blocked3h = {"status": "blocked", "status_age_seconds": 3 * 3600, "process_bound": True}
+    waiting3h = {"status": "waiting", "status_age_seconds": 3 * 3600, "process_bound": True}
+    assert decide_checkins({"rose": blocked3h}, st, set(), {"checkins": {}}, NOW) == []
+    assert decide_checkins({"rose": waiting3h}, st, set(), {"checkins": {}}, NOW) == []
+    # short idle, visibly active, or dead: no check-in
+    assert decide_checkins({"rose": idle1h}, st, set(), {"checkins": {}}, NOW) == []
+    assert decide_checkins({"rose": working}, st, set(), {"checkins": {}}, NOW) == []
+    assert decide_checkins({"rose": dead}, st, set(), {"checkins": {}}, NOW) == []
+    # an IN_PROGRESS claim suppresses
+    assert decide_checkins({"rose": idle3h}, st, {"rose"}, {"checkins": {}}, NOW) == []
+    # a declared reason suppresses (awaiting_work, out_of_tokens, anything)
+    st_declared = status(rose={"status": "standby", "reason": "awaiting_work"})
+    assert decide_checkins({"rose": idle3h}, st_declared, set(), {"checkins": {}}, NOW) == []
+    # non-available durable status suppresses
+    st_inactive = status(rose={"status": "inactive", "reason": None})
+    assert decide_checkins({"rose": idle3h}, st_inactive, set(), {"checkins": {}}, NOW) == []
+    # renudge throttle: one per window
+    recent = {"checkins": {"rose": (NOW - timedelta(minutes=30)).isoformat()}}
+    assert decide_checkins({"rose": idle3h}, st, set(), recent, NOW) == []
+    old = {"checkins": {"rose": (NOW - timedelta(hours=3)).isoformat()}}
+    assert decide_checkins({"rose": idle3h}, st, set(), old, NOW) == ["rose"]
+
+
+def test_work_dispatch_logic():
+    """TASK-095 / operator #17759: while claimable MAP work exists, idle
+    listening agents with no claim and no declaration get a bounded nudge.
+    Same safety boundaries as check-ins, shorter throttle, no 2h wait."""
+    from limit_watcher import decide_work_nudges, describe_work
+
+    idle5m = {"status": "listening", "status_age_seconds": 300, "process_bound": True}
+    fresh = {"status": "listening", "status_age_seconds": 30, "process_bound": True}
+    working = {"status": "active", "status_age_seconds": 300, "process_bound": True}
+    dead = {"status": "listening", "status_age_seconds": 7 * 3600, "process_bound": False}
+
+    st = status(rose={"status": "available"}, limo={"status": "available"})
+    work = {"ready": [("TASK-050", "Fix flags", "codex")],
+            "review": [("TASK-095", "Dispatch", "rose")],
+            "rework": [], "stale_claim": []}
+
+    # idle agent with claimable work gets a nudge
+    assert decide_work_nudges({"rose": idle5m}, st, set(), work, {"work_nudges": {}}, NOW) == ["rose"]
+    # empty queue: silence
+    assert decide_work_nudges({"rose": idle5m}, st, set(), {}, {"work_nudges": {}}, NOW) == []
+    # just-went-idle grace, visibly active, or dead session: no nudge
+    assert decide_work_nudges({"rose": fresh}, st, set(), work, {"work_nudges": {}}, NOW) == []
+    assert decide_work_nudges({"rose": working}, st, set(), work, {"work_nudges": {}}, NOW) == []
+    assert decide_work_nudges({"rose": dead}, st, set(), work, {"work_nudges": {}}, NOW) == []
+    # an open claim suppresses
+    assert decide_work_nudges({"rose": idle5m}, st, {"rose"}, work, {"work_nudges": {}}, NOW) == []
+    # declared standby / non-available durable status suppress
+    st_declared = status(rose={"status": "standby", "reason": "awaiting_work"})
+    assert decide_work_nudges({"rose": idle5m}, st_declared, set(), work, {"work_nudges": {}}, NOW) == []
+    st_inactive = status(rose={"status": "inactive", "reason": None})
+    assert decide_work_nudges({"rose": idle5m}, st_inactive, set(), work, {"work_nudges": {}}, NOW) == []
+    # throttle: one per 30min window
+    recent = {"work_nudges": {"rose": (NOW - timedelta(minutes=10)).isoformat()}}
+    assert decide_work_nudges({"rose": idle5m}, st, set(), work, recent, NOW) == []
+    old = {"work_nudges": {"rose": (NOW - timedelta(minutes=40)).isoformat()}}
+    assert decide_work_nudges({"rose": idle5m}, st, set(), work, old, NOW) == ["rose"]
+    # an agent whose only actionable item is reviewing their own submission
+    # is not nudged (no-self-review)
+    own_review_only = {"ready": [], "rework": [], "stale_claim": [],
+                       "review": [("TASK-095", "Dispatch", "rose")]}
+    assert decide_work_nudges({"rose": idle5m}, st, set(), own_review_only,
+                              {"work_nudges": {}}, NOW) == []
+    assert decide_work_nudges({"limo": idle5m}, st, set(), own_review_only,
+                              {"work_nudges": {}}, NOW) == ["limo"]
+    # describe_work: reviews exclude own tasks, rework only own
+    assert "TASK-095" not in describe_work(work, "rose")
+    assert "TASK-095" in describe_work(work, "limo")
+
+
+def test_stale_claim_owner_nudge_logic():
+    """TASK-119: stale IN_PROGRESS claims can hide work from recovered agents.
+    RnS should target the stale claim owner, even when there is no READY work
+    to dispatch, and throttle per task."""
+    from limit_watcher import decide_stale_claim_owner_nudges
+
+    claims = [
+        {
+            "task_id": "TASK-117",
+            "title": "Archive/Retention System",
+            "owner": "claude-lab-valo",
+            "claimed_by": "claude-lab-valo",
+            "lease_expires_at": (NOW - timedelta(minutes=5)).isoformat(),
+        }
+    ]
+
+    due = decide_stale_claim_owner_nudges(claims, {"stale_claim_owner_nudges": {}}, NOW)
+
+    assert list(due) == ["claude-lab-valo"]
+    assert due["claude-lab-valo"][0]["task_id"] == "TASK-117"
+
+    recent = {"stale_claim_owner_nudges": {"TASK-117": (NOW - timedelta(minutes=10)).isoformat()}}
+    assert decide_stale_claim_owner_nudges(claims, recent, NOW) == {}
+
+    old = {"stale_claim_owner_nudges": {"TASK-117": (NOW - timedelta(minutes=40)).isoformat()}}
+    assert list(decide_stale_claim_owner_nudges(claims, old, NOW)) == ["claude-lab-valo"]
+
+
+def test_terminal_session_classification():
+    """TASK-186 / IDEA-0009: only durable inactive + a terminal reason counts.
+    Anything else stays in normal RnS territory."""
+    from limit_watcher import TERMINAL_SESSION_REASONS, is_terminal_session
+
+    assert TERMINAL_SESSION_REASONS == {"session_superseded", "disposable_session_ended"}
+    assert is_terminal_session({"status": "inactive", "reason": "session_superseded"}) is True
+    assert is_terminal_session({"status": "inactive", "reason": "disposable_session_ended"}) is True
+    # inactive without a terminal reason is NOT terminal
+    assert is_terminal_session({"status": "inactive", "reason": None}) is False
+    assert is_terminal_session({"status": "inactive", "reason": "out_of_tokens"}) is False
+    # terminal reason without inactive status is NOT terminal
+    assert is_terminal_session({"status": "standby", "reason": "session_superseded"}) is False
+    assert is_terminal_session({"status": "available", "reason": "disposable_session_ended"}) is False
+    assert is_terminal_session({}) is False
+
+
+def test_close_terminal_incidents_pops_and_labels():
+    """TASK-186: open incidents for now-terminal agents are popped and labeled
+    closed_reason='terminal_session' — an explicit closure, not a silent drop.
+    Non-terminal incidents stay open."""
+    from limit_watcher import close_terminal_incidents
+
+    state = {"incidents": {
+        "zera": {"probes_sent": 6, "gave_up": True},
+        "mozu": {"probes_sent": 1, "gave_up": False},
+        "rose": {"probes_sent": 2, "gave_up": False},
+    }}
+    st = status(zera={"status": "inactive", "reason": "session_superseded"},
+                mozu={"status": "inactive", "reason": "disposable_session_ended"},
+                rose={"status": "available"})
+
+    closed = close_terminal_incidents(state, st)
+
+    assert [name for name, _ in closed] == ["mozu", "zera"]
+    assert all(inc["closed_reason"] == "terminal_session" for _, inc in closed)
+    # popped records keep their history (probes_sent etc.)
+    assert dict(closed)["zera"]["probes_sent"] == 6
+    assert list(state["incidents"]) == ["rose"]
+    # idempotent: nothing terminal left to close
+    assert close_terminal_incidents(state, st) == []
+
+
+def test_detect_terminal_suppressions_selects_only_terminal_absentees():
+    """TASK-186: mirror of detect_presumed_down, but selecting the absentees
+    RnS must deliberately leave dead. The two sets never overlap: presumed-down
+    skips any recorded reason, terminal requires one."""
+    from limit_watcher import detect_presumed_down, detect_terminal_suppressions
+
+    snapshot = {"limo": {"status": "listening", "status_age_seconds": 5}}
+    st = status(zera={"status": "inactive", "reason": "session_superseded"},
+                mozu={"status": "inactive", "reason": "disposable_session_ended"},
+                rose={"status": "available"},
+                limo={"status": "available"})
+    prev_live = ["zera", "mozu", "rose", "limo"]
+
+    assert detect_terminal_suppressions(prev_live, snapshot, st) == ["mozu", "zera"]
+    # still-live agents are never suppression-reported
+    assert detect_terminal_suppressions(["limo"], snapshot, st) == []
+    # the non-terminal absentee remains presumed-down territory, terminal ones do not
+    assert detect_presumed_down(prev_live, snapshot, st, incidents={}) == ["rose"]
+
+
+def test_terminal_entries_suppressed_in_checkins_work_nudges_and_v1_nudges():
+    """TASK-186: decide_checkins/decide_work_nudges/decide_nudges already
+    suppress non-available/reason-set agents; these assertions pin that
+    terminal entries stay suppressed there."""
+    from limit_watcher import decide_checkins, decide_nudges, decide_work_nudges
+
+    idle3h = {"status": "listening", "status_age_seconds": 3 * 3600, "process_bound": True}
+    idle5m = {"status": "listening", "status_age_seconds": 300, "process_bound": True}
+    work = {"ready": [("TASK-050", "Fix flags", "codex")],
+            "review": [], "rework": [], "stale_claim": []}
+
+    for reason in ("session_superseded", "disposable_session_ended"):
+        st = status(rose={"status": "inactive", "reason": reason})
+        assert decide_checkins({"rose": idle3h}, st, set(), {"checkins": {}}, NOW) == []
+        assert decide_work_nudges({"rose": idle5m}, st, set(), work,
+                                  {"work_nudges": {}}, NOW) == []
+        # v1 recorded-reset path: terminal entries are never resume-nudged,
+        # even with a passed resume_after lingering on the record
+        past = (NOW - timedelta(minutes=5)).isoformat()
+        st2 = status(rose={"status": "inactive", "reason": reason, "resume_after": past})
+        nudges, unparseable = decide_nudges(st2, {"nudged": {}, "warned_unparseable": {}}, NOW)
+        assert nudges == [] and unparseable == []
+
+
+def test_send_nudge_resume_success_keeps_visible_terminal():
+    import limit_watcher as lw
+
+    class FakeResult:
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    calls = []
+    real_run = lw.subprocess.run
+    try:
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            return FakeResult()
+
+        lw.subprocess.run = fake_run
+        assert lw.send_nudge("claude-lab-mira") is True
+    finally:
+        lw.subprocess.run = real_run
+
+    assert calls[0][:4] == ["hcom", "send", "@claude-lab-mira", "--intent"]
+    assert calls[1][:6] == ["hcom", "r", "claude-lab-mira", "--terminal", "wezterm-tab", "--go"]
+    assert "--headless" not in calls[1]
+    assert len(calls) == 2
+
+
+def test_send_nudge_active_session_fallback_sends_prompt():
+    import limit_watcher as lw
+
+    class FakeResult:
+        def __init__(self, code=0, stdout="", stderr=""):
+            self.returncode = code
+            self.stdout = stdout
+            self.stderr = stderr
+
+    calls = []
+    real_run = lw.subprocess.run
+    try:
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            if cmd[:2] == ["hcom", "r"]:
+                return FakeResult(1, stderr="mira is still active -- run hcom kill mira first")
+            return FakeResult(0)
+
+        lw.subprocess.run = fake_run
+        assert lw.send_nudge("claude-lab-mira") is True
+    finally:
+        lw.subprocess.run = real_run
+
+    assert len(calls) == 3
+    assert calls[1][:6] == ["hcom", "r", "claude-lab-mira", "--terminal", "wezterm-tab", "--go"]
+    assert calls[2][:4] == ["hcom", "send", "@claude-lab-mira", "--intent"]
+    assert lw.NUDGE_PROMPT in calls[2][-1]
+
+
+def test_send_nudge_active_session_fallback_failure_returns_false():
+    import limit_watcher as lw
+
+    class FakeResult:
+        def __init__(self, code=0, stdout="", stderr=""):
+            self.returncode = code
+            self.stdout = stdout
+            self.stderr = stderr
+
+    calls = []
+    real_run = lw.subprocess.run
+    try:
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            if cmd[:2] == ["hcom", "r"]:
+                return FakeResult(1, stderr="target is still active")
+            if len(calls) == 3:
+                return FakeResult(1, stderr="send failed")
+            return FakeResult(0)
+
+        lw.subprocess.run = fake_run
+        assert lw.send_nudge("claude-lab-mira") is False
+    finally:
+        lw.subprocess.run = real_run
+
+    assert len(calls) == 3
+
+
+def test_send_nudge_resume_timeout_returns_false():
+    import subprocess
+    import limit_watcher as lw
+
+    class FakeResult:
+        def __init__(self, code=0, stdout="", stderr=""):
+            self.returncode = code
+            self.stdout = stdout
+            self.stderr = stderr
+
+    calls = []
+    real_run = lw.subprocess.run
+    try:
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            if cmd[:2] == ["hcom", "r"]:
+                raise subprocess.TimeoutExpired(cmd, kwargs.get("timeout"))
+            return FakeResult(0)
+
+        lw.subprocess.run = fake_run
+        assert lw.send_nudge("claude-lab-mira") is False
+    finally:
+        lw.subprocess.run = real_run
+
+    assert len(calls) == 2
+    assert calls[1][:6] == ["hcom", "r", "claude-lab-mira", "--terminal", "wezterm-tab", "--go"]
+    assert "--headless" not in calls[1]
+
+
+def _terminal_fixture(td, reason="session_superseded", agent="claude-lab-ghost",
+                      seed_status=True):
+    """Build a REAL map.db from the canonical schema plus a real status.json.
+
+    TASK-186: the original terminal tests passed against synthetic status dicts
+    that already contained the terminal agent, so they never exercised the
+    exporter filter that was actually breaking the feature. These fixtures use
+    the real schema and the real exporter instead.
+    """
+    import sqlite3 as _sq
+
+    root = Path(__file__).resolve().parents[1]
+    db = Path(td) / "map.db"
+    con = _sq.connect(db)
+    con.executescript((root / "migration" / "schema.sql").read_text())
+    con.execute(
+        "INSERT INTO agents (agent_id, label, agent_type, status, reason) "
+        "VALUES (?, ?, 'core', 'inactive', ?)", (agent, agent, reason))
+    con.commit()
+    con.close()
+
+    agents_path = Path(td) / "status.json"
+    seeded = {"agents": {agent: {"status": "inactive", "reason": reason,
+                                 "resume_after": None, "notes": ""}}} \
+        if seed_status else {"agents": {}}
+    agents_path.write_text(json.dumps(seeded))
+    return db, agents_path
+
+
+def test_exporter_really_drops_terminal_agents_from_status_json():
+    """TASK-186 regression, real path: prove the exporter filter that made the
+    terminal feature unreachable is genuinely there. This is the assertion the
+    original synthetic-fixture tests could not make."""
+    import sqlite3 as _sq
+
+    root = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(root / "migration"))
+    import export_to_files
+
+    for reason in ("session_superseded", "disposable_session_ended"):
+        with tempfile.TemporaryDirectory() as td:
+            db, agents_path = _terminal_fixture(td, reason=reason)
+            con = _sq.connect(db)
+            try:
+                exported = export_to_files.load_agents(con, agents_path=agents_path)
+            finally:
+                con.close()
+            # the agent is present in the seed status.json and owns no active
+            # task, so ONLY the reason filter can remove it
+            assert "claude-lab-ghost" not in exported["agents"], (
+                f"exporter no longer drops {reason}; TASK-186's premise changed")
+
+
+def test_terminality_resolves_from_sqlite_despite_exporter_filter():
+    """TASK-186 option A: the lifecycle fact survives the routing-view filter.
+
+    Reproduces the exact live failure -- an agent marked terminal in SQLite and
+    absent from status.json -- and asserts the watcher still classifies it as
+    terminal. Before option A this returned {} and the agent was handled by the
+    generic TASK-176 stale prune instead."""
+    from limit_watcher import (apply_durable_lifecycle, is_terminal_session,
+                               load_durable_terminal_agents)
+
+    for reason in ("session_superseded", "disposable_session_ended"):
+        with tempfile.TemporaryDirectory() as td:
+            db, _ = _terminal_fixture(td, reason=reason)
+            assert load_durable_terminal_agents(db) == {"claude-lab-ghost": reason}
+
+            # status.json has already dropped the agent, as the exporter does
+            merged = apply_durable_lifecycle({"agents": {}}, db)
+            assert is_terminal_session(merged["agents"]["claude-lab-ghost"]) is True
+
+
+def test_durable_lifecycle_overlay_only_marks_genuinely_terminal():
+    """Option A must not turn every inactive agent into a terminal one: an
+    out_of_tokens session is coming back and must still be probed."""
+    from limit_watcher import apply_durable_lifecycle, load_durable_terminal_agents
+
+    with tempfile.TemporaryDirectory() as td:
+        db, _ = _terminal_fixture(td, reason="out_of_tokens")
+        assert load_durable_terminal_agents(db) == {}
+        merged = apply_durable_lifecycle({"agents": {}}, db)
+        assert "claude-lab-ghost" not in merged["agents"]
+
+
+def test_durable_lifecycle_overlay_does_not_mutate_caller_state():
+    """The overlay is a read-only view. status.json is never written by RnS, and
+    the caller's dict must not be edited in place either."""
+    from limit_watcher import apply_durable_lifecycle
+
+    with tempfile.TemporaryDirectory() as td:
+        db, _ = _terminal_fixture(td)
+        original = {"agents": {"claude-lab-live": {"status": "available"}}}
+        merged = apply_durable_lifecycle(original, db)
+        assert "claude-lab-ghost" in merged["agents"]
+        assert "claude-lab-ghost" not in original["agents"]  # untouched
+        assert merged["agents"]["claude-lab-live"]["status"] == "available"
+
+
+def test_durable_lifecycle_degrades_safely_without_database():
+    """RnS must keep running when the DB is missing or locked -- it exists to
+    recover agents when things are already broken."""
+    from limit_watcher import apply_durable_lifecycle, load_durable_terminal_agents
+
+    missing = Path(tempfile.gettempdir()) / "task186-definitely-not-a-db.sqlite"
+    assert load_durable_terminal_agents(missing) == {}
+    payload = {"agents": {"a": {"status": "available"}}}
+    assert apply_durable_lifecycle(payload, missing) == payload
+
+
+def main():
+    tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
+    for t in tests:
+        t()
+        print(f"PASS {t.__name__}")
+    print(f"{len(tests)} limit_watcher tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
