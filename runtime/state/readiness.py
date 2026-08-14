@@ -1,11 +1,47 @@
 from __future__ import annotations
 
 from contextlib import closing
+from pathlib import PurePosixPath
 import sqlite3
 
-from .common import (ACTIVE_SCOPE_STATUSES, VALID_REVIEW, VALID_RISKS, VALID_TASK_TYPES, MutationResult, ValidationResult, iso_z, utc_now)
+from .common import (
+    ACTIVE_SCOPE_STATUSES,
+    VALID_REVIEW,
+    VALID_RISKS,
+    VALID_TASK_TYPES,
+    MutationResult,
+    ValidationResult,
+    iso_z,
+    utc_now,
+)
+
 
 class ReadinessMixin:
+    @staticmethod
+    def _normalize_output_scope(value: str) -> str:
+        text = value.strip()
+        if not text:
+            raise ValueError("output path cannot be empty")
+        if "\\" in text:
+            raise ValueError("output paths must use repository-style '/' separators")
+        path = PurePosixPath(text)
+        if path.is_absolute() or ".." in path.parts:
+            raise ValueError("output path must stay inside the repository")
+        normalized = path.as_posix()
+        return normalized if normalized else "."
+
+    @staticmethod
+    def _scope_overlap(left: str, right: str) -> bool:
+        if left == "." or right == ".":
+            return True
+        left_path = PurePosixPath(left)
+        right_path = PurePosixPath(right)
+        return (
+            left_path == right_path
+            or left_path in right_path.parents
+            or right_path in left_path.parents
+        )
+
     def validate_ready(self, task_id: str) -> ValidationResult:
         with closing(self._connect()) as conn:
             return self._validate_ready_conn(conn, task_id)
@@ -14,7 +50,7 @@ class ReadinessMixin:
         self,
         conn: sqlite3.Connection,
         task_id: str,
-        ) -> ValidationResult:
+    ) -> ValidationResult:
         row = conn.execute(
             "SELECT * FROM tasks WHERE task_id = ?", (task_id,)
         ).fetchone()
@@ -84,28 +120,48 @@ class ReadinessMixin:
                     f"dependency {dependency} is {dep_row['status']}, not DONE"
                 )
 
-        outputs = collections["output paths"]
-        if outputs:
-            path_marks = ",".join("?" for _ in outputs)
+        raw_outputs = collections["output paths"]
+        normalized_outputs: list[str] = []
+        for output in raw_outputs:
+            try:
+                normalized_outputs.append(self._normalize_output_scope(output))
+            except ValueError as exc:
+                reasons.append(f"invalid output path {output!r}: {exc}")
+
+        if normalized_outputs:
             status_marks = ",".join("?" for _ in ACTIVE_SCOPE_STATUSES)
-            query = f"""
+            conflicts = conn.execute(
+                f"""
                 SELECT DISTINCT o.path, o.task_id
                 FROM task_output_paths o
                 JOIN tasks t ON t.task_id = o.task_id
-                WHERE o.path IN ({path_marks})
-                  AND o.task_id <> ?
+                WHERE o.task_id <> ?
                   AND t.status IN ({status_marks})
-                ORDER BY o.path, o.task_id
-            """
-            conflicts = conn.execute(
-                query,
-                (*outputs, task_id, *sorted(ACTIVE_SCOPE_STATUSES)),
+                ORDER BY o.task_id, o.path
+                """,
+                (task_id, *sorted(ACTIVE_SCOPE_STATUSES)),
             ).fetchall()
+            reported: set[tuple[str, str, str]] = set()
             for conflict in conflicts:
-                reasons.append(
-                    f"output path {conflict['path']} already reserved by "
-                    f"{conflict['task_id']}"
-                )
+                try:
+                    reserved = self._normalize_output_scope(conflict["path"])
+                except ValueError:
+                    reasons.append(
+                        f"reserved output path {conflict['path']!r} on "
+                        f"{conflict['task_id']} is invalid; repair that task first"
+                    )
+                    continue
+                for output in normalized_outputs:
+                    if not self._scope_overlap(output, reserved):
+                        continue
+                    key = (output, reserved, conflict["task_id"])
+                    if key in reported:
+                        continue
+                    reported.add(key)
+                    reasons.append(
+                        f"output scope {output} overlaps {reserved} reserved by "
+                        f"{conflict['task_id']}"
+                    )
 
         if dependency_blockers and not reasons:
             return ValidationResult(
@@ -126,7 +182,7 @@ class ReadinessMixin:
         self,
         task_id: str,
         actor: str | None = None,
-        ) -> MutationResult:
+    ) -> MutationResult:
         with closing(self._connect()) as conn:
             conn.execute("BEGIN IMMEDIATE")
             row = conn.execute(
