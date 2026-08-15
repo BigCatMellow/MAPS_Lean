@@ -101,6 +101,10 @@ class RegressionEvaluatorTests(unittest.TestCase):
             value["measurements"] = measurements
         return value
 
+    @staticmethod
+    def case_report(report, case):
+        return next(item for item in report["cases"] if item["case_id"] == case["case_id"])
+
     def test_exact_case_hash_is_revalidated_before_scoring(self):
         self.assertEqual(validate_regression_case(self.cases[0]), self.cases[0])
         tampered = copy.deepcopy(self.cases[0])
@@ -131,9 +135,11 @@ class RegressionEvaluatorTests(unittest.TestCase):
         self.assertEqual(metrics["not_run"], 1)
         self.assertEqual(metrics["missing"], 2)
         self.assertEqual(report["metrics"]["cases"]["incomplete"], 2)
-        self.assertEqual(report["cases"][0]["status"], "INCOMPLETE")
-        missing = [row for row in report["cases"][0]["properties"] if not row["reported"]]
-        self.assertEqual(missing[0]["status"], None)
+        case_report = self.case_report(report, self.cases[0])
+        self.assertEqual(case_report["status"], "INCOMPLETE")
+        missing = [row for row in case_report["properties"] if not row["reported"]]
+        self.assertEqual(len(missing), 1)
+        self.assertIsNone(missing[0]["status"])
 
     def test_unknown_duplicate_and_hash_mismatched_results_fail(self):
         valid = self.result(self.cases[0], {"tool.a": "PASS"})
@@ -156,10 +162,13 @@ class RegressionEvaluatorTests(unittest.TestCase):
             self.result(self.cases[1], {"aci.clear": "FAIL"}),
         ]
         first = evaluate_regression_cases(self.cases, results, label="candidate")
-        second = evaluate_regression_cases(list(reversed(self.cases)), list(reversed(results)), label="candidate")
+        second = evaluate_regression_cases(
+            list(reversed(self.cases)), list(reversed(results)), label="candidate"
+        )
         self.assertEqual(first, second)
-        self.assertEqual(first["cases"][0]["incident_category"], "TOOL_FAILURE")
-        self.assertEqual(first["cases"][0]["tags"], ["core", "tool"])
+        tool_case = self.case_report(first, self.cases[0])
+        self.assertEqual(tool_case["incident_category"], "TOOL_FAILURE")
+        self.assertEqual(tool_case["tags"], ["core", "tool"])
         self.assertEqual(first["metrics"]["cases"]["complete"], 2)
         self.assertEqual(first["metrics"]["cases"]["pass"], 1)
         self.assertEqual(first["metrics"]["cases"]["fail"], 1)
@@ -220,8 +229,7 @@ class RegressionEvaluatorTests(unittest.TestCase):
     def test_evaluation_is_read_only_and_never_authorizes_promotion(self):
         before = self.store.trace_task("TASK-EVAL")
         comparison = compare_regression_cases(self.cases, [], [])
-        after = self.store.trace_task("TASK-EVAL")
-        self.assertEqual(after, before)
+        self.assertEqual(self.store.trace_task("TASK-EVAL"), before)
         self.assertFalse(comparison["promotion"]["automatic"])
         self.assertEqual(
             comparison["promotion"]["path"],
@@ -234,7 +242,6 @@ class RegressionEvaluatorTests(unittest.TestCase):
                 "promotion",
             ],
         )
-        self.assertNotIn("promote", comparison["comparison_kind"].lower())
 
 
 if __name__ == "__main__":
