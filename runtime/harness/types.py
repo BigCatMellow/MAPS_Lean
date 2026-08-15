@@ -17,6 +17,35 @@ def _require_text(value: str, label: str) -> str:
     return normalized
 
 
+def _freeze_data(value: Any) -> Any:
+    """Recursively detach and freeze JSON-like structured result data."""
+
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, Mapping):
+        frozen: dict[str, Any] = {}
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise TypeError("OperationResult data mapping keys must be strings")
+            frozen[key] = _freeze_data(item)
+        return MappingProxyType(frozen)
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze_data(item) for item in value)
+    raise TypeError(
+        "OperationResult data must contain only JSON-like scalars, mappings, and sequences"
+    )
+
+
+def _thaw_data(value: Any) -> Any:
+    """Return an independently mutable serialization of frozen result data."""
+
+    if isinstance(value, Mapping):
+        return {key: _thaw_data(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_thaw_data(item) for item in value]
+    return value
+
+
 def new_operation_id() -> str:
     """Return an opaque operation correlation identifier."""
 
@@ -57,6 +86,8 @@ class OperationResult:
     it does not imply task completion. ``mutated`` distinguishes reads from
     side effects, ``complete`` distinguishes final from partial/paginated
     responses, and ``retry`` prevents callers from assuming repeat safety.
+    ``data`` is restricted to JSON-like structured values and recursively
+    frozen so an already-created result cannot be mutated through aliases.
     """
 
     ok: bool
@@ -87,7 +118,7 @@ class OperationResult:
         object.__setattr__(self, "operation_id", operation_id)
         object.__setattr__(self, "evidence_refs", evidence_refs)
         object.__setattr__(self, "next", next_token)
-        object.__setattr__(self, "data", MappingProxyType(dict(self.data)))
+        object.__setattr__(self, "data", _freeze_data(self.data))
 
     @classmethod
     def success(
@@ -152,7 +183,7 @@ class OperationResult:
             "ok": self.ok,
             "code": self.code,
             "summary": self.summary,
-            "data": dict(self.data),
+            "data": _thaw_data(self.data),
             "evidence_refs": list(self.evidence_refs),
             "mutated": self.mutated,
             "complete": self.complete,
