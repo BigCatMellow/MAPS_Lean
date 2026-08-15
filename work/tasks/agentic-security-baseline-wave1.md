@@ -1,6 +1,6 @@
 # Task: agentic security baseline
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,21 +27,21 @@
 
 ## Acceptance criteria
 
-- [ ] `resume` has an explicit pre-resume Hook interception point.
-- [ ] canonical run guard treats `resume` as continuation: current revision, active claimant, live lease, non-stale run, exact durable session binding.
-- [ ] stale reshaped sessions and expired-lease sessions cannot reach adapter `resume`.
-- [ ] text claiming operator approval cannot satisfy a `REQUIRE_APPROVAL` Hook.
-- [ ] continuity-linked helper/replacement identity cannot claim independent review.
-- [ ] peer/message text cannot mutate canonical task ownership.
-- [ ] provider session inspection cannot renew task lease/heartbeat.
-- [ ] threat-model/corpus note preserves remaining planned attacks without claiming unimplemented protection.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] `resume` has an explicit pre-resume Hook interception point.
+- [x] canonical run guard treats `resume` as continuation: current revision, active claimant, live lease, non-stale run, exact durable session binding.
+- [x] stale reshaped sessions and expired-lease sessions cannot reach adapter `resume`.
+- [x] text claiming operator approval cannot satisfy a `REQUIRE_APPROVAL` Hook.
+- [x] continuity-linked helper/replacement identity cannot claim independent review.
+- [x] peer/message text cannot mutate canonical task ownership.
+- [x] provider session inspection cannot renew task lease/heartbeat.
+- [x] threat-model/corpus note preserves remaining planned attacks without claiming unimplemented protection.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `tests.test_agentic_security_baseline` plus existing harness tests and full PR-triggered Runtime stack CI.
-- Evidence to preserve: stacked PR diff, CI run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31895641637` passed on implementation commit `e25baaa044a2f5bc9b969e59aeffb0036d9a5f05`.
+- Evidence to preserve: GitHub Actions run `31895641637`, PR #24 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -79,7 +79,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation prepared on `agent/agentic-security-baseline-wave1`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit, open stacked draft PR against `agent/harness-canonical-guard-wave1`, and run CI.
+- Completed: executable agentic-security baseline, `BEFORE_RESUME` Hook integration, focused tests, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion, but independent downstream work may continue.
+- Next action if not DONE: independent review of PR #24; continue non-dependent Skills work from `main`.
