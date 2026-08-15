@@ -1,6 +1,6 @@
 # Task: hcom normalization and Hook registry
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -28,20 +28,20 @@
 
 ## Acceptance criteria
 
-- [ ] hcom `inspect`, `send`, and `stop` use `OperationResult` with explicit project/session checks and bounded output.
-- [ ] Unknown provider status remains `UNKNOWN`; session-not-found is distinct from transport failure.
-- [ ] Unsupported hcom lifecycle operations return structured `UNSUPPORTED` instead of guessed behavior.
-- [ ] Hook registry provides deterministic ordering and `ALLOW`, `DENY`, `REQUIRE_APPROVAL`, and `ANNOTATE` outcomes.
-- [ ] Hook failures fail closed by default; optional non-blocking/raise policies are explicit.
-- [ ] Hook execution does not grant task authority, approval, ownership, scope, or completion.
-- [ ] Existing helper subsystem remains unchanged; this task records that helper runs are evidence, not live sessions, and defers helper lineage normalization until the lineage design exists.
-- [ ] Focused tests and full Runtime stack CI pass.
+- [x] hcom `inspect`, `send`, and `stop` use `OperationResult` with explicit project/session checks and bounded output.
+- [x] Unknown provider status remains `UNKNOWN`; session-not-found is distinct from transport failure.
+- [x] Unsupported hcom lifecycle operations return structured `UNSUPPORTED` instead of guessed behavior.
+- [x] Hook registry provides deterministic ordering and `ALLOW`, `DENY`, `REQUIRE_APPROVAL`, and `ANNOTATE` outcomes.
+- [x] Hook failures fail closed by default; optional non-blocking/raise policies are explicit.
+- [x] Hook execution does not grant task authority, approval, ownership, scope, or completion.
+- [x] Existing helper subsystem remains unchanged; this task records that helper runs are evidence, not live sessions, and defers helper lineage normalization until the lineage design exists.
+- [x] Focused tests and full Runtime stack CI pass.
 - [ ] Changes receive independent review before completion.
 
 ## Verification and evidence
 
-- Verification: focused unittest modules for hcom harness normalization and Hook mechanics, plus PR-triggered full Runtime stack CI.
-- Evidence to preserve: stacked PR diff, GitHub Actions run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31894920245` passed on implementation commit `cca097e69401bf7d79f753970c249c0ed86da3ec`.
+- Evidence to preserve: GitHub Actions run `31894920245`, PR #21 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -87,7 +87,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation in progress on `agent/hcom-hooks-wave1`.
-- Not completed: tests/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit implementation and open stacked draft PR against `agent/harness-foundation-wave1`.
+- Completed: hcom normalization, initial Hook registry, focused tests, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion, but downstream stacked implementation may continue against this verified head.
+- Next action if not DONE: independent review of PR #21; downstream work may stack on the verified implementation head.
