@@ -4,9 +4,13 @@ Status: `PLANNING ONLY — NOT ACTIVE AUTHORITY`
 
 Purpose: turn the external agent-harness research into implementation-ready MAPS Lean roadmaps. These documents describe how to add the strongest transferable mechanisms without importing another framework's architecture wholesale.
 
+**Parent master roadmap:** `work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md`
+
 Source research: `work/research/agent-harness-patterns-scan-2026-08.md`
 
-Related master roadmap: `work/roadmaps/prime-agent-capability-roadmap.md`
+Related Prime-derived detail: `work/roadmaps/prime-agent-capability-roadmap.md`
+
+The parent master owns cross-program capability inventory, sequencing, dependencies, promotion gates, and program-level status. This directory owns detailed subsystem design.
 
 ---
 
@@ -198,6 +202,8 @@ Learning/evaluation begins with instrumentation early, but **automatic or semi-a
 ---
 
 # 5. Recommended implementation order
+
+The master roadmap is authoritative for planning order when this summary becomes stale. Current summary:
 
 ## Wave 0 — Stabilize current foundation
 
