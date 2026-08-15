@@ -1,6 +1,6 @@
 # Task: provider-neutral HarnessService
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,19 +27,19 @@
 
 ## Acceptance criteria
 
-- [ ] `HarnessService` explicitly registers/selects adapters and reports unknown adapters structurally.
-- [ ] Mutating session operations require exact project/worker/session agreement between `ExecutionBinding` and `SessionRef`; attach may accept an unbound run only for explicit attachment.
-- [ ] `BEFORE_SEND`, `SESSION_STOPPING`, `RUN_STARTING`, and `RUN_STARTED` Hooks are integrated deterministically.
-- [ ] `DENY` and `REQUIRE_APPROVAL` block adapter invocation before mutation where possible.
-- [ ] A post-start Hook failure preserves evidence that provider mutation already happened rather than pretending the start did not occur.
-- [ ] The service does not import `TaskStore`, infer task authority, or create durable session state.
-- [ ] Focused tests and full Runtime stack CI pass.
+- [x] `HarnessService` explicitly registers/selects adapters and reports unknown adapters structurally.
+- [x] Mutating session operations require exact project/worker/session agreement between `ExecutionBinding` and `SessionRef`; attach may accept an unbound run only for explicit attachment.
+- [x] `BEFORE_SEND`, `SESSION_STOPPING`, `RUN_STARTING`, and `RUN_STARTED` Hooks are integrated deterministically.
+- [x] `DENY` and `REQUIRE_APPROVAL` block adapter invocation before mutation where possible.
+- [x] A post-start Hook failure preserves evidence that provider mutation already happened rather than pretending the start did not occur.
+- [x] The service does not import `TaskStore`, infer task authority, or create durable session state.
+- [x] Focused tests and full Runtime stack CI pass.
 - [ ] Independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `tests.test_harness_service` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: stacked PR diff, GitHub Actions run, review result.
+- Verification: PR-triggered full Runtime stack CI run `31895128908` passed on implementation commit `96c614846314ea604be95df9feed5c7e3b477b62`.
+- Evidence to preserve: GitHub Actions run `31895128908`, PR #22 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -76,7 +76,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation in progress on `agent/harness-service-wave1`.
-- Not completed: tests/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit and open stacked draft PR against `agent/hcom-hooks-wave1`.
+- Completed: provider-neutral HarnessService, explicit correlation checks, Hook integration, focused tests, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion, but downstream stacked work may continue against this verified head.
+- Next action if not DONE: independent review of PR #22; downstream work may stack on the verified implementation head.
