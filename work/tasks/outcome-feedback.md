@@ -1,6 +1,6 @@
 # Task: Outcome feedback
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT`
@@ -39,23 +39,25 @@
 
 ## Acceptance criteria
 
-- [ ] Outcomes are append-only and cannot update/delete historical observations.
-- [ ] Recording an outcome does not change task status, ownership, review, or
+- [x] Outcomes are append-only and cannot update/delete historical observations.
+- [x] Recording an outcome does not change task status, ownership, review, or
   policy state.
-- [ ] Outcome records preserve explicit actor class/identity (or UNKNOWN),
+- [x] Outcome records preserve explicit actor class/identity (or UNKNOWN),
   source provenance, task revision, optional run binding, failure class,
   escaped-defect/rework/intervention metrics, and timestamp.
-- [ ] Later corrections can explicitly supersede an earlier outcome record
+- [x] Later corrections can explicitly supersede an earlier outcome record
   without deleting it.
-- [ ] Outcome text crosses the diagnostic secret-safety boundary.
-- [ ] CLI can record/list outcomes and task trace includes them.
-- [ ] Tests cover authority isolation, immutability, supersession/provenance,
+- [x] Outcome text crosses the diagnostic secret-safety boundary.
+- [x] CLI can record/list outcomes and task trace includes them.
+- [x] Tests cover authority isolation, immutability, supersession/provenance,
   run/task validation, redaction, and CLI/read projection.
 
 ## Verification and evidence
 
 - Verification: pull-request CI plus focused behavior tests.
-- Evidence to preserve: CI result and PR diff.
+- Evidence to preserve: Runtime stack tests run `31886288275` passed on the
+  implementation including `tests/test_outcomes.py`; a later docs-only head run
+  should remain green before review.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -98,7 +100,7 @@ Escalate to: operator.
 
 ## Completion / handoff
 
-- Completed: task shaped.
-- Not completed: implementation and review.
+- Completed: append-only schema/API/CLI/trace integration, tests, and docs.
+- Not completed: independent review.
 - Current blocker: none.
-- Next action if not DONE: implement append-only outcome evidence.
+- Next action if not DONE: review the queued packet and current PR revision.
