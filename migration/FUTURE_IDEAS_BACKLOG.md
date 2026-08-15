@@ -14,6 +14,7 @@ Related sources:
 
 - [Legacy Knowledge & Implementation Audit](LEGACY_KNOWLEDGE_AUDIT.md)
 - [Legacy Promotion Ledger](LEGACY_PROMOTION_LEDGER.md)
+- [Legacy Idea Recovery Audit](LEGACY_IDEA_RECOVERY_AUDIT.md)
 - [Active Runtime](../runtime/README.md)
 - [Execution Integrity](../playbook/EXECUTION_INTEGRITY.md)
 - [Repair and Learning](../playbook/REPAIR_AND_LEARNING.md)
@@ -104,6 +105,11 @@ flows, and controlled learning** rather than rebuilding basic orchestration.
 | P2 | Controlled harness evaluation/refinement | Improve routing/instructions from measured history | Proposal-only; never self-authorizing |
 | P2 | Cost/yield and escaped-defect metrics | Optimize for useful outcomes, not activity | Add when enough runs exist to measure |
 | P2 | Risk-specific review lenses | Make reviewers explicitly inspect applicable failure classes | Lightweight review refinement |
+| P2 | Bounded phase-boundary discovery | Find useful cross-cutting omissions without a permanent scout | Proposal-only, evidence-linked, occasional |
+| P2 | Bounded system-adherence audit | Detect mechanisms that exist but are not actually used | Periodic audit, not permanent process police |
+| P2 | Authority provenance / ratification guard | Prevent proposals becoming policy by citation | Preserve as decision-integrity invariant |
+| P2 | Review-time evidence freshness | Prevent stale submission evidence from being approved | Re-derive or revision-bind important evidence |
+| P2 | Explainable wait projection | Make stranded requests visible from existing communication metadata | Derived/read-only first |
 | P3 | Scoped temporary halt authority | Allow narrowly bounded safety intervention without permanent authority | Preserve only; high bar to promote |
 
 ---
@@ -245,7 +251,7 @@ Default disposition: **P1 preserved candidate.**
 
 ## D. Exact claim/evidence projection for the Context Builder
 
-Legacy source: `IDEA-0023` / `EXP-0006` proposal.
+Legacy source: `IDEA-0023` / `EXP-0006`.
 
 Whole-file retrieval can find the right document while still failing to identify
 the exact statement, section, code symbol, historical version, or negative
@@ -287,9 +293,22 @@ Useful properties to preserve from the old proposal:
 - disposable, rebuildable projections;
 - independently frozen evaluation questions before treatment.
 
-Do **not** begin with embeddings, learned reranking, or a full knowledge graph.
+**Important experiment correction:** the completed legacy `EXP-0006` did **not**
+validate its lexical claim-card retriever as a production direction. It scored
+17/41 exact-source accuracy, 7/41 anchored-evidence accuracy, and correctly
+abstained on only 2/5 negatives. Its decision was `REVISE`. What survived the
+experiment was the evidence-integrity discipline: exact anchors, source hashes,
+source-drift reporting, temporal attribution, explicit negatives, frozen
+holdouts, and separate blind scoring. Do not port the old lexical retrieval
+implementation merely because the evidence-card shape is useful.
 
-Default disposition: **fold into P1 Context Builder.**
+Do **not** begin with a full knowledge graph or treat embeddings as automatically
+required. However, later tests must include vocabulary-shift/paraphrase cases;
+legacy evidence showed purely lexical retrieval can look solved on matched
+wording and fail badly once the same meaning is expressed differently.
+
+Default disposition: **fold evidence-integrity techniques into P1 Context
+Builder; legacy retriever itself is not preserved.**
 
 ## E. Helper/dispatch no-progress signal
 
@@ -461,6 +480,303 @@ Lean recovery already suppresses terminal sessions and stops recovery when the
 task/claim no longer matches.
 
 Disposition: **SOLVED IN LEAN — preserve as regression invariant.**
+
+## K. Bounded phase-boundary discovery / retrospective pass
+
+Legacy source: `INS-0028` / `EXP-0003`.
+
+A permanent discovery agent is unnecessary and risks idea inflation, scope drift,
+and background-model cost. But the bounded legacy pilot is important evidence
+that **occasional, visible, non-forcing discovery can work**: the completed
+ClearFront phase pilot produced two genuinely new useful findings, one useful
+rejection, zero scope drift, zero implementation edits, and no optional idea was
+misrepresented as a requirement.
+
+Preserve the method, not the standing role:
+
+```text
+completed phase / major milestone
+        ↓
+freeze known findings / current decisions
+        ↓
+bounded evidence-linked discovery pass
+        ↓
+classify each finding:
+known | refinement | genuinely new | weak | scope drift
+        ↓
+proposal only
+        ↓
+normal E/I promotion path if warranted
+```
+
+Useful controls from the experiment:
+
+- visible/bounded execution;
+- no implementation during discovery;
+- no idea quota;
+- explicit fact / inference / proposal separation;
+- check existing records before claiming novelty;
+- name the decision owner;
+- preserve rejected ideas when the rejection itself is useful;
+- no continuous model loop.
+
+Default disposition: **P2 preserved practice candidate; phase-boundary/event-
+triggered, never an always-on agent.**
+
+## L. Bounded system-adherence audit
+
+Legacy source: `IDEA-0012` / `PROMO-0007` / `TASK-129`.
+
+The old system discovered a practical failure mode: a subsystem can be fully
+documented and technically implemented while agents simply do not use it. The
+historical response was not a permanent "process steward" identity. It was a
+bounded audit checking whether systems were:
+
+1. complete against their stated purpose;
+2. actually connected to the other systems they claimed to integrate with;
+3. demonstrably used in real work rather than merely present in docs.
+
+Lean should preserve the audit shape without reviving the old eleven-system
+bureaucracy. A future lightweight audit might ask of each consequential MAPS
+mechanism:
+
+```text
+Does it still solve a real problem?
+Is it mechanically reachable?
+Is it actually being exercised?
+Does active behavior match the playbook?
+Is another mechanism duplicating it?
+```
+
+Findings should become normal repair notes, experiments, or candidate tasks;
+the audit itself must not silently rewrite policy or runtime state.
+
+Default disposition: **P2 occasional audit candidate, especially after major
+system additions or migrations.**
+
+## M. Authority provenance: citation must not ratify a proposal
+
+Legacy source: `INS-0043` and the later promotion-order failures in `INS-0046`.
+
+A legacy artifact explicitly labeled `proposed decision` became a de facto gate
+because later authoritative records cited it as though it had already been
+approved. Repetition of the citation made the proposal look increasingly
+canonical even though no explicit ratification occurred.
+
+Preserve this decision-integrity invariant:
+
+> Referencing an artifact does not change its authority class.
+
+Any document or record used to block, authorize, or constrain work should have
+explicit provenance showing why it is allowed to do so. Candidate/proposed
+records must remain proposals until the actual approval/decision transition is
+recorded.
+
+Possible Lean checks later:
+
+- surface the authority class alongside decision references;
+- warn when a task/policy gate cites a proposal or retired decision;
+- prevent derived context from dropping `PROPOSED`, `SUPERSEDED`, or similar
+  status markers;
+- make promotion order visible: approval first, implementation scope second.
+
+Do not build a giant document-authority graph merely to solve this. Start with
+load-bearing gate/decision references only.
+
+Default disposition: **P2 decision-integrity invariant; mechanical warning only
+if real recurrence justifies it.**
+
+## N. Review-time evidence freshness / immutable revision binding
+
+Legacy source: `INS-0058`.
+
+Submission-time checksums, parity screenshots, metrics, and other evidence can
+be correct when captured and false by the time an independent reviewer acts.
+The legacy system observed this on unrelated tasks when live files changed
+inside the submission/review window.
+
+Preserve the rule:
+
+> Review the state being approved, not merely the state that once produced the
+> submission report.
+
+For important evidence, use one of two patterns:
+
+1. **revision binding** — evidence identifies an immutable commit/tree/run
+   revision and review verifies that exact revision; or
+2. **review-time re-derivation** — reviewer reruns the relevant property against
+   the current submitted state.
+
+A stale evidence record remains useful historical evidence; it simply must not
+silently masquerade as proof of the current bytes/state.
+
+Default disposition: **P2 review-integrity refinement; especially important for
+security, release, parity, and generated metrics.**
+
+## O. Security and authority tests should assert executed behavior
+
+Legacy source: `INS-0060`, reinforced by the security-framed reviews behind
+`INS-0059`.
+
+Tests for security, authority, defaults, or isolation properties should prefer
+observable behavior over exact source spelling. Legacy tests repeatedly broke or
+passed for the wrong reason because they matched implementation text rather than
+the property the text was supposed to enforce.
+
+Examples:
+
+```text
+BAD PROXY
+"server.py contains DEFAULT_HOST = '127.0.0.1'"
+
+BETTER PROPERTY
+"with a clean environment, the computed bind address is loopback-only"
+```
+
+Use isolated imports, mocks, and narrow execution boundaries so behavior-level
+security tests do not accidentally trigger side effects.
+
+Default disposition: **preserve as a testing/review invariant, not a new
+subsystem.**
+
+## P. One fact, multiple readers: declare authority, make mutation atomic, or reconcile
+
+Legacy source: `SYN-0001`.
+
+Several apparently unrelated failures—task ID collisions, status drift, stale
+agent mirrors, event-schema divergence, generator-owned files being mistaken for
+task-owned files—shared one structure: **one conceptual fact had multiple
+readers/copies and no clearly declared winner.**
+
+The historical synthesis identified three successful repair shapes:
+
+```text
+1. Declare one view authoritative and make the others derived.
+2. Make the read/write operation atomic so concurrent actors cannot interleave.
+3. Add an automatic reconcile/cross-check where multiple representations are
+   genuinely necessary.
+```
+
+Review question worth preserving:
+
+> Who else reads this state, and which copy wins?
+
+Do not apply this mechanically to state with only one reader. The point is to
+prevent hidden duplicate truth, not to add locks and reconcilers everywhere.
+
+Default disposition: **architecture/review invariant; use when introducing new
+durable state or projections.**
+
+## Q. Explainable waits from communication metadata
+
+Legacy source: `INS-0036`.
+
+The old system found that much of a "why are we waiting?" record could be
+derived from hcom metadata already present: requester, addressee, request body,
+message/thread ID, and timestamp. Agents only needed to add exceptional fields
+such as `resumes_when`, `timeout_action`, or impact when safe defaults were not
+enough.
+
+A Lean-native form could remain a read-only projection:
+
+```text
+WAITING
+review request 84
+requester: agent-a
+recipient: agent-b
+sent: 10:14
+age: 18m
+thread: ...
+resume condition: reply / recipient unavailable / explicit reroute
+```
+
+This can later improve `maps status`, replay, and recovery triage without
+creating a second messaging authority.
+
+Hard boundaries:
+
+- derive from structured communication metadata where possible;
+- do not infer recipients from prose if structured mentions exist;
+- projection is diagnostic, not task-state authority;
+- no automatic reassignment in the first version.
+
+Default disposition: **P2 read-model candidate; promote only if stranded waits
+remain an operator/coordinator cost.**
+
+## R. Retrieval must be tested against vocabulary shift, not only corpus-matched wording
+
+Legacy source: `INS-0035` plus the later `EXP-0006` result.
+
+One legacy retrieval chain appeared to have 100% task recall on its frozen
+questions, but merely paraphrasing those questions into non-corpus vocabulary
+reduced task recall from 9/9 to 3/9 and source visibility from 81% to 31%.
+This means a retrieval benchmark can accidentally measure "does the query reuse
+words from the source?" instead of "can the system recover the right evidence
+when the user expresses the same meaning differently?"
+
+Any future Context Builder/retrieval experiment should therefore include:
+
+- vocabulary-matched controls;
+- meaning-preserving paraphrases;
+- hard negatives / near-miss tasks;
+- abstention quality;
+- end-to-end acceptable-evidence rank, not just task/file recall;
+- magnet-document tests where one broad source could dominate ranking;
+- frozen questions/labels before treatment where practical.
+
+This does **not** prove that embeddings are the answer. It proves that purely
+lexical success is insufficient evidence for deferring all semantic fallback or
+query-expansion work.
+
+Default disposition: **fold into Context Builder evaluation requirements.**
+
+## S. Release review should inspect every user-visible acquisition path
+
+Legacy source: `INS-0005` / `PROMO-0005`.
+
+Source-tree correctness is not enough if users install/download/run a stale ZIP,
+generated bundle, copied asset tree, packaged binary, README command, or other
+release path. Legacy release review caught defects that ordinary source review
+could not see because the user-facing artifact diverged from the source that
+had been reviewed.
+
+Preserve this as a release-flow/review lens:
+
+```text
+source state
+→ generated/package state
+→ documented acquisition path
+→ clean install/run smoke
+```
+
+A deterministic future `maps flow release` is a natural place for this once the
+procedure repeats often enough. Do not create a second release system solely for
+this checklist.
+
+Default disposition: **fold into Risk-specific Review Lenses and deterministic
+release flow.**
+
+## T. Evidence emitted by scanners/retrievers must remain independently checkable
+
+Legacy source: `INS-0061`.
+
+The legacy emergence scanner produced correct-looking candidate counts while
+some `evidence_refs` pointed at the wrong event lines. A curator trusting the
+scanner's citations could investigate unrelated evidence and reach the wrong
+conclusion.
+
+Preserve the invariant:
+
+> Retrieval/scanner output is a locator or claim about evidence, not evidence
+> authority by itself.
+
+For consequential use, evidence references should be reproducible from stable
+identifiers/hashes/queries or directly re-openable and verifiable. A system that
+cannot prove where a derived claim came from should report uncertainty rather
+than provide a falsely precise anchor.
+
+Default disposition: **fold into Context Builder, replay, and diagnostic-tool
+evidence integrity.**
 
 ---
 
@@ -645,6 +961,25 @@ The corpus should use frozen historical inputs and expected properties so that
 changes to prompts, routing, policies, helpers, and validators can be compared
 against the same cases.
 
+## End-to-end practice outcome
+
+Legacy `SYN-0002` adds an important evaluation guardrail: do not score isolated
+components only. At least one recurring eval should measure whether an operator-
+guided project can move through the whole useful lifecycle:
+
+```text
+correct orientation
+→ safe first action
+→ useful implementation/research result
+→ interruption recovery
+→ independent review
+→ release/completion
+```
+
+and measure the context/coordination cost required to get there. A context
+packet or helper policy that looks excellent in isolation but increases end-to-
+end rework has not improved MAPS.
+
 ## Hard boundaries
 
 Outcome data MUST NOT rewrite the original task history.
@@ -679,6 +1014,21 @@ The promotion ledger preserves the context packet shape:
 - Optional/triggered;
 - Excluded;
 - staleness information.
+
+## Historical evidence
+
+Legacy `EXP-0004` and `EXP-0005` tested a scoped orientation packet rather than
+merely proposing one. The first attempt was revised because it compressed away
+an immediate read-before-mutate boundary. The repeated experiment froze a
+six-row rubric/control first and then achieved all six passes with a treatment
+of 2,619 bytes against a 44,432-byte scenario control (94.11% scenario-local
+reduction).
+
+That is **evidence for the packet pattern**, not proof that MAPS should replace
+its full startup contract with a generated manifest. The preserved lesson is:
+context compression is valuable only when authority, safety, uncertainty, and
+the first required action survive the compression and the comparison uses a
+frozen control/rubric.
 
 ## Smallest Lean version
 
@@ -746,8 +1096,12 @@ Prefer:
 
 After the file-level packet works, experiment with disposable claim/evidence
 cards containing exact sections or code symbols, source hashes, proof roles, and
-separate negative boundaries. Do not require embeddings or a full knowledge
-graph for the first version.
+separate negative boundaries. Preserve the evidence-integrity techniques from
+`EXP-0006`, but **do not** treat its failed lexical retrieval implementation as
+a baseline to port.
+
+Evaluation must include meaning-preserving paraphrase/vocabulary-shift cases,
+not only queries that reuse source terminology.
 
 ## What not to revive
 
@@ -771,6 +1125,8 @@ Evaluate against historical tasks:
 - source visibility;
 - stale/superseded-source rejection;
 - negative-boundary/abstention quality;
+- paraphrase/vocabulary-shift robustness;
+- end-to-end acceptable-evidence rank;
 - task success/rework impact.
 
 ---
@@ -782,6 +1138,11 @@ Evaluate against historical tasks:
 Operational lessons discovered during real work can remain trapped in task
 notes, incidents, or session continuity and therefore fail to affect later
 agents.
+
+A historical promotion record for this idea (`PROMO-0011`) is itself a useful
+warning: it was marked `APPROVED` while its approval fields and destination were
+left incomplete. Treat the idea as **preserved but not reliably completed** in
+the legacy system.
 
 ## Smallest Lean version
 
@@ -923,7 +1284,7 @@ not become a second workflow engine or a second task state machine.
 ## Good early candidates
 
 - review preparation/routing;
-- release/integration checks;
+- release/integration checks, including user-visible acquisition paths;
 - recovery sequence;
 - handoff/continuity checks;
 - projection/read-model repair;
@@ -1008,8 +1369,8 @@ TASK-036     DONE
 TASK-035     FAILED -> recovered
 ```
 
-A later version may surface advisory helper `NO PROGRESS` signals, but the
-status surface itself remains read-only.
+A later version may surface advisory helper `NO PROGRESS` signals and explainable
+wait records, but the status surface itself remains read-only.
 
 ## Design rule
 
@@ -1138,6 +1499,10 @@ Use the three-layer eval discipline described in the recovered historical
 section so configuration improvements are tested mechanically, qualitatively,
 and against sampled real outcomes/traces.
 
+Use paraphrase/vocabulary-shift variants where retrieval/context behavior is
+part of the candidate configuration so a lexical benchmark cannot create a
+false sense of robustness.
+
 ## Hard boundaries
 
 The refinement system MUST NOT:
@@ -1203,7 +1568,8 @@ A dashboard over five incomparable tasks is not evidence.
 
 A generic functional review can miss trust-boundary or safety problems even when
 the reviewer is competent. Historical MAP evidence showed that an explicitly
-security-framed pass found a real issue that the first pass missed.
+security-framed pass found real issues that ordinary functional/architecture
+review plausibly would have missed.
 
 ## Smallest Lean version
 
@@ -1219,8 +1585,59 @@ destructive / data-loss
 release / deployment path
 ```
 
+For security/authority properties, prefer behavior-level verification over
+source-text matching. For release/deployment, inspect the actual user-visible
+acquisition path and packaged/generated artifact when one exists.
+
 Only activate lenses relevant to the task. Require additional independent
 reviewers only when the actual risk warrants them.
+
+---
+
+# P2 — Bounded phase-boundary discovery
+
+Use the method from recovered item K: a visible, evidence-linked, proposal-only
+pass after a significant phase/milestone. It is explicitly **not** a permanent
+Discovery Agent or continuous model loop.
+
+Promote only if occasional cross-cutting omissions continue to survive ordinary
+task closeout/review and the bounded pass shows useful yield above its curation
+cost.
+
+---
+
+# P2 — Bounded system-adherence audit
+
+Use the method from recovered item L when a cluster of MAPS mechanisms has been
+added or materially changed. Measure whether each mechanism is reachable,
+actually used, and still consistent with its playbook rather than merely
+counting documentation presence.
+
+The audit is diagnostic and proposal-producing only.
+
+---
+
+# P2 — Authority provenance / ratification guard
+
+Preserve the recovered item M invariant: proposal status survives citation.
+Consider a mechanical warning only for load-bearing task/policy/decision
+references if authority drift recurs in Lean.
+
+---
+
+# P2 — Review-time evidence freshness
+
+Preserve recovered item N: consequential evidence must either bind to an
+immutable revision or be re-derived by the reviewer against the state actually
+being approved.
+
+---
+
+# P2 — Explainable wait projection
+
+Preserve recovered item Q as a read-only projection over structured hcom/request
+metadata. It may improve status/replay/recovery diagnosis but cannot itself
+reassign work or mutate task authority.
 
 ---
 
@@ -1263,7 +1680,8 @@ because the old system or external tools supported them.
 | MCP-everywhere architecture | Defer | Use adapters where valuable; do not make protocol adoption the architecture |
 | Firecracker/microVM per worker | Threat-model dependent | Isolation cost should match actual threat model |
 | Large-scale formal-methods program | Optional | Prefer executable invariants/tests first; formalize only high-risk state/concurrency rules |
-| Continuous discovery/emergence agents | Do not revive | Favor bounded/event-triggered discovery |
+| Continuous discovery/emergence agents | Do not revive | Bounded phase-boundary discovery tested useful; continuous role/loop did not earn its cost |
+| Legacy lexical claim-card retriever | Do not revive | EXP-0006 failed overall retrieval/abstention targets; preserve evidence-integrity techniques only |
 
 ---
 
@@ -1307,10 +1725,17 @@ CURRENT MAPS LEAN
           refine.propose
 ```
 
-Helper no-progress detection and persistent helper continuity can be evaluated
-independently when helper usage produces enough evidence to justify them.
-Risk-specific review lenses can be adopted independently as a low-complexity
-review refinement if recurring misses justify the change.
+Independent supporting practices can be tested when their triggering evidence
+appears:
+
+- helper no-progress detection;
+- explainable waits;
+- bounded phase-boundary discovery;
+- bounded system-adherence audits;
+- authority-provenance warnings;
+- risk-specific review lenses;
+- review-time evidence freshness;
+- persistent helper continuity.
 
 ---
 
@@ -1370,6 +1795,8 @@ measure whether it actually worked
 provide better bounded context
         ↓
 carry forward proven operational lessons
+        ↓
+verify authority/evidence provenance
         ↓
 isolate parallel execution
         ↓
