@@ -51,7 +51,7 @@ RUN RECORD / EVALUATION
 #35 5fac110b4af70eaec92bb3ec91eeb5c52ee7a149  base #34
 
 ROADMAP RECONCILIATION
-#36 bd0a973b7ba0edb5855b1846e4e3897fa72b4449  base main
+#36 current head on agent/legacy-recovery-roadmap-reconciliation  base main
 ```
 
 These SHA values are checkpoints only. If any head moves, use the new exact head.
@@ -112,6 +112,35 @@ The other independent tracks can follow without blocking that critical path:
 
 If a fresh independent reviewer is available for several roots, early non-final review of independent roots can happen in parallel to surface defects. Final completion approval should still bind to the exact base/head/integration state that will be merged.
 
+## Cross-stack file overlap
+
+The current **root** PRs are path-disjoint:
+
+- #20 — `runtime/harness/*`
+- #25 — `runtime/skills/*`
+- #28 — `runtime/environment/*`
+- #32 — review/state binding files
+- #33 — `runtime/run_record.py` + CLI
+- #36 — planning/docs only
+
+That makes early root review reasonably parallelizable.
+
+One known downstream integration hotspot exists:
+
+```text
+#30 environment run evidence
+  touches runtime/state/schema.sql
+          runtime/state/store.py
+
+#32 review-subject freshness
+  touches runtime/state/schema.sql
+          runtime/state/store.py
+```
+
+Therefore #30 and #32 must not be treated as permanently independent merely because their roots were independent. Whichever lands second must be synchronized with current `main`, resolve the shared state-layer tree normally, run fresh Runtime CI, and receive final review on that integrated delta.
+
+No other current cross-stack file overlap was found in the changed-file inventory for #20-#36 at this checkpoint. Re-check after any head moves.
+
 ## Per-stack reviewer focus
 
 ### #20 → #24 Harness/security
@@ -149,6 +178,8 @@ Check especially:
 - compatibility is evidence, not recovery authority;
 - run environment evidence is append-only and does not mutate run/task truth.
 
+Before final #30 review, account explicitly for #32 if #32 has already landed because both modify the state schema/store composition.
+
 ### #32 Review freshness
 
 Check especially:
@@ -158,6 +189,8 @@ Check especially:
 - consequential approval rejects changed revision/submission/run evidence;
 - re-derived evidence must match exact immutable refs;
 - the feature does not create a second review lifecycle.
+
+Before final #32 review, account explicitly for #30 if #30 has already landed because both modify the state schema/store composition.
 
 ### #33 → #35 Run Record/evaluation
 
