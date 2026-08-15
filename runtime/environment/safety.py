@@ -3,17 +3,23 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from . import fingerprint as _fingerprint_module
 from .fingerprint import EnvironmentFingerprint, inspect_local_environment as _inspect_local_environment
 from .spec import EnvironmentSpec, NetworkMode
 
 
 def _validate_dependency_containment(spec: EnvironmentSpec, repo_root: str | Path) -> Path:
-    """Reject declared dependency inputs that resolve outside the repository."""
+    """Reject dependency inputs that escape or traverse symlinks from the repo."""
 
     root = Path(repo_root).resolve()
     for relative in spec.dependency_inputs:
         candidate = root / relative
+        cursor = root
         try:
+            for part in Path(relative).parts:
+                cursor = cursor / part
+                if cursor.is_symlink():
+                    raise ValueError("dependency input traverses a symlink")
             resolved = candidate.resolve(strict=False)
             resolved.relative_to(root)
         except (OSError, RuntimeError, ValueError) as exc:
@@ -47,3 +53,8 @@ def inspect_local_environment(
         secret_availability=secret_availability,
         now=now,
     )
+
+
+# Ensure direct imports from runtime.environment.fingerprint receive the same
+# containment-checked public implementation after package initialization.
+_fingerprint_module.inspect_local_environment = inspect_local_environment
