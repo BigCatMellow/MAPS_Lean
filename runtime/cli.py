@@ -8,6 +8,7 @@ import sys
 
 from runtime.context_builder import build_context_plan
 from runtime.state import MutationResult, TaskStore, ValidationResult
+from runtime.status import build_status
 
 DEFAULT_DB = Path('.maps/state/maps.db')
 
@@ -77,6 +78,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     context.add_argument('task_id')
     context.add_argument('--repo-root', default='.')
+
+    status = sub.add_parser('status', help='show a read-only operator status summary')
+    status.add_argument('--recent-limit', type=int, default=10)
 
     claim = sub.add_parser('claim', help='claim READY/CHANGES_REQUESTED work')
     claim.add_argument('task_id')
@@ -183,6 +187,11 @@ def main(argv: list[str] | None = None) -> int:
         if plan is None:
             return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
         return _emit(plan)
+    if args.command == 'status':
+        try:
+            return _emit(build_status(store, recent_limit=args.recent_limit))
+        except ValueError as exc:
+            return _emit(MutationResult(False, 'INVALID_STATUS_OPTIONS', str(exc)))
     if args.command == 'claim':
         return _emit(store.claim_task(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))
     if args.command == 'heartbeat':
