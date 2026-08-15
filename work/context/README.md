@@ -2,7 +2,7 @@
 
 Status: `HISTORICAL CONTEXT — NOT ACTIVE AUTHORITY`
 
-Purpose: preserve the reasoning, chronology, operator preferences, rejected directions, and design transitions that led to the current MAPS Lean roadmaps and implementation work.
+Purpose: preserve the reasoning, chronology, operator preferences, rejected directions, design transitions, and plain-language explanations that led to the current MAPS Lean roadmaps and implementation work.
 
 These files exist so a future agent can understand **why the repository looks the way it does**, not merely what the current files contain.
 
@@ -44,6 +44,14 @@ Decision ledger explaining major design choices, alternatives rejected, promotio
 
 Compact onboarding/handoff for a new agent entering the project now. It points to the canonical files, describes the current draft PR state, summarizes what is already implemented, and lists the next planning/implementation fronts.
 
+### `plain-language-maps-improvements.md`
+
+Non-technical explanation of the major proposed improvements from the Prime/external agent-system research: common worker controls, deterministic hooks, Skills, Skill trust, environment recipes, better AI-facing tools, immediate validation, context budgeting, complete run history, review-to-revision binding, worktree isolation, helper continuity, no-progress detection, Capability Packs, memory trust levels, adversarial agent security tests, real-world learning, and the prohibition on self-authorizing changes.
+
+It preserves the central plain-language design conclusion:
+
+> Build an extremely good operating system around ordinary capable AI agents.
+
 ## Related material
 
 - `work/roadmaps/prime-agent-capability-roadmap.md`
@@ -59,10 +67,11 @@ Compact onboarding/handoff for a new agent entering the project now. It points t
 1. AGENTS.md
 2. current task / canonical task state
 3. work/context/agent-handoff-current-state.md
-4. work/context/design-decisions-and-rationale.md
-5. work/context/conversation-history-2026-08-15.md
-6. relevant roadmap/research file
-7. implementation files/tests
+4. work/context/plain-language-maps-improvements.md
+5. work/context/design-decisions-and-rationale.md
+6. work/context/conversation-history-2026-08-15.md
+7. relevant roadmap/research file
+8. implementation files/tests
 ```
 
 The context files are deliberately below `AGENTS.md` and task authority in that order.
