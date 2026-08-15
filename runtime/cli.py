@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import sys
 
+from runtime.context_builder import build_context_plan
 from runtime.state import MutationResult, TaskStore, ValidationResult
 
 DEFAULT_DB = Path('.maps/state/maps.db')
@@ -69,6 +70,13 @@ def build_parser() -> argparse.ArgumentParser:
         help='show a read-only canonical task trace with explicit source coverage',
     )
     trace.add_argument('task_id')
+
+    context = sub.add_parser(
+        'context',
+        help='show a read-only explicit context plan for a task',
+    )
+    context.add_argument('task_id')
+    context.add_argument('--repo-root', default='.')
 
     claim = sub.add_parser('claim', help='claim READY/CHANGES_REQUESTED work')
     claim.add_argument('task_id')
@@ -167,6 +175,14 @@ def main(argv: list[str] | None = None) -> int:
         if trace is None:
             return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
         return _emit(trace)
+    if args.command == 'context':
+        try:
+            plan = build_context_plan(store, args.task_id, repo_root=args.repo_root)
+        except ValueError as exc:
+            return _emit(MutationResult(False, 'INVALID_REPO_ROOT', str(exc)))
+        if plan is None:
+            return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
+        return _emit(plan)
     if args.command == 'claim':
         return _emit(store.claim_task(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))
     if args.command == 'heartbeat':
