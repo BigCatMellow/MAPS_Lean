@@ -29,6 +29,29 @@ Only concrete safety, correctness, or acceptance-criteria failures block
 approval. Use [the review template](../templates/review.md) for medium and high
 risk work.
 
+### Applicable review lenses
+
+Use only the lenses the task actually triggers. One independent reviewer may
+cover multiple lenses; do not add reviewers merely to satisfy a checklist.
+
+- **Functional / acceptance** — does the requested behavior work and do the
+  stated criteria pass?
+- **Security / trust boundary** — can inputs, identities, permissions, secrets,
+  or privileged actions cross a boundary they should not?
+- **Privacy** — is sensitive or personal data collected, exposed, persisted, or
+  transmitted beyond the declared need?
+- **Destructive / data-loss** — can the change delete, overwrite, corrupt, or
+  irreversibly mutate state?
+- **Release / acquisition path** — does the actual package, generated artifact,
+  install/download path, or deployment behave like the reviewed source?
+- **Authority** — does the implementation execute only actions that the task,
+  policy, and operator actually authorized?
+
+For security and authority properties, prefer tests of executed behavior over
+tests that merely match exact source text. For consequential evidence, verify
+the state/revision actually being approved rather than assuming an older
+submission snapshot is still current.
+
 ## High-risk completion summary
 
 `OPERATOR_VISIBLE_RELEASE_CHECK` does **not** create another task status or a

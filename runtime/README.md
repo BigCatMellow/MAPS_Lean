@@ -7,7 +7,8 @@ Implemented components:
 
 - `runtime/state/` — SQLite task truth, structural AGI `READY` gate, claims,
   leases, submission evidence, review, policy, continuity, immutable run
-  manifests, and optional criterion-level evidence.
+  manifests, optional criterion-level evidence, secret-safer task events, and a
+  read-only canonical task trace.
 - `runtime/policy/` — explicit task policy metadata, operator approvals, worker
   capability envelopes, and durable dispatch halt state.
 - `runtime/routing/` — deterministic route selection wrapped by LangGraph with
@@ -35,12 +36,13 @@ hcom        communication / session process control
 RnS         recovery of explicitly known active sessions
 helpers     bounded delegated work
 integrity   frozen run contract + proof; no new authority
+trace       disposable read model over canonical task DB records
 Markdown    durable human-readable record
 WezTerm     optional presentation
 ```
 
-A route, message, active session, recovery attempt, helper result, or run
-manifest does not itself change task authority.
+A route, message, active session, recovery attempt, helper result, run
+manifest, or trace projection does not itself change task authority.
 
 ## Mutable local state
 
@@ -124,6 +126,27 @@ reviewer verdict: confirmed / rejected
 Overall `APPROVED` then requires every current acceptance criterion to be
 complete + confirmed. Claims/verdicts are SQLite-immutable audit records and
 reviewer verdicts never rewrite implementer claims.
+
+## Task trace and event safety
+
+`python -m runtime.cli trace TASK-0042` produces a read-only projection from the
+canonical task database. It includes current task state, policy, event timeline,
+review metadata, run manifests/context hashes, and criterion evidence.
+
+Trace v1 intentionally omits raw submission evidence and explicitly reports
+coverage gaps. It does **not** yet correlate hcom, recovery JSON, helper-run
+evidence, or escalation artifacts into the timeline; the output says so rather
+than presenting a partial history as complete replay.
+
+Durable `task_events.summary` writes pass through a best-effort secret redaction
+boundary for common bearer tokens, API/access credentials, passwords, known
+token formats, and private-key blocks. Redaction leaves an explicit
+`[REDACTED:...]` marker. Canonical evidence in its owning tables is not silently
+rewritten; diagnostic trace output is redacted again on read so older event or
+review text is safer to inspect.
+
+This is a safety boundary, not a claim that arbitrary secrets can always be
+recognized. Do not intentionally place secrets in task/review text.
 
 ## Routing and policy
 

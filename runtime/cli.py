@@ -64,6 +64,12 @@ def build_parser() -> argparse.ArgumentParser:
     show = sub.add_parser('show', help='show canonical task state')
     show.add_argument('task_id')
 
+    trace = sub.add_parser(
+        'trace',
+        help='show a read-only canonical task trace with explicit source coverage',
+    )
+    trace.add_argument('task_id')
+
     claim = sub.add_parser('claim', help='claim READY/CHANGES_REQUESTED work')
     claim.add_argument('task_id')
     claim.add_argument('worker_id')
@@ -130,6 +136,11 @@ def main(argv: list[str] | None = None) -> int:
         if task is None:
             return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
         return _emit(task)
+    if args.command == 'trace':
+        trace = store.trace_task(args.task_id)
+        if trace is None:
+            return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
+        return _emit(trace)
     if args.command == 'claim':
         return _emit(store.claim_task(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))
     if args.command == 'heartbeat':

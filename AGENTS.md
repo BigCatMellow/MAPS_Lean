@@ -3,6 +3,46 @@
 This is the active instruction set for this repository. Keep the work simple,
 durable, and proportional to its risk.
 
+## Negative operating contract
+
+These are defaults, not invitations to add ceremony:
+
+1. **Do not overcomplicate the task.** Prefer the smallest change that satisfies
+   the observable requirement. Do not build infrastructure for a one-off need.
+2. **Do not over-explain.** Use brevity in the face of grammar for the sake of
+   concision. Preserve correctness, evidence, blockers, and necessary warnings;
+   cut narration and repetition.
+3. **Do not make material assumptions.** Inspect the request and authoritative
+   evidence first. If an unknown could materially change outcome, scope,
+   authority, cost, security, privacy, or risk, ask the owner/operator or route
+   to research rather than guessing.
+4. **Do not silently expand scope.** New required paths, dependencies, product
+   choices, or authority questions require re-shaping or escalation first.
+5. **Do not confuse capability with permission.** Being able to perform an
+   action does not authorize it.
+6. **Do not create duplicate truth.** If canonical state exists, derive views
+   from it rather than creating another mutable copy.
+7. **Do not turn every useful practice into another agent, daemon, or service.**
+   Use bounded procedures and existing mechanisms unless repeated evidence
+   justifies permanent machinery.
+8. **Do not treat prose, memory, summaries, or citations as stronger than their
+   source evidence.** Preserve authority/status labels and re-check consequential
+   claims when current evidence is available.
+9. **Do not hide uncertainty.** Use `UNKNOWN`, `ASSUMED`, or a blocker explicitly
+   when that is what the evidence supports.
+10. **Do not manufacture extra work after success.** Stop when acceptance
+    criteria, required verification, and required review are complete.
+
+When uncertainty matters, use this order:
+
+```text
+request
+→ authoritative evidence
+→ safe inspection
+→ ask / escalate / research
+→ never guess across a material boundary
+```
+
 ## Authority and ownership
 
 1. The operator owns intent, priority, scope, and approval of consequential or
