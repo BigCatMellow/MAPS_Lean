@@ -1,6 +1,6 @@
 # Task: static Skill quality and security gate
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,25 +27,25 @@
 
 ## Acceptance criteria
 
-- [ ] gate verifies the Skill has not drifted since discovery before scanning.
-- [ ] gate reads Skill body/resources statically and never executes scripts/resources.
-- [ ] report is bound to the exact Skill content SHA-256.
-- [ ] dispositions are only `CLEAR`, `REVIEW_REQUIRED`, and `QUARANTINE`; none means `APPROVED` or grants runtime capability.
-- [ ] executable resources trigger review even when no suspicious text is found.
-- [ ] binary/non-UTF8/oversized resources trigger review rather than being silently skipped.
-- [ ] vague routing descriptions and persona/roleplay-heavy instructions trigger review.
-- [ ] privilege, destructive, broad environment/credential access, and script network access trigger review.
-- [ ] likely secret literals, sensitive credential/key resource names, authority-override/approval claims, and remote-pipe-to-shell patterns trigger quarantine.
-- [ ] findings contain bounded code/path/summary metadata and do not echo detected secret values/source contents.
-- [ ] safe procedural Skill can be `CLEAR`, while tests assert that `CLEAR` output contains no approval/trust semantics.
-- [ ] malicious/adversarial fixture Skills are caught by behavior tests.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] gate verifies the Skill has not drifted since discovery before scanning.
+- [x] gate reads Skill body/resources statically and never executes scripts/resources.
+- [x] report is bound to the exact Skill content SHA-256.
+- [x] dispositions are only `CLEAR`, `REVIEW_REQUIRED`, and `QUARANTINE`; none means `APPROVED` or grants runtime capability.
+- [x] executable resources trigger review even when no suspicious text is found.
+- [x] binary/non-UTF8/oversized resources trigger review rather than being silently skipped.
+- [x] vague routing descriptions and persona/roleplay-heavy instructions trigger review.
+- [x] privilege, destructive, broad environment/credential access, and script network access trigger review.
+- [x] likely secret literals, sensitive credential/key resource names, authority-override/approval claims, and remote-pipe-to-shell patterns trigger quarantine.
+- [x] findings contain bounded code/path/summary metadata and do not echo detected secret values/source contents.
+- [x] safe procedural Skill can be `CLEAR`, while tests assert that `CLEAR` output contains no approval/trust semantics.
+- [x] malicious/adversarial fixture Skills are caught by behavior tests.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_skills_quality_gate -v` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: adversarial test cases, PR diff, CI run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31898263690` passed on implementation commit `d3d186dbd0903eacd4dbe715335bf2560b1c74d3`.
+- Evidence to preserve: adversarial test cases, GitHub Actions run `31898263690`, PR #31 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -91,7 +91,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation prepared on `agent/skills-quality-gate-wave2`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit isolated gate implementation, open stacked draft PR against `agent/skills-selection-eval-wave2`, and run full Runtime stack CI.
+- Completed: static Skill quality/security gate, adversarial tests, draft PR #31, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion; unrelated roadmap work may continue.
+- Next action if not DONE: independent review of PR #31; persistent Skill trust/approval state remains deliberately deferred until its authority lifecycle is explicitly reviewed.
