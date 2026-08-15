@@ -1,6 +1,6 @@
 # Task: canonical harness run guard
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,20 +27,20 @@
 
 ## Acceptance criteria
 
-- [ ] Guard verifies explicit task/run/worker/project identity against canonical task and immutable run manifest.
-- [ ] `start`/`send` require current task revision, ACTIVE claimant, live lease, and non-stale run/context evidence.
-- [ ] `send` also requires exact durable run-manifest session binding.
-- [ ] `stop` requires exact task/run/session identity but does not require a live lease/current task revision, so stale known sessions remain stoppable by an otherwise authorized caller.
-- [ ] Guard fails closed when canonical evidence is missing, mismatched, stale, or unsupported.
-- [ ] Guard is read-only and grants no policy/operator authority.
-- [ ] Registration covers pre-mutation lifecycle events only.
-- [ ] Focused tests and full Runtime stack CI pass.
+- [x] Guard verifies explicit task/run/worker/project identity against canonical task and immutable run manifest.
+- [x] `start`/`send` require current task revision, ACTIVE claimant, live lease, and non-stale run/context evidence.
+- [x] `send` also requires exact durable run-manifest session binding.
+- [x] `stop` requires exact task/run/session identity but does not require a live lease/current task revision, so stale known sessions remain stoppable by an otherwise authorized caller.
+- [x] Guard fails closed when canonical evidence is missing, mismatched, stale, or unsupported.
+- [x] Guard is read-only and grants no policy/operator authority.
+- [x] Registration covers pre-mutation lifecycle events only.
+- [x] Focused tests and full Runtime stack CI pass.
 - [ ] Independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `tests.test_harness_canonical_guard` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: stacked PR diff, GitHub Actions run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31895412303` passed on implementation commit `6c6eeeb050a3bc102250bafba9a849bab1e82b04`.
+- Evidence to preserve: GitHub Actions run `31895412303`, PR #23 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -83,7 +83,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation prepared on `agent/harness-canonical-guard-wave1`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit, open stacked draft PR against `agent/harness-service-wave1`, and run CI.
+- Completed: read-only canonical run guard, operation-specific continuation/cleanup semantics, focused tests, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion, but downstream stacked work may continue against this verified head.
+- Next action if not DONE: independent review of PR #23; downstream security baseline work may stack on the verified implementation head.
