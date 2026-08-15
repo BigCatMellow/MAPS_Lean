@@ -18,6 +18,7 @@ class HookEvent(str, Enum):
     BEFORE_EXTERNAL_ACTION = "before_external_action"
     BEFORE_DESTRUCTIVE_ACTION = "before_destructive_action"
     BEFORE_SEND = "before_send"
+    BEFORE_RESUME = "before_resume"
     SUBMISSION_CREATED = "submission_created"
     REVIEW_STARTING = "review_starting"
     REVIEW_COMPLETING = "review_completing"

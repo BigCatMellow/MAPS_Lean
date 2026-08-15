@@ -198,15 +198,17 @@ class CanonicalRunGuard:
         assert binding is not None
 
         operation = str(context.get("operation", "")).strip().lower()
-        if operation not in {"start", "send", "stop"}:
+        if operation not in {"start", "send", "resume", "stop"}:
             return self._deny(
                 "UNSUPPORTED_OPERATION",
                 "Canonical run guard received an unsupported harness operation.",
             )
 
+        continuing = operation in {"start", "send", "resume"}
+        session_bound = operation in {"send", "resume", "stop"}
         task, manifest, error = self._base_evidence(
             binding,
-            require_current_revision=operation in {"start", "send"},
+            require_current_revision=continuing,
         )
         if error is not None:
             return error
@@ -216,7 +218,7 @@ class CanonicalRunGuard:
         worker_id = self._text(binding, "worker_id")
         run_id = self._text(binding, "run_id")
 
-        if operation in {"start", "send"}:
+        if continuing:
             error = self._require_live_claim(task, worker_id)
             if error is not None:
                 return error
@@ -224,7 +226,7 @@ class CanonicalRunGuard:
             if error is not None:
                 return error
 
-        if operation in {"send", "stop"}:
+        if session_bound:
             error = self._require_durable_session(manifest, context)
             if error is not None:
                 return error
@@ -251,6 +253,7 @@ def register_canonical_run_guards(
     for event in (
         HookEvent.RUN_STARTING,
         HookEvent.BEFORE_SEND,
+        HookEvent.BEFORE_RESUME,
         HookEvent.SESSION_STOPPING,
     ):
         registry.register(

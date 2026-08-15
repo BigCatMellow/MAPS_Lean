@@ -261,6 +261,18 @@ class HarnessService:
         if error is not None:
             return error
         assert adapter is not None
+
+        before = self.hooks.run(
+            HookEvent.BEFORE_RESUME,
+            self._context(
+                "resume",
+                adapter_id=session_ref.adapter,
+                binding=binding,
+                session_ref=session_ref,
+            ),
+        )
+        if not before.permitted:
+            return self._hook_block("resume", before)
         return adapter.resume(binding)
 
     def stop(
