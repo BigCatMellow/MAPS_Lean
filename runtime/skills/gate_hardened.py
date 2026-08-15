@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from . import gate as _gate_module
 from .format import SkillDescriptor
 from .gate import (
     SkillGateDisposition,
@@ -92,3 +93,9 @@ def assess_skill(descriptor: SkillDescriptor) -> SkillGateReport:
         scanned_files=report.scanned_files,
         scanned_bytes=report.scanned_bytes,
     )
+
+
+# Ensure direct imports from runtime.skills.gate receive the complete frontmatter
+# scan after package initialization; the original implementation remains captured
+# above so the wrapper does not recurse.
+_gate_module.assess_skill = assess_skill
