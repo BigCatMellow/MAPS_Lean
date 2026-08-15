@@ -1,6 +1,6 @@
 # Task: local EnvironmentFingerprint and compatibility v1
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,26 +27,26 @@
 
 ## Acceptance criteria
 
-- [ ] fingerprint is bound to exact EnvironmentSpec hash and records only bounded execution facts: runtime/tool versions, repo revision, dirty state, dependency hashes, network mode/domains, declared service availability, and declared credential-capability availability.
-- [ ] fingerprint does not record absolute repo path, arbitrary environment variables, provider transcripts, or secret values.
-- [ ] credential capability availability is supplied explicitly as `true` / `false` / unknown; inspector does not inspect `os.environ` for secret values or assume capability names are environment variables.
-- [ ] runtime/tool observation distinguishes `OBSERVED`, `MISSING`, and `UNKNOWN`.
-- [ ] local version probing and Git inspection are read-only; setup/validation commands are not executed.
-- [ ] fingerprint stable SHA-256 excludes observation timestamp so identical observed facts have identical identity.
-- [ ] v1 runtime constraint evaluator supports plain numeric prefixes plus numeric `< <= > >= ==` clauses and returns unknown for unsupported syntax.
-- [ ] compatibility states are explicit: `COMPATIBLE`, `COMPATIBLE_WITH_WARNINGS`, `DRIFTED`, `INCOMPATIBLE`, `UNKNOWN`.
-- [ ] missing required runtime/tool/service/credential/network capability is incompatible.
-- [ ] unknown material evidence remains unknown rather than silently compatible.
-- [ ] dirty required worktree, spec mismatch, repo/reference change, or dependency-input change is surfaced as drift.
-- [ ] compatible-but-different runtime/tool versions and broader-than-required network can be warnings rather than false incompatibility where requirements still hold.
-- [ ] optional reference fingerprint can compare replacement/recovery environment facts without becoming authority.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] fingerprint is bound to exact EnvironmentSpec hash and records only bounded execution facts: runtime/tool versions, repo revision, dirty state, dependency hashes, network mode/domains, declared service availability, and declared credential-capability availability.
+- [x] fingerprint does not record absolute repo path, arbitrary environment variables, provider transcripts, or secret values.
+- [x] credential capability availability is supplied explicitly as `true` / `false` / unknown; inspector does not inspect `os.environ` for secret values or assume capability names are environment variables.
+- [x] runtime/tool observation distinguishes `OBSERVED`, `MISSING`, and `UNKNOWN`.
+- [x] local version probing and Git inspection are read-only; setup/validation commands are not executed.
+- [x] fingerprint stable SHA-256 excludes observation timestamp so identical observed facts have identical identity.
+- [x] v1 runtime constraint evaluator supports plain numeric prefixes plus numeric `< <= > >= ==` clauses and returns unknown for unsupported syntax.
+- [x] compatibility states are explicit: `COMPATIBLE`, `COMPATIBLE_WITH_WARNINGS`, `DRIFTED`, `INCOMPATIBLE`, `UNKNOWN`.
+- [x] missing required runtime/tool/service/credential/network capability is incompatible.
+- [x] unknown material evidence remains unknown rather than silently compatible.
+- [x] dirty required worktree, spec mismatch, repo/reference change, or dependency-input change is surfaced as drift.
+- [x] compatible-but-different runtime/tool versions and broader-than-required network can be warnings rather than false incompatibility where requirements still hold.
+- [x] optional reference fingerprint can compare replacement/recovery environment facts without becoming authority.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_environment_fingerprint -v` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: stacked PR diff, GitHub Actions run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31897745175` passed on implementation commit `6d639380fe3683745611dc0092edb0ec9b30414a`.
+- Evidence to preserve: GitHub Actions run `31897745175`, PR #29 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -92,7 +92,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation prepared on `agent/environment-fingerprint-wave2`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit, open a stacked draft PR against `agent/environment-spec-wave2`, and run full Runtime stack CI.
+- Completed: local fingerprinting, explicit compatibility evaluator, focused tests, draft PR #29, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion; E3 run-evidence binding may continue as a separate stacked tranche.
+- Next action if not DONE: independent review of PR #29; if continuing, bind EnvironmentSpec/fingerprint evidence to immutable run records without turning compatibility into authority.
