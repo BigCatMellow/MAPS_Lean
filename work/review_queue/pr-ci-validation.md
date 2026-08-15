@@ -19,9 +19,12 @@ checks.
 
 ## Evidence
 
-The change immediately enabled PR CI. Runs including `31886183653`,
-`31886288275`, and `31886431884` completed successfully on subsequent review
-tranches.
+The change immediately enabled successful PR validation for later tranches:
+
+- `31886183653` — priority observability / operating safeguards;
+- `31886288275` — outcome feedback;
+- `31886431884` — Context Builder v1;
+- `31886549262` — status surface v1.
 
 ## Review questions
 
