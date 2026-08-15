@@ -1,6 +1,6 @@
 # Task: Context Builder v1
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT`
@@ -35,24 +35,25 @@
 
 ## Acceptance criteria
 
-- [ ] Context plan is read-only and derived from canonical task state/current
+- [x] Context plan is read-only and derived from canonical task state/current
   files.
-- [ ] Root `AGENTS.md` is included as active authority when it exists.
-- [ ] Explicit task input/source files include exact repo-relative paths, SHA-256,
+- [x] Root `AGENTS.md` is included as active authority when it exists.
+- [x] Explicit task input/source files include exact repo-relative paths, SHA-256,
   size, role, and existence status.
-- [ ] Descriptive/non-file references are preserved without pretending they are
+- [x] Descriptive/non-file references are preserved without pretending they are
   files.
-- [ ] Missing, directory, and outside-repo references are explicit.
-- [ ] Dependency state and task boundaries/acceptance criteria are included
+- [x] Missing, directory, and outside-repo references are explicit.
+- [x] Dependency state and task boundaries/acceptance criteria are included
   without copying unrelated repository content.
-- [ ] Output explicitly states that semantic retrieval is not used.
-- [ ] CLI/tests cover exact files, references, missing/outside paths,
+- [x] Output explicitly states that semantic retrieval is not used.
+- [x] CLI/tests cover exact files, references, missing/outside paths,
   dependencies, non-inclusion of unrelated files, and no mutation.
 
 ## Verification and evidence
 
 - Verification: pull-request CI plus focused tests.
-- Evidence to preserve: CI result and PR diff.
+- Evidence to preserve: Runtime stack tests run `31886431884` passed every job
+  step with `tests/test_context_builder.py` present.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -97,7 +98,7 @@ Escalate to: operator.
 
 ## Completion / handoff
 
-- Completed: task shaped.
-- Not completed: implementation/review.
+- Completed: explicit context-plan builder, CLI, tests, docs, and CI validation.
+- Not completed: independent review.
 - Current blocker: none.
-- Next action if not DONE: implement the derived context plan and tests.
+- Next action if not DONE: review the queued packet and current PR revision.
