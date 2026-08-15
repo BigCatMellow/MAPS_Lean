@@ -7,8 +7,8 @@ Implemented components:
 
 - `runtime/state/` — SQLite task truth, structural AGI `READY` gate, claims,
   leases, submission evidence, review, policy, continuity, immutable run
-  manifests, optional criterion-level evidence, secret-safer task events, and a
-  read-only canonical task trace.
+  manifests, optional criterion-level evidence, append-only post-completion
+  outcomes, secret-safer task events, and a read-only canonical task trace.
 - `runtime/policy/` — explicit task policy metadata, operator approvals, worker
   capability envelopes, and durable dispatch halt state.
 - `runtime/routing/` — deterministic route selection wrapped by LangGraph with
@@ -36,13 +36,14 @@ hcom        communication / session process control
 RnS         recovery of explicitly known active sessions
 helpers     bounded delegated work
 integrity   frozen run contract + proof; no new authority
+outcomes    append-only later evidence; no task authority
 trace       disposable read model over canonical task DB records
 Markdown    durable human-readable record
 WezTerm     optional presentation
 ```
 
-A route, message, active session, recovery attempt, helper result, run
-manifest, or trace projection does not itself change task authority.
+A route, message, active session, recovery attempt, helper result, run manifest,
+outcome observation, or trace projection does not itself change task authority.
 
 ## Mutable local state
 
@@ -131,7 +132,8 @@ reviewer verdicts never rewrite implementer claims.
 
 `python -m runtime.cli trace TASK-0042` produces a read-only projection from the
 canonical task database. It includes current task state, policy, event timeline,
-review metadata, run manifests/context hashes, and criterion evidence.
+review metadata, run manifests/context hashes, criterion evidence, and recorded
+post-completion outcomes.
 
 Trace v1 intentionally omits raw submission evidence and explicitly reports
 coverage gaps. It does **not** yet correlate hcom, recovery JSON, helper-run
@@ -147,6 +149,32 @@ review text is safer to inspect.
 
 This is a safety boundary, not a claim that arbitrary secrets can always be
 recognized. Do not intentionally place secrets in task/review text.
+
+## Outcome feedback
+
+A task becoming `DONE` records that MAPS's required implementation/review process
+completed. It does not prove the real-world result remained successful later.
+Outcome observations preserve that later knowledge separately:
+
+```bash
+python -m runtime.cli outcome-record TASK-0042 FAILURE \
+  --source "operator regression report" \
+  --actor-class OPERATOR --actor-id operator-1 \
+  --failure-class regression --escaped-defect --rework-count 1
+
+python -m runtime.cli outcomes TASK-0042
+```
+
+Outcome records are SQLite append-only. They include explicit actor provenance
+(or `UNKNOWN`), source, task revision, optional run binding, failure class,
+escaped-defect/rework/operator-intervention metrics, and optional notes. A later
+observation may explicitly supersede an earlier outcome ID; the older record is
+never deleted or rewritten.
+
+Outcome recording requires the task to already be `DONE` and does not reopen the
+task, change review, change ownership, change policy, or grant routing authority.
+Source/notes are best-effort redacted at write because they are diagnostic
+metadata, not a place to store secrets or full evidence artifacts.
 
 ## Routing and policy
 
