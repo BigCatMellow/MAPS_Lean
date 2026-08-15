@@ -1,6 +1,6 @@
 # Task: Agent Skills catalog and provenance read model
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,24 +27,24 @@
 
 ## Acceptance criteria
 
-- [ ] multiple explicitly declared Skill roots can be combined into one deterministic read-only catalog.
-- [ ] each entry preserves source ID, source kind, source reference, optional declared revision, Skill directory ID/name, and exact content hash.
-- [ ] source metadata is clearly descriptive; the only v1 catalog trust state is `UNASSESSED`.
-- [ ] catalog construction does not load Skill procedure bodies.
-- [ ] catalog fingerprint is deterministic and independent of input-source order.
-- [ ] Skill content/provenance changes affect the catalog fingerprint.
-- [ ] duplicate source IDs are rejected.
-- [ ] same Skill name across different sources is retained as an explicit ambiguity/conflict rather than silently shadowed or merged.
-- [ ] unique lookup raises explicit NOT FOUND / AMBIGUOUS errors instead of guessing.
-- [ ] catalog activation uses the existing full-directory hash drift check.
-- [ ] no routing, trust promotion, approval, script execution, capability grant, or persistent database is added.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] multiple explicitly declared Skill roots can be combined into one deterministic read-only catalog.
+- [x] each entry preserves source ID, source kind, source reference, optional declared revision, Skill directory ID/name, and exact content hash.
+- [x] source metadata is clearly descriptive; the only v1 catalog trust state is `UNASSESSED`.
+- [x] catalog construction does not load Skill procedure bodies.
+- [x] catalog fingerprint is deterministic and independent of input-source order.
+- [x] Skill content/provenance changes affect the catalog fingerprint.
+- [x] duplicate source IDs are rejected.
+- [x] same Skill name across different sources is retained as an explicit ambiguity/conflict rather than silently shadowed or merged.
+- [x] unique lookup raises explicit NOT FOUND / AMBIGUOUS errors instead of guessing.
+- [x] catalog activation uses the existing full-directory hash drift check.
+- [x] no routing, trust promotion, approval, script execution, capability grant, or persistent database is added.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_skills_catalog -v` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: stacked PR diff, GitHub Actions run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31896101565` passed on implementation commit `cc30de70c170b2abaa61354ae775d8c9da2ec74d`.
+- Evidence to preserve: GitHub Actions run `31896101565`, PR #26 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -87,7 +87,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation and focused tests prepared on `agent/skills-catalog-wave2`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit, open stacked draft PR against `agent/skills-format-wave2`, and run full Runtime stack CI.
+- Completed: multi-source Skills catalog/provenance read model, focused tests, draft PR #26, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion; next Skills work should remain evaluation-first rather than adding automatic routing.
+- Next action if not DONE: independent review of PR #26; if continuing implementation, build the frozen Skill-selection evaluation corpus before any autonomous Skill routing.
