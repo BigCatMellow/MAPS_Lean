@@ -6,6 +6,14 @@ Purpose: give a new agent enough orientation to continue work without rereading 
 
 Read `AGENTS.md` and the current task first. This file is explanatory context only.
 
+## Primary planning entry point
+
+Before using any older Prime-specific or subsystem roadmap, read:
+
+`work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md`
+
+That file is now the top-level planning orientation. It owns the overall capability inventory, dependencies, implementation waves, promotion gates, and links to detailed roadmaps. It remains planning-only and does not override active authority.
+
 ---
 
 # 1. Project direction
@@ -91,6 +99,8 @@ Instead, useful Prime concepts were translated into a Lean adoption roadmap:
 
 `work/roadmaps/prime-agent-capability-roadmap.md`
 
+That roadmap is now a detailed child of the master capability roadmap rather than the overall top-level planning document.
+
 Prime's useful value is treated as lifecycle guarantees around workers:
 
 - provider-neutral start/attach/send/inspect/recover/stop/collect;
@@ -148,7 +158,7 @@ Directory:
 
 `work/roadmaps/agent-harness-capabilities/`
 
-Read the directory `README.md` first.
+Read the master roadmap first, then the directory `README.md`, then the relevant child roadmap.
 
 Roadmaps:
 
@@ -201,9 +211,7 @@ Roadmaps:
 
 # 8. Current recommended implementation order
 
-Do not jump straight to “self-improvement.”
-
-The roadmap sequence is:
+The master roadmap owns the current planning order. In summary:
 
 ```text
 Wave 0
@@ -229,6 +237,7 @@ Wave 3
 fuller session/helper/recovery lineage
 portable Run Records
 explainable waits
+revision-bound review/evidence
 recovery/environment compatibility
 Skill behavioral evaluation
 quarantine path for imported capabilities
@@ -236,18 +245,24 @@ quarantine path for imported capabilities
 Wave 4 (trigger-based)
 worktree isolation
 persistent task-scoped helper continuity
+NO_PROGRESS advisory
 snapshots
 credential broker
 Capability Packs
 time-travel/fork debugging
 
-Wave 5 (evidence-gated)
+Wave 5 (evidence infrastructure)
 frozen incident corpus
 three-layer eval system
+Skill/ACI/environment evals
+current-vs-candidate comparisons
+
+Wave 6 (evidence-gated)
 operational learning
-current-vs-candidate harness comparisons
-reviewed refinement proposals
+reviewed harness-refinement proposals
 ```
+
+Do not jump straight to “self-improvement.”
 
 ---
 
@@ -367,8 +382,8 @@ For a new implementation task, inspect in this order:
 
 1. current `AGENTS.md`;
 2. current canonical task state/requirements;
-3. current relevant implementation/tests;
-4. `work/roadmaps/agent-harness-capabilities/README.md`;
+3. `work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md`;
+4. current relevant implementation/tests;
 5. the specific capability roadmap;
 6. `work/context/design-decisions-and-rationale.md` if a design tradeoff appears;
 7. original research only when source rationale/evidence matters.
