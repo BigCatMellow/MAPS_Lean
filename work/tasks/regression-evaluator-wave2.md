@@ -1,6 +1,6 @@
 # Task: comparative regression evaluator v1
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -11,7 +11,7 @@
 
 - Inputs: `AGENTS.md`, PR #34 / `agent/frozen-regression-case-wave2`, `work/tasks/frozen-regression-case-wave2.md`, `work/tasks/portable-run-record-wave2.md`, Learning & Evaluation roadmap, Prime capability roadmap.
 - Authoritative sources: exact frozen case artifacts and their validated case IDs/content hashes; externally supplied result artifacts are evaluation inputs only; canonical MAPS task/run/policy/review state remains authoritative elsewhere.
-- Evidence labels: PR #34 current head/CI `VERIFIED`; evaluator behavior is `UNKNOWN` until focused tests and full Runtime stack CI pass.
+- Evidence labels: PR #34 current head/CI `VERIFIED`; evaluator implementation and Runtime CI `VERIFIED`; independent review `PENDING`.
 - Dependencies / preconditions: PR #34 head `f803cd24e5acbd3630075b3f316535ba50540b0b`; PR remains draft/review-gated and no upstream review has materially changed its contracts.
 
 ## Change boundary
@@ -28,27 +28,27 @@
 
 ## Acceptance criteria
 
-- [ ] evaluator validates every frozen case `case_id` and `content_sha256` against the exact payload before scoring.
-- [ ] externally produced property results support exactly `PASS`, `FAIL`, `UNKNOWN`, and `NOT_RUN`.
-- [ ] results bind to exact case ID/hash and property ID; unknown cases/properties, duplicate results, hash mismatches, or malformed records fail explicitly.
-- [ ] missing property results are reported as incomplete rather than silently converted to another outcome.
-- [ ] report preserves case incident categories and tags.
-- [ ] report aggregates property/case/corpus counts and completion/pass metrics without fake precision.
-- [ ] exact baseline-vs-candidate comparison mechanically identifies `IMPROVED`, `REGRESSED`, `UNCHANGED`, and `INCOMPLETE` outcomes.
-- [ ] comparison is only between the same exact frozen case ID/hash and expected property IDs.
-- [ ] cost and latency are included only when explicitly measured in supplied results; absent measurements remain absent/unknown and are never inferred.
-- [ ] report is deterministic for identical inputs and has an exact content hash/ID.
-- [ ] implementation is model/provider agnostic and read-only.
-- [ ] implementation does not execute tasks/models/providers, mutate canonical MAPS state, modify routing/harness/policy, create a second task/session/review authority store, or promote a candidate.
-- [ ] report explicitly preserves the promotion path `frozen cases → candidate results → comparative report → proposal → independent review/operator gate where required → promotion` and rejects `better score → automatic production change` semantics.
-- [ ] focused tests cover tampered cases, missing/duplicate/unknown results, all result states, aggregation, exact comparison classification, category/tag preservation, optional measured cost/latency, determinism, and authority/read-only boundaries.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] evaluator validates every frozen case `case_id` and `content_sha256` against the exact payload before scoring.
+- [x] externally produced property results support exactly `PASS`, `FAIL`, `UNKNOWN`, and `NOT_RUN`.
+- [x] results bind to exact case ID/hash and property ID; unknown cases/properties, duplicate results, hash mismatches, or malformed records fail explicitly.
+- [x] missing property results are reported as incomplete rather than silently converted to another outcome.
+- [x] report preserves case incident categories and tags.
+- [x] report aggregates property/case/corpus counts and completion/pass metrics without fake precision.
+- [x] exact baseline-vs-candidate comparison mechanically identifies `IMPROVED`, `REGRESSED`, `UNCHANGED`, and `INCOMPLETE` outcomes.
+- [x] comparison is only between the same exact frozen case ID/hash and expected property IDs.
+- [x] cost and latency are included only when explicitly measured in supplied results; absent measurements remain absent/unknown and are never inferred.
+- [x] report is deterministic for identical inputs and has an exact content hash/ID.
+- [x] implementation is model/provider agnostic and read-only.
+- [x] implementation does not execute tasks/models/providers, mutate canonical MAPS state, modify routing/harness/policy, create a second task/session/review authority store, or promote a candidate.
+- [x] report explicitly preserves the promotion path `frozen cases → candidate results → comparative report → proposal → independent review/operator gate where required → promotion` and rejects `better score → automatic production change` semantics.
+- [x] focused tests cover tampered cases, missing/duplicate/unknown results, all result states, aggregation, exact comparison classification, category/tag preservation, optional measured cost/latency, determinism, and authority/read-only boundaries.
+- [x] focused evaluator tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: focused unit tests for the evaluator, then PR-triggered full Runtime stack CI on the exact branch head.
-- Evidence to preserve: test output/CI run ID, exact implementation head, draft PR diff, independent review result.
+- Verification: implementation head `ac9ec15d34e57f37199dbefa4cad1ba31cd053c8` passed PR-triggered Runtime stack CI run `31900484536`; full discovery ran 139 tests with all 7 `test_regression_evaluator` tests passing, plus compile, Ruff fatal checks, Bandit, dependency consistency, LangGraph smoke, and installer syntax/preview.
+- Evidence to preserve: test output/CI run `31900484536`, exact implementation head, draft PR #35 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -88,10 +88,13 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 - This task intentionally stacks on PR #34 while upstream review remains independent; the dependency is exact and implementation does not require the review result.
 - Evaluation success is evidence only. The evaluator may classify comparison results but cannot authorize promotion.
 - Missing data stays incomplete/unknown; the layer must not manufacture certainty.
+- Aggregate fractions retain numerator/denominator counts rather than presenting unjustified statistical precision.
+- A case with any missing/`UNKNOWN`/`NOT_RUN` property is `INCOMPLETE`; an exact comparison likewise remains incomplete where either side lacks a concrete `PASS`/`FAIL` result.
+- Cost/latency comparison uses only paired explicit measurements. No estimate is derived for absent data.
 
 ## Completion / handoff
 
-- Completed: task shaped and stacked branch created.
-- Not completed: evaluator implementation, verification, draft PR, independent review.
-- Current blocker: none.
-- Next action if not DONE: implement the deterministic result/report schemas and focused tests.
+- Completed: exact frozen-case validation, externally supplied property-result validation, deterministic case/corpus reporting, exact baseline-vs-candidate comparison, optional measured cost/latency reporting, focused tests, draft PR #35, and successful Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion.
+- Next action if not DONE: independently review PR #35; do not mark ready or merge merely because CI is green.
