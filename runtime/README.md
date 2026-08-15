@@ -9,6 +9,9 @@ Implemented components:
   leases, submission evidence, review, policy, continuity, immutable run
   manifests, optional criterion-level evidence, append-only post-completion
   outcomes, secret-safer task events, and a read-only canonical task trace.
+- `runtime/context_builder.py` — disposable explicit context plan from task
+  relationships, root authority, exact file hashes, and dependency state; no
+  repository scan or semantic retrieval.
 - `runtime/policy/` — explicit task policy metadata, operator approvals, worker
   capability envelopes, and durable dispatch halt state.
 - `runtime/routing/` — deterministic route selection wrapped by LangGraph with
@@ -37,13 +40,15 @@ RnS         recovery of explicitly known active sessions
 helpers     bounded delegated work
 integrity   frozen run contract + proof; no new authority
 outcomes    append-only later evidence; no task authority
+context     disposable explicit read plan; no task authority
 trace       disposable read model over canonical task DB records
 Markdown    durable human-readable record
 WezTerm     optional presentation
 ```
 
 A route, message, active session, recovery attempt, helper result, run manifest,
-outcome observation, or trace projection does not itself change task authority.
+outcome observation, context plan, or trace projection does not itself change
+task authority.
 
 ## Mutable local state
 
@@ -175,6 +180,37 @@ Outcome recording requires the task to already be `DONE` and does not reopen the
 task, change review, change ownership, change policy, or grant routing authority.
 Source/notes are best-effort redacted at write because they are diagnostic
 metadata, not a place to store secrets or full evidence artifacts.
+
+## Context Builder v1
+
+`python -m runtime.cli context TASK-0042 --repo-root .` creates a disposable
+read-only context plan. It does **not** copy file contents or create another
+knowledge store.
+
+The plan contains:
+
+- root `AGENTS.md` as active repository authority when present;
+- explicit task `inputs` and `sources`;
+- exact repo-relative path, SHA-256, and byte size for referenced files;
+- descriptive/external references without pretending they are files;
+- explicit missing, outside-repo, or directory-not-expanded references;
+- dependency task status;
+- decision/output/non-goal/acceptance/verification/review/escalation boundaries;
+- the stable task revision used to build the plan.
+
+v1 explicitly reports:
+
+```text
+semantic_retrieval_used: false
+repository_scan_used: false
+file_contents_included: false
+```
+
+This is intentional. The legacy lexical claim-card retriever did not validate.
+Semantic supplementation, query expansion, or other retrieval should be added
+only after a frozen evaluation demonstrates benefit on paraphrase/vocabulary-
+shift queries and hard negatives. Current v1 answers the narrower question:
+**what exact context has the task already told us is authoritative or required?**
 
 ## Routing and policy
 
