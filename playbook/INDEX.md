@@ -48,6 +48,7 @@ are being moved into:
 
 - [Legacy Knowledge Audit](../migration/LEGACY_KNOWLEDGE_AUDIT.md)
 - [Legacy Promotion Ledger](../migration/LEGACY_PROMOTION_LEDGER.md)
+- [Future Ideas Backlog](../migration/FUTURE_IDEAS_BACKLOG.md) — promising deferred ideas preserved without making them active commitments
 - [Legacy Removal Checklist](../migration/LEGACY_REMOVAL_CHECKLIST.md)
 - `migration/legacy-runtime-source/` — first control-plane extraction
 - `migration/legacy-knowledge-source/` — second execution/knowledge extraction
