@@ -97,6 +97,7 @@ flows, and controlled learning** rather than rebuilding basic orchestration.
 | P1 | Outcome feedback and eval corpus | Distinguish passing MAPS from real success | Preserve and measure |
 | P1 | Context builder | Supply the smallest trustworthy context packet | Preserve principle; build narrowly |
 | P1 | Operational-learning promotion loop | Carry proven temporary lessons into future startup/context safely | Preserve as controlled learning |
+| P1 | Negative operating contract | Prevent agents from recreating complexity, verbosity, guessing, and scope drift | Short default prohibitions; promote into instructions only after review |
 | P1 | Git worktree isolation | Prevent parallel agents colliding in one worktree | Lean synthesis; prototype when concurrency warrants |
 | P1 | Deterministic `maps flow` procedures | Remove routine bureaucracy from LLM reasoning | Add only for repeated stable procedures |
 | P2 | Small Mission Control / `maps status` | Give the operator one truthful attention surface | Read-only and minimal |
@@ -778,6 +779,96 @@ than provide a falsely precise anchor.
 Default disposition: **fold into Context Builder, replay, and diagnostic-tool
 evidence integrity.**
 
+## U. Negative operating contract / anti-pattern instructions
+
+Operator direction: 2026-08-15.
+
+MAPS should not define only what an agent **should** do. It should also define a
+small set of behaviors agents should **not** fall into by default. This is meant
+to keep Lean lean: less ceremony, less guessing, less scope drift, less prose,
+and fewer self-created systems.
+
+Core rule:
+
+> Do the smallest thing that correctly solves the actual problem. Do not invent
+> complexity, facts, authority, requirements, or work.
+
+Candidate negative instructions:
+
+```text
+DO NOT overcomplicate the task.
+Use the smallest sufficient approach. Do not add architecture, roles, services,
+state, abstractions, or process unless the problem actually requires them.
+
+DO NOT over-explain.
+Use brevity in the face of grammar for the sake of concision. Prefer short,
+clear statements, fragments, tables, or checklists when full prose adds no
+information. Never sacrifice correctness or a necessary warning merely to be
+short.
+
+DO NOT assume.
+If a material fact, intent, requirement, authority boundary, or desired outcome
+is unknown, do not invent it. Inspect available evidence first. If the unknown
+still matters, ask for help/clarification rather than guessing.
+
+DO NOT silently expand scope.
+Solve the requested problem. Record adjacent ideas separately instead of turning
+them into unrequested implementation work.
+
+DO NOT confuse capability with permission.
+Being able to perform an action does not mean the agent is authorized to decide
+that it should happen.
+
+DO NOT create duplicate truth.
+Before adding state, a registry, an index, a status file, or a cache, identify
+which existing source remains authoritative and why the new representation is
+needed.
+
+DO NOT create permanent machinery for a one-off problem.
+Prefer a bounded helper, script, checklist, or experiment before introducing a
+standing agent, daemon, watcher, workflow, or new subsystem.
+
+DO NOT treat prose as proof.
+Check the actual state, behavior, evidence, or authoritative record when the
+answer can be verified mechanically.
+
+DO NOT hide uncertainty.
+If evidence is missing, contradictory, stale, or incomplete, say so. Unknown is
+better than fabricated certainty.
+
+DO NOT continue consequential work through an unresolved blocker.
+When uncertainty could materially change a destructive, external, security,
+authority, or scope decision, surface the blocker and ask for help.
+
+DO NOT mistake activity for progress.
+Stop when the requested result is complete. Do not manufacture extra tasks,
+reports, agents, or ceremony merely to appear thorough.
+```
+
+Suggested resolution order when an agent does not know something:
+
+```text
+1. Check the explicit task/request.
+2. Check the authoritative/current evidence already available.
+3. Resolve it with a safe, read-only inspection if possible.
+4. If the unknown still materially affects the answer or action: ASK FOR HELP.
+5. Do not guess your way past the uncertainty.
+```
+
+The phrase **"no assumptions"** should be interpreted as "no material
+assumptions presented or acted on as fact." It should not force an agent to ask
+about harmless formatting details or choices that can be safely resolved from
+existing context. The purpose is to prevent consequential guessing, not to
+replace initiative with constant clarification.
+
+If promoted, this belongs near the top of agent-grade operating instructions so
+it constrains every downstream system rather than becoming another optional
+process document.
+
+Default disposition: **P1 instruction-quality candidate; short enough to be
+loaded routinely, but still not active authority merely because it appears in
+this backlog.**
+
 ---
 
 # P1 — Session replay / trace reconstruction
@@ -1166,6 +1257,74 @@ lesson was not presented to the next applicable agent/task.
 A fresh agent/task should receive an active applicable lesson automatically,
 not receive an expired/superseded one, and be able to trace the lesson back to
 its source incident/task/run.
+
+---
+
+# P1 — Negative operating contract
+
+## Problem
+
+Positive instructions alone leave a large behavioral gap. An agent may obey the
+stated goal while still making MAPS worse through unnecessary architecture,
+verbosity, guessed requirements, scope expansion, duplicate state, or process
+ceremony.
+
+The negative contract should make the Lean philosophy operational by saying
+what agents must avoid by default.
+
+## Candidate form
+
+Keep the active version short enough to survive routine context loading. The
+longer rationale and examples can remain in supporting documentation.
+
+A compact form might be:
+
+```text
+DO NOT overcomplicate. Use the smallest sufficient solution.
+DO NOT over-explain. Use brevity in the face of grammar for the sake of concision.
+DO NOT assume material facts, intent, authority, or requirements. Check; then ask.
+DO NOT silently expand scope. Record adjacent ideas separately.
+DO NOT confuse capability with permission.
+DO NOT create duplicate truth.
+DO NOT build permanent machinery for a one-off need.
+DO NOT treat prose or memory as proof when current evidence can be checked.
+DO NOT hide uncertainty or guess through consequential blockers.
+DO NOT manufacture work after the requested result is complete.
+```
+
+## Uncertainty rule
+
+"No assumptions" should mean no **material** assumption is acted on or presented
+as fact. When something important is unknown:
+
+```text
+inspect existing evidence
+→ resolve safely if possible
+→ ask for help if it still matters
+→ never fabricate certainty
+```
+
+This preserves agent initiative for harmless/reversible details while ensuring
+unknown requirements, authority, destructive impact, external side effects,
+security boundaries, and user intent are surfaced rather than guessed.
+
+## Promotion trigger
+
+Promote after review of the exact wording and place the compact form near the
+top of agent-grade operating instructions. Treat violations as review/learning
+signals before considering any mechanical enforcement.
+
+## Proof
+
+Historical or staged tasks should show fewer instances of:
+
+- needless subsystem/process creation;
+- scope expansion;
+- guessed requirements or authority;
+- verbose handoffs/reports that obscure the actual action;
+- duplicate state/read models with unclear authority;
+- unnecessary clarifying questions when evidence already answers the issue;
+- consequential decisions made despite unresolved uncertainty.
 
 ---
 
@@ -1725,6 +1884,10 @@ CURRENT MAPS LEAN
           refine.propose
 ```
 
+The negative operating contract is an instruction-quality candidate rather than
+a subsystem dependency. If promoted, it should be reviewed and then loaded near
+the top of the agent operating contract so it constrains all later work.
+
 Independent supporting practices can be tested when their triggering evidence
 appears:
 
@@ -1795,6 +1958,8 @@ measure whether it actually worked
 provide better bounded context
         ↓
 carry forward proven operational lessons
+        ↓
+constrain itself against unnecessary complexity and guessing
         ↓
 verify authority/evidence provenance
         ↓
