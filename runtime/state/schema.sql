@@ -240,3 +240,36 @@ BEFORE DELETE ON submission_criterion_verdicts
 BEGIN
     SELECT RAISE(ABORT, 'criterion verdicts are immutable');
 END;
+
+-- Post-completion outcome observations are later knowledge. They are append-only
+-- evidence and never alter the original task/review lifecycle result.
+CREATE TABLE IF NOT EXISTS task_outcomes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
+    run_id TEXT REFERENCES run_manifests(run_id),
+    outcome_status TEXT NOT NULL CHECK (outcome_status IN ('SUCCESS','PARTIAL','FAILURE','UNKNOWN')),
+    failure_class TEXT NOT NULL DEFAULT '',
+    escaped_defect INTEGER NOT NULL DEFAULT 0 CHECK (escaped_defect IN (0,1)),
+    rework_count INTEGER NOT NULL DEFAULT 0 CHECK (rework_count >= 0),
+    operator_intervention_count INTEGER NOT NULL DEFAULT 0 CHECK (operator_intervention_count >= 0),
+    actor_id TEXT NOT NULL DEFAULT '',
+    actor_class TEXT NOT NULL CHECK (actor_class IN ('OPERATOR','CORE_AGENT','HELPER','SYSTEM','UNKNOWN')),
+    source TEXT NOT NULL,
+    notes TEXT NOT NULL DEFAULT '',
+    task_revision TEXT NOT NULL,
+    supersedes_outcome_id INTEGER REFERENCES task_outcomes(id),
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_task_outcomes_task ON task_outcomes(task_id, id);
+
+CREATE TRIGGER IF NOT EXISTS trg_task_outcomes_no_update
+BEFORE UPDATE ON task_outcomes
+BEGIN
+    SELECT RAISE(ABORT, 'task outcomes are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_task_outcomes_no_delete
+BEFORE DELETE ON task_outcomes
+BEGIN
+    SELECT RAISE(ABORT, 'task outcomes are immutable');
+END;

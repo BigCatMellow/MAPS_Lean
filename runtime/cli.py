@@ -6,7 +6,9 @@ import json
 from pathlib import Path
 import sys
 
+from runtime.context_builder import build_context_plan
 from runtime.state import MutationResult, TaskStore, ValidationResult
+from runtime.status import build_status
 
 DEFAULT_DB = Path('.maps/state/maps.db')
 
@@ -64,6 +66,22 @@ def build_parser() -> argparse.ArgumentParser:
     show = sub.add_parser('show', help='show canonical task state')
     show.add_argument('task_id')
 
+    trace = sub.add_parser(
+        'trace',
+        help='show a read-only canonical task trace with explicit source coverage',
+    )
+    trace.add_argument('task_id')
+
+    context = sub.add_parser(
+        'context',
+        help='show a read-only explicit context plan for a task',
+    )
+    context.add_argument('task_id')
+    context.add_argument('--repo-root', default='.')
+
+    status = sub.add_parser('status', help='show a read-only operator status summary')
+    status.add_argument('--recent-limit', type=int, default=10)
+
     claim = sub.add_parser('claim', help='claim READY/CHANGES_REQUESTED work')
     claim.add_argument('task_id')
     claim.add_argument('worker_id')
@@ -88,6 +106,32 @@ def build_parser() -> argparse.ArgumentParser:
     review_record.add_argument('reviewer_id')
     review_record.add_argument('verdict', choices=['APPROVED', 'CHANGES_REQUESTED', 'BLOCKED'])
     review_record.add_argument('--summary', required=True)
+
+    outcome_record = sub.add_parser(
+        'outcome-record',
+        help='append a post-completion real-world outcome observation',
+    )
+    outcome_record.add_argument('task_id')
+    outcome_record.add_argument(
+        'outcome_status', choices=['SUCCESS', 'PARTIAL', 'FAILURE', 'UNKNOWN']
+    )
+    outcome_record.add_argument('--source', required=True)
+    outcome_record.add_argument(
+        '--actor-class',
+        default='UNKNOWN',
+        choices=['OPERATOR', 'CORE_AGENT', 'HELPER', 'SYSTEM', 'UNKNOWN'],
+    )
+    outcome_record.add_argument('--actor-id', default='')
+    outcome_record.add_argument('--run-id')
+    outcome_record.add_argument('--failure-class', default='')
+    outcome_record.add_argument('--escaped-defect', action='store_true')
+    outcome_record.add_argument('--rework-count', type=int, default=0)
+    outcome_record.add_argument('--operator-intervention-count', type=int, default=0)
+    outcome_record.add_argument('--notes', default='')
+    outcome_record.add_argument('--supersedes', type=int)
+
+    outcomes = sub.add_parser('outcomes', help='show append-only outcome history')
+    outcomes.add_argument('task_id')
 
     events = sub.add_parser('events', help='show task event history')
     events.add_argument('task_id')
@@ -130,6 +174,24 @@ def main(argv: list[str] | None = None) -> int:
         if task is None:
             return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
         return _emit(task)
+    if args.command == 'trace':
+        trace = store.trace_task(args.task_id)
+        if trace is None:
+            return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
+        return _emit(trace)
+    if args.command == 'context':
+        try:
+            plan = build_context_plan(store, args.task_id, repo_root=args.repo_root)
+        except ValueError as exc:
+            return _emit(MutationResult(False, 'INVALID_REPO_ROOT', str(exc)))
+        if plan is None:
+            return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
+        return _emit(plan)
+    if args.command == 'status':
+        try:
+            return _emit(build_status(store, recent_limit=args.recent_limit))
+        except ValueError as exc:
+            return _emit(MutationResult(False, 'INVALID_STATUS_OPTIONS', str(exc)))
     if args.command == 'claim':
         return _emit(store.claim_task(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))
     if args.command == 'heartbeat':
@@ -145,6 +207,23 @@ def main(argv: list[str] | None = None) -> int:
             args.verdict,
             args.summary,
         ))
+    if args.command == 'outcome-record':
+        return _emit(store.record_outcome(
+            args.task_id,
+            args.outcome_status,
+            source=args.source,
+            actor_class=args.actor_class,
+            actor_id=args.actor_id,
+            run_id=args.run_id,
+            failure_class=args.failure_class,
+            escaped_defect=args.escaped_defect,
+            rework_count=args.rework_count,
+            operator_intervention_count=args.operator_intervention_count,
+            notes=args.notes,
+            supersedes_outcome_id=args.supersedes,
+        ))
+    if args.command == 'outcomes':
+        return _emit(store.list_outcomes(args.task_id))
     if args.command == 'events':
         return _emit(store.list_events(args.task_id))
     if args.command == 'reviews':

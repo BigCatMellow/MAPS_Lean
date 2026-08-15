@@ -12,6 +12,22 @@ requirements during review.
 - `PASS | FAIL | PARTIAL` — <criterion>
   - Evidence: <observable proof>
 
+## Applicable review lenses
+
+Mark only what materially applies. One reviewer may cover multiple lenses.
+
+- `[ ]` Functional / acceptance
+- `[ ]` Security / trust boundary
+- `[ ]` Privacy
+- `[ ]` Destructive / data-loss
+- `[ ]` Release / acquisition path
+- `[ ]` Authority / permission boundary
+
+For each checked lens, record the behavior/evidence actually inspected. Prefer
+behavior-level security/authority checks over source-text proxies. If evidence
+can go stale, identify the exact revision/artifact reviewed or re-derive the
+critical property before approval.
+
 ## Findings
 
 For each blocking finding:
