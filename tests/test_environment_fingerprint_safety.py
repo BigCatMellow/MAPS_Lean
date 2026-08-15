@@ -3,6 +3,7 @@ import tempfile
 import unittest
 
 from runtime.environment import inspect_local_environment, parse_environment_spec
+from runtime.environment.fingerprint import inspect_local_environment as direct_inspect_local_environment
 
 
 def spec_for_dependency(path: str):
@@ -28,6 +29,9 @@ def spec_for_dependency(path: str):
 
 
 class EnvironmentFingerprintSafetyTests(unittest.TestCase):
+    def test_direct_module_import_uses_containment_checked_implementation(self):
+        self.assertIs(direct_inspect_local_environment, inspect_local_environment)
+
     def test_dependency_symlink_cannot_escape_repository(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -44,12 +48,13 @@ class EnvironmentFingerprintSafetyTests(unittest.TestCase):
             def must_not_probe(_argv):
                 raise AssertionError("environment probes ran before containment validation")
 
-            with self.assertRaisesRegex(ValueError, "outside repository boundary"):
-                inspect_local_environment(
-                    spec_for_dependency("dependency.txt"),
-                    repo_root=repo,
-                    command_runner=must_not_probe,
-                )
+            for inspect in (inspect_local_environment, direct_inspect_local_environment):
+                with self.assertRaisesRegex(ValueError, "outside repository boundary"):
+                    inspect(
+                        spec_for_dependency("dependency.txt"),
+                        repo_root=repo,
+                        command_runner=must_not_probe,
+                    )
 
 
 if __name__ == "__main__":
