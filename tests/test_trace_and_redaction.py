@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from contextlib import closing
+from contextlib import closing, redirect_stdout
 from io import StringIO
 import json
 from pathlib import Path
-from contextlib import redirect_stdout
 import tempfile
 import unittest
 
@@ -49,14 +48,21 @@ class TraceAndRedactionTests(unittest.TestCase):
         secret = (
             "Authorization: Bearer bearer-value-123 "
             "password=hunter2 "
+            "session_token=session-value "
+            "secret=plain-secret "
             "api_key=sk-proj-1234567890abcdefghijkl "
             "ghp_1234567890abcdefghijklmnop"
         )
         redacted = redact_sensitive_text(secret)
-        self.assertNotIn("bearer-value-123", redacted)
-        self.assertNotIn("hunter2", redacted)
-        self.assertNotIn("sk-proj-1234567890abcdefghijkl", redacted)
-        self.assertNotIn("ghp_1234567890abcdefghijklmnop", redacted)
+        for value in (
+            "bearer-value-123",
+            "hunter2",
+            "session-value",
+            "plain-secret",
+            "sk-proj-1234567890abcdefghijkl",
+            "ghp_1234567890abcdefghijklmnop",
+        ):
+            self.assertNotIn(value, redacted)
         self.assertIn("[REDACTED:TOKEN]", redacted)
         self.assertIn("[REDACTED:SECRET]", redacted)
 
@@ -78,6 +84,52 @@ class TraceAndRedactionTests(unittest.TestCase):
         self.assertNotIn("hunter2", event["summary"])
         self.assertNotIn("bearer-value-123", event["summary"])
         self.assertIn("[REDACTED:", event["summary"])
+
+    def test_diagnostic_reads_redact_older_raw_rows_without_rewriting_them(self):
+        created = self.store.create_task(title="legacy diagnostic row")
+        task_id = created.task["task_id"]
+        with closing(self.store._connect()) as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            conn.execute(
+                """
+                INSERT INTO reviews(task_id, reviewer_id, summary, created_at)
+                VALUES (?, ?, ?, ?)
+                """,
+                (
+                    task_id,
+                    "reviewer-a",
+                    "token=old-review-secret",
+                    "2026-08-15T12:00:00Z",
+                ),
+            )
+            conn.execute(
+                """
+                INSERT INTO task_events(task_id, event_type, actor, summary, created_at)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    task_id,
+                    "LEGACY_EVENT",
+                    "tester",
+                    "secret=old-event-secret",
+                    "2026-08-15T12:00:00Z",
+                ),
+            )
+            conn.commit()
+
+        self.assertNotIn("old-review-secret", json.dumps(self.store.list_reviews(task_id)))
+        self.assertNotIn("old-event-secret", json.dumps(self.store.list_events(task_id)))
+
+        with closing(self.store._connect()) as conn:
+            stored_review = conn.execute(
+                "SELECT summary FROM reviews WHERE task_id = ?", (task_id,)
+            ).fetchone()["summary"]
+            stored_event = conn.execute(
+                "SELECT summary FROM task_events WHERE task_id = ? AND event_type = 'LEGACY_EVENT'",
+                (task_id,),
+            ).fetchone()["summary"]
+        self.assertEqual(stored_review, "token=old-review-secret")
+        self.assertEqual(stored_event, "secret=old-event-secret")
 
     def test_trace_is_read_only_omits_raw_submission_and_reports_gaps(self):
         (self.root / "README.md").write_text("context", encoding="utf-8")
@@ -139,7 +191,10 @@ class TraceAndRedactionTests(unittest.TestCase):
         self.assertEqual(code, 0)
         payload = json.loads(output.getvalue())
         self.assertEqual(payload["task_id"], task_id)
-        self.assertEqual(payload["coverage"]["canonical_task_db"]["timeline_source"], "task_events")
+        self.assertEqual(
+            payload["coverage"]["canonical_task_db"]["timeline_source"],
+            "task_events",
+        )
 
 
 if __name__ == "__main__":

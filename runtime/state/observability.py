@@ -9,8 +9,8 @@ from typing import Any
 from .common import iso_z, utc_now
 
 _PRIVATE_KEY_RE = re.compile(
-    r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----.*?"
-    r"-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
+    r"-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----.*?"
+    r"-----END (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----",
     re.DOTALL,
 )
 _KNOWN_TOKEN_RE = re.compile(
@@ -26,8 +26,8 @@ _BEARER_RE = re.compile(
 )
 _NAMED_SECRET_RE = re.compile(
     r"(?i)\b("
-    r"api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|"
-    r"password|passwd"
+    r"api[_-]?key|(?:access|auth|session)[_-]?token|token|"
+    r"client[_-]?secret|api[_-]?secret|secret|password|passwd"
     r")\b(\s*[:=]\s*)([^\s,;]+)"
 )
 
@@ -55,8 +55,8 @@ def _redact_value(value: Any) -> Any:
 class ObservabilityMixin:
     """Secret-safer events plus a read-only trace projection.
 
-    Canonical evidence remains in its owning tables. Trace is disposable and
-    deliberately reports source gaps instead of implying complete replay.
+    Canonical evidence remains in its owning tables. Diagnostic reads are
+    redacted, and trace is disposable and explicit about source gaps.
     """
 
     @staticmethod
@@ -80,6 +80,32 @@ class ObservabilityMixin:
                 iso_z(utc_now()),
             ),
         )
+
+    def list_events(self, task_id: str) -> list[dict[str, Any]]:
+        """Return a redacted diagnostic view without rewriting stored history."""
+
+        with closing(self._connect()) as conn:
+            rows = [
+                dict(row)
+                for row in conn.execute(
+                    "SELECT * FROM task_events WHERE task_id = ? ORDER BY id",
+                    (task_id,),
+                ).fetchall()
+            ]
+        return _redact_value(rows)
+
+    def list_reviews(self, task_id: str) -> list[dict[str, Any]]:
+        """Return redacted review text while preserving canonical review rows."""
+
+        with closing(self._connect()) as conn:
+            rows = [
+                dict(row)
+                for row in conn.execute(
+                    "SELECT * FROM reviews WHERE task_id = ? ORDER BY id",
+                    (task_id,),
+                ).fetchall()
+            ]
+        return _redact_value(rows)
 
     @staticmethod
     def _decode_json_fields(record: dict[str, Any], fields: tuple[str, ...]) -> None:
