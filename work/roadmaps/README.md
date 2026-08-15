@@ -8,6 +8,10 @@ Start here:
 
 This is the top-level planning orientation for the MAPS capability program. It owns the overall capability inventory, dependency graph, implementation waves, promotion gates, program-level definitions of done, and links to detailed roadmaps.
 
+Reconciliation view:
+
+- [Legacy recovery reconciliation map](legacy-recovery-reconciliation.md) — maps recovered legacy mechanisms and lessons to merged Lean behavior, current open PRs, next work, trigger-only candidates, unresolved archaeology, and directions that should not be revived. It is subordinate to the master roadmap and is not active authority.
+
 Detailed roadmaps:
 
 - [Prime Agent capability adoption roadmap](prime-agent-capability-roadmap.md) — detailed Prime-derived lifecycle/harness concepts and their Lean translation.
