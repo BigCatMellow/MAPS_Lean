@@ -2,484 +2,675 @@
 
 Status: `WORKING NOTES — NOT ACTIVE AUTHORITY`
 
-Purpose: preserve enough exact implementation state that work can resume after a context reset without rediscovering the design or accidentally changing boundaries.
+Purpose: preserve enough exact implementation state that a fresh agent can continue MAPS Lean development after a context reset without rediscovering the design, guessing about authority boundaries, or repeating already-completed work.
 
-Canonical task/policy state, repository instructions, code, and reviewed/merged decisions remain authoritative. These are coordination notes only.
+Canonical repository instructions, code, SQLite task/policy state, PR state, and independently reviewed/merged decisions remain authoritative. This file is coordination context only.
 
 ---
 
-## Operator direction
+# START HERE
 
-- Continue implementation even while upstream draft PRs await independent review **unless the next step truly requires the review result**.
-- Use stacked PRs when code depends on an unmerged upstream tranche; keep the dependency explicit.
-- Do not merge, mark ready, self-approve, or bypass independent review.
-- Preserve useful mechanisms without rebuilding Prime/MAPS legacy complexity.
-- Ordinary work should stay concise/simple; roadmaps are intentionally comprehensive.
-- Keep durable notes during long work so context loss does not destroy implementation reasoning.
+Repository:
+
+`BigCatMellow/MAPS_Lean`
+
+Merged `main` head when this handoff was refreshed:
+
+`086e066f723d793273441dd52b500e62ac981deb`
+
+The long implementation session has stopped deliberately after completing and validating **PR #34 — frozen regression case v1**.
+
+Current newest implementation stack:
+
+```text
+main
+  ↓
+PR #33  portable Run Record v1
+  ↓
+PR #34  frozen regression case v1
+```
+
+PR #34:
+
+- branch: `agent/frozen-regression-case-wave2`
+- base: `agent/portable-run-record-wave2`
+- implementation/CI head: `3baa0eabb42d6ab89e2d681fda1a297f994084ce`
+- task-validation/documentation head after CI: `f803cd24e5acbd3630075b3f316535ba50540b0b`
+- full Runtime stack CI: `31899393298` — **SUCCESS**
+- task file: `work/tasks/frozen-regression-case-wave2.md`
+- task state: `READY_FOR_REVIEW`
+- PR remains **draft** and requires independent review before completion/merge.
+
+**Do not self-approve, mark ready, or merge PR #34 or any upstream draft PR merely because CI is green.**
+
+Recommended next implementation candidate:
+
+> **Comparative evaluation/reporting v1 over frozen regression cases**, stacked on PR #34, with no automatic promotion or self-modification.
+
+Before starting it, read:
+
+1. `AGENTS.md`
+2. this handoff
+3. `work/tasks/frozen-regression-case-wave2.md`
+4. `work/tasks/portable-run-record-wave2.md`
+5. `work/roadmaps/agent-harness-capabilities/05-learning-and-evaluation.md`
+6. `work/roadmaps/prime-agent-capability-roadmap.md`
+
+---
+
+# Operator direction that remains in force
+
+- Continue implementation while upstream draft PRs await independent review **when the dependency is explicit and the next task does not require the review result**.
+- Use stacked PRs for unmerged dependencies and make the base branch visible in the task file/PR body.
+- Independent review is a completion/merge gate, not automatically an implementation-start gate.
+- Do not self-approve, mark ready, or merge review-gated work.
+- Preserve useful mechanisms/invariants; do not rebuild Prime or legacy MAPS complexity.
+- Ordinary operational work: concise, simple, smallest sufficient action.
+- Roadmaps/architecture plans: comprehensive and explicit.
+- No material assumptions. Inspect evidence or stop/escalate rather than guess.
+- Keep durable checkpoint/handoff notes during long sessions.
+
+Core design rule:
+
+> **Do not ask intelligence to solve what deterministic mechanisms, packaging, interface design, reproducibility, or evidence can solve more reliably.**
 
 ---
 
 # Current development topology
 
-## Stacked Harness / Security chain
+## A. Harness / security stack
 
 ```text
 main
-  ↓
-PR #20  agent/harness-foundation-wave1
-  ↓
-PR #21  agent/hcom-hooks-wave1
-  ↓
-PR #22  agent/harness-service-wave1
-  ↓
-PR #23  agent/harness-canonical-guard-wave1
-  ↓
-PR #24  agent/agentic-security-baseline-wave1
+→ PR #20  agent/harness-foundation-wave1
+→ PR #21  agent/hcom-hooks-wave1
+→ PR #22  agent/harness-service-wave1
+→ PR #23  agent/harness-canonical-guard-wave1
+→ PR #24  agent/agentic-security-baseline-wave1
 ```
 
-All are draft PRs and remain independently reviewable.
+All are draft/review-gated. Their implementation tranches are CI-green.
 
-## Parallel Skills track
-
-Branch created independently from `main`:
-
-`agent/skills-format-wave2`
-
-This track deliberately does **not** depend on the Harness stack for its first format/parser tranche.
-
-At the moment this note was written:
-
-- the branch exists;
-- no Skills commit has been published yet;
-- a blob for the intended `runtime/skills/__init__.py` was prepared during tool work, but because no tree/commit/ref update occurred it is **not part of branch state**;
-- next work is to implement `runtime/skills/format.py`, tests, and a task record, then commit/open a draft PR against `main`.
-
----
-
-# PR #20 — typed Harness foundation
-
-PR: `#20 Add Wave 1 harness contract foundation`
-
-Branch: `agent/harness-foundation-wave1`
-
-Current branch/head recorded earlier:
-
-`ecfc27269e096db5d83bfa376878c33089a4e106`
-
-Code implementation commit:
-
-`5d408fc4c9fef165da3478e86bab3bd964470429`
-
-Validation-record commit:
-
-`ecfc27269e096db5d83bfa376878c33089a4e106`
-
-CI:
-
-- Runtime stack run `31893719145`
-- passed on code commit `5d408fc4...`
+### PR #20 — typed provider-neutral Harness contracts
 
 Implemented:
 
-- `runtime/harness/`
-- provider-neutral `OperationResult`
+- `OperationResult`
 - `ExecutionBinding`
 - `SessionRef`
-- normalized session states / `SessionStatus`
+- `SessionStatus`
+- explicit normalized session states
 - retry-safety semantics
 - `HarnessAdapter` protocol
-- explicit `UNKNOWN` rather than guessed provider state
+- explicit `UNKNOWN` for unprovable provider state
 
-Authority rule:
+Implementation commit: `5d408fc4c9fef165da3478e86bab3bd964470429`
 
-> Harness contract describes execution operations. It does not own task authority, scope, policy, approval, review, or completion.
+CI: `31893719145` — success.
 
-Task file:
+Invariant:
 
-`work/tasks/harness-foundation-wave1.md`
+> Harness describes **how** an operation is performed. It does not decide **whether** the task is authorized.
 
-State: `READY_FOR_REVIEW`
-
----
-
-# PR #21 — hcom normalization + initial Hook registry
-
-PR: `#21 Add hcom normalization and deterministic Hook registry`
-
-Branch: `agent/hcom-hooks-wave1`
-
-Implementation commit:
-
-`cca097e69401bf7d79f753970c249c0ed86da3ec`
-
-Validation-record commit / current recorded branch head:
-
-`7a57cb3e59b5775492d5441245e3279b58f47580`
-
-CI:
-
-- Runtime stack run `31894920245`
-- passed on implementation commit `cca097e...`
-
-Implemented hcom normalization:
-
-- `inspect`
-- `send`
-- `stop`
-
-Important semantics:
-
-- exact project/session checks;
-- provider state that cannot be mapped remains `UNKNOWN`;
-- successful inspection with no matching session is `SESSION_NOT_FOUND`, distinct from transport failure;
-- provider errors are normalized without dumping raw exception text into agent-facing summaries;
-- `send` and `stop` require explicit session identity through the binding;
-- mutating result retry disposition remains conservative when remote acknowledgement cannot prove replay safety.
-
-Explicitly `UNSUPPORTED` for now:
-
-- hcom `start`
-- `attach`
-- `heartbeat`
-- `resume`
-- `collect`
-
-Reason: existing hcom behavior does not yet provide enough structured identity/lineage/runtime-mode evidence to normalize those honestly.
-
-Hook registry implemented:
-
-- deterministic priority then registration ordering;
-- directives: `ALLOW`, `DENY`, `REQUIRE_APPROVAL`, `ANNOTATE`;
-- side-effect classification;
-- explicit failure policies;
-- fail-closed by default;
-- raw Hook exception messages are not propagated by default.
-
-Important helper decision:
-
-> Current helper subsystem is run-to-completion evidence, not a live session API. Do not force helpers into `SessionRef` semantics. Helper lineage should be added through actual helper evidence when the lineage design exists.
-
-Task file:
-
-`work/tasks/hcom-hooks-wave1.md`
-
-State: `READY_FOR_REVIEW`
-
----
-
-# PR #22 — provider-neutral HarnessService
-
-PR: `#22 Add provider-neutral HarnessService`
-
-Branch: `agent/harness-service-wave1`
-
-Implementation commit:
-
-`96c614846314ea604be95df9feed5c7e3b477b62`
-
-Validation-record commit / current recorded branch head:
-
-`4d4eeb1bd42ada3582aec1efcceeb5e63fb6af0a`
-
-CI:
-
-- Runtime stack run `31895128908`
-- passed on implementation commit `96c614...`
+### PR #21 — hcom normalization + deterministic Hooks
 
 Implemented:
 
-- explicit adapter registry;
-- one provider-neutral service over adapters + Hooks;
-- exact call-time correlation between `ExecutionBinding` and `SessionRef`;
-- mutating session-bound calls reject project/worker/session mismatch rather than choosing a likely session;
-- explicit `attach` may accept an unbound binding, but it still checks worker/project and does not infer identity;
-- Hooks integrated at `RUN_STARTING`, `RUN_STARTED`, `BEFORE_SEND`, `SESSION_STOPPING`;
-- pre-operation `DENY` / `REQUIRE_APPROVAL` prevents adapter mutation;
-- if a post-start Hook fails after provider mutation, returned result preserves `mutated=true` plus the adapter result rather than pretending nothing happened.
+- normalized hcom `inspect`, `send`, `stop`;
+- explicit no-match vs provider failure semantics;
+- exact session/project binding;
+- deterministic Hook registry;
+- directives: `ALLOW`, `DENY`, `REQUIRE_APPROVAL`, `ANNOTATE`;
+- fail-closed behavior for configured Hook failures.
 
-Critical rule:
+Implementation commit: `cca097e69401bf7d79f753970c249c0ed86da3ec`
 
-> HarnessService is a correlation/execution surface, not a source of task authority.
+CI: `31894920245` — success.
 
-No `TaskStore` dependency was added to the Harness service itself.
+Invariant:
 
-Task file:
+> Hooks can narrow/block; they cannot manufacture task authority or operator approval.
 
-`work/tasks/harness-service-wave1.md`
+### PR #22 — HarnessService
 
-State: `READY_FOR_REVIEW`
+Implemented provider-neutral service over adapters + Hooks with exact binding/session correlation and conservative mutation reporting.
+
+Implementation commit: `96c614846314ea604be95df9feed5c7e3b477b62`
+
+CI: `31895128908` — success.
+
+### PR #23 — canonical run/lease/session guard
+
+Implemented read-only `CanonicalRunGuard` over canonical task/run evidence.
+
+Implementation commit: `6c6eeeb050a3bc102250bafba9a849bab1e82b04`
+
+CI: `31895412303` — success.
+
+Continuation (`start/send/resume`) requires current task revision, ACTIVE task, correct claimant, live lease, and non-stale run/context. Stop is intentionally different: a stale known session may need cleanup, but historical identity verification does not revive authority.
+
+### PR #24 — initial executable agentic security baseline
+
+Current branch head at handoff refresh:
+
+`923bc9bb5d5a422618cd1a2097708d45d7bb4536`
+
+Current full Runtime stack CI:
+
+`31898860232` — success.
+
+Implemented adversarial properties include:
+
+- prompt/tool text cannot fabricate operator approval;
+- continuity-linked identities cannot become independent reviewers;
+- stale session cannot resume after task revision change;
+- provider liveness cannot override expired canonical lease;
+- peer/message text cannot transfer canonical ownership;
+- provider inspection cannot renew canonical heartbeat/lease;
+- deterministic `BEFORE_RESUME` Hook closes the previous resume gap.
+
+`work/security/AGENTIC_THREAT_MODEL.md` is descriptive/test-oriented, **not policy authority**.
+
+Unresolved Harness boundary:
+
+> durable late session attachment/replacement/helper lineage remains intentionally unresolved. Do not create a hidden mutable second session authority.
 
 ---
 
-# PR #23 — canonical run/lease/session guard
+## B. Skills stack
 
-PR: `#23 Add canonical run guard for harness operations`
+```text
+main
+→ PR #25  Agent Skills format / progressive loading
+→ PR #26  Skills catalog + provenance read model
+→ PR #27  frozen Skill-selection evaluation corpus
+→ PR #31  static Skill quality/security gate
+```
 
-Branch: `agent/harness-canonical-guard-wave1`
+### PR #25 — Skills format foundation
+
+Implements standard-style Skill directories, minimal discovery metadata, progressive body loading, resource inventory, deterministic whole-directory hash, and drift detection.
+
+No routing or execution authority.
+
+### PR #26 — Skills catalog/provenance
+
+Adds provenance-aware catalog/read model and explicit trust/source metadata without making catalog state task authority.
+
+### PR #27 — frozen Skill-selection benchmark
 
 Implementation commit:
 
-`6c6eeeb050a3bc102250bafba9a849bab1e82b04`
+`7175282c25584761f52059b36282c1f062d185c0`
 
-Validation-record commit / current recorded branch head:
+Validation-record head:
 
-`61442600c49798245b80dd9a6602ac82954e27d5`
+`f6d6685b4396829cc71e67144a3ca0951f1d8b52`
 
 CI:
 
-- Runtime stack run `31895412303`
-- passed on implementation commit `6c6eee...`
+`31897351677` — success.
 
-Implemented `runtime/policy/harness_guard.py`:
+Task:
 
-- read-only `CanonicalRunGuard` over canonical task/run evidence;
-- verifies task, project, run, worker, immutable run revision;
-- continuation operations require canonical task/run evidence rather than provider liveness;
-- registered only at pre-mutation Hook points.
+`work/tasks/skills-selection-eval-wave2.md` → `READY_FOR_REVIEW`
 
-Continuation semantics at PR #23 implementation point:
+Frozen corpus:
 
-- `start` / `send` require:
-  - current task revision;
-  - task `ACTIVE`;
-  - current claimant matches worker;
-  - live lease;
-  - non-stale run/context;
-- `send` also requires exact durable `run_manifest.session_id` match.
+- five synthetic candidate Skills;
+- 24 cases;
+- categories: direct, paraphrase, vocabulary shift, near miss, hard negative, no-Skill, multi-Skill, ambiguity;
+- prediction outcomes: `SELECT`, `ABSTAIN`, `AMBIGUOUS`;
+- exact-case, precision/recall/F1, abstention, ambiguity, false-activation, missed-activation, and category metrics.
 
-Stop semantics intentionally differ:
+Critical boundary:
 
-- `stop` verifies exact historical task/run/session identity;
-- `stop` does **not** require current task revision/live lease/ACTIVE continuation authority;
-- rationale: a stale or expired session may still need to be stopped safely by an otherwise authorized recovery/operator path;
-- the guard verifies targeting; it does not itself grant stop permission.
+> The evaluator scores predictions produced elsewhere. It contains **no production Skill selector** and cannot activate a Skill.
 
-Important unresolved design boundary:
+### PR #31 — static Skill quality/security gate
 
-> Late session attachment is not solved. `run_manifests.session_id` is immutable. Do not create a hidden mutable duplicate binding merely to make attach convenient. Durable lineage/attachment needs an explicit one-authority design.
+Implementation commit:
 
-Task file:
+`d3d186dbd0903eacd4dbe715335bf2560b1c74d3`
 
-`work/tasks/harness-canonical-guard-wave1.md`
+Validation-record head:
 
-State: `READY_FOR_REVIEW`
+`e45d74a256d9f215fee49cff8abeb0ac3dfaaf38`
 
----
+CI:
 
-# PR #24 — initial agentic security adversarial baseline
+`31898263690` — success.
 
-PR: `#24 Add initial agentic security adversarial baseline`
+Task:
 
-Branch: `agent/agentic-security-baseline-wave1`
+`work/tasks/skills-quality-gate-wave2.md` → `READY_FOR_REVIEW`
 
-Implementation commit / current head at note time:
+Static gate dispositions:
 
-`e25baaa044a2f5bc9b969e59aeffb0036d9a5f05`
+- `CLEAR`
+- `REVIEW_REQUIRED`
+- `QUARANTINE`
 
-CI at note time:
+**None means approved or trusted.**
 
-- Runtime stack run `31895641637`
-- status when last checked: `in_progress`
-- do not record as passed until GitHub confirms success.
+Static checks catch/flag executable resources, binary/non-UTF8/oversized resources, vague descriptions, persona-heavy instructions, privilege/destructive/environment/network behavior, secret literals, authority-override claims, sensitive key/credential resources, and remote-pipe-to-shell patterns.
 
-This tranche found and fixes a concrete gap:
+Unresolved Skills boundaries:
 
-- `resume` previously had no deterministic pre-resume Hook;
-- new `BEFORE_RESUME` Hook event is added;
-- `HarnessService.resume()` invokes it before adapter resume;
-- `CanonicalRunGuard` treats `resume` as continuation.
-
-After this change, `resume` requires:
-
-- current task revision;
-- `ACTIVE` task;
-- current claimant;
-- live lease;
-- non-stale run/context;
-- exact durable session binding.
-
-Initial executable adversarial baseline includes:
-
-- **SEC-ADV-005:** payload/tool text claiming “operator approval granted” cannot satisfy a `REQUIRE_APPROVAL` Hook;
-- **SEC-ADV-006:** a continuity-linked helper/replacement identity cannot claim independent review;
-- **SEC-ADV-007A:** stale session cannot resume after task reshape/revision change;
-- **SEC-ADV-007B:** live provider session cannot override expired task lease;
-- **SEC-ADV-008:** peer/message text claiming ownership transfer does not mutate canonical task ownership;
-- **SEC-ADV-LIVENESS:** inspecting a RUNNING provider session does not renew canonical task heartbeat/lease.
-
-New descriptive security note:
-
-`work/security/AGENTIC_THREAT_MODEL.md`
-
-It is explicitly **not policy authority**. It maps the Agentic Security roadmap's initial 20 attacks into executable/existing/planned coverage without claiming protections that do not exist.
-
-Task file:
-
-`work/tasks/agentic-security-baseline-wave1.md`
-
-Current task status in branch: `ACTIVE` until CI result is confirmed and the validation record is updated.
+- no production routing yet;
+- no persistent Skill approval/trust/quarantine authority lifecycle yet;
+- no auto-update/import trust;
+- no automatic promotion from eval results.
 
 ---
 
-# Parallel Wave 2 Skills work — next active implementation
+## C. Environment / reproducibility stack
+
+```text
+main
+→ PR #28  EnvironmentSpec v1
+→ PR #29  EnvironmentFingerprint + compatibility v1
+→ PR #30  append-only run environment evidence
+```
+
+### PR #28 — EnvironmentSpec v1
+
+Implementation commit:
+
+`21622438602bc22a70c3dc735c1d918a45463171`
+
+Validation-record head:
+
+`6128ef94334b1868677430d65724628d19bb8b70`
+
+CI:
+
+`31897492718` — success.
+
+Task:
+
+`work/tasks/environment-spec-wave2.md` → `READY_FOR_REVIEW`
+
+Implements strict JSON environment requirements, semantic hash, runtime/tool/setup/maintenance/validation/network/service/credential-capability/dependency-input description.
+
+Unknown fields fail closed. Commands are data only and are not executed by this layer. Secret values are not stored.
+
+### PR #29 — EnvironmentFingerprint / compatibility v1
+
+Implementation commit:
+
+`6d639380fe3683745611dc0092edb0ec9b30414a`
+
+Validation-record head:
+
+`620834a0db9cce7e2de3d4750c98f1c49687ccdd`
+
+CI:
+
+`31897745175` — success.
+
+Task:
+
+`work/tasks/environment-fingerprint-wave2.md` → `READY_FOR_REVIEW`
+
+Compatibility states:
+
+- `COMPATIBLE`
+- `COMPATIBLE_WITH_WARNINGS`
+- `DRIFTED`
+- `INCOMPATIBLE`
+- `UNKNOWN`
+
+Unknown material evidence stays unknown. Fingerprint does not dump arbitrary environment variables or secret values; credential requirements are caller-supplied capability availability only.
+
+### PR #30 — append-only run environment evidence
+
+Implementation commit:
+
+`cf47e82f58586091becc5d298f27833ae97f0aac`
+
+Validation-record head:
+
+`862e8bebe852ed6cea4ad0fd69c8bcc4c4251955`
+
+CI:
+
+`31898071184` — success.
+
+Task:
+
+`work/tasks/environment-run-evidence-wave2.md` → `READY_FOR_REVIEW`
+
+Adds append-only `run_environment_evidence` beside immutable `run_manifests`; **does not modify run contracts or task authority**. Trace can project this evidence under the exact run.
+
+Important persistence rule:
+
+If normalized environment evidence contains text recognized as sensitive, recording fails rather than silently redacting the hashed EnvironmentSpec snapshot.
+
+Unresolved Environment boundaries:
+
+- compatibility is evidence, not execution/recovery authority;
+- no automatic environment-driven resume/recovery;
+- no setup/validation command runner outside Harness/Hook authority;
+- no container/sandbox platform imposed by default.
+
+---
+
+## D. Review/evidence correctness
+
+### PR #32 — immutable consequential review subject binding
 
 Branch:
 
-`agent/skills-format-wave2`
+`agent/review-subject-binding-wave2`
+
+Independent from `main`.
+
+Initial implementation commit:
+
+`1bf786995336a088e465028932720664dac699f7`
+
+Corrected implementation commit:
+
+`fde24736323cdd196309fb753422e053399e9171`
+
+Validation-record head:
+
+`489a2524b513d6d9ab5eb186874cbc04e6e4ba4a`
+
+Initial CI:
+
+`31898581152` — failed because the new subject check changed established criterion-verification error precedence.
+
+Corrected CI:
+
+`31898786757` — success.
+
+Task:
+
+`work/tasks/review-subject-binding-wave2.md` → `READY_FOR_REVIEW`
+
+Implemented:
+
+- immutable one-to-one `review_subjects`;
+- task/submission/revision/run/artifact identity binding;
+- v1 immutable artifact refs only: `sha256:<64 hex>` or `git:<40/64 hex>`;
+- freshness modes: `REVISION_BOUND`, `REDERIVED_AT_REVIEW`, `NON_CONSEQUENTIAL`;
+- consequential approval requires exact freshness evidence;
+- ordinary low-risk/unflagged reviews retain the existing simple path;
+- approval validation occurs inside the existing review transaction;
+- stale submission/task revision/run/criterion mismatch blocks approval;
+- trace exposes exact review subject.
+
+Important CI-driven correction:
+
+Existing criterion completeness checks keep their established precedence. When all current criterion claims are complete/confirmed and identify one exact current run/revision, MAPS derives the overall `REVISION_BOUND` review subject atomically instead of forcing redundant manual binding.
+
+Invariant:
+
+> A review subject identifies what was reviewed. It does not grant reviewer/operator/task authority.
+
+---
+
+## E. Learning / evaluation stack — newest work
+
+```text
+main
+→ PR #33  portable Run Record v1
+→ PR #34  frozen regression case v1
+```
+
+### PR #33 — portable Run Record v1
+
+Branch:
+
+`agent/portable-run-record-wave2`
+
+Implementation commit:
+
+`f2eb44a1cf180a2e58de85904eafb891df75bf7c`
+
+Validation-record/current stacked base head:
+
+`3d618a4d74d8be4ba42e119cc5d659e204ccd9d5`
+
+CI:
+
+`31899074481` — success.
+
+Task:
+
+`work/tasks/portable-run-record-wave2.md` → `READY_FOR_REVIEW`
+
+Implemented:
+
+- `build_run_record(source, task_id, run_id)` over existing sanitized `trace_task()`;
+- exact run selection;
+- deterministic record ID/content SHA;
+- structural task/policy/run/context/submission/review/criterion/outcome/event evidence;
+- free-text task/review/event/outcome prose omitted by default and replaced by bounded presence/length metadata;
+- context contents omitted; path/hash refs retained;
+- outcomes split into exact run-bound vs task-unbound;
+- task-level review/timeline joins labeled `UNKNOWN` unless exact structured evidence resolves them;
+- explicit coverage states: `VERIFIED`, `SOURCE_LOCAL`, `MISSING`, `UNKNOWN`;
+- replay explicitly `complete: false`;
+- read-only CLI: `python -m runtime.cli run-record TASK_ID RUN_ID`.
+
+Critical boundary:
+
+> Portable does not mean complete replay. Missing provider/session/helper/recovery/operation trajectory sources stay visibly missing/unknown.
+
+### PR #34 — frozen regression case v1 — LAST COMPLETED WORK
+
+Branch:
+
+`agent/frozen-regression-case-wave2`
 
 Base:
 
-`main`
+`agent/portable-run-record-wave2`
 
-Roadmap:
+Implementation/CI head:
 
-`work/roadmaps/agent-harness-capabilities/02-procedural-knowledge-and-skills.md`
+`3baa0eabb42d6ab89e2d681fda1a297f994084ce`
 
-Current intended first tranche:
+Task-validation/documentation head:
 
-1. support standard-style Skill directory discovery:
+`f803cd24e5acbd3630075b3f316535ba50540b0b`
 
-```text
-skills/<skill-name>/
-  SKILL.md
-  scripts/        optional
-  references/     optional
-  assets/         optional
-  examples/       optional MAPS convention
-```
+CI:
 
-2. parse minimum frontmatter needed for discovery:
-   - `name`
-   - `description`
+`31899393298` — success.
 
-3. do **not** add a YAML package yet solely for this tranche;
-4. tolerate unrelated/custom metadata as metadata, never authority;
-5. compute stable whole-Skill-directory content hash/version identity;
-6. discovery should load compact metadata only;
-7. a separate activation/load step should read the `SKILL.md` body;
-8. preserve optional resource inventory without executing anything;
-9. no Skill may override canonical policy or task authority;
-10. no routing/autonomous activation yet;
-11. no third-party approval/quarantine database yet;
-12. tests should cover valid/invalid frontmatter, duplicate names/IDs, deterministic hash, change detection, resource discovery, and progressive disclosure.
+Task:
 
-Likely files:
+`work/tasks/frozen-regression-case-wave2.md` → `READY_FOR_REVIEW`
 
-```text
-runtime/skills/__init__.py
-runtime/skills/format.py
-tests/test_skills_format.py
-work/tasks/skills-format-wave2.md
-```
+Implemented:
 
-Then open a **draft PR against `main`**, because this first parser/catalog foundation is deliberately independent of PRs #20–#24.
+- explicit incident taxonomy including tool/context/routing/helper/recovery/environment/review/validator/authority/ACI/supply-chain/operator-friction/unknown categories;
+- `freeze_regression_case()` requires:
+  - validated Run Record v1;
+  - explicit incident category;
+  - explicitly sanitized bounded fixture;
+  - structured expected-property IDs;
+  - freezer identity;
+  - optional structured tags;
+- revalidates Run Record content hash before freezing;
+- rejects sensitive fixtures using existing MAPS sensitive-text detector;
+- deterministic case ID/content SHA with no clock timestamp;
+- embeds the already-sanitized Run Record so the case is portable/self-contained;
+- preserves `replay.complete: false`;
+- explicitly records `promotion.automatic = false`;
+- CLI `freeze-case` reads fixture from file/stdin to avoid putting incident text in shell history;
+- CLI emits JSON and does not mutate canonical task state.
 
----
+Not implemented:
 
-# Major design decisions that must survive context loss
-
-## 1. Stacked PRs are allowed before review
-
-Independent review is a merge/completion gate, not automatically an implementation-start gate. Continue on a stacked branch when the dependency is explicit and upstream code has sufficient verification. If review changes the upstream contract materially, rebase/reshape downstream PRs before merge.
-
-## 2. Session liveness is never task authority
-
-```text
-live provider session
-≠ task owner
-≠ live task lease
-≠ current task revision
-≠ permission to resume
-≠ review authority
-```
-
-## 3. Capability is not authority
-
-```text
-capability
-≠ assignment
-≠ ownership
-≠ task scope
-≠ policy authority
-≠ operator approval
-```
-
-## 4. Hooks can narrow/block, not grant missing authority
-
-`ALLOW` means the Hook itself does not object. It is not equivalent to task authorization.
-
-`REQUIRE_APPROVAL` is a request/block condition. The Hook cannot manufacture operator approval.
-
-## 5. Stop and continuation have different freshness needs
-
-Continuation (`start/send/resume`) requires current task/run/lease/context evidence.
-
-Stopping an explicitly known stale session may remain necessary for cleanup/recovery. Verify exact historical identity, but do not pretend the old session regained authority.
-
-## 6. Helpers are not sessions just because both execute work
-
-Current helper subsystem returns bounded run results/evidence. Do not invent persistent helper-session semantics until a real continuity design exists.
-
-## 7. Do not create a second task/session truth store
-
-Read/join/normalize existing authorities. Any durable run/session/helper linkage added later must be append-only evidence with explicit reconciliation rules and must not compete with canonical task state or immutable run manifests.
-
-## 8. Durable late session attachment remains unresolved intentionally
-
-Existing `run_manifests.session_id` is optional and immutable. A new binding table may be appropriate, but only after defining:
-
-- whether the manifest session is initial-session identity or authoritative current session;
-- how late attachment relates to it;
-- how replacement sessions are represented;
-- how uniqueness/conflicts are handled;
-- which record wins if both exist;
-- how trace/recovery/review independence consume the lineage.
-
-Do not patch around this with mutable convenience state.
-
-## 9. Security tests should prove behavior
-
-Prefer public/guarded behavioral properties over checking source text for words like “approval” or “deny.”
-
-## 10. Agent Skills are procedures, not authority/personas
-
-Skill text is reusable procedural knowledge. It must not become another form of permanent expert agent, policy, or automatic privilege bundle.
+- no incident classifier;
+- no replay engine;
+- no comparative evaluator yet;
+- no persistent corpus authority/database;
+- no automatic harness/policy/routing change;
+- no self-promotion.
 
 ---
 
-# Immediate continuation checklist
+# Major invariants that must survive context loss
 
-1. Check CI run `31895641637` for PR #24.
-2. If green:
-   - update `work/tasks/agentic-security-baseline-wave1.md` to `READY_FOR_REVIEW`;
-   - record the exact CI run/implementation commit;
-   - downstream work may continue without waiting for review.
-3. Continue `agent/skills-format-wave2` from `main`:
-   - implement `runtime/skills/format.py`;
-   - add format/discovery/progressive-loading tests;
-   - add task record;
-   - commit;
-   - open draft PR against `main`;
-   - run full Runtime stack CI.
-4. Do **not** start durable late-session lineage/schema work until its one-authority/reconciliation semantics are explicitly designed.
-5. Keep adding/updating durable task/handoff notes after each substantial tranche or design decision.
+1. **One authority per fact.** Do not create duplicate mutable task/run/session/review truth.
+2. **Capability is not authority.** Tool availability, Skill capability, provider session, or successful Hook does not grant task permission.
+3. **Session liveness is not task truth.** Live provider state cannot revive ownership/lease/revision.
+4. **Hooks can block/narrow, never create missing authority.**
+5. **Citation is not ratification.** Repetition/retrieval does not promote memory/guidance into policy.
+6. **Persistent memory needs trust/lifecycle states.** Do not build one undifferentiated memory bucket.
+7. **Review must bind fresh/exact evidence for consequential actions.**
+8. **Partial replay must never claim complete replay.**
+9. **Environment compatibility is evidence, not recovery authority.**
+10. **`CLEAR` Skill scan is not Skill approval.**
+11. **Frozen case/eval success cannot self-authorize harness/policy/routing changes.**
+12. **Real failures should become frozen regression evidence before harness changes are promoted.**
+13. **Better interfaces often matter as much as smarter models.** Prefer deterministic ACI/result semantics over more prompting where possible.
+14. **No permanent agents/daemons/watchers without demonstrated need.**
+15. **Do not import community Skills/tools blindly.** Treat them as supply-chain artifacts with provenance/review/eval.
+
+Mechanism hierarchy:
+
+| Problem | Preferred mechanism |
+|---|---|
+| Something must always happen | Hook / invariant |
+| Reusable procedure | Skill |
+| Perform concrete operation | Tool/script |
+| Repetitive stable orchestration | Flow |
+| Need facts | Context/source |
+| Need judgment/exploration | Agent/helper |
+| High-impact permission | Policy/operator |
+| Improve future behavior | Outcome → frozen evidence → eval → reviewed promotion |
 
 ---
 
-# Existing roadmap / evidence files worth consulting after reset
+# Explicitly deferred / unresolved
 
-- `work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md`
-- `work/roadmaps/prime-agent-capability-roadmap.md`
-- `work/roadmaps/agent-harness-capabilities/01-harness-mechanics.md`
-- `work/roadmaps/agent-harness-capabilities/02-procedural-knowledge-and-skills.md`
-- `work/roadmaps/agent-harness-capabilities/04-agentic-security.md`
-- `migration/FUTURE_IDEAS_BACKLOG.md`
-- `migration/LEGACY_IDEA_RECOVERY_AUDIT.md`
-- `work/security/AGENTIC_THREAT_MODEL.md` on PR #24 branch
-- the task files named above for exact tranche boundaries and acceptance criteria
+Do **not** casually solve these by adding machinery:
+
+- durable late session attachment/replacement/helper lineage;
+- persistent Skill approval/trust/quarantine lifecycle;
+- production Skill routing;
+- environment-driven automatic continuation/recovery;
+- EnvironmentSpec command execution outside Hooks/Harness;
+- generic artifact registry/acquisition path;
+- complete provider/session/helper/recovery operation trajectory;
+- autonomous incident classification;
+- autonomous self-modification/promotion.
+
+Also continue to avoid by default:
+
+- large `mapd` daemon;
+- giant knowledge graph/Library revival;
+- fixed agent roster/persona bureaucracy;
+- WezTerm-dependent orchestration;
+- provider-specific permanent identities;
+- continuous discovery/process watcher agents;
+- Temporal/Cedar/A2A/Firecracker rewrites without demonstrated need;
+- legacy lexical retriever;
+- blindly loaded MCP/tool universe;
+- universal planner/editor split.
 
 ---
 
-# Review / merge reminder
+# Recommended next task
 
-All implementation PRs remain drafts. Successful CI is evidence, not independent approval. Do not self-approve or merge them merely because downstream implementation has continued.
+## Comparative evaluation/reporting v1 over frozen cases
+
+Create a new stacked branch from:
+
+`agent/frozen-regression-case-wave2`
+
+Suggested branch:
+
+`agent/regression-evaluator-wave2`
+
+Goal:
+
+Build a **model/provider-agnostic evaluator/reporting layer** that consumes frozen case artifacts plus externally produced candidate results and compares expected-property outcomes without executing tasks or promoting changes.
+
+Suggested v1 boundary:
+
+- validate frozen case identity/hash before evaluation;
+- accept candidate identity/version/config hash as descriptive evidence;
+- accept externally supplied property results such as `PASS`, `FAIL`, `UNKNOWN`, `NOT_RUN`;
+- require results for expected properties or report explicit incompleteness;
+- aggregate per-case and corpus-level pass/fail/unknown/regression metrics;
+- optionally compare baseline vs candidate when both result sets refer to the exact same frozen case IDs;
+- classify `improved`, `regressed`, `unchanged`, `incomplete` mechanically from supplied property results;
+- preserve case/category/tags for slicing;
+- report cost/latency only if supplied as explicit measured data; never guess;
+- deterministic report identity/hash;
+- no model/provider calls in evaluator;
+- no task execution;
+- no automatic promotion;
+- no writing canonical MAPS state;
+- no “winner becomes production” behavior.
+
+Promotion must remain:
+
+```text
+frozen cases
+→ candidate results
+→ comparative report
+→ proposal
+→ independent review / operator gate where required
+→ promotion
+```
+
+Not:
+
+```text
+better score → automatic self-modification
+```
+
+Before implementing, create a new `work/tasks/...md` with exact change boundary and stop conditions.
+
+---
+
+# Exact continuation checklist
+
+A fresh agent should:
+
+1. Read `AGENTS.md`.
+2. Read this handoff.
+3. Inspect PR #34 and verify it is still open/draft and its dependency/base has not materially changed.
+4. Inspect current `main`; if it advanced, do not assume this handoff overrides it.
+5. Inspect `work/tasks/frozen-regression-case-wave2.md` and PR #34 CI/review state.
+6. If PR #34 remains CI-green and no upstream review changed its contract, create `agent/regression-evaluator-wave2` from `agent/frozen-regression-case-wave2`.
+7. Shape the comparative-evaluator task before coding.
+8. Keep evaluator pure/read-only and provider/model agnostic.
+9. Use frozen case IDs/hashes as the evaluation join key; never fuzzy-match cases.
+10. Run focused tests and full Runtime stack CI.
+11. Keep the PR draft and require independent review.
+12. Add/update a durable checkpoint before context grows large.
+
+If review feedback arrives on any upstream PR, address that feedback first when it materially affects a downstream contract; then rebase/reshape dependent branches as needed.
+
+---
+
+# Quick PR index
+
+- #19 — merged foundation / preservation work now represented in `main`
+- #20 — typed Harness contracts
+- #21 — hcom normalization + Hooks
+- #22 — HarnessService
+- #23 — canonical run/lease/session guard
+- #24 — agentic security adversarial baseline
+- #25 — Agent Skills format foundation
+- #26 — Skills catalog/provenance
+- #27 — frozen Skill-selection evaluation
+- #28 — EnvironmentSpec v1
+- #29 — EnvironmentFingerprint/compatibility
+- #30 — append-only run environment evidence
+- #31 — static Skill quality/security gate
+- #32 — immutable consequential review subject binding
+- #33 — portable Run Record v1
+- #34 — frozen regression case v1 **(last completed tranche)**
+
+All #20–#34 are review-gated draft work unless GitHub state has changed after this handoff; verify current PR state before acting.
