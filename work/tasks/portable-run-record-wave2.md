@@ -1,6 +1,6 @@
 # Task: portable Run Record v1
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,27 +27,27 @@
 
 ## Acceptance criteria
 
-- [ ] `build_run_record(source, task_id, run_id)` selects exactly one run from the existing sanitized `trace_task()` projection and fails explicitly for missing/ambiguous task/run identity.
-- [ ] record is versioned and has deterministic `record_id` / SHA-256 based on normalized portable content.
-- [ ] same unchanged source evidence yields same Run Record identity.
-- [ ] default record includes structural task metadata, stable task revision, policy flags, exact run manifest, scopes/runtime limits/base revision, context path/hash refs, submission metadata, review metadata, criterion evidence, run-bound/task-unbound outcomes, event metadata, coverage, and replay limitations.
-- [ ] task/run authority remains only in canonical sources; Run Record performs no writes.
-- [ ] raw task title/outcome/authority/verification/escalation text, raw submission evidence, review summaries, criterion verdict notes, event summaries, and outcome source/notes are omitted by default and represented only as bounded presence/length metadata.
-- [ ] context file contents are never embedded; path/hash refs remain available.
-- [ ] outcomes are separated into exact `run_bound` and task-level `task_unbound` observations rather than guessed joins.
-- [ ] task-level review/timeline data is labeled with unknown run-join state unless an accepted future immutable subject/source explicitly resolves it.
-- [ ] coverage uses explicit `VERIFIED`, `SOURCE_LOCAL`, `MISSING`, `UNKNOWN` vocabulary and does not claim hcom/helper/recovery/session/harness trajectory coverage that current accepted sources cannot prove.
-- [ ] replay is explicitly `complete: false` in v1.
-- [ ] accepted future trace enrichments such as environment evidence or review subjects can flow into the record and upgrade their specific coverage labels without changing the authority model.
-- [ ] CLI exposes `python -m runtime.cli run-record TASK_ID RUN_ID` as JSON output only; no new writable state is added.
-- [ ] record JSON round-trips cleanly and focused tests prove sanitized text is not copied.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] `build_run_record(source, task_id, run_id)` selects exactly one run from the existing sanitized `trace_task()` projection and fails explicitly for missing/ambiguous task/run identity.
+- [x] record is versioned and has deterministic `record_id` / SHA-256 based on normalized portable content.
+- [x] same unchanged source evidence yields same Run Record identity.
+- [x] default record includes structural task metadata, stable task revision, policy flags, exact run manifest, scopes/runtime limits/base revision, context path/hash refs, submission metadata, review metadata, criterion evidence, run-bound/task-unbound outcomes, event metadata, coverage, and replay limitations.
+- [x] task/run authority remains only in canonical sources; Run Record performs no writes.
+- [x] raw task title/outcome/authority/verification/escalation text, raw submission evidence, review summaries, criterion verdict notes, event summaries, and outcome source/notes are omitted by default and represented only as bounded presence/length metadata.
+- [x] context file contents are never embedded; path/hash refs remain available.
+- [x] outcomes are separated into exact `run_bound` and task-level `task_unbound` observations rather than guessed joins.
+- [x] task-level review/timeline data is labeled with unknown run-join state unless an accepted future immutable subject/source explicitly resolves it.
+- [x] coverage uses explicit `VERIFIED`, `SOURCE_LOCAL`, `MISSING`, `UNKNOWN` vocabulary and does not claim hcom/helper/recovery/session/harness trajectory coverage that current accepted sources cannot prove.
+- [x] replay is explicitly `complete: false` in v1.
+- [x] accepted future trace enrichments such as environment evidence or review subjects can flow into the record and upgrade their specific coverage labels without changing the authority model.
+- [x] CLI exposes `python -m runtime.cli run-record TASK_ID RUN_ID` as JSON output only; no new writable state is added.
+- [x] record JSON round-trips cleanly and focused tests prove sanitized text is not copied.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_run_record -v` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: deterministic record tests, privacy/coverage tests, PR diff, CI run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31899074481` passed on implementation commit `f2eb44a1cf180a2e58de85904eafb891df75bf7c`.
+- Evidence to preserve: deterministic record tests, privacy/coverage tests, GitHub Actions run `31899074481`, PR #33 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -89,12 +89,12 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 - Free text is omitted, not merely secret-redacted, because portability may eventually cross project/evaluation boundaries where private task prose should not be exported accidentally.
 - Structural actor/reviewer/worker IDs remain because provenance/independence analysis needs identity; raw prose/file contents do not.
 - `timeline` and general `reviews` remain task-level with `UNKNOWN` run join unless exact subject evidence says otherwise.
-- The record content hash excludes no hidden mutable metadata because v1 contains no export timestamp; identical source projection yields identical identity.
+- The record content hash contains no export timestamp; identical source projection yields identical identity.
 - Future incident freezing should reference this Run Record and add a separately reviewed sanitized fixture/problem statement rather than changing Run Record privacy defaults.
 
 ## Completion / handoff
 
-- Completed: implementation prepared on `agent/portable-run-record-wave2`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit isolated Run Record implementation, open draft PR against `main`, and run full Runtime stack CI.
+- Completed: deterministic sanitized Run Record v1, exact-run selection, coverage/replay limitations, read-only CLI, focused tests, draft PR #33, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion; downstream incident/regression-case work may stack on this verified head.
+- Next action if not DONE: independent review of PR #33; a frozen regression-case format may now safely reference Run Record identity without changing Run Record privacy defaults.
