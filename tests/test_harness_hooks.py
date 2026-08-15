@@ -158,6 +158,48 @@ class HookRegistryTests(unittest.TestCase):
         self.assertTrue(result.denied)
         self.assertEqual(result.invocations[0].outcome.annotations["error_type"], "TypeError")
 
+    def test_hook_context_is_recursively_read_only_across_hooks(self):
+        registry = HookRegistry()
+        observed = []
+
+        def attempted_mutation(ctx):
+            try:
+                ctx["binding"]["worker_id"] = "attacker"
+            except TypeError:
+                pass
+            try:
+                ctx["details"]["items"].append("injected")
+            except AttributeError:
+                pass
+            return HookOutcome(HookDirective.ALLOW)
+
+        def later_guard(ctx):
+            observed.append(
+                (
+                    ctx["binding"]["worker_id"],
+                    tuple(ctx["details"]["items"]),
+                )
+            )
+            return HookOutcome(HookDirective.ALLOW)
+
+        registry.register(
+            HookSpec("mutator", HookEvent.BEFORE_SEND, attempted_mutation, priority=1)
+        )
+        registry.register(
+            HookSpec("guard", HookEvent.BEFORE_SEND, later_guard, priority=2)
+        )
+
+        result = registry.run(
+            HookEvent.BEFORE_SEND,
+            {
+                "binding": {"worker_id": "worker-1"},
+                "details": {"items": ["original"]},
+            },
+        )
+
+        self.assertTrue(result.permitted)
+        self.assertEqual(observed, [("worker-1", ("original",))])
+
 
 if __name__ == "__main__":
     unittest.main()

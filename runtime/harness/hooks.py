@@ -48,6 +48,20 @@ class HookFailurePolicy(str, Enum):
 HookCallback = Callable[[Mapping[str, Any]], "HookOutcome"]
 
 
+def _freeze_hook_value(value: Any) -> Any:
+    """Recursively freeze hook context so hooks cannot rewrite later guard input."""
+
+    if isinstance(value, Mapping):
+        return MappingProxyType(
+            {key: _freeze_hook_value(item) for key, item in value.items()}
+        )
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze_hook_value(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        return frozenset(_freeze_hook_value(item) for item in value)
+    return value
+
+
 @dataclass(frozen=True, slots=True)
 class HookOutcome:
     directive: HookDirective
@@ -163,7 +177,7 @@ class HookRegistry:
         event: HookEvent,
         context: Mapping[str, Any] | None = None,
     ) -> HookRunResult:
-        frozen_context = MappingProxyType(dict(context or {}))
+        frozen_context = _freeze_hook_value(dict(context or {}))
         invocations: list[HookInvocation] = []
 
         for spec in self.list_for(event):
