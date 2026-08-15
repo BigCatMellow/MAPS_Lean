@@ -54,6 +54,8 @@ It preserves the central plain-language design conclusion:
 
 ## Related material
 
+- `work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md` — **top-level capability planning orientation**
+- `work/roadmaps/README.md`
 - `work/roadmaps/prime-agent-capability-roadmap.md`
 - `work/research/agent-harness-patterns-scan-2026-08.md`
 - `work/roadmaps/agent-harness-capabilities/README.md`
@@ -66,12 +68,13 @@ It preserves the central plain-language design conclusion:
 ```text
 1. AGENTS.md
 2. current task / canonical task state
-3. work/context/agent-handoff-current-state.md
-4. work/context/plain-language-maps-improvements.md
-5. work/context/design-decisions-and-rationale.md
-6. work/context/conversation-history-2026-08-15.md
-7. relevant roadmap/research file
-8. implementation files/tests
+3. work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md
+4. work/context/agent-handoff-current-state.md
+5. work/context/plain-language-maps-improvements.md
+6. work/context/design-decisions-and-rationale.md
+7. work/context/conversation-history-2026-08-15.md
+8. relevant detailed roadmap/research file
+9. implementation files/tests
 ```
 
-The context files are deliberately below `AGENTS.md` and task authority in that order.
+The master roadmap is the top-level planning orientation, but remains below active authority. The context files are deliberately below `AGENTS.md` and canonical task authority.
