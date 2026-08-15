@@ -35,6 +35,13 @@ from .format import (
     discover_skills,
     load_skill,
 )
+from .gate import (
+    SkillGateDisposition,
+    SkillGateFinding,
+    SkillGateReport,
+    SkillGateSeverity,
+    assess_skill,
+)
 
 __all__ = [
     "SkillAmbiguousError",
@@ -46,6 +53,10 @@ __all__ = [
     "SkillDescriptor",
     "SkillDocument",
     "SkillEvalCandidate",
+    "SkillGateDisposition",
+    "SkillGateFinding",
+    "SkillGateReport",
+    "SkillGateSeverity",
     "SkillNameConflict",
     "SkillNotFoundError",
     "SkillParseError",
@@ -60,6 +71,7 @@ __all__ = [
     "SkillSelectionPrediction",
     "SkillSourceKind",
     "SkillTrustState",
+    "assess_skill",
     "build_skill_catalog",
     "discover_skills",
     "evaluate_skill_selection",
