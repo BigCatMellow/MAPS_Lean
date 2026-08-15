@@ -217,6 +217,16 @@ class ObservabilityMixin:
                     ).fetchall()
                 ]
 
+            outcomes = [
+                dict(row)
+                for row in conn.execute(
+                    "SELECT * FROM task_outcomes WHERE task_id = ? ORDER BY id",
+                    (task_id,),
+                ).fetchall()
+            ]
+            for outcome in outcomes:
+                outcome["escaped_defect"] = bool(outcome["escaped_defect"])
+
             revision_method = getattr(self, "_task_revision_conn", None)
             task_revision = (
                 revision_method(conn, task_id) if callable(revision_method) else None
@@ -231,6 +241,7 @@ class ObservabilityMixin:
                 "submission": submission,
                 "reviews": reviews,
                 "runs": runs,
+                "outcomes": outcomes,
                 "criterion_evidence": {
                     "claims": criterion_claims,
                     "verdicts": criterion_verdicts,
@@ -240,6 +251,7 @@ class ObservabilityMixin:
                     "canonical_task_db": {
                         "included": True,
                         "timeline_source": "task_events",
+                        "outcomes_included": True,
                     },
                     "communication": {
                         "included": False,
