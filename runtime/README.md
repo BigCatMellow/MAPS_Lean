@@ -303,6 +303,6 @@ python -m unittest discover -s tests -v
 python -m runtime.smoke --with-langgraph
 ```
 
-Removal-readiness Actions run `31851301307` passed the legacy dependency gate,
-compile/Ruff/Bandit/pip checks, **93/93 unit tests**, disposable SQLite/LangGraph
-smoke, and installer syntax/preview.
+The runtime stack workflow verifies the legacy dependency gate, compile/Ruff/
+Bandit/pip checks, the current full unit-test suite, disposable SQLite/LangGraph
+smoke, and installer syntax/preview. Pull requests run this workflow automatically.
