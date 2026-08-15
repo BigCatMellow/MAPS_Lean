@@ -9,9 +9,9 @@
 
 ## Inputs and source of truth
 
-- Inputs: `AGENTS.md`, `migration/LEGACY_IDEA_RECOVERY_AUDIT.md`, `migration/FUTURE_IDEAS_BACKLOG.md`, `work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md`, detailed capability roadmaps, merged PR #19, current open PRs #20-#35, and the parallel archaeology report when it becomes available.
-- Authoritative sources: current `main`, current PR heads/metadata, active `AGENTS.md`, merged code/tests, canonical task/policy/review state, and explicit operator decisions. Legacy/audit/roadmap prose is planning evidence only.
-- Evidence labels: current GitHub state is `VERIFIED`; legacy audit classifications are preserved as reported evidence until reconciled; unresolved archaeology remains `UNKNOWN`.
+- Inputs: `AGENTS.md`, `migration/LEGACY_IDEA_RECOVERY_AUDIT.md`, `migration/FUTURE_IDEAS_BACKLOG.md`, `work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md`, detailed capability roadmaps, merged PR #19, current open PRs #20-#37, and the bounded parallel archaeology report on PR #37.
+- Authoritative sources: current `main`, current PR heads/metadata, active `AGENTS.md`, merged code/tests, canonical task/policy/review state, and explicit operator decisions. Legacy/audit/roadmap/research prose is planning evidence only.
+- Evidence labels: current GitHub state is `VERIFIED`; legacy evidence is preserved at its recorded status; unresolved `SYN-0004` and `EXP-0007` remain `UNKNOWN` rather than guessed.
 - Dependencies / preconditions: current `main` and open PR state must be checked before assigning implementation status.
 
 ## Change boundary
@@ -34,29 +34,31 @@
 - [x] The map explicitly preserves known rejected legacy directions, including the failed lexical claim-card retriever and duplicate control-plane architecture.
 - [x] The roadmap index points to the reconciliation map without making it active authority.
 - [x] Current stacked PR integration/review ordering is explicit, including how base changes invalidate stale final review/CI evidence.
+- [x] Independent bounded archaeology findings from PR #37 are reconciled without copying its historical subsystem forms into Lean.
+- [x] Broad legacy archaeology has an explicit stop condition; residual unsupported records remain `UNKNOWN` rather than becoming blockers or assumptions.
 
 ## Verification and evidence
 
-- Verification: inspected current `main`, current open PR #20-#36 metadata/state, existing review submissions, source audit/backlog, master roadmap and roadmap index; re-fetched the reconciliation map from the branch after publication; inspected changed-file inventories for all current implementation PR deltas; inspected #30/#32 shared state-layer patches and MRO composition; verified #33 passes through optional environment/review-subject trace enrichments without claiming complete lineage.
-- Evidence to preserve: PR #36, `work/roadmaps/legacy-recovery-reconciliation.md`, `work/notes/2026-08-15-open-pr-integration-sequence.md`, current `main` SHA `086e066f723d793273441dd52b500e62ac981deb` at shaping time, current PR ranges/status, and Runtime CI results on the planning branch.
+- Verification: inspected current `main`, current open PR #20-#37 metadata/state, existing review submissions, source audit/backlog, master roadmap and roadmap index; inspected changed-file inventories for implementation PR deltas; inspected #30/#32 shared state-layer patches and MRO composition; verified #33 passes through optional environment/review-subject trace enrichments without claiming complete lineage; read and reconciled the PR #37 bounded archaeology report against the existing roadmap rather than accepting recommendations wholesale.
+- Evidence to preserve: PR #36, PR #37, `work/roadmaps/legacy-recovery-reconciliation.md`, `work/notes/2026-08-15-open-pr-integration-sequence.md`, current `main` SHA `086e066f723d793273441dd52b500e62ac981deb` at shaping time, current PR ranges/status, and Runtime CI results on the planning branch.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
 
 - Environment / target: documentation/planning only.
-- Ordered procedure: recover current state -> reconcile existing work -> classify remaining items -> order next waves -> publish draft PR -> verify integration topology and review sequence.
+- Ordered procedure: recover current state -> reconcile existing work -> classify remaining items -> order next waves -> publish draft PR -> verify integration topology/review sequence -> consume bounded independent archaeology -> fold only genuinely new evidence.
 - Failure branches: if a legacy item cannot be mapped confidently, mark `AUDIT REMAINS/UNKNOWN`; do not invent a disposition.
 - Rollback / recovery: planning branch can be abandoned without runtime effect.
 - Security / privacy controls: do not copy raw sensitive legacy content; reference IDs/paths and summarized evidence only.
 - External side effects: GitHub branch/draft PR only.
-- Effort limit: stop once the reconciliation map, index, and necessary integration guidance are complete; do not implement feature work in this task.
-- Approved reference: existing master roadmap and migration audit/backlog.
+- Effort limit: stop broad archaeology once major candidate-bearing collections are classified and remaining unsupported chains are explicitly `UNKNOWN`; do not implement feature work in this task.
+- Approved reference: existing master roadmap, migration audit/backlog, and PR #37 as research evidence only.
 
 ## Stop / escalate
 
 Stop rather than guess if a recovered candidate appears to require a new source of authority, if current PR behavior materially conflicts with the preserved invariant, or if an unresolved legacy chain changes the critical path.
 
-Escalate to: operator for architecture/authority decisions; parallel archaeology task for unresolved historical evidence.
+Escalate to: operator for architecture/authority decisions; targeted research only when an `UNKNOWN` legacy chain materially affects a concrete decision.
 
 ## AGI readiness
 
@@ -71,14 +73,17 @@ Escalate to: operator for architecture/authority decisions; parallel archaeology
 ## Notes / decisions
 
 - This task creates a reconciliation layer under the existing master roadmap; it does not create a competing master roadmap.
-- A second agent may independently mine unresolved legacy evidence but must not edit this roadmap during the parallel pass.
+- The parallel archaeology branch remained non-conflicting and produced PR #37 as research/planning evidence only.
+- PR #37 found one genuinely new candidate: risk-triggered user-visible acquisition-path verification. It is preserved as `TRIGGERED/LATER`, not inserted into the lineage/evaluation critical path and not expanded into a general artifact registry.
+- PR #37 otherwise sharpened existing NEXT A/B/C/D/E candidates and reinforced existing do-not-revive decisions; `SYN-0004` and `EXP-0007` remain explicit `UNKNOWN`.
+- Broad active archaeology can now pause; future legacy retrieval should be targeted to a concrete decision rather than restarted as a general project.
 - The next recommended implementation path is truth/evidence first: accept/reshape current draft stacks -> explicit lineage/communication coverage -> explainable waits/full evidence views -> Context Builder v2 evidence integrity -> complete Layer 2/3 evaluation -> controlled operational learning.
-- Root PRs #20, #25, #28, #32, #33 and #36 are currently path-disjoint; downstream #30 and #32 both compose `runtime/state/schema.sql` and `runtime/state/store.py`. Patch/MRO inspection found them structurally cooperative, but whichever lands second still needs real synchronization, fresh CI and final review on the integrated delta.
+- Root PRs #20, #25, #28, #32, #33 and #36 are path-disjoint at the recorded checkpoint; downstream #30 and #32 both compose `runtime/state/schema.sql` and `runtime/state/store.py`. Patch/MRO inspection found them structurally cooperative, but whichever lands second still needs real synchronization, fresh CI and final review on the integrated delta.
 - #33 already projects optional environment evidence and immutable review subjects from enriched traces while keeping missing communication/session/helper/recovery lineage explicit.
 
 ## Completion / handoff
 
-- Completed: current state recovery, reconciliation map, roadmap-index link, owner verification, stacked-review/integration sequence, cross-stack overlap preflight, and Run Record enrichment compatibility check.
-- Not completed: independent review; incorporation of genuinely new findings from the parallel archaeology report if any.
-- Current blocker: independent review only.
-- Next action if not DONE: independently review/integrate PR #20 first; separately review PR #36; fold only genuinely new archaeology evidence into the reconciliation/master roadmap after the parallel report is published.
+- Completed: current state recovery, reconciliation map, roadmap-index link, owner verification, stacked-review/integration sequence, cross-stack overlap preflight, Run Record enrichment compatibility check, and reconciliation of PR #37's independent archaeology findings.
+- Not completed: independent review of PR #36; independent integration reviews/merges for implementation PRs.
+- Current blocker: independent review only for this planning task.
+- Next action if not DONE: independently review/integrate PR #20 first; independently review PR #36; preserve PR #37 as research evidence and avoid restarting broad archaeology unless a concrete unresolved claim materially affects a decision.
