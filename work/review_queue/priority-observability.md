@@ -4,6 +4,9 @@
 - PR: `#19`
 - Implementation commits: `13d1e11ce3078edbd270925acf244d2fb9686281`, `0776a6b45490d85487c725474e9d3bbf600524da`
 - Task record: `work/tasks/priority-observability.md`
+- CI evidence: Runtime stack tests run `31886183653` passed every job step,
+  including legacy-dependency validation, compile, Ruff fatal checks, Bandit,
+  dependency consistency, unit tests, LangGraph smoke, and installer validation.
 
 ## Review scope
 
@@ -44,14 +47,12 @@ Review the referenced PR revision, especially:
 
 ## Verification state
 
-Focused tests were added. Full repository CI had not run when this packet was
-queued because the workflow did not trigger for arbitrary PR branches. A
-separate queued change enables normal pull-request CI; record its result here
-when available.
+Full pull-request CI is now enabled. Run `31886183653` passed the first tranche;
+later PR heads should remain green before review approval.
 
 ## Known/deferred work
 
 - hcom/recovery/helper/escalation correlation is not in trace v1;
-- outcome feedback is a separate next tranche;
+- outcome feedback is implemented as a separate queued tranche;
 - hard evidence-freshness enforcement needs immutable revision/artifact binding
   or review-time re-derivation and is not faked with a checkbox.
