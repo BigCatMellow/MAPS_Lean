@@ -1,6 +1,6 @@
 # Task: Agent Skills format foundation
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,24 +27,24 @@
 
 ## Acceptance criteria
 
-- [ ] immediate child directories containing `SKILL.md` can be discovered deterministically.
-- [ ] `SKILL.md` requires frontmatter with non-empty `name` and `description`.
-- [ ] common scalar quoting and block-scalar descriptions are supported without introducing a new YAML dependency solely for v1 discovery.
-- [ ] unrelated/nested custom metadata is tolerated but not interpreted as authority or executable state.
-- [ ] discovery returns compact descriptors without loading the procedure body through the activation path.
-- [ ] every descriptor contains a deterministic SHA-256 identity over all regular files in the Skill directory.
-- [ ] scripts/references/assets/examples and other resources are inventoried but never executed by this layer.
-- [ ] symlinked Skill roots/resources are rejected in v1 to prevent path/provenance ambiguity.
-- [ ] duplicate Skill names are rejected within one catalog root.
-- [ ] `load_skill()` rechecks the complete content hash and refuses activation after drift until rediscovery.
-- [ ] no routing, Skill approval, trust promotion, capability grant, or task authority is added.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] immediate child directories containing `SKILL.md` can be discovered deterministically.
+- [x] `SKILL.md` requires frontmatter with non-empty `name` and `description`.
+- [x] common scalar quoting and block-scalar descriptions are supported without introducing a new YAML dependency solely for v1 discovery.
+- [x] unrelated/nested custom metadata is tolerated but not interpreted as authority or executable state.
+- [x] discovery returns compact descriptors without loading the procedure body through the activation path.
+- [x] every descriptor contains a deterministic SHA-256 identity over all regular files in the Skill directory.
+- [x] scripts/references/assets/examples and other resources are inventoried but never executed by this layer.
+- [x] symlinked Skill roots/resources are rejected in v1 to prevent path/provenance ambiguity.
+- [x] duplicate Skill names are rejected within one catalog root.
+- [x] `load_skill()` rechecks the complete content hash and refuses activation after drift until rediscovery.
+- [x] no routing, Skill approval, trust promotion, capability grant, or task authority is added.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_skills_format -v` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: PR diff, GitHub Actions run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31895948075` passed on implementation commit `0de3ac7535ba84b51a4b3d2a498473d4a0b8e384`.
+- Evidence to preserve: GitHub Actions run `31895948075`, PR #25 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -88,7 +88,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation and focused tests prepared for commit on `agent/skills-format-wave2`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit the tranche, open a draft PR against `main`, and run full Runtime stack CI.
+- Completed: Skills format/discovery foundation, focused tests, draft PR #25, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion, but downstream stacked Skills work may continue against this verified head.
+- Next action if not DONE: independent review of PR #25; stack S3 catalog/provenance read-model work on the verified Skills implementation head.
