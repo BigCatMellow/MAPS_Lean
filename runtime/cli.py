@@ -95,6 +95,32 @@ def build_parser() -> argparse.ArgumentParser:
     review_record.add_argument('verdict', choices=['APPROVED', 'CHANGES_REQUESTED', 'BLOCKED'])
     review_record.add_argument('--summary', required=True)
 
+    outcome_record = sub.add_parser(
+        'outcome-record',
+        help='append a post-completion real-world outcome observation',
+    )
+    outcome_record.add_argument('task_id')
+    outcome_record.add_argument(
+        'outcome_status', choices=['SUCCESS', 'PARTIAL', 'FAILURE', 'UNKNOWN']
+    )
+    outcome_record.add_argument('--source', required=True)
+    outcome_record.add_argument(
+        '--actor-class',
+        default='UNKNOWN',
+        choices=['OPERATOR', 'CORE_AGENT', 'HELPER', 'SYSTEM', 'UNKNOWN'],
+    )
+    outcome_record.add_argument('--actor-id', default='')
+    outcome_record.add_argument('--run-id')
+    outcome_record.add_argument('--failure-class', default='')
+    outcome_record.add_argument('--escaped-defect', action='store_true')
+    outcome_record.add_argument('--rework-count', type=int, default=0)
+    outcome_record.add_argument('--operator-intervention-count', type=int, default=0)
+    outcome_record.add_argument('--notes', default='')
+    outcome_record.add_argument('--supersedes', type=int)
+
+    outcomes = sub.add_parser('outcomes', help='show append-only outcome history')
+    outcomes.add_argument('task_id')
+
     events = sub.add_parser('events', help='show task event history')
     events.add_argument('task_id')
 
@@ -156,6 +182,23 @@ def main(argv: list[str] | None = None) -> int:
             args.verdict,
             args.summary,
         ))
+    if args.command == 'outcome-record':
+        return _emit(store.record_outcome(
+            args.task_id,
+            args.outcome_status,
+            source=args.source,
+            actor_class=args.actor_class,
+            actor_id=args.actor_id,
+            run_id=args.run_id,
+            failure_class=args.failure_class,
+            escaped_defect=args.escaped_defect,
+            rework_count=args.rework_count,
+            operator_intervention_count=args.operator_intervention_count,
+            notes=args.notes,
+            supersedes_outcome_id=args.supersedes,
+        ))
+    if args.command == 'outcomes':
+        return _emit(store.list_outcomes(args.task_id))
     if args.command == 'events':
         return _emit(store.list_events(args.task_id))
     if args.command == 'reviews':
