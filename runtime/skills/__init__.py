@@ -40,8 +40,8 @@ from .gate import (
     SkillGateFinding,
     SkillGateReport,
     SkillGateSeverity,
-    assess_skill,
 )
+from .gate_hardened import assess_skill
 
 __all__ = [
     "SkillAmbiguousError",
