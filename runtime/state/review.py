@@ -178,6 +178,18 @@ class ReviewMixin:
                     )
 
             if verdict == "APPROVED":
+                # Preserve the established criterion-verification failure order.
+                # Once criterion mode is complete, a later review-binding hook may
+                # derive the overall subject from the same confirmed run evidence.
+                criterion_issues = self._criterion_approval_issues_conn(conn, task_id)
+                if criterion_issues:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "CRITERION_VERIFICATION_INCOMPLETE",
+                        "; ".join(criterion_issues),
+                    )
+
                 approval_hook = getattr(self, "_validate_review_approval_conn", None)
                 if callable(approval_hook):
                     issue = approval_hook(
@@ -191,15 +203,6 @@ class ReviewMixin:
                         conn.rollback()
                         code, message = issue
                         return MutationResult(False, code, message)
-
-                criterion_issues = self._criterion_approval_issues_conn(conn, task_id)
-                if criterion_issues:
-                    conn.rollback()
-                    return MutationResult(
-                        False,
-                        "CRITERION_VERIFICATION_INCOMPLETE",
-                        "; ".join(criterion_issues),
-                    )
 
             new_status = {
                 "APPROVED": "DONE",

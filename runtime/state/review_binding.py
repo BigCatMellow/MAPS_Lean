@@ -249,6 +249,87 @@ class ReviewBindingMixin:
             ).fetchone()
         return self._decode_review_subject(row)
 
+    def _derive_subject_from_confirmed_criteria_conn(
+        self,
+        conn: sqlite3.Connection,
+        *,
+        task: sqlite3.Row,
+        submission: sqlite3.Row,
+        review: sqlite3.Row,
+    ) -> sqlite3.Row | None:
+        """Derive one exact run subject from fully confirmed criterion evidence.
+
+        ReviewMixin calls this only after `_criterion_approval_issues_conn()` has
+        returned no issues, so the latest claim for every participating criterion
+        is complete and confirmed inside the same transaction.
+        """
+
+        latest_claims = conn.execute(
+            """
+            SELECT c.*
+            FROM submission_criterion_claims AS c
+            JOIN (
+                SELECT criterion_id, MAX(id) AS max_id
+                FROM submission_criterion_claims
+                WHERE task_id = ? AND submission_count = ?
+                GROUP BY criterion_id
+            ) AS latest ON latest.max_id = c.id
+            ORDER BY c.criterion_id
+            """,
+            (task["task_id"], submission["submission_count"]),
+        ).fetchall()
+        if not latest_claims:
+            return None
+
+        current_revision = self._task_revision_conn(conn, task["task_id"])
+        revisions = {claim["task_revision"] for claim in latest_claims}
+        run_ids = {claim["run_id"] for claim in latest_claims}
+        if revisions != {current_revision}:
+            return None
+        if None in run_ids or len(run_ids) != 1:
+            return None
+
+        run_id = next(iter(run_ids))
+        run = conn.execute(
+            "SELECT * FROM run_manifests WHERE run_id = ?",
+            (run_id,),
+        ).fetchone()
+        if (
+            run is None
+            or run["task_id"] != task["task_id"]
+            or run["task_revision"] != current_revision
+        ):
+            return None
+
+        conn.execute(
+            """
+            INSERT INTO review_subjects(
+                review_id, task_id, submission_count, task_revision,
+                run_id, artifact_refs, freshness_mode, bound_by, created_at
+            ) VALUES (?, ?, ?, ?, ?, '[]', 'REVISION_BOUND', ?, ?)
+            """,
+            (
+                review["id"],
+                task["task_id"],
+                submission["submission_count"],
+                current_revision,
+                run_id,
+                review["reviewer_id"],
+                iso_z(utc_now()),
+            ),
+        )
+        self._append_event(
+            conn,
+            task["task_id"],
+            "REVIEW_SUBJECT_BOUND",
+            review["reviewer_id"],
+            f"review {review['id']} subject derived from confirmed criterion evidence",
+        )
+        return conn.execute(
+            "SELECT * FROM review_subjects WHERE review_id = ?",
+            (review["id"],),
+        ).fetchone()
+
     def _validate_review_approval_conn(
         self,
         conn: sqlite3.Connection,
@@ -263,6 +344,13 @@ class ReviewBindingMixin:
             (review["id"],),
         ).fetchone()
         required = self._requires_bound_subject_conn(conn, task)
+        if subject_row is None and required:
+            subject_row = self._derive_subject_from_confirmed_criteria_conn(
+                conn,
+                task=task,
+                submission=submission,
+                review=review,
+            )
         if subject_row is None:
             if required:
                 return (
@@ -304,9 +392,15 @@ class ReviewBindingMixin:
 
         claims = conn.execute(
             """
-            SELECT task_revision, run_id
-            FROM submission_criterion_claims
-            WHERE task_id = ? AND submission_count = ?
+            SELECT c.task_revision, c.run_id
+            FROM submission_criterion_claims AS c
+            JOIN (
+                SELECT criterion_id, MAX(id) AS max_id
+                FROM submission_criterion_claims
+                WHERE task_id = ? AND submission_count = ?
+                GROUP BY criterion_id
+            ) AS latest ON latest.max_id = c.id
+            ORDER BY c.criterion_id
             """,
             (task["task_id"], submission["submission_count"]),
         ).fetchall()

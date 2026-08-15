@@ -143,6 +143,57 @@ class ReviewSubjectBindingTests(unittest.TestCase):
         self.assertTrue(approved.ok, approved.message)
         self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
 
+    def test_confirmed_criterion_evidence_derives_one_run_subject(self):
+        task_id, runs = self.submitted(
+            risk="HIGH",
+            criteria=["criterion one", "criterion two"],
+        )
+        criteria = self.store.list_acceptance_criteria(task_id)
+        claims = []
+        for criterion in criteria:
+            claim = self.store.record_criterion_claim(
+                task_id,
+                criterion["id"],
+                "complete",
+                author_id="author",
+                evidence_refs=["src/evidence.txt"],
+                repo_root=self.repo,
+                run_id=runs[0]["run_id"],
+            )
+            self.assertTrue(claim.ok, claim.message)
+            claims.append(claim.task["claim_id"])
+
+        review_id = self.claim(task_id)
+        for claim_id in claims:
+            verdict = self.store.record_criterion_verdict(
+                claim_id,
+                "confirmed",
+                reviewer_id="reviewer",
+            )
+            self.assertTrue(verdict.ok, verdict.message)
+
+        self.assertIsNone(self.store.get_review_subject(review_id))
+        approved = self.store.record_review(
+            task_id,
+            "reviewer",
+            "APPROVED",
+            "all criteria confirmed against one run",
+        )
+        self.assertTrue(approved.ok, approved.message)
+        subject = self.store.get_review_subject(review_id)
+        self.assertIsNotNone(subject)
+        self.assertEqual(subject["freshness_mode"], "REVISION_BOUND")
+        self.assertEqual(subject["run_id"], runs[0]["run_id"])
+        self.assertEqual(subject["artifact_refs"], [])
+        self.assertEqual(subject["task_revision"], self.store.compute_task_revision(task_id))
+        events = self.store.list_events(task_id)
+        event = next(
+            item
+            for item in events
+            if item["event_type"] == "REVIEW_SUBJECT_BOUND"
+        )
+        self.assertIn("derived from confirmed criterion evidence", event["summary"])
+
     def test_revision_bound_requires_run_or_immutable_ref(self):
         task_id, _ = self.submitted(risk="HIGH")
         self.claim(task_id)
