@@ -1,6 +1,6 @@
 # Task: append-only run environment evidence
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,25 +27,25 @@
 
 ## Acceptance criteria
 
-- [ ] existing `run_manifests` schema and immutable contract remain unchanged.
-- [ ] new run-environment evidence is append-only and keyed to an existing run.
-- [ ] each row preserves `spec_ref`, exact EnvironmentSpec hash, fingerprint hash, compatibility state, optional reference fingerprint hash, normalized spec snapshot, bounded fingerprint snapshot, derived compatibility snapshot, actor, and timestamp.
-- [ ] record path verifies fingerprint is bound to the supplied EnvironmentSpec and derives compatibility internally rather than accepting a caller-supplied verdict.
-- [ ] compatible, warning, drifted, incompatible, and unknown observations may all be recorded as evidence; recording any state does not authorize or block task execution by itself.
-- [ ] task status/claim/lease/heartbeat and immutable run manifest remain unchanged after evidence recording.
-- [ ] multiple observations append rather than replace prior evidence.
-- [ ] SQLite UPDATE/DELETE of environment evidence is blocked by triggers.
-- [ ] missing run and spec/fingerprint mismatch fail explicitly.
-- [ ] evidence persistence refuses snapshots/references that trigger the existing sensitive-text detector; it does not silently redact a hashed EnvironmentSpec snapshot.
-- [ ] existing read-only task trace includes environment evidence under the exact run through MRO composition, without making trace writable authority.
-- [ ] event summary records only run/evidence ID + compatibility state, not full snapshots.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] existing `run_manifests` schema and immutable contract remain unchanged.
+- [x] new run-environment evidence is append-only and keyed to an existing run.
+- [x] each row preserves `spec_ref`, exact EnvironmentSpec hash, fingerprint hash, compatibility state, optional reference fingerprint hash, normalized spec snapshot, bounded fingerprint snapshot, derived compatibility snapshot, actor, and timestamp.
+- [x] record path verifies fingerprint is bound to the supplied EnvironmentSpec and derives compatibility internally rather than accepting a caller-supplied verdict.
+- [x] compatible, warning, drifted, incompatible, and unknown observations may all be recorded as evidence; recording any state does not authorize or block task execution by itself.
+- [x] task status/claim/lease/heartbeat and immutable run manifest remain unchanged after evidence recording.
+- [x] multiple observations append rather than replace prior evidence.
+- [x] SQLite UPDATE/DELETE of environment evidence is blocked by triggers.
+- [x] missing run and spec/fingerprint mismatch fail explicitly.
+- [x] evidence persistence refuses snapshots/references that trigger the existing sensitive-text detector; it does not silently redact a hashed EnvironmentSpec snapshot.
+- [x] existing read-only task trace includes environment evidence under the exact run through MRO composition, without making trace writable authority.
+- [x] event summary records only run/evidence ID + compatibility state, not full snapshots.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_run_environment_evidence -v` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: schema diff, PR diff, GitHub Actions run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31898071184` passed on implementation commit `cf47e82f58586091becc5d298f27833ae97f0aac`.
+- Evidence to preserve: schema diff, GitHub Actions run `31898071184`, PR #30 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -91,7 +91,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation prepared on `agent/environment-run-evidence-wave2`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit isolated E3 implementation, open stacked draft PR against `agent/environment-fingerprint-wave2`, and run full Runtime stack CI.
+- Completed: append-only run-environment evidence, trace projection, immutability/safety tests, draft PR #30, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion; no implementation blocker for unrelated/parallel roadmap work.
+- Next action if not DONE: independent review of PR #30; do not make compatibility an execution/recovery gate until a later guarded integration task explicitly defines that authority boundary.
