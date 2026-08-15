@@ -9,9 +9,9 @@ from .fingerprint import (
     ObservationState,
     VersionObservation,
     evaluate_environment_compatibility,
-    inspect_local_environment,
     version_satisfies,
 )
+from .safety import inspect_local_environment
 from .spec import (
     EnvironmentSpec,
     EnvironmentSpecError,
