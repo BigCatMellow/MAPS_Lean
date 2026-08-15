@@ -47,11 +47,13 @@ Never infer promotion from repeated citation. A legacy proposal, audit note, roa
 At this reconciliation checkpoint:
 
 - `main` is the merged PR #19 baseline (`086e066f723d793273441dd52b500e62ac981deb` when this task started);
-- PRs #20-#35 are open draft development;
-- review remediation found during the 2026-08-15 pass was fixed on the affected branches and current-head Runtime CI passed;
-- those draft PRs still require valid independent review before their behavior can be treated as accepted `main` authority.
+- PRs #20-#35 are open draft implementation work;
+- PR #36 is this planning reconciliation;
+- PR #37 is the bounded parallel legacy-archaeology evidence report;
+- review remediation found during the 2026-08-15 pass was fixed on the affected implementation branches and current-head Runtime CI passed at the recorded checkpoints;
+- draft implementation PRs still require valid independent review before their behavior can be treated as accepted `main` authority.
 
-Do not trust the SHA/status lines above after time has passed; re-check GitHub before implementation.
+Do not trust SHA/status lines in planning prose after time has passed; re-check GitHub before implementation or review.
 
 ---
 
@@ -72,6 +74,7 @@ These should not be rebuilt as new systems. Future work should extend the accept
 | Atomic review claiming / durable authorship / continuity-aware independence | current review lifecycle already mechanically protects these properties | `MERGED / SOLVED` | Preserve as regression invariant |
 | RnS suppression of invalid/terminal recovery | current recovery already respects canonical task/claim reality | `MERGED / SOLVED` | Preserve as regression invariant |
 | One-fact/one-authority rule | active operating/architecture invariant | `MERGED / SOLVED` | New subsystems must derive or reference rather than duplicate |
+| Shaping-time contract correction | `update_contract()` allows transactional correction while shaping/blocked, then freezes active/reviewed work | `MERGED / SOLVED` | Preserve correction-path invariant; do not recreate legacy write-once path bureaucracy |
 
 ---
 
@@ -198,10 +201,10 @@ Reconciliation status: `IN OPEN PR`.
 
 Still not solved:
 
-- user-visible release/acquisition-path verification as a general system;
+- user-visible release/acquisition-path verification;
 - broader artifact registry (not automatically desirable).
 
-Do not add an artifact registry merely for convenience unless repeated need demonstrates it.
+The parallel archaeology pass confirmed the first item is a real historical failure mode (`INS-0005 → IDEA-0005 → PROMO-0005 → TASK-078`): source could be fixed while a stale user-visible ZIP remained the actual acquisition path. Preserve this as a narrow risk-triggered review capability, not as a reason to build a general artifact registry.
 
 ## 4.5 Run Records, incident freezing and comparative evaluation — PRs #33-#35
 
@@ -250,6 +253,40 @@ Still not solved:
 - proposal/promotion lifecycle;
 - operational lesson lifecycle.
 
+Integration note: #33 already accepts optional environment evidence and immutable review-subject trace enrichments while preserving missing communication/session/helper/recovery coverage as `MISSING`/`UNKNOWN`. Those later enrichments do not require turning Run Record into a new authority store.
+
+## 4.6 Parallel archaeology reconciliation — PR #37
+
+The bounded independent archaeology report on PR #37 found **one new Lean-native candidate** and otherwise sharpened existing candidates.
+
+New candidate:
+
+- risk-triggered **user-visible acquisition-path verification** for tasks that actually publish/package/install/expose something to an operator or user.
+
+Folded into existing work:
+
+- `INS-0034`: reviewer drops, duplicate work and unexplained waits strengthen NEXT A/B lineage/communication priority;
+- `INS-0037`: process liveness must be distinguished from provider/API readiness;
+- `INS-0032`: promoted lessons need selective applicability projection, not inert prose;
+- `INS-0056`: observations from explicitly non-task/operator-directed work may enter learning as non-authoritative candidates without importing that work into task authority;
+- `INS-0061`: evidence references must resolve to the exact subject/event they claim;
+- `INS-0023`: end-to-end evaluation needs at least one real external/operator-visible workflow, not only internal synthetic lifecycle exercises;
+- `INS-0051` / `IDEA-0030`: helper `NO_PROGRESS` should remain progress-sensitive and advisory, not fixed-timeout/auto-kill machinery.
+
+Historical negative evidence reinforced:
+
+- `EXP-0006` remains `REVISE`, not validation of the lexical retriever;
+- permanent supervisor/blackboard identity, process watchers, old sentinel heuristics, remote-authority/classifier coupling and legacy agents-table ownership machinery should not be restored wholesale.
+
+Explicit unresolved records:
+
+- `SYN-0004` remains `UNKNOWN`: its body still lacks enough linked IDs/evidence to establish what fix was approved/lost/recovered;
+- `EXP-0007` remains `UNKNOWN`: status `PROPOSED`, result pending; it is not validation of a startup idea-scouting cadence.
+
+The checked-in aggregate legacy task graph did not expose current `RETIRED`, `ABANDONED`, `BLOCKED`, or `READY` task states during the bounded pass. Do not invent abandoned-task cases merely to satisfy an archaeology checklist.
+
+This report is enough to **pause broad active archaeology**. Future archaeology should be targeted only when a concrete unresolved claim such as `SYN-0004` materially affects a decision. `UNKNOWN` is an acceptable final evidence state when the archive does not support a stronger conclusion.
+
 ---
 
 # 5. What should come next
@@ -262,7 +299,7 @@ Priority: `NEXT / P1` after relevant harness branches are accepted or their fina
 
 Problem:
 
-Current evidence can identify task/run facts, but full reconstruction still cannot reliably answer which provider session/helper/recovery replacement produced each action without gaps.
+Current evidence can identify task/run facts, but full reconstruction still cannot reliably answer which provider session/helper/recovery replacement produced each action without gaps. Legacy evidence also shows reviewer/request drops and “process alive but provider blocked” states create coordination failures that liveness alone cannot explain.
 
 Smallest target:
 
@@ -273,6 +310,7 @@ task
 → provider session binding
 → helper/child invocation
 → recovery/replacement link
+→ request/thread/addressee correlation where authoritative
 → operation/evidence refs
 → submission
 ```
@@ -282,8 +320,10 @@ Requirements:
 - reuse canonical run/task/session/helper sources; no second authority database;
 - explicit stable identifiers rather than timestamp/name inference;
 - late attachment/replacement needs explicit reconciliation semantics;
+- distinguish provider/API readiness from mere process/session existence;
 - Run Record/trace must state `MISSING`/`UNKNOWN` coverage honestly;
-- communication coverage must say which source was queried and whether attribution is complete.
+- communication coverage must say which source was queried and whether attribution is complete;
+- request/reviewer/thread lineage should be reconstructable where the source system provides authoritative metadata.
 
 Unlocks:
 
@@ -305,10 +345,11 @@ who/what it is waiting on
 source request/thread/message ID
 request time
 known resume condition
+provider/API readiness state when known
 UNKNOWN where not derivable
 ```
 
-Do not create a new wait authority plane or infer human intent from arbitrary message prose.
+A live process/session does not prove provider/API readiness, ownership, authority, or progress. Do not create a new wait authority plane or infer human intent from arbitrary message prose.
 
 ## NEXT C — Context Builder v2 evidence integrity
 
@@ -321,10 +362,12 @@ Preserve from legacy:
 - temporal/historical attribution;
 - proof role;
 - positive evidence and negative boundaries separately;
-- source-drift reporting;
+- source-drift reporting against frozen hashes;
 - frozen holdouts;
 - paraphrase/vocabulary-shift cases;
-- abstention/no-answer quality.
+- abstention/no-answer quality;
+- evidence references that mechanically resolve to the exact claimed event/anchor;
+- acceptable-substitute credit only when that substitute was actually retrieved/proven, never because it would have been acceptable in theory.
 
 Start with evidence-card **integrity**, not another retrieval algorithm.
 
@@ -368,6 +411,8 @@ orientation
 → post-completion outcome
 ```
 
+At least one Layer 3/end-to-end case must represent a **real external or operator-visible workflow**, not only an internal synthetic MAPS lifecycle round trip. This preserves the legacy lesson that inward infrastructure can look healthy while failing to demonstrate useful external work.
+
 No single metric/layer proves the system improved.
 
 ## NEXT E — Controlled operational-learning lifecycle
@@ -382,6 +427,7 @@ operational observation/outcome
 → evidence/provenance
 → independent review/promotion
 → scoped active guidance
+→ selective projection when applicable
 → expiry/review-at
 → supersession/retirement
 ```
@@ -392,6 +438,8 @@ Hard boundaries:
 
 - observation is not policy;
 - candidate lesson is not active guidance;
+- promoted guidance must surface only where its applicability trigger matches rather than becoming permanent prompt clutter;
+- observations may come from explicitly non-task/operator-directed work, but enter only as non-authoritative candidate evidence and do not import that work into task governance;
 - temporary workarounds must expire;
 - superseded guidance must stop projecting into startup/context;
 - do not create a second policy database in disguise.
@@ -404,9 +452,10 @@ These capabilities remain useful options, but building them now would violate Le
 
 | Candidate | Trigger before implementation | Initial boundary |
 |---|---|---|
+| User-visible acquisition-path verification | task actually publishes/packages/installs/exposes an operator/user acquisition path, or repeated release-path failures justify a reusable review check | enumerate real reachable acquisition paths and verify them against intended immutable content/revision; derived review evidence only, no general artifact authority store |
 | Git worktree isolation | concurrent writable agents become common or collisions are observed | one writable run → one attributable worktree; explicit integration/cleanup |
 | Helper continuity | repeated same-task specialist reuse saves meaningful setup/context | task-scoped, TTL-bound, invalidated by incompatible revision/context |
-| Helper `NO_PROGRESS` | real alive-but-stuck cases recur enough to measure | advisory only; no auto-kill |
+| Helper `NO_PROGRESS` | real alive-but-stuck cases recur enough to measure | progress-sensitive advisory signal based on lack of meaningful advancement; measure false positives; no naive fixed timeout, auto-kill or auto-escalation |
 | Deterministic `maps flow` | a lifecycle sequence is repeated, stable and well understood | fixed guarded sequence, not another workflow engine |
 | Capability Packs | repeated Skill+tools+hooks+environment combinations become stable | packaging only; does not grant authority |
 | Credential broker | remote/external execution needs secrets often enough for ad-hoc injection to become material risk | short-lived capability grants after canonical policy/scope checks |
@@ -434,6 +483,8 @@ Use after major phases/releases when useful:
 - no idea quota;
 - no automatic implementation.
 
+`EXP-0007` does **not** validate a fixed startup cadence; its result is pending. Do not cite it as evidence for a 14-day or other mandatory schedule.
+
 ## 7.2 System-adherence audit
 
 Use periodically after substantial infrastructure changes to ask:
@@ -447,7 +498,7 @@ Is a documented mechanism silently bypassed?
 
 Findings enter normal task/review channels. The auditor does not silently repair or become process authority.
 
-The parallel legacy-archaeology agent is an example of a bounded pass, not a proposal for a permanent archaeology/discovery worker.
+The parallel legacy-archaeology pass is itself an example of a bounded procedure, not a proposal for a permanent archaeology/discovery worker.
 
 ---
 
@@ -487,6 +538,8 @@ how superseded/retired
 
 Prefer executed/computed behavioral properties in isolation. Do not rely on source-string spelling unless the text itself is the property.
 
+Privileged/cross-host lifecycle mutation deserves a security-framed review that separately considers trust binding and concurrency/atomicity; legacy `INS-0059` records real review catches in both areas.
+
 ## 8.5 Review policy changes require measurement
 
 Do not weaken or strengthen independent review because of hypothetical validators or intuition. Use review-catch rate, escaped defects, rework, intervention, and validator-quality evidence.
@@ -494,6 +547,10 @@ Do not weaken or strengthen independent review because of hypothetical validator
 ## 8.6 Precondition ordering should become deterministic only when real
 
 If a repeated process genuinely requires A before B, make the ordering mechanically visible. Do not add ceremony for dependencies Lean has already eliminated.
+
+## 8.7 Evidence attribution is part of correctness
+
+A correct aggregate count is not enough when its evidence references point to the wrong event/subject. Consequential evidence should be testable for both value **and attribution**.
 
 ---
 
@@ -504,6 +561,8 @@ These directions are explicitly excluded absent new evidence strong enough to re
 ## 9.1 Legacy lexical claim-card retriever
 
 Legacy `EXP-0006` ended `REVISE` and did not validate the old lexical retrieval implementation. Preserve exact anchors, hashes, drift reporting, temporal attribution, explicit negatives, frozen holdouts and blind scoring—not the retriever.
+
+The bounded archaeology pass reconfirmed the poor treatment results: `17/41` exact-source accuracy, `7/41` anchored-evidence accuracy, and `2/5` negative abstention, plus later source-drift and substitute-credit corrections. Do not turn these failed metrics into retrospective validation.
 
 ## 9.2 Permanent discovery/process-police agents
 
@@ -539,29 +598,46 @@ not
 measurement → authority
 ```
 
+## 9.9 Legacy supervisor/blackboard/swarm identity
+
+Preserve durable state, explicit gates and handoff evidence; do not recreate an all-encompassing supervisor/blackboard subsystem identity around mechanisms Lean already separates cleanly.
+
+## 9.10 Legacy sentinel/watcher heuristics and remote-authority coupling
+
+Do not revive:
+
+- old emergence-sentinel aggregate heuristics that confused mechanism-emitted events with task-level blockers/rework;
+- remote authority-host/classifier coupling;
+- agents-table ownership/FK machinery that current Lean does not need;
+- release-time “emergence considered” checkbox as discovery machinery.
+
+Preserve only their failure lessons: typed actor/subject attribution, safety denial is not a transient network error, validate mutation inputs, and ceremony is not evidence.
+
 ---
 
-# 10. Historical audit work still open
+# 10. Historical audit status after the bounded parallel pass
 
-The legacy audit explicitly does **not** claim every legacy file/task was deep-read.
+The legacy audit never claimed every legacy file/task was deep-read. The follow-up PR #37 specifically covered the unresolved/system-relevant Insights/Syntheses/experiments and direct task/promotion chains called out by the audit.
 
-A parallel non-conflicting archaeology pass should continue to inspect:
+Current residual `AUDIT REMAINS` is narrow:
 
-1. unresolved MAP-relevant Insights/Syntheses marked RAW/OPEN/CANDIDATE/PARKED;
-2. ambiguous/incomplete promotions and whether downstream tasks actually shipped;
-3. RETIRED/abandoned MAP-system task chains for lost versus superseded behavior;
-4. referenced research/planning/artifacts only when they support an unresolved reusable MAPS claim.
+1. `SYN-0004` — incomplete/TBD chain; exact approved/lost/recovered mechanism remains unsupported by the inspected evidence.
+2. `EXP-0007` — proposed startup discovery cadence with `result: pending`; not validated evidence.
+3. Any future legacy claim discovered while implementing a current capability that materially conflicts with the current invariant/candidate map.
 
-Every new result must resolve to one of:
+Broad archaeology should now stop. Re-open targeted archaeology only when one of those unknowns would materially change architecture, authority, safety, or implementation priority.
+
+Future results still resolve to one of:
 
 ```text
 RECOVER AS CANDIDATE
 FOLD INTO EXISTING CANDIDATE
 ALREADY SOLVED IN LEAN
 HISTORICAL / DO NOT REVIVE
+UNKNOWN / AUDIT REMAINS
 ```
 
-Until that bounded pass reports, unknown historical items remain `AUDIT REMAINS`; they do not block the already-evidenced next steps unless they reveal a material conflicting invariant.
+Unknown historical items do not block already-evidenced work unless they reveal a material conflicting invariant.
 
 ---
 
@@ -585,7 +661,7 @@ F. controlled operational-learning lifecycle
 G. candidate harness improvements only through frozen comparison + review
 ```
 
-Triggered scaling tracks (worktrees, persistent helpers, snapshots, credentials, capability packs, deterministic flows) branch off only when their own activation evidence exists.
+The user-visible acquisition-path check is a **risk-triggered side track**, not a prerequisite for lineage/evaluation. Triggered scaling tracks (worktrees, persistent helpers, snapshots, credentials, capability packs, deterministic flows) likewise branch off only when their own activation evidence exists.
 
 This ordering deliberately puts **truth/evidence before autonomy**.
 
@@ -593,14 +669,16 @@ This ordering deliberately puts **truth/evidence before autonomy**.
 
 # 12. Definition of legacy-recovery completion
 
-Legacy idea recovery is complete enough to stop active archaeology when all of the following are true:
+The bounded recovery program is now complete enough to pause broad active archaeology when judged against its intended scope:
 
-- [ ] major idea-bearing legacy collections have been reconciled to a durable classification;
-- [ ] unresolved MAP-relevant chains are either classified or explicitly `UNKNOWN` with a reason;
-- [ ] every surviving candidate is represented in this reconciliation map or explicitly folded into the master/detailed capability roadmaps;
-- [ ] already-solved behavior is marked so later agents do not rebuild it;
-- [ ] rejected/failed historical directions are named so they are not accidentally resurrected;
-- [ ] remaining implementation work has evidence/usage/repetition triggers and prerequisite order;
-- [ ] deletion/preservation of the top-level legacy tree remains a separate explicit operator decision and is not implied by roadmap completion.
+- [x] major idea-bearing legacy collections have a durable reconciliation path through the original audit plus the targeted parallel pass;
+- [x] unresolved MAP-relevant chains are classified or explicitly `UNKNOWN` with a reason (`SYN-0004`, `EXP-0007`);
+- [x] every surviving candidate found by the bounded pass is represented here or folded into an existing master/detailed candidate;
+- [x] already-solved behavior is marked so later agents do not rebuild it;
+- [x] rejected/failed historical directions are named so they are not accidentally resurrected;
+- [x] remaining implementation work has evidence/usage/repetition triggers and prerequisite order;
+- [x] deletion/preservation of the top-level legacy tree remains a separate explicit operator decision and is not implied by roadmap completion.
 
-When the parallel archaeology report lands, reconcile only genuinely new evidence into this map and the master roadmap. Do not restart the entire audit from chat history.
+This is **not** a claim that every historical file was semantically read line by line. It means additional broad archaeology has diminishing value relative to the now-classified implementation program. Targeted retrieval remains appropriate when a concrete future decision depends on unresolved historical evidence.
+
+PR #37 should remain preserved as research/planning evidence. Its findings do not become runtime authority merely because they were reconciled here.
