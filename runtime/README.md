@@ -12,6 +12,8 @@ Implemented components:
 - `runtime/context_builder.py` — disposable explicit context plan from task
   relationships, root authority, exact file hashes, and dependency state; no
   repository scan or semantic retrieval.
+- `runtime/status.py` — compact read-only operator projection of canonical task
+  counts, active claims, attention items, recent events, and outcome failures.
 - `runtime/policy/` — explicit task policy metadata, operator approvals, worker
   capability envelopes, and durable dispatch halt state.
 - `runtime/routing/` — deterministic route selection wrapped by LangGraph with
@@ -41,14 +43,15 @@ helpers     bounded delegated work
 integrity   frozen run contract + proof; no new authority
 outcomes    append-only later evidence; no task authority
 context     disposable explicit read plan; no task authority
+status      disposable operator read model; no task authority
 trace       disposable read model over canonical task DB records
 Markdown    durable human-readable record
 WezTerm     optional presentation
 ```
 
 A route, message, active session, recovery attempt, helper result, run manifest,
-outcome observation, context plan, or trace projection does not itself change
-task authority.
+outcome observation, context plan, status view, or trace projection does not
+itself change task authority.
 
 ## Mutable local state
 
@@ -211,6 +214,28 @@ Semantic supplementation, query expansion, or other retrieval should be added
 only after a frozen evaluation demonstrates benefit on paraphrase/vocabulary-
 shift queries and hard negatives. Current v1 answers the narrower question:
 **what exact context has the task already told us is authoritative or required?**
+
+## Status surface v1
+
+`python -m runtime.cli status` gives the operator a compact read-only view of the
+canonical task database. It is a read model, not a Command Center authority.
+
+It reports:
+
+- counts for every task lifecycle status;
+- active claimant, lease, heartbeat, and attempt information;
+- attention items for `READY_FOR_REVIEW`, `BLOCKED`, expired/missing ACTIVE
+  leases, and the latest post-completion `FAILURE` outcome for a task;
+- recent event IDs/types/actors/timestamps without copying free-text summaries;
+- explicit coverage gaps for hcom, recovery, and helper-run state.
+
+A later successful outcome removes an older post-completion failure from the
+current attention view because status uses the latest outcome observation while
+preserving the older append-only record in history.
+
+v1 deliberately does not poll, retry, kill, reassign, approve, recover, or infer
+state from communication. Those actions remain with their existing guarded
+runtime mechanisms.
 
 ## Routing and policy
 
