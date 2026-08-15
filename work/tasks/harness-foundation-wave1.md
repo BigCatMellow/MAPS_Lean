@@ -1,6 +1,6 @@
 # Task: Harness foundation Wave 1
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -28,17 +28,17 @@
 
 ## Acceptance criteria
 
-- [ ] `OperationResult` v1 explicitly distinguishes success/failure, mutation/read, complete/partial, evidence references, continuation, operation ID, and repeat-safety knowledge.
-- [ ] Provider-neutral session/binding/status types exist and preserve `UNKNOWN` rather than inferring missing state.
-- [ ] A narrow adapter protocol defines planned lifecycle operations without implementing provider behavior.
-- [ ] Harness contract does not depend on `TaskStore` or create a second authority store.
-- [ ] New unit tests pass and the repository Runtime stack CI remains green.
+- [x] `OperationResult` v1 explicitly distinguishes success/failure, mutation/read, complete/partial, evidence references, continuation, operation ID, and repeat-safety knowledge.
+- [x] Provider-neutral session/binding/status types exist and preserve `UNKNOWN` rather than inferring missing state.
+- [x] A narrow adapter protocol defines planned lifecycle operations without implementing provider behavior.
+- [x] Harness contract does not depend on `TaskStore` or create a second authority store.
+- [x] New unit tests pass and the repository Runtime stack CI remains green.
 - [ ] Changes receive independent review before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_harness_types -v`, full repository unit tests/Runtime stack CI, Python compile and existing CI checks.
-- Evidence to preserve: GitHub Actions run, PR diff, review result.
+- Verification: PR-triggered full Runtime stack CI run `31893719145` passed on code commit `5d408fc4c9fef165da3478e86bab3bd964470429`.
+- Evidence to preserve: GitHub Actions run `31893719145`, PR #20 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -81,7 +81,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation drafted on `agent/harness-foundation-wave1`; verification/review pending.
-- Not completed: CI and independent review.
-- Current blocker: none.
-- Next action if not DONE: publish the implementation commit and run CI.
+- Completed: typed harness foundation, focused unit coverage, full Runtime stack CI on the code commit.
+- Not completed: independent review / merge.
+- Current blocker: independent review required by the task contract.
+- Next action if not DONE: independent review of PR #20; then resolve findings or merge if approved.
