@@ -91,15 +91,376 @@ flows, and controlled learning** rather than rebuilding basic orchestration.
 
 | Priority | Candidate | Main value | Default disposition |
 |---|---|---|---|
+| P1 | Telemetry/event secret-safety boundary | Prevent observability from persisting sensitive material | Audit Lean before expanding telemetry |
 | P1 | Session replay / trace reconstruction | Explain exactly what happened | Preserve and simplify |
 | P1 | Outcome feedback and eval corpus | Distinguish passing MAPS from real success | Preserve and measure |
 | P1 | Context builder | Supply the smallest trustworthy context packet | Preserve principle; build narrowly |
+| P1 | Operational-learning promotion loop | Carry proven temporary lessons into future startup/context safely | Preserve as controlled learning |
 | P1 | Git worktree isolation | Prevent parallel agents colliding in one worktree | Lean synthesis; prototype when concurrency warrants |
 | P1 | Deterministic `maps flow` procedures | Remove routine bureaucracy from LLM reasoning | Add only for repeated stable procedures |
 | P2 | Small Mission Control / `maps status` | Give the operator one truthful attention surface | Read-only and minimal |
+| P2 | Helper dispatch no-progress signal | Distinguish slow work from stuck/silent work | Advisory experiment only |
 | P2 | Persistent helper continuity | Resume useful specialist context without durable authority | Defer until repeated need |
 | P2 | Controlled harness evaluation/refinement | Improve routing/instructions from measured history | Proposal-only; never self-authorizing |
 | P2 | Cost/yield and escaped-defect metrics | Optimize for useful outcomes, not activity | Add when enough runs exist to measure |
+| P2 | Risk-specific review lenses | Make reviewers explicitly inspect applicable failure classes | Lightweight review refinement |
+| P3 | Scoped temporary halt authority | Allow narrowly bounded safety intervention without permanent authority | Preserve only; high bar to promote |
+
+---
+
+# Recovered historical candidates — 2026-08-15 audit
+
+This section records ideas recovered during a deeper pass through legacy task,
+Emergence, experiment, and follow-up records after the first Lean backlog had
+already been created.
+
+The point of this section is not to revive every old task. It distinguishes:
+
+- genuinely missing candidates;
+- useful refinements of candidates already in this backlog;
+- old problems that Lean already solves and therefore should **not** be rebuilt.
+
+## A. Telemetry/event secret-safety boundary
+
+Legacy chain: `TASK-191` -> `TASK-200` -> `IDEA-0016`.
+
+The old redaction work deliberately left `events.jsonl` appenders outside its
+initial guard and recorded a follow-up to cover them later. `IDEA-0016` remained
+parked rather than rejected.
+
+The Lean translation should not restore the old file-specific mechanism. The
+preserved invariant is broader:
+
+> Any MAPS surface that durably stores task summaries, messages, traces,
+> recovery notes, diagnostic records, outcomes, or replay material should have a
+> defined secret-safety/redaction boundary.
+
+Why this matters now: replay, outcome recording, trace sampling, and richer
+operator status all increase observability. Expanding telemetry before defining
+how sensitive material is handled could multiply leakage surfaces.
+
+Smallest useful action:
+
+1. enumerate every durable event/trace/log write path in Lean;
+2. classify what user/agent content can enter each one;
+3. test representative secret-like values;
+4. decide whether protection belongs at one shared write boundary or at typed
+   callers;
+5. only then add new telemetry surfaces.
+
+Hard boundary: redaction must not silently corrupt evidence needed for audit.
+If a field must be removed, preserve enough metadata to say that content was
+redacted rather than pretending it never existed.
+
+Default disposition: **P1 audit candidate; do not blindly port legacy code.**
+
+## B. Three-layer evaluation discipline and incident taxonomy
+
+Legacy source: `IDEA-0018`.
+
+This refines the existing outcome/eval and controlled-harness candidates.
+Instead of one vague eval system, preserve three distinct layers:
+
+```text
+Layer 1 — mechanical regression
+Did the discrete gate/router/recovery/control behave correctly?
+
+Layer 2 — agent-quality regression
+Was the implementation, review, context packet, or recommendation actually good?
+
+Layer 3 — production trace/outcome sampling
+What failures occur in real MAPS use that our fixtures do not model?
+```
+
+Maintain a small incident taxonomy so repeated failures become measurable rather
+than anecdotal. Initial classes can remain intentionally coarse, for example:
+
+- tool-call/integration failure;
+- context omission or truncation;
+- runaway/retry loop;
+- routing error;
+- helper failure;
+- recovery failure;
+- review miss;
+- validator false positive / false negative;
+- operator intervention caused by system friction.
+
+Production incidents should feed new frozen regression cases rather than merely
+producing dashboards.
+
+Default disposition: **fold into Outcome Feedback / Eval Corpus and Controlled
+Harness Evaluation.**
+
+## C. Operational-learning promotion loop
+
+Legacy source: `IDEA-0022`.
+
+The historical failure was simple: MAP could discover and record a useful
+operational lesson without guaranteeing that a future agent would ever load it.
+
+Preserve the controlled mechanism, not an unlimited memory system:
+
+```text
+operational observation
+        ↓
+candidate lesson
+        ↓
+review / promotion
+        ↓
+active startup or task guidance
+        ↓
+expiry / supersession / retirement
+```
+
+This is distinct from the Context Builder and historical evals:
+
+- Context Builder asks: **what information does this task need?**
+- Operational Learning asks: **what currently applicable lesson did MAPS learn
+  from recent operation?**
+- Harness Evaluation asks: **which system configuration performs better over
+  historical cases?**
+
+Candidate record fields:
+
+```text
+lesson_id
+claim
+source incident/task/run
+promoted_by
+applicability / trigger
+starts_at
+expires_at or review_at
+supersedes
+status: candidate | active | expired | retired
+```
+
+Hard boundaries:
+
+- lessons do not become authority merely because an agent observed them;
+- temporary workarounds must be able to expire;
+- superseded guidance must stop appearing in startup/context projection;
+- the registry must not become a second policy system.
+
+Default disposition: **P1 preserved candidate.**
+
+## D. Exact claim/evidence projection for the Context Builder
+
+Legacy source: `IDEA-0023` / `EXP-0006` proposal.
+
+Whole-file retrieval can find the right document while still failing to identify
+the exact statement, section, code symbol, historical version, or negative
+boundary that answers the task.
+
+A later Context Builder experiment should therefore be able to produce
+disposable evidence cards such as:
+
+```text
+CLAIM
+Independent review cannot be performed by the submission author's continuity
+lineage.
+
+SOURCE
+runtime/state/review.py
+ReviewMixin.claim_review()
+
+PROOF ROLE
+active mechanical guard
+
+SOURCE HASH
+<hash>
+```
+
+Negative boundaries should be represented separately:
+
+```text
+BOUNDARY
+This source establishes current review eligibility but does not establish the
+historical state before the Lean migration.
+```
+
+Useful properties to preserve from the old proposal:
+
+- exact Markdown section or code-symbol anchors;
+- source hashes/watermarks;
+- explicit proof role;
+- positive evidence and negative boundaries stored/scored separately;
+- disposable, rebuildable projections;
+- independently frozen evaluation questions before treatment.
+
+Do **not** begin with embeddings, learned reranking, or a full knowledge graph.
+
+Default disposition: **fold into P1 Context Builder.**
+
+## E. Helper/dispatch no-progress signal
+
+Legacy source: `IDEA-0030`, backed by repeated silent helper/local-model stalls.
+
+RnS handles stopped sessions and retry/recovery. A different failure mode is a
+session that remains nominally alive but produces no observable progress.
+
+The first Lean experiment should remain advisory:
+
+```text
+dispatch helper
+      ↓
+no new status/event
+AND
+no output/terminal change
+for a bounded interval
+      ↓
+NO-PROGRESS advisory
+```
+
+Do not use a single naive wall-clock timeout because local model latency varies
+substantially. A signal should be based on absence of progress evidence, and it
+should start on one bounded dispatch surface before becoming general behavior.
+
+Possible integration point later:
+
+```text
+maps status
+
+HELPERS
+qwen-7b       TASK-042     working       38s
+aider-2       TASK-046     NO PROGRESS   11m
+```
+
+Hard boundaries:
+
+- advisory first;
+- no auto-kill in the initial experiment;
+- no new standing watcher-agent role;
+- false positives must be visible and measurable.
+
+Default disposition: **P2 experiment candidate.**
+
+## F. Replay must include communication coverage and completeness
+
+Historical task archaeology showed that replay designs can become misleading if
+they reconstruct task/database events while omitting hcom or other communication
+facts.
+
+Therefore the Session Replay candidate should explicitly answer:
+
+- which communication source(s) were queried;
+- whether communication records are complete for the requested period;
+- what messages/dispatches/acks are attributable to the task/run;
+- what evidence is unavailable or ambiguous.
+
+A replay that omits communication must say so. It must never render a clean,
+complete-looking timeline from only the sources it happened to understand.
+
+Default disposition: **fold into P1 Session Replay.**
+
+## G. Outcome records need explicit actor/operator provenance
+
+Historical operator-intervention work showed that generic messages are not a
+safe proxy for human/operator intent.
+
+When MAPS later records outcomes, intervention counts, overrides, or manual
+corrections, the record should distinguish explicit identities/intent rather
+than inferring them from arbitrary message text.
+
+At minimum preserve:
+
+```text
+actor identity
+actor class if known: operator | core agent | helper | system
+recorded intent / action type
+source record
+confidence or UNKNOWN when attribution is incomplete
+```
+
+Do not infer "human intervention" merely because an event looks unusual.
+
+Default disposition: **fold into P1 Outcome Feedback and metrics.**
+
+## H. Risk-specific review lenses
+
+Legacy source: `IDEA-0004`, created after an ordinary functional review missed
+a real CSRF/write-endpoint issue that a security-framed second pass caught.
+
+The durable lesson is not necessarily "always add another reviewer." It is:
+
+> A reviewer checks more effectively when the required risk questions are
+> explicit.
+
+A lightweight Lean form could attach lenses to medium/high-risk review:
+
+```text
+REVIEW LENSES
+[x] functional correctness
+[x] acceptance criteria
+[x] security / trust boundary
+[ ] destructive / data-loss
+[ ] privacy
+[ ] deployment / release path
+```
+
+One independent reviewer may satisfy multiple lenses when appropriate. A second
+reviewer should be required only when the risk itself justifies it.
+
+Default disposition: **P2 review-quality refinement.**
+
+## I. Scoped temporary halt authority
+
+Historical source: `TASK-201` halt-authority-window work.
+
+The useful concept is temporary, scoped safety authority rather than permanent
+validator power: a validator/system component may be allowed to halt a narrow
+class of execution for a defined window, while remaining telemetry-only by
+default.
+
+If Lean ever needs this, require:
+
+- disabled by default;
+- explicit scope;
+- explicit grantor;
+- start and expiry;
+- durable reason/evidence;
+- no authority expansion beyond the grant;
+- operator-controlled clearing for consequential halts.
+
+Lean already has durable halt state, so this is **not** a request for another
+halt subsystem. It is only a possible future delegation rule around the
+existing halt mechanism.
+
+Default disposition: **P3 preserve only; promote only after a concrete safety
+case demonstrates need.**
+
+## J. Historical candidates confirmed as already solved in Lean
+
+Do not re-add these as future work unless a new failure proves the current
+implementation insufficient.
+
+### Atomic review claiming
+
+Legacy `IDEA-0017` was promoted and implemented after chat-based review claims
+raced. Lean already uses mechanically claimed reviews.
+
+Disposition: **SOLVED — no new candidate.**
+
+### Durable submission authorship + no-self-review integrity
+
+`IDEA-0026` found that legacy no-self-review checks keyed off stale
+`tasks.owner`; its prerequisite `IDEA-0027` became `TASK-274` and durably
+recorded submission authorship.
+
+Lean goes further: review eligibility is checked against the durable submission
+author and continuity lineage, so a continuation identity cannot evade the
+independence rule.
+
+Disposition: **SOLVED/IMPROVED IN LEAN — preserve as regression invariant.**
+
+### RnS suppression of superseded/disposable sessions
+
+Legacy `IDEA-0009` was adopted to stop recovery from repeatedly waking sessions
+that were intentionally terminal or whose work was no longer valid.
+
+Lean recovery already suppresses terminal sessions and stops recovery when the
+task/claim no longer matches.
+
+Disposition: **SOLVED IN LEAN — preserve as regression invariant.**
 
 ---
 
@@ -166,6 +527,7 @@ Potential fields:
 - verification evidence;
 - recovery events;
 - review events;
+- communication/hcom coverage and completeness;
 - final outcome if known.
 
 ## Hard boundaries
@@ -177,7 +539,8 @@ The replay layer MUST:
 - be disposable/rebuildable;
 - never grant authority;
 - never become a second mutable task history;
-- report missing or contradictory evidence rather than silently repairing it.
+- report missing or contradictory evidence rather than silently repairing it;
+- state which communication sources were included or unavailable.
 
 ## Promotion trigger
 
@@ -237,6 +600,7 @@ failure_class
 rework_count
 operator_intervention_count
 escaped_defect
+actor / operator provenance when applicable
 notes/provenance
 ```
 
@@ -268,6 +632,15 @@ set containing representative:
 - review catches;
 - false-positive/false-negative validators.
 
+Use the recovered three-layer discipline:
+
+1. mechanical/unit regression on discrete controls;
+2. qualitative agent/review/context regression;
+3. production trace and outcome sampling.
+
+Maintain a small incident taxonomy and turn repeated real failures into frozen
+regression cases.
+
 The corpus should use frozen historical inputs and expected properties so that
 changes to prompts, routing, policies, helpers, and validators can be compared
 against the same cases.
@@ -279,7 +652,8 @@ Outcome data MUST NOT rewrite the original task history.
 Later knowledge is appended as later knowledge.
 
 An outcome label should record provenance because many outcomes require human
-or downstream-system judgment.
+or downstream-system judgment. Operator/human attribution should be explicit or
+`UNKNOWN`, not inferred from generic message text.
 
 ## Promotion trigger
 
@@ -368,6 +742,13 @@ Prefer:
 6. provenance-backed prior evidence;
 7. semantic retrieval only as a bounded supplement.
 
+## Exact evidence refinement
+
+After the file-level packet works, experiment with disposable claim/evidence
+cards containing exact sections or code symbols, source hashes, proof roles, and
+separate negative boundaries. Do not require embeddings or a full knowledge
+graph for the first version.
+
 ## What not to revive
 
 Do **not** recreate the old full Library/knowledge-management subsystem merely
@@ -385,10 +766,45 @@ canonical inputs.
 Evaluate against historical tasks:
 
 - required-fact recall;
+- exact-source/anchor recall when tested;
 - irrelevant-context reduction;
 - source visibility;
 - stale/superseded-source rejection;
+- negative-boundary/abstention quality;
 - task success/rework impact.
+
+---
+
+# P1 — Operational-learning promotion loop
+
+## Problem
+
+Operational lessons discovered during real work can remain trapped in task
+notes, incidents, or session continuity and therefore fail to affect later
+agents.
+
+## Smallest Lean version
+
+Create a narrow registry that can promote a proven operational lesson into
+startup/context guidance with explicit applicability, provenance, and expiry.
+
+```text
+observation -> candidate -> reviewed active lesson -> expiry/supersession
+```
+
+The projection into startup/context should be derived and rebuildable. The
+lesson registry must not become a second task or policy authority.
+
+## Promotion trigger
+
+Promote when the same operational mistake recurs because a prior documented
+lesson was not presented to the next applicable agent/task.
+
+## Proof
+
+A fresh agent/task should receive an active applicable lesson automatically,
+not receive an expired/superseded one, and be able to trace the lesson back to
+its source incident/task/run.
 
 ---
 
@@ -592,6 +1008,9 @@ TASK-036     DONE
 TASK-035     FAILED -> recovered
 ```
 
+A later version may surface advisory helper `NO PROGRESS` signals, but the
+status surface itself remains read-only.
+
 ## Design rule
 
 Mission Control is a **read model**, not a control authority.
@@ -603,6 +1022,34 @@ become canonical state.
 
 Promote when normal operation regularly requires several commands/files just to
 understand current system state.
+
+---
+
+# P2 — Helper dispatch no-progress signal
+
+## Problem
+
+A helper can remain nominally live while producing no observable progress. This
+is not the same as a stopped session and should not be handled by a naive fixed
+timeout.
+
+## Smallest Lean version
+
+Read-only/advisory pilot on one helper surface: flag a dispatch only when both
+status/event activity and output change have been absent for a bounded interval.
+
+## Hard boundaries
+
+- advisory first;
+- no automatic kill/escalation in the initial experiment;
+- no standing watcher-agent role;
+- record false positives;
+- keep the signal separate from task authority.
+
+## Promotion trigger
+
+Promote only after repeated live incidents show coordinators are spending real
+turns manually polling apparently-alive helpers.
 
 ---
 
@@ -687,6 +1134,10 @@ The key operation is **propose**, not silently mutate.
 - retry/recovery thresholds;
 - deterministic flow designs.
 
+Use the three-layer eval discipline described in the recovered historical
+section so configuration improvements are tested mechanically, qualitatively,
+and against sampled real outcomes/traces.
+
 ## Hard boundaries
 
 The refinement system MUST NOT:
@@ -736,10 +1187,58 @@ routing correction rate
 These should be interpreted together rather than collapsed prematurely into one
 magic score.
 
+Operator-intervention and actor metrics must use explicit provenance where
+available and `UNKNOWN` where attribution cannot be established safely.
+
 ## Promotion trigger
 
 Add only once enough homogeneous runs exist for the metric to mean something.
 A dashboard over five incomparable tasks is not evidence.
+
+---
+
+# P2 — Risk-specific review lenses
+
+## Problem
+
+A generic functional review can miss trust-boundary or safety problems even when
+the reviewer is competent. Historical MAP evidence showed that an explicitly
+security-framed pass found a real issue that the first pass missed.
+
+## Smallest Lean version
+
+For medium/high-risk tasks, make applicable review questions explicit without
+requiring a second reviewer by default.
+
+```text
+functional correctness
+acceptance criteria
+security / trust boundary
+privacy
+destructive / data-loss
+release / deployment path
+```
+
+Only activate lenses relevant to the task. Require additional independent
+reviewers only when the actual risk warrants them.
+
+---
+
+# P3 — Scoped temporary halt authority
+
+## Problem
+
+A monitoring/validation component may someday need narrowly delegated power to
+halt a dangerous execution class without gaining permanent broad authority.
+
+Lean already has durable halt state. This candidate concerns delegation around
+that existing mechanism, not a new halt subsystem.
+
+## Promotion trigger
+
+Only after a concrete safety incident demonstrates that telemetry-only behavior
+was insufficient and a bounded temporary grant would have materially reduced
+risk.
 
 ---
 
@@ -776,34 +1275,42 @@ This is an ordering of dependency/value, **not an approved roadmap**.
 CURRENT MAPS LEAN
        │
        ▼
+0. telemetry / secret-safety audit
+       │
+       ▼
 1. trace / session replay
        │
        ▼
 2. real outcome recording
        │
        ▼
-3. historical eval corpus + useful metrics
+3. three-layer historical eval corpus + useful metrics
        │
        ├───────────────┐
        ▼               ▼
 4. context builder   worktree isolation
        │               │
+       ▼               │
+5. operational learning
+       │               │
        └───────┬───────┘
                ▼
-5. deterministic flows for mature procedures
+6. deterministic flows for mature procedures
                │
                ▼
-6. small operator status surface
+7. small operator status surface
                │
                ▼
-7. controlled harness evaluation
+8. controlled harness evaluation
                │
                ▼
           refine.propose
 ```
 
-Persistent helper continuity can be evaluated independently when helper reuse
-becomes common enough to justify it.
+Helper no-progress detection and persistent helper continuity can be evaluated
+independently when helper usage produces enough evidence to justify them.
+Risk-specific review lenses can be adopted independently as a low-complexity
+review refinement if recurring misses justify the change.
 
 ---
 
@@ -854,11 +1361,15 @@ The useful unfinished direction is not "more agents" or "more orchestration."
 It is making MAPS increasingly able to:
 
 ```text
+protect what observability records
+        ↓
 reconstruct what happened
         ↓
 measure whether it actually worked
         ↓
 provide better bounded context
+        ↓
+carry forward proven operational lessons
         ↓
 isolate parallel execution
         ↓
