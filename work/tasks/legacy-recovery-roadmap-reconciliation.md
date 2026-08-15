@@ -1,6 +1,6 @@
 # Task: Legacy recovery roadmap reconciliation
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `PLANNING`
 - Owner: primary agent continuity
@@ -28,16 +28,16 @@
 
 ## Acceptance criteria
 
-- [ ] Every major legacy-derived candidate already preserved in the audit/backlog is mapped to `MERGED`, `IN OPEN PR`, `NEXT`, `TRIGGERED/LATER`, `DO NOT REVIVE`, or `AUDIT REMAINS`.
-- [ ] Current PR #20-#35 work is mapped to the recovered legacy capabilities it already satisfies or partially satisfies.
-- [ ] The next implementation sequence is explicit and avoids building on unresolved authority/evidence prerequisites.
-- [ ] The map explicitly preserves known rejected legacy directions, including the failed lexical claim-card retriever and duplicate control-plane architecture.
-- [ ] The roadmap index points to the reconciliation map without making it active authority.
+- [x] Every major legacy-derived candidate already preserved in the audit/backlog is mapped to `MERGED`, `IN OPEN PR`, `NEXT`, `TRIGGERED/LATER`, `DO NOT REVIVE`, or `AUDIT REMAINS`.
+- [x] Current PR #20-#35 work is mapped to the recovered legacy capabilities it already satisfies or partially satisfies.
+- [x] The next implementation sequence is explicit and avoids building on unresolved authority/evidence prerequisites.
+- [x] The map explicitly preserves known rejected legacy directions, including the failed lexical claim-card retriever and duplicate control-plane architecture.
+- [x] The roadmap index points to the reconciliation map without making it active authority.
 
 ## Verification and evidence
 
-- Verification: inspect current `main`, current open PR metadata/heads, source audit/backlog, and roadmap index; then re-fetch changed files from the branch and run PR CI if GitHub triggers it.
-- Evidence to preserve: branch/PR link, current `main` SHA, current PR ranges/status, and the reconciliation matrix.
+- Verification: inspected current `main`, current open PR #20-#35 metadata/state, source audit/backlog, master roadmap and roadmap index; re-fetched the reconciliation map from the branch after publication.
+- Evidence to preserve: branch/PR link, current `main` SHA `086e066f723d793273441dd52b500e62ac981deb` at shaping time, current PR ranges/status, and the reconciliation matrix.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -71,10 +71,11 @@ Escalate to: operator for architecture/authority decisions; parallel archaeology
 
 - This task creates a reconciliation layer under the existing master roadmap; it does not create a competing master roadmap.
 - A second agent may independently mine unresolved legacy evidence but must not edit this roadmap during the parallel pass.
+- The next recommended implementation path is truth/evidence first: accept/reshape current draft stacks -> explicit lineage/communication coverage -> explainable waits/full evidence views -> Context Builder v2 evidence integrity -> complete Layer 2/3 evaluation -> controlled operational learning.
 
 ## Completion / handoff
 
-- Completed: current state recovery and task shaping.
-- Not completed: reconciliation map/index publication and independent review.
-- Current blocker: none.
-- Next action if not DONE: create the reconciliation map from verified current state and preserved legacy candidates.
+- Completed: current state recovery, reconciliation map, roadmap-index link, and owner verification.
+- Not completed: independent review; incorporation of genuinely new findings from the parallel archaeology report if any.
+- Current blocker: independent review only.
+- Next action if not DONE: independently review the reconciliation map, then fold only new archaeology evidence into it and the existing master roadmap.
