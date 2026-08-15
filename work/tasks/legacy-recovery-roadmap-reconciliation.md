@@ -16,7 +16,7 @@
 
 ## Change boundary
 
-- MAY CHANGE: `work/roadmaps/legacy-recovery-reconciliation.md`, `work/roadmaps/README.md`, this task record, and a compact checkpoint note if needed.
+- MAY CHANGE: `work/roadmaps/legacy-recovery-reconciliation.md`, `work/roadmaps/README.md`, this task record, and a compact checkpoint/integration note if needed.
 - MUST NOT CHANGE: runtime behavior, canonical state, existing open PR implementation branches, `migration/LEGACY_IDEA_RECOVERY_AUDIT.md`, `migration/FUTURE_IDEAS_BACKLOG.md`, or the existing master roadmap's subsystem design during this task.
 - MAY CHANGE IF NECESSARY: the master roadmap only in a later follow-up after reconciliation evidence is independently reviewed.
 - OPERATOR APPROVAL REQUIRED: destructive legacy deletion or any consequential architecture/policy change; neither is in scope here.
@@ -33,22 +33,23 @@
 - [x] The next implementation sequence is explicit and avoids building on unresolved authority/evidence prerequisites.
 - [x] The map explicitly preserves known rejected legacy directions, including the failed lexical claim-card retriever and duplicate control-plane architecture.
 - [x] The roadmap index points to the reconciliation map without making it active authority.
+- [x] Current stacked PR integration/review ordering is explicit, including how base changes invalidate stale final review/CI evidence.
 
 ## Verification and evidence
 
-- Verification: inspected current `main`, current open PR #20-#35 metadata/state, source audit/backlog, master roadmap and roadmap index; re-fetched the reconciliation map from the branch after publication.
-- Evidence to preserve: branch/PR link, current `main` SHA `086e066f723d793273441dd52b500e62ac981deb` at shaping time, current PR ranges/status, and the reconciliation matrix.
+- Verification: inspected current `main`, current open PR #20-#36 metadata/state, existing review submissions, source audit/backlog, master roadmap and roadmap index; re-fetched the reconciliation map from the branch after publication; inspected changed-file inventories for all current implementation PR deltas; inspected #30/#32 shared state-layer patches and MRO composition; verified #33 passes through optional environment/review-subject trace enrichments without claiming complete lineage.
+- Evidence to preserve: PR #36, `work/roadmaps/legacy-recovery-reconciliation.md`, `work/notes/2026-08-15-open-pr-integration-sequence.md`, current `main` SHA `086e066f723d793273441dd52b500e62ac981deb` at shaping time, current PR ranges/status, and Runtime CI results on the planning branch.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
 
 - Environment / target: documentation/planning only.
-- Ordered procedure: recover current state -> reconcile existing work -> classify remaining items -> order next waves -> publish draft PR.
+- Ordered procedure: recover current state -> reconcile existing work -> classify remaining items -> order next waves -> publish draft PR -> verify integration topology and review sequence.
 - Failure branches: if a legacy item cannot be mapped confidently, mark `AUDIT REMAINS/UNKNOWN`; do not invent a disposition.
 - Rollback / recovery: planning branch can be abandoned without runtime effect.
 - Security / privacy controls: do not copy raw sensitive legacy content; reference IDs/paths and summarized evidence only.
 - External side effects: GitHub branch/draft PR only.
-- Effort limit: stop once the reconciliation map and index are complete; do not implement feature work in this task.
+- Effort limit: stop once the reconciliation map, index, and necessary integration guidance are complete; do not implement feature work in this task.
 - Approved reference: existing master roadmap and migration audit/backlog.
 
 ## Stop / escalate
@@ -72,10 +73,12 @@ Escalate to: operator for architecture/authority decisions; parallel archaeology
 - This task creates a reconciliation layer under the existing master roadmap; it does not create a competing master roadmap.
 - A second agent may independently mine unresolved legacy evidence but must not edit this roadmap during the parallel pass.
 - The next recommended implementation path is truth/evidence first: accept/reshape current draft stacks -> explicit lineage/communication coverage -> explainable waits/full evidence views -> Context Builder v2 evidence integrity -> complete Layer 2/3 evaluation -> controlled operational learning.
+- Root PRs #20, #25, #28, #32, #33 and #36 are currently path-disjoint; downstream #30 and #32 both compose `runtime/state/schema.sql` and `runtime/state/store.py`. Patch/MRO inspection found them structurally cooperative, but whichever lands second still needs real synchronization, fresh CI and final review on the integrated delta.
+- #33 already projects optional environment evidence and immutable review subjects from enriched traces while keeping missing communication/session/helper/recovery lineage explicit.
 
 ## Completion / handoff
 
-- Completed: current state recovery, reconciliation map, roadmap-index link, and owner verification.
+- Completed: current state recovery, reconciliation map, roadmap-index link, owner verification, stacked-review/integration sequence, cross-stack overlap preflight, and Run Record enrichment compatibility check.
 - Not completed: independent review; incorporation of genuinely new findings from the parallel archaeology report if any.
 - Current blocker: independent review only.
-- Next action if not DONE: independently review the reconciliation map, then fold only new archaeology evidence into it and the existing master roadmap.
+- Next action if not DONE: independently review/integrate PR #20 first; separately review PR #36; fold only genuinely new archaeology evidence into the reconciliation/master roadmap after the parallel report is published.
