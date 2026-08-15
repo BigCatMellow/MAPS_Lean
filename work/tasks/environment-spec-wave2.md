@@ -1,6 +1,6 @@
 # Task: EnvironmentSpec v1 schema foundation
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,24 +27,24 @@
 
 ## Acceptance criteria
 
-- [ ] `EnvironmentSpec` v1 has explicit environment ID/version, repository assumptions, runtime constraints, required tools, setup/maintenance commands, validation tiers, network mode/domains, services, secret capability names, and dependency-input paths.
-- [ ] parser is strict about unknown fields so material environment requirements are not silently ignored.
-- [ ] required secret entries are capability/name identifiers only; secret values/assignment syntax are rejected.
-- [ ] dependency inputs are safe repo-relative portable paths.
-- [ ] network modes distinguish `NOT_REQUIRED`, `REQUIRED_RESTRICTED`, `REQUIRED_GENERAL`, and `UNKNOWN`; restricted mode requires explicit domains.
-- [ ] quick/normal/full validation tiers are explicit and preserve command order.
-- [ ] semantic unordered fields are normalized; command order remains semantic.
-- [ ] deterministic SHA-256 is computed from normalized spec semantics rather than source whitespace/key order.
-- [ ] one versioned spec accurately describes the current Runtime stack CI workflow closely enough to serve as the E1 pilot.
-- [ ] parser does not execute setup/validation commands or inspect the host.
-- [ ] no task/run authority, fingerprint, compatibility judgment, or environment mutation is added.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] `EnvironmentSpec` v1 has explicit environment ID/version, repository assumptions, runtime constraints, required tools, setup/maintenance commands, validation tiers, network mode/domains, services, secret capability names, and dependency-input paths.
+- [x] parser is strict about unknown fields so material environment requirements are not silently ignored.
+- [x] required secret entries are capability/name identifiers only; secret values/assignment syntax are rejected.
+- [x] dependency inputs are safe repo-relative portable paths.
+- [x] network modes distinguish `NOT_REQUIRED`, `REQUIRED_RESTRICTED`, `REQUIRED_GENERAL`, and `UNKNOWN`; restricted mode requires explicit domains.
+- [x] quick/normal/full validation tiers are explicit and preserve command order.
+- [x] semantic unordered fields are normalized; command order remains semantic.
+- [x] deterministic SHA-256 is computed from normalized spec semantics rather than source whitespace/key order.
+- [x] one versioned spec accurately describes the current Runtime stack CI workflow closely enough to serve as the E1 pilot.
+- [x] parser does not execute setup/validation commands or inspect the host.
+- [x] no task/run authority, fingerprint, compatibility judgment, or environment mutation is added.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_environment_spec -v` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: pilot spec hash, PR diff, GitHub Actions run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31897492718` passed on implementation commit `21622438602bc22a70c3dc735c1d918a45463171`.
+- Evidence to preserve: pilot spec hash, GitHub Actions run `31897492718`, PR #28 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -89,7 +89,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation prepared on `agent/environment-spec-wave2`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit the isolated E1 tranche, open a draft PR against `main`, and run full Runtime stack CI.
+- Completed: EnvironmentSpec v1 schema/parser/hash, pilot Runtime CI spec, focused tests, draft PR #28, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion; downstream E2 work may stack on this verified head.
+- Next action if not DONE: independent review of PR #28; E2 fingerprint/compatibility may continue as a separate stacked tranche against this verified implementation.
