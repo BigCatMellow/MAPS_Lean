@@ -1,6 +1,6 @@
 # Task: frozen regression case v1
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,26 +27,26 @@
 
 ## Acceptance criteria
 
-- [ ] define the roadmap incident taxonomy as explicit enum values including tool/context/routing/helper/recovery/environment/review/validator/authority/ACI/supply-chain/operator-friction/unknown categories.
-- [ ] `freeze_regression_case()` requires an explicit category, sanitized fixture, at least one structured expected-property ID, freezer identity, and optional structured tags.
-- [ ] function revalidates embedded Run Record v1 record ID/content SHA against its payload before freezing.
-- [ ] tampered or unsupported Run Record is rejected.
-- [ ] Run Record partial-replay semantics are preserved; case cannot imply complete replay.
-- [ ] sanitized fixture is bounded in size and rejected if the existing MAPS sensitive-text detector finds likely credential material.
-- [ ] expected-property and tag identifiers are normalized/deterministic and reject free-form invalid IDs/duplicates.
-- [ ] case embeds the already-sanitized Run Record so the artifact is portable/self-contained without changing Run Record privacy defaults.
-- [ ] case explicitly states automatic promotion is false.
-- [ ] case identity/content SHA is deterministic for identical reviewed inputs and contains no clock timestamp.
-- [ ] no classification model, replay engine, evaluator, persistent corpus database, or MAPS behavior mutation is introduced.
-- [ ] CLI `freeze-case` reads sanitized fixture from file or stdin rather than requiring it in shell arguments, emits JSON only, and does not mutate canonical state.
-- [ ] focused tests cover tampering, sensitive fixture, taxonomy, identifier normalization, deterministic identity, JSON round trip, and CLI read-only behavior.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] define the roadmap incident taxonomy as explicit enum values including tool/context/routing/helper/recovery/environment/review/validator/authority/ACI/supply-chain/operator-friction/unknown categories.
+- [x] `freeze_regression_case()` requires an explicit category, sanitized fixture, at least one structured expected-property ID, freezer identity, and optional structured tags.
+- [x] function revalidates embedded Run Record v1 record ID/content SHA against its payload before freezing.
+- [x] tampered or unsupported Run Record is rejected.
+- [x] Run Record partial-replay semantics are preserved; case cannot imply complete replay.
+- [x] sanitized fixture is bounded in size and rejected if the existing MAPS sensitive-text detector finds likely credential material.
+- [x] expected-property and tag identifiers are normalized/deterministic and reject free-form invalid IDs/duplicates.
+- [x] case embeds the already-sanitized Run Record so the artifact is portable/self-contained without changing Run Record privacy defaults.
+- [x] case explicitly states automatic promotion is false.
+- [x] case identity/content SHA is deterministic for identical reviewed inputs and contains no clock timestamp.
+- [x] no classification model, replay engine, evaluator, persistent corpus database, or MAPS behavior mutation is introduced.
+- [x] CLI `freeze-case` reads sanitized fixture from file or stdin rather than requiring it in shell arguments, emits JSON only, and does not mutate canonical state.
+- [x] focused tests cover tampering, sensitive fixture, taxonomy, identifier normalization, deterministic identity, JSON round trip, and CLI read-only behavior.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_frozen_regression_case -v` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: case-schema tests, Run Record tamper tests, privacy tests, PR diff, CI run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31899393298` passed on implementation head `3baa0eabb42d6ab89e2d681fda1a297f994084ce`.
+- Evidence to preserve: case-schema tests, Run Record tamper tests, privacy tests, GitHub Actions run `31899393298`, PR #34 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -93,7 +93,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation prepared on `agent/frozen-regression-case-wave2`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: update stacked CLI, open draft PR against `agent/portable-run-record-wave2`, and run full Runtime stack CI.
+- Completed: deterministic frozen regression-case artifact, incident taxonomy, tamper/sensitive-fixture validation, read-only CLI, focused tests, draft PR #34, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion.
+- Next action if not DONE: independent review of PR #34. After that, the next implementation candidate is a comparative evaluation/reporting layer over frozen cases, still proposal-only and incapable of self-promotion.
