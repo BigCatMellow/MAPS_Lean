@@ -1,6 +1,7 @@
 name: Runtime stack tests
 
 on:
+  pull_request:
   push:
     branches:
       - agent/fresh-clone-install-smoke
