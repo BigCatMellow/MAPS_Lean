@@ -1,6 +1,6 @@
 # Task: frozen Skill-selection evaluation corpus
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `ChatGPT / implementation agent`
@@ -27,22 +27,22 @@
 
 ## Acceptance criteria
 
-- [ ] frozen corpus includes direct positives, paraphrases, vocabulary shifts, near misses, hard negatives, no-Skill cases, multi-Skill cases, and explicit ambiguity.
-- [ ] candidate Skill metadata is frozen with the corpus so routing strategies can be compared against the same discovery surface.
-- [ ] evaluator accepts externally produced predictions; it does not implement or choose a production routing strategy.
-- [ ] predictions distinguish `SELECT`, `ABSTAIN`, and `AMBIGUOUS` rather than encoding all outcomes as a ranked list.
-- [ ] missing/duplicate/unknown-case predictions fail explicitly rather than being silently scored as abstention.
-- [ ] predictions naming unknown Skills fail explicitly.
-- [ ] scorer reports exact-case accuracy, selection precision/recall/F1, abstention accuracy, ambiguity accuracy, false activations, missed activations, ambiguity misses, and category accuracy.
-- [ ] report is bound to a deterministic corpus SHA-256 and is serializable for future comparative eval records.
-- [ ] perfect predictions score 1.0 across all applicable metrics.
-- [ ] focused tests and full Runtime stack CI pass.
+- [x] frozen corpus includes direct positives, paraphrases, vocabulary shifts, near misses, hard negatives, no-Skill cases, multi-Skill cases, and explicit ambiguity.
+- [x] candidate Skill metadata is frozen with the corpus so routing strategies can be compared against the same discovery surface.
+- [x] evaluator accepts externally produced predictions; it does not implement or choose a production routing strategy.
+- [x] predictions distinguish `SELECT`, `ABSTAIN`, and `AMBIGUOUS` rather than encoding all outcomes as a ranked list.
+- [x] missing/duplicate/unknown-case predictions fail explicitly rather than being silently scored as abstention.
+- [x] predictions naming unknown Skills fail explicitly.
+- [x] scorer reports exact-case accuracy, selection precision/recall/F1, abstention accuracy, ambiguity accuracy, false activations, missed activations, ambiguity misses, and category accuracy.
+- [x] report is bound to a deterministic corpus SHA-256 and is serializable for future comparative eval records.
+- [x] perfect predictions score 1.0 across all applicable metrics.
+- [x] focused tests and full Runtime stack CI pass.
 - [ ] independent review remains required before completion.
 
 ## Verification and evidence
 
-- Verification: `python -m unittest tests.test_skills_selection_evaluation -v` plus full PR-triggered Runtime stack CI.
-- Evidence to preserve: frozen corpus hash, PR diff, GitHub Actions run, independent review result.
+- Verification: PR-triggered full Runtime stack CI run `31897351677` passed on implementation commit `7175282c25584761f52059b36282c1f062d185c0`.
+- Evidence to preserve: frozen corpus hash, GitHub Actions run `31897351677`, PR #27 diff, independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -86,7 +86,7 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Completion / handoff
 
-- Completed: implementation prepared on `agent/skills-selection-eval-wave2`.
-- Not completed: commit/PR/CI/review.
-- Current blocker: none.
-- Next action if not DONE: commit the isolated evaluation tranche, open a stacked draft PR against `agent/skills-catalog-wave2`, and run full Runtime stack CI.
+- Completed: frozen corpus, model-agnostic evaluator/scorer, focused tests, draft PR #27, and full Runtime stack CI.
+- Not completed: independent review / merge.
+- Current blocker: independent review required for completion; production Skill routing remains intentionally unimplemented.
+- Next action if not DONE: independent review of PR #27; candidate routing strategies may be evaluated only as separate experiments against this frozen corpus before any production integration.
