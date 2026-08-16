@@ -8,6 +8,7 @@ from .outcomes import OutcomeMixin
 from .policy import PolicyStateMixin
 from .readiness import ReadinessMixin
 from .review import ReviewMixin
+from .review_binding import ReviewBindingMixin
 
 
 class TaskStore(
@@ -16,6 +17,7 @@ class TaskStore(
     PolicyStateMixin,
     ReadinessMixin,
     ExecutionMixin,
+    ReviewBindingMixin,
     ReviewMixin,
     OutcomeMixin,
     ObservabilityMixin,

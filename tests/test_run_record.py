@@ -165,7 +165,7 @@ class PortableRunRecordTests(unittest.TestCase):
             CoverageState.MISSING.value,
         )
         self.assertEqual(coverage["environment"]["state"], CoverageState.MISSING.value)
-        self.assertEqual(coverage["review_subject"]["state"], CoverageState.MISSING.value)
+        self.assertEqual(coverage["review_subject"]["state"], CoverageState.UNKNOWN.value)
 
     def test_task_level_reviews_and_timeline_are_not_claimed_as_run_joined(self):
         record = build_run_record(self.store, "TASK-RR", self.run_id)

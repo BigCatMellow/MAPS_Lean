@@ -1,0 +1,56 @@
+{
+  "environment_id": "maps-runtime-ci",
+  "version": 1,
+  "repository": {
+    "base_revision": null,
+    "require_clean_worktree": true
+  },
+  "runtimes": {
+    "python": "3.12"
+  },
+  "required_tools": [
+    "bash",
+    "git",
+    "python"
+  ],
+  "setup": {
+    "commands": [
+      "python -m pip install --upgrade pip",
+      "python -m pip install -r runtime/requirements.txt",
+      "python -m pip install ruff bandit"
+    ]
+  },
+  "maintenance": {
+    "commands": []
+  },
+  "validation": {
+    "quick": [
+      "python scripts/check_legacy_removal_readiness.py",
+      "python -m compileall -q runtime tests",
+      "ruff check runtime tests --select E9,F63,F7,F82"
+    ],
+    "normal": [
+      "bandit -q -r runtime -ll -s B608",
+      "python -m pip check",
+      "PYTHONWARNINGS=error::ResourceWarning python -m unittest discover -s tests -v"
+    ],
+    "full": [
+      "python -m runtime.smoke --with-langgraph",
+      "bash -n scripts/install_maps.sh",
+      "bash scripts/install_maps.sh"
+    ]
+  },
+  "network": {
+    "mode": "REQUIRED_GENERAL",
+    "allowed_domains": []
+  },
+  "services": [],
+  "secrets": {
+    "required_names": []
+  },
+  "artifacts": {
+    "dependency_inputs": [
+      "runtime/requirements.txt"
+    ]
+  }
+}
