@@ -8,6 +8,7 @@ that fits the project. Historical behavior worth retaining is curated under
 | --- | --- | --- |
 | Understand retained runtime controls | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Treating a terminal pane or an agent window as authority. |
 | Install/verify SQLite, LangGraph, and hcom on a fresh clone | [Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md) | Combining their databases or letting transport/routing become task authority. |
+| Turn a concise operator request into a bounded agent-ready contract | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) | Making prompts longer, inventing permission, or creating a second task authority. |
 | Decide whether instructions are formally ready for execution | [AGI_STANDARD.md](AGI_STANDARD.md) | Treating a capable model's ability to guess as proof the instruction is good. |
 | Write instructions an agent can execute without guessing | [AGENT_GRADE_INSTRUCTIONS.md](AGENT_GRADE_INSTRUCTIONS.md) | Making prompts longer without making outcomes, boundaries, or proof clearer. |
 | Freeze context/scope for a consequential run, handle conflicts, or preserve reviewer independence | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) | Turning every tiny edit into a run-manifest ceremony. |
