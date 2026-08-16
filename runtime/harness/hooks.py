@@ -172,6 +172,8 @@ class HookRegistry:
         self._sequence = 0
 
     def register(self, spec: HookSpec) -> None:
+        if not isinstance(spec, HookSpec):
+            raise TypeError("spec must be a HookSpec")
         if spec.hook_id in self._ids:
             raise ValueError(f"duplicate hook_id: {spec.hook_id}")
         self._ids.add(spec.hook_id)
