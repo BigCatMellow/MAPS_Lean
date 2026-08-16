@@ -267,11 +267,12 @@ def evaluate_acquisition_evidence(
     normalized_observations = [
         observed_index[path_id] for path_id in sorted(observed_index)
     ]
+    # The evidence identity is content-derived. `label` is descriptive metadata
+    # and must not create two identities for the same manifest/observations.
     report_id = _hash(
         {
             "manifest": normalized_manifest,
             "observations": normalized_observations,
-            "label": resolved_label,
         }
     )
     report_ref = f"acquisition-report:{report_id}"
@@ -306,7 +307,9 @@ def evaluate_acquisition_evidence(
             if state == "NOT_APPLICABLE":
                 if not bool(path["allow_not_applicable"]):
                     acquisition_status = "FAIL"
-                    usability_status = "FAIL" if path["operator_visible"] else "NOT_APPLICABLE"
+                    # An invalid N/A claim proves incomplete/invalid coverage,
+                    # not that the underlying artifact itself is unusable.
+                    usability_status = "UNKNOWN" if path["operator_visible"] else "NOT_APPLICABLE"
                     stale_status = "UNKNOWN" if path["operator_visible"] else "NOT_APPLICABLE"
                     reason = "not_applicable_not_allowed"
                 else:
