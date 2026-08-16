@@ -41,6 +41,13 @@ _MEASUREMENTS = {
     "operator_intervention_count",
     "rework_count",
 }
+_COUNT_MEASUREMENTS = {
+    "tool_calls",
+    "messages",
+    "agent_count",
+    "operator_intervention_count",
+    "rework_count",
+}
 
 
 def _text(value: object, field: str) -> str:
@@ -158,7 +165,12 @@ def _measurements(raw: object, field: str):
         raise BenchmarkResultError(f"{field}: unknown measurement fields")
     output = {}
     for key, value in raw.items():
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
+        if key in _COUNT_MEASUREMENTS:
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise BenchmarkResultError(
+                    f"{field}.{key} must be a non-negative integer count"
+                )
+        elif isinstance(value, bool) or not isinstance(value, (int, float)):
             raise BenchmarkResultError(f"{field}.{key} must be numeric")
         if not math.isfinite(value) or value < 0:
             raise BenchmarkResultError(
