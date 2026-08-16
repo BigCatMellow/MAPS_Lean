@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 import json
 from typing import Any
 
@@ -11,28 +11,33 @@ class HcomLineageProtocolError(HcomProtocolError):
     pass
 
 
+_OPTIONAL_CORRELATION_FIELDS = (
+    "mentions",
+    "intent",
+    "thread",
+    "reply_to",
+    "reply_to_local",
+)
+
+
 @dataclass(frozen=True)
 class HcomLineageCapability:
     state: str
     reason: str
     observed_message_events: int
-    required_fields_verified: bool
+    core_fields_verified: bool
+    observed_optional_fields: tuple[str, ...]
 
     def to_dict(self) -> dict[str, object]:
-        return {
-            "state": self.state,
-            "reason": self.reason,
-            "observed_message_events": self.observed_message_events,
-            "required_fields_verified": self.required_fields_verified,
-        }
+        return asdict(self)
 
 
 class HcomLineageAdapter(HcomAdapter):
     """Read-only full-fidelity hcom message metadata for lineage correlation.
 
-    This subclass intentionally leaves ordinary HcomAdapter.read_events() unchanged.
-    It requests hcom's explicit --full event view and projects only structured
-    correlation metadata; message text is not copied into the lineage result.
+    Ordinary ``HcomAdapter.read_events()`` stays lightweight. This path requests
+    hcom's explicit ``--full`` event representation and projects only structured
+    correlation metadata; message bodies are deliberately omitted.
     """
 
     def read_message_lineage(
@@ -61,11 +66,13 @@ class HcomLineageAdapter(HcomAdapter):
         return [self._project_message(event) for event in events]
 
     def probe_lineage_capability(self, *, last: int = 25) -> HcomLineageCapability:
-        """Probe the configured hcom boundary without trusting its version string.
+        """Probe the configured hcom boundary without trusting a version string.
 
-        A successful command with no message records proves --full is accepted but
-        cannot prove the required message metadata shape, so capability remains
-        UNKNOWN until at least one full message event is observed and validates.
+        A successful command with no message rows proves only that the CLI accepts
+        the full-fidelity query; field capability remains UNKNOWN. With message
+        rows, stable event identity plus sender/delivery metadata are verified.
+        Optional thread/reply/intent fields are reported only when actually
+        observed; their absence is never reinterpreted as a default value.
         """
 
         if last < 1 or last > 5000:
@@ -79,22 +86,32 @@ class HcomLineageAdapter(HcomAdapter):
                 state="UNKNOWN",
                 reason=(
                     "hcom accepted the full-fidelity read but no message event was "
-                    "available to prove required lineage fields"
+                    "available to prove lineage metadata"
                 ),
                 observed_message_events=0,
-                required_fields_verified=False,
+                core_fields_verified=False,
+                observed_optional_fields=(),
             )
 
-        for event in events:
-            self._project_message(event)
+        projected = [self._project_message(event) for event in events]
+        observed = sorted(
+            {
+                field
+                for item in projected
+                for field, present in item["coverage"]["field_presence"].items()
+                if present
+            }
+        )
         return HcomLineageCapability(
             state="SUPPORTED",
             reason=(
-                "full message events exposed stable event identity and the required "
-                "structured lineage metadata"
+                "full message events proved stable event identity, sender, and "
+                "delivery metadata; optional correlation fields are verified only "
+                "where observed"
             ),
-            observed_message_events=len(events),
-            required_fields_verified=True,
+            observed_message_events=len(projected),
+            core_fields_verified=True,
+            observed_optional_fields=tuple(observed),
         )
 
     @staticmethod
@@ -140,45 +157,51 @@ class HcomLineageAdapter(HcomAdapter):
             )
         data = event.get("data")
         if not isinstance(data, dict):
-            raise HcomLineageProtocolError(
-                "full message event data is not an object"
-            )
+            raise HcomLineageProtocolError("full message event data is not an object")
 
-        required_keys = {
-            "from",
-            "delivered_to",
-            "mentions",
-            "intent",
-            "thread",
-            "reply_to",
-            "reply_to_local",
-        }
-        missing = sorted(required_keys - set(data))
-        if missing:
+        missing_core = sorted({"from", "delivered_to"} - set(data))
+        if missing_core:
             raise HcomLineageProtocolError(
                 "full message event is missing required lineage fields: "
-                + ", ".join(missing)
+                + ", ".join(missing_core)
             )
 
         sender = cls._required_text(data.get("from"), "from")
-        intent = cls._required_text(data.get("intent"), "intent").lower()
-        if intent not in VALID_INTENTS:
-            raise HcomLineageProtocolError(
-                f"full message event has unsupported intent: {intent!r}"
-            )
-
         delivered_to = cls._text_list(data.get("delivered_to"), "delivered_to")
-        mentions = cls._text_list(data.get("mentions"), "mentions")
-        thread = cls._optional_text(data.get("thread"), "thread")
-        reply_to = cls._optional_scalar(data.get("reply_to"), "reply_to")
-        reply_to_local = cls._optional_positive_int(
-            data.get("reply_to_local"), "reply_to_local"
+
+        presence = {field: field in data for field in _OPTIONAL_CORRELATION_FIELDS}
+        mentions = (
+            cls._text_list(data.get("mentions"), "mentions")
+            if presence["mentions"]
+            else None
+        )
+        intent = None
+        if presence["intent"]:
+            intent = cls._required_text(data.get("intent"), "intent").lower()
+            if intent not in VALID_INTENTS:
+                raise HcomLineageProtocolError(
+                    f"full message event has unsupported intent: {intent!r}"
+                )
+        thread = (
+            cls._optional_text(data.get("thread"), "thread")
+            if presence["thread"]
+            else None
+        )
+        reply_to = (
+            cls._optional_scalar(data.get("reply_to"), "reply_to")
+            if presence["reply_to"]
+            else None
+        )
+        reply_to_local = (
+            cls._optional_positive_int(data.get("reply_to_local"), "reply_to_local")
+            if presence["reply_to_local"]
+            else None
         )
 
         return {
             "event_id": event_id,
-            "timestamp": timestamp,
-            "instance": instance,
+            "timestamp": timestamp.strip(),
+            "instance": instance.strip(),
             "sender": sender,
             "delivered_to": delivered_to,
             "mentions": mentions,
@@ -188,8 +211,9 @@ class HcomLineageAdapter(HcomAdapter):
             "reply_to_local": reply_to_local,
             "coverage": {
                 "source": "hcom events --full",
-                "full_fidelity": True,
+                "full_fidelity_read": True,
                 "message_body_included": False,
+                "field_presence": presence,
             },
         }
 
@@ -244,9 +268,7 @@ class HcomLineageAdapter(HcomAdapter):
                 )
             return value
         value = value.strip()
-        if not value:
-            return None
-        return value
+        return value or None
 
     @staticmethod
     def _optional_positive_int(value: object, field: str) -> int | None:
