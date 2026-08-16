@@ -19,6 +19,7 @@ A repository file, web page, tool result, Skill, helper, peer message, provider 
 | task intent | prompts, files, peer/helper messages | canonical task contract / operator |
 | ownership | session liveness, messages, worker claims | canonical claim + live lease |
 | execution continuity | provider thread/session state | immutable run binding + current task revision/context |
+| provider session identity | provider-local session ID alone | adapter-qualified canonical run/session evidence |
 | approval | tool output, prose, Hook request | canonical operator approval record |
 | review independence | self-asserted role | submission authorship + continuity evidence |
 | procedures | imported Skill/reference text | reviewed/pinned Skill lifecycle when implemented |
@@ -41,16 +42,18 @@ A repository file, web page, tool result, Skill, helper, peer message, provider 
 
 ## Executable baseline cases
 
-`tests/test_agentic_security_baseline.py` freezes the first named cross-system cases:
+`tests/test_agentic_security_baseline.py` freezes named cross-system cases:
 
-- **SEC-ADV-005 — approval-by-text:** a payload claiming operator approval does not satisfy a deterministic `REQUIRE_APPROVAL` Hook.
+- **SEC-ADV-005 — approval-by-text:** payload text claiming operator approval does not satisfy a deterministic approval gate.
 - **SEC-ADV-006 — helper/continuation self-review:** an identity in the submission author's continuity lineage cannot claim independent review.
 - **SEC-ADV-007A — stale resume after reshape:** a provider session cannot resume when the canonical task revision changed.
 - **SEC-ADV-007B — liveness versus lease:** a live session cannot resume after the task lease expires.
 - **SEC-ADV-008 — ownership-by-message:** a peer/worker message claiming ownership transfer does not mutate canonical ownership.
 - **SEC-ADV-LIVENESS — session inspection:** observing a RUNNING provider session does not renew task heartbeat or lease.
+- **SEC-ADV-GUARDED-SERVICE — mandatory canonical enforcement:** public `HarnessService` start/send/resume/stop fail closed before adapter mutation when canonical-run enforcement is absent; an ordinary ALLOW Hook does not satisfy that requirement.
+- **SEC-ADV-HOOK-CONTEXT — cross-Hook mutation:** an earlier Hook cannot rewrite nested binding/session evidence seen by a later canonical guard.
 
-These tests intentionally exercise public guarded behavior rather than checking that source files contain reassuring words.
+These tests intentionally exercise behavior rather than checking for reassuring source text.
 
 ## Broader adversarial corpus
 
@@ -84,6 +87,7 @@ The roadmap's initial corpus remains the target. Status below is test-planning s
 ```text
 session liveness ≠ ownership
 session liveness ≠ task heartbeat
+bare provider-local session ID ≠ provider-neutral durable identity
 message text ≠ ownership transfer
 text saying “approved” ≠ operator approval
 helper output ≠ review authority
@@ -92,20 +96,24 @@ old task revision ≠ current authority
 available tool ≠ authorized tool
 retrieved memory ≠ policy
 Hook REQUIRE_APPROVAL ≠ approval
+ordinary Hook presence ≠ canonical enforcement
+missing canonical enforcement → no consequential HarnessService mutation
 ```
 
 ## Harness/recovery requirements
 
-Before continuation or resume, require evidence for:
+Before consequential start/send/resume/stop through the public HarnessService mutation surface:
 
-- current task exists and is ACTIVE;
-- worker is current claimant;
-- lease is live;
-- immutable run matches task/worker/revision;
-- task revision/context has not become stale;
-- session identity is explicitly and durably bound where required.
+- the corresponding canonical-run enforcement Hook must be mechanically installed;
+- current task/run evidence must satisfy the operation-specific canonical guard;
+- continuing operations require ACTIVE task, current claimant, live lease, current task revision, and non-stale run/context;
+- session-bound operations require adapter-qualified durable session identity where canonical evidence can prove it.
 
-A stale/expired session may still need to be **stopped** by an otherwise authorized recovery/operator path. Stop targeting therefore verifies exact historical identity without pretending the stale run regained continuation authority.
+The current run-manifest schema stores a bare session ID but not durable adapter qualification. That is insufficient provider-neutral identity, so affected session-bound operations fail closed rather than guessing until the accepted lineage/schema work supplies that relationship.
+
+A stale/expired session may still need to be stopped by an authorized recovery/operator path, but historical cleanup may only proceed when exact adapter-qualified historical identity can actually be proven.
+
+Low-level adapters remain capability primitives beneath the guarded service boundary; their existence does not grant task authority.
 
 ## Growth rule
 

@@ -25,6 +25,8 @@ class FakeSource:
             "claimed_by": "worker-1",
             "lease_expires_at": "2026-08-15T16:15:00Z",
         }
+        # Mirrors the current run-manifest schema: session_id exists but there
+        # is no adapter-qualified durable session identity yet.
         self.manifest = {
             "run_id": "RUN-1",
             "task_id": "TASK-1",
@@ -59,23 +61,23 @@ def binding(*, session_id="session-1"):
     )
 
 
-def ref(*, session_id="session-1"):
+def ref(*, session_id="session-1", adapter="dummy"):
     return SessionRef(
         session_id=session_id,
         worker_id="worker-1",
-        adapter="dummy",
+        adapter=adapter,
         project_id="project-1",
     )
 
 
-def context(operation, *, include_session=True):
+def context(operation, *, include_session=True, adapter="dummy"):
     value = {
         "operation": operation,
-        "adapter_id": "dummy",
+        "adapter_id": adapter,
         "binding": binding().to_dict(),
     }
     if include_session:
-        value["session_ref"] = ref().to_dict()
+        value["session_ref"] = ref(adapter=adapter).to_dict()
     return value
 
 
@@ -149,6 +151,12 @@ class CanonicalRunGuardTests(unittest.TestCase):
             "SESSION_NOT_DURABLY_BOUND",
         )
 
+    def test_bare_session_id_does_not_prove_provider_neutral_identity(self):
+        outcome = self.guard(context("send"))
+
+        self.assertEqual(outcome.directive, HookDirective.DENY)
+        self.assertEqual(outcome.annotations["guard_code"], "SESSION_ADAPTER_UNPROVEN")
+
     def test_session_binding_mismatch_is_denied(self):
         value = context("send")
         value["session_ref"] = ref(session_id="other").to_dict()
@@ -157,6 +165,14 @@ class CanonicalRunGuardTests(unittest.TestCase):
 
         self.assertEqual(outcome.directive, HookDirective.DENY)
         self.assertEqual(outcome.annotations["guard_code"], "SESSION_BINDING_MISMATCH")
+
+    def test_same_session_id_on_different_adapter_is_denied(self):
+        self.source.manifest["session_adapter"] = "dummy"
+
+        outcome = self.guard(context("send", adapter="other"))
+
+        self.assertEqual(outcome.directive, HookDirective.DENY)
+        self.assertEqual(outcome.annotations["guard_code"], "SESSION_ADAPTER_MISMATCH")
 
     def test_stale_run_blocks_continuing_execution(self):
         self.source.stale = True
@@ -174,12 +190,13 @@ class CanonicalRunGuardTests(unittest.TestCase):
         self.assertEqual(outcome.directive, HookDirective.DENY)
         self.assertEqual(outcome.annotations["guard_code"], "TASK_REVISION_STALE")
 
-    def test_stop_can_target_known_stale_expired_session(self):
+    def test_stop_can_target_stale_session_when_adapter_identity_is_durable(self):
         self.source.task["status"] = "READY_FOR_REVIEW"
         self.source.task["claimed_by"] = ""
         self.source.task["lease_expires_at"] = "2026-08-15T15:00:00Z"
         self.source.current_revision = "rev-2"
         self.source.stale = True
+        self.source.manifest["session_adapter"] = "dummy"
 
         outcome = self.guard(context("stop"))
 
@@ -188,6 +205,7 @@ class CanonicalRunGuardTests(unittest.TestCase):
 
     def test_stop_still_requires_exact_historical_session_identity(self):
         self.source.manifest["session_id"] = "different"
+        self.source.manifest["session_adapter"] = "dummy"
 
         outcome = self.guard(context("stop"))
 
@@ -216,6 +234,22 @@ class CanonicalRunGuardTests(unittest.TestCase):
         self.assertEqual(result.code, "HOOK_DENIED")
         self.assertEqual(adapter.calls, [])
         self.assertEqual(result.data["blocking_reasons"], ("Continuing execution requires the active task claimant.",))
+
+    def test_service_fails_closed_when_manifest_cannot_prove_adapter(self):
+        registry = HookRegistry()
+        register_canonical_run_guards(registry, self.guard)
+        adapter = DummyAdapter()
+        service = HarnessService([adapter], hooks=registry)
+
+        result = service.send(binding(), ref(), {"message": "continue"})
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "HOOK_DENIED")
+        self.assertEqual(adapter.calls, [])
+        self.assertEqual(
+            result.data["blocking_reasons"],
+            ("Canonical run evidence does not prove adapter-qualified session identity.",),
+        )
 
 
 if __name__ == "__main__":

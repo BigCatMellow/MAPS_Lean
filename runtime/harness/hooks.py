@@ -45,6 +45,12 @@ class HookFailurePolicy(str, Enum):
     RAISE = "RAISE"
 
 
+class HookEnforcement(str, Enum):
+    """Mechanical guard roles required by consequential service paths."""
+
+    CANONICAL_RUN = "CANONICAL_RUN"
+
+
 HookCallback = Callable[[Mapping[str, Any]], "HookOutcome"]
 
 
@@ -163,7 +169,9 @@ class HookRegistry:
 
     Hooks may deny, require existing approval, or annotate evidence. Running this
     registry does not grant task ownership, scope, policy authority, or operator
-    approval.
+    approval. Mandatory enforcement is recognized only from a callback that
+    explicitly declares a valid ``hook_enforcement`` role; ordinary HookSpec
+    configuration cannot grant that role.
     """
 
     def __init__(self) -> None:
@@ -171,9 +179,24 @@ class HookRegistry:
         self._ids: set[str] = set()
         self._sequence = 0
 
+    @staticmethod
+    def _callback_enforcement(callback: HookCallback) -> HookEnforcement | None:
+        marker = getattr(callback, "hook_enforcement", None)
+        if marker is None:
+            return None
+        if not isinstance(marker, HookEnforcement):
+            raise TypeError("hook_enforcement must be a HookEnforcement")
+        return marker
+
     def register(self, spec: HookSpec) -> None:
         if not isinstance(spec, HookSpec):
             raise TypeError("spec must be a HookSpec")
+        enforcement = self._callback_enforcement(spec.callback)
+        if enforcement is not None:
+            if spec.failure_policy != HookFailurePolicy.FAIL_CLOSED:
+                raise ValueError("mandatory enforcement Hooks must fail closed")
+            if spec.side_effect != HookSideEffect.READ_ONLY:
+                raise ValueError("mandatory canonical enforcement Hooks must be read-only")
         if spec.hook_id in self._ids:
             raise ValueError(f"duplicate hook_id: {spec.hook_id}")
         self._ids.add(spec.hook_id)
@@ -190,6 +213,14 @@ class HookRegistry:
         ]
         matching.sort(key=lambda item: (item[1].priority, item[0]))
         return tuple(spec for _, spec in matching)
+
+    def has_enforcement(self, event: HookEvent, enforcement: HookEnforcement) -> bool:
+        if not isinstance(enforcement, HookEnforcement):
+            raise TypeError("enforcement must be a HookEnforcement")
+        return any(
+            self._callback_enforcement(spec.callback) == enforcement
+            for spec in self.list_for(event)
+        )
 
     def run(
         self,
