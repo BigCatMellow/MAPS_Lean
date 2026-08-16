@@ -143,6 +143,21 @@ class RunSessionLineageTests(unittest.TestCase):
         self.assertEqual(attached.task["state"], "EXPLICIT")
         self.assertEqual(attached.task["current"]["adapter_id"], "hcom")
 
+    def test_sqlite_rejects_manifest_conflicting_attach(self):
+        task_id = self.make_active()
+        run = self.make_run(task_id, session_id="legacy-1")
+        with self.assertRaises(sqlite3.IntegrityError):
+            with self.store._connect() as conn:
+                conn.execute(
+                    """
+                    INSERT INTO run_session_links(
+                        run_id, relation, adapter_id, session_id,
+                        replaces_link_id, evidence_ref, created_by, created_at
+                    ) VALUES (?, 'ATTACH', 'hcom', 'different', NULL, ?, 'tester', ?)
+                    """,
+                    (run["run_id"], "provider:event:1", utc_now().isoformat()),
+                )
+
     def test_replacement_is_linear_and_must_name_current_link(self):
         task_id = self.make_active()
         run = self.make_run(task_id)
@@ -163,6 +178,29 @@ class RunSessionLineageTests(unittest.TestCase):
         stale = self.attach(run, session="sess-3", replaces=first_id)
         self.assertFalse(stale.ok)
         self.assertEqual(stale.code, "STALE_SESSION_LINK")
+
+    def test_sqlite_rejects_cross_run_replacement(self):
+        task_id = self.make_active()
+        first_run = self.make_run(task_id)
+        second_run = self.make_run(task_id)
+        first = self.attach(first_run)
+        first_id = first.task["current"]["link_id"]
+        with self.assertRaises(sqlite3.IntegrityError):
+            with self.store._connect() as conn:
+                conn.execute(
+                    """
+                    INSERT INTO run_session_links(
+                        run_id, relation, adapter_id, session_id,
+                        replaces_link_id, evidence_ref, created_by, created_at
+                    ) VALUES (?, 'REPLACE', 'hcom', 'other-session', ?, ?, 'tester', ?)
+                    """,
+                    (
+                        second_run["run_id"],
+                        first_id,
+                        "provider:event:2",
+                        utc_now().isoformat(),
+                    ),
+                )
 
     def test_adapter_qualified_provider_session_cannot_bind_to_two_runs(self):
         task_id = self.make_active()
@@ -215,6 +253,18 @@ class RunSessionLineageTests(unittest.TestCase):
         wrong_adapter = guard(self.guard_context(task_id, run, adapter="other"))
         self.assertEqual(wrong_adapter.directive, HookDirective.DENY)
         self.assertEqual(wrong_adapter.annotations["guard_code"], "SESSION_ADAPTER_MISMATCH")
+
+    def test_trace_projects_lineage_without_claiming_complete_external_coverage(self):
+        task_id = self.make_active()
+        run = self.make_run(task_id)
+        self.assertTrue(self.attach(run).ok)
+        trace = self.store.trace_task(task_id)
+        self.assertIsNotNone(trace)
+        traced_run = next(item for item in trace["runs"] if item["run_id"] == run["run_id"])
+        self.assertEqual(traced_run["session_lineage"]["state"], "EXPLICIT")
+        coverage = trace["coverage"]["run_session_lineage"]
+        self.assertTrue(coverage["included"])
+        self.assertFalse(coverage["complete"])
 
     def test_lineage_does_not_create_task_level_current_session_truth(self):
         task_id = self.make_active()
