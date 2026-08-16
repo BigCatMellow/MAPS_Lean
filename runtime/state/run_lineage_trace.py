@@ -25,6 +25,9 @@ class RunSessionTraceMixin:
                         run["helper_lineage"] = []
                         run["recovery_lineage"] = []
 
+        submission_attribution = self.submission_run_attribution(task_id)
+        trace["submission_run_lineage"] = submission_attribution["attempts"]
+
         coverage = trace.setdefault("coverage", {})
         if isinstance(coverage, dict):
             coverage["run_session_lineage"] = {
@@ -52,6 +55,15 @@ class RunSessionTraceMixin:
                 "reason": (
                     "explicit predecessor/replacement run relationships are included; "
                     "RecoveryStore incident state remains a separate evidence source"
+                ),
+            }
+            coverage["submission_run_lineage"] = {
+                "included": True,
+                "complete": bool(submission_attribution["complete"]),
+                "source": "submission_run_links",
+                "reason": (
+                    "each known submission attempt is explicit or UNKNOWN; "
+                    "unlinked legacy/omitted attempts are never inferred from timing or run count"
                 ),
             }
         return trace
