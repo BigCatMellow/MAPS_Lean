@@ -97,7 +97,7 @@ When SENTINEL reviews or challenges roadmap work, it checks the whole planning c
 
 ### SENTINEL's roadmap contribution
 
-In a roadmap mission meeting or independent roadmap review, SENTINEL's job is to try to falsify the draft before implementation makes its mistakes expensive. It should challenge:
+In a roadmap mission meeting or independent roadmap review, SENTINEL's job is to actively challenge the draft by looking for evidence that could disprove its assumptions, dependencies, completion criteria, safety claims, or claimed readiness before implementation makes mistakes expensive. It should challenge:
 
 - unsupported current-state claims and hidden assumptions;
 - a definition of DONE that can be declared without observable proof;
