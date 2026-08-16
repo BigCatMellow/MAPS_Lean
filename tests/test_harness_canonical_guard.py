@@ -35,6 +35,7 @@ class FakeSource:
             "session_id": "session-1",
         }
         self.session_adapter = None
+        self.session_project = "project-1"
         self.current_revision = "rev-1"
         self.stale = False
 
@@ -57,6 +58,7 @@ class FakeSource:
         if not session_id:
             return {
                 "run_id": run_id,
+                "project_id": self.task["project_id"],
                 "state": "UNBOUND",
                 "current": None,
                 "history": [],
@@ -64,9 +66,11 @@ class FakeSource:
         if not self.session_adapter:
             return {
                 "run_id": run_id,
+                "project_id": self.task["project_id"],
                 "state": "ADAPTER_UNPROVEN",
                 "current": {
                     "link_id": None,
+                    "project_id": self.task["project_id"],
                     "adapter_id": None,
                     "session_id": session_id,
                 },
@@ -74,9 +78,11 @@ class FakeSource:
             }
         return {
             "run_id": run_id,
+            "project_id": self.session_project,
             "state": "EXPLICIT",
             "current": {
                 "link_id": 1,
+                "project_id": self.session_project,
                 "adapter_id": self.session_adapter,
                 "session_id": session_id,
             },
@@ -95,12 +101,12 @@ def binding(*, session_id="session-1"):
     )
 
 
-def ref(*, session_id="session-1", adapter="dummy"):
+def ref(*, session_id="session-1", adapter="dummy", project_id="project-1"):
     return SessionRef(
         session_id=session_id,
         worker_id="worker-1",
         adapter=adapter,
-        project_id="project-1",
+        project_id=project_id,
     )
 
 
@@ -200,6 +206,25 @@ class CanonicalRunGuardTests(unittest.TestCase):
 
         self.assertEqual(outcome.directive, HookDirective.DENY)
         self.assertEqual(outcome.annotations["guard_code"], "SESSION_BINDING_MISMATCH")
+
+    def test_session_ref_project_mismatch_is_denied_even_when_adapter_session_match(self):
+        self.source.session_adapter = "dummy"
+        value = context("send")
+        value["session_ref"] = ref(project_id="project-2").to_dict()
+
+        outcome = self.guard(value)
+
+        self.assertEqual(outcome.directive, HookDirective.DENY)
+        self.assertEqual(outcome.annotations["guard_code"], "SESSION_PROJECT_MISMATCH")
+
+    def test_durable_lineage_project_mismatch_is_denied(self):
+        self.source.session_adapter = "dummy"
+        self.source.session_project = "project-2"
+
+        outcome = self.guard(context("send"))
+
+        self.assertEqual(outcome.directive, HookDirective.DENY)
+        self.assertEqual(outcome.annotations["guard_code"], "SESSION_PROJECT_MISMATCH")
 
     def test_same_session_id_on_different_adapter_is_denied(self):
         self.source.session_adapter = "dummy"
