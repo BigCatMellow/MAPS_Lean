@@ -5,27 +5,24 @@
 - Type: `PLANNING`
 - Owner: `TOWER`
 - Risk: `MEDIUM`
-- Goal: Create a shared, evidence-backed multi-agent dispatch packet and working roadmap that tells each active MAPS lane what to do next, what to wait for, and what evidence must exist before downstream work resumes, without changing canonical task/review/merge authority.
+- Goal: maintain a shared, evidence-backed multi-agent dispatch packet and working roadmap that tells each active MAPS lane what to do next, what to wait for, and what evidence releases downstream work, without changing canonical task/review/merge authority.
 
 ## Inputs and source of truth
 
 - Inputs:
-  - live `main` and open PR state recovered on 2026-08-16;
+  - live `main` and relevant open PR/review/CI state;
   - `work/coordination/README.md`;
-  - `work/coordination/agents/ANVIL.md`;
-  - `work/coordination/agents/FOUNDRY.md`;
-  - `work/coordination/agents/SENTINEL.md`;
-  - `work/coordination/agents/SWITCHYARD.md`;
+  - current agent coordination notes;
   - `playbook/ROADMAP_AND_PROJECTUPDATER.md`;
   - `templates/roadmap.md`;
   - `templates/task.md`;
-  - live PR evidence for #30, #39, #44, #48, #68, and #70 plus their known downstream stacks.
-- Authoritative sources: live GitHub state and accepted MAPS state win over this task, the roadmap, the dispatch note, coordination snapshots, and chat summaries.
+  - live root-gate evidence for #30, #39, #44, #48 and coordination work #68/#70.
+- Authoritative sources: live GitHub state and accepted MAPS state win over this task, roadmap, dispatch note, coordination snapshots, PR-body summaries, and chat history.
 - Evidence labels:
-  - `VERIFIED` = directly re-read from current GitHub/repository evidence while shaping this packet;
-  - `REPORTED` = stated in an owner/review/integration record but not independently reproduced by TOWER here;
-  - `UNKNOWN` = not safely established and must be resolved by the assigned lane rather than guessed.
-- Dependencies / preconditions: none for writing the planning packet. Execution of individual dispatch items remains subject to each existing task/PR's own dependencies and authority gates.
+  - `VERIFIED` = directly re-read from current repository/GitHub evidence during the checkpoint;
+  - `REPORTED` = stated in a source but not mechanically reproduced by TOWER;
+  - `UNKNOWN` = not safely established and assigned to the proper lane rather than guessed.
+- Dependencies / preconditions: individual dispatch actions remain subject to existing task/PR authority, ownership, review independence, and integration gates.
 
 ## Change boundary
 
@@ -33,71 +30,70 @@
   - `work/tasks/tower-current-dispatch-2026-08-16.md`;
   - `work/roadmaps/tower-current-dispatch-2026-08-16.md`;
   - `work/coordination/agents/TOWER-DISPATCH-2026-08-16.md`;
-  - top-level coordination comments on relevant existing PR threads that point owners/reviewers/integrators to this derived dispatch packet.
+  - top-level coordination comments on relevant PR threads.
 - MUST NOT CHANGE:
-  - existing owner-controlled files `work/coordination/agents/ANVIL.md`, `FOUNDRY.md`, `SENTINEL.md`, or `SWITCHYARD.md`;
-  - runtime, tests, schemas, policies, feature branches, existing task records, or existing roadmaps;
-  - canonical task lifecycle, branch ownership, review disposition, merge order, or merge state;
+  - owner-controlled `ANVIL.md`, `FOUNDRY.md`, `SENTINEL.md`, `SWITCHYARD.md`;
+  - runtime, tests, schemas, policies, feature branches, existing feature task records, or canonical project roadmaps;
+  - canonical task lifecycle, ownership, review disposition, merge order, or merge state;
   - SENTINEL findings or SWITCHYARD integration gates.
-- MAY CHANGE IF NECESSARY: this task/roadmap/dispatch packet only, after re-reading live state. Any additional repository path requires task amendment first.
-- OPERATOR APPROVAL REQUIRED: any material change to project priority, role architecture, scope, or consequential authority not already explicit in the operator request or accepted repository rules.
+- MAY CHANGE IF NECESSARY: only the three TOWER planning files above after live-state recovery. Any new repository path requires task amendment first.
+- OPERATOR APPROVAL REQUIRED: material scope, priority, role, or consequential-authority change not already explicit in operator instructions/canonical rules.
 
 ## Decision authority
 
-- Owner may decide: derived `NOW / NEXT / BLOCKED / PARKED` ordering from verified dependencies; which existing lane should receive a coordination request; how to word stop/resume conditions; how to structure the roadmap and dispatch packet.
-- Owner must escalate: conflicting canonical ownership, a requested priority change that materially changes operator intent, unresolved authority, or evidence showing the proposed role/dispatch architecture conflicts with accepted policy and cannot be reconciled without an operator decision.
+- Owner may decide: derived `NOW / NEXT / BLOCKED / PARKED` order from verified dependencies; which eligible lane should receive a coordination request; stop/resume wording; roadmap/checkpoint organization.
+- Owner must escalate: conflicting canonical ownership, unresolved authority, material operator-intent ambiguity, or a priority/role decision that evidence cannot resolve.
 
 ## Acceptance criteria
 
-- [x] A shared dated dispatch note exists beside the agent files and gives ANVIL, FOUNDRY, SENTINEL, SWITCHYARD, and TOWER explicit next actions, dependencies, hold conditions, resume conditions, required evidence, and handoff destinations.
-- [x] A MAPS-format working roadmap records current reality, observable DONE, final proof, boundaries, backward plan, mission-meeting results, first wave, dependencies, checkpoints, and re-plan triggers.
-- [x] The first wave prioritizes review/integration gates that unblock multiple downstream PRs rather than creating new speculative implementation work.
-- [x] The packet never treats TOWER's queue as canonical task/review/merge truth and never grants TOWER merge or independent-review authority.
-- [x] Existing owner-controlled agent notes are not modified.
-- [x] Final `main -> branch` delta contains only the three new planning/coordination Markdown files listed above.
+- [x] A shared dated dispatch note gives ANVIL, FOUNDRY, SENTINEL, SWITCHYARD, and TOWER explicit next actions, dependencies, hold/resume conditions, required evidence, and handoffs.
+- [x] A MAPS-format working roadmap records current reality, DONE/final proof, boundaries, backward plan, mission/checkpoint results, first wave, dependencies, phases, and re-plan triggers.
+- [x] Queue changes are driven by live gate outcomes rather than the original dispatch order.
+- [x] #30 is no longer incorrectly assigned to duplicate feature-head review after CLEAN IN-LAYER evidence appeared.
+- [x] #39 is no longer incorrectly assigned to initial synchronization after SWITCHYARD produced exact synchronized-head evidence.
+- [x] #44 remains at independent review until a repaired-head disposition exists.
+- [x] #48 remains at current-main synchronization after verified CLEAN IN-LAYER feature review.
+- [x] Downstream #41/#53, #45, and #49/#50 remain held behind accepted prerequisites.
+- [x] TOWER's queue is explicitly derived and does not create task/review/merge authority.
+- [x] Existing owner-controlled agent notes remain untouched by this branch.
+- [x] PR #72 branch delta remains limited to the three TOWER planning/coordination Markdown files.
 
 ## Verification and evidence
 
-- Verification:
-  - live `main` re-read immediately before final verification and remained `7269ce2be25993fa19b172f65c95381328585a35`;
-  - target root PRs were re-read while shaping: #30 `7bae6d5758619a391c7551ee4589ea2d80d0a5b8`, #44 `6f2b774eee27a0596820b12f080bfd7e60c0f50e`, #39 live `5928abe4550dbf7a75c2a2825e3cda5033ead830`, #48 `2f23959afff9525beada28993bad536878310b7f`;
-  - `main -> coord/tower-dispatch-20260816` compare was ahead-only, merge base exactly current `main`, and contained exactly the three declared new Markdown files;
-  - independent review is still required for factual freshness, dependency correctness, hidden authority, and unsafe parallelism before integration.
-- Evidence to preserve: exact `main` SHA, exact branch head, changed-file list, PR links/heads cited in the roadmap, and review disposition.
-- Review required: `INDEPENDENT_REVIEW`
+- `main` re-read at checkpoint: `7269ce2be25993fa19b172f65c95381328585a35`.
+- #30 re-read: head `7bae6d5758619a391c7551ee4589ea2d80d0a5b8`; CI #415 PASS; independent feature-head **CLEAN IN-LAYER** review found.
+- #44 re-read: head `6f2b774eee27a0596820b12f080bfd7e60c0f50e`; CI #419 PASS; current owner review handoff found, no CLEAN repaired-head disposition found at checkpoint.
+- #39 re-read: synchronized head `5928abe4550dbf7a75c2a2825e3cda5033ead830`; exact current main is reported merge base; CI #422 PASS; independent synchronized-head review remains next.
+- #48 re-read: head `2f23959afff9525beada28993bad536878310b7f`; CI #392 PASS; SENTINEL **CLEAN IN-LAYER / NOT INTEGRATION-READY**.
+- #70 repaired separately at `248aef12dff750ad53a1772942110c383202d738`, exact-head CI #435 PASS, independent re-review required.
+- #68 received a TOWER coordination return because its permanent FOUNDRY planning-role proposal is superseded by newer operator intent; TOWER did not modify that branch.
+- Review required for this packet: `INDEPENDENT_REVIEW`.
 
 ## Conditional execution rules
 
-- Environment / target: GitHub repository coordination/planning only.
 - Ordered procedure:
   1. recover live state;
-  2. build dependency graph;
-  3. write shared dispatch packet;
-  4. write working roadmap;
-  5. verify exact delta;
-  6. notify relevant PR threads without changing feature branches;
-  7. hand packet to independent review.
+  2. compare it to the current roadmap queue;
+  3. record completed gates/checkpoint evidence;
+  4. move only legitimately released work to NOW/NEXT;
+  5. update the three TOWER files;
+  6. verify exact branch delta;
+  7. notify affected PR threads when dispatch materially changes;
+  8. obtain independent review before integration of the TOWER packet.
 - Failure branches:
-  - IF `main` or a load-bearing target PR head moves during authoring THEN re-read the moved state and update affected dispatch facts before final verification;
-  - IF a claimed dependency cannot be verified THEN mark it `UNKNOWN` and assign inspection rather than inventing order;
-  - IF a dispatch action conflicts with a canonical task owner/status THEN canonical task state wins and TOWER updates the derived queue.
-- Rollback / recovery: delete/revert only this branch's three planning files if the packet is rejected; no feature/runtime rollback is in scope.
-- Security / privacy controls: do not copy secrets or private external content into coordination notes; preserve bounded repository evidence only.
-- External side effects: GitHub branch, planning files, PR, and coordination comments only; no deployment, merge, release, or external send beyond repository coordination.
-- Effort limit: if two or more first-wave target heads move before the packet is reviewed, refresh the first-wave evidence instead of continuing from stale facts.
-- Approved reference: `playbook/ROADMAP_AND_PROJECTUPDATER.md`, `templates/roadmap.md`, `templates/task.md`, and `work/coordination/README.md`.
+  - IF `main` or a load-bearing root head moves THEN re-read and update affected facts before dispatch;
+  - IF claimed review/CI cannot be bound to the exact head THEN mark the gate unproven rather than infer readiness;
+  - IF a dispatch conflicts with canonical ownership/task state THEN canonical state wins and TOWER revises the queue;
+  - IF an action would require TOWER to merge, independently approve, or rewrite another owner's branch THEN hand it to the proper role.
+- Rollback / recovery: revert only this branch's TOWER planning files/comments; no feature/runtime rollback in scope.
+- External side effects: repository coordination comments/files only; no deployment/release/merge by TOWER.
+- Effort limit: refresh the queue if two current root heads move or a new interface-changing blocker invalidates multiple downstream assumptions.
 
 ## Stop / escalate
 
-Stop rather than guess if:
+Stop rather than guess if live ownership conflicts, exact review/CI state is ambiguous, a new output path is required, or operator intent would materially change current priority/role architecture.
 
-- live ownership conflicts with the dispatch target;
-- exact review/CI state is materially ambiguous;
-- an agent would need to modify another owner's branch/file without a valid handoff;
-- execution would require TOWER to merge, independently approve, or suppress a review finding;
-- operator intent changes the priority or role architecture materially.
-
-Escalate to: operator for material intent/role/priority decisions; SENTINEL for independent review questions; SWITCHYARD for integration safety/merge gating.
+Escalate to: operator for material intent/priority/role choices; SENTINEL for independent review; SWITCHYARD for integration/merge safety; development owner for returned implementation defects.
 
 ## AGI readiness
 
@@ -111,13 +107,17 @@ Escalate to: operator for material intent/role/priority decisions; SENTINEL for 
 
 ## Notes / decisions
 
-- The operator explicitly requested TOWER to place messages beside the agent files telling each agent what to do next and to roadmap the work under MAPS protocols.
-- The shared dispatch file is intentionally separate from each owner's status file to comply with `work/coordination/README.md`.
-- This task does not depend on PR #70 being integrated; PR #70's TOWER-role/roadmap-guidance work remains a separate open coordination change with its own review findings.
+- Checkpoint decision: `CHANGE` — live evidence advanced two original first-wave gates, so the dispatch was revised instead of preserving stale assignments.
+- #30: review complete -> SWITCHYARD integration.
+- #39: synchronization complete -> independent synchronized-head review.
+- #44: independent feature-head review still required.
+- #48: SWITCHYARD current-main synchronization still required.
+- Permanent coordination architecture remains TOWER planning/dispatch; ANVIL + FOUNDRY development; SENTINEL review; SWITCHYARD integration.
+- PR #70 role/guidance repair and PR #68 owner reconciliation are tracked as coordination work and do not release downstream runtime branches by themselves.
 
 ## Completion / handoff
 
-- Completed: shared dispatch note, MAPS working roadmap, task contract, live-state refresh, exact three-file delta verification, draft PR #72, and coordination comments to ANVIL (#67), FOUNDRY (#68), SENTINEL (#69), plus SWITCHYARD targets #39/#48.
-- Not completed: independent review and integration of this coordination packet.
-- Current blocker: independent review is required before integration.
-- Next action if not DONE: independently review exact PR #72 head for factual freshness, dependency correctness, hidden authority, unsafe parallelism, and consistency with MAPS coordination/roadmap rules.
+- Completed: initial dispatch, MAPS roadmap, root-gate checkpoint refresh, #70 delivery repair, #68 coordination return, and updated per-agent instructions.
+- Not completed: current four root gates, independent review/integration of PR #72, #70 independent re-review/integration, #68 owner reconciliation.
+- Current blocker for PR #72: independent review required before integration.
+- Next action if not DONE: verify exact PR #72 delta/head after this checkpoint, update PR metadata/comments, then continue monitoring root gates from live evidence.
