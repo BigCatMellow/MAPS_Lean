@@ -149,30 +149,48 @@ def _parse_frontmatter_lines(
     return values, tuple(keys)
 
 
+def _parse_skill_payload(
+    payload: bytes, *, path: Path
+) -> tuple[dict[str, str], tuple[str, ...], str]:
+    """Parse discovery metadata and body from one immutable byte snapshot."""
+
+    try:
+        text = payload.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise SkillParseError(f"{path}: SKILL.md must be UTF-8 text") from exc
+
+    lines = text.splitlines(keepends=True)
+    if not lines or lines[0].rstrip("\r\n") != _FRONTMATTER_DELIMITER:
+        raise SkillParseError(f"{path}: SKILL.md must begin with '---' frontmatter")
+
+    frontmatter: list[str] = []
+    for index, line in enumerate(lines[1:], start=1):
+        if line.rstrip("\r\n") == _FRONTMATTER_DELIMITER:
+            values, keys = _parse_frontmatter_lines(frontmatter, path=path)
+            body = "".join(lines[index + 1 :]).lstrip("\r\n")
+            return values, keys, body
+        frontmatter.append(line)
+    raise SkillParseError(f"{path}: SKILL.md frontmatter is not closed with '---'")
+
+
 def _read_frontmatter(path: Path) -> tuple[dict[str, str], tuple[str, ...]]:
     if path.is_symlink() or not path.is_file():
         raise SkillParseError(f"{path}: SKILL.md must be a regular file")
-
-    frontmatter: list[str] = []
-    with path.open("r", encoding="utf-8-sig") as handle:
-        first = handle.readline()
-        if first.rstrip("\r\n") != _FRONTMATTER_DELIMITER:
-            raise SkillParseError(f"{path}: SKILL.md must begin with '---' frontmatter")
-        for line in handle:
-            if line.rstrip("\r\n") == _FRONTMATTER_DELIMITER:
-                return _parse_frontmatter_lines(frontmatter, path=path)
-            frontmatter.append(line)
-    raise SkillParseError(f"{path}: SKILL.md frontmatter is not closed with '---'")
+    values, keys, _ = _parse_skill_payload(path.read_bytes(), path=path)
+    return values, keys
 
 
 def _read_body(path: Path) -> str:
-    with path.open("r", encoding="utf-8-sig") as handle:
-        if handle.readline().rstrip("\r\n") != _FRONTMATTER_DELIMITER:
-            raise SkillParseError(f"{path}: SKILL.md must begin with '---' frontmatter")
-        for line in handle:
-            if line.rstrip("\r\n") == _FRONTMATTER_DELIMITER:
-                return handle.read().lstrip("\r\n")
-    raise SkillParseError(f"{path}: SKILL.md frontmatter is not closed with '---'")
+    """Legacy helper retained for discovery/body-separation tests.
+
+    Activation does not use this function; it parses the body from the exact
+    bytes included in the verified directory snapshot.
+    """
+
+    if path.is_symlink() or not path.is_file():
+        raise SkillParseError(f"{path}: SKILL.md must be a regular file")
+    _, _, body = _parse_skill_payload(path.read_bytes(), path=path)
+    return body
 
 
 def _regular_files(skill_root: Path) -> tuple[Path, ...]:
@@ -188,12 +206,10 @@ def _regular_files(skill_root: Path) -> tuple[Path, ...]:
     return tuple(sorted(files, key=lambda item: item.relative_to(skill_root).as_posix()))
 
 
-def _directory_hash(skill_root: Path, files: Iterable[Path] | None = None) -> str:
+def _hash_snapshot(skill_root: Path, snapshot: Iterable[tuple[Path, bytes]]) -> str:
     digest = hashlib.sha256()
-    selected = tuple(files) if files is not None else _regular_files(skill_root)
-    for path in selected:
+    for path, payload in snapshot:
         relative = path.relative_to(skill_root).as_posix().encode("utf-8")
-        payload = path.read_bytes()
         digest.update(b"FILE\0")
         digest.update(relative)
         digest.update(b"\0")
@@ -202,6 +218,34 @@ def _directory_hash(skill_root: Path, files: Iterable[Path] | None = None) -> st
         digest.update(payload)
         digest.update(b"\0")
     return digest.hexdigest()
+
+
+def _directory_hash(skill_root: Path, files: Iterable[Path] | None = None) -> str:
+    selected = tuple(files) if files is not None else _regular_files(skill_root)
+    snapshot = tuple((path, path.read_bytes()) for path in selected)
+    return _hash_snapshot(skill_root, snapshot)
+
+
+def _verified_snapshot(
+    descriptor: SkillDescriptor,
+) -> tuple[tuple[tuple[Path, bytes], ...], str]:
+    """Read activation bytes once and verify that exact snapshot identity."""
+
+    files = _regular_files(descriptor.root)
+    snapshot: list[tuple[Path, bytes]] = []
+    for path in files:
+        if path.is_symlink() or not path.is_file():
+            raise SkillChangedError(
+                f"{descriptor.root}: Skill content changed after discovery; rediscover before use"
+            )
+        snapshot.append((path, path.read_bytes()))
+    frozen = tuple(snapshot)
+    digest = _hash_snapshot(descriptor.root, frozen)
+    if digest != descriptor.content_sha256:
+        raise SkillChangedError(
+            f"{descriptor.root}: Skill content changed after discovery; rediscover before use"
+        )
+    return frozen, digest
 
 
 def _group(paths: tuple[str, ...], prefix: str) -> tuple[str, ...]:
@@ -263,21 +307,47 @@ def discover_skills(skills_root: str | Path) -> tuple[SkillDescriptor, ...]:
 
 
 def load_skill(descriptor: SkillDescriptor) -> SkillDocument:
-    """Activate one previously discovered Skill after verifying content identity."""
+    """Activate one Skill from the exact bytes matching its discovered identity."""
 
-    current = _descriptor_for_root(descriptor.root)
-    if current.content_sha256 != descriptor.content_sha256:
+    snapshot, digest = _verified_snapshot(descriptor)
+    by_relative = {
+        path.relative_to(descriptor.root).as_posix(): payload
+        for path, payload in snapshot
+    }
+    skill_payload = by_relative.get("SKILL.md")
+    if skill_payload is None:
         raise SkillChangedError(
             f"{descriptor.root}: Skill content changed after discovery; rediscover before use"
         )
+
+    values, metadata_keys, body = _parse_skill_payload(
+        skill_payload,
+        path=descriptor.skill_file,
+    )
+    relative_files = tuple(sorted(by_relative))
+    resources = tuple(path for path in relative_files if path != "SKILL.md")
+    current = SkillDescriptor(
+        skill_id=descriptor.root.name,
+        name=values["name"],
+        description=values["description"],
+        root=descriptor.root,
+        skill_file=descriptor.skill_file,
+        content_sha256=digest,
+        declared_metadata_keys=metadata_keys,
+        resource_paths=resources,
+        script_paths=_group(resources, "scripts"),
+        reference_paths=_group(resources, "references"),
+        asset_paths=_group(resources, "assets"),
+        example_paths=_group(resources, "examples"),
+    )
     if (
         current.skill_id != descriptor.skill_id
         or current.name != descriptor.name
         or current.description != descriptor.description
+        or current.declared_metadata_keys != descriptor.declared_metadata_keys
+        or current.resource_paths != descriptor.resource_paths
     ):
-        # The content hash should already catch this; keep the explicit identity
-        # check so future hash/refactoring mistakes fail closed.
         raise SkillChangedError(
             f"{descriptor.root}: Skill identity changed after discovery"
         )
-    return SkillDocument(descriptor=current, body=_read_body(current.skill_file))
+    return SkillDocument(descriptor=current, body=body)
