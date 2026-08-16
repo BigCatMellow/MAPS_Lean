@@ -169,39 +169,46 @@ class HookRegistry:
 
     Hooks may deny, require existing approval, or annotate evidence. Running this
     registry does not grant task ownership, scope, policy authority, or operator
-    approval. Mandatory enforcement is recognized only from a callback that
-    explicitly declares a valid ``hook_enforcement`` role; ordinary HookSpec
-    configuration cannot grant that role.
+    approval. Ordinary Hook registration never creates mandatory enforcement;
+    trusted composition code must explicitly bind an enforcement role inside the
+    registry after validating the concrete guard implementation.
     """
 
     def __init__(self) -> None:
         self._specs: list[tuple[int, HookSpec]] = []
         self._ids: set[str] = set()
+        self._enforcements: set[tuple[HookEvent, HookEnforcement]] = set()
         self._sequence = 0
-
-    @staticmethod
-    def _callback_enforcement(callback: HookCallback) -> HookEnforcement | None:
-        marker = getattr(callback, "hook_enforcement", None)
-        if marker is None:
-            return None
-        if not isinstance(marker, HookEnforcement):
-            raise TypeError("hook_enforcement must be a HookEnforcement")
-        return marker
 
     def register(self, spec: HookSpec) -> None:
         if not isinstance(spec, HookSpec):
             raise TypeError("spec must be a HookSpec")
-        enforcement = self._callback_enforcement(spec.callback)
-        if enforcement is not None:
-            if spec.failure_policy != HookFailurePolicy.FAIL_CLOSED:
-                raise ValueError("mandatory enforcement Hooks must fail closed")
-            if spec.side_effect != HookSideEffect.READ_ONLY:
-                raise ValueError("mandatory canonical enforcement Hooks must be read-only")
         if spec.hook_id in self._ids:
             raise ValueError(f"duplicate hook_id: {spec.hook_id}")
         self._ids.add(spec.hook_id)
         self._specs.append((self._sequence, spec))
         self._sequence += 1
+
+    def _register_enforcement(
+        self,
+        spec: HookSpec,
+        enforcement: HookEnforcement,
+    ) -> None:
+        """Internal composition path for already-validated mandatory guards.
+
+        Caller-controlled callback attributes are deliberately ignored. The
+        policy composition root validates the exact guard type before using this
+        path, and the registry records the enforcement role itself.
+        """
+
+        if not isinstance(enforcement, HookEnforcement):
+            raise TypeError("enforcement must be a HookEnforcement")
+        if spec.failure_policy != HookFailurePolicy.FAIL_CLOSED:
+            raise ValueError("mandatory enforcement Hooks must fail closed")
+        if spec.side_effect != HookSideEffect.READ_ONLY:
+            raise ValueError("mandatory canonical enforcement Hooks must be read-only")
+        self.register(spec)
+        self._enforcements.add((spec.event, enforcement))
 
     def list_for(self, event: HookEvent) -> tuple[HookSpec, ...]:
         if not isinstance(event, HookEvent):
@@ -215,12 +222,11 @@ class HookRegistry:
         return tuple(spec for _, spec in matching)
 
     def has_enforcement(self, event: HookEvent, enforcement: HookEnforcement) -> bool:
+        if not isinstance(event, HookEvent):
+            raise TypeError("event must be a HookEvent")
         if not isinstance(enforcement, HookEnforcement):
             raise TypeError("enforcement must be a HookEnforcement")
-        return any(
-            self._callback_enforcement(spec.callback) == enforcement
-            for spec in self.list_for(event)
-        )
+        return (event, enforcement) in self._enforcements
 
     def run(
         self,
