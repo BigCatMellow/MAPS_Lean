@@ -119,7 +119,7 @@ class AcquisitionEvidenceTests(unittest.TestCase):
             fragments["release.acquisition_paths_verified"]["evidence_refs"], []
         )
 
-    def test_explicit_allowed_not_applicable_is_not_silent_omission(self):
+    def test_explicit_allowed_not_applicable_preserves_stale_visible_unknown(self):
         report = evaluate_acquisition_evidence(
             manifest(),
             [observed("download", SHA_A, "download"), not_applicable("archive")],
@@ -128,10 +128,15 @@ class AcquisitionEvidenceTests(unittest.TestCase):
 
         fragments = report["benchmark_property_fragments"]
         self.assertEqual(fragments["release.acquisition_paths_verified"]["state"], "PASS")
-        self.assertEqual(fragments["release.no_stale_visible_artifact"]["state"], "PASS")
+        self.assertEqual(fragments["release.no_stale_visible_artifact"]["state"], "UNKNOWN")
+        self.assertEqual(
+            fragments["release.no_stale_visible_artifact"]["evidence_refs"], []
+        )
         self.assertEqual(fragments["operator.result_usable"]["state"], "PASS")
         archive = next(item for item in report["paths"] if item["path_id"] == "archive")
         self.assertEqual(archive["reason"], "explicit_not_applicable")
+        self.assertEqual(archive["acquisition_status"], "PASS")
+        self.assertEqual(archive["stale_visible_status"], "UNKNOWN")
         self.assertEqual(
             archive["evidence"]["not_applicable_decision_ref"],
             "decision:archive-na",
