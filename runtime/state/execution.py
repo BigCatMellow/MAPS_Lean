@@ -329,6 +329,8 @@ class ExecutionMixin:
                 conn.commit()
             except sqlite3.IntegrityError:
                 conn.rollback()
+                if explicit_run_id is None:
+                    raise
                 return MutationResult(
                     False,
                     "SUBMISSION_RUN_LINK_CONFLICT",
