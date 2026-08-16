@@ -120,13 +120,23 @@ Requires both:
 1. manifest permission for N/A on that path; and
 2. an explicit N/A decision evidence ref.
 
+An allowed N/A decision may satisfy **acquisition-path coverage** for that declared path. It does not mechanically prove anything about whether a previously operator-visible archive/download/install surface has been withdrawn or is no longer exposing stale content.
+
+Therefore for an operator-visible allowed-N/A path:
+
+- acquisition coverage = `PASS`;
+- stale-visible state = `UNKNOWN` unless separate structured evidence proves the surface is gone/non-visible/non-applicable;
+- usability for that path = `NOT_APPLICABLE`.
+
+This v1 observation shape does not carry separate withdrawal/non-visibility evidence, so allowed operator-visible N/A remains stale-visible `UNKNOWN`.
+
 If a caller claims N/A where the manifest does not permit it:
 
 - acquisition coverage = `FAIL`;
 - stale-content state = `UNKNOWN` for an operator-visible path;
 - usability = `UNKNOWN`, because an invalid scope claim is **not** proof that the artifact itself is unusable.
 
-This preserves the distinction between coverage correctness and artifact usability.
+This preserves the distinction between coverage correctness, stale-visible safety, and artifact usability.
 
 ## Stale and usable are separate dimensions
 
@@ -171,9 +181,9 @@ For an observed operator-visible path:
 - expected ref == observed ref -> PASS;
 - mismatch -> FAIL.
 
-For missing, UNKNOWN, or unreachable operator-visible paths, stale-content state is `UNKNOWN` because no content identity was established.
+For missing, UNKNOWN, unreachable, or allowed-N/A operator-visible paths without separate withdrawal/non-visibility proof, stale-content state is `UNKNOWN`.
 
-An explicitly permitted N/A path is not counted as a stale visible path because its removal/exclusion is itself backed by a decision ref.
+An N/A decision ref is evidence that the path was declared out of scope for acquisition coverage. It is **not** evidence that an old visible surface disappeared.
 
 ## Usability evidence
 
@@ -208,7 +218,7 @@ The report separately records a deterministic manifest SHA-256.
 
 ## Benchmark bridge
 
-The report emits #42-compatible property fragments for:
+The report emits the merged benchmark-result validator's compatible property fragments for:
 
 ```text
 release.acquisition_paths_verified
@@ -216,7 +226,7 @@ release.no_stale_visible_artifact
 operator.result_usable
 ```
 
-PASS/FAIL fragments reference the deterministic acquisition report. UNKNOWN fragments carry no evidence refs, matching #42's contract.
+PASS/FAIL fragments reference the deterministic acquisition report. UNKNOWN fragments carry no evidence refs, matching the benchmark-result contract.
 
 A complete real `E2E-L3-001` result still separately requires:
 
@@ -320,14 +330,22 @@ no stale visible        FAIL
 operator result usable  PASS
 ```
 
-### Allowed N/A
+### Allowed N/A without withdrawal proof
 
 ```text
 archive NOT_APPLICABLE
 not_applicable_decision_ref = decision:...
 ```
 
-Passes only if the manifest explicitly permits N/A.
+When the manifest explicitly permits N/A:
+
+```text
+acquisition paths       PASS
+no stale visible        UNKNOWN
+operator result usable  PASS if another operator-visible path is verified usable
+```
+
+The N/A decision does not prove the old archive/download/install surface was removed.
 
 ### Disallowed N/A
 
@@ -375,14 +393,14 @@ The focused suite covers:
 1. exact paths -> all three benchmark fragments PASS;
 2. stale-but-usable -> content/stale FAIL, usability PASS;
 3. missing observation -> UNKNOWN;
-4. allowed N/A with decision evidence -> PASS without silent omission;
+4. allowed operator-visible N/A with decision evidence -> acquisition coverage PASS but stale-visible UNKNOWN without withdrawal/non-visibility proof;
 5. forbidden N/A -> acquisition FAIL while usability remains UNKNOWN;
 6. unreachable path -> acquisition FAIL, stale UNKNOWN;
 7. contradictory observation shapes fail closed;
 8. unknown/duplicate observations fail closed;
 9. report identity is stable across observation ordering and cosmetic labels;
 10. explicit non-authority/provenance flags;
-11. valid fragments fit #42's `E2E-L3-001` property schema;
+11. valid fragments fit the merged benchmark-result validator's `E2E-L3-001` property schema;
 12. one valid Layer-3 scenario cannot complete the full benchmark while other required scenarios are absent.
 
 ## Real Layer-3 continuation
