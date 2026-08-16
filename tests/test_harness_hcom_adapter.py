@@ -139,6 +139,18 @@ class HcomHarnessAdapterTests(unittest.TestCase):
         self.assertEqual(stopped.code, "STOP_REQUESTED")
         self.assertEqual(self.backend.stopped, ["codex-1"])
 
+    def test_stop_normalizes_low_level_value_error(self):
+        def reject(name):
+            raise ValueError("provider-controlled invalid target")
+
+        self.backend.stop = reject
+        result = self.adapter.stop(binding(), "operator requested stop")
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "INVALID_ARGUMENT")
+        self.assertEqual(result.data["error_type"], "ValueError")
+        self.assertNotIn("provider-controlled", result.summary)
+
     def test_provider_failure_is_structured(self):
         def fail(*, include_stopped=False):
             raise HcomError("do not expose me")

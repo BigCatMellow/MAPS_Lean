@@ -49,17 +49,24 @@ HookCallback = Callable[[Mapping[str, Any]], "HookOutcome"]
 
 
 def _freeze_hook_value(value: Any) -> Any:
-    """Recursively freeze hook context so hooks cannot rewrite later guard input."""
+    """Detach and recursively freeze the bounded structured Hook value contract."""
 
+    if value is None or isinstance(value, (str, int, float, bool, bytes)):
+        return value
     if isinstance(value, Mapping):
-        return MappingProxyType(
-            {key: _freeze_hook_value(item) for key, item in value.items()}
-        )
+        frozen: dict[str, Any] = {}
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise TypeError("Hook mapping keys must be strings")
+            frozen[key] = _freeze_hook_value(item)
+        return MappingProxyType(frozen)
     if isinstance(value, (list, tuple)):
         return tuple(_freeze_hook_value(item) for item in value)
     if isinstance(value, (set, frozenset)):
         return frozenset(_freeze_hook_value(item) for item in value)
-    return value
+    raise TypeError(
+        "Hook values must contain only immutable scalars, mappings, or supported sequences"
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,6 +77,8 @@ class HookOutcome:
     annotations: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        if not isinstance(self.directive, HookDirective):
+            raise TypeError("directive must be a HookDirective")
         if self.directive in {HookDirective.DENY, HookDirective.REQUIRE_APPROVAL}:
             if self.reason is None or not self.reason.strip():
                 raise ValueError(f"{self.directive.value} requires a reason")
@@ -80,7 +89,7 @@ class HookOutcome:
             "evidence_refs",
             tuple(_require_text(ref, "evidence reference") for ref in self.evidence_refs),
         )
-        object.__setattr__(self, "annotations", MappingProxyType(dict(self.annotations)))
+        object.__setattr__(self, "annotations", _freeze_hook_value(self.annotations))
 
 
 @dataclass(frozen=True, slots=True)
@@ -94,6 +103,12 @@ class HookSpec:
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "hook_id", _require_text(self.hook_id, "hook_id"))
+        if not isinstance(self.event, HookEvent):
+            raise TypeError("event must be a HookEvent")
+        if not isinstance(self.side_effect, HookSideEffect):
+            raise TypeError("side_effect must be a HookSideEffect")
+        if not isinstance(self.failure_policy, HookFailurePolicy):
+            raise TypeError("failure_policy must be a HookFailurePolicy")
         if not callable(self.callback):
             raise TypeError("callback must be callable")
 
@@ -164,6 +179,8 @@ class HookRegistry:
         self._sequence += 1
 
     def list_for(self, event: HookEvent) -> tuple[HookSpec, ...]:
+        if not isinstance(event, HookEvent):
+            raise TypeError("event must be a HookEvent")
         matching = [
             (sequence, spec)
             for sequence, spec in self._specs
@@ -177,7 +194,21 @@ class HookRegistry:
         event: HookEvent,
         context: Mapping[str, Any] | None = None,
     ) -> HookRunResult:
-        frozen_context = _freeze_hook_value(dict(context or {}))
+        if not isinstance(event, HookEvent):
+            raise TypeError("event must be a HookEvent")
+        try:
+            frozen_context = _freeze_hook_value(dict(context or {}))
+        except Exception as exc:
+            outcome = HookOutcome(
+                HookDirective.DENY,
+                reason="Hook context failed safe validation.",
+                annotations={"error_type": type(exc).__name__},
+            )
+            return HookRunResult(
+                event=event,
+                invocations=(HookInvocation("__context_guard__", outcome),),
+            )
+
         invocations: list[HookInvocation] = []
 
         for spec in self.list_for(event):

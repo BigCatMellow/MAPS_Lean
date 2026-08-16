@@ -215,7 +215,7 @@ class CanonicalRunGuardTests(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertEqual(result.code, "HOOK_DENIED")
         self.assertEqual(adapter.calls, [])
-        self.assertEqual(result.data["blocking_reasons"], ["Continuing execution requires the active task claimant."])
+        self.assertEqual(result.data["blocking_reasons"], ("Continuing execution requires the active task claimant.",))
 
 
 if __name__ == "__main__":
