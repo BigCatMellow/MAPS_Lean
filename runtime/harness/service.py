@@ -154,12 +154,13 @@ class HarnessService:
         if error is not None:
             return error
         assert adapter is not None
+        canonical_adapter_id = str(adapter.adapter_id).strip()
 
         before = self.hooks.run(
             HookEvent.RUN_STARTING,
             self._context(
                 "start",
-                adapter_id=adapter_id,
+                adapter_id=canonical_adapter_id,
                 binding=binding,
                 details={"launch_spec": dict(launch_spec)},
             ),
@@ -173,7 +174,7 @@ class HarnessService:
 
         after = self.hooks.run(
             HookEvent.RUN_STARTED,
-            self._context("start", adapter_id=adapter_id, binding=binding),
+            self._context("start", adapter_id=canonical_adapter_id, binding=binding),
         )
         if not after.permitted:
             return self._hook_block(

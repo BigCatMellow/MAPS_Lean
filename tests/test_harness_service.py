@@ -204,6 +204,21 @@ class HarnessServiceTests(unittest.TestCase):
         self.assertEqual(result.code, "HOOK_DENIED")
         self.assertEqual(self.adapter.calls, [])
 
+    def test_start_hook_observes_canonical_selected_adapter_id(self):
+        seen = []
+
+        def guard(ctx):
+            seen.append(ctx["adapter_id"])
+            return HookOutcome(HookDirective.ALLOW)
+
+        self.hooks.register(HookSpec("start-id", HookEvent.RUN_STARTING, guard))
+
+        result = self.service.start(" dummy ", binding(session_id=None), {"tool": "x"})
+
+        self.assertTrue(result.ok)
+        self.assertEqual(seen, ["dummy"])
+        self.assertEqual(self.adapter.calls[0][0], "start")
+
     def test_post_start_block_preserves_that_mutation_already_happened(self):
         self.hooks.register(
             HookSpec(
