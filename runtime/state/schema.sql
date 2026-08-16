@@ -273,3 +273,34 @@ BEFORE DELETE ON task_outcomes
 BEGIN
     SELECT RAISE(ABORT, 'task outcomes are immutable');
 END;
+
+-- Immutable subject/evidence binding for a claimed review. This identifies the
+-- exact submission/task/run/artifact subject under review; it grants no review
+-- authority and does not alter the task lifecycle by itself.
+CREATE TABLE IF NOT EXISTS review_subjects (
+    review_id INTEGER PRIMARY KEY REFERENCES reviews(id) ON DELETE CASCADE,
+    task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
+    submission_count INTEGER NOT NULL CHECK (submission_count > 0),
+    task_revision TEXT NOT NULL,
+    run_id TEXT REFERENCES run_manifests(run_id),
+    artifact_refs TEXT NOT NULL DEFAULT '[]',
+    freshness_mode TEXT NOT NULL CHECK (
+        freshness_mode IN ('REVISION_BOUND','REDERIVED_AT_REVIEW','NON_CONSEQUENTIAL')
+    ),
+    bound_by TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_review_subjects_task
+    ON review_subjects(task_id, review_id);
+
+CREATE TRIGGER IF NOT EXISTS trg_review_subjects_no_update
+BEFORE UPDATE ON review_subjects
+BEGIN
+    SELECT RAISE(ABORT, 'review subjects are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_review_subjects_no_delete
+BEFORE DELETE ON review_subjects
+BEGIN
+    SELECT RAISE(ABORT, 'review subjects are immutable');
+END;
