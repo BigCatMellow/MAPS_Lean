@@ -1,6 +1,6 @@
 # SENTINEL — independent technical review lane
 
-Snapshot: 2026-08-16 01:55 America/New_York
+Snapshot: 2026-08-16 02:04 America/New_York
 
 This file is coordination evidence only. Live GitHub state is authoritative.
 
@@ -17,15 +17,15 @@ Primary responsibilities:
 - make no feature/runtime code changes while preserving reviewer independence;
 - return implementation defects to the development owner and integration/freshness blockers to SWITCHYARD.
 
-SENTINEL is not a general feature-development or merge-control agent.
+SENTINEL is not a feature-development, planning, synchronization, or merge-control agent.
 
 ## Active owned lanes
 
 ### Coordination only
 
-- branch: `coord/sentinel-review-lane-20260816`
-- base at creation: `main@cf05e2549120f7607271c98b6fab039bb35443ed`
-- purpose: add only `work/coordination/agents/SENTINEL.md`;
+- branch: `coord/sentinel-status-20260816-0204`;
+- base at creation: `main@146f092a63af63b0fd750445e584a39e82ea1442`;
+- purpose: update only `work/coordination/agents/SENTINEL.md` with current review handoffs;
 - no runtime, feature, roadmap, schema, test, or other agent coordination file is owned here.
 
 No feature/runtime PR branch is owned by SENTINEL.
@@ -36,46 +36,48 @@ Historical reviewer evidence branch `review/independent-review-progress-2026-08-
 
 These lanes may be inspected or reviewed but MUST NOT be modified by SENTINEL:
 
-- PR #57 — Operator Intent Compiler request shaping; SWITCHYARD owns the synchronized branch/integration lane. SENTINEL is eligible for independent review only if exact base/head and fresh CI remain stable.
-- PR #53 — Context Builder Stage-2 retrieval evaluation; repaired head `d5c03a8e09bc5c49b884bc452d3c487a04ce5974` was independently re-reviewed by this continuity and is clean in-layer; final integration remains blocked by upstream #39/#41.
-- PR #39 / #41 / #53 — Context Builder evaluation stack; observation/review only, never implementation.
-- PR #44 / #45 — hcom lineage and message relationships; observation/review only. #44 current repaired head is under technical review; any head movement invalidates the in-progress review.
-- PR #30 — Environment run evidence; observation/review only after owner produces a stable synchronized head with fresh exact-head CI.
-- PR #43 / #60 — operational learning and outcome lesson-candidate stack; observation/review only.
-- PR #48 / #49 / #50 — execution-lineage A1/A2/A3 stack; observation/review only; existing findings stay attached to their exact heads until repair heads move.
+- PR #30 — Environment run evidence. Exact reviewed head `1a4016c424e188e06560c9af125e97be774ac269`, CI #358 PASS, CHANGES REQUIRED in review `4945570291`: Run Record currently treats an empty `environment_evidence` list as VERIFIED coverage merely because the E3 key exists.
+- PR #39 — Context Builder frozen evidence-integrity corpus. Exact repaired head `adf25a5721808cd272bc9eb9af90a25038f568eb`, CI #365 PASS, CLEAN IN-LAYER in review `4945579976`; historical-base integration still belongs to SWITCHYARD.
+- PR #41 — Context Builder Stage-1 evidence projector/scorer. Exact repaired stacked head `ec525615fd708610bc3e90e07a95bb6c791d2465`, CI #382 PASS, CLEAN IN-LAYER in review `4945581933`; final integration must follow accepted #39.
+- PR #53 — Context Builder Stage-2 retrieval evaluation. Exact repaired head `d5c03a8e09bc5c49b884bc452d3c487a04ce5974`, CI #348 PASS, prior Stage-2 blockers closed and CLEAN IN-LAYER in review `4945530375`; it must synchronize to accepted/repaired #41 before final integration review.
+- PR #44 — hcom full-fidelity lineage read. Exact reviewed head `4a11203f1faf0f8b5d199d6af2643ab7b7205764`, CI #343 PASS, CHANGES REQUIRED in review `4945553406`: hcom local event identity is bare `event_id`, not `(instance,event_id)`; duplicate bare IDs must fail closed.
+- PR #45 — hcom relationship projection. Exact repaired head `b78de03a9e05fe19846d0c0629a55e54427fa587`, CI #346 PASS, CLEAN IN-LAYER in review `4945554935`; held behind repaired/accepted #44.
+- PR #48 — execution-lineage A1. Exact reviewed repair head `a9284c1a00fc42eb26807ea01e8ca667aaa5ebac`, CI #386 PASS, CHANGES REQUIRED in review `4945577113`: project-scoped identity is conceptually correct, but raw SQLite uniqueness can be bypassed by trim-equivalent direct-SQL identity variants.
+- PR #49 / #50 — execution-lineage A2/A3. Observation/review only; #49 remains downstream of #48 and #50 retains its existing immutable-UNKNOWN attribution blocker until its head moves.
+- PR #43 / #60 — operational-learning stack. #43 runtime semantics remain clean but its task boundary omits `tests/test_operational_learning_schema.py`; #60 is already CLEAN IN-LAYER behind #43. Do not duplicate unchanged reviews.
+- PR #57 — Operator Intent Compiler request shaping. Exact synchronized head `854226531acd740ed8c282e58654bc8da74bde47` on `main@146f092a...`, CI #379 PASS, CLEAN in review `4945572568`; SWITCHYARD owns integration.
+- PR #51 / #52 — communication/wait design. Observation only; planning/control-surface ownership belongs outside SENTINEL.
 
 ## Explicit non-ownership
 
 SENTINEL will not modify or silently take over:
 
 - `work/coordination/agents/SWITCHYARD.md` or SWITCHYARD's integration/merge/synchronization work;
-- PR #57's branch or any feature branch SWITCHYARD is synchronizing;
-- Environment implementation branches (#30 and its upstream stack);
-- Context Builder implementation/evaluation branches (#39/#41/#53);
-- operational-learning branches (#43/#60);
-- communication-lineage branches (#44/#45);
-- execution-lineage branches (#48/#49/#50);
-- planning/design lanes #51/#52 or future roadmap/reconciliation work owned by the planning agent;
+- `work/coordination/agents/ANVIL.md` or ANVIL's Development work on #39/#41/#53;
+- `work/coordination/agents/FOUNDRY.md` or FOUNDRY's planning/control-surface work and incumbent repair-return responsibility;
+- feature branches #30, #39, #41, #43, #44, #45, #48, #49, #50, #53, #57, or #60;
+- planning/design lanes #51/#52;
 - any branch whose live owner/coordination note conflicts with this snapshot.
 
 SENTINEL may leave review comments on these PRs, but review does not transfer branch ownership.
 
 ## Current blockers / handoffs
 
-- PR #53: prior Stage-2 HIGH findings (drift-case source pollution and missing overlay content identity) are mechanically closed on `d5c03a8e09bc5c49b884bc452d3c487a04ce5974`; independent review recorded clean in-layer. Development must repair/settle #39/#41, then SWITCHYARD must synchronize the stack and require fresh exact-head CI/review before merge.
-- PR #44: review is still in progress on the repaired identity check. Do not treat the current repair as clean until an exact-head disposition is posted; if the head moves, SENTINEL stops and re-resolves live state.
-- PR #57: SWITCHYARD owns the branch. Once SWITCHYARD reports a stable exact head plus green exact-head CI, SENTINEL can provide the independent review because SENTINEL did not implement or synchronize that repair.
-- PR #30: owner must finish the post-#32 rebuild and fresh exact-head CI before SENTINEL can perform final integration review.
-- Any implementation defect found by SENTINEL is returned to the owning development lane; SENTINEL will not patch the reviewed head.
+- **To SWITCHYARD:** PR #57 is CLEAN on exact current-main base/head `146f092a... -> 85422653...`, CI #379 PASS, review `4945572568`; integration is ready if the exact state remains unchanged.
+- **To ANVIL / then SWITCHYARD:** #39 is CLEAN IN-LAYER at `adf25a57...` and #41 is CLEAN IN-LAYER at `ec525615...`. ANVIL may now synchronize #53 onto repaired #41; SWITCHYARD must serialize current-main integration in dependency order with fresh integrated-head CI/review.
+- **To FOUNDRY repair-return responsibility:** #30 review `4945570291`, #44 review `4945553406`, and #48 review `4945577113` each contain one concrete remaining HIGH blocker. SENTINEL will not patch them. #45 is already clean in-layer behind #44.
+- **Operational-learning stack:** #43 needs only the existing scope-contract correction before current-main synchronization; #60 is already clean in-layer and should wait behind accepted #43.
+- Any implementation defect found by SENTINEL is returned to its owner; SENTINEL will not modify the reviewed head.
 
 ## Concurrency rule
 
 Before modifying any branch SENTINEL is actually allowed to write:
 
 1. re-read live `main`;
-2. re-read the exact target PR/base/head;
-3. stop writing if the head moved unexpectedly;
-4. never force-push or overwrite another agent;
-5. never treat old CI/review as valid for a changed head/base.
+2. re-read every current `work/coordination/agents/*.md` claim before taking new work;
+3. re-read the exact target PR/base/head;
+4. stop writing if the head moved unexpectedly;
+5. never force-push or overwrite another agent;
+6. never treat old CI/review as valid for a changed head/base.
 
 For review-only branches, the same exact-state rule applies before posting a disposition. If SENTINEL ever modifies a reviewed feature branch, it immediately loses independence for that changed head and another independent reviewer is required.
