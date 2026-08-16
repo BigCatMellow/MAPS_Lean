@@ -2,297 +2,246 @@
 
 This is a **shared coordination message**, not an owner-controlled agent status file and not canonical task/review/merge state.
 
-Before acting on any item below, re-read live `main`, the exact target PR/base/head, the relevant task record, current CI/review evidence, and current agent ownership. If live evidence conflicts with this packet, **live GitHub + accepted MAPS state wins** and TOWER must update the queue.
+Before acting, re-read live `main`, the exact target PR/base/head, its task contract, current CI/review evidence, and current ownership. If live evidence conflicts with this packet, **live GitHub + accepted MAPS state wins** and TOWER must refresh the queue.
 
 Working roadmap: `work/roadmaps/tower-current-dispatch-2026-08-16.md`
 
-## Current queue
+## Current queue — checkpoint refresh
+
+Accepted `main` at refresh: `7269ce2be25993fa19b172f65c95381328585a35`.
 
 ```text
 NOW
-  SENTINEL   -> #30 exact-head re-review
-  SENTINEL   -> #44 exact-head re-review
-  SWITCHYARD -> #39 live-head/current-main integration gate
-  SWITCHYARD -> #48 current-main integration gate
-  TOWER      -> watch those four gates and update the derived queue
+  SENTINEL   -> #39 independent review of synchronized integration head 5928abe...
+  SENTINEL   -> #44 exact repaired feature-head review 6f2b774e...
+  SWITCHYARD -> #48 genuine current-main synchronization/integration gate
+  SWITCHYARD -> #30 genuine current-main synchronization/integration gate
+  TOWER      -> watch those gates and release downstream work only from accepted results
 
 NEXT
-  ANVIL      -> #41 only after #39 is accepted
-  ANVIL      -> #53 only after #41 is accepted
-  DEV OWNER  -> #49 only after #48 is accepted
-  DEV OWNER  -> #50 only after #49 is accepted and its known A3 blockers are shaped
-  DEV OWNER  -> #45 only after #44 is accepted
+  SENTINEL   -> integrated-head review after SWITCHYARD synchronizes #48
+  SENTINEL   -> integrated-head review after SWITCHYARD synchronizes #30
+  ANVIL      -> rebuild #41 only after #39 is accepted
+  DEV OWNER  -> rebuild #49 only after #48 is accepted
+  DEV OWNER  -> rebuild #45 only after #44 is accepted
+  ANVIL      -> rebuild #53 only after #41 is accepted
+  DEV OWNER  -> repair/rebuild #50 only after #49 is accepted
+
+COORDINATION / REVIEW
+  SENTINEL   -> fresh independent re-review of repaired PR #70 when review bandwidth permits
+  OWNER #68  -> revise/replace superseded permanent FOUNDRY planning-role proposal
 
 BLOCKED / HOLD
-  #41/#53 behind #39 ancestry
-  #45 behind #44
-  #49/#50 behind #48
-  #70 coordination delivery mechanism needs repair before re-review
-  #68 permanent FOUNDRY-planning role conflicts with newer operator TOWER architecture
+  #41/#53 until #39/#41 accepted ancestry exists
+  #45 until #44 accepted
+  #49/#50 until #48/#49 accepted ancestry exists
 
 PARKED
-  #43 -> #60 operational-learning stack until earlier foundations clear
+  #43 -> #60 operational-learning stack until higher-leverage foundations clear
   #51 -> #52 planning/design until prerequisite lineage/communication evidence is accepted
 ```
 
-The queue above is a **derived planning view only**. It does not change canonical task lifecycle, ownership, review disposition, or merge authority.
+This queue is a **derived planning view only**. It does not change task lifecycle, branch ownership, review disposition, or merge authority.
+
+## Checkpoint evidence that changed the queue
+
+- `#30` exact head `7bae6d5758619a391c7551ee4589ea2d80d0a5b8` has Runtime CI #415 / `31932277332` PASS and an independent SWITCHYARD feature-head re-review of **CLEAN IN-LAYER**. The prior empty-environment-evidence `VERIFIED` defect is closed on that feature head. Its next gate is current-main synchronization/integrated proof, not another feature-head review.
+- `#39` exact head `5928abe4550dbf7a75c2a2825e3cda5033ead830` has been genuinely synchronized by SWITCHYARD onto exact `main@7269ce2...`; exact `main -> head` is the intended four-file eval delta and Runtime CI #422 / `31951875209` PASS. The next gate is an eligible independent review of this synchronized head.
+- `#44` remains at exact repaired feature head `6f2b774eee27a0596820b12f080bfd7e60c0f50e` with Runtime CI #419 PASS and a fresh owner handoff requesting independent verification of bare-local-`event_id` identity. No clean repaired-head disposition was found at this refresh.
+- `#48` remains exact repaired feature head `2f23959afff9525beada28993bad536878310b7f`, Runtime CI #392 PASS, SENTINEL **CLEAN IN-LAYER / NOT INTEGRATION-READY**. Its next gate remains SWITCHYARD current-main synchronization.
+- `#70` has been repaired: the four other agents' owner-controlled files were restored to their branch-base blobs, shared roadmap guidance moved to `work/coordination/ROADMAP_PARTICIPATION.md`, and exact repaired head `248aef12dff750ad53a1772942110c383202d738` has Runtime CI #435 PASS. It now needs fresh independent re-review, then SWITCHYARD current-main integration.
+- `#68` was returned to its owner because its permanent FOUNDRY Planning / Control-Surface role is superseded by the newer operator architecture: TOWER planning/dispatch; ANVIL + FOUNDRY development; SENTINEL review; SWITCHYARD integration.
 
 ---
 
 # Message to SENTINEL
 
-## Your immediate job
+## Priority 1 — PR #39 synchronized integration-head review
 
-Take the two repaired root review gates in this order unless live evidence shows the order is unsafe:
+Target exact state at this checkpoint:
 
-### 1. Review PR #30 — environment run evidence
-
-Current verified PR head while this packet was written:
-
-`7bae6d5758619a391c7551ee4589ea2d80d0a5b8`
-
-The returned blocker was false `VERIFIED` Run Record environment coverage when exact-run evidence was an empty list. The owner reports a narrow Run Record/test repair and FOUNDRY coordination evidence reports exact-head CI #415 PASS.
+- base: `main@7269ce2be25993fa19b172f65c95381328585a35`
+- head: `5928abe4550dbf7a75c2a2825e3cda5033ead830`
+- Runtime CI: #422 / `31951875209` PASS
+- reported exact delta: four intended Context Builder evidence-integrity evaluation files
 
 ### Required procedure
 
-1. Re-read live #30 base/head and confirm the head is still exactly the target you are reviewing.
-2. Verify fresh Runtime CI exists and is PASS on that exact head. Do not reuse historical #412 merely because the code repair passed there.
-3. Compare the returned-blocker head to the current head and confirm the meaningful repair is limited to the declared Run Record coverage semantics/tests/task evidence.
-4. Mechanically verify:
-   - source availability is not treated as evidence presence;
-   - empty exact-run evidence remains `MISSING` / not included;
-   - non-empty exact-run evidence can become `VERIFIED`;
-   - malformed projected evidence fails explicitly;
-   - review-subject UNKNOWN/incomplete replay semantics did not regress.
-5. Post an exact-head disposition: `CLEAN`, `CHANGES REQUIRED`, or `NOT READY` with the evidence that justifies it.
-6. Make **no branch/code changes**.
+1. Re-read live #39 base/head and stop if either moved.
+2. Verify accepted `main` is still the exact merge base and the branch is ahead-only.
+3. Verify CI #422 or newer exact-head PASS binds the head.
+4. Compare the synchronized delta to the previously CLEAN feature content and verify synchronization did not introduce unrelated runtime, routing, retrieval, policy, schema, or authority changes.
+5. Re-check the CBI-010 boundary: implementation/current-state evidence must not count as proof of proposal authorization.
+6. Post the exact integrated-head disposition without modifying the branch.
 
 ### Handoff
 
-- If CLEAN: hand #30 to SWITCHYARD for genuine current-main synchronization/integration gating.
-- If implementation defect: return the exact finding to FOUNDRY.
-- If freshness/ancestry/CI blocker: route it to SWITCHYARD or mark NOT READY as appropriate.
-
-### Stop conditions
-
-Stop and re-resolve if the head/base moves, exact-head CI is absent/failing, or the actual delta differs materially from the declared repair.
+- If CLEAN: hand #39 back to SWITCHYARD for its final expected-head/merge gate. Once actually accepted, TOWER releases ANVIL to rebuild #41.
+- If implementation defect: return the exact finding to ANVIL.
+- If freshness/ancestry defect: return it to SWITCHYARD.
 
 ---
 
-### 2. Review PR #44 — hcom lineage read
+## Priority 2 — PR #44 repaired feature-head review
 
-Current verified head:
+Target head: `6f2b774eee27a0596820b12f080bfd7e60c0f50e`
 
-`6f2b774eee27a0596820b12f080bfd7e60c0f50e`
-
-Current PR evidence reports Runtime CI #419 PASS. The returned HIGH finding was that the configured hcom store's provider-local identity is bare `event_id`, not `(instance,event_id)`.
+Target CI: #419 / `31951668246` PASS.
 
 ### Required procedure
 
-1. Re-read live #44 base/head and verify the exact head is unchanged.
-2. Verify exact-head CI #419 or a newer exact-head PASS still binds the head.
-3. Inspect the repair and adversarial tests.
-4. Mechanically verify:
-   - duplicate bare local `event_id` values fail closed even when `instance` differs;
-   - `instance` remains metadata and does not become an identity namespace;
-   - body text remains excluded;
-   - optional correlation fields preserve observed presence rather than inferred defaults;
-   - no task/session/policy/review/wait authority is created.
-5. Post exact-head disposition without modifying the branch.
+1. Re-read live base/head and exact-head CI.
+2. Verify against pinned hcom evidence that the configured store identity is bare local `event_id`; `instance` is metadata, not an ID namespace.
+3. Verify two different rows sharing the same local event ID fail closed even if `instance` differs.
+4. Preserve body-free output, optional-field presence semantics, explicit UNKNOWN where evidence is absent, and no task/session/policy/review/wait authority.
+5. Post exact-head disposition and make no code changes.
 
 ### Handoff
 
-- If CLEAN: hand #44 to SWITCHYARD for current-main synchronization and integration gates.
+- If CLEAN: hand #44 to SWITCHYARD for genuine current-main synchronization/integrated review.
 - If implementation defect: return it to FOUNDRY.
 
-### Stop conditions
-
-Do not review #45 as final/integration-ready while #44 is unaccepted. Do not patch #44 yourself.
-
 ---
 
-## What NOT to spend time on yet
+## Coordination review — PR #70
 
-- Do not perform final #53 review before #39/#41 accepted ancestry is rebuilt.
-- Do not spend scarce independent-review bandwidth re-reviewing downstream stacks that will necessarily move after their root dependency lands.
-- Do not convert TOWER priority into approval; exact evidence decides your disposition.
+After the higher-leverage root reviews above, independently re-review exact repaired #70 head `248aef12dff750ad53a1772942110c383202d738` with CI #435 PASS.
+
+Review focus:
+
+- the prior HIGH cross-owner-file defect is actually closed;
+- exact original-base delta is only `ROADMAP_PARTICIPATION.md`, `TOWER.md`, and the task record;
+- TOWER/FOUNDRY/SENTINEL/SWITCHYARD boundaries match newer operator intent;
+- shared roadmap guidance creates no hidden task/review/merge authority;
+- evidence-testing wording cannot be read as instruction to manufacture contrary evidence.
+
+Do not patch #70 during independent review.
 
 ---
 
 # Message to SWITCHYARD
 
-## Your immediate job
+## Priority 1 — PR #48 current-main synchronization
 
-Take the two highest-leverage integration gates. TOWER chooses these as the next **coordination priorities**; you still decide whether either is actually safe to integrate.
-
-### 1. Resolve PR #39 — Context Builder evidence-integrity root
-
-Live state while this packet was written:
-
-- base: current `main@7269ce2be25993fa19b172f65c95381328585a35`
-- live head: `5928abe4550dbf7a75c2a2825e3cda5033ead830`
-- PR body still describes prior validated head `adf25a5721808cd272bc9eb9af90a25038f568eb`
-
-That mismatch means the prior CI/review packet is not automatically valid for the live head.
-
-### Required procedure
-
-1. Re-read live `main`, #39 base/head, ownership, comments/reviews, and CI.
-2. Determine exactly why/how `adf25a... -> 5928abe...` moved.
-3. Verify real Git ancestry and exact `main -> live-head` delta; do not infer that the movement was a safe synchronization.
-4. Confirm the delta remains within #39's frozen-evaluation scope and did not absorb unrelated runtime/authority changes.
-5. Require fresh exact-head CI and eligible independent review for the live head if existing evidence is stale.
-6. Merge only if your normal expected-head/ancestry/delta/CI/review/ownership gates are all satisfied.
-7. If not mergeable, record the exact blocker and return it to the correct owner rather than redesigning the feature.
-
-### Handoff
-
-- If #39 is accepted: notify ANVIL that #41 may now be rebuilt/synchronized on exact accepted #39/current-main ancestry.
-- If blocked: keep #41/#53 on hold and state the exact reason.
-
----
-
-### 2. Resolve PR #48 — execution-lineage A1 root
-
-Current verified feature head:
+Feature head already reviewed CLEAN IN-LAYER:
 
 `2f23959afff9525beada28993bad536878310b7f`
 
-Current PR evidence reports Runtime CI #392 PASS. FOUNDRY coordination PR #68 reports SENTINEL `CLEAN IN-LAYER`; verify that review evidence yourself before relying on it.
+Historical feature CI: #392 / `31931474528` PASS.
 
 ### Required procedure
 
-1. Re-read live #48 and verify exact feature head/review/CI state.
-2. Confirm the feature layer mechanically closes both provider-session identity defects:
-   - project-scoped `(project_id, adapter_id, session_id)` identity;
-   - raw-SQL/canonical lexical normalization cannot bypass uniqueness.
-3. Genuinely synchronize the reviewed feature layer onto then-current accepted `main`; do not merely retarget the PR.
-4. Preserve all newer accepted state/schema/runtime changes.
-5. Verify exact integrated `main -> head` delta.
-6. Run fresh full Runtime CI on the synchronized head.
-7. Obtain eligible independent exact integrated-head review.
-8. Merge only with unchanged clean base/head and expected-head protection.
+1. Re-read live `main`, #48 base/head, exact feature review, and ownership.
+2. Genuinely synchronize the independently reviewed A1 feature layer onto then-current accepted `main`; do not merely retarget the PR.
+3. Preserve newer accepted state/schema/runtime changes.
+4. Verify the integrated delta preserves both repaired identity properties:
+   - canonical project-scoped `(project_id, adapter_id, session_id)` identity;
+   - SQLite/raw-input identity cannot bypass runtime canonicalization/uniqueness.
+5. Verify exact `main -> synchronized-head` delta.
+6. Run fresh full Runtime CI.
+7. Hand the synchronized exact head to an eligible independent reviewer; do not self-review a head you synchronized.
+8. Merge only after clean exact integrated-head review and expected-head protection.
 
-### Handoff
+### Release condition
 
-- If #48 is accepted: release downstream #49 for genuine rebuild/synchronization on accepted A1/current main.
-- If synchronization exposes an A1 implementation defect: return it to FOUNDRY.
-- If integration/freshness gates fail: keep #49/#50 held and record the exact blocker.
+Only actual acceptance of #48 releases #49 for genuine rebuild on accepted A1/current main.
 
 ---
 
-## Do NOT
+## Priority 2 — PR #30 current-main synchronization
 
-- Do not merge because TOWER labels something NOW.
-- Do not absorb ANVIL/FOUNDRY feature repair into SWITCHYARD unless an integration-specific defect requires a legitimate handoff.
-- Do not release downstream work until the upstream result is actually accepted/stable.
+Feature head already reviewed CLEAN IN-LAYER:
+
+`7bae6d5758619a391c7551ee4589ea2d80d0a5b8`
+
+Feature CI: #415 / `31932277332` PASS.
+
+### Required procedure
+
+1. Re-read live #30 and current main.
+2. Genuinely synchronize the independently reviewed feature layer onto current main while preserving newer accepted state/schema/Run Record behavior.
+3. Verify exact integrated delta and the closed empty-evidence coverage rule.
+4. Run fresh full Runtime CI.
+5. Hand the synchronized exact head to an eligible independent reviewer.
+6. Merge only if integrated review/CI/ancestry/ownership/expected-head gates are clean.
+
+---
+
+## PR #39
+
+SWITCHYARD has already completed the synchronization stage on head `5928abe...`. Hold branch writes while SENTINEL independently reviews that exact synchronized head. If CLEAN and unchanged, perform the final merge gate. If the head moves, discard stale review evidence and re-resolve.
 
 ---
 
 # Message to ANVIL
 
-## Your immediate job
+**Hold #41/#53 until their accepted upstream conditions are real.**
 
-**Hold the Context Builder downstream stack. Do not create churn while #39 is at the integration gate.**
+### #41 resume condition
 
-### PR #41
+Resume only after #39 is actually accepted into current main.
 
-Do **not** rebuild or modify #41 until SWITCHYARD reports #39 accepted on exact current-main ancestry.
+Then:
 
-When that condition becomes true:
+1. re-read accepted #39/current main and live #41 ownership;
+2. genuinely rebuild/synchronize #41 on accepted ancestry;
+3. preserve exact AST `Owner.symbol` semantics and adversarial ownership/prefix tests;
+4. run fresh CI;
+5. obtain independent exact-head review;
+6. hand CLEAN state to SWITCHYARD.
 
-1. re-read accepted #39/current `main` and live #41;
-2. genuinely rebuild/synchronize #41 on exact accepted #39 ancestry;
-3. preserve the already-repaired structural AST `Owner.symbol` resolver semantics and adversarial ownership/prefix tests;
-4. verify the stacked delta contains only intended Stage-1 behavior/tests/task/note changes;
-5. run fresh full Runtime CI;
-6. request independent exact-head review;
-7. after CLEAN, hand the head to SWITCHYARD and stop modifying it.
+### #53 resume condition
 
-### PR #53
+Resume only after #41 is accepted. Preserve the repaired drift-source precision and exact `overlay_sha256` binding through rebuild, CI, review, and SWITCHYARD handoff.
 
-Do **not** rebuild or final-review #53 until #41 is accepted.
-
-After #41 is accepted:
-
-1. rebuild/synchronize #53 onto exact accepted #41;
-2. preserve the repaired strict drift-case source precision behavior;
-3. preserve exact deterministic `overlay_sha256` binding;
-4. rerun full CI;
-5. request independent exact-head review;
-6. hand clean state to SWITCHYARD.
-
-### Safe idle behavior
-
-If #39 remains blocked, do **not** invent another Context Builder tranche merely to stay busy. Wait for a TOWER dispatch or an explicit canonical handoff to separate safe work.
-
-### Stop conditions
-
-Stop if upstream acceptance is not proven, another owner claims the target branch, or synchronization would require widening the existing task/change boundary.
+Do not create another Context Builder tranche merely because this lane is waiting.
 
 ---
 
 # Message to FOUNDRY
 
-## Your immediate job
+### #30
 
-Your current root repairs are **at review/integration gates**. Freeze them unless a gate returns a concrete implementation defect.
+Feature repair/review is complete. Do not modify it unless SWITCHYARD synchronization or integrated review returns a concrete implementation defect.
 
-### PR #30
+### #44
 
-No code work now. SENTINEL owns the next independent review action.
+Freeze exact `6f2b774e...` while SENTINEL reviews it. Resume only on a concrete implementation defect.
 
-Resume only if SENTINEL returns a specific implementation defect on the exact reviewed head. Make only the smallest task-authorized repair, run fresh CI, then freeze and return to independent review.
+### #45
 
-### PR #44
+Do not rebuild until #44 is actually accepted. Then re-check ownership and rebuild on exact accepted #44/current-main ancestry.
 
-No code work now. SENTINEL owns the next exact-head review.
+### #48
 
-Resume only on a concrete returned implementation finding.
+Feature repair/review is complete. Do not modify unless SWITCHYARD synchronization/integrated review returns an A1 implementation defect.
 
-### PR #45
+### #49/#50
 
-Do **not** rebuild #45 until #44 is accepted. Once #44 lands, re-check current ownership before touching #45. The downstream rebuild must preserve #44's accepted event-identity semantics plus #45's `field_presence`/relationship boundaries.
+Do not assume ownership from #48 continuity. Re-check ownership after #48 acceptance. #50 remains downstream of accepted #49 and retains its known A3 repair requirements.
 
-### PR #48
+### Permanent role
 
-No feature work now unless SWITCHYARD synchronization/integration returns an A1 implementation defect. #48 is at the integration boundary.
-
-### PR #49 / #50
-
-Do not take these merely because you implemented #48 repairs. Current ownership must be explicitly re-checked after #48 acceptance. Whoever owns #49 must genuinely rebuild it on accepted A1; #50 remains behind #49 and still has known A3-specific repair work.
-
-### Planning role conflict
-
-Do **not** treat open PR #68 as permission to permanently become the planning/dispatch lane. The operator's newer architecture places permanent planning/dispatch with TOWER and keeps FOUNDRY as a development/runtime lane. Existing incumbent planning work such as #71 may finish under its current ownership, but that does not create new dispatch authority.
-
-### Safe idle behavior
-
-If #30/#44/#48 are waiting on review/integration and no valid development handoff is available, remain idle rather than inventing work or entering ANVIL/SWITCHYARD/SENTINEL lanes.
+Do not integrate #68's permanent FOUNDRY planning-role transition as written. The operator's newer permanent role keeps FOUNDRY as development/runtime implementation and repair. Incumbent planning work such as #71 may finish or hand off cleanly.
 
 ---
 
 # Message to TOWER
 
-## Your immediate job
-
-1. Monitor #30, #44, #39, and #48 for head/base/review/CI movement.
-2. After each gate resolves, update the roadmap and derived queue from actual evidence.
-3. Release downstream work only when its prerequisite is accepted/stable.
-4. Keep `NOW / NEXT / BLOCKED / PARKED` as a derived coordination view, never a second canonical task store.
-5. Repair PR #70's coordination delivery mechanism separately:
-   - stop using cross-owner edits to ANVIL/FOUNDRY/SENTINEL/SWITCHYARD notes;
-   - move genuinely shared roadmap guidance to shared coordination/playbook material or let each owner adopt its own role-specific addition;
-   - preserve TOWER as planning/dispatch without granting review/merge authority.
-6. Reconcile PR #68 against the newer operator role split before either role change is integrated.
-7. Surface the operator only when a material scope/priority/role decision cannot be resolved from evidence.
+1. Track #39 review, #44 review, #48 synchronization, and #30 synchronization as the current four root gates.
+2. Update the queue after every exact disposition/merge; do not wait for all four if one result safely releases downstream work.
+3. Release #41 only after #39 acceptance; #49 only after #48 acceptance; #45 only after #44 acceptance.
+4. Keep #53 behind #41 and #50 behind #49.
+5. Track #70 independent re-review and #68 owner reconciliation separately from runtime-root progress.
+6. Do not edit other agents' owner-controlled notes or feature branches.
+7. Surface the operator only for material priority/scope/role decisions evidence cannot resolve.
 
 ## Re-plan immediately if
 
-- `main` changes materially;
-- two or more first-wave target heads move;
-- a returned review finding changes a downstream interface;
-- a task/ownership source contradicts this packet;
+- accepted `main` moves and changes a load-bearing integration assumption;
+- a current root head moves;
+- a review returns a new interface-changing defect;
+- canonical task/ownership evidence contradicts this packet;
 - the operator changes priority or role architecture.
 
 ---
@@ -300,38 +249,35 @@ If #30/#44/#48 are waiting on review/integration and no valid development handof
 # Dependency map
 
 ```text
-#30 repair
-   -> SENTINEL exact-head review
-   -> SWITCHYARD current-main integration
-   -> accepted
+#39 synchronized head
+  -> SENTINEL integrated-head review
+  -> SWITCHYARD final merge gate
+  -> accepted #39
+  -> ANVIL rebuild #41
+  -> review + integration
+  -> accepted #41
+  -> ANVIL rebuild #53
 
-#44 repair
-   -> SENTINEL exact-head review
-   -> SWITCHYARD current-main integration
-   -> accepted #44
-   -> rebuild #45
-   -> CI + independent review
-   -> SWITCHYARD
+#44 repaired feature head
+  -> SENTINEL feature-head review
+  -> SWITCHYARD synchronize + integrated review
+  -> accepted #44
+  -> rebuild #45
 
-#39 live integration gate
-   -> accepted #39
-   -> ANVIL rebuild #41
-   -> CI + independent review
-   -> SWITCHYARD accepts #41
-   -> ANVIL rebuild #53
-   -> CI + independent review
-   -> SWITCHYARD
+#48 CLEAN feature head
+  -> SWITCHYARD synchronize
+  -> SENTINEL integrated-head review
+  -> SWITCHYARD final merge gate
+  -> accepted #48
+  -> rebuild #49
+  -> accepted #49
+  -> repair/rebuild #50
 
-#48 clean feature layer / historical ancestry
-   -> SWITCHYARD genuine current-main synchronization
-   -> integrated-head CI + independent review
-   -> accepted #48
-   -> rebuild #49
-   -> CI + independent review
-   -> accepted #49
-   -> repair/rebuild #50
-   -> CI + independent review
-   -> SWITCHYARD
+#30 CLEAN feature head
+  -> SWITCHYARD synchronize
+  -> SENTINEL integrated-head review
+  -> SWITCHYARD final merge gate
+  -> accepted #30
 ```
 
 ## Core separation
@@ -342,4 +288,4 @@ If #30/#44/#48 are waiting on review/integration and no valid development handof
 
 **SWITCHYARD decides whether a candidate is safe to integrate next.**
 
-Those are separate decisions. No statement in this file combines them.
+Those remain separate decisions.
