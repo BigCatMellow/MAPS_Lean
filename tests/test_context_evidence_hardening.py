@@ -30,6 +30,14 @@ class ContextEvidenceHardeningTests(unittest.TestCase):
         with self.assertRaises(EvidenceIntegrityError):
             evaluate_evidence_integrity(corpus, [], label="invalid-substitute-contract")
 
+    def test_frozen_substitute_must_explicitly_carry_retrieval_credit_field(self):
+        corpus = copy.deepcopy(self.corpus)
+        case = next(item for item in corpus["cases"] if item["acceptable_substitutes"])
+        case["acceptable_substitutes"][0].pop("credit_only_if_retrieved")
+
+        with self.assertRaises(EvidenceIntegrityError):
+            evaluate_evidence_integrity(corpus, [], label="missing-substitute-credit")
+
     def test_unknown_candidate_cannot_hide_returned_evidence(self):
         case = self.cases["CBI-001"]
         result = {
