@@ -6,6 +6,7 @@ from runtime.harness.hooks import (
     HookFailurePolicy,
     HookOutcome,
     HookRegistry,
+    HookSideEffect,
     HookSpec,
 )
 
@@ -145,6 +146,46 @@ class HookRegistryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             HookOutcome(HookDirective.REQUIRE_APPROVAL, " ")
 
+    def test_hook_security_enums_are_validated_at_construction(self):
+        callback = lambda ctx: HookOutcome(HookDirective.ALLOW)
+
+        with self.assertRaises(TypeError):
+            HookSpec("bad-event", "before_write", callback)
+        with self.assertRaises(TypeError):
+            HookSpec(
+                "bad-side-effect",
+                HookEvent.BEFORE_WRITE,
+                callback,
+                side_effect="READ_ONLY",
+            )
+        with self.assertRaises(TypeError):
+            HookSpec(
+                "bad-failure-policy",
+                HookEvent.BEFORE_WRITE,
+                callback,
+                failure_policy="FAIL_CLOESD",
+            )
+
+    def test_invalid_callback_directive_fails_closed(self):
+        registry = HookRegistry()
+        registry.register(
+            HookSpec(
+                "guard",
+                HookEvent.BEFORE_TOOL,
+                lambda ctx: HookOutcome("ALLOW"),
+            )
+        )
+
+        result = registry.run(HookEvent.BEFORE_TOOL)
+
+        self.assertTrue(result.denied)
+        self.assertEqual(result.invocations[0].outcome.annotations["error_type"], "TypeError")
+
+    def test_invalid_run_event_is_rejected(self):
+        registry = HookRegistry()
+        with self.assertRaises(TypeError):
+            registry.run("before_tool")
+
     def test_hook_context_is_top_level_read_only(self):
         registry = HookRegistry()
 
@@ -199,6 +240,52 @@ class HookRegistryTests(unittest.TestCase):
 
         self.assertTrue(result.permitted)
         self.assertEqual(observed, [("worker-1", ("original",))])
+
+    def test_unsupported_mutable_hook_leaf_fails_closed_before_callbacks(self):
+        class MutableLeaf:
+            def __init__(self):
+                self.values = ["original"]
+
+        leaf = MutableLeaf()
+        callback_calls = []
+        registry = HookRegistry()
+
+        def mutator(ctx):
+            callback_calls.append("mutator")
+            ctx["details"]["leaf"].values.append("injected")
+            return HookOutcome(HookDirective.ALLOW)
+
+        def later_guard(ctx):
+            callback_calls.append("guard")
+            return HookOutcome(HookDirective.ALLOW)
+
+        registry.register(HookSpec("mutator", HookEvent.BEFORE_SEND, mutator, priority=1))
+        registry.register(HookSpec("guard", HookEvent.BEFORE_SEND, later_guard, priority=2))
+
+        result = registry.run(
+            HookEvent.BEFORE_SEND,
+            {"details": {"leaf": leaf}},
+        )
+
+        self.assertTrue(result.denied)
+        self.assertEqual(result.invocations[0].hook_id, "__context_guard__")
+        self.assertEqual(result.invocations[0].outcome.annotations["error_type"], "TypeError")
+        self.assertEqual(callback_calls, [])
+        self.assertEqual(leaf.values, ["original"])
+
+    def test_hook_outcome_annotations_are_recursively_detached_and_read_only(self):
+        source = {"nested": [{"value": 1}]}
+        outcome = HookOutcome(HookDirective.ANNOTATE, annotations=source)
+
+        source["nested"][0]["value"] = 2
+        source["nested"].append({"value": 3})
+
+        self.assertEqual(outcome.annotations["nested"][0]["value"], 1)
+        self.assertEqual(len(outcome.annotations["nested"]), 1)
+        with self.assertRaises(TypeError):
+            outcome.annotations["nested"][0]["value"] = 4
+        with self.assertRaises(AttributeError):
+            outcome.annotations["nested"].append({"value": 5})
 
 
 if __name__ == "__main__":

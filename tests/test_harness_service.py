@@ -137,7 +137,7 @@ class HarnessServiceTests(unittest.TestCase):
 
         self.assertFalse(result.ok)
         self.assertEqual(result.code, "HOOK_DENIED")
-        self.assertEqual(result.data["blocking_reasons"], ["Blocked by guard."])
+        self.assertEqual(result.data["blocking_reasons"], ("Blocked by guard.",))
         self.assertEqual(self.adapter.calls, [])
 
     def test_send_approval_hook_blocks_without_granting_approval(self):

@@ -88,6 +88,38 @@ class HarnessTypeTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             result.data["value"] = 3
 
+    def test_operation_result_recursively_freezes_nested_data(self):
+        source = {"items": [{"value": 1}]}
+        result = OperationResult.success("OK", "Done.", data=source)
+
+        source["items"][0]["value"] = 2
+        source["items"].append({"value": 3})
+
+        self.assertEqual(result.data["items"][0]["value"], 1)
+        self.assertEqual(len(result.data["items"]), 1)
+        with self.assertRaises(TypeError):
+            result.data["items"][0]["value"] = 4
+        with self.assertRaises(AttributeError):
+            result.data["items"].append({"value": 5})
+
+    def test_operation_result_to_dict_does_not_alias_nested_data(self):
+        result = OperationResult.success(
+            "OK",
+            "Done.",
+            data={"items": [{"value": 1}]},
+        )
+
+        payload = result.to_dict()
+        payload["data"]["items"][0]["value"] = 2
+        payload["data"]["items"].append({"value": 3})
+
+        self.assertEqual(result.data["items"][0]["value"], 1)
+        self.assertEqual(len(result.data["items"]), 1)
+
+    def test_operation_result_rejects_non_json_like_nested_data(self):
+        with self.assertRaises(TypeError):
+            OperationResult.success("OK", "Done.", data={"items": {1, 2}})
+
     def test_operation_result_generates_opaque_operation_id(self):
         first = OperationResult.success("OK", "Done.")
         second = OperationResult.success("OK", "Done.")
