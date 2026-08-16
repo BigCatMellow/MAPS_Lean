@@ -77,6 +77,39 @@ class EnvironmentSpecTests(unittest.TestCase):
         with self.assertRaisesRegex(EnvironmentSpecError, "unknown fields"):
             parse_environment_spec(data)
 
+    def test_sensitive_literals_are_rejected_from_persisted_commands(self):
+        cases = (
+            ("setup", "commands"),
+            ("maintenance", "commands"),
+            ("validation", "quick"),
+            ("validation", "normal"),
+            ("validation", "full"),
+        )
+        for section, key in cases:
+            data = self.base_data()
+            data[section][key] = ["export API_KEY=supersecretvalue && python check.py"]
+            with self.subTest(field=f"{section}.{key}"):
+                with self.assertRaisesRegex(EnvironmentSpecError, "sensitive credential"):
+                    parse_environment_spec(data)
+
+    def test_sensitive_literals_are_rejected_from_other_free_form_fields(self):
+        mutations = (
+            lambda data: data["repository"].__setitem__(
+                "base_revision", "password=supersecretvalue"
+            ),
+            lambda data: data["runtimes"].__setitem__(
+                "python", "token=supersecretvalue"
+            ),
+            lambda data: data["artifacts"].__setitem__(
+                "dependency_inputs", ["token=supersecretvalue"]
+            ),
+        )
+        for mutate in mutations:
+            data = self.base_data()
+            mutate(data)
+            with self.assertRaisesRegex(EnvironmentSpecError, "sensitive credential"):
+                parse_environment_spec(data)
+
     def test_dependency_inputs_must_be_safe_repo_relative_paths(self):
         for bad in ("../outside.lock", "/tmp/lock", "..\\outside.lock", "."):
             data = self.base_data()
