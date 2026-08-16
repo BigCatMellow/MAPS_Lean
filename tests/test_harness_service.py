@@ -33,8 +33,8 @@ class FakeCanonicalSource:
             "task_revision": "rev-1",
             "worker_id": "worker-1",
             "session_id": "session-1",
-            "session_adapter": "dummy",
         }
+        self.session_adapter = "dummy"
 
     def get_task(self, task_id):
         return dict(self.task) if task_id == "TASK-1" else None
@@ -47,6 +47,39 @@ class FakeCanonicalSource:
 
     def check_run_stale(self, run_id, *, repo_root):
         return {"run_id": run_id, "stale": False}
+
+    def resolve_run_session(self, run_id):
+        if run_id != "RUN-1":
+            return None
+        session_id = self.manifest.get("session_id")
+        if not session_id:
+            return {
+                "run_id": run_id,
+                "state": "UNBOUND",
+                "current": None,
+                "history": [],
+            }
+        if not self.session_adapter:
+            return {
+                "run_id": run_id,
+                "state": "ADAPTER_UNPROVEN",
+                "current": {
+                    "link_id": None,
+                    "adapter_id": None,
+                    "session_id": session_id,
+                },
+                "history": [],
+            }
+        return {
+            "run_id": run_id,
+            "state": "EXPLICIT",
+            "current": {
+                "link_id": 1,
+                "adapter_id": self.session_adapter,
+                "session_id": session_id,
+            },
+            "history": [],
+        }
 
 
 class DummyAdapter:
@@ -262,7 +295,7 @@ class HarnessServiceTests(unittest.TestCase):
         hooks = HookRegistry()
         hooks.register(
             HookSpec(
-                "ordinary-allow",
+                "allow",
                 HookEvent.BEFORE_SEND,
                 lambda ctx: HookOutcome(HookDirective.ALLOW),
             )
