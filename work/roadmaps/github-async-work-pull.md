@@ -22,6 +22,7 @@ Core model:
 - A third live throughput gap is now confirmed: several root PRs can reach fresh integrated-head review at the same time, causing development and integration lanes to wait behind one SENTINEL browser continuity.
 - Live examples at this checkpoint include synchronized/in-review roots #44 and #48 plus synchronized #41 moving through fresh CI/review. This is enough evidence to scale reviewer capacity without weakening the review requirement.
 - SENTINEL should therefore operate as one review role with multiple explicitly operator-bound browser continuities when review demand justifies it.
+- A fourth integration-safety concern is explicit: backlog processing must never use PR age as merge order or let a historical branch overwrite newer accepted `main`. Integration order is dependency-first, and every candidate must be synchronized forward onto latest accepted `main` before merge.
 - Current throughput pain comes from manual handoff/orchestration, serial discovery, deep dependency stacks, and serial independent review—not from a need to weaken safety gates.
 - `work/coordination/README.md` already establishes GitHub/live MAPS state as stronger than coordination notes and prohibits cross-owner note rewriting.
 
@@ -35,6 +36,8 @@ When review is the bottleneck, the operator can bind `SENTINEL-A`, `SENTINEL-B`,
 
 While SWITCHYARD is active, every open PR has a current disposition, next legitimate gate, and discoverable owner/blocker, and SWITCHYARD continues advancing independent eligible PR-control work instead of idling behind one blocked PR.
 
+Dependency stacks are integrated bottom-up: accepted roots first, then downstream layers synchronized onto the newly accepted main state. PR age/number is never the integration authority. Historical branches cannot silently replace or revert newer accepted behavior.
+
 ## Final proof
 
 Run at least one real browser-only chain where:
@@ -47,10 +50,14 @@ Run at least one real browser-only chain where:
 6. a same-head claim race, if exercised, converges on one primary reviewer by GitHub claim ordering unless multiple reviews are explicitly required;
 7. abandoned/stale review claims do not permanently block another eligible SENTINEL from taking over;
 8. bound SWITCHYARD discovers clean candidates and performs integration gates;
-9. SWITCHYARD enumerates the full live open-PR backlog and gives every PR a current disposition / next gate / owner or blocker;
-10. when one PR waits on another role, SWITCHYARD advances another independent eligible PR-control item rather than waiting;
-11. TOWER observes resulting state transitions and releases downstream work from actual accepted evidence;
-12. the operator does not need to relay detailed state between sessions.
+9. SWITCHYARD derives integration order from dependency structure rather than PR age/number;
+10. for a stacked chain, SWITCHYARD accepts the root first and synchronizes each dependent onto the newly accepted `main` before its own merge;
+11. a deliberately stale historical candidate cannot silently revert or delete newer accepted behavior outside explicit current authority;
+12. after each merge, remaining candidates are rechecked for ancestry/delta/CI/review freshness;
+13. SWITCHYARD enumerates the full live open-PR backlog and gives every PR a current disposition / next gate / owner or blocker;
+14. when one PR waits on another role, SWITCHYARD advances another independent eligible PR-control item rather than waiting;
+15. TOWER observes resulting state transitions and releases downstream work from actual accepted evidence;
+16. the operator does not need to relay detailed state between sessions.
 
 ## Boundaries
 
@@ -58,6 +65,8 @@ In scope:
 - explicit browser-session role binding;
 - multiple explicitly bound browser continuities sharing the SENTINEL role;
 - lightweight exact-head review claims for duplicate-work avoidance;
+- dependency-first integration ordering;
+- current-main anti-regression synchronization gates;
 - shared GitHub-native pull protocol;
 - persistent SWITCHYARD PR backlog control;
 - standard durable handoff headings/contents;
@@ -83,11 +92,15 @@ Not doing in v1:
 - [x] Define developer -> review -> integration GitHub handoff pattern.
 - [x] Define SWITCHYARD as persistent controller of the entire live open-PR backlog.
 - [x] Define PR dispositions: `INTEGRATE`, `REVIEW NEEDED`, `REPAIR NEEDED`, `BLOCKED`, `SUPERSEDED / CLOSE CANDIDATE`, `PLANNING / COORDINATION`.
+- [x] Define dependency-first / bottom-up integration; PR age/number is never merge order authority.
+- [x] Require every historical candidate to synchronize forward onto latest accepted `main` before merge.
+- [x] Require exact `current main -> synchronized head` anti-regression proof and preservation of newer accepted behavior by default.
+- [x] Require all remaining integration candidates to be rechecked after `main` changes.
 - [x] Define SENTINEL as a review role that may have multiple explicitly operator-bound browser continuities.
 - [x] Define lightweight `MAPS REVIEW CLAIM` / release / takeover behavior so concurrent SENTINEL sessions preferentially select different exact heads.
 - [x] Preserve reviewer independence as continuity-specific eligibility; a reviewer label alone never proves independence.
 - [x] Preserve existing authority and low-contention rules.
-- [ ] Fresh independent review of protocol, including role binding, reviewer-pool claims, and PR-backlog-control changes.
+- [ ] Fresh independent review of protocol, including role binding, reviewer-pool claims, dependency-first anti-regression integration, and PR-backlog-control changes.
 - [ ] SWITCHYARD integration after clean review.
 
 ## Phase 1 — browser trial
@@ -104,14 +117,16 @@ After the protocol is accepted:
 - [ ] Verify a stale/abandoned claim cannot permanently block progress.
 - [ ] Start one tab explicitly bound as SWITCHYARD; it owns the complete open-PR backlog as a standing control loop.
 - [ ] SWITCHYARD enumerates all open PRs and assigns each one a live disposition, next gate, and owner/blocker from GitHub evidence.
+- [ ] Verify a real dependency chain integrates root-first and downstream heads are synchronized only after the prerequisite is accepted.
+- [ ] Verify an old branch overlapping newer accepted main preserves newer accepted content unless explicit current authority says to supersede it.
 - [ ] Verify SWITCHYARD moves to another independent eligible PR when the current one waits on review, repair, CI, dependency, or operator action.
 - [ ] Verify SWITCHYARD does not bypass gates merely to shrink the PR count.
 - [ ] Start one generic/unbound control tab; verify it reports `UNBOUND — role assignment required` rather than choosing a lane.
 - [ ] Record only concrete discovery/control failures; do not add machinery based on speculation.
 
 Checkpoint outcome:
-- `CONTINUE` if bound browser agents reliably discover role-appropriate work, multiple SENTINEL continuities distribute review work safely, unbound sessions refuse self-selection, and the full PR backlog remains classified/actionable;
-- `CHANGE` if routing remains ambiguous, role drift occurs, reviewers duplicate work excessively, claims deadlock, or PRs remain ownerless/stale despite active role sessions;
+- `CONTINUE` if bound browser agents reliably discover role-appropriate work, multiple SENTINEL continuities distribute review work safely, dependency chains integrate bottom-up without regressing accepted main, unbound sessions refuse self-selection, and the full PR backlog remains classified/actionable;
+- `CHANGE` if routing remains ambiguous, role drift occurs, reviewers duplicate work excessively, claims deadlock, historical branches can regress newer accepted state, or PRs remain ownerless/stale despite active role sessions;
 - `CUT SCOPE` if extra coordination features create more maintenance than they remove.
 
 ## Phase 2 — only if evidence justifies it
@@ -135,6 +150,8 @@ Add any of these only after Phase 1 demonstrates a repeated failure that the fea
 - Coordination state is derived routing evidence, not canonical task truth.
 - Review claims are advisory duplicate-work avoidance, not canonical review/task state.
 - The PR backlog view is derived from live GitHub, not maintained as a second mutable PR database.
+- Integration order follows dependency structure, not PR chronology.
+- Latest accepted `main` is the integration baseline; historical branch state cannot silently win over it.
 - A work item is pulled only after live eligibility verification.
 - Agents do not race mutable outputs.
 - Independent reviewers do not patch reviewed work.
@@ -158,7 +175,7 @@ For parallel reviewer tabs:
 
 For the PR-control tab:
 
-`Your role is SWITCHYARD. Own the full open-PR backlog under work/coordination/GITHUB_ASYNC_WORK_PULL.md; classify every open PR and continuously advance eligible PR-control/integration work.`
+`Your role is SWITCHYARD. Own the full open-PR backlog under work/coordination/GITHUB_ASYNC_WORK_PULL.md; integrate dependency-first, synchronize every candidate onto latest accepted main, reject unauthorized regressions, classify every open PR, and continuously advance eligible PR-control/integration work.`
 
 After a tab is bound, later prompts can be:
 
@@ -166,4 +183,4 @@ After a tab is bound, later prompts can be:
 
 For SENTINEL pool tabs, `continue` resumes the standing review queue and preferentially claims an unclaimed eligible exact head.
 
-For SWITCHYARD, `continue` resumes the full backlog-control loop, not only the last remembered PR.
+For SWITCHYARD, `continue` resumes the full backlog-control loop, derives order from dependencies rather than age, and carries every historical candidate forward onto latest accepted main before merge.
