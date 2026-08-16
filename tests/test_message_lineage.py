@@ -242,6 +242,70 @@ class MessageRelationshipTests(unittest.TestCase):
         with self.assertRaises(MessageLineageError):
             resolve_message_relationships([event])
 
+    def test_intent_value_cannot_contradict_provider_presence(self):
+        event = self._event(
+            142,
+            sender="agent-a",
+            delivered_to=["agent-b"],
+            intent="request",
+        )
+        event["coverage"]["field_presence"]["intent"] = False
+        with self.assertRaisesRegex(MessageLineageError, "intent has a value"):
+            resolve_message_relationships([event])
+
+    def test_reply_value_cannot_contradict_provider_presence(self):
+        event = self._event(
+            143,
+            sender="agent-b",
+            delivered_to=["agent-a"],
+            intent="ack",
+            reply_to_local=41,
+        )
+        event["coverage"]["field_presence"]["reply_to_local"] = False
+        with self.assertRaisesRegex(MessageLineageError, "reply_to_local has a value"):
+            resolve_message_relationships([event])
+
+    def test_thread_value_cannot_contradict_provider_presence(self):
+        event = self._event(
+            144,
+            sender="agent-a",
+            delivered_to=["agent-b"],
+            thread="THREAD-X",
+        )
+        event["coverage"]["field_presence"]["thread"] = False
+        with self.assertRaisesRegex(MessageLineageError, "thread has a value"):
+            resolve_message_relationships([event])
+
+    def test_field_presence_shape_and_types_fail_closed(self):
+        missing = self._event(145, sender="agent-a", delivered_to=["agent-b"])
+        del missing["coverage"]["field_presence"]
+        with self.assertRaisesRegex(MessageLineageError, "field_presence must be a mapping"):
+            resolve_message_relationships([missing])
+
+        incomplete = self._event(146, sender="agent-a", delivered_to=["agent-b"])
+        del incomplete["coverage"]["field_presence"]["thread"]
+        with self.assertRaisesRegex(MessageLineageError, "field_presence shape mismatch"):
+            resolve_message_relationships([incomplete])
+
+        malformed = self._event(147, sender="agent-a", delivered_to=["agent-b"])
+        malformed["coverage"]["field_presence"]["thread"] = "false"
+        with self.assertRaisesRegex(MessageLineageError, "field_presence.thread must be boolean"):
+            resolve_message_relationships([malformed])
+
+    def test_explicit_nullable_provider_fields_preserve_absence_of_relationship(self):
+        event = self._event(148, sender="agent-a", delivered_to=["agent-b"])
+        presence = event["coverage"]["field_presence"]
+        presence["thread"] = True
+        presence["reply_to"] = True
+        presence["reply_to_local"] = True
+        event["thread"] = None
+        event["reply_to"] = None
+        event["reply_to_local"] = None
+
+        projection = resolve_message_relationships([event])
+        self.assertEqual(projection["threads"], [])
+        self.assertEqual(projection["reply_links"], [])
+
     def test_projection_is_explicitly_non_authoritative(self):
         event = self._event(150, sender="agent-a", delivered_to=["agent-b"])
         projection = resolve_message_relationships([event])
