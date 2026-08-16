@@ -29,6 +29,9 @@ class ComparisonOutcome(str, Enum):
 
 
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_IMMUTABLE_REF_RE = re.compile(
+    r"^(?:sha256:[0-9a-f]{64}|git:(?:[0-9a-f]{40}|[0-9a-f]{64}))$"
+)
 _ALLOWED_RESULT_KEYS = {"case_id", "case_sha256", "properties", "measurements"}
 _ALLOWED_MEASUREMENT_KEYS = {"cost_usd", "latency_ms"}
 _PROMOTION = {
@@ -59,6 +62,14 @@ def _require_label(value: object, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise EvaluationError(f"{field_name} must be non-empty text")
     return value.strip()
+
+
+def _require_immutable_ref(value: object, field_name: str) -> str:
+    if not isinstance(value, str) or not _IMMUTABLE_REF_RE.fullmatch(value):
+        raise EvaluationError(
+            f"{field_name} must be an immutable sha256:<64hex> or git:<40/64hex> reference"
+        )
+    return value
 
 
 def _validate_cases(cases: Sequence[Mapping[str, object]]) -> list[dict[str, object]]:
@@ -181,10 +192,14 @@ def evaluate_regression_cases(
     results: Sequence[Mapping[str, object]],
     *,
     label: str,
+    configuration_ref: str,
 ) -> dict[str, object]:
     """Build a deterministic read-only report from externally produced results."""
 
     resolved_label = _require_label(label, "label")
+    resolved_configuration_ref = _require_immutable_ref(
+        configuration_ref, "configuration_ref"
+    )
     validated_cases = _validate_cases(cases)
     indexed_results = _index_results(validated_cases, results)
 
@@ -209,20 +224,36 @@ def evaluate_regression_cases(
         "not_run": 0,
         "missing": 0,
     }
-    case_counts = {"total": len(validated_cases), "complete": 0, "pass": 0, "fail": 0, "incomplete": 0}
+    case_counts = {
+        "total": len(validated_cases),
+        "complete": 0,
+        "pass": 0,
+        "fail": 0,
+        "incomplete": 0,
+    }
 
     for case in validated_cases:
         case_id = str(case["case_id"])
         supplied = indexed_results.get(case_id)
         supplied_properties = supplied["properties"] if supplied else {}
         rows: list[dict[str, object]] = []
-        local = {"expected": len(case["expected_properties"]), "reported": 0, "pass": 0, "fail": 0, "unknown": 0, "not_run": 0, "missing": 0}
+        local = {
+            "expected": len(case["expected_properties"]),
+            "reported": 0,
+            "pass": 0,
+            "fail": 0,
+            "unknown": 0,
+            "not_run": 0,
+            "missing": 0,
+        }
         for property_id in case["expected_properties"]:
             property_counts["expected"] += 1
             if property_id not in supplied_properties:
                 local["missing"] += 1
                 property_counts["missing"] += 1
-                rows.append({"property_id": property_id, "reported": False, "status": None})
+                rows.append(
+                    {"property_id": property_id, "reported": False, "status": None}
+                )
                 continue
             status = supplied_properties[property_id]
             local["reported"] += 1
@@ -232,7 +263,9 @@ def evaluate_regression_cases(
             property_counts[key] += 1
             if status in {PropertyResultState.PASS.value, PropertyResultState.FAIL.value}:
                 property_counts["complete"] += 1
-            rows.append({"property_id": property_id, "reported": True, "status": status})
+            rows.append(
+                {"property_id": property_id, "reported": True, "status": status}
+            )
 
         incomplete = bool(local["missing"] or local["unknown"] or local["not_run"])
         if incomplete:
@@ -263,7 +296,9 @@ def evaluate_regression_cases(
     metrics: dict[str, object] = {
         "cases": case_counts,
         "properties": property_counts,
-        "case_pass_fraction_all": _fraction(case_counts["pass"], case_counts["total"]),
+        "case_pass_fraction_all": _fraction(
+            case_counts["pass"], case_counts["total"]
+        ),
         "property_pass_fraction_completed": _fraction(
             property_counts["pass"], property_counts["complete"]
         ),
@@ -276,6 +311,7 @@ def evaluate_regression_cases(
         "report_version": 1,
         "report_kind": "MAPS_REGRESSION_EVALUATION_REPORT",
         "label": resolved_label,
+        "configuration_ref": resolved_configuration_ref,
         "corpus_id": f"CORPUS-{corpus_sha}",
         "corpus_sha256": corpus_sha,
         "cases": case_reports,
@@ -290,9 +326,15 @@ def _property_outcome(baseline: object, candidate: object) -> str:
     concrete = {PropertyResultState.PASS.value, PropertyResultState.FAIL.value}
     if baseline not in concrete or candidate not in concrete:
         return ComparisonOutcome.INCOMPLETE.value
-    if baseline == PropertyResultState.FAIL.value and candidate == PropertyResultState.PASS.value:
+    if (
+        baseline == PropertyResultState.FAIL.value
+        and candidate == PropertyResultState.PASS.value
+    ):
         return ComparisonOutcome.IMPROVED.value
-    if baseline == PropertyResultState.PASS.value and candidate == PropertyResultState.FAIL.value:
+    if (
+        baseline == PropertyResultState.PASS.value
+        and candidate == PropertyResultState.FAIL.value
+    ):
         return ComparisonOutcome.REGRESSED.value
     return ComparisonOutcome.UNCHANGED.value
 
@@ -317,7 +359,12 @@ def _paired_measurements(
         for case_id in sorted(baseline_cases):
             b = baseline_cases[case_id].get("measurements")
             c = candidate_cases[case_id].get("measurements")
-            if isinstance(b, Mapping) and isinstance(c, Mapping) and field in b and field in c:
+            if (
+                isinstance(b, Mapping)
+                and isinstance(c, Mapping)
+                and field in b
+                and field in c
+            ):
                 pairs.append((b[field], c[field]))
         if pairs:
             baseline_total = sum(item[0] for item in pairs)
@@ -336,18 +383,34 @@ def compare_regression_cases(
     baseline_results: Sequence[Mapping[str, object]],
     candidate_results: Sequence[Mapping[str, object]],
     *,
+    baseline_ref: str,
+    candidate_ref: str,
     baseline_label: str = "baseline",
     candidate_label: str = "candidate",
 ) -> dict[str, object]:
     """Compare baseline and candidate on the same exact frozen corpus."""
 
-    baseline = evaluate_regression_cases(cases, baseline_results, label=baseline_label)
-    candidate = evaluate_regression_cases(cases, candidate_results, label=candidate_label)
+    baseline = evaluate_regression_cases(
+        cases,
+        baseline_results,
+        label=baseline_label,
+        configuration_ref=baseline_ref,
+    )
+    candidate = evaluate_regression_cases(
+        cases,
+        candidate_results,
+        label=candidate_label,
+        configuration_ref=candidate_ref,
+    )
     if baseline["corpus_id"] != candidate["corpus_id"]:
         raise EvaluationError("baseline and candidate corpus identity mismatch")
 
-    baseline_cases = {str(item["case_id"]): item for item in baseline["cases"]}
-    candidate_cases = {str(item["case_id"]): item for item in candidate["cases"]}
+    baseline_cases = {
+        str(item["case_id"]): item for item in baseline["cases"]
+    }
+    candidate_cases = {
+        str(item["case_id"]): item for item in candidate["cases"]
+    }
     case_rows: list[dict[str, object]] = []
     property_counts = {item.value: 0 for item in ComparisonOutcome}
     case_counts = {item.value: 0 for item in ComparisonOutcome}
@@ -355,12 +418,18 @@ def compare_regression_cases(
     for case_id in sorted(baseline_cases):
         bcase = baseline_cases[case_id]
         ccase = candidate_cases[case_id]
-        bprops = {row["property_id"]: row["status"] for row in bcase["properties"]}
-        cprops = {row["property_id"]: row["status"] for row in ccase["properties"]}
+        bprops = {
+            row["property_id"]: row["status"] for row in bcase["properties"]
+        }
+        cprops = {
+            row["property_id"]: row["status"] for row in ccase["properties"]
+        }
         local_counts = {item.value: 0 for item in ComparisonOutcome}
         properties: list[dict[str, object]] = []
         for property_id in sorted(bprops):
-            outcome = _property_outcome(bprops[property_id], cprops[property_id])
+            outcome = _property_outcome(
+                bprops[property_id], cprops[property_id]
+            )
             property_counts[outcome] += 1
             local_counts[outcome] += 1
             properties.append(
@@ -394,12 +463,14 @@ def compare_regression_cases(
         "corpus_sha256": baseline["corpus_sha256"],
         "baseline": {
             "label": baseline["label"],
+            "configuration_ref": baseline["configuration_ref"],
             "report_id": baseline["report_id"],
             "content_sha256": baseline["content_sha256"],
             "metrics": baseline["metrics"],
         },
         "candidate": {
             "label": candidate["label"],
+            "configuration_ref": candidate["configuration_ref"],
             "report_id": candidate["report_id"],
             "content_sha256": candidate["content_sha256"],
             "metrics": candidate["metrics"],
@@ -412,7 +483,11 @@ def compare_regression_cases(
     if paired:
         payload["measurement_comparison"] = paired
     digest = _canonical_hash(payload)
-    return {"comparison_id": f"CMP-{digest}", "content_sha256": digest, **payload}
+    return {
+        "comparison_id": f"CMP-{digest}",
+        "content_sha256": digest,
+        **payload,
+    }
 
 
 def dumps_evaluation_report(report: Mapping[str, object]) -> str:
