@@ -204,8 +204,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_run_session_one_replacement
     ON run_session_links(replaces_link_id)
     WHERE replaces_link_id IS NOT NULL;
 
--- Direct SQL must preserve the immutable manifest's only pre-existing session
--- fact. A bare manifest session may be adapter-qualified, never silently replaced.
 CREATE TRIGGER IF NOT EXISTS trg_run_session_attach_manifest_match
 BEFORE INSERT ON run_session_links
 WHEN NEW.relation = 'ATTACH'
@@ -220,8 +218,6 @@ BEGIN
     SELECT RAISE(ABORT, 'run session attach conflicts with immutable manifest session');
 END;
 
--- Replacement lineage is local to one run. The self-FK alone cannot express
--- this cross-column invariant, so enforce it at the SQLite boundary too.
 CREATE TRIGGER IF NOT EXISTS trg_run_session_replace_same_run
 BEFORE INSERT ON run_session_links
 WHEN NEW.relation = 'REPLACE'
@@ -245,6 +241,110 @@ CREATE TRIGGER IF NOT EXISTS trg_run_session_links_no_delete
 BEFORE DELETE ON run_session_links
 BEGIN
     SELECT RAISE(ABORT, 'run session links are immutable');
+END;
+
+-- Helper invocation lineage records only relationship identity. HelperResult JSON
+-- remains the source for helper status, summary, and output paths.
+CREATE TABLE IF NOT EXISTS run_helper_links (
+    helper_run_id TEXT PRIMARY KEY CHECK (length(trim(helper_run_id)) BETWEEN 1 AND 128),
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    invoker_worker_id TEXT NOT NULL CHECK (length(trim(invoker_worker_id)) BETWEEN 1 AND 128),
+    parent_session_link_id INTEGER REFERENCES run_session_links(id),
+    parent_helper_run_id TEXT REFERENCES run_helper_links(helper_run_id),
+    evidence_ref TEXT NOT NULL CHECK (length(trim(evidence_ref)) BETWEEN 1 AND 256),
+    created_by TEXT NOT NULL CHECK (length(trim(created_by)) BETWEEN 1 AND 128),
+    created_at TEXT NOT NULL,
+    CHECK (parent_session_link_id IS NULL OR parent_helper_run_id IS NULL),
+    CHECK (parent_helper_run_id IS NULL OR parent_helper_run_id <> helper_run_id)
+);
+CREATE INDEX IF NOT EXISTS idx_run_helper_links_run
+    ON run_helper_links(run_id, created_at, helper_run_id);
+
+CREATE TRIGGER IF NOT EXISTS trg_run_helper_parent_session_same_run
+BEFORE INSERT ON run_helper_links
+WHEN NEW.parent_session_link_id IS NOT NULL
+     AND NOT EXISTS (
+        SELECT 1 FROM run_session_links
+        WHERE id = NEW.parent_session_link_id AND run_id = NEW.run_id
+     )
+BEGIN
+    SELECT RAISE(ABORT, 'helper parent session must belong to the same run');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_helper_parent_helper_same_run
+BEFORE INSERT ON run_helper_links
+WHEN NEW.parent_helper_run_id IS NOT NULL
+     AND NOT EXISTS (
+        SELECT 1 FROM run_helper_links
+        WHERE helper_run_id = NEW.parent_helper_run_id AND run_id = NEW.run_id
+     )
+BEGIN
+    SELECT RAISE(ABORT, 'helper parent helper must belong to the same run');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_helper_links_no_update
+BEFORE UPDATE ON run_helper_links
+BEGIN
+    SELECT RAISE(ABORT, 'run helper links are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_helper_links_no_delete
+BEFORE DELETE ON run_helper_links
+BEGIN
+    SELECT RAISE(ABORT, 'run helper links are immutable');
+END;
+
+-- Recovery lineage relates immutable runs. RecoveryStore continues to own the
+-- mutable incident state/attempt/backoff/error record referenced by recovery_ref.
+CREATE TABLE IF NOT EXISTS run_recovery_links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    predecessor_run_id TEXT NOT NULL UNIQUE REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    replacement_run_id TEXT NOT NULL UNIQUE REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    recovery_ref TEXT NOT NULL CHECK (length(trim(recovery_ref)) BETWEEN 1 AND 256),
+    evidence_ref TEXT NOT NULL CHECK (length(trim(evidence_ref)) BETWEEN 1 AND 256),
+    created_by TEXT NOT NULL CHECK (length(trim(created_by)) BETWEEN 1 AND 128),
+    created_at TEXT NOT NULL,
+    CHECK (predecessor_run_id <> replacement_run_id)
+);
+CREATE INDEX IF NOT EXISTS idx_run_recovery_replacement
+    ON run_recovery_links(replacement_run_id);
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_same_task
+BEFORE INSERT ON run_recovery_links
+WHEN NOT EXISTS (
+    SELECT 1
+    FROM run_manifests predecessor
+    JOIN run_manifests replacement
+      ON predecessor.task_id = replacement.task_id
+    WHERE predecessor.run_id = NEW.predecessor_run_id
+      AND replacement.run_id = NEW.replacement_run_id
+)
+BEGIN
+    SELECT RAISE(ABORT, 'recovery runs must belong to the same task');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_chronological
+BEFORE INSERT ON run_recovery_links
+WHEN (
+    SELECT julianday(replacement.created_at) < julianday(predecessor.created_at)
+    FROM run_manifests predecessor, run_manifests replacement
+    WHERE predecessor.run_id = NEW.predecessor_run_id
+      AND replacement.run_id = NEW.replacement_run_id
+)
+BEGIN
+    SELECT RAISE(ABORT, 'replacement run cannot predate predecessor run');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_links_no_update
+BEFORE UPDATE ON run_recovery_links
+BEGIN
+    SELECT RAISE(ABORT, 'run recovery links are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_links_no_delete
+BEFORE DELETE ON run_recovery_links
+BEGIN
+    SELECT RAISE(ABORT, 'run recovery links are immutable');
 END;
 
 -- Continuity is evidence that two worker/session identities share the same
