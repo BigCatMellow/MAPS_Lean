@@ -79,10 +79,18 @@ class ContextBuilderEvidenceIntegrityFixtureTests(unittest.TestCase):
 
     def test_single_source_truth_is_not_overconstrained_by_corroboration(self):
         by_id = {case["id"]: case for case in self.data["cases"]}
-        for case_id in ("CBI-003", "CBI-010"):
-            case = by_id[case_id]
-            self.assertEqual(len(case["expected_cards"]), 1, case_id)
-            self.assertGreaterEqual(len(case["acceptable_substitutes"]), 1, case_id)
+        case = by_id["CBI-003"]
+        self.assertEqual(len(case["expected_cards"]), 1)
+        self.assertGreaterEqual(len(case["acceptable_substitutes"]), 1)
+
+    def test_authority_status_requires_authority_evidence(self):
+        by_id = {case["id"]: case for case in self.data["cases"]}
+        case = by_id["CBI-010"]
+        self.assertEqual(
+            [card["source_id"] for card in case["expected_cards"]],
+            ["CB-SRC-005"],
+        )
+        self.assertEqual(case["acceptable_substitutes"], [])
 
     def test_abstain_cases_do_not_smuggle_positive_truth(self):
         for case in self.data["cases"]:
