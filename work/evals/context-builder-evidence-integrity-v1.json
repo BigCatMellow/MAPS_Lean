@@ -1,0 +1,436 @@
+{
+  "version": "context-builder-evidence-integrity-v1",
+  "status": "FROZEN_EVALUATION_INPUT_NOT_RUNTIME_AUTHORITY",
+  "purpose": "Evaluate evidence-card integrity independently from retrieval algorithm choice.",
+  "principles": [
+    "Exact source/anchor evidence must be mechanically resolvable.",
+    "Source hashes are part of evidence identity and drift must be explicit.",
+    "Current and historical attribution must not be conflated.",
+    "Positive evidence and negative boundaries are scored separately.",
+    "UNKNOWN/ABSTAIN is correct when the corpus does not prove an answer.",
+    "Acceptable substitutes receive credit only when actually retrieved/proven.",
+    "Vocabulary/paraphrase robustness is required before retrieval promotion.",
+    "Passing this corpus does not authorize semantic/vector retrieval or production behavior."
+  ],
+  "candidate_output_contract": {
+    "outcome": ["EVIDENCE", "ABSTAIN", "DRIFT_REPORTED", "UNKNOWN"],
+    "evidence_card_fields": [
+      "source_id",
+      "source_sha256",
+      "anchor",
+      "proof_role",
+      "polarity",
+      "temporal_scope"
+    ],
+    "anchor_types": ["MARKDOWN_SECTION", "CODE_SYMBOL", "DOCUMENT_STATUS"],
+    "polarity": ["POSITIVE", "NEGATIVE_BOUNDARY"],
+    "rule": "Candidate output is externally supplied evidence; this corpus defines truth/scoring expectations but does not select a retrieval algorithm."
+  },
+  "metrics": [
+    "case_outcome_accuracy",
+    "exact_source_accuracy",
+    "anchor_accuracy",
+    "source_hash_accuracy",
+    "proof_role_accuracy",
+    "negative_boundary_accuracy",
+    "negative_abstention_accuracy",
+    "temporal_version_accuracy",
+    "source_drift_detection_accuracy",
+    "acceptable_substitute_precision",
+    "vocabulary_shift_case_accuracy"
+  ],
+  "sources": [
+    {
+      "id": "CB-SRC-001",
+      "path": "policy/current.md",
+      "version": "current",
+      "content": "# Current Policy\n\n## Review independence\nA reviewer must be independent of the submission author's continuity lineage.\n\n## Session truth\nA live provider session does not establish task ownership, lease validity, or permission to continue.\n",
+      "sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed"
+    },
+    {
+      "id": "CB-SRC-002",
+      "path": "policy/historical-v1.md",
+      "version": "historical-v1",
+      "content": "# Historical Policy v1\n\n## Review assignment\nA task owner may review their own submission when no other reviewer is available.\n\nStatus: RETIRED.\n",
+      "sha256": "4be5c7476764e383ff5de085bab8df7046447d536715ea58468d0e990f1a6148"
+    },
+    {
+      "id": "CB-SRC-003",
+      "path": "runtime/review.py",
+      "version": "current",
+      "content": "class ReviewMixin:\n    def claim_review(self, task_id, reviewer_id):\n        \"\"\"Reject reviewer identity that is not independent from submission continuity.\"\"\"\n        submission = self.latest_submission(task_id)\n        if self.same_continuity(reviewer_id, submission.author_id):\n            raise ReviewConflict(\"reviewer is not independent\")\n        return self._claim_review(task_id, reviewer_id)\n",
+      "sha256": "4252f696617767c9e8ac42c5b3c9b79b6900bbca2f70a8782504c961280a04f4"
+    },
+    {
+      "id": "CB-SRC-004",
+      "path": "docs/provider-status.md",
+      "version": "current",
+      "content": "# Provider status\n\n`RUNNING` means the provider reports the process/session as running.\nIt does not prove API readiness, task authority, ownership, or progress.\n\nNo provider-readiness probe is defined in this document.\n",
+      "sha256": "4eb56fa7e6308de50b8aa800987493344f58d172ec22720b9b57b5f118436e1a"
+    },
+    {
+      "id": "CB-SRC-005",
+      "path": "notes/semantic-retrieval-proposal.md",
+      "version": "proposal",
+      "content": "# Semantic Retrieval Proposal\n\nStatus: PROPOSED — NOT ACTIVE AUTHORITY.\n\nCandidate: use embeddings to supplement explicit Context Builder references when evaluation proves benefit.\nThis proposal does not authorize production semantic retrieval.\n",
+      "sha256": "afd59b69c598c7be38697f899c1982ffb40b06706374c7bb31bcee364e979a24"
+    },
+    {
+      "id": "CB-SRC-006",
+      "path": "release/checklist.md",
+      "version": "current",
+      "content": "# Release Checklist\n\n## Acquisition paths\nFor operator-visible releases, verify each reachable download/install/archive path resolves to the intended immutable revision or content.\n\n## Scope\nThis checklist does not create an artifact registry or publication authority.\n",
+      "sha256": "6d9327bcc183eeb8c3713b8eca3b773709758491d47fe176564bcd56ae56156d"
+    },
+    {
+      "id": "CB-SRC-007",
+      "path": "docs/context-builder.md",
+      "version": "current",
+      "content": "# Context Builder\n\nThe explicit-first baseline plans only task-linked inputs/sources and root authority.\nIt records exact file hashes when a referenced file is available.\nIt does not scan the repository or use semantic retrieval.\n",
+      "sha256": "aa02e567a66ddf48f031eb87b8cfbb421dfa5724fad57649ed60d6faf5ae7980"
+    },
+    {
+      "id": "CB-SRC-010",
+      "path": "docs/no-answer.md",
+      "version": "current",
+      "content": "# Unrelated Operations Note\n\nThe system supports bounded helper execution and append-only evidence.\nThis document contains no rule about credential rotation frequency.\n",
+      "sha256": "60dc556a6df17adcd10903fd991c4e519a0d29eb8875334e8f2c1e1a66ac4975"
+    },
+    {
+      "id": "CB-SRC-011",
+      "path": "docs/context-builder.md",
+      "version": "frozen-old",
+      "content": "# Context Builder\n\nThe baseline plans task-linked sources and may expand referenced directories recursively.\nSemantic retrieval is not part of this frozen snapshot.\n",
+      "sha256": "bcd222c63ffb65aa01db90949b4db0c748e8284f53b8c9862d476685899b0129"
+    },
+    {
+      "id": "CB-SRC-012",
+      "path": "release/checklist.md",
+      "version": "frozen-old",
+      "content": "# Release Checklist\n\n## Acquisition paths\nVerify the primary release archive before publication.\n",
+      "sha256": "454592116199e77d357a9b2333dea7a29175ec7547723726524bc2c190f2bf07"
+    }
+  ],
+  "cases": [
+    {
+      "id": "CBI-001",
+      "category": "DIRECT_CURRENT",
+      "query": "What is the current rule for reviewer independence?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-001",
+          "source_sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Review independence"},
+          "proof_role": "ACTIVE_AUTHORITY",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": [
+        {
+          "source_id": "CB-SRC-003",
+          "source_sha256": "4252f696617767c9e8ac42c5b3c9b79b6900bbca2f70a8782504c961280a04f4",
+          "anchor": {"type": "CODE_SYMBOL", "value": "ReviewMixin.claim_review"},
+          "proof_role": "ACTIVE_MECHANICAL_GUARD",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT",
+          "credit_only_if_retrieved": true
+        }
+      ]
+    },
+    {
+      "id": "CBI-002",
+      "category": "DIRECT_MECHANICAL",
+      "query": "Which current code symbol mechanically rejects a reviewer from the submission author's continuity?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-003",
+          "source_sha256": "4252f696617767c9e8ac42c5b3c9b79b6900bbca2f70a8782504c961280a04f4",
+          "anchor": {"type": "CODE_SYMBOL", "value": "ReviewMixin.claim_review"},
+          "proof_role": "ACTIVE_MECHANICAL_GUARD",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "CBI-003",
+      "category": "DIRECT_BOUNDARY",
+      "query": "Does a running provider session establish task ownership or permission to continue?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-001",
+          "source_sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Session truth"},
+          "proof_role": "ACTIVE_AUTHORITY",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": [
+        {
+          "source_id": "CB-SRC-004",
+          "source_sha256": "4eb56fa7e6308de50b8aa800987493344f58d172ec22720b9b57b5f118436e1a",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Provider status"},
+          "proof_role": "DESCRIPTIVE_CURRENT",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT",
+          "credit_only_if_retrieved": true
+        }
+      ]
+    },
+    {
+      "id": "CBI-004",
+      "category": "PARAPHRASE",
+      "query": "Can the person in the same inherited execution lineage as the submitter sign off on that submission?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-001",
+          "source_sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Review independence"},
+          "proof_role": "ACTIVE_AUTHORITY",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": [
+        {
+          "source_id": "CB-SRC-003",
+          "source_sha256": "4252f696617767c9e8ac42c5b3c9b79b6900bbca2f70a8782504c961280a04f4",
+          "anchor": {"type": "CODE_SYMBOL", "value": "ReviewMixin.claim_review"},
+          "proof_role": "ACTIVE_MECHANICAL_GUARD",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT",
+          "credit_only_if_retrieved": true
+        }
+      ]
+    },
+    {
+      "id": "CBI-005",
+      "category": "VOCABULARY_SHIFT",
+      "query": "Does transport vitality imply control-plane authorization or forward progress?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-004",
+          "source_sha256": "4eb56fa7e6308de50b8aa800987493344f58d172ec22720b9b57b5f118436e1a",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Provider status"},
+          "proof_role": "DESCRIPTIVE_CURRENT",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": [
+        {
+          "source_id": "CB-SRC-001",
+          "source_sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Session truth"},
+          "proof_role": "ACTIVE_AUTHORITY",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT",
+          "credit_only_if_retrieved": true
+        }
+      ]
+    },
+    {
+      "id": "CBI-006",
+      "category": "HARD_NEGATIVE",
+      "query": "What credential rotation interval is required by current MAPS policy?",
+      "expected_outcome": "ABSTAIN",
+      "expected_cards": [],
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "CBI-007",
+      "category": "HARD_NEGATIVE",
+      "query": "Which current rule says every review requires two independent reviewers?",
+      "expected_outcome": "ABSTAIN",
+      "expected_cards": [],
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "CBI-008",
+      "category": "TEMPORAL_CURRENT",
+      "query": "Under the current rule, may a task owner review their own submission when nobody else is available?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-001",
+          "source_sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Review independence"},
+          "proof_role": "ACTIVE_AUTHORITY",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "forbidden_credit": [
+        {
+          "source_id": "CB-SRC-002",
+          "reason": "retired historical rule cannot answer a current-state question"
+        }
+      ],
+      "acceptable_substitutes": [
+        {
+          "source_id": "CB-SRC-003",
+          "source_sha256": "4252f696617767c9e8ac42c5b3c9b79b6900bbca2f70a8782504c961280a04f4",
+          "anchor": {"type": "CODE_SYMBOL", "value": "ReviewMixin.claim_review"},
+          "proof_role": "ACTIVE_MECHANICAL_GUARD",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT",
+          "credit_only_if_retrieved": true
+        }
+      ]
+    },
+    {
+      "id": "CBI-009",
+      "category": "TEMPORAL_HISTORICAL",
+      "query": "What did the retired historical v1 rule allow when no other reviewer was available?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-002",
+          "source_sha256": "4be5c7476764e383ff5de085bab8df7046447d536715ea58468d0e990f1a6148",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Review assignment"},
+          "proof_role": "RETIRED_HISTORICAL",
+          "polarity": "POSITIVE",
+          "temporal_scope": "HISTORICAL_V1"
+        }
+      ],
+      "forbidden_credit": [
+        {
+          "source_id": "CB-SRC-001",
+          "reason": "current policy does not answer the historical-state question"
+        }
+      ],
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "CBI-010",
+      "category": "AUTHORITY_STATUS",
+      "query": "Has the semantic-retrieval proposal authorized production semantic retrieval?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-005",
+          "source_sha256": "afd59b69c598c7be38697f899c1982ffb40b06706374c7bb31bcee364e979a24",
+          "anchor": {"type": "DOCUMENT_STATUS", "value": "PROPOSED — NOT ACTIVE AUTHORITY"},
+          "proof_role": "PROPOSAL",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "CBI-011",
+      "category": "NEGATIVE_BOUNDARY",
+      "query": "Does the operator-visible release checklist create artifact-registry or publication authority?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-006",
+          "source_sha256": "6d9327bcc183eeb8c3713b8eca3b773709758491d47fe176564bcd56ae56156d",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Scope"},
+          "proof_role": "CURRENT_CHECKLIST",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "CBI-012",
+      "category": "SOURCE_DRIFT",
+      "query": "The frozen Context Builder evidence references the old snapshot. Does that frozen source still match the current file?",
+      "expected_outcome": "DRIFT_REPORTED",
+      "expected_cards": [],
+      "drift": {
+        "frozen_source_id": "CB-SRC-011",
+        "current_source_id": "CB-SRC-007",
+        "same_path_required": true,
+        "must_report_hash_mismatch": true
+      },
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "CBI-013",
+      "category": "SOURCE_DRIFT",
+      "query": "A frozen release-checklist claim was anchored to the old archive-only checklist. Is that evidence current?",
+      "expected_outcome": "DRIFT_REPORTED",
+      "expected_cards": [],
+      "drift": {
+        "frozen_source_id": "CB-SRC-012",
+        "current_source_id": "CB-SRC-006",
+        "same_path_required": true,
+        "must_report_hash_mismatch": true
+      },
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "CBI-014",
+      "category": "SUBSTITUTE_CREDIT",
+      "query": "What prevents same-continuity self-review?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-003",
+          "source_sha256": "4252f696617767c9e8ac42c5b3c9b79b6900bbca2f70a8782504c961280a04f4",
+          "anchor": {"type": "CODE_SYMBOL", "value": "ReviewMixin.claim_review"},
+          "proof_role": "ACTIVE_MECHANICAL_GUARD",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": [
+        {
+          "source_id": "CB-SRC-001",
+          "source_sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Review independence"},
+          "proof_role": "ACTIVE_AUTHORITY",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT",
+          "credit_only_if_retrieved": true
+        }
+      ]
+    },
+    {
+      "id": "CBI-015",
+      "category": "RELEASE_EXACT_ANCHOR",
+      "query": "For an operator-visible release, what exact section requires checking reachable download/install/archive paths?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-006",
+          "source_sha256": "6d9327bcc183eeb8c3713b8eca3b773709758491d47fe176564bcd56ae56156d",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Acquisition paths"},
+          "proof_role": "CURRENT_CHECKLIST",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": []
+    },
+    {
+      "id": "CBI-016",
+      "category": "EXPLICIT_BASELINE",
+      "query": "Does the current Context Builder baseline scan the repository or use semantic retrieval?",
+      "expected_outcome": "EVIDENCE",
+      "expected_cards": [
+        {
+          "source_id": "CB-SRC-007",
+          "source_sha256": "aa02e567a66ddf48f031eb87b8cfbb421dfa5724fad57649ed60d6faf5ae7980",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Context Builder"},
+          "proof_role": "CURRENT_BASELINE",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT"
+        }
+      ],
+      "acceptable_substitutes": []
+    }
+  ]
+}

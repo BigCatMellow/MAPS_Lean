@@ -177,6 +177,136 @@ BEGIN
     SELECT RAISE(ABORT, 'run context refs are immutable');
 END;
 
+-- Project/adapter-qualified provider/session identity is separate append-only
+-- lineage. Project identity is copied from canonical task state at record time
+-- only to preserve the provider namespace; it grants no task authority.
+CREATE TABLE IF NOT EXISTS run_session_links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    relation TEXT NOT NULL CHECK (relation IN ('ATTACH','REPLACE')),
+    project_id TEXT NOT NULL CHECK (length(project_id) > 0),
+    adapter_id TEXT NOT NULL CHECK (
+        length(adapter_id) BETWEEN 1 AND 128
+        AND adapter_id GLOB '[A-Za-z0-9]*'
+        AND adapter_id NOT GLOB '*[^A-Za-z0-9_.:@-]*'
+    ),
+    session_id TEXT NOT NULL CHECK (
+        length(session_id) BETWEEN 1 AND 128
+        AND session_id GLOB '[A-Za-z0-9]*'
+        AND session_id NOT GLOB '*[^A-Za-z0-9_.:@-]*'
+    ),
+    replaces_link_id INTEGER REFERENCES run_session_links(id),
+    evidence_ref TEXT NOT NULL CHECK (length(trim(evidence_ref)) BETWEEN 1 AND 256),
+    created_by TEXT NOT NULL CHECK (length(trim(created_by)) BETWEEN 1 AND 128),
+    created_at TEXT NOT NULL,
+    CHECK (
+        (relation = 'ATTACH' AND replaces_link_id IS NULL)
+        OR (relation = 'REPLACE' AND replaces_link_id IS NOT NULL)
+    ),
+    UNIQUE(project_id, adapter_id, session_id)
+);
+CREATE INDEX IF NOT EXISTS idx_run_session_links_run
+    ON run_session_links(run_id, id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_run_session_one_attach
+    ON run_session_links(run_id)
+    WHERE relation = 'ATTACH';
+CREATE UNIQUE INDEX IF NOT EXISTS idx_run_session_one_replacement
+    ON run_session_links(replaces_link_id)
+    WHERE replaces_link_id IS NOT NULL;
+
+-- Every stored provider-context key must exactly match canonical task state for
+-- the owning immutable run. Direct SQL cannot invent a trim-equivalent project.
+CREATE TRIGGER IF NOT EXISTS trg_run_session_project_match
+BEFORE INSERT ON run_session_links
+WHEN NOT EXISTS (
+    SELECT 1
+    FROM run_manifests AS r
+    JOIN tasks AS t ON t.task_id = r.task_id
+    WHERE r.run_id = NEW.run_id
+      AND t.project_id = NEW.project_id
+)
+BEGIN
+    SELECT RAISE(ABORT, 'run session project must match canonical task project');
+END;
+
+-- Direct SQL must preserve the immutable manifest's only pre-existing session
+-- fact. A bare manifest session may be adapter-qualified, never silently replaced.
+CREATE TRIGGER IF NOT EXISTS trg_run_session_attach_manifest_match
+BEFORE INSERT ON run_session_links
+WHEN NEW.relation = 'ATTACH'
+     AND EXISTS (
+        SELECT 1
+        FROM run_manifests
+        WHERE run_id = NEW.run_id
+          AND NULLIF(trim(session_id), '') IS NOT NULL
+          AND trim(session_id) <> trim(NEW.session_id)
+     )
+BEGIN
+    SELECT RAISE(ABORT, 'run session attach conflicts with immutable manifest session');
+END;
+
+-- Replacement lineage is local to one run. The self-FK alone cannot express
+-- this cross-column invariant, so enforce it at the SQLite boundary too.
+CREATE TRIGGER IF NOT EXISTS trg_run_session_replace_same_run
+BEFORE INSERT ON run_session_links
+WHEN NEW.relation = 'REPLACE'
+     AND NOT EXISTS (
+        SELECT 1
+        FROM run_session_links
+        WHERE id = NEW.replaces_link_id
+          AND run_id = NEW.run_id
+     )
+BEGIN
+    SELECT RAISE(ABORT, 'run session replacement predecessor must belong to the same run');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_session_links_no_update
+BEFORE UPDATE ON run_session_links
+BEGIN
+    SELECT RAISE(ABORT, 'run session links are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_session_links_no_delete
+BEFORE DELETE ON run_session_links
+BEGIN
+    SELECT RAISE(ABORT, 'run session links are immutable');
+END;
+
+-- Environment observations are append-only evidence attached to an immutable
+-- run. They never alter the run contract, task lifecycle, ownership, or policy.
+CREATE TABLE IF NOT EXISTS run_environment_evidence (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    spec_ref TEXT NOT NULL,
+    environment_spec_hash TEXT NOT NULL,
+    fingerprint_sha256 TEXT NOT NULL,
+    compatibility_state TEXT NOT NULL CHECK (
+        compatibility_state IN (
+            'COMPATIBLE','COMPATIBLE_WITH_WARNINGS','DRIFTED','INCOMPATIBLE','UNKNOWN'
+        )
+    ),
+    reference_fingerprint_sha256 TEXT,
+    spec_snapshot TEXT NOT NULL,
+    fingerprint_snapshot TEXT NOT NULL,
+    compatibility_snapshot TEXT NOT NULL,
+    recorded_by TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_run_environment_evidence_run
+    ON run_environment_evidence(run_id, id);
+
+CREATE TRIGGER IF NOT EXISTS trg_run_environment_evidence_no_update
+BEFORE UPDATE ON run_environment_evidence
+BEGIN
+    SELECT RAISE(ABORT, 'run environment evidence is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_environment_evidence_no_delete
+BEFORE DELETE ON run_environment_evidence
+BEGIN
+    SELECT RAISE(ABORT, 'run environment evidence is immutable');
+END;
+
 -- Continuity is evidence that two worker/session identities share the same
 -- inherited execution context. It disqualifies independent review; it grants
 -- no ownership or task authority.
