@@ -7,7 +7,12 @@ import re
 
 from runtime.state.observability import redact_sensitive_text
 
-from .format import SkillDescriptor, load_skill
+from .format import (
+    SkillChangedError,
+    SkillDescriptor,
+    _parse_skill_payload,
+    _verified_snapshot,
+)
 
 
 class SkillGateSeverity(str, Enum):
@@ -175,10 +180,15 @@ def _scan_text(path: str, text: str, *, is_script: bool) -> list[SkillGateFindin
     return findings
 
 
-def _scan_resource(root: Path, relative: str, *, is_script: bool) -> tuple[list[SkillGateFinding], int]:
-    path = root / relative
+def _scan_resource(
+    relative: str,
+    payload: bytes,
+    *,
+    is_script: bool,
+) -> tuple[list[SkillGateFinding], int]:
+    path = Path(relative)
     findings: list[SkillGateFinding] = []
-    size = path.stat().st_size
+    size = len(payload)
     name = path.name.lower()
     if name in _SENSITIVE_FILENAMES or path.suffix.lower() in _SENSITIVE_SUFFIXES:
         findings.append(
@@ -209,7 +219,6 @@ def _scan_resource(root: Path, relative: str, *, is_script: bool) -> tuple[list[
         )
         return findings, size
 
-    payload = path.read_bytes()
     if b"\x00" in payload:
         findings.append(
             _finding(
@@ -236,16 +245,56 @@ def _scan_resource(root: Path, relative: str, *, is_script: bool) -> tuple[list[
     return findings, size
 
 
+def _frontmatter_text(payload: bytes, *, path: Path) -> str:
+    try:
+        text = payload.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise SkillChangedError(f"{path}: verified SKILL.md is not UTF-8 text") from exc
+    lines = text.splitlines()
+    if not lines or lines[0] != "---":
+        return ""
+    for index, line in enumerate(lines[1:], start=1):
+        if line == "---":
+            return "\n".join(lines[1:index])
+    return ""
+
+
 def assess_skill(descriptor: SkillDescriptor) -> SkillGateReport:
-    """Statically assess one already-discovered Skill without executing resources.
+    """Statically assess exactly one hash-verified Skill byte snapshot.
 
     The report is advisory gate evidence. `CLEAR` is not approval, and neither
     `REVIEW_REQUIRED` nor `QUARANTINE` mutates any persistent trust state.
+    Every body/frontmatter/resource finding is derived from the same byte
+    snapshot whose hash is reported as `content_sha256`.
     """
 
-    document = load_skill(descriptor)
+    snapshot, digest = _verified_snapshot(descriptor)
+    by_relative = {
+        path.relative_to(descriptor.root).as_posix(): payload
+        for path, payload in snapshot
+    }
+    skill_payload = by_relative.get("SKILL.md")
+    if skill_payload is None:
+        raise SkillChangedError(
+            f"{descriptor.root}: Skill content changed after discovery; rediscover before use"
+        )
+    values, metadata_keys, body = _parse_skill_payload(
+        skill_payload,
+        path=descriptor.skill_file,
+    )
+    resource_paths = tuple(path for path in sorted(by_relative) if path != "SKILL.md")
+    if (
+        values["name"] != descriptor.name
+        or values["description"] != descriptor.description
+        or metadata_keys != descriptor.declared_metadata_keys
+        or resource_paths != descriptor.resource_paths
+    ):
+        raise SkillChangedError(
+            f"{descriptor.root}: Skill identity changed after discovery"
+        )
+
     findings: list[SkillGateFinding] = []
-    scanned_bytes = descriptor.skill_file.stat().st_size
+    scanned_bytes = sum(len(payload) for payload in by_relative.values())
 
     if len(descriptor.description.strip()) < _SHORT_DESCRIPTION_CHARS:
         findings.append(
@@ -256,7 +305,7 @@ def assess_skill(descriptor: SkillDescriptor) -> SkillGateReport:
                 "Description is too short to provide reliable activation guidance.",
             )
         )
-    if _ROLEPLAY_RE.search(descriptor.description) or _ROLEPLAY_RE.search(document.body):
+    if _ROLEPLAY_RE.search(descriptor.description) or _ROLEPLAY_RE.search(body):
         findings.append(
             _finding(
                 "ROLEPLAY_HEAVY_INSTRUCTIONS",
@@ -265,7 +314,7 @@ def assess_skill(descriptor: SkillDescriptor) -> SkillGateReport:
                 "Skill relies on persona/roleplay language instead of only procedural guidance.",
             )
         )
-    if len(document.body) > _LARGE_SKILL_BODY_CHARS:
+    if len(body) > _LARGE_SKILL_BODY_CHARS:
         findings.append(
             _finding(
                 "SKILL_BODY_TOO_LARGE",
@@ -274,18 +323,53 @@ def assess_skill(descriptor: SkillDescriptor) -> SkillGateReport:
                 "Skill body is large enough to undermine progressive disclosure/context economy.",
             )
         )
-    findings.extend(_scan_text("SKILL.md", document.body, is_script=False))
+    findings.extend(_scan_text("SKILL.md", body, is_script=False))
+
+    frontmatter = _frontmatter_text(skill_payload, path=descriptor.skill_file)
+    if frontmatter:
+        findings.extend(
+            _scan_text("SKILL.md:frontmatter", frontmatter, is_script=False)
+        )
+        if _ROLEPLAY_RE.search(frontmatter):
+            findings.append(
+                _finding(
+                    "ROLEPLAY_HEAVY_METADATA",
+                    SkillGateSeverity.REVIEW,
+                    "SKILL.md:frontmatter",
+                    "Skill frontmatter contains persona/roleplay language requiring review.",
+                )
+            )
+    custom_keys = sorted(set(metadata_keys) - {"name", "description"})
+    if custom_keys:
+        findings.append(
+            _finding(
+                "CUSTOM_METADATA_PRESENT",
+                SkillGateSeverity.REVIEW,
+                "SKILL.md:frontmatter",
+                "Custom Skill metadata is present and requires review before trust or routing use.",
+            )
+        )
 
     script_paths = set(descriptor.script_paths)
     for relative in descriptor.resource_paths:
-        resource_findings, size = _scan_resource(
-            descriptor.root,
+        payload = by_relative.get(relative)
+        if payload is None:
+            raise SkillChangedError(
+                f"{descriptor.root}: Skill content changed after discovery; rediscover before use"
+            )
+        resource_findings, _ = _scan_resource(
             relative,
+            payload,
             is_script=relative in script_paths,
         )
         findings.extend(resource_findings)
-        scanned_bytes += size
 
+    findings = list(
+        {
+            (item.code, item.severity.value, item.path, item.summary): item
+            for item in findings
+        }.values()
+    )
     severity_rank = {
         SkillGateSeverity.INFO: 0,
         SkillGateSeverity.REVIEW: 1,
@@ -308,9 +392,9 @@ def assess_skill(descriptor: SkillDescriptor) -> SkillGateReport:
 
     return SkillGateReport(
         skill_name=descriptor.name,
-        content_sha256=descriptor.content_sha256,
+        content_sha256=digest,
         disposition=disposition,
         findings=tuple(findings),
-        scanned_files=1 + len(descriptor.resource_paths),
+        scanned_files=len(by_relative),
         scanned_bytes=scanned_bytes,
     )
