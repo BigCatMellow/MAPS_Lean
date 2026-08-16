@@ -8,28 +8,51 @@ When MAPS agents are separate ChatGPT browser sessions, they cannot reliably mes
 
 The coordination model is therefore:
 
-> **TOWER prioritizes. Agents pull. GitHub coordinates.**
+> **Operator binds roles. TOWER prioritizes. Assigned agents pull. GitHub coordinates.**
 
 ```text
-operator starts browser sessions
-            |
-          TOWER
-  derived priority / dependencies
-            |
-          GitHub
-   live repository + task/PR evidence
-     /        |         |        \
-  ANVIL    FOUNDRY   SENTINEL  SWITCHYARD
-       each role pulls eligible work
+operator starts + binds browser sessions
+                 |
+               TOWER
+       derived priority / dependencies
+                 |
+               GitHub
+        live repository + task/PR evidence
+          /        |         |        \
+       ANVIL    FOUNDRY   SENTINEL  SWITCHYARD
+            each bound role pulls eligible work
 ```
 
 This protocol is a coordination method only. It does **not** create a second task database, review authority, branch authority, or merge authority.
+
+## Mandatory role binding
+
+A browser session **MUST NOT choose its own permanent role** from repository activity, workload, open PRs, apparent demand, or whichever lane looks most useful.
+
+A new browser session begins `UNBOUND` unless its role is already explicit in that conversation. The operator binds the session to exactly one role:
+
+- `TOWER` — planning / priority / dispatch;
+- `ANVIL` — development;
+- `FOUNDRY` — development / repair;
+- `SENTINEL` — independent review;
+- `SWITCHYARD` — integration / merge safety.
+
+Examples of valid binding:
+
+- `Your role is ANVIL. Continue under the GitHub async work-pull protocol.`
+- `You are SENTINEL for this browser session. Recover live state and continue.`
+
+An `UNBOUND` session may inspect public repository state to orient itself, but it must not claim consequential work, approve review, modify an owned feature branch, synchronize an integration candidate, or merge.
+
+If a generic startup prompt omits the role, the session must report `UNBOUND — role assignment required`; it must **not infer or self-select** a role.
+
+Role binding does not grant extra authority. It only tells the session which existing MAPS lane it is allowed to operate within. All task, ownership, review, and integration gates still apply.
 
 ## Sources of truth
 
 Use existing authority, in this order:
 
-1. operator / policy authority;
+1. operator / policy authority, including browser-session role binding;
 2. canonical MAPS task state and task contract;
 3. live GitHub repository, PR, branch, CI, and review evidence;
 4. TOWER roadmaps / dispatch notes / coordination comments as derived routing evidence only.
@@ -38,20 +61,21 @@ If a coordination note conflicts with live or canonical state, the note loses.
 
 ## Browser-session startup rule
 
-When the operator says **continue**, **go**, or otherwise starts an agent session, the agent should not wait for a bespoke handoff from another session.
+When the operator says **continue**, **go**, or otherwise starts a role-bound agent session, the agent should not wait for a bespoke handoff from another session.
 
 The agent should:
 
-1. recover current `main`;
-2. read its role contract and this protocol;
-3. inspect current GitHub task/PR/review/CI/coordination evidence relevant to its role;
-4. find the highest-priority **eligible** work for that role;
-5. verify ownership, dependencies, authority, exact head/base, and stop conditions;
-6. execute until completion or a concrete blocker;
-7. record the result on GitHub so the next role can discover it;
-8. stop at its role boundary.
+1. confirm its operator-bound role; if none is explicit, remain `UNBOUND` and stop before consequential work;
+2. recover current `main`;
+3. read its role contract and this protocol;
+4. inspect current GitHub task/PR/review/CI/coordination evidence relevant to its bound role;
+5. find the highest-priority **eligible** work for that role;
+6. verify ownership, dependencies, authority, exact head/base, and stop conditions;
+7. execute until completion or a concrete blocker;
+8. record the result on GitHub so the next role can discover it;
+9. stop at its role boundary.
 
-If no work is eligible, remain idle. Do not invent work to stay busy.
+If no work is eligible, remain idle. Do not invent work or switch roles to stay busy.
 
 ## Eligibility
 
@@ -59,10 +83,11 @@ A TOWER priority item is not automatically executable.
 
 Before pulling work, verify the underlying contract. For consequential implementation this normally includes:
 
+- the browser session is explicitly bound to the required role;
 - task is legitimately `READY` / `AGI READY` as required;
 - dependencies are accepted/stable;
 - no conflicting owner or mutable-output claim exists;
-- the role is allowed to perform the work;
+- the bound role is allowed to perform the work;
 - required authority exists;
 - the current exact GitHub state still matches the handoff.
 
@@ -141,7 +166,7 @@ Do not:
 
 ### ANVIL / FOUNDRY
 
-Pull: highest-priority eligible development/repair task assigned or legitimately available to that development lane.
+Pull: highest-priority eligible development/repair task assigned or legitimately available to that bound development lane.
 
 Do:
 - implement the smallest task-authorized change;
@@ -152,7 +177,8 @@ Do:
 Do not:
 - start downstream work on unaccepted ancestry just because the upstream looks likely to pass;
 - self-approve;
-- absorb another lane's work to avoid waiting.
+- absorb another lane's work to avoid waiting;
+- switch to SENTINEL/SWITCHYARD because review/integration work is available.
 
 ### SENTINEL
 
@@ -166,7 +192,8 @@ Do:
 
 Do not:
 - patch work being independently reviewed;
-- treat TOWER priority as proof of readiness.
+- treat TOWER priority as proof of readiness;
+- switch to implementation or integration because those queues are non-empty.
 
 ### SWITCHYARD
 
@@ -180,7 +207,8 @@ Do:
 
 Do not:
 - merge merely because work is high priority;
-- take over feature development unless a specific integration defect is legitimately returned.
+- take over feature development unless a specific integration defect is legitimately returned;
+- switch to review/development because integration is temporarily idle.
 
 ## Parallelism rule
 
@@ -197,6 +225,7 @@ TOWER       refreshes dependency/priority view
 
 Unsafe parallelism includes:
 
+- multiple unbound sessions independently deciding to become the same role;
 - two agents editing the same branch/output;
 - downstream implementation on unstable upstream ancestry;
 - reviewer modifying the work they must independently approve;
@@ -204,9 +233,19 @@ Unsafe parallelism includes:
 
 ## Operator workflow
 
-The operator should be able to keep role-specific browser tabs and use a minimal instruction such as:
+Keep role-specific browser tabs. Bind each tab once and keep that role for the life of the session.
 
-> `Continue. Recover live GitHub state and pull the highest-priority eligible work for your role under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
+Suggested startup prompts:
+
+- `Your role is TOWER. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
+- `Your role is ANVIL. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
+- `Your role is FOUNDRY. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
+- `Your role is SENTINEL. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
+- `Your role is SWITCHYARD. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
+
+After binding, later prompts can usually be just:
+
+> `Continue. Recover live GitHub state and pull the highest-priority eligible work for your bound role.`
 
 The operator still has to start/wake browser sessions. The protocol removes the need to manually relay detailed handoffs between sessions.
 
@@ -214,6 +253,7 @@ The operator still has to start/wake browser sessions. The protocol removes the 
 
 Do not add these merely because they are possible:
 
+- dynamic self-selection of roles;
 - another task database;
 - a daemon or scheduler;
 - an agent-to-agent messaging service;
@@ -225,10 +265,12 @@ If browser use later shows that discovery is still too costly, labels or generat
 
 ## Success test
 
-This protocol is working when the operator can open any role-specific browser session, say roughly **continue**, and that agent can independently discover:
+This protocol is working when the operator can open role-specific browser sessions, bind each one once, and later say roughly **continue**; each agent can independently discover:
 
-- what it should do now;
+- what it should do now within its bound role;
 - what it must not touch;
 - what it is waiting for;
 - what exact evidence proves the wait is over;
 - where to record its result so another role can discover it.
+
+It fails if a new unbound browser session can plausibly decide for itself that it is SENTINEL, ANVIL, FOUNDRY, SWITCHYARD, or TOWER.
