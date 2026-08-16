@@ -151,8 +151,6 @@ CREATE TABLE IF NOT EXISTS run_context_refs (
     PRIMARY KEY(run_id, path)
 );
 
--- Run bindings are append-only audit evidence. There is intentionally no
--- UPDATE/DELETE path, even for internal callers.
 CREATE TRIGGER IF NOT EXISTS trg_run_manifests_no_update
 BEFORE UPDATE ON run_manifests
 BEGIN
@@ -178,7 +176,6 @@ BEGIN
 END;
 
 -- Adapter-qualified provider/session identity is separate append-only lineage.
--- It extends an immutable run without rewriting the original run manifest.
 CREATE TABLE IF NOT EXISTS run_session_links (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
@@ -333,6 +330,27 @@ WHEN (
 )
 BEGIN
     SELECT RAISE(ABORT, 'replacement run cannot predate predecessor run');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_no_cycle
+BEFORE INSERT ON run_recovery_links
+WHEN EXISTS (
+    WITH RECURSIVE descendants(run_id) AS (
+        SELECT replacement_run_id
+        FROM run_recovery_links
+        WHERE predecessor_run_id = NEW.replacement_run_id
+        UNION ALL
+        SELECT links.replacement_run_id
+        FROM run_recovery_links links
+        JOIN descendants
+          ON links.predecessor_run_id = descendants.run_id
+    )
+    SELECT 1
+    FROM descendants
+    WHERE run_id = NEW.predecessor_run_id
+)
+BEGIN
+    SELECT RAISE(ABORT, 'recovery lineage cannot contain a cycle');
 END;
 
 CREATE TRIGGER IF NOT EXISTS trg_run_recovery_links_no_update
