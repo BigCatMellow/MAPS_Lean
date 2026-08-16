@@ -324,6 +324,30 @@ class HelperRecoveryLineageMixin:
                     "RECOVERY_TIME_CONFLICT",
                     "replacement run cannot predate predecessor run",
                 )
+
+            cycle = conn.execute(
+                """
+                WITH RECURSIVE descendants(run_id) AS (
+                    SELECT replacement_run_id
+                    FROM run_recovery_links
+                    WHERE predecessor_run_id = ?
+                    UNION ALL
+                    SELECT links.replacement_run_id
+                    FROM run_recovery_links links
+                    JOIN descendants
+                      ON links.predecessor_run_id = descendants.run_id
+                )
+                SELECT 1 FROM descendants WHERE run_id = ? LIMIT 1
+                """,
+                (replacement_run_id, predecessor_run_id),
+            ).fetchone()
+            if cycle is not None:
+                conn.rollback()
+                return MutationResult(
+                    False,
+                    "RECOVERY_CYCLE",
+                    "recovery relationship would create a cycle",
+                )
             try:
                 cursor = conn.execute(
                     """
