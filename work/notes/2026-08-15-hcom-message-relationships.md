@@ -1,10 +1,11 @@
 # hcom provider-local message relationship projection
 
-Status: `IMPLEMENTED / REBUILT ON ACCEPTED #44 ANCESTRY — DERIVED COMMUNICATION EVIDENCE ONLY`
+Status: `IMPLEMENTED / FORWARD-SYNCHRONIZED ON ACCEPTED #44 + CURRENT MAIN — DERIVED COMMUNICATION EVIDENCE ONLY`
 
 Branch: `agent/hcom-message-relationships-wave3`
 
-Accepted upstream baseline: PR #44 merged in `main@70843f24a3fb55fe3999964639c448862d1d97fe`.
+Accepted upstream #44 merge: `main@70843f24a3fb55fe3999964639c448862d1d97fe`.
+Current owner synchronization baseline: `main@eccdddaa37e42c93982bedf20d19e4f5096dbcff` after accepted PR #48.
 
 ## Purpose
 
@@ -23,7 +24,9 @@ A4d — only then derive explainable waits
 
 Accepted #44 proves uniqueness of the bare provider-local `event_id` within the configured bounded hcom read. `instance` is preserved as structured event metadata but is not an event-ID namespace and does not qualify reply identity.
 
-This tranche therefore continues to resolve exact provider-local parents using bare `reply_to_local -> event_id`, with no claim of global identity across projects or independent hcom stores.
+This tranche therefore resolves exact provider-local parents using bare `reply_to_local -> event_id`, with no claim of global identity across projects or independent hcom stores.
+
+PR #48 later advanced current main with run/session-lineage state. That accepted work is unrelated to this four-file communication layer and is preserved wholesale by the final forward-synchronization.
 
 ## Input boundary
 
@@ -254,4 +257,6 @@ Tests prove:
 - non-full/body-including input fails closed;
 - projection cannot grant authority.
 
-Historical repaired feature head `b78de03a9e05fe19846d0c0629a55e54427fa587` passed Runtime CI #346 / `31929065504` and received SENTINEL CLEAN IN-LAYER review `4945554935` on historical ancestry. The current owner rebuild carries the same runtime/test layer forward onto accepted #44/main ancestry and requires fresh exact-head CI plus fresh independent review.
+Historical repaired feature head `b78de03a9e05fe19846d0c0629a55e54427fa587` passed Runtime CI #346 / `31929065504` and received SENTINEL CLEAN IN-LAYER review `4945554935` on historical ancestry.
+
+FOUNDRY first rebuilt the unchanged runtime/test layer onto accepted #44 at `main@70843f24...`; intermediate rebuild head `27ad98c4b197b27267a9bbf9f768927a5a575a6b` passed Runtime CI #474 / `31971734287`. Because PR #48 merged during that CI run, FOUNDRY forward-synchronized once more onto latest accepted `main@eccdddaa37e42c93982bedf20d19e4f5096dbcff` before review. The final exact head therefore requires its own fresh CI and fresh independent review.
