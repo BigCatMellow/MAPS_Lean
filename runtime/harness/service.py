@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Iterable, Mapping
 
-from .hooks import HookEvent, HookRegistry, HookRunResult
+from .hooks import HookEnforcement, HookEvent, HookRegistry, HookRunResult
 from .protocol import HarnessAdapter
 from .types import ExecutionBinding, OperationResult, RetryDisposition, SessionRef
 
@@ -10,10 +10,12 @@ from .types import ExecutionBinding, OperationResult, RetryDisposition, SessionR
 class HarnessService:
     """Provider-neutral execution surface over adapters and deterministic Hooks.
 
-    This service does not decide task authority. Callers remain responsible for
-    canonical task/policy/ownership checks before invoking consequential
-    operations. Session/binding identity checks and Hooks may only narrow or
-    block an operation; they never grant missing authority.
+    This service does not decide task authority. Consequential start/send/resume/
+    stop operations require the corresponding canonical-run enforcement Hook to
+    be installed and then pass that Hook. Session/binding identity checks and
+    Hooks may only narrow or block an operation; they never grant missing
+    authority. Low-level adapters remain capability primitives beneath this
+    guarded service boundary.
     """
 
     def __init__(
@@ -58,6 +60,20 @@ class HarnessService:
                 retry=RetryDisposition.UNSAFE,
             )
         return adapter, None
+
+    def _require_canonical_enforcement(
+        self,
+        event: HookEvent,
+        operation: str,
+    ) -> OperationResult | None:
+        if self.hooks.has_enforcement(event, HookEnforcement.CANONICAL_RUN):
+            return None
+        return OperationResult.failure(
+            "CANONICAL_GUARD_REQUIRED",
+            "Consequential harness operation requires canonical run enforcement.",
+            data={"operation": operation, "event": event.value},
+            retry=RetryDisposition.UNSAFE,
+        )
 
     @staticmethod
     def _validate_binding_session(
@@ -156,6 +172,12 @@ class HarnessService:
         assert adapter is not None
         canonical_adapter_id = str(adapter.adapter_id).strip()
 
+        enforcement_error = self._require_canonical_enforcement(
+            HookEvent.RUN_STARTING, "start"
+        )
+        if enforcement_error is not None:
+            return enforcement_error
+
         before = self.hooks.run(
             HookEvent.RUN_STARTING,
             self._context(
@@ -222,6 +244,12 @@ class HarnessService:
             return error
         assert adapter is not None
 
+        enforcement_error = self._require_canonical_enforcement(
+            HookEvent.BEFORE_SEND, "send"
+        )
+        if enforcement_error is not None:
+            return enforcement_error
+
         before = self.hooks.run(
             HookEvent.BEFORE_SEND,
             self._context(
@@ -262,6 +290,24 @@ class HarnessService:
         if error is not None:
             return error
         assert adapter is not None
+
+        enforcement_error = self._require_canonical_enforcement(
+            HookEvent.BEFORE_RESUME, "resume"
+        )
+        if enforcement_error is not None:
+            return enforcement_error
+
+        before = self.hooks.run(
+            HookEvent.BEFORE_RESUME,
+            self._context(
+                "resume",
+                adapter_id=session_ref.adapter,
+                binding=binding,
+                session_ref=session_ref,
+            ),
+        )
+        if not before.permitted:
+            return self._hook_block("resume", before)
         return adapter.resume(binding)
 
     def stop(
@@ -277,6 +323,12 @@ class HarnessService:
         if error is not None:
             return error
         assert adapter is not None
+
+        enforcement_error = self._require_canonical_enforcement(
+            HookEvent.SESSION_STOPPING, "stop"
+        )
+        if enforcement_error is not None:
+            return enforcement_error
 
         before = self.hooks.run(
             HookEvent.SESSION_STOPPING,

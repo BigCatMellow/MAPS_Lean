@@ -18,6 +18,7 @@ class HookEvent(str, Enum):
     BEFORE_EXTERNAL_ACTION = "before_external_action"
     BEFORE_DESTRUCTIVE_ACTION = "before_destructive_action"
     BEFORE_SEND = "before_send"
+    BEFORE_RESUME = "before_resume"
     SUBMISSION_CREATED = "submission_created"
     REVIEW_STARTING = "review_starting"
     REVIEW_COMPLETING = "review_completing"
@@ -42,6 +43,12 @@ class HookFailurePolicy(str, Enum):
     FAIL_CLOSED = "FAIL_CLOSED"
     CONTINUE = "CONTINUE"
     RAISE = "RAISE"
+
+
+class HookEnforcement(str, Enum):
+    """Mechanical guard roles required by consequential service paths."""
+
+    CANONICAL_RUN = "CANONICAL_RUN"
 
 
 HookCallback = Callable[[Mapping[str, Any]], "HookOutcome"]
@@ -162,12 +169,15 @@ class HookRegistry:
 
     Hooks may deny, require existing approval, or annotate evidence. Running this
     registry does not grant task ownership, scope, policy authority, or operator
-    approval.
+    approval. Ordinary Hook registration never creates mandatory enforcement;
+    trusted composition code must explicitly bind an enforcement role inside the
+    registry after validating the concrete guard implementation.
     """
 
     def __init__(self) -> None:
         self._specs: list[tuple[int, HookSpec]] = []
         self._ids: set[str] = set()
+        self._enforcements: set[tuple[HookEvent, HookEnforcement]] = set()
         self._sequence = 0
 
     def register(self, spec: HookSpec) -> None:
@@ -179,6 +189,27 @@ class HookRegistry:
         self._specs.append((self._sequence, spec))
         self._sequence += 1
 
+    def _register_enforcement(
+        self,
+        spec: HookSpec,
+        enforcement: HookEnforcement,
+    ) -> None:
+        """Internal composition path for already-validated mandatory guards.
+
+        Caller-controlled callback attributes are deliberately ignored. The
+        policy composition root validates the exact guard type before using this
+        path, and the registry records the enforcement role itself.
+        """
+
+        if not isinstance(enforcement, HookEnforcement):
+            raise TypeError("enforcement must be a HookEnforcement")
+        if spec.failure_policy != HookFailurePolicy.FAIL_CLOSED:
+            raise ValueError("mandatory enforcement Hooks must fail closed")
+        if spec.side_effect != HookSideEffect.READ_ONLY:
+            raise ValueError("mandatory canonical enforcement Hooks must be read-only")
+        self.register(spec)
+        self._enforcements.add((spec.event, enforcement))
+
     def list_for(self, event: HookEvent) -> tuple[HookSpec, ...]:
         if not isinstance(event, HookEvent):
             raise TypeError("event must be a HookEvent")
@@ -189,6 +220,13 @@ class HookRegistry:
         ]
         matching.sort(key=lambda item: (item[1].priority, item[0]))
         return tuple(spec for _, spec in matching)
+
+    def has_enforcement(self, event: HookEvent, enforcement: HookEnforcement) -> bool:
+        if not isinstance(event, HookEvent):
+            raise TypeError("event must be a HookEvent")
+        if not isinstance(enforcement, HookEnforcement):
+            raise TypeError("enforcement must be a HookEnforcement")
+        return (event, enforcement) in self._enforcements
 
     def run(
         self,
