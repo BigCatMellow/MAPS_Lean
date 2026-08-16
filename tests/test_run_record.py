@@ -175,6 +175,75 @@ class PortableRunRecordTests(unittest.TestCase):
         )
         self.assertEqual(record["timeline"]["join_state"], CoverageState.UNKNOWN.value)
 
+    def test_criterion_evidence_is_filtered_to_exact_selected_run(self):
+        trace = self.store.trace_task("TASK-RR")
+        self.assertIsNotNone(trace)
+        trace["criterion_evidence"] = {
+            "claims": [
+                {
+                    "id": "claim-selected",
+                    "task_id": "TASK-RR",
+                    "criterion_id": "criterion-1",
+                    "claimed_status": "PASS",
+                    "evidence_refs": ["sha256:" + "a" * 64],
+                    "task_revision": trace["task_revision"],
+                    "run_id": self.run_id,
+                    "author_id": "author",
+                },
+                {
+                    "id": "claim-other",
+                    "task_id": "TASK-RR",
+                    "criterion_id": "criterion-1",
+                    "claimed_status": "PASS",
+                    "evidence_refs": ["sha256:" + "b" * 64],
+                    "task_revision": trace["task_revision"],
+                    "run_id": "RUN-OTHER",
+                    "author_id": "other-worker",
+                },
+                {
+                    "id": "claim-unbound",
+                    "task_id": "TASK-RR",
+                    "criterion_id": "criterion-1",
+                    "claimed_status": "PASS",
+                    "evidence_refs": ["sha256:" + "c" * 64],
+                    "task_revision": trace["task_revision"],
+                    "run_id": None,
+                    "author_id": "author",
+                },
+            ],
+            "verdicts": [
+                {"id": "verdict-selected", "claim_id": "claim-selected", "verified_status": "PASS"},
+                {"id": "verdict-other", "claim_id": "claim-other", "verified_status": "PASS"},
+                {"id": "verdict-unbound", "claim_id": "claim-unbound", "verified_status": "PASS"},
+            ],
+        }
+
+        record = build_run_record(FakeTraceSource(trace), "TASK-RR", self.run_id)
+        evidence = record["completion"]["criterion_evidence"]
+        self.assertEqual([item["id"] for item in evidence["claims"]], ["claim-selected"])
+        self.assertEqual([item["id"] for item in evidence["verdicts"]], ["verdict-selected"])
+        self.assertEqual(evidence["join_state"], CoverageState.VERIFIED.value)
+        self.assertEqual(evidence["omitted_task_unbound_claims"], 1)
+        self.assertEqual(evidence["omitted_other_run_claims"], 1)
+
+    def test_review_subject_presence_without_selected_run_binding_is_unknown(self):
+        trace = self.store.trace_task("TASK-RR")
+        self.assertIsNotNone(trace)
+        trace["reviews"][0]["subject"] = {
+            "review_id": trace["reviews"][0]["id"],
+            "run_id": "RUN-OTHER",
+            "task_revision": trace["task_revision"],
+            "artifact_refs": ["sha256:" + "a" * 64],
+        }
+        trace["coverage"]["canonical_task_db"]["review_subjects_included"] = True
+
+        record = build_run_record(FakeTraceSource(trace), "TASK-RR", self.run_id)
+        self.assertTrue(record["coverage"]["review_subject"]["included"])
+        self.assertEqual(
+            record["coverage"]["review_subject"]["state"],
+            CoverageState.UNKNOWN.value,
+        )
+
     def test_wrong_run_or_task_fails_explicitly(self):
         with self.assertRaisesRegex(RunRecordError, "not bound"):
             build_run_record(self.store, "TASK-RR", "RUN-does-not-exist")
