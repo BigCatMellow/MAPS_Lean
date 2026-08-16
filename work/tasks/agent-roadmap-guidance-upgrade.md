@@ -1,6 +1,6 @@
 # Task: Agent roadmap guidance upgrade
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `MAINTENANCE`
 - Owner: TOWER / roadmap-guidance documentation lane
@@ -29,21 +29,21 @@
 ## Acceptance criteria
 
 - [x] ANVIL/FOUNDRY/SENTINEL/SWITCHYARD retain the role-specific roadmap guidance already added.
-- [ ] `TOWER.md` replaces the unmerged ATLAS identity so the intended permanent structure has five roles rather than six.
-- [ ] TOWER accepts operator requests, uses MAPS request compilation/AGI rules to shape bounded prompts/tasks, and builds/maintains MAPS roadmaps.
-- [ ] TOWER reads live `main`, roadmaps, tasks, PRs, reviews, dependencies, and coordination notes before making dispatch decisions.
-- [ ] TOWER maintains only a **derived** priority/dispatch view; it does not create a second task authority.
-- [ ] TOWER identifies blocked stacks and safe parallel work and routes only legitimately eligible unclaimed work to suitable agents under existing MAPS task/routing rules.
-- [ ] TOWER keeps roadmap progress aligned with verified task/repository evidence and surfaces only material operator decisions.
-- [ ] TOWER explicitly cannot merge, independently approve substantive review, rewrite another agent's branch, invent operator permission, override SENTINEL findings, override SWITCHYARD gates, or manufacture task truth.
-- [ ] The contract explicitly distinguishes: **TOWER decides the next eligible work to dispatch; SWITCHYARD decides what is safe to integrate next.**
-- [ ] FOUNDRY remains a development/runtime lane in the intended permanent architecture; incumbent planning work may finish under its existing owner without becoming permanent dispatch authority.
-- [ ] PR #70 remains documentation-only and requires independent review before integration.
+- [x] `TOWER.md` replaces the unmerged ATLAS identity so the intended permanent structure has five roles rather than six.
+- [x] TOWER accepts operator requests, uses MAPS request compilation/AGI rules to shape bounded prompts/tasks, and builds/maintains MAPS roadmaps.
+- [x] TOWER reads live `main`, roadmaps, tasks, PRs, reviews, dependencies, and coordination notes before making dispatch decisions.
+- [x] TOWER maintains only a **derived** priority/dispatch view; it does not create a second task authority.
+- [x] TOWER identifies blocked stacks and safe parallel work and routes only legitimately eligible unclaimed work to suitable agents under existing MAPS task/routing rules.
+- [x] TOWER keeps roadmap progress aligned with verified task/repository evidence and surfaces only material operator decisions.
+- [x] TOWER explicitly cannot merge, independently approve substantive review, rewrite another agent's branch, invent operator permission, override SENTINEL findings, override SWITCHYARD gates, or manufacture task truth.
+- [x] The contract explicitly distinguishes: **TOWER decides the next eligible work to dispatch; SWITCHYARD decides what is safe to integrate next.**
+- [x] FOUNDRY remains a development/runtime lane in the intended permanent architecture; incumbent planning work may finish under its existing owner without becoming permanent dispatch authority.
+- [x] PR #70 remains documentation-only and requires independent review before integration.
 
 ## Verification and evidence
 
-- Verification: fetch TOWER/task files; confirm ATLAS is removed; compare PR #70 branch against its original base and current `main`; inspect changed paths; re-check live role/PR state.
-- Evidence to preserve: exact branch head/compare and PR #70 metadata.
+- Verification: fetched TOWER/task files; confirmed branch coordination directory contains ANVIL, FOUNDRY, SENTINEL, SWITCHYARD, and TOWER with no ATLAS file; compared branch against original base and current `main`; inspected changed paths and current live PR role state.
+- Evidence to preserve: original-base compare shows exactly the four existing coordination files, new `TOWER.md`, and this task record; current-main compare shows the documentation branch has diverged because `main` advanced after branch creation.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -76,11 +76,13 @@ Escalate to: operator for intent/priority/consequential decisions; SENTINEL for 
 - The operator refined that role to **TOWER — Planning / Dispatch / Coordination** with responsibility for current priorities, dependencies, blocked stacks, safe parallel dispatch, roadmap synchronization, and surfacing genuine operator decisions.
 - TOWER therefore replaces ATLAS rather than adding a sixth permanent agent.
 - The operator's intended permanent flow places ANVIL and FOUNDRY as development lanes, SENTINEL as independent review, and SWITCHYARD as integration/merge control.
-- Live `main` advanced after PR #70 was created, so final integration must re-resolve current-main state rather than trust the historical base snapshot.
+- Live `main` is `7269ce2be25993fa19b172f65c95381328585a35`, advanced after PR #70's original base `146f092a63af63b0fd750445e584a39e82ea1442`; current-main comparison is diverged and final integration must re-resolve current-main state.
+- Open PR #68 still proposes a permanent FOUNDRY Planning / Control-Surface transition. That is inconsistent with the newer operator-defined TOWER architecture; this branch reports the conflict but does not rewrite #68.
+- PR #71 remains incumbent FOUNDRY-authored planning/reconciliation work and can finish under existing ownership without creating permanent dispatch authority.
 
 ## Completion / handoff
 
-- Completed: prior four-agent roadmap guidance; TOWER reshaping decision recorded.
-- Not completed: TOWER file, ATLAS removal, final verification/PR metadata, independent review, integration.
-- Current blocker: none for documentation shaping.
-- Next action if not DONE: create `work/coordination/agents/TOWER.md` using this contract.
+- Completed: four-agent roadmap guidance; TOWER planning/dispatch identity; ATLAS removal; exact documentation-scope verification.
+- Not completed: PR #70 metadata refresh, independent review, current-main reconciliation, and integration.
+- Current blocker: no documentation blocker; PR #70 is not currently integration-ready because `main` advanced and independent review is still required.
+- Next action if not DONE: refresh PR #70 description/title with the TOWER architecture and hand the exact head to independent review/SWITCHYARD without self-approving or merging.
