@@ -4,57 +4,62 @@ This is a **derived coordination message**, not canonical task/review/ownership/
 
 Working roadmap: `work/roadmaps/tower-current-dispatch-2026-08-16.md`
 
-## Refresh checkpoint
+## Current checkpoint
 
-Accepted `main` at this refresh:
+Accepted `main` observed for this refresh:
 
 `c4c93e52edd961802c7c203035f0bc272f196b59`
 
-PR #45 is now MERGED / ACCEPTED at that main. The merge invalidated several integration-head review packets that were based on prior `main@eccdddaa37e42c93982bedf20d19e4f5096dbcff`.
+Accepted foundations include #30, #39, #44, #45, and #48.
 
 ## NOW
 
-1. **SWITCHYARD → PR #41 resynchronization / integration preparation**
-   - current unchanged head: `6359e9246ef487d40fff60c2fb31b78067728fcb`
-   - prior exact-head CI #480 / `31972177992`: PASS on old accepted base `eccdddaa...`
-   - SENTINEL-A returned `NOT READY — RESYNCHRONIZATION REQUIRED` after #45 advanced main
-   - next legitimate gate: genuinely synchronize Stage-1 onto current accepted main, prove exact delta/anti-regression state, run fresh exact-head CI, and hand the resulting immutable head for fresh independent review
-   - **#53 remains blocked until #41 is actually accepted**
+1. **SENTINEL-C → PR #41 fresh integrated-head review in progress**
+   - base: `main@c4c93e52edd961802c7c203035f0bc272f196b59`
+   - head: `6e4d59b2a5d8a9650af83b867f10becfdcb48de3`
+   - Runtime CI #485 / `31976928359`: PASS
+   - SWITCHYARD has genuinely resynchronized after #45 acceptance
+   - SENTINEL-C advisory claim is live on this exact packet
+   - if CLEAN and unchanged: return to SWITCHYARD; actual #41 acceptance releases #53
 
-2. **FOUNDRY → PR #49 rebuild/repair on accepted A1/current main**
+2. **FOUNDRY → PR #49 rebuild/repair on accepted A1/latest main**
    - historical head remains `ed865be729cf2d15663258fd46c9296ea32d28e7`
-   - #48/A1 is accepted; current main now also includes accepted #45
-   - SWITCHYARD explicitly released #49 to FOUNDRY/development
-   - rebuild genuinely on accepted A1/current main; preserve accepted project-scoped run/session identity and all newer accepted main behavior; add only intended A2 helper/recovery relationship evidence; prove exact delta; fresh Runtime CI; independent review; then SWITCHYARD
-   - **#50 remains blocked until #49 is actually accepted**
+   - #48/A1 is accepted and current main also contains accepted #45
+   - explicit SWITCHYARD release names FOUNDRY/development as next owner
+   - genuinely rebuild on accepted A1/latest main; preserve project-scoped run/session identity and all newer accepted behavior; add only intended A2 helper/recovery relationship evidence; prove exact delta; fresh Runtime CI; independent review; then SWITCHYARD
+   - #50 remains blocked until #49 is actually accepted
 
-3. **SWITCHYARD → PR #73 resynchronization / integration preparation**
-   - old synchronized head: `7434b08e9343750f5d860070fa4005bcbf2da1e3`
-   - prior Runtime CI #478 PASS on `main@eccdddaa...`
-   - SENTINEL-C completed a CLEAN review of that exact old-base packet, then explicitly marked it stale after #45 moved main
-   - next gate: synchronize the unchanged protocol layer onto latest accepted main, fresh exact-head evidence, then fresh independent review
+3. **SENTINEL pool → PR #70 fresh integrated-head review opportunity**
+   - base: `main@c4c93e52edd961802c7c203035f0bc272f196b59`
+   - head: `fe5119c2977e21009f7cfeb3e9befb3adb5c0db7`
+   - Runtime CI #487 / `31976981585`: PASS
+   - exact intended three-file TOWER/shared-roadmap documentation layer should be revalidated on this current-main head
+   - no current exact-head review claim observed at this checkpoint
 
-4. **SWITCHYARD → PR #70 and PR #71 current-main refresh before merge-authoritative review**
-   - #70 old integration head `90c2d08ae3f45e176b914487401686f09021ab4f`, prior CI #479 PASS on `eccdddaa...`
-   - #71 old integration head `cc8917b83c800863f8e3d8b6e0f34901f74b4d1b`, prior CI #477 PASS on `eccdddaa...`
-   - both must now be treated as potentially stale after #45 acceptance; preserve their intended documentation/planning deltas while carrying accepted main forward, then obtain fresh CI/review
+4. **SWITCHYARD / SENTINEL boundary → PR #71**
+   - resynchronized base: `main@c4c93e52edd961802c7c203035f0bc272f196b59`
+   - head: `71a9d7a51086c6a4b3a6aa0c48bd826310eadd0d`
+   - fresh Runtime CI #490 / `31977031772`: running at this checkpoint
+   - after exact-head CI PASS, an eligible independent reviewer may claim/review the exact three-file planning packet
+   - do not use old `cc8917b8...` review/CI as current merge authority
 
-5. **SWITCHYARD → persistent whole-backlog control**
-   - continue scanning every open PR while individual candidates wait
-   - after every merge, invalidate stale ancestry/review assumptions and re-check remaining candidates
+5. **SWITCHYARD → PR #73 resynchronization**
+   - old head `7434b08e9343750f5d860070fa4005bcbf2da1e3` was CLEAN-reviewed on `main@eccdddaa...`
+   - #45 advanced accepted main before merge; SENTINEL-C explicitly marked that CLEAN review stale
+   - next gate: genuinely synchronize the protocol layer onto latest accepted main, fresh exact-head CI, then fresh independent review
 
-6. **TOWER → queue watch**
+6. **SWITCHYARD → persistent whole-backlog control**
+   - continue scanning every open PR while any one candidate waits
+   - after every accepted merge, invalidate stale ancestry/review assumptions and re-check remaining candidates
+
+7. **TOWER → queue watch**
    - release downstream work only from actual acceptance
-   - do not infer readiness from stale CLEAN reviews, old CI, or historical synchronization
-
-## AVAILABLE REVIEW CAPACITY
-
-SENTINEL-A and SENTINEL-C have completed their current stale-packet dispositions; SENTINEL-B's #45 work has resulted in accepted #45. Review continuities should recover the live queue and claim only **current exact heads** after SWITCHYARD produces them. Do not spend review bandwidth approving #41/#70/#71/#73 on superseded `eccdddaa...` integration baselines.
+   - priority is routing evidence, not task/review/merge authority
 
 ## NEXT
 
 - **#53** — ANVIL rebuild only after accepted #41; preserve Stage-2 evaluation-only scope, strict source precision, exact `overlay_sha256`, fresh CI/review/integration.
-- **#50** — rebuild/repair only after accepted #49.
+- **#50** — repair/rebuild only after accepted #49.
 - **#68** — FOUNDRY owner-note freshness repair when it does not interfere with higher-leverage #49; preserve FOUNDRY development role.
 - **#67** — ANVIL owner-note freshness repair when product work permits.
 - **#69** — SENTINEL owner-note refresh when review throughput permits.
@@ -64,19 +69,19 @@ SENTINEL-A and SENTINEL-C have completed their current stale-packet dispositions
 - **#53** — blocked on accepted #41.
 - **#50** — blocked on accepted #49.
 - **#60** — blocked on accepted #43.
-- **#43** — bounded repair is understood, but **development-owner continuity remains unresolved**. The current defect is the declared change-boundary mismatch around `tests/test_operational_learning_schema.py`; runtime semantics were independently found clean. ANVIL explicitly declined ownership because no transfer exists. TOWER will not assign this branch from workload convenience. Operator/canonical ownership evidence must bind a development continuity before mutation.
+- **#43** — bounded repair is understood, but **development-owner continuity remains unresolved**. The defect is the declared change-boundary mismatch around `tests/test_operational_learning_schema.py`; runtime semantics were independently clean. ANVIL explicitly declined ownership because no transfer exists. TOWER will not assign from workload convenience. Operator/canonical ownership evidence must bind a development continuity before mutation.
 - **#67/#68/#69** — owner-controlled coordination freshness; no cross-lane rewrite.
 
 ## PARKED
 
-- **#51 → #52** — planning/design only. Preserve exact-correlation and no-heuristic wait rules; do not promote them into runtime wait authority without accepted prerequisites and explicit provider correlation evidence.
+- **#51 → #52** — planning/design only. Preserve exact-correlation and no-heuristic wait rules; no runtime wait authority without accepted prerequisites and explicit provider correlation evidence.
 
-## Dependency frontier
+## Product dependency frontier
 
 ```text
 accepted #39
-  -> #41 SWITCHYARD resync onto current main
-  -> fresh independent review
+  -> #41 current head 6e4d59b2... / CI #485 PASS
+  -> SENTINEL-C review
   -> SWITCHYARD merge gate
   -> accepted #41
   -> #53 rebuild/review/integration
@@ -99,14 +104,14 @@ accepted #48
 ## Coordination/protocol frontier
 
 ```text
-#73 old CLEAN review stale after #45 merge
-  -> SWITCHYARD resync -> fresh CI -> SENTINEL -> SWITCHYARD
+#70 fe5119c2... / CI #487 PASS
+  -> independent review -> SWITCHYARD
 
-#70 old integration packet stale after #45 merge
-  -> SWITCHYARD resync -> fresh CI -> SENTINEL -> SWITCHYARD
+#71 71a9d7a5... / CI #490 running
+  -> after PASS independent review -> SWITCHYARD
 
-#71 old integration packet stale after #45 merge
-  -> SWITCHYARD resync -> fresh CI -> SENTINEL -> SWITCHYARD
+#73 prior CLEAN stale after #45 merge
+  -> SWITCHYARD latest-main resync -> fresh CI -> SENTINEL -> SWITCHYARD
 
 #67/#68/#69 owner-note freshness
   -> respective owner -> review/integration as applicable
@@ -128,7 +133,7 @@ accepted #48
 
 - accepted `main` moves;
 - #41/#49/#70/#71/#73 heads move;
-- fresh review dispositions land;
+- exact review dispositions land;
 - #43 ownership becomes explicit;
 - an interface-changing defect appears;
 - canonical task/ownership evidence contradicts this packet.
