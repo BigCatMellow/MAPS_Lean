@@ -225,14 +225,20 @@ class AcquisitionEvidenceTests(unittest.TestCase):
             )
 
     def test_report_identity_is_content_derived_not_order_or_label_derived(self):
+        observations = [
+            observed("download", SHA_A, "download"),
+            observed("archive", SHA_B, "archive"),
+        ]
         first = evaluate_acquisition_evidence(
             manifest(),
-            [observed("download", SHA_A, "download"), observed("archive", SHA_B, "archive")],
+            observations,
             label="first-label",
         )
+        reordered_manifest = manifest()
+        reordered_manifest["paths"].reverse()
         second = evaluate_acquisition_evidence(
-            manifest(),
-            [observed("archive", SHA_B, "archive"), observed("download", SHA_A, "download")],
+            reordered_manifest,
+            list(reversed(observations)),
             label="second-label",
         )
 
