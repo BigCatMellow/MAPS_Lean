@@ -36,30 +36,34 @@
 - [x] high-risk, operator-gated/destructive/external/security/broad-architecture, or operator-visible-release review requires bound freshness evidence before APPROVED.
 - [x] low-risk/medium unflagged ordinary review remains approvable without a subject binding.
 - [x] `NON_CONSEQUENTIAL` freshness cannot satisfy a consequential approval.
-- [x] `REVISION_BOUND` requires at least run ID or immutable artifact refs unless the subject is derived atomically from fully confirmed criterion evidence identifying one exact run.
+- [x] consequential `REVISION_BOUND` requires at least one immutable artifact/evidence ref identifying the reviewed output; run ID may be additional provenance but cannot substitute for output identity.
+- [x] non-consequential `REVISION_BOUND` retains the narrower generic requirement of run ID or immutable artifact refs when explicitly bound.
 - [x] `REDERIVED_AT_REVIEW` requires immutable refs at binding and exact matching rederived refs at approval.
 - [x] approval validation runs inside the existing review transaction to avoid TOCTOU between subject validation and review completion.
 - [x] existing criterion completeness validation preserves its established failure precedence before review-subject validation.
-- [x] fully confirmed current criterion evidence that unanimously identifies one non-null run/current revision derives an immutable `REVISION_BOUND` overall review subject in the same approval transaction, avoiding redundant manual binding.
+- [x] confirmed criterion run evidence alone cannot derive an approvable consequential review subject; explicit immutable reviewed-output identity remains required.
+- [x] approval defensively rejects any consequential bound subject with empty immutable artifact/evidence refs.
 - [x] approval rejects changed submission count, changed task revision, stale/missing bound run, and overall-vs-criterion revision/run mismatch.
 - [x] read-only trace includes exact review subject under the owning review.
 - [x] binding event does not dump artifact refs.
-- [x] focused tests and full Runtime stack CI pass.
-- [ ] independent review remains required before completion.
+- [x] focused tests and full Runtime stack CI pass on the repaired pre-integration implementation.
+- [ ] current-main synchronization, fresh exact-head full Runtime CI, and independent exact-head re-review remain required before completion.
 
 ## Verification and evidence
 
 - Initial PR CI run `31898581152` exposed an integration-order regression: an existing high-risk criterion test expected `CRITERION_VERIFICATION_INCOMPLETE`, while the first implementation returned `REVIEW_SUBJECT_REQUIRED` earlier.
-- The fix preserved existing criterion-check precedence and added atomic derivation of the overall review subject from fully confirmed same-run criterion evidence.
-- Corrected PR-triggered full Runtime stack CI run `31898786757` passed on head `fde24736323cdd196309fb753422e053399e9171`.
-- Evidence to preserve: schema diff, initial failing run `31898581152`, corrected run `31898786757`, review atomicity/stale-subject/derived-subject tests, PR #32 diff, independent review result.
+- The first correction preserved criterion-check precedence but automatically derived an overall subject from same-run criterion evidence.
+- Independent review on head `489a2524b513d6d9ab5eb186874cbc04e6e4ba4a` found that run identity is execution provenance, not immutable reviewed-output identity; both manual run-only binding and automatic same-run criterion derivation could therefore approve stale output bytes.
+- The narrow repair requires immutable artifact/evidence refs for consequential `REVISION_BOUND`, removes automatic run-only criterion derivation from approval, and adds defense-in-depth approval rejection for empty refs.
+- Focused regressions now require run-only consequential binding to fail and confirmed criterion run evidence alone to leave approval blocked until an explicit immutable output ref is bound.
+- Evidence to preserve: schema diff, historical CI, blocking independent review, repaired exact-head CI, repaired tests, PR #32 diff, and fresh independent review result.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
 
 - Environment / target: existing canonical SQLite review/task state.
-- Ordered procedure: immutable schema → binding mixin → atomic ReviewMixin approval hook → preserve criterion-check precedence → trace projection → behavioral tests → independent draft PR → full CI → review.
-- Failure branches: IF exact artifact identity cannot be represented by an immutable ref THEN do not pretend the review is revision-bound; use a later artifact registry/rederivation mechanism. IF a low-risk task has no consequential trigger THEN retain existing simple review behavior. IF fully confirmed criterion evidence does not identify one current non-null run unambiguously THEN do not derive a subject; require explicit immutable binding.
+- Ordered procedure: immutable schema → binding mixin → atomic ReviewMixin approval hook → preserve criterion-check precedence → exact reviewed-output identity gate → trace projection → behavioral tests → current-main synchronization → full CI → independent review.
+- Failure branches: IF exact artifact identity cannot be represented by an immutable ref THEN consequential approval must remain blocked; do not substitute run identity, mutable criterion paths, filenames, URLs, or prose. IF a low-risk task has no consequential trigger THEN retain existing simple review behavior.
 - Rollback / recovery: revert isolated independent commit/PR; additive table and optional method parameter only.
 - Security / privacy controls: artifact refs are hashes/commit IDs, event summary omits them, no raw evidence/source text copied into subject table.
 - External side effects: Git branch/PR publication only.
@@ -89,17 +93,18 @@ Escalate to: operator / roadmap re-shaping as appropriate.
 
 ## Notes / decisions
 
-- This task starts independently from merged `main`; it does not depend on the unmerged Harness, Skills, or Environment stacks.
+- This task started independently from merged `main`; it does not depend on the unmerged Harness, Skills, or Environment stacks.
 - Consequential-review requirement is derived only from existing canonical risk/policy/review flags. It does not create a new policy authority.
 - Review binding happens after review claim and before approval. Binding does not grant the reviewer anything they did not already have.
 - The existing `ReviewMixin.record_review()` receives one optional `rederived_artifact_refs` keyword and invokes an optional approval hook while holding the same SQLite transaction.
 - The new mixin supplies that hook and extends trace through MRO composition, avoiding a second review engine.
-- The initial CI failure was useful evidence: criterion-level structured evidence already identifies the review subject when every current criterion is confirmed against the same run. The corrected design reuses that evidence instead of manufacturing another manual step.
+- Criterion confirmation remains criterion evidence. Even unanimous same-run criterion evidence does not mechanically identify the exact final output bytes and therefore cannot manufacture consequential overall review freshness.
+- Run identity remains useful provenance but is not artifact identity.
 - Artifact identity syntax is intentionally narrow in v1. Extend only when a real immutable artifact-ID class exists and can be validated mechanically.
 
 ## Completion / handoff
 
-- Completed: immutable review subjects, consequential approval gating, rederivation checks, automatic same-run criterion subject derivation, trace projection, focused tests, draft PR #32, and corrected full Runtime stack CI.
-- Not completed: independent review / merge.
-- Current blocker: independent review required for completion; unrelated roadmap work may continue.
-- Next action if not DONE: independent review of PR #32; portable Run Record/read-model work may proceed separately without treating this draft branch as merged authority.
+- Completed in the repair layer: immutable review subjects, consequential approval gating, rederivation checks, exact-output identity requirement, trace projection, and focused adversarial regressions.
+- Not completed: synchronization with then-current accepted main, fresh exact-head Runtime CI, and independent re-review of the repaired head.
+- Current blocker: independent exact-head review is required after synchronization because the agent implementing this repair cannot review its own fix.
+- Next action if not DONE: synchronize the repaired six-file layer onto accepted main without dropping accepted state, run full Runtime CI, and hand the immutable base/head/CI packet to an independent reviewer.
