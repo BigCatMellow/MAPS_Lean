@@ -184,9 +184,17 @@ CREATE TABLE IF NOT EXISTS run_session_links (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
     relation TEXT NOT NULL CHECK (relation IN ('ATTACH','REPLACE')),
-    project_id TEXT NOT NULL CHECK (length(trim(project_id)) > 0),
-    adapter_id TEXT NOT NULL CHECK (length(trim(adapter_id)) BETWEEN 1 AND 128),
-    session_id TEXT NOT NULL CHECK (length(trim(session_id)) BETWEEN 1 AND 128),
+    project_id TEXT NOT NULL CHECK (length(project_id) > 0),
+    adapter_id TEXT NOT NULL CHECK (
+        length(adapter_id) BETWEEN 1 AND 128
+        AND adapter_id GLOB '[A-Za-z0-9]*'
+        AND adapter_id NOT GLOB '*[^A-Za-z0-9_.:@-]*'
+    ),
+    session_id TEXT NOT NULL CHECK (
+        length(session_id) BETWEEN 1 AND 128
+        AND session_id GLOB '[A-Za-z0-9]*'
+        AND session_id NOT GLOB '*[^A-Za-z0-9_.:@-]*'
+    ),
     replaces_link_id INTEGER REFERENCES run_session_links(id),
     evidence_ref TEXT NOT NULL CHECK (length(trim(evidence_ref)) BETWEEN 1 AND 256),
     created_by TEXT NOT NULL CHECK (length(trim(created_by)) BETWEEN 1 AND 128),
@@ -206,8 +214,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_run_session_one_replacement
     ON run_session_links(replaces_link_id)
     WHERE replaces_link_id IS NOT NULL;
 
--- Every stored provider-context key must match canonical task state for the
--- owning immutable run. Direct SQL cannot invent a competing project identity.
+-- Every stored provider-context key must exactly match canonical task state for
+-- the owning immutable run. Direct SQL cannot invent a trim-equivalent project.
 CREATE TRIGGER IF NOT EXISTS trg_run_session_project_match
 BEFORE INSERT ON run_session_links
 WHEN NOT EXISTS (
@@ -215,7 +223,7 @@ WHEN NOT EXISTS (
     FROM run_manifests AS r
     JOIN tasks AS t ON t.task_id = r.task_id
     WHERE r.run_id = NEW.run_id
-      AND trim(t.project_id) = trim(NEW.project_id)
+      AND t.project_id = NEW.project_id
 )
 BEGIN
     SELECT RAISE(ABORT, 'run session project must match canonical task project');
