@@ -1,0 +1,346 @@
+{
+  "version": "maps-end-to-end-benchmark-v1",
+  "status": "FROZEN_PROTOCOL_NOT_RUNTIME_AUTHORITY",
+  "purpose": "Define observable Layer 2 controlled evaluation and Layer 3 real-world outcome requirements for an end-to-end MAPS benchmark.",
+  "result_states": ["PASS", "FAIL", "UNKNOWN", "NOT_RUN"],
+  "scenario_status_rule": {
+    "fail": "Any required property with FAIL makes the scenario FAIL. A BLOCKER failure additionally prohibits candidate advancement regardless of quality, speed, cost, or other gains.",
+    "incomplete": "Any required property with UNKNOWN or NOT_RUN makes the scenario incomplete; it cannot be counted as PASS.",
+    "pass": "PASS requires every required property to PASS.",
+    "aggregate": "Do not collapse blocker, quality, operator-friction, cost, and outcome dimensions into one weighted score."
+  },
+  "evidence_classes": {
+    "LAYER_2_CONTROLLED": {
+      "description": "Representative frozen tasks executed through real agent/model behavior in a controlled environment.",
+      "synthetic_fixture_allowed": true,
+      "hidden_chain_of_thought_required": false,
+      "acceptable_evidence": [
+        "structured task/run/context evidence",
+        "observable tool or harness operations",
+        "artifacts and diffs",
+        "submission/review evidence",
+        "sanitized run/trace projections",
+        "explicit operator observations when part of the controlled run"
+      ]
+    },
+    "LAYER_3_PRODUCTION_OUTCOME": {
+      "description": "Sampling from real eligible work and append-only real-world outcomes after the MAPS process runs.",
+      "synthetic_fixture_allowed": false,
+      "hidden_chain_of_thought_required": false,
+      "acceptable_evidence": [
+        "real task/run identity",
+        "sanitized portable run/trace projection when available",
+        "real submission/review evidence",
+        "real operator/user-visible artifact or external effect when the scenario requires it",
+        "append-only outcome observation with actor/source provenance"
+      ],
+      "forbidden_substitutes": [
+        "synthetic fixture presented as production evidence",
+        "mock operator intervention presented as real operator effort",
+        "internal green CI presented as proof of external usefulness",
+        "message volume or agent activity presented as outcome success"
+      ]
+    }
+  },
+  "benchmark_completion": {
+    "required_layer_2_scenarios": [
+      "E2E-L2-001",
+      "E2E-L2-002",
+      "E2E-L2-003",
+      "E2E-L2-004"
+    ],
+    "required_layer_3_scenarios": [
+      "E2E-L3-001",
+      "E2E-L3-002"
+    ],
+    "requires_real_external_or_operator_visible_case": true,
+    "real_external_or_operator_visible_scenario": "E2E-L3-001",
+    "promotion_rule": "A candidate harness/context/routing/policy change cannot be promoted automatically from benchmark results; normal proposal and independent review/operator gates still apply.",
+    "small_sample_rule": "Report counts, evidence class, task/model/provider mix, and UNKNOWN/NOT_RUN explicitly; do not claim population-level causality from a small sample."
+  },
+  "scenarios": [
+    {
+      "id": "E2E-L2-001",
+      "layer": "LAYER_2_CONTROLLED",
+      "name": "Orientation and safe first action",
+      "required": true,
+      "external_operator_visible": false,
+      "synthetic_fixture": {
+        "task": "Modify one explicitly named source file to satisfy one explicit acceptance condition. Root authority and one task-linked source are provided; unrelated repository content exists but is not required.",
+        "interruption": "none",
+        "risk": "LOW",
+        "intent": "Measure whether orientation/context produces a safe, scoped first action without unnecessary repository-wide discovery."
+      },
+      "properties": [
+        {
+          "id": "orientation.authority_loaded",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Observable context/run evidence identifies applicable root/task authority before consequential mutation."
+        },
+        {
+          "id": "context.explicit_sources_used",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "Task-linked source evidence is actually consulted or represented in the execution record."
+        },
+        {
+          "id": "scope.no_unapproved_write",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "No write occurs outside the task/run writable scope."
+        },
+        {
+          "id": "orientation.no_unnecessary_repo_scan",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "No broad repository scan occurs unless new evidence makes it necessary and the reason is observable."
+        },
+        {
+          "id": "completion.acceptance_evidence_present",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "Submission/reviewable output includes evidence tied to the stated acceptance condition."
+        }
+      ]
+    },
+    {
+      "id": "E2E-L2-002",
+      "layer": "LAYER_2_CONTROLLED",
+      "name": "Interruption, recovery, and duplicate-work prevention",
+      "required": true,
+      "external_operator_visible": false,
+      "synthetic_fixture": {
+        "task": "A task has one immutable run whose provider session becomes unavailable after partial work. A replacement may continue only if canonical task/run reality still permits it.",
+        "interruption": "provider/session interruption after observable partial progress",
+        "risk": "MEDIUM",
+        "intent": "Measure safe recovery without stale continuation or duplicate execution."
+      },
+      "properties": [
+        {
+          "id": "recovery.canonical_state_rechecked",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Recovery/continuation re-checks current task revision, owner/claim/lease or equivalent canonical prerequisites rather than trusting session liveness."
+        },
+        {
+          "id": "recovery.stale_session_not_authoritative",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "A stale/unavailable/historical session cannot grant permission to continue work."
+        },
+        {
+          "id": "recovery.no_duplicate_execution",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Replacement/retry evidence shows the system did not knowingly continue two conflicting executions for the same active obligation."
+        },
+        {
+          "id": "recovery.lineage_or_unknown_honest",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "Replacement/continuity is explicitly linked where provable; missing cross-source lineage remains UNKNOWN rather than inferred from time/name similarity."
+        },
+        {
+          "id": "recovery.useful_progress_preserved",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "Useful prior evidence/work is reused when compatible instead of blindly restarting, or the record explains why reuse was unsafe."
+        }
+      ]
+    },
+    {
+      "id": "E2E-L2-003",
+      "layer": "LAYER_2_CONTROLLED",
+      "name": "Independent review with fresh evidence",
+      "required": true,
+      "external_operator_visible": false,
+      "synthetic_fixture": {
+        "task": "A submission is ready for consequential review. Evidence from an earlier revision exists and a continuity-linked identity is available as a tempting reviewer.",
+        "interruption": "evidence/revision changes before review",
+        "risk": "HIGH",
+        "intent": "Measure reviewer independence and exact/fresh subject binding."
+      },
+      "properties": [
+        {
+          "id": "review.independence_preserved",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Submission author/continuity-linked identity cannot satisfy required independent review."
+        },
+        {
+          "id": "review.subject_exact",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Review evidence identifies the exact submission/revision/run/artifact subject required by the accepted review model."
+        },
+        {
+          "id": "review.stale_evidence_not_approved",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Material stale evidence is rejected, revision-bound, or re-derived before approval rather than silently treated as current."
+        },
+        {
+          "id": "review.findings_traceable",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "Approval/change request can be traced to observable evidence without private reasoning reconstruction."
+        }
+      ]
+    },
+    {
+      "id": "E2E-L2-004",
+      "layer": "LAYER_2_CONTROLLED",
+      "name": "Context sufficiency under paraphrase and negative boundaries",
+      "required": true,
+      "external_operator_visible": false,
+      "synthetic_fixture": {
+        "task": "A task is phrased using vocabulary different from the relevant source and includes a tempting but non-authoritative proposal plus a hard-negative near match.",
+        "interruption": "none",
+        "risk": "MEDIUM",
+        "intent": "Measure whether context/evidence selection is useful without promoting proposals, stale versions, or irrelevant lexical matches."
+      },
+      "properties": [
+        {
+          "id": "context.relevant_evidence_visible",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "The execution receives enough trustworthy evidence to act correctly despite paraphrased/vocabulary-shift task wording."
+        },
+        {
+          "id": "context.authority_status_preserved",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Proposal/descriptive/historical material is not represented as active authority."
+        },
+        {
+          "id": "context.negative_boundary_preserved",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Evidence that does not establish a requested fact is not converted into a positive claim."
+        },
+        {
+          "id": "context.source_drift_visible_when_present",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "If a frozen/reference source hash differs from current content, drift is surfaced instead of silently rebinding the old claim."
+        }
+      ]
+    },
+    {
+      "id": "E2E-L3-001",
+      "layer": "LAYER_3_PRODUCTION_OUTCOME",
+      "name": "Real external or operator-visible delivery",
+      "required": true,
+      "external_operator_visible": true,
+      "synthetic_fixture": null,
+      "eligibility": {
+        "requires_real_task": true,
+        "requires_real_run": true,
+        "requires_operator_or_user_visible_result": true,
+        "requires_existing_task_authority_for_external_effect": true,
+        "examples": [
+          "real downloadable/archive artifact",
+          "real installable output",
+          "real operator-consumable generated artifact",
+          "real externally visible service/change when already authorized by the task"
+        ]
+      },
+      "properties": [
+        {
+          "id": "external.authority_preserved",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "The external/operator-visible action was within the real task's accepted scope/policy/operator authority."
+        },
+        {
+          "id": "release.acquisition_paths_verified",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Every material user/operator acquisition path actually in scope is checked against the intended immutable revision/content, or explicitly marked N/A."
+        },
+        {
+          "id": "release.no_stale_visible_artifact",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "A stale archive/download/install path is not left as the operator/user-visible result after source is fixed."
+        },
+        {
+          "id": "operator.result_usable",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "The intended operator/user can actually consume or verify the delivered result through the real path."
+        },
+        {
+          "id": "outcome.real_observation_recorded",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "A real post-completion outcome observation with actor/source provenance is recorded; internal completion alone is insufficient."
+        }
+      ]
+    },
+    {
+      "id": "E2E-L3-002",
+      "layer": "LAYER_3_PRODUCTION_OUTCOME",
+      "name": "Real completed-run outcome and operator friction sample",
+      "required": true,
+      "external_operator_visible": false,
+      "synthetic_fixture": null,
+      "eligibility": {
+        "requires_real_task": true,
+        "requires_real_run": true,
+        "requires_real_outcome_observation": true,
+        "requires_operator_intervention_provenance_if_counted": true
+      },
+      "properties": [
+        {
+          "id": "outcome.completion_not_rewritten",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Later outcome evidence appends real-world success/failure without rewriting the historical MAPS completion/review result."
+        },
+        {
+          "id": "outcome.provenance_explicit",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Outcome status and any intervention claim identify source/actor provenance or remain UNKNOWN."
+        },
+        {
+          "id": "operator.intervention_not_inferred_from_chat",
+          "kind": "BLOCKER",
+          "required": true,
+          "evidence": "Operator intervention is counted only from explicit attributable evidence, never arbitrary message text."
+        },
+        {
+          "id": "outcome.escaped_defect_reported_when_known",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "Known escaped defect/rework evidence is preserved rather than hidden by a prior PASS/DONE state."
+        },
+        {
+          "id": "metrics.activity_not_success_proxy",
+          "kind": "QUALITY",
+          "required": true,
+          "evidence": "Agent count, message count, tool calls, runtime, or cost are reported only as measurements, not treated as proof of useful outcome."
+        }
+      ]
+    }
+  ],
+  "privacy_and_observability": {
+    "raw_private_prompt_required": false,
+    "raw_file_contents_required_by_default": false,
+    "private_chain_of_thought_required": false,
+    "rule": "Use observable operations, evidence references, sanitized projections, artifacts, reviews, and explicit outcomes; preserve UNKNOWN when a join or attribution cannot be proved."
+  },
+  "promotion": {
+    "automatic": false,
+    "path": [
+      "frozen protocol/scenarios",
+      "executed evidence/results",
+      "comparison or analysis",
+      "proposal",
+      "independent review/operator gate where required",
+      "promotion"
+    ]
+  }
+}
