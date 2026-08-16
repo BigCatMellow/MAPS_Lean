@@ -8,10 +8,12 @@ from .outcomes import OutcomeMixin
 from .policy import PolicyStateMixin
 from .readiness import ReadinessMixin
 from .review import ReviewMixin
+from .run_lineage import RunSessionLineageMixin
 
 
 class TaskStore(
     ExecutionScopeHardeningMixin,
+    RunSessionLineageMixin,
     ExecutionIntegrityMixin,
     PolicyStateMixin,
     ReadinessMixin,
