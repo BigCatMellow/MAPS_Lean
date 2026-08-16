@@ -6,7 +6,15 @@ import re
 import subprocess
 from typing import Any, Mapping
 
-from .common import HelperError, HelperResult, HelperRunStore, new_result, validate_active_scope
+from .common import (
+    HelperError,
+    HelperResult,
+    HelperRunStore,
+    new_helper_run_id,
+    new_result,
+    validate_active_scope,
+    validate_helper_run_id,
+)
 
 _MODEL = re.compile(r"^[A-Za-z0-9_.:/-]+$")
 
@@ -56,6 +64,7 @@ class OllamaHelper:
         prompt: str,
         output_path: str | Path,
         scope_summary: str,
+        helper_run_id: str | None = None,
     ) -> HelperResult:
         model = model.strip()
         if not _MODEL.fullmatch(model):
@@ -65,6 +74,11 @@ class OllamaHelper:
         if not scope_summary.strip():
             raise HelperError("scope_summary is required")
         validate_active_scope(task, [output_path], repo=repo)
+        resolved_helper_run_id = (
+            validate_helper_run_id(helper_run_id)
+            if helper_run_id is not None
+            else new_helper_run_id()
+        )
         self.health()
 
         try:
@@ -92,6 +106,7 @@ class OllamaHelper:
         target.write_text(result.stdout, encoding="utf-8")
 
         record = new_result(
+            helper_run_id=resolved_helper_run_id,
             task_id=str(task["task_id"]),
             helper=f"ollama:{model}",
             status="completed",
