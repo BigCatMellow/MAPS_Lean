@@ -1,12 +1,23 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import math
+from pathlib import Path
 from typing import Mapping, Sequence
 
 
 class BenchmarkResultError(ValueError):
     pass
 
+
+_FROZEN_PROTOCOL_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "work"
+    / "evals"
+    / "maps-end-to-end-benchmark-v1.json"
+)
+_FROZEN_PROTOCOL_GIT_BLOB_SHA = "1de87962caa9f66319dbb9f6f192254569ab0cd3"
 
 _RESULT_KEYS = {
     "scenario_id",
@@ -56,9 +67,58 @@ def _text(value: object, field: str) -> str:
     return value.strip()
 
 
+def _canonical_json_bytes(value: object) -> bytes:
+    try:
+        return json.dumps(
+            value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    except (TypeError, ValueError) as exc:
+        raise BenchmarkResultError("benchmark evidence must be JSON-serializable") from exc
+
+
+def _sha256_ref(value: object) -> str:
+    return "sha256:" + hashlib.sha256(_canonical_json_bytes(value)).hexdigest()
+
+
+def _git_blob_sha(data: bytes) -> str:
+    header = f"blob {len(data)}\0".encode("ascii")
+    return hashlib.sha1(header + data, usedforsecurity=False).hexdigest()
+
+
+def _frozen_protocol_identity() -> tuple[dict[str, object], dict[str, str]]:
+    try:
+        raw = _FROZEN_PROTOCOL_PATH.read_bytes()
+    except OSError as exc:
+        raise BenchmarkResultError("frozen benchmark protocol is unavailable") from exc
+
+    git_blob_sha = _git_blob_sha(raw)
+    if git_blob_sha != _FROZEN_PROTOCOL_GIT_BLOB_SHA:
+        raise BenchmarkResultError("frozen benchmark protocol file identity mismatch")
+
+    try:
+        frozen = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise BenchmarkResultError("frozen benchmark protocol is invalid") from exc
+    if not isinstance(frozen, dict):
+        raise BenchmarkResultError("frozen benchmark protocol must be a mapping")
+
+    return frozen, {
+        "git_blob": f"git-blob-sha1:{git_blob_sha}",
+        "content": _sha256_ref(frozen),
+    }
+
+
 def _validate_protocol(protocol: Mapping[str, object]):
     if protocol.get("version") != "maps-end-to-end-benchmark-v1":
         raise BenchmarkResultError("unsupported benchmark protocol version")
+
+    frozen, protocol_identity = _frozen_protocol_identity()
+    if _canonical_json_bytes(protocol) != _canonical_json_bytes(frozen):
+        raise BenchmarkResultError("benchmark protocol does not match frozen content")
+
     states = protocol.get("result_states")
     scenarios = protocol.get("scenarios")
     if not isinstance(states, list) or not states:
@@ -106,7 +166,7 @@ def _validate_protocol(protocol: Mapping[str, object]):
             "properties": normalized_props,
             "eligibility": dict(eligibility or {}),
         }
-    return indexed, allowed_states
+    return indexed, allowed_states, protocol_identity
 
 
 def _property_result(raw: object, allowed_states: set[str], field: str):
@@ -120,7 +180,7 @@ def _property_result(raw: object, allowed_states: set[str], field: str):
         isinstance(x, str) and x.strip() for x in refs
     ):
         raise BenchmarkResultError(f"{field}.evidence_refs must be a text list")
-    refs = [x.strip() for x in refs]
+    refs = sorted(x.strip() for x in refs)
     if len(refs) != len(set(refs)):
         raise BenchmarkResultError(f"{field}.evidence_refs contains duplicates")
     if state in {"PASS", "FAIL"} and not refs:
@@ -148,7 +208,7 @@ def _provenance(raw: object, field: str):
     if raw is None:
         return {
             key: {"state": "NOT_APPLICABLE", "ref": None}
-            for key in _PROVENANCE_KEYS
+            for key in sorted(_PROVENANCE_KEYS)
         }
     if not isinstance(raw, Mapping) or set(raw) != _PROVENANCE_KEYS:
         raise BenchmarkResultError(f"{field} must contain the complete provenance key set")
@@ -264,6 +324,8 @@ def _score_scenario(scenario, result):
         return {
             "scenario_id": scenario["id"],
             "layer": scenario["layer"],
+            "evidence_class": None,
+            "fixture_kind": None,
             "status": "INCOMPLETE",
             "eligibility_status": "INCOMPLETE",
             "eligibility_reasons": ["scenario_result_missing"],
@@ -273,10 +335,12 @@ def _score_scenario(scenario, result):
                     "kind": meta["kind"],
                     "required": meta["required"],
                     "state": "NOT_RUN",
+                    "evidence_refs": [],
                     "evidence_ref_count": 0,
                 }
                 for prop_id, meta in expected_props.items()
             ],
+            "provenance": None,
             "blocker_failures": [],
             "measurements": {},
         }
@@ -308,6 +372,7 @@ def _score_scenario(scenario, result):
                 "kind": meta["kind"],
                 "required": meta["required"],
                 "state": state,
+                "evidence_refs": list(refs),
                 "evidence_ref_count": len(refs),
             }
         )
@@ -323,10 +388,16 @@ def _score_scenario(scenario, result):
     return {
         "scenario_id": scenario["id"],
         "layer": scenario["layer"],
+        "evidence_class": result["evidence_class"],
+        "fixture_kind": result["fixture_kind"],
         "status": status,
         "eligibility_status": eligibility_status,
         "eligibility_reasons": reasons,
         "properties": rows,
+        "provenance": {
+            key: dict(value)
+            for key, value in result["provenance"].items()
+        },
         "blocker_failures": blocker_failures,
         "measurements": dict(result["measurements"]),
     }
@@ -341,7 +412,7 @@ def evaluate_benchmark_results(
     """Validate externally produced benchmark evidence without executing a scenario."""
 
     resolved_label = _text(label, "label")
-    scenarios, allowed_states = _validate_protocol(protocol)
+    scenarios, allowed_states, protocol_identity = _validate_protocol(protocol)
     indexed = {}
     for raw in results:
         if not isinstance(raw, Mapping):
@@ -353,6 +424,9 @@ def evaluate_benchmark_results(
         if scenario_id in indexed:
             raise BenchmarkResultError(f"duplicate scenario result: {scenario_id}")
         indexed[scenario_id] = item
+
+    normalized_results = [indexed[key] for key in sorted(indexed)]
+    result_evidence_ref = _sha256_ref(normalized_results)
 
     reports = [
         _score_scenario(scenario, indexed.get(scenario_id))
@@ -386,6 +460,8 @@ def evaluate_benchmark_results(
         "report_kind": "MAPS_END_TO_END_BENCHMARK_REPORT",
         "label": resolved_label,
         "protocol_version": protocol["version"],
+        "protocol_identity": protocol_identity,
+        "result_evidence_ref": result_evidence_ref,
         "benchmark_status": benchmark_status,
         "cases": {
             "total": len(reports),
