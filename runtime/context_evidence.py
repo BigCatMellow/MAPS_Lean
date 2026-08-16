@@ -88,15 +88,18 @@ def _source(raw: Mapping[str, object]) -> dict[str, object]:
     }
 
 
-def _card(raw: Mapping[str, object], *, truth: bool = False) -> dict[str, object]:
-    allowed = _CARD_FIELDS | ({"credit_only_if_retrieved"} if truth else set())
+def _card(
+    raw: Mapping[str, object], *, acceptable_substitute: bool = False
+) -> dict[str, object]:
+    allowed = _CARD_FIELDS | (
+        {"credit_only_if_retrieved"} if acceptable_substitute else set()
+    )
     if not _CARD_FIELDS.issubset(raw) or set(raw) - allowed:
         raise EvidenceIntegrityError("evidence card fields are invalid")
-    if truth and "credit_only_if_retrieved" in raw:
-        if raw.get("credit_only_if_retrieved") is not True:
-            raise EvidenceIntegrityError(
-                "acceptable substitute must require credit_only_if_retrieved=true"
-            )
+    if acceptable_substitute and raw.get("credit_only_if_retrieved") is not True:
+        raise EvidenceIntegrityError(
+            "acceptable substitute must explicitly require credit_only_if_retrieved=true"
+        )
     sha = raw.get("source_sha256")
     if not isinstance(sha, str) or not _SHA256.fullmatch(sha):
         raise EvidenceIntegrityError("source_sha256 is invalid")
@@ -177,9 +180,10 @@ def _validate_corpus(corpus: Mapping[str, object]):
         outcome = _text(raw.get("expected_outcome"), f"{case_id}.expected_outcome")
         if outcome not in outcomes:
             raise EvidenceIntegrityError(f"{case_id}: unsupported expected outcome")
-        expected = [_card(x, truth=True) for x in raw.get("expected_cards", [])]
+        expected = [_card(x) for x in raw.get("expected_cards", [])]
         substitutes = [
-            _card(x, truth=True) for x in raw.get("acceptable_substitutes", [])
+            _card(x, acceptable_substitute=True)
+            for x in raw.get("acceptable_substitutes", [])
         ]
         if outcome == "EVIDENCE" and len(expected) != 1:
             raise EvidenceIntegrityError(
