@@ -166,6 +166,21 @@ class HookRegistryTests(unittest.TestCase):
                 failure_policy="FAIL_CLOESD",
             )
 
+    def test_registry_rejects_duck_typed_unvalidated_spec(self):
+        class MalformedSpec:
+            hook_id = "guard"
+            event = HookEvent.BEFORE_TOOL
+            callback = staticmethod(lambda ctx: (_ for _ in ()).throw(RuntimeError("boom")))
+            priority = 100
+            side_effect = HookSideEffect.READ_ONLY
+            failure_policy = "FAIL_CLOESD"
+
+        registry = HookRegistry()
+
+        with self.assertRaises(TypeError):
+            registry.register(MalformedSpec())
+        self.assertEqual(registry.list_for(HookEvent.BEFORE_TOOL), ())
+
     def test_invalid_callback_directive_fails_closed(self):
         registry = HookRegistry()
         registry.register(
