@@ -1,6 +1,7 @@
 from .base import BaseStore
 from .common import MutationResult, ValidationResult
 from .execution import ExecutionMixin
+from .helper_recovery_lineage import HelperRecoveryLineageMixin
 from .integrity import ExecutionIntegrityMixin
 from .integrity_scope import ExecutionScopeHardeningMixin
 from .observability import ObservabilityMixin
@@ -15,6 +16,7 @@ from .run_lineage_trace import RunSessionTraceMixin
 class TaskStore(
     RunSessionTraceMixin,
     ExecutionScopeHardeningMixin,
+    HelperRecoveryLineageMixin,
     RunSessionLineageMixin,
     ExecutionIntegrityMixin,
     PolicyStateMixin,
