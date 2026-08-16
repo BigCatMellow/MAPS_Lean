@@ -88,3 +88,5 @@ Stop integration if a historical candidate cannot be reconciled with current acc
 - Completed: protocol + explicit role-binding repair + parallel SENTINEL reviewer pool + lightweight exact-head review claims + SWITCHYARD full-PR-backlog control loop + dependency-first anti-regression integration rules + rollout roadmap + task contract.
 - Not completed: fresh independent review of the current head, integration, and empirical browser-session/reviewer-pool/backlog-control/anti-regression trial.
 - Next action: fresh independent review; if clean, SWITCHYARD integrates. After acceptance, operator creates role-specific browser tabs by explicitly binding each one; multiple SENTINEL tabs may be bound with unique continuity labels, while SWITCHYARD remains the standing PR-control tab and derives integration order from dependency structure rather than PR age.
+
+Current exact #73 head after this anti-regression handoff refresh must be recovered live before review; any earlier head/review is stale.
