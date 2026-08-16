@@ -4,130 +4,126 @@ Status: `PLANNING STATUS OVERLAY — NOT ACTIVE AUTHORITY`
 
 Snapshot base: `main@146f092a63af63b0fd750445e584a39e82ea1442`
 
-This document reconciles the long-form MAPS capability roadmaps with the repository state visible at the snapshot above. It exists because the master and Prime roadmaps intentionally preserve detailed design history, but some of their “current baseline” prose still describes the earlier draft-PR #19 era.
+This document reconciles the long-form MAPS capability roadmaps with accepted and open repository state at the snapshot above. The master, Prime, and five detailed capability roadmaps remain the architectural/design references, but some of their historical “current baseline” prose predates substantial accepted work.
 
-**Live GitHub state and accepted MAPS state supersede this snapshot.** Before taking work, re-read current `main`, `work/coordination/agents/*.md`, and the exact target PR/base/head. Do not treat this document as task, policy, review, merge, or runtime authority.
+**Live GitHub state and accepted MAPS state supersede this snapshot.** Before taking work, re-read current `main`, `work/coordination/agents/*.md`, and the exact target PR/base/head. This document is a derived planning read model, not task, policy, review, merge, or runtime authority.
 
 ---
 
-## 1. How to use this document
+## 1. Reading order and status vocabulary
 
-Use the documents for different questions:
+Use:
 
-| Question | Source |
+| Question | Strongest source |
 |---|---|
-| What is actually accepted now? | live `main`, merged code/tests, accepted state |
-| What is actively being implemented/reviewed/integrated? | live PRs + `work/coordination/agents/*.md` |
-| What is the intended architecture and why? | master / Prime / five detailed capability roadmaps |
-| What useful legacy ideas remain preserved? | `migration/LEGACY_IDEA_RECOVERY_AUDIT.md` + `migration/FUTURE_IDEAS_BACKLOG.md` |
-| What was the implementation-status picture at this checkpoint? | **this document** |
+| What is accepted now? | live `main`, merged code/tests, canonical MAPS state |
+| Who owns current work? | live PR state + `work/coordination/agents/*.md` |
+| What architecture/invariants are intended? | master / Prime / detailed capability roadmaps |
+| Which legacy ideas remain worth preserving? | migration audit/backlog, rechecked against current state |
+| What did the capability program look like at this checkpoint? | this reconciliation |
 
-The reconciliation is deliberately a **derived planning read model**. It must never become a second mutable task/PR authority.
+Status labels used here:
 
-### Status vocabulary
-
-- `ACCEPTED` — merged into `main` at or before the snapshot.
-- `OPEN_REVIEW` — implemented/repaired evidence exists, but the capability is not accepted on `main`.
-- `OPEN_INTEGRATION` — implementation is substantially complete but still requires current-main synchronization and/or exact-head CI/review/merge.
-- `BLOCKED_UPSTREAM` — downstream work exists but its prerequisite has not been accepted in the required form.
-- `PLANNING_ONLY` — design/research evidence; not runtime behavior or a required implementation dependency by itself.
-- `EVIDENCE_GATED` — preserved candidate whose promotion still requires measured evidence and normal review/decision authority.
-- `TRIGGERED` — implement only after a concrete repeated need/risk demonstrates value.
+- `ACCEPTED` — merged into `main` at or before this snapshot.
+- `OPEN_REVIEW` — implemented/repaired exact-head evidence exists, but the capability is not accepted.
+- `OPEN_INTEGRATION` — implementation is substantially complete but still requires current-main synchronization and/or exact-head integration gates.
+- `BLOCKED_UPSTREAM` — downstream work exists but the required upstream interface is not accepted in the needed form.
+- `PLANNING_ONLY` — design/research evidence, not runtime behavior or authority.
+- `EVIDENCE_GATED` — preserved candidate that still requires measured evidence and normal review/decision authority.
+- `TRIGGERED` — implement only after concrete repeated need/risk demonstrates value.
 - `HISTORICAL` — useful context, but no longer an instruction about current state.
-- `UNKNOWN` — evidence at this snapshot is insufficient for a stronger statement.
+- `UNKNOWN` — evidence is insufficient for a stronger claim.
 
-An open PR is never upgraded to `ACCEPTED` merely because its CI is green or its design is persuasive.
+Green CI, a persuasive design, or an open PR never upgrades a capability to `ACCEPTED`.
 
 ---
 
-# 2. Obsolete baseline assumptions to retire
+# 2. Historical baseline corrections
 
-## 2.1 Draft PR #19 is no longer the current foundation
+## 2.1 PR #19 / Prime Phase 0 is historical, not pending
 
-The master and Prime roadmaps still contain baseline text saying the major Lean foundation is on draft PR #19 and that Phase 0 must stabilize it before later phases begin.
+The master and Prime roadmaps still contain prose describing draft PR #19 as the current foundation and Phase 0 as waiting for that foundation to stabilize.
 
-That is historical now:
+Live repository evidence supersedes that prose:
 
-- PR #19, **Preserve and implement priority MAPS Lean improvements**, is merged.
-- Its accepted foundation includes the negative operating contract, risk-specific review lenses, secret-safer diagnostics/events, read-only trace v1, append-only outcomes, Context Builder v1, status v1, and normal Runtime PR CI.
+- PR #19 **Preserve and implement priority MAPS Lean improvements** is merged.
+- Its accepted foundation includes the negative operating contract, risk-specific review lenses, safer diagnostics/events, read-only trace v1, append-only outcomes, Context Builder v1, status v1, and Runtime PR CI.
 
 Therefore:
 
-> **Prime Phase 0 is a completed historical prerequisite, not the current execution gate.**
+> Prime Phase 0 is a completed historical prerequisite. Do not restart the old PR #19 review queue or treat it as an unmerged dependency.
 
-The detailed Phase 0 reasoning remains useful as a reminder to stabilize foundations before building on them, but future agents must not restart the old review queue or treat PR #19 as an unmerged dependency.
+The architectural lesson remains valid: stabilize a foundation before stacking consequential interfaces on it.
 
-## 2.2 “Future capability” does not necessarily mean “still missing”
+## 2.2 Candidate interfaces in roadmaps may now have accepted v1 implementations
 
-Several long-form roadmap sections describe candidate interfaces/mechanisms that now have accepted v1 implementations. The roadmap text remains useful for invariants and future extension, but **merged code/tests own the implemented interface**.
+Roadmap descriptions of “future” Harness, Skills, Environment, review-evidence, evaluation, or wait capabilities must be checked against merged code/tests before creating new work.
 
-Examples now accepted at least in foundational form:
+Examples with accepted v1 foundations now include:
 
 - provider-neutral Harness types/service/hooks and mandatory canonical enforcement;
 - Skills format/catalog/evaluation/static quality gate;
 - EnvironmentSpec and EnvironmentFingerprint/compatibility;
 - immutable consequential review-subject binding;
 - Portable Run Record, frozen regression cases, and comparative regression evaluator;
-- structured explainable waits for already-canonical dependency/review/operator-approval evidence.
+- structured explainable waits for canonical dependency/review/operator-approval evidence.
 
-## 2.3 Planning-only designs do not become runtime prerequisites by citation
+Merged runtime interfaces own implemented behavior; roadmap prose owns intent/invariants, not duplicate runtime truth.
 
-PRs #51 and #52 are useful A4 communication/wait design evidence. They are not accepted runtime authority merely because later work cites them.
+## 2.3 Planning-only designs remain planning-only
 
-PR #59 explicitly accepted the safe structured wait subset using already-canonical dependency/review/approval evidence and states that PR #52 is planning evidence, **not** a runtime dependency.
+PRs #51 and #52 preserve useful communication/wait design evidence. They are not runtime authority merely because later work cites them.
 
-The unimplemented communication-response wait remains a later problem with stricter prerequisites.
+PR #59 already accepted the safe structured-wait subset from canonical dependency/review/approval evidence. Its runtime does **not** depend on #52 as authority.
+
+Future communication-response waits remain a separate problem requiring exact communication correlation and explicit response-required/progress-blocking evidence.
 
 ---
 
-# 3. Accepted capability baseline at this snapshot
+# 3. Accepted capability baseline
 
-This table is not an exhaustive commit ledger. It maps the roadmap capabilities that materially affect next-work planning.
+This is a capability map, not an exhaustive commit ledger.
 
-| Capability | Planning state | Accepted evidence / boundary |
+| Capability | State | Accepted boundary |
 |---|---|---|
-| Lean foundation: task truth, trace/status, outcomes, Context Builder v1, operating/review safeguards | `ACCEPTED` | PR #19 merged. Context Builder remains explicit-first; trace/status remain derived/read-only. |
-| Provider-neutral Harness contract | `ACCEPTED` | PR #20 merged: normalized types/results, explicit `UNKNOWN`, authority-neutral adapter contract. |
-| hcom normalization + deterministic Hook registry | `ACCEPTED` | PR #21 merged. Hooks may deny/narrow/require approval; they do not grant task authority. |
-| HarnessService / call-time correlation | `ACCEPTED` | PR #22 merged. Explicit adapter registration and binding/session correlation; no durable lineage claim. |
-| Canonical run guard | `ACCEPTED` | PR #23 merged. Re-checks canonical task/run/claim/revision/lease; bare provider-local session IDs fail closed. |
-| Mandatory anti-spoof Harness enforcement | `ACCEPTED` | PR #24 merged. Consequential Harness mutation requires trusted canonical guard composition. Durable adapter-qualified session lineage remains the intentional next gap. |
-| Portable Run Record v1 | `ACCEPTED` | PR #33 merged. Exact run selection, deterministic identity, privacy-aware derived export, explicit incomplete replay/coverage. |
-| Frozen regression case v1 | `ACCEPTED` | PR #34 merged. Sanitized deterministic evaluation evidence; no automatic classification/promotion. |
-| Comparative regression evaluator v1 | `ACCEPTED` | PR #35 merged. Read-only baseline/candidate comparison over frozen cases; promotion remains external/reviewed. |
-| Agent Skills format foundation | `ACCEPTED` | PR #25 merged. Procedural packaging, not policy authority. |
-| Skills catalog/provenance read model | `ACCEPTED` | PR #26 merged. Provenance/catalog remains derived rather than a new policy store. |
-| Frozen Skill selection evaluation | `ACCEPTED` | PR #27 merged. Evaluation evidence only; no automatic production selection authority. |
-| Static Skill quality/security gate | `ACCEPTED` | PR #31 merged. Static CLEAR is advisory evidence, not approval. |
-| EnvironmentSpec v1 | `ACCEPTED` | PR #28 merged. Declarative requirements; no secret values and no task authority. |
-| EnvironmentFingerprint + compatibility | `ACCEPTED` | PR #29 merged. Observed evidence with explicit compatible/drifted/unknown semantics; compatibility does not authorize recovery. |
-| Consequential immutable review-subject binding | `ACCEPTED` | PR #32 merged. Consequential review must bind exact immutable reviewed-output/evidence identity; run identity alone is insufficient. |
-| Structured explainable waits — canonical subset | `ACCEPTED` | PR #59 merged. Dependency/review/operator-approval waits only from structured canonical evidence; no runnable/scheduler authority. |
-| Release/acquisition evidence integrity repair | `ACCEPTED` | PR #56 merged. Operator-visible N/A does not silently prove stale visible surfaces are gone; insufficient evidence remains `UNKNOWN`. |
-| Multi-agent coordination bulletin board | `ACCEPTED` | PR #63 plus named lane files. Coordination is collision-avoidance evidence only; GitHub/canonical state remains authoritative. |
+| Lean operating/state/context foundation | `ACCEPTED` | PR #19. Context Builder remains explicit-first; trace/status are derived/read-only. |
+| Provider-neutral Harness contract | `ACCEPTED` | PR #20: normalized types/results, explicit UNKNOWN, authority-neutral adapter contract. |
+| hcom normalization + Hook registry | `ACCEPTED` | PR #21. Hooks may deny/narrow/require approval; they do not grant task authority. |
+| HarnessService / call-time correlation | `ACCEPTED` | PR #22. Explicit adapter registration and binding/session correlation; no durable lineage claim. |
+| Canonical run guard | `ACCEPTED` | PR #23. Rechecks canonical task/run/claim/revision/lease; bare provider-local session IDs fail closed. |
+| Mandatory anti-spoof Harness enforcement | `ACCEPTED` | PR #24. Consequential Harness mutation requires trusted canonical guard composition. |
+| Skills format | `ACCEPTED` | PR #25. Procedural packaging, not policy authority. |
+| Skills catalog/provenance | `ACCEPTED` | PR #26. Derived provenance/catalog, not a new policy store. |
+| Frozen Skill selection evaluation | `ACCEPTED` | PR #27. Evaluation evidence only; no production promotion authority. |
+| Static Skill quality/security gate | `ACCEPTED` | PR #31. Static CLEAR is evidence, not approval. |
+| EnvironmentSpec | `ACCEPTED` | PR #28. Declarative requirements; no secret values or task authority. |
+| EnvironmentFingerprint/compatibility | `ACCEPTED` | PR #29. Observed evidence with explicit compatible/drifted/UNKNOWN semantics. |
+| Consequential immutable review-subject binding | `ACCEPTED` | PR #32. Exact immutable reviewed-output/evidence identity required; run identity alone is insufficient. |
+| Portable Run Record | `ACCEPTED` | PR #33. Exact run selection, deterministic identity, privacy-aware export, explicit incomplete replay/coverage. |
+| Frozen regression case | `ACCEPTED` | PR #34. Sanitized deterministic evaluation evidence; no auto-promotion. |
+| Comparative regression evaluator | `ACCEPTED` | PR #35. Read-only candidate/baseline comparison; promotion remains external/reviewed. |
+| Release/acquisition evidence-integrity repair | `ACCEPTED` | PR #56. Insufficient operator-visible stale-surface evidence remains UNKNOWN rather than guessed N/A/PASS. |
+| Structured explainable waits — canonical subset | `ACCEPTED` | PR #59. Dependency/review/operator-approval waits only; no runnable/scheduler authority. |
+| Multi-agent coordination bulletin board | `ACCEPTED` | Coordination directory/named lanes. Collision-avoidance evidence only; GitHub/canonical state remains authoritative. |
 
-### What this does **not** prove
+These foundations do **not** prove MAPS already has:
 
-The accepted foundations above do not imply that MAPS already has:
-
-- complete execution/session/helper/recovery/submission/communication lineage;
+- complete run/session/helper/recovery/submission/communication lineage;
 - complete portable replay;
-- production semantic Context Builder retrieval;
+- production semantic/vector retrieval;
 - automatic Skill routing/promotion;
-- automatic environment setup/rehydration/recovery authorization;
+- automatic environment setup/rehydration/recovery authority;
 - communication-response wait inference;
 - promoted operational learning;
-- autonomous harness self-refinement;
-- worktree isolation for every parallel writable run;
+- autonomous harness/policy/routing self-refinement;
+- universal worktree/container/snapshot machinery;
 - deterministic flows for every repeated procedure.
-
-Those distinctions remain important even when their prerequisite foundations are accepted.
 
 ---
 
-# 4. Open capability stacks and real dependency constraints
+# 4. Open capability stacks and dependency constraints
 
-The arrows below are **dependency constraints**, not a merge-priority instruction to SWITCHYARD.
+Arrows below mean **dependency**, not merge priority. SWITCHYARD owns live integration order.
 
 ## 4.1 Environment evidence
 
@@ -139,9 +135,9 @@ The arrows below are **dependency constraints**, not a merge-priority instructio
 #30 run-environment evidence OPEN_INTEGRATION
 ```
 
-PR #30 adds append-only EnvironmentSpec/fingerprint/compatibility observations to exact immutable runs. Its implementation has historical green evidence, but it is not accepted at this snapshot and must be synchronized/gated against then-current `main` before merge.
+PR #30 adds append-only EnvironmentSpec/fingerprint/compatibility observations to exact immutable runs. It remains unaccepted and must be integrated against then-current `main` with fresh exact-state gates.
 
-Do not treat environment compatibility as permission to resume, recover, mutate, or execute. A later recovery/environment automation tranche must consume canonical task/policy authority separately.
+Compatibility remains historical/bounded evidence. It does not authorize resume, recovery, mutation, or execution.
 
 ## 4.2 Execution lineage
 
@@ -155,281 +151,248 @@ Harness Wave 1 #20–#24 ACCEPTED
 #50 A3 submission-attempt/run lineage BLOCKED_UPSTREAM
 ```
 
-At this snapshot, FOUNDRY has frozen repaired PR #48 head:
+### PR #48 current exact feature state
 
-`a9284c1a00fc42eb26807ea01e8ca667aaa5ebac`
+FOUNDRY's final repaired feature head at this snapshot:
 
-with Runtime CI #386 / `31930919472` passing. The previous false-global-session-identity defect was repaired by scoping durable provider identity to canonical `(project_id, adapter_id, session_id)`. It still requires an eligible independent review and later current-main integration; therefore it remains **unaccepted**.
+`2f23959afff9525beada28993bad536878310b7f`
 
-PR #49 still targets the older A1 head and cannot be treated as integration-ready until A1 is accepted and #49 is genuinely synchronized/revalidated.
+Runtime CI:
 
-PR #50 similarly waits on accepted/synchronized A2. Its exact-attribution principle remains sound: omitted historical submission/run attribution stays `UNKNOWN`, not inferred.
+`#392 / 31931474528 — PASS`
 
-### Planning invariant
+Two independent-review HIGH defects were returned and repaired:
 
-Do not “simplify” the stack by making provider/session liveness, helper existence, or timestamps stand in for explicit lineage. That would erase the evidence boundary the stack exists to create.
+1. **False global provider-session identity.** A1 originally uniquified `(adapter_id, session_id)` globally even though accepted `SessionRef` identity is project-scoped. The repaired model derives canonical task `project_id`, stores project-scoped `(project_id, adapter_id, session_id)`, preserves it through resolver/trace, and requires exact project+adapter+session in the guard. Two projects may independently use the same provider-local `hcom/S1`; one project-scoped identity cannot ambiguously bind to two runs.
+2. **SQLite raw-string normalization bypass.** SENTINEL correctly found that raw uniqueness could distinguish whitespace variants that runtime `.strip()` would collapse. The final repair requires exact canonical task-project equality and constrains SQLite adapter/session keys to the runtime identity alphabet: alphanumeric first character, only `[A-Za-z0-9_.:@-]`, length 1–128. Direct-SQL regressions cover project trailing-space, adapter space/tab, and session space/newline variants.
+
+The exact second-repair delta from `a9284c1a...` to `2f23959a...` is four existing A1 files: schema, focused lineage test, task record, and implementation note.
+
+**Planning state remains `OPEN_REVIEW`, not ACCEPTED.** FOUNDRY implemented the repairs and cannot provide the independent disposition. Review packet is anchored to exact head `2f23959a...`; a clean feature-head review must still be followed by genuine current-main synchronization, fresh integrated-head CI/review, and merge gating by SWITCHYARD.
+
+### Downstream A2/A3
+
+PR #49 still depends on accepted A1. It must not inherit an old A1 identity contract by retargeting alone.
+
+PR #50 depends on accepted/synchronized A2. Historical submission/run attribution that cannot be proven must remain UNKNOWN rather than inferred.
+
+Do not substitute provider liveness, helper existence, timestamps, or prose for explicit lineage.
 
 ## 4.3 Communication lineage
 
 ```text
-#44 full-fidelity hcom lineage read OPEN_REVIEW/INTEGRATION
+#44 full-fidelity hcom lineage read OPEN_INTEGRATION/REVIEW
         ↓
 #45 exact message relationships BLOCKED_UPSTREAM
         ↓
-future task/run ↔ provider-event join
+future exact run/request ↔ provider-event join
 ```
 
-PR #44's repaired historical feature head validates bounded provider-local `(instance, event_id)` uniqueness before claiming the read surface can support stable lineage evidence. It is still unaccepted.
+PR #44's repaired feature layer validates provider-local `(instance, event_id)` uniqueness before claiming stable lineage evidence. It remains unaccepted.
 
-PR #45 is intentionally stacked behind #44 and requires `coverage.field_presence` consistency before deriving reply/thread/request/ack relationships. It remains unaccepted until #44 is accepted and #45 is rebuilt/revalidated on that state.
+PR #45 requires exact `coverage.field_presence` consistency before deriving reply/thread/request/ack relationships. It remains stacked behind #44 and unaccepted.
 
-No current communication relationship should be promoted into task/run authority.
+Communication evidence never becomes task/run authority merely because exact relationships can be derived.
 
-## 4.4 Exact task/run ↔ communication correlation and communication waits
+## 4.4 Exact communication correlation and communication waits
 
-PR #51 is `PLANNING_ONLY`. Its key unresolved prerequisite is provider-side exact send identity: MAPS must receive an exact created hcom event ID (or an equivalently collision-safe correlation mechanism). Timestamp/name/text/latest-event heuristics remain insufficient under concurrency/retry.
+PR #51 is `PLANNING_ONLY`. Its key finding remains important: current MAPS send success does not receive the exact newly created hcom event ID, so timestamp/name/text/latest-event correlation is insufficient under concurrency/retry. The preferred prerequisite is an exact provider send receipt or equivalently collision-safe correlation contract.
 
-PR #52 is also `PLANNING_ONLY`. Its safe structured subset is now partly superseded by accepted PR #59.
+PR #52 is also `PLANNING_ONLY`. Its safe structured subset is now partly represented by accepted #59.
 
 Current split:
 
-- dependency/review/operator-approval waits from canonical structured evidence → **accepted in #59**;
-- generic BLOCKED-cause inference → still deliberately `UNKNOWN` without typed causal evidence;
-- `WAIT_COMMUNICATION_RESPONSE` → **not implemented** and must wait for exact run↔provider-event correlation plus an explicit response-required/progress-blocking contract.
+- canonical dependency/review/operator-approval waits → accepted in #59;
+- generic BLOCKED-cause inference → UNKNOWN without typed causal evidence;
+- `WAIT_COMMUNICATION_RESPONSE` → not implemented and must wait for exact run↔provider-event correlation plus explicit response-required/progress-blocking semantics.
 
-A request plus bounded silence is not proof of waiting.
+`request + bounded silence != WAITING`.
 
-## 4.5 Context Builder v2 evidence/retrieval evaluation
+## 4.5 Context Builder v2 evaluation stack
 
 ```text
 Context Builder v1 (#19) ACCEPTED
         ↓
 #39 frozen evidence-integrity corpus OPEN_REVIEW
         ↓
-#41 deterministic evidence projector/scorer OPEN_REVIEW
+#41 structural evidence projector/scorer OPEN_REVIEW
         ↓
 #53 Stage-2 source-selection evaluation BLOCKED_UPSTREAM
         ↓
-future production retrieval only if evaluation justifies it
+production retrieval candidate only if evidence justifies it
 ```
 
 ANVIL owns this development stack.
 
-Live repaired evidence at this snapshot includes:
+Live feature evidence at this snapshot:
 
-- #39 head `adf25a5721808cd272bc9eb9af90a25038f568eb`, Runtime CI #365 PASS;
-- #41 head `ec525615fd708610bc3e90e07a95bb6c791d2465`, Runtime CI #382 PASS and synchronized to repaired #39;
-- #53 head `d5c03a8e09bc5c49b884bc452d3c487a04ce5974`, Runtime CI #348 PASS on its historical upstream and therefore still blocked until the repaired #39/#41 chain is accepted/stable and #53 is resynchronized/reviewed.
+- #39 `adf25a5721808cd272bc9eb9af90a25038f568eb`, Runtime CI #365 PASS;
+- #41 `ec525615fd708610bc3e90e07a95bb6c791d2465`, Runtime CI #382 PASS, genuinely synchronized to repaired #39;
+- #53 `d5c03a8e09bc5c49b884bc452d3c487a04ce5974`, Runtime CI #348 PASS on historical upstream and therefore still blocked until repaired #39/#41 are accepted/stable and #53 is resynchronized/reviewed.
 
-These PRs are **evaluation mechanisms**, not production semantic retrieval authority. In particular:
+These are **evaluation mechanisms**, not production retrieval authority.
 
-- proposal authorization status cannot be substituted by implementation state;
-- `CODE_SYMBOL` proof must resolve structurally rather than by approximate substring matching;
-- retrieval/source selection must be evaluated for precision, hard-negative abstention, drift, and vocabulary/paraphrase shift;
-- passing an eval creates a proposal/evidence basis, not automatic activation.
+Important repaired invariants:
+
+- authorization status cannot be proved merely by implementation/capability state;
+- `CODE_SYMBOL` ownership is structural/exact rather than approximate substring matching;
+- source selection is judged on precision, hard-negative abstention, drift, and vocabulary/paraphrase shift;
+- passing an eval makes a candidate worth considering; it does not activate retrieval.
 
 ## 4.6 Operational learning
 
 ```text
-accepted outcome evidence / Run Record / frozen-eval foundations
+accepted outcomes + Run Record + frozen evaluation foundations
         ↓
-#43 guidance-only operational-learning projection OPEN
+#43 guidance-only projection OPEN
         ↓
 #60 canonical outcome lesson candidate builder BLOCKED/STACKED ON #43
         ↓
 future promotion/storage/injection only through explicit authority design
 ```
 
-These remain unaccepted at the snapshot.
+PR #43 deliberately has no lesson store and no `promote()` function. Only externally promoted, applicable, current records can project as `GUIDANCE_ONLY`.
 
-Preserve the central boundary:
+PR #60 packages a candidate from exact canonical outcome evidence; it likewise cannot promote, persist, or inject guidance.
 
-> observation/outcome → candidate lesson → external review/promotion → applicable guidance
+Preserve:
 
-must never collapse into:
+```text
+observation/outcome
+→ candidate lesson
+→ external review/promotion
+→ applicable guidance
+```
 
-> outcome text → automatic instruction/policy.
+Never collapse this to `outcome prose → instruction/policy`.
 
-PR #43 deliberately has no lesson store or `promote()` function. PR #60 packages a candidate from exact canonical outcome evidence but likewise cannot promote it. Any future durable lesson lifecycle must define who may promote/retire, applicability, expiry/review, supersession, and conflict precedence against canonical task/policy authority before startup/context injection is considered.
+Before any durable learning lifecycle, explicitly resolve promotion/retirement authority, applicability, review/expiry, supersession, precedence against canonical task/policy/operator authority, and safe context/startup integration.
 
 ## 4.7 Operator Intent Compiler
 
-PR #57 is an open planning/manual request-shaping tranche under SWITCHYARD control at this snapshot.
-
-Its intended placement is:
-
-```text
-operator request
-→ request compilation / task shaping
-→ AGI readiness
-→ canonical task/policy state
-→ Context Builder
-→ worker/harness
-```
-
-The compiler is not permission authority. Broad desired outcomes may not manufacture merge/publish/delete/spend/external-send permission. Until merged, #57 is not accepted process behavior.
+PR #57 remains open/unaccepted at this snapshot. Its intended placement is request shaping before canonical task/policy state, not a permission engine. Broad desired outcomes may not manufacture merge/publish/delete/spend/external-send authority.
 
 ---
 
 # 5. Prime roadmap phase reconciliation
 
-The original Prime sequence remains useful as an architectural dependency model, but it is no longer a linear “start at Phase 0” execution list.
+The Prime sequence remains useful as a dependency model, but it is no longer a linear “start at Phase 0” queue.
 
-| Prime phase | Current planning interpretation |
+| Prime phase | Current interpretation |
 |---|---|
-| **0. Review/stabilize foundation** | `HISTORICAL / COMPLETE` for the PR #19-era foundation. Continue normal per-tranche exact-head review; do not restart Phase 0. |
-| **1. Provider-neutral Harness API** | `ACCEPTED V1` through #20–#24. Future provider operations/adapters remain incremental. |
-| **2. Explicit execution/session/helper lineage** | `PARTIAL / OPEN`. A1 #48 under review; A2 #49 and A3 #50 blocked upstream; communication lineage #44/#45 separate supporting track. |
-| **3. Review/evidence revision binding** | `ACCEPTED V1` through #32 for consequential immutable reviewed-output identity. Later evidence freshness extensions must preserve this authority boundary. |
-| **4. Deterministic repeated lifecycle flows** | `TRIGGERED / NOT GENERALLY IMPLEMENTED`. Add only for procedures demonstrated stable/repetitive; do not create flow machinery to satisfy the roadmap. |
-| **5. Capability/Skill composition** | `FOUNDATION ACCEPTED, PRODUCTION COMPOSITION STILL GATED`. Format/catalog/eval/static gate are on main; automatic production selection/promotion is not implied. |
-| **6. Controlled operational learning** | `OPEN / UNACCEPTED` via #43→#60; promotion/storage/injection authority intentionally unresolved. |
-| **7. Outcome-driven harness evaluation/refinement** | `FOUNDATION ACCEPTED, REFINEMENT EVIDENCE-GATED`. Outcomes + Run Record + frozen cases + comparative evaluator exist; autonomous promotion does not. |
+| 0. Stabilize foundation | `HISTORICAL / COMPLETE` for the PR #19 foundation. Continue ordinary per-tranche review; do not restart Phase 0. |
+| 1. Provider-neutral Harness API | `ACCEPTED V1` through #20–#24. |
+| 2. Explicit execution/session/helper lineage | `PARTIAL / OPEN`. A1 #48 is under exact-head re-review; A2 #49 and A3 #50 remain upstream-blocked. Communication lineage #44/#45 is a separate supporting track. |
+| 3. Review/evidence revision binding | `ACCEPTED V1` through #32 for exact consequential reviewed-output identity. |
+| 4. Deterministic repeated lifecycle flows | `TRIGGERED`. Add only when procedures are demonstrably stable/repetitive. |
+| 5. Capability/Skill composition | `FOUNDATION ACCEPTED; PRODUCTION COMPOSITION GATED`. Format/catalog/eval/static gate exist; automatic activation/promotion is not implied. |
+| 6. Controlled operational learning | `OPEN / UNACCEPTED` via #43→#60. Promotion/storage/injection authority remains unresolved. |
+| 7. Outcome-driven harness refinement | `FOUNDATION ACCEPTED; REFINEMENT EVIDENCE-GATED`. Outcomes + Run Record + frozen cases + comparative evaluator exist; autonomous promotion does not. |
 
-Parallel environment/reproducibility work has also advanced independently: E1/E2 are accepted, E3 remains open, and setup/rehydration/recovery automation is later work.
+Environment/reproducibility advanced in parallel: E1/E2 are accepted, E3 remains open, and setup/rehydration/recovery automation is later work.
 
 ---
 
 # 6. Detailed roadmap reconciliation
 
-## 6.1 Harness Mechanics
+## Harness Mechanics
 
-Treat the roadmap's candidate API/types as design history where accepted runtime contracts now exist.
-
-Current accepted mechanical foundation:
-
-- normalized types/results and explicit `UNKNOWN`;
-- hcom adapter normalization;
-- Hook registry;
-- HarnessService;
-- canonical run/claim/revision/lease checks;
-- mandatory anti-spoof canonical enforcement.
+Accepted v1 foundation now includes normalized Harness types/results, hcom normalization, Hook registry, HarnessService, canonical run/claim/revision/lease checks, and mandatory anti-spoof canonical enforcement.
 
 Still open/gated:
 
 - durable execution/session/helper/recovery/submission lineage;
 - exact communication correlation;
-- broader deterministic operation telemetry/trajectory;
-- additional provider adapters/operations when concrete need exists.
+- fuller provider-operation trajectory evidence;
+- additional adapters/operations only when concrete need exists.
 
-## 6.2 Procedural Knowledge & Skills
+## Procedural Knowledge & Skills
 
-Accepted foundation:
+Accepted:
 
-- Agent Skills-compatible packaging;
+- Skill format;
 - provenance/catalog read model;
 - frozen selection evaluation;
 - static quality/security gate.
 
 Still gated:
 
-- production automatic skill routing/activation beyond accepted explicit mechanisms;
-- imported third-party trust/promotion lifecycle beyond evidence already defined;
-- capability bundles that could silently widen task authority;
+- automatic production skill routing/activation;
+- third-party trust/promotion lifecycle beyond accepted evidence mechanisms;
+- capability bundles that silently widen task authority;
 - turning Skills into policy or always-on context.
 
-## 6.3 Environment & Reproducibility
+## Environment & Reproducibility
 
-The roadmap statement that EnvironmentSpec/fingerprint are missing first-class concepts is now stale.
+The roadmap statement that EnvironmentSpec/fingerprint are missing first-class concepts is stale.
 
-Accepted:
+Accepted: EnvironmentSpec v1 and EnvironmentFingerprint/compatibility.
 
-- EnvironmentSpec v1;
-- EnvironmentFingerprint + explicit compatibility states.
+Open: #30 exact run-bound environment evidence.
 
-Open:
+Later/evidence-triggered: authorized setup/mutation, worktree/container provisioning, recovery equivalence/rehydration, snapshots only if evidence justifies them.
 
-- #30 exact run-bound environment evidence.
+Compatibility remains evidence, never continuation authority.
 
-Later/evidence-triggered:
+## Agentic Security
 
-- authorized setup/mutation;
-- workspace/worktree/container provisioning;
-- recovery equivalence/rehydration decisions;
-- snapshotting only if reproducibility evidence justifies it.
+Accepted foundations include the negative operating contract, risk lenses, mandatory Harness canonical guard composition, anti-spoof/adversarial regressions, static Skill gate, secret-aware environment boundaries, and immutable consequential review-subject identity.
 
-Compatibility remains evidence, never continuation authority by itself.
+Continue attaching security work to concrete capability boundaries rather than creating a second security orchestrator.
 
-## 6.4 Agentic Security
+## Learning & Evaluation
 
-Accepted foundations now include:
+Accepted: outcomes, Portable Run Record, frozen regression case, comparative regression evaluator, and Skill selection evaluation foundation.
 
-- negative operating contract and risk lenses;
-- mandatory Harness canonical guard composition;
-- adversarial authority/liveness/continuity regressions;
-- static Skill gate;
-- secret-aware EnvironmentSpec boundaries;
-- immutable consequential review-subject identity.
-
-Open security work should be attached to concrete capability boundaries rather than creating a parallel security orchestrator. Examples include lineage identity correctness, Skill/import provenance, persistent-guidance promotion, and future external/destructive action hooks where real operations require them.
-
-## 6.5 Learning & Evaluation
-
-Accepted foundations:
-
-- append-only real-world outcomes;
-- Portable Run Record v1;
-- frozen regression case v1;
-- comparative regression evaluator v1;
-- Skill selection eval foundation.
-
-Open/gated:
-
-- fuller trajectory/communication/environment coverage as their evidence sources become accepted;
-- operational-learning candidate/promotion lifecycle;
-- aggregate cost/yield/escaped-defect metrics when enough comparable runs exist;
-- candidate harness/routing/Skill/environment changes evaluated on frozen evidence;
-- promotion remains external/reviewed, never automatic.
+Still gated: fuller communication/environment/trajectory coverage; operational-learning lifecycle; aggregate cost/yield/escaped-defect metrics when comparable samples exist; candidate Harness/routing/Skill/environment refinements; external/reviewed promotion only.
 
 ---
 
 # 7. Legacy recovery reconciliation
 
-The migration audit/backlog should not be copied wholesale into “next work.” The useful current classification is:
+Do not copy the migration audit/backlog wholesale into “next work.” Reconcile each candidate against current accepted/open state.
 
-## 7.1 Already absorbed or materially represented
+## Already absorbed or materially represented
 
-- **negative operating contract** → accepted in PR #19;
-- **risk-specific review lenses** → accepted in PR #19;
-- **secret-safer diagnostic/event boundaries** → partially accepted in PR #19 and reinforced in later environment/evidence work;
-- **trace / outcome evidence** → accepted foundation in #19;
-- **review-time evidence freshness / immutable subject identity** → materially addressed by #32;
-- **three-layer/frozen evaluation discipline** → materially represented by #33–#35 plus focused eval corpora;
-- **Context Builder explicit-first/evidence-integrity direction** → v1 accepted in #19, v2 evaluation stack open;
-- **explainable waits from exact structured prerequisites** → core subset accepted in #59;
-- **authority provenance / citation is not ratification** → preserved as a cross-system invariant and exercised by review/evidence work.
+- negative operating contract → #19;
+- risk-specific review lenses → #19;
+- safer diagnostics/evidence boundaries → #19 and later environment/evidence work;
+- trace/outcome evidence → #19;
+- immutable reviewed-subject/evidence freshness → #32;
+- frozen comparative evaluation discipline → #33–#35 and focused eval corpora;
+- Context Builder explicit-first/evidence-integrity direction → v1 accepted, v2 eval open;
+- exact structured prerequisite waits → core subset #59;
+- authority provenance / citation-is-not-ratification → preserved as cross-system invariant.
 
-## 7.2 Partially represented / current open work
+## Partially represented / open
 
-- **exact evidence anchors, temporal/source-drift discipline** → #39/#41/#53 evaluation stack;
-- **communication-complete replay/trace** → #44/#45 plus future #51-style exact correlation;
-- **explicit execution/helper/recovery/submission lineage** → #48→#49→#50;
-- **run-bound environment evidence** → #30;
-- **controlled operational learning** → #43→#60, still no promotion authority;
-- **communication-backed explainable response waits** → not implemented; #51/#52 preserve design constraints.
+- exact evidence anchors, temporal/source-drift discipline → #39/#41/#53;
+- communication-complete replay/trace → #44/#45 plus future exact join;
+- explicit execution/helper/recovery/submission lineage → #48→#49→#50;
+- run-bound environment evidence → #30;
+- controlled operational learning → #43→#60;
+- communication-backed response waits → later, after exact communication correlation.
 
-## 7.3 Still evidence-triggered; do not manufacture work
+## Evidence-triggered; do not manufacture work
 
 - Git worktree isolation for parallel writable runs;
 - deterministic `maps flow` procedures beyond demonstrated repeated routines;
 - helper live-but-no-progress advisory;
 - persistent helper continuity;
-- cost/yield and escaped-defect optimization once sample size is meaningful;
-- bounded phase-boundary discovery/system-adherence audits as occasional methods;
+- cost/yield and escaped-defect optimization after meaningful sample size;
+- bounded phase-boundary/system-adherence audits;
 - scoped temporary halt delegation;
 - universal sandbox/container/snapshot machinery;
 - autonomous semantic retrieval;
-- autonomous harness/policy/routing/lesson promotion.
+- autonomous Harness/policy/routing/lesson promotion.
 
-The governing recovery rule remains:
+Recovery rule:
 
-> preserve the observed problem, invariant, evidence and useful technique; do not revive the legacy subsystem by default.
+> preserve the observed problem, invariant, evidence, and useful technique; do not revive the legacy subsystem by default.
 
 ---
 
 # 8. Dependency map for future shaping
-
-This is a **planning dependency graph**, not a directive to integrate everything immediately.
 
 ```text
 ACCEPTED HARNESS / SECURITY V1
@@ -452,7 +415,7 @@ ACCEPTED CONTEXT BUILDER V1
         ↓
 #39 frozen evidence integrity
         ↓
-#41 structural evidence projector/scorer
+#41 structural projector/scorer
         ↓
 #53 Stage-2 source-selection evaluation
         ↓
@@ -462,7 +425,7 @@ ACCEPTED ENVIRONMENT E1/E2
         ↓
 #30 run-bound environment evidence
         ↓
-recovery/setup equivalence decisions only after explicit authority design
+recovery/setup equivalence only after explicit authority design
 
 ACCEPTED OUTCOMES + RUN RECORD + FROZEN EVAL
         ↓
@@ -472,107 +435,92 @@ ACCEPTED OUTCOMES + RUN RECORD + FROZEN EVAL
         ↓
 promotion/storage/injection authority design
         ↓
-controlled activation only after review/decision gates
+controlled activation after review/decision gates
 ```
 
-Cross-cutting rule: a downstream stack must be genuinely synchronized to the **accepted** upstream interface before its old CI/review can support integration.
+A downstream stack must be genuinely synchronized to the **accepted** upstream interface before historical CI/review can support integration.
 
 ---
 
 # 9. Bounded next planning questions
 
-These are questions to shape when their prerequisite evidence becomes stable. They are **not implementation assignments**.
+These are questions to shape after prerequisites stabilize, not implementation assignments.
 
-## 9.1 After A1/A2/A3 are accepted
+### After A1/A2/A3 acceptance
 
-Recheck whether trace/Run Record can mechanically join:
+Recheck whether trace/Run Record can mechanically join exact provider-session, helper/recovery, and submission-attempt lineage. Missing legacy joins remain UNKNOWN.
 
-- exact provider session lineage;
-- helper/recovery lineage;
-- exact submission attempt attribution.
+### After #44/#45 acceptance
 
-Do not infer missing legacy joins. Preserve coverage as `UNKNOWN` where exact relation evidence does not exist.
+Revalidate PR #51's provider-receipt premise against then-current hcom. If exact created-event identity is still unavailable, shape the smallest provider/API receipt needed for collision-safe run↔event correlation. Do not use timestamp/name/body heuristics.
 
-## 9.2 After #44/#45 are accepted
+### After #39/#41/#53 acceptance
 
-Revalidate PR #51's provider receipt premise against the then-current hcom contract. If exact created-event identity is still not returned, shape the smallest provider/API receipt change required for collision-safe run↔event correlation.
+Use frozen evaluation results to decide whether any production retrieval candidate deserves an implementation experiment. Passing evaluation is a proposal prerequisite, not a mandate to build vector/semantic infrastructure.
 
-Do not implement timestamp/name/body-hash correlation as a shortcut.
+### After #30 acceptance
 
-## 9.3 After #39/#41/#53 are accepted
+Define evidence needed for recovery-equivalence questions without turning `COMPATIBLE` into permission. Recovery still requires current task/run/policy/ownership authority.
 
-Use their frozen results to decide whether **any** production retrieval candidate deserves an implementation experiment. A passing frozen corpus is a prerequisite for proposal, not proof that semantic/vector infrastructure must be built.
+### Before operational-learning persistence/promotion
 
-## 9.4 After #30 is accepted
+Resolve canonical storage ownership (if storage is needed), promotion/retirement authority, review/expiry/supersession, applicability conflicts, precedence against authoritative task/policy/operator instructions, and safe Context Builder/startup integration.
 
-Define the evidence needed to answer recovery-equivalence questions without turning `COMPATIBLE` into permission. Recovery still requires current task/run/policy/ownership checks.
+### Periodic legacy recovery
 
-## 9.5 Before operational-learning persistence/promotion
-
-Resolve, explicitly:
-
-- canonical storage owner, if storage is needed at all;
-- promotion and retirement authority;
-- review/expiry/supersession lifecycle;
-- applicability conflict resolution;
-- precedence against task/operator/policy authority;
-- how guidance reaches Context Builder/startup without becoming a hidden instruction plane.
-
-## 9.6 Periodic legacy recovery
-
-Continue the audit only for unresolved MAP-relevant ideas/promotions/retired tasks that may expose a still-missing Lean problem. Do not perform exhaustive archaeology merely to increase coverage numbers.
+Continue audit only where unresolved MAP-relevant ideas/promotions/retired tasks expose a still-missing Lean problem. Do not perform archaeology merely to increase coverage numbers.
 
 ---
 
-# 10. What not to build merely to satisfy the roadmap
+# 10. Do not build merely to make the roadmap look complete
 
-Do not create, absent new evidence:
+Absent new evidence, do not create:
 
 - a Prime supervisor or second orchestrator;
-- a second mutable task/session/review/policy database;
+- a second mutable task/session/review/policy store;
 - a permanent discovery/process-policing agent;
-- a global “current session” truth copied onto tasks;
+- global mutable “current session” truth on tasks;
 - automatic policy/lesson/routing/Skill promotion;
-- inferred lineage from timestamps/names/prose;
-- inferred waits from silence/liveness;
-- a knowledge graph or vector database because the roadmap mentions retrieval;
-- universal containers/snapshots because the environment roadmap discusses them;
-- deterministic flows for procedures that have not actually stabilized;
+- lineage inferred from timestamps/names/prose;
+- waits inferred from silence/liveness;
+- a knowledge graph/vector database merely because retrieval appears in planning;
+- universal containers/snapshots merely because environment planning discusses them;
+- deterministic flows for unstable procedures;
 - dashboards that quietly become mutation/control surfaces.
 
-The roadmap is successful when it prevents duplicate work and makes the next bounded question obvious—not when every candidate box has been implemented.
+The roadmap succeeds when it prevents duplicate work and makes the next bounded question obvious, not when every candidate box is implemented.
 
 ---
 
-# 11. Handoff by operating lane
+# 11. Four-lane handoff
 
 ## SWITCHYARD — Integration / PR Control
 
-Use live state to choose merge/integration order. Preserve exact ancestry/deltas and require fresh CI/review after synchronization. This document supplies dependency constraints only.
+Own live integration order, real ancestry, exact deltas, fresh synchronized-head CI/review, and merge. This document supplies dependency constraints only.
 
 ## ANVIL — Development
 
-Own new runtime implementation and review-returned defects after a bounded task is shaped. Do not implement planning candidates merely because they appear in this document.
+Own new runtime implementation and bounded review-returned defects. Do not implement planning candidates simply because they appear here.
 
-## SENTINEL — Review
+## SENTINEL — Independent Review
 
-Independently verify exact heads it did not implement/synchronize. In particular, treat repaired-but-unmerged statuses here as claims to reproduce, not as approval.
+Verify exact heads it did not implement/synchronize. Repaired-but-unmerged states in this document are claims to reproduce, not approvals.
 
 ## FOUNDRY — Planning / Control-Surface
 
-Maintain roadmap/recovery reconciliation, shape missing bounded tasks, and inspect whether accepted/open work still matches roadmap intent. Avoid active runtime output paths and return concrete implementation tasks to ANVIL.
+Maintain roadmap/legacy reconciliation, shape missing bounded tasks, and check accepted/open work against roadmap intent. Avoid active runtime outputs except an explicit incumbent repair return such as #48, then refreeze for independent review.
 
 ---
 
 # 12. Snapshot limitations
 
-This reconciliation is intentionally dated. It becomes stale whenever relevant `main` or PR state moves.
+This document is intentionally dated. It becomes stale whenever relevant `main` or PR state moves.
 
 At the next planning pass:
 
-1. recover current `main`;
-2. re-read all agent coordination files;
-3. re-check exact PR/base/head/review/CI for every stack being discussed;
+1. recover live `main`;
+2. re-read all coordination files;
+3. re-check exact PR/base/head/review/CI for every discussed stack;
 4. move only truly merged capabilities to `ACCEPTED`;
-5. preserve `UNKNOWN` rather than guessing from an old note;
-6. update this document or create a newer dated reconciliation if material program state has changed.
+5. preserve UNKNOWN rather than guessing from old notes;
+6. update this reconciliation or create a newer dated checkpoint when material program state changes.
