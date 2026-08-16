@@ -68,6 +68,22 @@ class ContextBuilderEvidenceIntegrityFixtureTests(unittest.TestCase):
                 self.assertTrue(card["credit_only_if_retrieved"], case["id"])
                 self._assert_card_resolves(case["id"], card)
 
+    def test_acceptable_substitutes_are_complete_evidence_cards(self):
+        required_fields = set(
+            self.data["candidate_output_contract"]["evidence_card_fields"]
+        )
+        for case in self.data["cases"]:
+            for card in case.get("acceptable_substitutes", []):
+                self.assertTrue(required_fields.issubset(card), case["id"])
+                self.assertTrue(card["credit_only_if_retrieved"], case["id"])
+
+    def test_single_source_truth_is_not_overconstrained_by_corroboration(self):
+        by_id = {case["id"]: case for case in self.data["cases"]}
+        for case_id in ("CBI-003", "CBI-010"):
+            case = by_id[case_id]
+            self.assertEqual(len(case["expected_cards"]), 1, case_id)
+            self.assertGreaterEqual(len(case["acceptable_substitutes"]), 1, case_id)
+
     def test_abstain_cases_do_not_smuggle_positive_truth(self):
         for case in self.data["cases"]:
             if case["expected_outcome"] == "ABSTAIN":
@@ -92,6 +108,10 @@ class ContextBuilderEvidenceIntegrityFixtureTests(unittest.TestCase):
                 self.assertTrue(item["reason"].strip(), case["id"])
 
     def _assert_card_resolves(self, case_id: str, card: dict) -> None:
+        required_fields = self.data["candidate_output_contract"]["evidence_card_fields"]
+        for field in required_fields:
+            self.assertIn(field, card, f"{case_id}: missing {field}")
+
         source_id = card["source_id"]
         self.assertIn(source_id, self.sources, case_id)
         source = self.sources[source_id]
