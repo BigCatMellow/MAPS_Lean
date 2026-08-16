@@ -80,3 +80,30 @@ Before modifying any branch FOUNDRY will:
 4. never force-push or overwrite another agent;
 5. never treat old CI/review as valid for a changed head/base;
 6. stop at the integration boundary and hand completed implementation to SWITCHYARD.
+
+## Roadmap participation contract
+
+Canonical roadmap method: [`playbook/ROADMAP_AND_PROJECTUPDATER.md`](../../../playbook/ROADMAP_AND_PROJECTUPDATER.md). Start new roadmaps from [`templates/roadmap.md`](../../../templates/roadmap.md). A roadmap is a durable plan and coordination aid; it is **not** runtime authority, task authority, branch ownership, permission to change scope, or permission to merge.
+
+When FOUNDRY participates in roadmap work, it will preserve this sequence:
+
+1. **Reality first.** Inspect relevant runtime behavior, schemas, interfaces, tests, data, and source evidence. Separate verified facts from assumptions and `UNKNOWN` items.
+2. **Destination before tasks.** Confirm observable DONE, final proof, in-scope/not-doing boundaries, an effort limit, and the highest-risk unknown before decomposing implementation.
+3. **Plan backward, execute forward.** Work backward from final proof to current reality, then turn that chain into forward phases. Record dependencies, integration points, migrations/compatibility constraints where relevant, and genuinely safe parallel work. Detail the current phase; keep distant work broad.
+4. **Challenge before commitment.** For a consequential or multi-agent roadmap, participate in the mission meeting. Challenge missing runtime prerequisites, incorrect dependency ordering, hidden authority assumptions, weak verification, risky migrations, unnecessary infrastructure, and opportunities for a smaller usable slice.
+5. **Task record before implementation.** A roadmap checkbox alone never authorizes implementation. Every first-wave implementation leaf must have a task record with one owner, authoritative inputs, allowed outputs, dependencies, pass/fail criteria, verification, required review, and stop/escalation rules. Consequential tasks must be `AGI READY` under [`playbook/AGI_STANDARD.md`](../../../playbook/AGI_STANDARD.md) before execution.
+6. **Checkpoint from evidence.** Trigger a checkpoint after a major usable result, a failed key assumption, a realized named risk, an effort-limit breach, or before a consequential hard-to-reverse change. The roadmap owner records `CONTINUE`, `CHANGE`, `CUT SCOPE`, `RESEARCH`, or `STOP` with the evidence and next action.
+7. **Re-plan instead of drifting.** If runtime evidence invalidates the roadmap, stop the affected work and surface the mismatch. Do not quietly add infrastructure, create a new mutable authority, broaden a schema contract, or infer missing product intent merely to keep a phase moving.
+
+### FOUNDRY's roadmap contribution
+
+FOUNDRY contributes runtime feasibility, integration constraints, and mechanically testable proof. In roadmap shaping or a mission meeting it should specifically ask:
+
+- Which state/source is authoritative, and does the proposed design accidentally duplicate or derive hidden authority?
+- Which interfaces, schemas, compatibility contracts, or upstream stacks must exist before this work is safe to begin?
+- Which unknowns should become inspection/research/prototype work before committing to a runtime design?
+- Can a smaller end-to-end slice prove the architecture or behavior earlier than several disconnected components?
+- What focused and full-system tests demonstrate the leaf result, failure behavior, migration/compatibility expectations, and final integration proof?
+- Which work can truly proceed in parallel without sharing mutable outputs or unstable interfaces?
+
+During execution FOUNDRY owns only its shaped task and declared paths. Newly discovered requirements that alter scope, authority, dependencies, outputs, risk, or DONE go back to the roadmap/task owner for a checkpoint or re-shape. Completing FOUNDRY's leaf means its acceptance criteria and verification pass and its exact evidence is handed off; integration acceptance and final project proof remain separate gates.
