@@ -175,6 +175,53 @@ BEGIN
     SELECT RAISE(ABORT, 'run context refs are immutable');
 END;
 
+-- Exact submission-attempt/run attribution is append-only and optional. The
+-- mutable task_submissions row remains the source for the current submission.
+CREATE TABLE IF NOT EXISTS submission_run_links (
+    task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
+    submission_count INTEGER NOT NULL CHECK (submission_count > 0),
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    linked_at TEXT NOT NULL,
+    PRIMARY KEY(task_id, submission_count)
+);
+CREATE INDEX IF NOT EXISTS idx_submission_run_links_run
+    ON submission_run_links(run_id, task_id, submission_count);
+
+CREATE TRIGGER IF NOT EXISTS trg_submission_run_same_task
+BEFORE INSERT ON submission_run_links
+WHEN NOT EXISTS (
+    SELECT 1
+    FROM run_manifests
+    WHERE run_id = NEW.run_id AND task_id = NEW.task_id
+)
+BEGIN
+    SELECT RAISE(ABORT, 'submission run must belong to the same task');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_submission_run_attempt_exists
+BEFORE INSERT ON submission_run_links
+WHEN NOT EXISTS (
+    SELECT 1
+    FROM task_submissions
+    WHERE task_id = NEW.task_id
+      AND submission_count >= NEW.submission_count
+)
+BEGIN
+    SELECT RAISE(ABORT, 'submission attempt does not exist');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_submission_run_links_no_update
+BEFORE UPDATE ON submission_run_links
+BEGIN
+    SELECT RAISE(ABORT, 'submission run links are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_submission_run_links_no_delete
+BEFORE DELETE ON submission_run_links
+BEGIN
+    SELECT RAISE(ABORT, 'submission run links are immutable');
+END;
+
 -- Adapter-qualified provider/session identity is separate append-only lineage.
 CREATE TABLE IF NOT EXISTS run_session_links (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
