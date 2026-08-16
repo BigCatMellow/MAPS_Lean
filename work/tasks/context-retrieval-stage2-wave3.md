@@ -91,6 +91,7 @@ A candidate can be eligible only for **proposal**, never automatic promotion, wh
 - complete drift-pair recall;
 - vocabulary-shift recall;
 - perfect evidence-source recall;
+- perfect evidence-source precision (unrelated source pollution is not tradeable for recall);
 - frozen explicit prefix preserved.
 
 Passing remains evaluation evidence only.
@@ -103,6 +104,7 @@ Passing remains evaluation evidence only.
 - [x] Hard-negative lexical false activation is executable and visible in the report.
 - [x] Lexical negative control is forced non-candidate regardless of measured recall.
 - [x] Future externally supplied rankings can use the same evaluator.
+- [x] Source pollution can fail proposal eligibility even when recall remains perfect.
 - [x] Missing cases, unknown sources, duplicate sources, invalid overlay coverage fail closed.
 - [x] Report never claims automatic production promotion.
 - [x] No production Context Builder or routing behavior changes.
@@ -126,6 +128,7 @@ Stop rather than promote if:
 
 - hard-negative abstention is imperfect;
 - temporal forbidden sources are selected;
+- source precision is imperfect because unrelated sources are being surfaced;
 - vocabulary-shift robustness is weak;
 - a candidate requires production indexing/routing changes before evaluation;
 - a new dependency or model/provider choice would materially widen scope;
