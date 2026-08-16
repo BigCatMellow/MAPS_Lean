@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import copy
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -47,6 +48,24 @@ def contract():
             "paid_execution": False,
         },
     }
+
+
+def rehash_run_record(record):
+    payload = {
+        key: value
+        for key, value in record.items()
+        if key not in {"record_id", "content_sha256"}
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    digest = hashlib.sha256(encoded).hexdigest()
+    record["content_sha256"] = digest
+    record["record_id"] = f"RR-{digest}"
+    return record
 
 
 class FrozenRegressionCaseTests(unittest.TestCase):
@@ -110,6 +129,34 @@ class FrozenRegressionCaseTests(unittest.TestCase):
         with self.assertRaisesRegex(RegressionCaseError, "content hash"):
             freeze_regression_case(
                 tampered,
+                category=IncidentCategory.TOOL_FAILURE,
+                sanitized_fixture="A sanitized fixture.",
+                expected_properties=["tool.failure_is_reported"],
+                frozen_by="reviewer",
+            )
+
+    def test_self_consistent_wrong_artifact_kind_is_rejected(self):
+        forged = copy.deepcopy(self.run_record)
+        forged["record_kind"] = "MAPS_OTHER_V1_ARTIFACT"
+        rehash_run_record(forged)
+
+        with self.assertRaisesRegex(RegressionCaseError, "not a MAPS portable Run Record"):
+            freeze_regression_case(
+                forged,
+                category=IncidentCategory.TOOL_FAILURE,
+                sanitized_fixture="A sanitized fixture.",
+                expected_properties=["tool.failure_is_reported"],
+                frozen_by="reviewer",
+            )
+
+    def test_self_consistent_incomplete_run_record_shape_is_rejected(self):
+        forged = copy.deepcopy(self.run_record)
+        del forged["completion"]
+        rehash_run_record(forged)
+
+        with self.assertRaisesRegex(RegressionCaseError, "required mapping section: completion"):
+            freeze_regression_case(
+                forged,
                 category=IncidentCategory.TOOL_FAILURE,
                 sanitized_fixture="A sanitized fixture.",
                 expected_properties=["tool.failure_is_reported"],
