@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import hashlib
 import json
 import re
@@ -28,6 +29,18 @@ class OutcomeLessonSource(Protocol):
     def get_run_manifest(self, run_id: str) -> dict[str, Any] | None: ...
 
 
+def _instant(value: object, field: str) -> datetime:
+    if not isinstance(value, str) or not value.strip():
+        raise OutcomeLessonCandidateError(f"{field} must be a non-empty ISO-8601 timestamp")
+    try:
+        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise OutcomeLessonCandidateError(f"{field} must be ISO-8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise OutcomeLessonCandidateError(f"{field} must include a UTC offset")
+    return parsed
+
+
 def _candidate_id(
     *,
     claim: str,
@@ -46,7 +59,7 @@ def _candidate_id(
         separators=(",", ":"),
         ensure_ascii=False,
     ).encode("utf-8")
-    return f"LESSON-CAND-{hashlib.sha256(payload).hexdigest()[:32]}"
+    return f"LESSON-CAND-{hashlib.sha256(payload).hexdigest()}"
 
 
 def build_outcome_lesson_candidate(
@@ -80,14 +93,20 @@ def build_outcome_lesson_candidate(
     if not isinstance(task, Mapping):
         raise OutcomeLessonCandidateError(f"outcome task {task_id} does not exist")
     if str(task.get("status", "")).upper() != "DONE":
-        raise OutcomeLessonCandidateError(
-            f"outcome task {task_id} is not DONE"
-        )
+        raise OutcomeLessonCandidateError(f"outcome task {task_id} is not DONE")
 
     task_revision = outcome.get("task_revision")
     if not isinstance(task_revision, str) or not _SHA256_RE.fullmatch(task_revision):
         raise OutcomeLessonCandidateError(
             "outcome does not carry a valid task revision SHA-256"
+        )
+
+    outcome_created_at = outcome.get("created_at")
+    outcome_created = _instant(outcome_created_at, "outcome.created_at")
+    candidate_created = _instant(created_at, "created_at")
+    if candidate_created < outcome_created:
+        raise OutcomeLessonCandidateError(
+            "lesson candidate cannot be created before its source outcome"
         )
 
     all_outcomes = source.list_outcomes(task_id)
