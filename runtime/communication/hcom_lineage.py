@@ -63,7 +63,9 @@ class HcomLineageAdapter(HcomAdapter):
 
         result = self._run(args)
         events = self._parse_json_lines(result.stdout)
-        return [self._project_message(event) for event in events]
+        projected = [self._project_message(event) for event in events]
+        self._require_unique_event_identities(projected)
+        return projected
 
     def probe_lineage_capability(self, *, last: int = 25) -> HcomLineageCapability:
         """Probe the configured hcom boundary without trusting a version string.
@@ -94,6 +96,7 @@ class HcomLineageAdapter(HcomAdapter):
             )
 
         projected = [self._project_message(event) for event in events]
+        self._require_unique_event_identities(projected)
         observed = sorted(
             {
                 field
@@ -133,6 +136,25 @@ class HcomLineageAdapter(HcomAdapter):
                 )
             events.append(event)
         return events
+
+    @staticmethod
+    def _require_unique_event_identities(events: list[dict[str, Any]]) -> None:
+        """Fail closed when one provider-local identity names multiple rows.
+
+        ``event_id`` is local evidence at the configured hcom boundary. The
+        projection also preserves the event ``instance``; together they form the
+        narrow identity this read path can mechanically validate. This does not
+        claim global identity across projects/providers.
+        """
+
+        seen: set[tuple[str, int]] = set()
+        for event in events:
+            identity = (event["instance"], event["event_id"])
+            if identity in seen:
+                raise HcomLineageProtocolError(
+                    "hcom events --full returned duplicate provider-local event identity"
+                )
+            seen.add(identity)
 
     @classmethod
     def _project_message(cls, event: dict[str, Any]) -> dict[str, Any]:
