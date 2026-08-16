@@ -324,17 +324,7 @@
           "temporal_scope": "CURRENT"
         }
       ],
-      "acceptable_substitutes": [
-        {
-          "source_id": "CB-SRC-007",
-          "source_sha256": "aa02e567a66ddf48f031eb87b8cfbb421dfa5724fad57649ed60d6faf5ae7980",
-          "anchor": {"type": "MARKDOWN_SECTION", "value": "Context Builder"},
-          "proof_role": "CURRENT_BASELINE",
-          "polarity": "NEGATIVE_BOUNDARY",
-          "temporal_scope": "CURRENT",
-          "credit_only_if_retrieved": true
-        }
-      ]
+      "acceptable_substitutes": []
     },
     {
       "id": "CBI-011",
