@@ -139,22 +139,23 @@ class HcomLineageAdapter(HcomAdapter):
 
     @staticmethod
     def _require_unique_event_identities(events: list[dict[str, Any]]) -> None:
-        """Fail closed when one provider-local identity names multiple rows.
+        """Fail closed when one local hcom event ID names multiple rows.
 
-        ``event_id`` is local evidence at the configured hcom boundary. The
-        projection also preserves the event ``instance``; together they form the
-        narrow identity this read path can mechanically validate. This does not
-        claim global identity across projects/providers.
+        The pinned configured hcom store uses one ``events`` table whose bare
+        integer ``id`` is the local event identity. ``instance`` is preserved as
+        event metadata but is not an event-ID namespace. This check proves only
+        uniqueness inside the bounded configured-provider read; it does not claim
+        global identity across projects or independent hcom stores.
         """
 
-        seen: set[tuple[str, int]] = set()
+        seen: set[int] = set()
         for event in events:
-            identity = (event["instance"], event["event_id"])
-            if identity in seen:
+            event_id = event["event_id"]
+            if event_id in seen:
                 raise HcomLineageProtocolError(
-                    "hcom events --full returned duplicate provider-local event identity"
+                    "hcom events --full returned duplicate provider-local event id"
                 )
-            seen.add(identity)
+            seen.add(event_id)
 
     @classmethod
     def _project_message(cls, event: dict[str, Any]) -> dict[str, Any]:
