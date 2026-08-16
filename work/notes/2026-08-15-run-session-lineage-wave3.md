@@ -2,7 +2,7 @@
 
 Date: 2026-08-15
 Branch: `agent/run-session-lineage-wave3`
-Stack base: PR #24 exact head `4ec42de3398258ebde0e0645516caef953a6a0ed`
+Current stack dependency: PR #24 head `3be75c654051d27ad9beaf7d2620953f1e28d9ee`
 
 ## Purpose
 
@@ -33,11 +33,14 @@ Each row records:
 
 The table is append-only. SQLite rejects UPDATE and DELETE.
 
-Database constraints additionally enforce:
+Database constraints/triggers additionally enforce:
 
 - one root `ATTACH` per run;
 - at most one child replacement per link;
-- one durable run owner for an adapter-qualified `(adapter_id, session_id)` identity.
+- replacement predecessor belongs to the same run;
+- one durable run owner for an adapter-qualified `(adapter_id, session_id)` identity;
+- direct-SQL first attachment cannot contradict an immutable manifest's pre-existing bare `session_id`;
+- bounded non-empty adapter/session/evidence/actor values.
 
 No column is added to `tasks`. No `run_manifests` column is changed.
 
@@ -89,13 +92,24 @@ Behavior remains fail-closed:
 
 The guard still separately verifies task/run/worker/revision/lease/current-run evidence. Session lineage does not replace those checks.
 
+## Latest PR #24 synchronization
+
+PR #24 moved after A1 was first opened. A1 was synchronized with the newer security boundary from #24 head `3be75c654051d27ad9beaf7d2620953f1e28d9ee`:
+
+- Hook enforcement roles are recorded internally by `HookRegistry`, not inferred from caller-controlled callback attributes;
+- `register_canonical_run_guards()` requires an exact `CanonicalRunGuard` rather than a lookalike callback;
+- mandatory canonical hooks remain fail-closed and read-only;
+- the new anti-spoof HarnessService regressions are preserved.
+
+A1 changes only the durable session evidence source consumed by that guard; it does not weaken or replace #24's enforcement composition.
+
 ## Trace integration
 
 `TaskStore.trace_task()` is enriched through a narrow composition mixin. Each run gets its derived `session_lineage` projection.
 
 Coverage remains deliberately incomplete:
 
-- explicit MAPS relationships are included;
+- explicit MAPS run/session relationships are included;
 - absence of a MAPS relationship does not prove an external provider session never existed;
 - communication and provider liveness remain separate evidence sources.
 
@@ -121,12 +135,10 @@ This branch is intentionally stacked on open PR #24 rather than waiting for its 
 Before A1 merges:
 
 1. re-check #24 exact accepted head;
-2. synchronize this branch if #24 changed;
+2. synchronize this branch if #24 changed again;
 3. rerun full Runtime CI;
 4. obtain independent review on the integrated A1 state.
 
 ## Next tranche
 
-After A1 is accepted:
-
-A2 should add explicit helper/recovery run relationships, without copying helper/recovery mutable result state into a second authority store.
+After A1 is mechanically clean, A2 can be developed as a separate stack adding explicit helper/recovery run relationships without copying helper/recovery mutable result state into a second authority store.
