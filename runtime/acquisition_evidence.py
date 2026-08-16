@@ -122,6 +122,7 @@ def _manifest(raw: Mapping[str, object]) -> dict[str, object]:
         raise AcquisitionEvidenceError(
             "manifest must identify at least one operator-visible acquisition path"
         )
+    paths.sort(key=lambda item: str(item["path_id"]))
     return {
         "version": "maps-acquisition-paths-v1",
         "release_id": release_id,
@@ -267,11 +268,12 @@ def evaluate_acquisition_evidence(
     normalized_observations = [
         observed_index[path_id] for path_id in sorted(observed_index)
     ]
+    # The evidence identity is content-derived. `label` is descriptive metadata
+    # and must not create two identities for the same manifest/observations.
     report_id = _hash(
         {
             "manifest": normalized_manifest,
             "observations": normalized_observations,
-            "label": resolved_label,
         }
     )
     report_ref = f"acquisition-report:{report_id}"
@@ -306,13 +308,19 @@ def evaluate_acquisition_evidence(
             if state == "NOT_APPLICABLE":
                 if not bool(path["allow_not_applicable"]):
                     acquisition_status = "FAIL"
-                    usability_status = "FAIL" if path["operator_visible"] else "NOT_APPLICABLE"
+                    # An invalid N/A claim proves incomplete/invalid coverage,
+                    # not that the underlying artifact itself is unusable.
+                    usability_status = "UNKNOWN" if path["operator_visible"] else "NOT_APPLICABLE"
                     stale_status = "UNKNOWN" if path["operator_visible"] else "NOT_APPLICABLE"
                     reason = "not_applicable_not_allowed"
                 else:
                     acquisition_status = "PASS"
                     usability_status = "NOT_APPLICABLE"
-                    stale_status = "PASS" if path["operator_visible"] else "NOT_APPLICABLE"
+                    # A permitted N/A decision proves scope/coverage only. It
+                    # does not prove that an operator-visible surface was
+                    # withdrawn, removed, redirected, or otherwise made
+                    # non-visible, so stale-visible truth remains unknown.
+                    stale_status = "UNKNOWN" if path["operator_visible"] else "NOT_APPLICABLE"
                     reason = "explicit_not_applicable"
             elif state == "UNKNOWN":
                 acquisition_status = "UNKNOWN"
