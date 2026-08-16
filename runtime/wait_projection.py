@@ -54,6 +54,20 @@ def _review_wait_reasons(
                 details={"missing": "submission"},
             )
         ], "UNKNOWN"
+    submission_count = submission.get("submission_count")
+    if (
+        isinstance(submission_count, bool)
+        or not isinstance(submission_count, int)
+        or submission_count <= 0
+    ):
+        return [
+            _reason(
+                "REVIEW_GATE_EVIDENCE_INCOMPLETE",
+                "UNKNOWN",
+                source_refs=(f"task:{task_id}",),
+                details={"missing": "valid_submission_count"},
+            )
+        ], "UNKNOWN"
 
     reviews = source.list_reviews(task_id)
     if not isinstance(reviews, list) or any(not isinstance(item, Mapping) for item in reviews):
@@ -74,10 +88,10 @@ def _review_wait_reasons(
                 "VERIFIED_WAIT",
                 source_refs=(
                     f"task:{task_id}",
-                    f"submission:{task_id}:{submission.get('submission_count', 'UNKNOWN')}",
+                    f"submission:{task_id}:{submission_count}",
                 ),
                 details={
-                    "submission_count": submission.get("submission_count"),
+                    "submission_count": submission_count,
                     "open_review_count": 0,
                 },
             )
@@ -154,11 +168,13 @@ def _dependency_wait_reasons(
         dependency_id = raw_dependency.strip()
         dependency = source.get_task(dependency_id)
         if dependency is None:
+            # The parent task is the source proving the dependency relationship;
+            # do not fabricate a source reference to a task that does not exist.
             reasons.append(
                 _reason(
                     "WAIT_DEPENDENCY",
                     "VERIFIED_WAIT",
-                    source_refs=(f"task:{task_id}", f"task:{dependency_id}"),
+                    source_refs=(f"task:{task_id}",),
                     details={
                         "dependency_id": dependency_id,
                         "dependency_status": "MISSING",
