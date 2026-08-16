@@ -100,6 +100,7 @@ class OutcomeLessonCandidateTests(unittest.TestCase):
         self.assertIsNone(record["retirement"])
         self.assertIsNone(record["superseded_by"])
         self.assertTrue(record["lesson_id"].startswith("LESSON-CAND-"))
+        self.assertEqual(len(record["lesson_id"].removeprefix("LESSON-CAND-")), 64)
 
     def test_outcome_notes_and_source_prose_never_become_lesson_claim(self):
         record = self.build(claim="Explicit caller-authored lesson claim.")
@@ -119,6 +120,15 @@ class OutcomeLessonCandidateTests(unittest.TestCase):
         self.assertEqual(first["lesson_id"], second["lesson_id"])
         self.assertNotEqual(first["created_by"], second["created_by"])
         self.assertNotEqual(first["created_at"], second["created_at"])
+
+    def test_candidate_cannot_predate_source_outcome(self):
+        with self.assertRaisesRegex(OutcomeLessonCandidateError, "before its source outcome"):
+            self.build(created_at="2026-08-16T00:59:59Z")
+
+        # Equal timestamps are valid: the candidate may be created in the same
+        # recorded instant after the outcome row is committed.
+        record = self.build(created_at="2026-08-16T01:00:00Z")
+        self.assertEqual(record["created_at"], "2026-08-16T01:00:00Z")
 
     def test_material_claim_applicability_or_source_change_changes_candidate_id(self):
         baseline = self.build()
@@ -201,9 +211,13 @@ class OutcomeLessonCandidateTests(unittest.TestCase):
                 created_at="2026-08-16T02:00:00Z",
             )
 
-    def test_invalid_task_revision_fails_closed(self):
+    def test_invalid_task_revision_or_source_time_fails_closed(self):
         self.source.outcomes[1]["task_revision"] = "not-a-sha"
+        with self.assertRaises(OutcomeLessonCandidateError):
+            self.build()
 
+        self.source = FakeSource()
+        self.source.outcomes[1]["created_at"] = "not-a-time"
         with self.assertRaises(OutcomeLessonCandidateError):
             self.build()
 
