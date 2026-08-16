@@ -329,8 +329,15 @@ class HcomHarnessAdapter:
 
         try:
             self.backend.stop(str(record["name"]))
-        except HcomError as exc:
-            return self._provider_failure(exc)
+        except (HcomError, ValueError) as exc:
+            if isinstance(exc, HcomError):
+                return self._provider_failure(exc)
+            return OperationResult.failure(
+                "INVALID_ARGUMENT",
+                "hcom stop arguments were rejected.",
+                data={"error_type": type(exc).__name__},
+                retry=RetryDisposition.UNSAFE,
+            )
 
         return OperationResult.success(
             "STOP_REQUESTED",
