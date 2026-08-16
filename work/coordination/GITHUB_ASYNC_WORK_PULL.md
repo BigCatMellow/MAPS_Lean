@@ -97,6 +97,43 @@ For independent review, also verify that the specific browser continuity did not
 
 If any load-bearing fact is unknown, inspect or block rather than guess.
 
+## Integration order and anti-regression rule
+
+**PR age, PR number, creation time, and recency do not determine integration order.** MAPS integrates **dependency-first / bottom-up**:
+
+1. accepted prerequisites and root foundations first;
+2. then direct dependents rebuilt or synchronized against those accepted prerequisites;
+3. then later dependents, repeating until the stack is exhausted.
+
+For unrelated eligible roots, TOWER priority and SWITCHYARD integration safety may choose order. Regardless of order, every candidate must integrate **forward onto the latest accepted `main`**.
+
+An older branch is never allowed to make the repository travel backward merely because it was created first. Before merge, SWITCHYARD must:
+
+- recover the latest accepted `main`;
+- genuinely synchronize the reviewed feature layer onto that exact `main` using real Git ancestry;
+- treat accepted `main` as the baseline that must be preserved;
+- compare exact `current main -> synchronized head` rather than trusting the branch's historical base;
+- verify that the synchronized delta contains only the task-authorized intended change plus explicit, reviewed conflict reconciliation;
+- fail/return the candidate if it silently deletes, reverts, replaces, or reintroduces stale versions of newer accepted behavior outside its authorized change.
+
+When a historical branch overlaps newer accepted work, **newer accepted `main` wins by default**. A task may intentionally supersede accepted behavior only when that replacement is explicitly within current task/operator authority and receives fresh exact-head review; an old branch may never overwrite newer accepted behavior implicitly.
+
+After any merge changes `main`, every remaining integration candidate must be treated as potentially stale. Re-check ancestry, dependencies, exact delta, CI, and review freshness before the next merge.
+
+Therefore the safe model is not `newest -> oldest` or `oldest -> newest` by date. It is:
+
+```text
+dependency root
+      ↓ accept into current main
+next dependent synchronized onto new main
+      ↓ accept
+next dependent synchronized onto newer main
+      ↓
+...
+```
+
+This rule prevents historical PRs from overwriting accepted newer work while still allowing old but valid feature layers to be carried forward safely.
+
 ## Handoff model: agent -> GitHub state transition
 
 Prefer durable GitHub evidence over direct agent-to-agent conversation.
@@ -137,8 +174,9 @@ If clean, the result becomes discoverable integration evidence. If defective, th
 SWITCHYARD discovers reviewed candidates and performs the normal integration gates:
 
 - recover current main;
+- apply the dependency-first / anti-regression rule above;
 - genuine synchronization using real ancestry;
-- exact delta verification;
+- exact delta verification against current accepted main;
 - fresh exact-head CI;
 - eligible integrated-head independent review where required;
 - merge only under existing authority and expected-head protection.
@@ -220,6 +258,7 @@ Do:
 - recover live state;
 - maintain a **derived** priority/dependency view;
 - identify eligible vs blocked work;
+- prioritize dependency roots before downstream dependents when acceptance of the root gates the stack;
 - update shared roadmap/dispatch evidence when material state changes;
 - surface operator decisions only when evidence cannot resolve them.
 
@@ -254,6 +293,7 @@ Do:
 - verify continuity-specific reviewer independence;
 - claim a distinct eligible exact head before substantive review;
 - evidence-test the task/implementation;
+- for integrated-head review, verify current-main synchronization did not regress newer accepted behavior;
 - record exact disposition;
 - return defects to owner and freshness/integration blockers to SWITCHYARD;
 - continue to another independent eligible unclaimed review instead of waiting behind one blocked item.
@@ -269,11 +309,11 @@ Do not:
 
 Pull: the **entire live open-PR backlog** as a standing repository-control queue, with integration candidates advanced whenever eligible.
 
-SWITCHYARD is the persistent PR-control lane. TOWER decides product/work priority; SWITCHYARD ensures no open PR becomes ownerless, stale, or ambiguous.
+SWITCHYARD is the persistent PR-control lane. TOWER decides product/work priority; SWITCHYARD ensures no open PR becomes ownerless, stale, ambiguous, or able to regress accepted `main`.
 
 For every open PR, recover live state and maintain one current disposition derived from GitHub evidence:
 
-- `INTEGRATE` — reviewed/eligible; advance synchronization, exact-delta, fresh CI, integrated review, and merge gates;
+- `INTEGRATE` — reviewed/eligible; advance dependency-first synchronization, exact-delta, fresh CI, integrated review, and merge gates;
 - `REVIEW NEEDED` — leave a durable exact-head handoff for SENTINEL or another eligible independent reviewer;
 - `REPAIR NEEDED` — return the concrete defect to the owning development lane;
 - `BLOCKED` — record the exact prerequisite and avoid branch churn;
@@ -282,15 +322,19 @@ For every open PR, recover live state and maintain one current disposition deriv
 
 Do:
 - enumerate and periodically re-scan all open PRs;
+- derive integration order from dependency structure and current authority, never PR age/number;
 - ensure every open PR has a current disposition, next legitimate gate, and discoverable owner/blocker;
 - work the highest-priority eligible SWITCHYARD action;
 - when one PR is waiting on SENTINEL, ANVIL, FOUNDRY, TOWER, CI, or another prerequisite, leave the handoff and continue scanning for another independent eligible PR;
 - re-scan after merges or material `main` changes because ancestry/readiness may have changed;
-- synchronize legitimately handed-off integration branches;
-- verify exact ancestry/delta and require fresh evidence;
+- synchronize legitimately handed-off integration branches onto the latest accepted `main`;
+- preserve accepted `main` by default during conflicts and fail closed on unauthorized regression;
+- verify exact ancestry/delta against current main and require fresh evidence;
 - merge only when existing integration gates and authority are satisfied.
 
 Do not:
+- integrate newest-to-oldest or oldest-to-newest merely from PR chronology;
+- let historical branch content silently overwrite/revert newer accepted behavior;
 - reduce the PR count by bypassing dependency, review, CI, ownership, or exact-head gates;
 - merge merely because work is high priority;
 - take over feature development unless a specific integration defect is legitimately returned;
@@ -334,7 +378,7 @@ Suggested startup prompts:
 - `Your role is FOUNDRY. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
 - `Your role is SENTINEL. Your reviewer continuity label is SENTINEL-A. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md and claim a distinct eligible review before reviewing.`
 - `Your role is SENTINEL. Your reviewer continuity label is SENTINEL-B. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md and claim a distinct eligible review before reviewing.`
-- `Your role is SWITCHYARD. Own the full open-PR backlog under work/coordination/GITHUB_ASYNC_WORK_PULL.md; classify every open PR and continuously advance eligible PR-control/integration work.`
+- `Your role is SWITCHYARD. Own the full open-PR backlog under work/coordination/GITHUB_ASYNC_WORK_PULL.md; integrate dependency-first, synchronize every candidate onto latest accepted main, reject regressions of accepted behavior, and continuously advance eligible PR-control/integration work.`
 
 Additional SENTINEL sessions may be bound with additional unique labels when review demand justifies them. They remain the same SENTINEL role.
 
@@ -344,7 +388,7 @@ After binding, later prompts can usually be just:
 
 For a SENTINEL pool tab, `continue` means recover the live review queue, claim a distinct eligible exact head, review it, record the disposition, and continue to another eligible unclaimed review when appropriate.
 
-For SWITCHYARD, `continue` means resume the standing full-backlog control loop, not merely return to one remembered PR.
+For SWITCHYARD, `continue` means resume the standing full-backlog control loop, derive integration order from dependencies rather than PR age, and never merge a historical branch without synchronizing it onto latest accepted `main` and proving no unauthorized regression.
 
 The operator still has to start/wake browser sessions. The protocol removes the need to manually relay detailed handoffs between sessions.
 
@@ -377,9 +421,13 @@ This protocol is working when the operator can open role-specific browser sessio
 
 Additionally:
 
+- dependency stacks are integrated root-first, never by PR age alone;
+- every historical candidate is synchronized onto latest accepted `main` before merge;
+- exact current-main deltas prove older branches do not silently revert newer accepted behavior;
+- after each merge, remaining candidates are rechecked for staleness;
 - multiple operator-bound SENTINEL continuities can concurrently claim and review different eligible exact heads without weakening reviewer independence;
 - a same-head claim race converges on one primary reviewer unless multiple reviews are explicitly required;
 - an abandoned claim cannot permanently block review progress;
 - SWITCHYARD can recover the complete live open-PR backlog and ensure every open PR has a current disposition, next legitimate gate, and discoverable owner/blocker while continuing other eligible PR-control work when one item is waiting.
 
-It fails if a new unbound browser session can plausibly decide for itself that it is SENTINEL, ANVIL, FOUNDRY, SWITCHYARD, or TOWER; if parallel SENTINEL tabs manufacture reviewer independence from labels alone; or if open PRs can remain indefinitely unclassified/ownerless while SWITCHYARD is active.
+It fails if a new unbound browser session can plausibly decide for itself that it is SENTINEL, ANVIL, FOUNDRY, SWITCHYARD, or TOWER; if an older PR can silently overwrite or revert newer accepted behavior; if parallel SENTINEL tabs manufacture reviewer independence from labels alone; or if open PRs can remain indefinitely unclassified/ownerless while SWITCHYARD is active.
