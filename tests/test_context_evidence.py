@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 import unittest
@@ -59,6 +60,16 @@ class ContextEvidenceScorerTests(unittest.TestCase):
     def _case_report(report: dict, case_id: str) -> dict:
         return next(item for item in report["cases"] if item["case_id"] == case_id)
 
+    @staticmethod
+    def _python_source(content: str) -> dict:
+        return {
+            "id": "CB-SRC-TEST",
+            "path": "runtime/test_source.py",
+            "version": "current",
+            "content": content,
+            "sha256": hashlib.sha256(content.encode()).hexdigest(),
+        }
+
     def test_projector_builds_exact_card_from_explicit_source(self):
         card = project_evidence_card(
             self.sources["CB-SRC-001"],
@@ -68,6 +79,49 @@ class ContextEvidenceScorerTests(unittest.TestCase):
             temporal_scope="CURRENT",
         )
         self.assertEqual(card, self.cases["CBI-001"]["expected_cards"][0])
+
+    def test_projector_resolves_exact_owned_code_symbol(self):
+        card = project_evidence_card(
+            self.sources["CB-SRC-003"],
+            anchor={"type": "CODE_SYMBOL", "value": "ReviewMixin.claim_review"},
+            proof_role="ACTIVE_MECHANICAL_GUARD",
+            polarity="POSITIVE",
+            temporal_scope="CURRENT",
+        )
+        self.assertEqual(card, self.cases["CBI-002"]["expected_cards"][0])
+
+    def test_projector_rejects_structurally_wrong_code_symbols(self):
+        cases = {
+            "module-level": (
+                "class ReviewMixin:\n"
+                "    pass\n\n"
+                "def claim_review(task_id, reviewer_id):\n"
+                "    return None\n"
+            ),
+            "prefixed-class": (
+                "class ReviewMixinOther:\n"
+                "    def claim_review(self, task_id, reviewer_id):\n"
+                "        return None\n"
+            ),
+            "prefixed-method": (
+                "class ReviewMixin:\n"
+                "    def claim_review_old(self, task_id, reviewer_id):\n"
+                "        return None\n"
+            ),
+        }
+        for label, content in cases.items():
+            with self.subTest(label=label):
+                with self.assertRaises(EvidenceIntegrityError):
+                    project_evidence_card(
+                        self._python_source(content),
+                        anchor={
+                            "type": "CODE_SYMBOL",
+                            "value": "ReviewMixin.claim_review",
+                        },
+                        proof_role="ACTIVE_MECHANICAL_GUARD",
+                        polarity="POSITIVE",
+                        temporal_scope="CURRENT",
+                    )
 
     def test_projector_rejects_non_resolving_anchor(self):
         with self.assertRaises(EvidenceIntegrityError):
