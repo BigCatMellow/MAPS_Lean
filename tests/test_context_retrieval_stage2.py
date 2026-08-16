@@ -140,6 +140,49 @@ class ContextRetrievalStage2Tests(unittest.TestCase):
         )
         self.assertFalse(report["candidate_gate"]["eligible_for_proposal"])
 
+    def test_drift_source_pollution_blocks_future_candidate_proposal(self):
+        for case_id in ("CBI-012", "CBI-013"):
+            with self.subTest(case_id=case_id):
+                predictions = self._ideal_predictions()
+                polluted = next(
+                    item for item in predictions if item["case_id"] == case_id
+                )
+                self.assertNotIn("CB-SRC-010", polluted["source_ids"])
+                polluted["source_ids"].append("CB-SRC-010")
+
+                report = evaluate_source_rankings(
+                    self.corpus,
+                    self.overlay,
+                    predictions,
+                    label=f"polluted-drift-{case_id}",
+                )
+                case_report = next(
+                    item for item in report["cases"] if item["case_id"] == case_id
+                )
+
+                self.assertEqual(report["metrics"]["evidence_source_recall"], 1.0)
+                self.assertLess(report["metrics"]["evidence_source_precision"], 1.0)
+                self.assertFalse(
+                    report["candidate_gate"]["gates"]["evidence_precision_perfect"]
+                )
+                self.assertFalse(report["candidate_gate"]["eligible_for_proposal"])
+                self.assertEqual(case_report["status"], "FAIL")
+                self.assertFalse(
+                    case_report["checks"]["drift_source_precision_clean"]
+                )
+
+    def test_overlay_identity_changes_when_material_overlay_changes(self):
+        report = run_stage2_controls(self.corpus, self.overlay)
+        overlay = copy.deepcopy(self.overlay)
+        overlay["lexical_negative_control"]["top_k"] = 1
+        mutated = run_stage2_controls(self.corpus, overlay)
+
+        self.assertNotEqual(report["overlay_sha256"], mutated["overlay_sha256"])
+        for control in report["controls"].values():
+            self.assertEqual(control["overlay_sha256"], report["overlay_sha256"])
+        for control in mutated["controls"].values():
+            self.assertEqual(control["overlay_sha256"], mutated["overlay_sha256"])
+
     def test_overlay_must_cover_every_case_and_reference_known_sources(self):
         overlay = copy.deepcopy(self.overlay)
         overlay["cases"].pop()

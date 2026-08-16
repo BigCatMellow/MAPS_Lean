@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from collections import Counter
+import hashlib
+import json
 import math
 import re
 from typing import Mapping, Sequence
@@ -213,7 +215,18 @@ def _validate_overlay(
             "lexical negative control must not be marked as a promotion candidate"
         )
 
-    return sources, cases, order, explicit, corpus_sha, {
+    try:
+        overlay_bytes = json.dumps(
+            overlay,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    except (TypeError, ValueError) as exc:
+        raise RetrievalEvaluationError("Stage 2 overlay must be JSON-serializable") from exc
+    overlay_sha = hashlib.sha256(overlay_bytes).hexdigest()
+
+    return sources, cases, order, explicit, corpus_sha, overlay_sha, {
         "top_k": top_k,
         "minimum_shared_terms": minimum_shared_terms,
     }
@@ -226,14 +239,14 @@ def _prediction(case_id: str, source_ids: Sequence[str]) -> dict[str, object]:
 def explicit_only_rankings(
     corpus: Mapping[str, object], overlay: Mapping[str, object]
 ) -> list[dict[str, object]]:
-    _, _, order, explicit, _, _ = _validate_overlay(corpus, overlay)
+    _, _, order, explicit, _, _, _ = _validate_overlay(corpus, overlay)
     return [_prediction(case_id, explicit[case_id]) for case_id in order]
 
 
 def same_path_drift_rankings(
     corpus: Mapping[str, object], overlay: Mapping[str, object]
 ) -> list[dict[str, object]]:
-    sources, _, order, explicit, _, _ = _validate_overlay(corpus, overlay)
+    sources, _, order, explicit, _, _, _ = _validate_overlay(corpus, overlay)
     output: list[dict[str, object]] = []
     for case_id in order:
         selected = list(explicit[case_id])
@@ -306,7 +319,7 @@ def _lexical_scores(
 def lexical_negative_control_rankings(
     corpus: Mapping[str, object], overlay: Mapping[str, object]
 ) -> list[dict[str, object]]:
-    sources, cases, order, explicit, _, config = _validate_overlay(corpus, overlay)
+    sources, cases, order, explicit, _, _, config = _validate_overlay(corpus, overlay)
     output: list[dict[str, object]] = []
     for case_id in order:
         selected = list(explicit[case_id])
@@ -371,7 +384,9 @@ def evaluate_source_rankings(
     """Evaluate source selection only; this does not score evidence-card correctness."""
 
     label = _text(label, "label")
-    sources, cases, order, explicit, corpus_sha, _ = _validate_overlay(corpus, overlay)
+    sources, cases, order, explicit, corpus_sha, overlay_sha, _ = _validate_overlay(
+        corpus, overlay
+    )
     indexed = _validate_predictions(sources, order, predictions)
 
     reports: list[dict[str, object]] = []
@@ -401,6 +416,11 @@ def evaluate_source_rankings(
         hit = bool(accepted_selected)
         top1_hit = bool(selected) and selected[0] in accepted
         explicit_prefix_preserved = tuple(selected[: len(explicit[case_id])]) == explicit[case_id]
+        drift_source_precision_clean = (
+            selected_set.issubset(drift_ids)
+            if expected_outcome == "DRIFT_REPORTED" and drift_ids
+            else None
+        )
 
         if expected_outcome == "ABSTAIN":
             hard_negative_cases += 1
@@ -409,7 +429,13 @@ def evaluate_source_rankings(
                 hard_negative_abstained += 1
         elif expected_outcome == "DRIFT_REPORTED":
             drift_cases += 1
-            passed = bool(drift_ids) and drift_ids.issubset(selected_set)
+            evidence_precision_numerator += len(selected_set & drift_ids)
+            evidence_precision_denominator += len(selected)
+            passed = (
+                bool(drift_ids)
+                and drift_ids.issubset(selected_set)
+                and bool(drift_source_precision_clean)
+            )
             if passed:
                 drift_pairs_complete += 1
         else:
@@ -443,6 +469,7 @@ def evaluate_source_rankings(
                     "drift_pair_complete": (
                         drift_ids.issubset(selected_set) if drift_ids else None
                     ),
+                    "drift_source_precision_clean": drift_source_precision_clean,
                     "hard_negative_abstained": (
                         not selected if expected_outcome == "ABSTAIN" else None
                     ),
@@ -483,6 +510,7 @@ def evaluate_source_rankings(
         "corpus_version": corpus["version"],
         "corpus_sha256": corpus_sha,
         "overlay_version": overlay["version"],
+        "overlay_sha256": overlay_sha,
         "cases": reports,
         "metrics": {
             "case_pass_rate": sum(x["status"] == "PASS" for x in reports) / len(reports),
@@ -511,6 +539,7 @@ def run_stage2_controls(
 ) -> dict[str, object]:
     """Run deterministic controls; lexical output is deliberately a negative control."""
 
+    _, _, _, _, corpus_sha, overlay_sha, _ = _validate_overlay(corpus, overlay)
     explicit = evaluate_source_rankings(
         corpus,
         overlay,
@@ -537,6 +566,10 @@ def run_stage2_controls(
     return {
         "report_version": 1,
         "report_kind": "MAPS_CONTEXT_RETRIEVAL_STAGE2_CONTROL_COMPARISON",
+        "corpus_version": corpus["version"],
+        "corpus_sha256": corpus_sha,
+        "overlay_version": overlay["version"],
+        "overlay_sha256": overlay_sha,
         "controls": {
             "explicit_only": explicit,
             "same_path_drift": drift,
