@@ -143,7 +143,7 @@ class ReviewSubjectBindingTests(unittest.TestCase):
         self.assertTrue(approved.ok, approved.message)
         self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
 
-    def test_confirmed_criterion_evidence_derives_one_run_subject(self):
+    def test_confirmed_criterion_run_evidence_cannot_replace_output_identity(self):
         task_id, runs = self.submitted(
             risk="HIGH",
             criteria=["criterion one", "criterion two"],
@@ -179,27 +179,38 @@ class ReviewSubjectBindingTests(unittest.TestCase):
             "APPROVED",
             "all criteria confirmed against one run",
         )
+        self.assertFalse(approved.ok)
+        self.assertEqual(approved.code, "REVIEW_SUBJECT_REQUIRED")
+        self.assertIsNone(self.store.get_review_subject(review_id))
+        self.assertEqual(self.store.get_task(task_id)["status"], "READY_FOR_REVIEW")
+
+        bound = self.bind(task_id, run_id=runs[0]["run_id"], refs=(SHA_A,))
+        self.assertTrue(bound.ok, bound.message)
+        approved = self.store.record_review(
+            task_id,
+            "reviewer",
+            "APPROVED",
+            "criteria and exact immutable output identity reviewed",
+        )
         self.assertTrue(approved.ok, approved.message)
         subject = self.store.get_review_subject(review_id)
-        self.assertIsNotNone(subject)
-        self.assertEqual(subject["freshness_mode"], "REVISION_BOUND")
         self.assertEqual(subject["run_id"], runs[0]["run_id"])
-        self.assertEqual(subject["artifact_refs"], [])
-        self.assertEqual(subject["task_revision"], self.store.compute_task_revision(task_id))
-        events = self.store.list_events(task_id)
-        event = next(
-            item
-            for item in events
-            if item["event_type"] == "REVIEW_SUBJECT_BOUND"
-        )
-        self.assertIn("derived from confirmed criterion evidence", event["summary"])
+        self.assertEqual(subject["artifact_refs"], [SHA_A])
 
     def test_revision_bound_requires_run_or_immutable_ref(self):
-        task_id, _ = self.submitted(risk="HIGH")
+        task_id, _ = self.submitted(risk="LOW")
         self.claim(task_id)
         result = self.bind(task_id, refs=())
         self.assertFalse(result.ok)
         self.assertEqual(result.code, "REVISION_BOUND_SUBJECT_REQUIRED")
+
+    def test_high_risk_revision_bound_rejects_run_only_subject(self):
+        task_id, runs = self.submitted(risk="HIGH")
+        self.claim(task_id)
+        result = self.bind(task_id, run_id=runs[0]["run_id"], refs=())
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "CONSEQUENTIAL_REVIEW_ARTIFACT_REQUIRED")
+        self.assertIsNone(self.store.get_review_subject(self.store.list_reviews(task_id)[0]["id"]))
 
     def test_non_consequential_mode_is_rejected_for_high_risk_work(self):
         task_id, _ = self.submitted(risk="HIGH")
