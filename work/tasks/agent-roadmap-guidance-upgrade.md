@@ -1,6 +1,6 @@
 # Task: Agent roadmap guidance upgrade
 
-- Status: `READY`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `MAINTENANCE`
 - Owner: roadmap-guidance documentation lane
@@ -28,11 +28,11 @@
 
 ## Acceptance criteria
 
-- [ ] All four active agent files point to the canonical roadmap playbook/template and summarize the roadmap lifecycle sufficiently to operate without inventing missing authority.
-- [ ] ANVIL and FOUNDRY guidance explains how implementation lanes challenge feasibility, execute only shaped first-wave tasks, surface unknowns, and trigger re-planning without silently expanding scope.
-- [ ] SENTINEL guidance explains independent roadmap challenge/review, exact-evidence checks, defect routing, and preservation of reviewer independence.
-- [ ] SWITCHYARD guidance explains dependency/integration sequencing, exact-head proof, checkpoint/re-plan triggers, and why roadmap state never substitutes for merge authority.
-- [ ] Existing active-lane/status content is otherwise preserved and the branch delta is documentation-only.
+- [x] All four active agent files point to the canonical roadmap playbook/template and summarize the roadmap lifecycle sufficiently to operate without inventing missing authority.
+- [x] ANVIL and FOUNDRY guidance explains how implementation lanes challenge feasibility, execute only shaped first-wave tasks, surface unknowns, and trigger re-planning without silently expanding scope.
+- [x] SENTINEL guidance explains independent roadmap challenge/review, exact-evidence checks, defect routing, and preservation of reviewer independence.
+- [x] SWITCHYARD guidance explains dependency/integration sequencing, exact-head proof, checkpoint/re-plan triggers, and why roadmap state never substitutes for merge authority.
+- [x] Existing active-lane/status content is otherwise preserved and the branch delta is documentation-only.
 
 ## Verification and evidence
 
@@ -81,11 +81,12 @@ mandatory AGI requirement passes.
 ## Notes / decisions
 
 - The operator explicitly requested upgrading all agent files. This permits the documentation-only cross-file change despite the coordination README's normal rule that each lane edits only its own note.
-- Durable roadmap guidance will be appended rather than mixed into volatile PR/head/status sections, minimizing contention with active coordination-refresh PRs.
+- Durable roadmap guidance was appended rather than mixed into volatile PR/head/status sections, minimizing contention with active coordination-refresh PRs.
+- Pre-review compare against base `146f092a63af63b0fd750445e584a39e82ea1442` showed exactly the four agent notes plus this task record, with zero deletions and no runtime/test/schema/roadmap changes.
 
 ## Completion / handoff
 
-- Completed: none yet.
-- Not completed: append and verify roadmap guidance in all four agent files; open reviewable PR.
-- Current blocker: none.
-- Next action if not DONE: re-fetch each target file on the new branch immediately before updating it.
+- Completed: canonical roadmap guidance appended to ANVIL, FOUNDRY, SENTINEL, and SWITCHYARD; documentation-only delta verified against the task base.
+- Not completed: required independent review and integration to `main`.
+- Current blocker: none; review is the next gate.
+- Next action if not DONE: open a draft PR and hand the exact branch head to an independent reviewer/SWITCHYARD without self-approving or merging.
