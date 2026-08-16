@@ -117,7 +117,7 @@ Escalate to: operator for material intent/role/priority decisions; SENTINEL for 
 
 ## Completion / handoff
 
-- Completed: shared dispatch note, MAPS working roadmap, task contract, live-state refresh, and exact three-file delta verification.
-- Not completed: PR-thread notifications, independent review, and integration of this coordination packet.
+- Completed: shared dispatch note, MAPS working roadmap, task contract, live-state refresh, exact three-file delta verification, draft PR #72, and coordination comments to ANVIL (#67), FOUNDRY (#68), SENTINEL (#69), plus SWITCHYARD targets #39/#48.
+- Not completed: independent review and integration of this coordination packet.
 - Current blocker: independent review is required before integration.
-- Next action if not DONE: open the coordination PR, notify relevant PR threads with links to the dispatch packet, then hand the exact head to independent review.
+- Next action if not DONE: independently review exact PR #72 head for factual freshness, dependency correctness, hidden authority, unsafe parallelism, and consistency with MAPS coordination/roadmap rules.
