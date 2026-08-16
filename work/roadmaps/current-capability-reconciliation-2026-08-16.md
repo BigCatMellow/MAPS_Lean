@@ -23,8 +23,9 @@ This document reconciles the long-form MAPS capability roadmaps with accepted an
 Status labels:
 
 - `ACCEPTED` — merged into `main` at or before this snapshot.
-- `OPEN_REVIEW` — implemented/repaired evidence exists but independent review is still unresolved.
-- `OPEN_INTEGRATION` — implementation/review is clean in-layer but current-main synchronization and integration gates remain.
+- `OPEN_REPAIR` — independent review returned a concrete implementation/evidence defect; repair is required before integration.
+- `OPEN_REVIEW` — implementation/repair exists but independent review is still unresolved.
+- `OPEN_INTEGRATION` — implementation/review is clean in-layer but current-main synchronization and/or integration gates remain.
 - `BLOCKED_UPSTREAM` — downstream work exists but a required upstream interface is not accepted in the needed form.
 - `PLANNING_ONLY` — design/research evidence, not runtime behavior or authority.
 - `EVIDENCE_GATED` — preserved candidate still requiring measured evidence and normal review/decision authority.
@@ -32,7 +33,7 @@ Status labels:
 - `HISTORICAL` — useful context, but no longer an instruction about current state.
 - `UNKNOWN` — evidence is insufficient for a stronger claim.
 
-Green CI, a persuasive design, or an open PR never upgrades a capability to `ACCEPTED`.
+Green CI does not override a semantic review blocker, and a clean feature review does not make an unmerged capability `ACCEPTED`.
 
 ---
 
@@ -51,18 +52,9 @@ Therefore:
 
 > Prime Phase 0 is a completed historical prerequisite. Do not restart the old PR #19 review queue or treat it as an unmerged dependency.
 
-The architectural lesson remains valid: stabilize a foundation before stacking consequential interfaces on it.
-
 ## 2.2 Roadmap “future capability” prose may describe already-accepted v1 work
 
-Examples with accepted foundations now include:
-
-- provider-neutral Harness types/service/hooks and mandatory canonical enforcement;
-- Skills format/catalog/evaluation/static quality gate;
-- EnvironmentSpec and EnvironmentFingerprint/compatibility;
-- immutable consequential review-subject binding;
-- Portable Run Record, frozen regression cases, and comparative regression evaluator;
-- structured explainable waits for canonical dependency/review/operator-approval evidence.
+Accepted foundations now include provider-neutral Harness types/service/hooks, Skills format/catalog/evaluation/static gate, EnvironmentSpec/fingerprint, immutable consequential review-subject binding, Run Record/frozen/comparative evaluation, and structured canonical waits.
 
 Merged code/tests own implemented interfaces. Roadmap prose preserves intent and extension constraints, not duplicate runtime truth.
 
@@ -94,17 +86,17 @@ PR #59 already accepted the safe structured-wait subset from canonical dependenc
 | Portable Run Record | `ACCEPTED` | PR #33. Exact run selection, deterministic identity, privacy-aware export, explicit incomplete replay/coverage. |
 | Frozen regression case | `ACCEPTED` | PR #34. Sanitized deterministic evaluation evidence; no auto-promotion. |
 | Comparative regression evaluator | `ACCEPTED` | PR #35. Read-only candidate/baseline comparison; promotion remains external/reviewed. |
-| Release/acquisition evidence integrity | `ACCEPTED` | PR #56. Insufficient operator-visible stale-surface evidence remains UNKNOWN rather than guessed N/A/PASS. |
+| Release/acquisition evidence integrity | `ACCEPTED` | PR #56. Insufficient stale-surface evidence remains UNKNOWN rather than guessed N/A/PASS. |
 | Structured explainable waits — canonical subset | `ACCEPTED` | PR #59. Dependency/review/operator-approval waits only; no runnable/scheduler authority. |
 | Multi-agent coordination bulletin board | `ACCEPTED` | Named coordination files. Collision-avoidance evidence only; GitHub/canonical state remains authoritative. |
 
-These foundations do **not** prove MAPS already has complete replay/lineage, production semantic retrieval, automatic Skill promotion, recovery authority from environment compatibility, communication-response waits, promoted operational learning, autonomous self-refinement, universal worktree/container/snapshot machinery, or deterministic flows for every procedure.
+These foundations do **not** prove complete replay/lineage, production semantic retrieval, automatic Skill promotion, recovery authority from environment compatibility, communication-response waits, promoted operational learning, autonomous self-refinement, universal worktree/container/snapshot machinery, or deterministic flows for every procedure.
 
 ---
 
 # 4. Open capability stacks and dependency constraints
 
-Arrows below mean **dependency**, not merge priority. SWITCHYARD owns live integration order.
+Arrows mean **dependency**, not merge priority. SWITCHYARD owns live integration order.
 
 ## 4.1 Environment evidence
 
@@ -113,12 +105,33 @@ Arrows below mean **dependency**, not merge priority. SWITCHYARD owns live integ
         ↓
 #29 EnvironmentFingerprint ACCEPTED
         ↓
-#30 run-environment evidence OPEN_INTEGRATION
+#30 run-environment evidence OPEN_REPAIR
 ```
 
-PR #30 adds append-only EnvironmentSpec/fingerprint/compatibility observations to exact immutable runs. It remains unaccepted and must be integrated against then-current `main` with fresh exact-state gates.
+PR #30 exact reviewed feature head:
 
-Compatibility remains bounded evidence. It does not authorize resume, recovery, mutation, or execution.
+`1a4016c424e188e06560c9af125e97be774ac269`
+
+Runtime CI #358 / `31929911245`: PASS, but SENTINEL returned **CHANGES REQUIRED** on that exact head.
+
+The remaining HIGH evidence-integrity defect is in Run Record coverage semantics:
+
+- the E3 trace surface always projects an `environment_evidence` key, including an empty list when no observation exists;
+- Run Record currently treats key presence as sufficient to mark environment coverage `VERIFIED`;
+- therefore a run with zero environment observations can be reported as verified merely because the capability/read surface exists.
+
+Required repair boundary:
+
+- distinguish “environment evidence source surface available” from “this exact run has one or more environment observations”;
+- an empty evidence list must not produce VERIFIED environment coverage;
+- add paired adversarial coverage: no observation → non-VERIFIED; exact recorded E3 observation → VERIFIED;
+- preserve review-subject UNKNOWN where exact selected-run binding is unproven and keep `replay.complete = false`.
+
+The E3 storage model otherwise remains sound in review: append-only exact-run evidence, immutable snapshots/hashes, compatibility recomputation, sensitive-evidence rejection, and no task/run/recovery authority mutation.
+
+**Planning state is `OPEN_REPAIR`, not integration-only.** After repair: fresh exact-head CI + independent feature review, then current-main synchronization/integrated-head gates by SWITCHYARD.
+
+Compatibility remains bounded evidence and never authorizes resume/recovery/mutation/execution by itself.
 
 ## 4.2 Execution lineage
 
@@ -132,56 +145,61 @@ Harness Wave 1 #20–#24 ACCEPTED
 #50 A3 submission-attempt/run lineage BLOCKED_UPSTREAM
 ```
 
-### PR #48 exact clean feature state
-
-Final repaired feature head:
+PR #48 final repaired feature head:
 
 `2f23959afff9525beada28993bad536878310b7f`
 
-Runtime CI:
+Runtime CI #392 / `31931474528`: PASS.
 
-`#392 / 31931474528 — PASS`
+SENTINEL exact-head disposition: `CLEAN IN-LAYER / NOT INTEGRATION-READY`.
 
-SENTINEL exact-head disposition:
+Two HIGH identity defects were mechanically closed:
 
-`CLEAN IN-LAYER / NOT INTEGRATION-READY`
+1. false global `(adapter_id, session_id)` identity was replaced with canonical project-scoped `(project_id, adapter_id, session_id)` evidence;
+2. SQLite raw-string whitespace aliases were closed with exact canonical project equality and adapter/session lexical identity constraints matching runtime semantics.
 
-Two HIGH identity defects were returned and mechanically closed on that exact head:
+**Planning state is `OPEN_INTEGRATION`, not ACCEPTED.** Historical ancestry remains. SWITCHYARD must synchronize onto then-current main, preserve newer accepted schema/state/runtime, verify exact delta, run fresh integrated-head CI, and obtain fresh integrated-head independent review.
 
-1. **False global provider-session identity.** A1 originally uniquified `(adapter_id, session_id)` globally even though accepted `SessionRef` identity is project-scoped. The repaired model derives canonical task `project_id`, stores project-scoped `(project_id, adapter_id, session_id)`, preserves it through resolver/trace, and requires exact project+adapter+session in the guard. Two projects may independently use the same provider-local `hcom/S1`; one project-scoped identity cannot ambiguously bind to two runs.
-2. **SQLite raw-string normalization bypass.** Raw uniqueness could distinguish whitespace variants that runtime normalization collapsed. The final repair requires exact canonical task-project equality and constrains SQLite adapter/session keys to the runtime identity grammar: alphanumeric first character, only `[A-Za-z0-9_.:@-]`, length 1–128. Direct-SQL regressions reject project trailing-space, adapter space/tab, and session space/newline aliases.
+PR #49 had no A2-specific blocker on its historical A1 base, but it overlaps schema/store/trace and must be rebuilt on accepted A1 rather than retargeted. PR #50 remains downstream and has separate A3 defects: immutable UNKNOWN-at-submission must be recorded rather than represented as a backfillable absence, and its active-runtime `legacy/` token currently fails the legacy-removal CI gate.
 
-The exact second-repair delta `a9284c1a... -> 2f23959a...` is four existing A1 files: schema, focused lineage test, task record, and implementation note.
-
-**Planning state is `OPEN_INTEGRATION`, not ACCEPTED.** Historical ancestry remains. SWITCHYARD must genuinely synchronize the independently reviewed feature layer onto then-current accepted `main`, preserve newer accepted schema/state/runtime changes, verify the exact integrated delta, run fresh integrated-head Runtime CI, and obtain fresh exact integrated-head independent review before merge.
-
-### Downstream A2/A3
-
-PR #49 still depends on accepted A1. It must not inherit an old A1 identity contract by retargeting alone.
-
-PR #50 depends on accepted/synchronized A2. Historical submission/run attribution that cannot be proven must remain UNKNOWN rather than inferred.
-
-Do not substitute provider liveness, helper existence, timestamps, or prose for explicit lineage.
+Missing lineage remains UNKNOWN; provider liveness/helper existence/timestamps/prose are not substitutes.
 
 ## 4.3 Communication lineage
 
 ```text
-#44 full-fidelity hcom lineage read OPEN_INTEGRATION/REVIEW
+#44 full-fidelity hcom lineage read OPEN_REPAIR
         ↓
 #45 exact message relationships BLOCKED_UPSTREAM
         ↓
 future exact run/request ↔ provider-event join
 ```
 
-PR #44's repaired feature layer validates provider-local `(instance, event_id)` uniqueness before claiming stable lineage evidence. It remains unaccepted.
+PR #44 exact reviewed head:
 
-PR #45 requires exact `coverage.field_presence` consistency before deriving reply/thread/request/ack relationships. It remains stacked behind #44 and unaccepted.
+`4a11203f1faf0f8b5d199d6af2643ab7b7205764`
 
-Communication evidence never becomes task/run authority merely because exact relationships can be derived.
+Runtime CI #343 / `31928993044`: PASS, but SENTINEL returned **CHANGES REQUIRED**.
+
+The remaining HIGH identity defect comes from pinned upstream hcom storage semantics:
+
+- the configured hcom store has one local SQLite `events` table with bare `id INTEGER PRIMARY KEY AUTOINCREMENT`;
+- `instance` is event metadata, not the event-ID namespace;
+- therefore stable identity for one bounded provider read is the bare local `event_id`, not `(instance, event_id)`;
+- the current repair can accept two rows with the same `event_id` when `instance` differs and may incorrectly report capability `SUPPORTED`.
+
+Required repair boundary:
+
+- enforce bare `event_id` uniqueness across the bounded projected sample;
+- add an adversarial case with same event ID + different instance and require both lineage read and capability probe to fail closed;
+- update task/note wording so the composite identity is no longer described as the proven identity.
+
+**Planning state is `OPEN_REPAIR`.** #45 remains `BLOCKED_UPSTREAM`; its own downstream duplicate checks cannot make #44's provider-boundary identity claim true.
+
+Communication evidence does not become task/run/wait authority merely because relationships can later be derived.
 
 ## 4.4 Exact communication correlation and communication waits
 
-PR #51 is `PLANNING_ONLY`. Current MAPS send success does not receive the exact newly created hcom event ID, so timestamp/name/text/latest-event correlation is insufficient under concurrency/retry. The preferred prerequisite is an exact provider send receipt or equivalently collision-safe correlation contract.
+PR #51 is `PLANNING_ONLY`. MAPS send success currently does not receive the exact newly created hcom event ID, so timestamp/name/text/latest-event correlation is insufficient under concurrency/retry. Preferred prerequisite: exact provider send receipt or equivalently collision-safe correlation contract.
 
 PR #52 is `PLANNING_ONLY`. Its safe structured subset is partly represented by accepted #59.
 
@@ -198,9 +216,9 @@ Current split:
 ```text
 Context Builder v1 (#19) ACCEPTED
         ↓
-#39 frozen evidence-integrity corpus OPEN_REVIEW
+#39 frozen evidence-integrity corpus OPEN_INTEGRATION
         ↓
-#41 structural evidence projector/scorer OPEN_REVIEW
+#41 structural evidence projector/scorer BLOCKED_UPSTREAM [clean in-layer]
         ↓
 #53 Stage-2 source-selection evaluation BLOCKED_UPSTREAM
         ↓
@@ -209,20 +227,27 @@ production retrieval candidate only if evidence justifies it
 
 ANVIL owns this development stack.
 
-Live feature evidence at this checkpoint:
+### #39
 
-- #39 `adf25a5721808cd272bc9eb9af90a25038f568eb`, Runtime CI #365 PASS;
-- #41 `ec525615fd708610bc3e90e07a95bb6c791d2465`, Runtime CI #382 PASS, synchronized to repaired #39;
-- #53 `d5c03a8e09bc5c49b884bc452d3c487a04ce5974`, Runtime CI #348 PASS on historical upstream and still blocked until repaired #39/#41 are accepted/stable and #53 is resynchronized/reviewed.
+Exact head `adf25a5721808cd272bc9eb9af90a25038f568eb`, Runtime CI #365 PASS, SENTINEL `CLEAN IN-LAYER / NOT INTEGRATION-READY`.
 
-These are **evaluation mechanisms**, not production retrieval authority.
+The prior authority-truth blocker is closed: proposal authorization status must be proved by the proposal's own `PROPOSED — NOT ACTIVE AUTHORITY` evidence, not inferred from implementation state.
 
-Important repaired invariants:
+**State: `OPEN_INTEGRATION`.** SWITCHYARD must synchronize to current main, verify exact delta, rerun CI, and obtain fresh integrated-head review.
 
-- authorization status cannot be proved merely by implementation/capability state;
-- `CODE_SYMBOL` ownership is structural/exact rather than approximate substring matching;
-- source selection is judged on precision, hard-negative abstention, drift, and vocabulary/paraphrase shift;
-- passing an eval makes a candidate worth considering; it does not activate retrieval.
+### #41
+
+Exact head `ec525615fd708610bc3e90e07a95bb6c791d2465`, stacked exactly on repaired #39, Runtime CI #382 PASS, SENTINEL `CLEAN IN-LAYER / NOT INTEGRATION-READY`.
+
+The prior CODE_SYMBOL provenance blocker is closed via exact AST ownership rather than substring matching.
+
+Because #41 depends on #39's feature layer, its planning state is **`BLOCKED_UPSTREAM` despite being clean in-layer**. Integrate #39 first; then genuinely rebuild/synchronize #41 on accepted #39/current main, run fresh CI, and re-review the integrated head.
+
+### #53
+
+Exact historical head `d5c03a8e09bc5c49b884bc452d3c487a04ce5974`, Runtime CI #348 PASS on historical upstream. It remains `BLOCKED_UPSTREAM` until #39/#41 are accepted/stable and #53 is resynchronized/reviewed.
+
+These are evaluation mechanisms, not production retrieval authority. Passing evaluation makes a production retrieval candidate worth considering; it does not activate retrieval.
 
 ## 4.6 Operational learning
 
@@ -236,9 +261,7 @@ accepted outcomes + Run Record + frozen evaluation foundations
 future promotion/storage/injection only through explicit authority design
 ```
 
-PR #43 deliberately has no lesson store and no `promote()` function. Only externally promoted, applicable, current records can project as `GUIDANCE_ONLY`.
-
-PR #60 packages a candidate from exact canonical outcome evidence; it likewise cannot promote, persist, or inject guidance.
+PR #43 deliberately has no lesson store and no `promote()` function. PR #60 packages a candidate from exact canonical outcome evidence and likewise cannot promote, persist, or inject guidance.
 
 Preserve:
 
@@ -253,7 +276,17 @@ Never collapse this to `outcome prose → instruction/policy`.
 
 ## 4.7 Operator Intent Compiler
 
-PR #57 remains open/unaccepted at this checkpoint. Its intended placement is request shaping before canonical task/policy state, not a permission engine. Broad desired outcomes may not manufacture merge/publish/delete/spend/external-send authority.
+PR #57 exact current state:
+
+- base `main@146f092a63af63b0fd750445e584a39e82ea1442`;
+- head `854226531acd740ed8c282e58654bc8da74bde47`;
+- Runtime CI #379 / `31930751899`: PASS;
+- exact five-file planning/playbook delta, ahead-only from accepted main;
+- SENTINEL disposition: `CLEAN / technically ready for SWITCHYARD integration`.
+
+The prior authority-expansion defect is closed: action-specific consequential authority must trace to the operator request or already-canonical authority; review/CI/policy gates constrain authority when it exists but do not manufacture merge/publish/delete/spend/external-send permission.
+
+**Planning state: `OPEN_INTEGRATION`, not ACCEPTED.** SWITCHYARD owns the remaining integration decision on that unchanged exact state.
 
 ---
 
@@ -263,14 +296,14 @@ PR #57 remains open/unaccepted at this checkpoint. Its intended placement is req
 |---|---|
 | 0. Stabilize foundation | `HISTORICAL / COMPLETE` for PR #19-era foundation. Do not restart Phase 0. |
 | 1. Provider-neutral Harness API | `ACCEPTED V1` through #20–#24. |
-| 2. Explicit execution/session/helper lineage | `PARTIAL / OPEN`. A1 #48 is clean in-layer and awaiting current-main integration; A2 #49 and A3 #50 remain upstream-blocked. Communication lineage #44/#45 is a separate supporting track. |
-| 3. Review/evidence revision binding | `ACCEPTED V1` through #32 for exact consequential reviewed-output identity. |
+| 2. Explicit execution/session/helper lineage | `PARTIAL / OPEN`. A1 #48 is clean in-layer and awaiting integration; A2 #49/A3 #50 remain upstream-blocked. Communication lineage #44 is back in repair and #45 remains behind it. |
+| 3. Review/evidence revision binding | `ACCEPTED V1` through #32. |
 | 4. Deterministic repeated lifecycle flows | `TRIGGERED`. Add only for demonstrably stable/repetitive procedures. |
-| 5. Capability/Skill composition | `FOUNDATION ACCEPTED; PRODUCTION COMPOSITION GATED`. Format/catalog/eval/static gate exist; automatic activation/promotion is not implied. |
+| 5. Capability/Skill composition | `FOUNDATION ACCEPTED; PRODUCTION COMPOSITION GATED`. |
 | 6. Controlled operational learning | `OPEN / UNACCEPTED` via #43→#60. Promotion/storage/injection authority remains unresolved. |
-| 7. Outcome-driven harness refinement | `FOUNDATION ACCEPTED; REFINEMENT EVIDENCE-GATED`. Outcomes + Run Record + frozen cases + comparative evaluator exist; autonomous promotion does not. |
+| 7. Outcome-driven harness refinement | `FOUNDATION ACCEPTED; REFINEMENT EVIDENCE-GATED`. Autonomous promotion does not follow from evaluation success. |
 
-Environment/reproducibility advanced in parallel: E1/E2 are accepted, E3 remains open, and setup/rehydration/recovery automation is later work.
+Environment/reproducibility advanced in parallel: E1/E2 are accepted, E3 #30 is currently back in repair, and setup/rehydration/recovery automation is later work.
 
 ---
 
@@ -280,23 +313,19 @@ Environment/reproducibility advanced in parallel: E1/E2 are accepted, E3 remains
 
 Accepted v1: normalized Harness types/results, hcom normalization, Hook registry, HarnessService, canonical run/claim/revision/lease checks, and mandatory anti-spoof canonical enforcement.
 
-Open/gated: durable execution/helper/recovery/submission lineage after A1 integration, exact communication correlation, fuller provider-operation trajectory evidence, and additional adapters/operations only when concrete need exists.
+Open/gated: A1 integration, A2/A3 lineage, #44 identity repair, exact communication correlation, fuller trajectory evidence, and new adapters/operations only when concrete need exists.
 
 ## Procedural Knowledge & Skills
 
 Accepted: Skill format, provenance/catalog read model, frozen selection evaluation, and static quality/security gate.
 
-Still gated: automatic production routing/activation, third-party trust/promotion lifecycle beyond accepted evidence mechanisms, capability bundles that silently widen task authority, and turning Skills into policy/always-on context.
+Still gated: automatic production routing/activation, third-party promotion lifecycle beyond accepted evidence mechanisms, capability bundles that silently widen task authority, and turning Skills into policy/always-on context.
 
 ## Environment & Reproducibility
 
-The roadmap statement that EnvironmentSpec/fingerprint are missing first-class concepts is stale.
+EnvironmentSpec and EnvironmentFingerprint are accepted first-class concepts. #30 is not yet accepted because its Run Record coverage integration currently confuses source-surface availability with actual exact-run evidence presence.
 
-Accepted: EnvironmentSpec v1 and EnvironmentFingerprint/compatibility.
-
-Open: #30 exact run-bound environment evidence.
-
-Later/evidence-triggered: authorized setup/mutation, worktree/container provisioning, recovery equivalence/rehydration, and snapshots only if evidence justifies them.
+Later/evidence-triggered: authorized setup/mutation, worktree/container provisioning, recovery equivalence/rehydration, and snapshots only if justified.
 
 Compatibility remains evidence, never continuation authority.
 
@@ -310,7 +339,7 @@ Attach future security work to concrete capability boundaries rather than creati
 
 Accepted: outcomes, Portable Run Record, frozen regression case, comparative regression evaluator, and Skill selection evaluation foundation.
 
-Still gated: fuller communication/environment/trajectory coverage; operational-learning lifecycle; aggregate cost/yield/escaped-defect metrics when comparable samples exist; candidate Harness/routing/Skill/environment refinements; external/reviewed promotion only.
+Still gated: fuller communication/environment/trajectory coverage; operational-learning lifecycle; aggregate cost/yield metrics when comparable samples exist; candidate Harness/routing/Skill/environment refinements; external/reviewed promotion only.
 
 ---
 
@@ -326,13 +355,13 @@ Do not copy the migration audit/backlog wholesale into “next work.” Reconcil
 - trace/outcome evidence → #19;
 - immutable reviewed-subject/evidence freshness → #32;
 - frozen comparative evaluation discipline → #33–#35 and focused eval corpora;
-- Context Builder explicit-first/evidence-integrity direction → v1 accepted, v2 eval open;
+- Context Builder explicit-first/evidence-integrity direction → v1 accepted, v2 eval stack open;
 - exact structured prerequisite waits → core subset #59;
 - authority provenance / citation-is-not-ratification → preserved as cross-system invariant.
 
 ## Partially represented / open
 
-- exact evidence anchors and source-drift discipline → #39/#41/#53;
+- exact evidence anchors/source drift → #39/#41/#53;
 - communication-complete replay/trace → #44/#45 plus future exact join;
 - explicit execution/helper/recovery/submission lineage → #48→#49→#50;
 - run-bound environment evidence → #30;
@@ -363,15 +392,15 @@ Recovery rule:
 ```text
 ACCEPTED HARNESS / SECURITY V1
         │
-        ├── #48 A1 session identity [clean feature layer; integration pending]
+        ├── #48 A1 [clean feature layer; integration pending]
         │       ↓
-        │     #49 A2 helper/recovery lineage
+        │     #49 A2 [upstream-blocked]
         │       ↓
-        │     #50 A3 submission/run lineage
+        │     #50 A3 [upstream-blocked + repair required]
         │
-        └── #44 full hcom evidence
+        └── #44 hcom full read [repair required]
                 ↓
-              #45 message relationships
+              #45 message relationships [upstream-blocked]
                 ↓
        exact run ↔ provider event receipt/join
                 ↓
@@ -379,17 +408,17 @@ ACCEPTED HARNESS / SECURITY V1
 
 ACCEPTED CONTEXT BUILDER V1
         ↓
-#39 frozen evidence integrity
+#39 frozen evidence integrity [clean; integration pending]
         ↓
-#41 structural projector/scorer
+#41 structural projector/scorer [clean in-layer; upstream-blocked]
         ↓
-#53 Stage-2 source-selection evaluation
+#53 Stage-2 source-selection evaluation [upstream-blocked]
         ↓
 production retrieval candidate only if evidence justifies
 
 ACCEPTED ENVIRONMENT E1/E2
         ↓
-#30 run-bound environment evidence
+#30 run-bound environment evidence [repair required]
         ↓
 recovery/setup equivalence only after explicit authority design
 
@@ -430,11 +459,7 @@ Define evidence needed for recovery-equivalence questions without turning `COMPA
 
 ### Before operational-learning persistence/promotion
 
-Resolve canonical storage ownership if needed, promotion/retirement authority, review/expiry/supersession, applicability conflicts, precedence against authoritative task/policy/operator instructions, and safe Context Builder/startup integration.
-
-### Periodic legacy recovery
-
-Continue audit only where unresolved MAP-relevant ideas/promotions/retired tasks expose a still-missing Lean problem. Do not perform archaeology merely to increase coverage numbers.
+Resolve canonical storage ownership if needed, promotion/retirement authority, review/expiry/supersession, applicability conflicts, precedence against task/policy/operator authority, and safe Context Builder/startup integration.
 
 ---
 
@@ -466,7 +491,7 @@ Own live integration order, real ancestry, exact deltas, fresh synchronized-head
 
 ## ANVIL — Development
 
-Own new runtime implementation and bounded review-returned defects. Do not implement planning candidates simply because they appear here.
+Own new runtime implementation and bounded review-returned defects. Current concrete returned repairs include #30 environment coverage semantics and #44 bare-event-ID uniqueness when ANVIL/coordination explicitly accepts those lanes.
 
 ## SENTINEL — Independent Review
 
