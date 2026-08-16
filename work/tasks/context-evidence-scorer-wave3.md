@@ -13,7 +13,7 @@
   - root `AGENTS.md`
   - `work/evals/context-builder-evidence-integrity-v1.json`
   - `work/notes/2026-08-15-context-builder-v2-evidence-integrity.md`
-  - PR #39 exact accepted-for-stacking head `57b42557af1db2d7d23849766b0841c3a0395460`
+  - PR #39 exact accepted-for-stacking head `adf25a5721808cd272bc9eb9af90a25038f568eb`
 - Authoritative sources: current repository operating contract plus the frozen corpus for this experiment.
 - Evidence labels: PR #39 is a dependency/input, not merged runtime authority.
 - Dependencies / preconditions: frozen corpus exists and mechanically validates.
@@ -23,6 +23,7 @@
 - MAY CHANGE:
   - `runtime/context_evidence.py`
   - `tests/test_context_evidence.py`
+  - `tests/test_context_evidence_hardening.py`
   - this task file
   - `work/notes/2026-08-15-context-evidence-scorer.md`
 - MUST NOT CHANGE:
@@ -54,7 +55,7 @@
 ## Verification and evidence
 
 - Verification:
-  - `python -m unittest tests.test_context_evidence -v`
+  - `python -m unittest tests.test_context_evidence tests.test_context_evidence_hardening -v`
   - full PR Runtime stack CI
 - Evidence to preserve: exact head, focused/full CI result, changed-file list.
 - Review required: `INDEPENDENT_REVIEW`
@@ -96,10 +97,11 @@ Escalate to: operator / separate shaped task.
 - Stage 1 evaluates evidence integrity after a source/anchor has been explicitly selected. It deliberately does not answer how the source was found.
 - `UNKNOWN` is preserved as incomplete evidence.
 - Candidate outputs are externally supplied; passing results cannot self-promote a retrieval/routing change.
+- Python `CODE_SYMBOL` anchors use exact AST ownership for the supported `Owner.symbol` form; module-level, sibling, and prefix-collision matches do not resolve.
 
 ## Completion / handoff
 
-- Completed: implementation and focused adversarial tests committed on the isolated branch.
+- Completed: implementation, repaired #39 ancestry synchronization, exact AST `CODE_SYMBOL` resolution, and focused adversarial tests committed on the isolated branch.
 - Not completed: independent review; Stage 2 retrieval comparison.
-- Current blocker: none for implementation; review remains pending by operator choice.
-- Next action if not DONE: run/inspect PR Runtime CI, then prepare exact-head review packet.
+- Current blocker: none for implementation; independent review remains required.
+- Next action if not DONE: verify full PR Runtime CI on the final exact head, then hand that head to the independent review lane.
