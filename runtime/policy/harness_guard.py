@@ -28,8 +28,9 @@ class CanonicalRunGuard:
     """Read-only Hook guard over canonical task/run evidence.
 
     The guard proves that a harness operation still points at the intended task,
-    worker, run, and (when relevant) session. It does not grant policy or
-    operator authority and it never mutates canonical state.
+    worker, run, and, when the canonical source can prove it, adapter-qualified
+    session identity. It does not grant policy or operator authority and it
+    never mutates canonical state.
     """
 
     def __init__(
@@ -172,22 +173,45 @@ class CanonicalRunGuard:
                 "SESSION_REF_REQUIRED",
                 "Session-bound operation requires an explicit SessionRef.",
             )
-        requested = self._text(session_ref, "session_id")
-        recorded = str(manifest.get("session_id") or "").strip()
-        if not requested:
+
+        requested_session = self._text(session_ref, "session_id")
+        requested_adapter = self._text(session_ref, "adapter")
+        routed_adapter = self._text(context, "adapter_id")
+        recorded_session = str(manifest.get("session_id") or "").strip()
+        # The current SQLite run-manifest schema does not contain this field.
+        # Reading it only allows a future accepted canonical source enrichment to
+        # satisfy the stronger identity check without weakening today's guard.
+        recorded_adapter = str(manifest.get("session_adapter") or "").strip()
+
+        if not requested_session or not requested_adapter or not routed_adapter:
             return self._deny(
                 "SESSION_REF_INCOMPLETE",
-                "SessionRef is missing session_id.",
+                "Session-bound operation requires explicit adapter and session identity.",
             )
-        if not recorded:
+        if requested_adapter != routed_adapter:
+            return self._deny(
+                "SESSION_ADAPTER_MISMATCH",
+                "SessionRef adapter does not match the adapter selected for this operation.",
+            )
+        if not recorded_session:
             return self._deny(
                 "SESSION_NOT_DURABLY_BOUND",
                 "Run manifest has no durable session binding for this operation.",
             )
-        if recorded != requested:
+        if recorded_session != requested_session:
             return self._deny(
                 "SESSION_BINDING_MISMATCH",
                 "SessionRef does not match the run manifest session binding.",
+            )
+        if not recorded_adapter:
+            return self._deny(
+                "SESSION_ADAPTER_UNPROVEN",
+                "Canonical run evidence does not prove adapter-qualified session identity.",
+            )
+        if recorded_adapter != requested_adapter:
+            return self._deny(
+                "SESSION_ADAPTER_MISMATCH",
+                "SessionRef adapter does not match the durable run session adapter.",
             )
         return None
 
