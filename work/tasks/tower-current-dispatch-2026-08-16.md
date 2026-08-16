@@ -49,20 +49,20 @@
 
 ## Acceptance criteria
 
-- [ ] A shared dated dispatch note exists beside the agent files and gives ANVIL, FOUNDRY, SENTINEL, SWITCHYARD, and TOWER explicit next actions, dependencies, hold conditions, resume conditions, required evidence, and handoff destinations.
-- [ ] A MAPS-format working roadmap records current reality, observable DONE, final proof, boundaries, backward plan, mission-meeting results, first wave, dependencies, checkpoints, and re-plan triggers.
-- [ ] The first wave prioritizes review/integration gates that unblock multiple downstream PRs rather than creating new speculative implementation work.
-- [ ] The packet never treats TOWER's queue as canonical task/review/merge truth and never grants TOWER merge or independent-review authority.
-- [ ] Existing owner-controlled agent notes are not modified.
-- [ ] Final `main -> branch` delta contains only the three new planning/coordination Markdown files listed above.
+- [x] A shared dated dispatch note exists beside the agent files and gives ANVIL, FOUNDRY, SENTINEL, SWITCHYARD, and TOWER explicit next actions, dependencies, hold conditions, resume conditions, required evidence, and handoff destinations.
+- [x] A MAPS-format working roadmap records current reality, observable DONE, final proof, boundaries, backward plan, mission-meeting results, first wave, dependencies, checkpoints, and re-plan triggers.
+- [x] The first wave prioritizes review/integration gates that unblock multiple downstream PRs rather than creating new speculative implementation work.
+- [x] The packet never treats TOWER's queue as canonical task/review/merge truth and never grants TOWER merge or independent-review authority.
+- [x] Existing owner-controlled agent notes are not modified.
+- [x] Final `main -> branch` delta contains only the three new planning/coordination Markdown files listed above.
 
 ## Verification and evidence
 
 - Verification:
-  - re-read live `main` before finalizing;
-  - re-read target PR heads if any moved during authoring;
-  - compare `main -> coord/tower-dispatch-20260816` and require exactly the three declared new files;
-  - independently review the planning packet for factual freshness, dependency correctness, hidden authority, and unsafe parallelism before integration.
+  - live `main` re-read immediately before final verification and remained `7269ce2be25993fa19b172f65c95381328585a35`;
+  - target root PRs were re-read while shaping: #30 `7bae6d5758619a391c7551ee4589ea2d80d0a5b8`, #44 `6f2b774eee27a0596820b12f080bfd7e60c0f50e`, #39 live `5928abe4550dbf7a75c2a2825e3cda5033ead830`, #48 `2f23959afff9525beada28993bad536878310b7f`;
+  - `main -> coord/tower-dispatch-20260816` compare was ahead-only, merge base exactly current `main`, and contained exactly the three declared new Markdown files;
+  - independent review is still required for factual freshness, dependency correctness, hidden authority, and unsafe parallelism before integration.
 - Evidence to preserve: exact `main` SHA, exact branch head, changed-file list, PR links/heads cited in the roadmap, and review disposition.
 - Review required: `INDEPENDENT_REVIEW`
 
@@ -117,7 +117,7 @@ Escalate to: operator for material intent/role/priority decisions; SENTINEL for 
 
 ## Completion / handoff
 
-- Completed: dispatch task shaped and marked AGI READY; planned outputs and non-authority boundaries are explicit.
-- Not completed: independent review/integration of the resulting planning packet.
-- Current blocker: none for authoring; integration requires independent review.
-- Next action if not DONE: create the shared dispatch note and working roadmap, verify exact delta, then request independent review.
+- Completed: shared dispatch note, MAPS working roadmap, task contract, live-state refresh, and exact three-file delta verification.
+- Not completed: PR-thread notifications, independent review, and integration of this coordination packet.
+- Current blocker: independent review is required before integration.
+- Next action if not DONE: open the coordination PR, notify relevant PR threads with links to the dispatch packet, then hand the exact head to independent review.
