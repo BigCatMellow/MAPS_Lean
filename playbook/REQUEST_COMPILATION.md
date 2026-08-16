@@ -111,6 +111,14 @@ not
 request + agent inference → expanded authority
 ```
 
+Action-specific consequential authority must be traceable to either the operator's
+request or already-canonical authority. A compiler must not infer permission to
+merge, publish, delete, spend, send externally, or perform another consequential
+action merely because that action would help achieve the requested outcome. Passing
+review, policy, or CI gates constrains the use of authority when it exists; those
+gates do not create the missing authority. When consequential permission is absent,
+compile the task to prepare the action/evidence and stop or escalate at that boundary.
+
 ### 3. Resolve references from live state
 
 For continuation language such as:
@@ -186,19 +194,25 @@ Operator request:
 A correct compilation may derive:
 
 ```text
-Goal: reduce the existing PR backlog safely.
+Goal: reduce and organize the existing PR backlog safely.
 Current-state requirement: inspect live main, open PR heads/bases, CI, review state,
 and stack dependencies before acting.
-Allowed: triage, synchronize accepted stacks, fix exact review blockers, run CI,
-prepare review evidence, merge only when required gates are satisfied.
+Allowed: triage, synchronize accepted stacks within existing task authority, fix exact
+review blockers within scope, run CI, and prepare review/merge-ready evidence.
+Consequential boundary: merge only when the operator request or existing canonical
+task authority separately permits merge; otherwise stop at merge-ready evidence and
+escalate. Passing CI/review gates does not itself grant merge permission.
 Not allowed: invent new architecture, start unrelated feature work, race another
-active branch owner, or merge without exact-head evidence.
-Success: fewer open PRs, clean ancestry, accepted work in main, stale/superseded work
-identified, and a clear remaining integration queue.
+active branch owner, infer consequential permission from the backlog-reduction goal,
+or treat a passing gate as authorization.
+Success: the backlog is classified and reduced where existing authority permits,
+merge-ready work is clearly identified where authority is absent, ancestry is clean,
+stale/superseded work is identified, and the remaining integration queue is explicit.
 ```
 
-The compiler did not invent a new product goal. It expanded the operational contract
-needed to accomplish the stated goal under existing MAPS rules.
+The compiler did not invent a new product goal or consequential permission. It
+expanded the operational contract needed to pursue the stated goal while keeping
+any separately required authority explicit.
 
 ## Explain mode
 
