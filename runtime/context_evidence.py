@@ -92,6 +92,11 @@ def _card(raw: Mapping[str, object], *, truth: bool = False) -> dict[str, object
     allowed = _CARD_FIELDS | ({"credit_only_if_retrieved"} if truth else set())
     if not _CARD_FIELDS.issubset(raw) or set(raw) - allowed:
         raise EvidenceIntegrityError("evidence card fields are invalid")
+    if truth and "credit_only_if_retrieved" in raw:
+        if raw.get("credit_only_if_retrieved") is not True:
+            raise EvidenceIntegrityError(
+                "acceptable substitute must require credit_only_if_retrieved=true"
+            )
     sha = raw.get("source_sha256")
     if not isinstance(sha, str) or not _SHA256.fullmatch(sha):
         raise EvidenceIntegrityError("source_sha256 is invalid")
@@ -253,6 +258,10 @@ def _candidate(raw: Mapping[str, object], outcomes: set[str]) -> dict[str, objec
             "same_path": drift.get("same_path") is True,
             "hash_mismatch": drift.get("hash_mismatch") is True,
         }
+    if outcome == "UNKNOWN" and (cards or drift is not None):
+        raise EvidenceIntegrityError(
+            f"{case_id}: UNKNOWN cannot carry evidence cards or drift claims"
+        )
     return {"case_id": case_id, "outcome": outcome, "cards": cards, "drift": drift}
 
 
