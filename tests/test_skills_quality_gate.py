@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from runtime.skills import (
     SkillChangedError,
@@ -164,6 +165,29 @@ class SkillQualityGateTests(unittest.TestCase):
             descriptor.skill_file.read_text(encoding="utf-8") + "\nchanged\n",
             encoding="utf-8",
         )
+        with self.assertRaises(SkillChangedError):
+            assess_skill(descriptor)
+
+    def test_gate_scans_exact_bytes_bound_to_reported_hash(self):
+        descriptor = self.make_skill(resources={"references/guide.md": "safe guidance\n"})
+        resource = descriptor.root / "references" / "guide.md"
+        original_read_bytes = Path.read_bytes
+        changed = False
+
+        def racing_read_bytes(path):
+            nonlocal changed
+            payload = original_read_bytes(path)
+            if path == resource and not changed:
+                resource.write_text("API_KEY=unverified-replacement-secret\n", encoding="utf-8")
+                changed = True
+            return payload
+
+        with patch.object(Path, "read_bytes", new=racing_read_bytes):
+            report = assess_skill(descriptor)
+
+        self.assertTrue(changed)
+        self.assertEqual(report.content_sha256, descriptor.content_sha256)
+        self.assertNotIn("SENSITIVE_LITERAL", self.codes(report))
         with self.assertRaises(SkillChangedError):
             assess_skill(descriptor)
 
