@@ -19,7 +19,7 @@ HELP_3 = "HELP-000000000003"
 HELP_4 = "HELP-000000000004"
 
 
-def contract():
+def contract(output_paths=None):
     return {
         "title": "Helper recovery lineage",
         "outcome": "Helper/recovery relationships remain explicit evidence",
@@ -34,7 +34,7 @@ def contract():
         "inputs": ["input"],
         "sources": ["source"],
         "dependencies": [],
-        "output_paths": ["src", "work/helper-output.md"],
+        "output_paths": list(output_paths or ["src", "work/helper-output.md"]),
         "non_goals": ["no task authority change"],
         "acceptance_criteria": ["relationships are append-only"],
         "stop_conditions": ["lineage identity is ambiguous"],
@@ -74,14 +74,19 @@ class HelperIdentityTests(unittest.TestCase):
 
         def fake_run(*args, **kwargs):
             order.append("helper_subprocess")
+
             class Result:
                 returncode = 0
                 stderr = ""
+
             return Result()
 
-        with patch("runtime.helpers.aider.new_helper_run_id", side_effect=lambda: order.append("allocate_id") or HELP_1), patch.object(
-            helper, "_git_changes", side_effect=[set(), set()]
-        ), patch("runtime.helpers.aider.subprocess.run", side_effect=fake_run):
+        with patch(
+            "runtime.helpers.aider.new_helper_run_id",
+            side_effect=lambda: order.append("allocate_id") or HELP_1,
+        ), patch.object(helper, "_git_changes", side_effect=[set(), set()]), patch(
+            "runtime.helpers.aider.subprocess.run", side_effect=fake_run
+        ):
             result = helper.run(
                 task=self.task,
                 repo=self.repo,
@@ -102,15 +107,20 @@ class HelperIdentityTests(unittest.TestCase):
 
         def fake_run(*args, **kwargs):
             order.append("generation")
+
             class Result:
                 returncode = 0
                 stderr = ""
                 stdout = "answer"
+
             return Result()
 
-        with patch("runtime.helpers.ollama.new_helper_run_id", side_effect=lambda: order.append("allocate_id") or HELP_2), patch.object(
-            helper, "health", side_effect=fake_health
-        ), patch("runtime.helpers.ollama.subprocess.run", side_effect=fake_run):
+        with patch(
+            "runtime.helpers.ollama.new_helper_run_id",
+            side_effect=lambda: order.append("allocate_id") or HELP_2,
+        ), patch.object(helper, "health", side_effect=fake_health), patch(
+            "runtime.helpers.ollama.subprocess.run", side_effect=fake_run
+        ):
             result = helper.run(
                 task=self.task,
                 repo=self.repo,
@@ -125,7 +135,9 @@ class HelperIdentityTests(unittest.TestCase):
 
     def test_explicit_preallocated_id_is_preserved(self):
         helper = OllamaHelper(executable="ollama", run_store=self.run_store)
-        with patch.object(helper, "health"), patch("runtime.helpers.ollama.subprocess.run") as run:
+        with patch.object(helper, "health"), patch(
+            "runtime.helpers.ollama.subprocess.run"
+        ) as run:
             run.return_value.returncode = 0
             run.return_value.stderr = ""
             run.return_value.stdout = "answer"
@@ -149,35 +161,52 @@ class HelperRecoveryLineageTests(unittest.TestCase):
         self.repo = self.root / "repo"
         self.repo.mkdir()
         (self.repo / "src").mkdir()
+        (self.repo / "src-other").mkdir()
         self.store = TaskStore(self.root / "maps.db")
 
-    def make_active(self, worker="worker"):
+    def make_active(self, worker="worker", output_paths=None):
         created = self.store.create_task(title="lineage")
         self.assertTrue(created.ok)
         task_id = created.task["task_id"]
-        self.assertTrue(self.store.update_contract(task_id, contract()).ok)
+        self.assertTrue(self.store.update_contract(task_id, contract(output_paths)).ok)
         self.assertTrue(self.store.promote_ready(task_id).ok)
         self.assertTrue(self.store.claim_task(task_id, worker, lease_seconds=600).ok)
         return task_id
 
-    def make_run(self, task_id, worker="worker"):
+    def make_run(self, task_id, worker="worker", writable="src"):
         result = self.store.create_run_manifest(
             task_id,
             worker,
             repo_root=self.repo,
             created_by="dispatcher",
             readable_paths=["."],
-            writable_paths=["src"],
+            writable_paths=[writable],
         )
         self.assertTrue(result.ok, result.message)
         return result.task
+
+    def insert_run(self, run_id, task_id, worker, created_at):
+        revision = self.store.compute_task_revision(task_id)
+        with self.store._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO run_manifests(
+                    run_id, task_id, task_revision, worker_id, session_id,
+                    readable_scope, writable_scope, forbidden_scope, runtime_limits,
+                    base_revision, created_by, created_at
+                ) VALUES (?, ?, ?, ?, NULL, '[]','[]','[]','{}',NULL,'test',?)
+                """,
+                (run_id, task_id, revision, worker, created_at),
+            )
 
     def link_helper(self, run, helper_id, **kwargs):
         return self.store.record_run_helper_link(
             run["run_id"],
             helper_id,
             kwargs.pop("worker", "worker"),
-            evidence_ref=kwargs.pop("evidence_ref", f"helper:invoke:{helper_id}"),
+            evidence_ref=kwargs.pop(
+                "evidence_ref", f"helper:invoke:{helper_id}"
+            ),
             created_by=kwargs.pop("created_by", "dispatcher"),
             **kwargs,
         )
@@ -193,7 +222,10 @@ class HelperRecoveryLineageTests(unittest.TestCase):
         self.assertNotIn("output_paths", result.task)
 
         with self.store._connect() as conn:
-            columns = {row["name"] for row in conn.execute("PRAGMA table_info(run_helper_links)")}
+            columns = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(run_helper_links)")
+            }
         self.assertNotIn("status", columns)
         self.assertNotIn("summary", columns)
         self.assertNotIn("output_paths", columns)
@@ -221,15 +253,23 @@ class HelperRecoveryLineageTests(unittest.TestCase):
         self.assertTrue(session.ok)
         session_link_id = session.task["current"]["link_id"]
 
-        root = self.link_helper(first_run, HELP_1, parent_session_link_id=session_link_id)
+        root = self.link_helper(
+            first_run, HELP_1, parent_session_link_id=session_link_id
+        )
         self.assertTrue(root.ok, root.message)
-        child = self.link_helper(first_run, HELP_2, parent_helper_run_id=HELP_1)
+        child = self.link_helper(
+            first_run, HELP_2, parent_helper_run_id=HELP_1
+        )
         self.assertTrue(child.ok, child.message)
 
-        wrong_session = self.link_helper(second_run, HELP_3, parent_session_link_id=session_link_id)
+        wrong_session = self.link_helper(
+            second_run, HELP_3, parent_session_link_id=session_link_id
+        )
         self.assertFalse(wrong_session.ok)
         self.assertEqual(wrong_session.code, "PARENT_SESSION_MISMATCH")
-        wrong_helper = self.link_helper(second_run, HELP_4, parent_helper_run_id=HELP_1)
+        wrong_helper = self.link_helper(
+            second_run, HELP_4, parent_helper_run_id=HELP_1
+        )
         self.assertFalse(wrong_helper.ok)
         self.assertEqual(wrong_helper.code, "PARENT_HELPER_MISMATCH")
 
@@ -237,8 +277,12 @@ class HelperRecoveryLineageTests(unittest.TestCase):
         task_id = self.make_active()
         run = self.make_run(task_id)
         session = self.store.record_run_session_link(
-            run["run_id"], "worker", adapter_id="hcom", session_id="s1",
-            evidence_ref="provider:event:1", created_by="dispatcher"
+            run["run_id"],
+            "worker",
+            adapter_id="hcom",
+            session_id="s1",
+            evidence_ref="provider:event:1",
+            created_by="dispatcher",
         )
         self.assertTrue(session.ok)
         self.assertTrue(self.link_helper(run, HELP_1).ok)
@@ -269,7 +313,9 @@ class HelperRecoveryLineageTests(unittest.TestCase):
 
         self.assertTrue(self.store.claim_task(task_id, "worker", lease_seconds=600).ok)
         with self.store._connect() as conn:
-            conn.execute("UPDATE tasks SET outcome = 'changed' WHERE task_id = ?", (task_id,))
+            conn.execute(
+                "UPDATE tasks SET outcome = 'changed' WHERE task_id = ?", (task_id,)
+            )
         stale = self.link_helper(run, HELP_3)
         self.assertFalse(stale.ok)
         self.assertEqual(stale.code, "RUN_STALE")
@@ -303,18 +349,32 @@ class HelperRecoveryLineageTests(unittest.TestCase):
         self.assertEqual(result.task["replacement_run_id"], second["run_id"])
 
         third = self.make_run(task_id)
-        branch = self.store.record_run_recovery_link(
-            first["run_id"], third["run_id"],
+        chain = self.store.record_run_recovery_link(
+            second["run_id"],
+            third["run_id"],
             recovery_ref="incident:RNS-000000000002",
-            evidence_ref="recovery:decision:2", created_by="supervisor"
+            evidence_ref="recovery:decision:2",
+            created_by="supervisor",
+        )
+        self.assertTrue(chain.ok, chain.message)
+
+        fourth = self.make_run(task_id)
+        branch = self.store.record_run_recovery_link(
+            first["run_id"],
+            fourth["run_id"],
+            recovery_ref="incident:RNS-000000000003",
+            evidence_ref="recovery:decision:3",
+            created_by="supervisor",
         )
         self.assertFalse(branch.ok)
         self.assertEqual(branch.code, "RECOVERY_LINK_CONFLICT")
 
         second_predecessor = self.store.record_run_recovery_link(
-            third["run_id"], second["run_id"],
-            recovery_ref="incident:RNS-000000000003",
-            evidence_ref="recovery:decision:3", created_by="supervisor"
+            fourth["run_id"],
+            second["run_id"],
+            recovery_ref="incident:RNS-000000000004",
+            evidence_ref="recovery:decision:4",
+            created_by="supervisor",
         )
         self.assertFalse(second_predecessor.ok)
         self.assertEqual(second_predecessor.code, "RECOVERY_LINK_CONFLICT")
@@ -322,59 +382,63 @@ class HelperRecoveryLineageTests(unittest.TestCase):
     def test_recovery_cross_task_and_self_links_are_rejected(self):
         first_task = self.make_active()
         first = self.make_run(first_task)
-        second_task = self.make_active(worker="other")
-        second = self.make_run(second_task, worker="other")
+        second_task = self.make_active(
+            worker="other", output_paths=["src-other"]
+        )
+        second = self.make_run(
+            second_task, worker="other", writable="src-other"
+        )
 
         cross = self.store.record_run_recovery_link(
-            first["run_id"], second["run_id"], recovery_ref="incident:RNS-cross",
-            evidence_ref="recovery:cross", created_by="supervisor"
+            first["run_id"],
+            second["run_id"],
+            recovery_ref="incident:RNS-cross",
+            evidence_ref="recovery:cross",
+            created_by="supervisor",
         )
         self.assertFalse(cross.ok)
         self.assertEqual(cross.code, "RECOVERY_TASK_MISMATCH")
 
         self_link = self.store.record_run_recovery_link(
-            first["run_id"], first["run_id"], recovery_ref="incident:RNS-self",
-            evidence_ref="recovery:self", created_by="supervisor"
+            first["run_id"],
+            first["run_id"],
+            recovery_ref="incident:RNS-self",
+            evidence_ref="recovery:self",
+            created_by="supervisor",
         )
         self.assertFalse(self_link.ok)
         self.assertEqual(self_link.code, "RECOVERY_SELF_LINK")
 
+    def test_recovery_cycle_is_rejected_even_when_run_times_are_equal(self):
+        task_id = self.make_active()
+        self.insert_run("RUN-A", task_id, "worker", "2026-08-15T10:00:00Z")
+        self.insert_run("RUN-B", task_id, "worker", "2026-08-15T10:00:00Z")
+        first = self.store.record_run_recovery_link(
+            "RUN-A",
+            "RUN-B",
+            recovery_ref="incident:RNS-ab",
+            evidence_ref="recovery:ab",
+            created_by="supervisor",
+        )
+        self.assertTrue(first.ok, first.message)
+        cycle = self.store.record_run_recovery_link(
+            "RUN-B",
+            "RUN-A",
+            recovery_ref="incident:RNS-ba",
+            evidence_ref="recovery:ba",
+            created_by="supervisor",
+        )
+        self.assertFalse(cycle.ok)
+        self.assertEqual(cycle.code, "RECOVERY_CYCLE")
+
     def test_sqlite_rejects_cross_task_and_reverse_chronology_recovery(self):
         first_task = self.make_active()
-        second_task = self.make_active(worker="other")
-        first_revision = self.store.compute_task_revision(first_task)
-        second_revision = self.store.compute_task_revision(second_task)
-        with self.store._connect() as conn:
-            conn.execute(
-                """
-                INSERT INTO run_manifests(
-                    run_id, task_id, task_revision, worker_id, session_id,
-                    readable_scope, writable_scope, forbidden_scope, runtime_limits,
-                    base_revision, created_by, created_at
-                ) VALUES ('RUN-OLD', ?, ?, 'worker', NULL, '[]','[]','[]','{}',NULL,'test','2026-08-15T10:00:00Z')
-                """,
-                (first_task, first_revision),
-            )
-            conn.execute(
-                """
-                INSERT INTO run_manifests(
-                    run_id, task_id, task_revision, worker_id, session_id,
-                    readable_scope, writable_scope, forbidden_scope, runtime_limits,
-                    base_revision, created_by, created_at
-                ) VALUES ('RUN-NEW', ?, ?, 'worker', NULL, '[]','[]','[]','{}',NULL,'test','2026-08-15T11:00:00Z')
-                """,
-                (first_task, first_revision),
-            )
-            conn.execute(
-                """
-                INSERT INTO run_manifests(
-                    run_id, task_id, task_revision, worker_id, session_id,
-                    readable_scope, writable_scope, forbidden_scope, runtime_limits,
-                    base_revision, created_by, created_at
-                ) VALUES ('RUN-OTHER', ?, ?, 'other', NULL, '[]','[]','[]','{}',NULL,'test','2026-08-15T12:00:00Z')
-                """,
-                (second_task, second_revision),
-            )
+        second_task = self.make_active(
+            worker="other", output_paths=["src-other"]
+        )
+        self.insert_run("RUN-OLD", first_task, "worker", "2026-08-15T10:00:00Z")
+        self.insert_run("RUN-NEW", first_task, "worker", "2026-08-15T11:00:00Z")
+        self.insert_run("RUN-OTHER", second_task, "other", "2026-08-15T12:00:00Z")
 
         with self.assertRaises(sqlite3.IntegrityError):
             with self.store._connect() as conn:
@@ -404,15 +468,25 @@ class HelperRecoveryLineageTests(unittest.TestCase):
         self.assertTrue(self.link_helper(first, HELP_1).ok)
         self.assertTrue(
             self.store.record_run_recovery_link(
-                first["run_id"], second["run_id"], recovery_ref="incident:RNS-trace",
-                evidence_ref="recovery:trace", created_by="supervisor"
+                first["run_id"],
+                second["run_id"],
+                recovery_ref="incident:RNS-trace",
+                evidence_ref="recovery:trace",
+                created_by="supervisor",
             ).ok
         )
 
         trace = self.store.trace_task(task_id)
-        first_trace = next(item for item in trace["runs"] if item["run_id"] == first["run_id"])
-        self.assertEqual(first_trace["helper_lineage"][0]["helper_run_id"], HELP_1)
-        self.assertEqual(first_trace["recovery_lineage"][0]["replacement_run_id"], second["run_id"])
+        first_trace = next(
+            item for item in trace["runs"] if item["run_id"] == first["run_id"]
+        )
+        self.assertEqual(
+            first_trace["helper_lineage"][0]["helper_run_id"], HELP_1
+        )
+        self.assertEqual(
+            first_trace["recovery_lineage"][0]["replacement_run_id"],
+            second["run_id"],
+        )
         self.assertFalse(trace["coverage"]["run_helper_lineage"]["complete"])
         self.assertFalse(trace["coverage"]["run_recovery_lineage"]["complete"])
 
