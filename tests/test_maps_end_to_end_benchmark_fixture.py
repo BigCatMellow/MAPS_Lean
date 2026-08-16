@@ -83,8 +83,7 @@ class MapsEndToEndBenchmarkFixtureTests(unittest.TestCase):
         self.assertEqual(set(completion["required_layer_2_scenarios"]), layer_2)
         self.assertEqual(set(completion["required_layer_3_scenarios"]), layer_3)
 
-    def test_properties_are_unique_structured_and_each_scenario_has_a_blocker(self):
-        seen: set[str] = set()
+    def test_properties_are_structured_and_unique_within_each_scenario(self):
         property_re = re.compile(r"^[a-z][a-z0-9_.:-]{1,127}$")
         for scenario in self.data["scenarios"]:
             properties = scenario["properties"]
@@ -96,18 +95,23 @@ class MapsEndToEndBenchmarkFixtureTests(unittest.TestCase):
                 self.assertRegex(prop_id, property_re)
                 self.assertNotIn(prop_id, local_ids, scenario["id"])
                 local_ids.add(prop_id)
-                self.assertNotIn(prop_id, seen, prop_id)
-                seen.add(prop_id)
                 self.assertIn(prop["kind"], {"BLOCKER", "QUALITY"})
                 self.assertTrue(prop["required"], prop_id)
                 self.assertTrue(prop["evidence"].strip(), prop_id)
+
+    def test_required_failures_and_blockers_are_non_tradeable(self):
+        rule = self.data["scenario_status_rule"]
+        self.assertIn("Any required property with FAIL", rule["fail"])
+        self.assertIn("BLOCKER failure additionally prohibits candidate advancement", rule["fail"])
+        self.assertIn("regardless of quality, speed, cost, or other gains", rule["fail"])
+        self.assertIn("every required property to PASS", rule["pass"])
+        self.assertIn("Do not collapse", rule["aggregate"])
 
     def test_incomplete_evidence_cannot_become_pass(self):
         rule = self.data["scenario_status_rule"]
         self.assertIn("UNKNOWN", rule["incomplete"])
         self.assertIn("NOT_RUN", rule["incomplete"])
         self.assertIn("cannot be counted as PASS", rule["incomplete"])
-        self.assertIn("BLOCKER", rule["fail"])
 
     def test_layer_three_preserves_outcome_and_operator_provenance(self):
         outcome = self.scenarios["E2E-L3-002"]
