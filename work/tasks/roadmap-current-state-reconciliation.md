@@ -19,11 +19,11 @@ Evidence order:
 
 Planning inputs include the master roadmap, Prime roadmap, all five detailed agent-harness roadmaps, migration legacy audit/backlog, and live capability-relevant PR state.
 
-Snapshot base: `main@146f092a63af63b0fd750445e584a39e82ea1442`.
+Current snapshot base: `main@7269ce2be25993fa19b172f65c95381328585a35`.
 
 ## Problem
 
-The architecture remains useful, but historical baseline prose still describes draft PR #19 / pending Phase 0 after #19 and many later capability foundations have already merged. A fresh agent could repeat accepted work, mistake planning PRs for authority, follow obsolete sequencing, or revive legacy subsystems unnecessarily.
+The architecture remains useful, but historical baseline/status prose changes more slowly than live integration. A fresh agent could repeat accepted work, mistake planning PRs for authority, follow obsolete sequencing, trust stale CI/review metadata, or revive legacy subsystems unnecessarily.
 
 ## Change boundary
 
@@ -31,7 +31,7 @@ Changed only:
 
 - this task file;
 - `work/roadmaps/current-capability-reconciliation-2026-08-16.md`;
-- `work/roadmaps/README.md`.
+- `work/roadmaps/README.md` remains the existing index link from this PR.
 
 No runtime, tests, schema/state, provider behavior, feature branches, other agent coordination files, merge state, or review dispositions are changed. The master/Prime architecture is preserved rather than rewritten wholesale.
 
@@ -49,6 +49,7 @@ FOUNDRY may not declare unmerged work accepted, choose integration order, approv
 - planning status remains derived;
 - green CI does not override a semantic blocker;
 - clean feature review != merged capability;
+- synchronized head without fresh review != merge-ready;
 - planning/design PR != runtime authority;
 - UNKNOWN remains UNKNOWN where evidence is incomplete;
 - dependency ordering != merge priority;
@@ -62,7 +63,7 @@ FOUNDRY may not declare unmerged work accepted, choose integration order, approv
 - [x] accepted Run Record/evaluation #33–#35 is represented without claiming complete replay/refinement;
 - [x] accepted Skills #25–#27/#31 is separated from future production routing/promotion;
 - [x] accepted Environment #28/#29 is separated from #30 and later recovery/environment automation;
-- [x] accepted review-subject #32 and wait subset #59 are represented without authority expansion;
+- [x] accepted review-subject #32, wait subset #59, and Operator Intent Compiler #57 are represented without authority expansion;
 - [x] dependency stacks are explicit: #48→#49→#50, #44→#45, #39→#41→#53, #43→#60;
 - [x] unmerged work is classified as `OPEN_REPAIR`, `OPEN_REVIEW`, `OPEN_INTEGRATION`, or `BLOCKED_UPSTREAM`, never `ACCEPTED`;
 - [x] #51/#52 remain planning-only and communication-response waits remain unimplemented;
@@ -71,32 +72,94 @@ FOUNDRY may not declare unmerged work accepted, choose integration order, approv
 - [x] roadmap index links the dated reconciliation;
 - [x] no runtime/schema/test files are modified.
 
-## Verification and review-returned corrections
+## Live verification — 2026-08-16 refresh
 
-Accepted `main` was re-read and remained `146f092a63af63b0fd750445e584a39e82ea1442` during this revision.
+Current accepted main was re-read as:
 
-The first independent review of PR #71 correctly found four planning-truth errors. Each was rechecked against live exact PR/review evidence and corrected:
+`7269ce2be25993fa19b172f65c95381328585a35`
 
-1. **PR #30** — exact head `1a4016c424e188e06560c9af125e97be774ac269`, CI #358 PASS, but SENTINEL `CHANGES REQUIRED`: Run Record marks environment coverage VERIFIED on key presence even when the exact run has zero observations. Reclassified `OPEN_REPAIR`.
-2. **PR #44** — exact head `4a11203f1faf0f8b5d199d6af2643ab7b7205764`, CI #343 PASS, but SENTINEL `CHANGES REQUIRED`: pinned hcom local storage uses bare event ID identity, so `(instance,event_id)` uniqueness is the wrong boundary. Reclassified `OPEN_REPAIR`.
-3. **PR #39/#41** — #39 `adf25a57...` CI #365 and #41 `ec525615...` CI #382 both have SENTINEL `CLEAN IN-LAYER / NOT INTEGRATION-READY`; #39 is `OPEN_INTEGRATION`, while #41 remains `BLOCKED_UPSTREAM` despite clean in-layer review because accepted #39/current-main synchronization must come first.
-4. **PR #57** — exact current base `main@146f092a...`, head `854226531acd740ed8c282e58654bc8da74bde47`, CI #379 PASS, SENTINEL CLEAN / technically ready for SWITCHYARD integration. Reclassified `OPEN_INTEGRATION`.
+This main includes merged PR #57 Operator Intent Compiler request shaping.
 
-PR #48 remains correctly represented as exact feature head `2f23959afff9525beada28993bad536878310b7f`, CI #392 PASS, SENTINEL `CLEAN IN-LAYER / NOT INTEGRATION-READY`, therefore `OPEN_INTEGRATION` rather than accepted.
+Live status corrections applied to the roadmap overlay:
 
-Final branch compare must remain limited to the three declared planning/task files.
+1. **PR #30 — `OPEN_INTEGRATION`**
+   - head `7bae6d5758619a391c7551ee4589ea2d80d0a5b8`;
+   - Runtime CI #415 / `31932277332` PASS;
+   - SWITCHYARD independent feature-head review `CLEAN IN-LAYER`;
+   - the prior empty-environment-evidence VERIFIED defect is closed;
+   - current-main synchronization + fresh integrated-head CI/review remain.
+
+2. **PR #44 — `OPEN_REVIEW`**
+   - repaired head `6f2b774eee27a0596820b12f080bfd7e60c0f50e`;
+   - Runtime CI #419 / `31951668246` PASS;
+   - bare local `event_id` now defines the configured-store source identity while `instance` remains metadata;
+   - no fresh independent disposition exists yet on this repaired head, so it is not integration-ready.
+
+3. **PR #45 — `BLOCKED_UPSTREAM`, clean in-layer**
+   - head `b78de03a9e05fe19846d0c0629a55e54427fa587`;
+   - Runtime CI #346 PASS;
+   - SENTINEL `CLEAN IN-LAYER / NOT INTEGRATION-READY`;
+   - must be rebuilt on accepted #44.
+
+4. **PR #48 — `OPEN_INTEGRATION`**
+   - head `2f23959afff9525beada28993bad536878310b7f`;
+   - Runtime CI #392 PASS;
+   - SENTINEL `CLEAN IN-LAYER / NOT INTEGRATION-READY`;
+   - current-main synchronization remains.
+
+5. **PR #49/#50 execution-lineage downstream**
+   - #49 head `ed865be729cf2d15663258fd46c9296ea32d28e7`; independent review found no A2-specific blocker on historical ancestry, but it must be rebuilt on accepted #48;
+   - #50 actual head `832fa4ab2c3e97a8f7cdc22a73baca0d276adfc0`; exact-head CI #274 failed and two A3 defects remain: immutable UNKNOWN-at-submission must be recorded rather than backfillable absence, and active-runtime `legacy/` wording trips the legacy-removal gate;
+   - later green-run claims in #50 PR prose are not accepted as evidence because the cited SHAs do not resolve to #50 and the run numbers belong to other PRs.
+
+6. **PR #39 — `OPEN_REVIEW` on synchronized current-main ancestry**
+   - synchronized head `5928abe4550dbf7a75c2a2825e3cda5033ead830`;
+   - base `main@7269ce2be25993fa19b172f65c95381328585a35`;
+   - Runtime CI #422 / `31951875209` PASS;
+   - historical feature head was SENTINEL CLEAN IN-LAYER, but synchronized head still needs fresh independent review.
+
+7. **PR #41/#53 — clean in-layer, `BLOCKED_UPSTREAM`**
+   - #41 `ec525615fd708610bc3e90e07a95bb6c791d2465`, CI #382 PASS, SENTINEL CLEAN IN-LAYER; rebuild after accepted #39;
+   - #53 `d5c03a8e09bc5c49b884bc452d3c487a04ce5974`, CI #348 PASS, independent remediation review clean; rebuild after accepted #39/#41.
+
+8. **PR #57 — `ACCEPTED`**
+   - merged into current snapshot main;
+   - no longer represented as OPEN_INTEGRATION.
+
+9. **Operational-learning stack**
+   - #43 head `aeecf1b5775db1d5ac2484819620f476752f3654`: runtime/authority semantics reviewed clean, but task/PR scope omitted the existing schema-test path; classify `OPEN_REPAIR` for the bounded scope-contract correction and later current-main integration;
+   - #60 head `cfd758aace44970e7400c005c337be040d367918`, CI #307 PASS, independent review CLEAN IN-LAYER; classify `BLOCKED_UPSTREAM` behind #43.
+
+10. **PR #51/#52 — `PLANNING_ONLY`**
+    - #51 exact-provider-receipt / task-run↔hcom-event join design remains design evidence only;
+    - #52 evidence-backed wait design remains design evidence only; accepted #59 covers only the safe canonical subset.
+
+## Legacy reconciliation verification
+
+Re-read:
+
+- `migration/LEGACY_IDEA_RECOVERY_AUDIT.md`;
+- `migration/FUTURE_IDEAS_BACKLOG.md`.
+
+The current reconciliation preserves their governing rule rather than reviving old machinery: preserve observed problems, invariants, evidence, experiments, and useful techniques; classify candidates as absorbed, partially represented/open, or evidence-triggered; do not promote a subsystem merely because legacy MAP implemented or proposed it.
 
 ## Independent review focus
 
-Fresh independent review is required after these status corrections. Reviewer should verify:
+Fresh independent review is required after this factual refresh. Reviewer should verify:
 
-- factual live classifications;
-- no unmerged capability promoted to accepted;
-- blockers not hidden by green CI;
-- dependency constraints separated from merge priority;
-- no duplicate runtime authority through roadmap prose;
-- legacy candidates classified rather than revived wholesale;
-- exact #30/#44 repair blockers and #39/#41/#48/#57 integration statuses are represented accurately.
+- exact snapshot/main and live classifications;
+- #57 is accepted/merged;
+- #30 is clean in-layer and integration-pending, not still repair-blocked;
+- #44 is repaired/CI-green but remains review-pending;
+- #39 is synchronized and CI-green but still needs integrated-head review;
+- #41/#53 remain upstream-blocked despite clean own-layer reviews;
+- #48 remains unaccepted/integration-pending;
+- #49/#50 downstream distinctions and #50 bad-CI-metadata warning are accurate;
+- #43/#60 scope/upstream states are accurate;
+- no unmerged capability is promoted to accepted;
+- dependency constraints are not presented as SWITCHYARD merge priority;
+- no duplicate runtime authority is created through roadmap prose;
+- legacy candidates are classified rather than revived wholesale.
 
 Review required: `INDEPENDENT_REVIEW`.
 FOUNDRY authored the planning change and cannot provide the disposition.
@@ -105,4 +168,4 @@ FOUNDRY authored the planning change and cannot provide the disposition.
 
 Stop rather than guess if live state invalidates a material claim, ownership conflicts cannot be resolved, a planning candidate requires new authority merely for roadmap neatness, or accepted runtime contradicts an open design in a way that cannot be safely classified.
 
-Route runtime repair to the owning Development lane, integration order to SWITCHYARD, and independent review to SENTINEL or another eligible reviewer.
+Route general runtime repair to ANVIL, incumbent FOUNDRY repair returns only to FOUNDRY when explicitly returned, integration order to SWITCHYARD, and independent review to SENTINEL or another eligible reviewer.
