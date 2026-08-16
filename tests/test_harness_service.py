@@ -11,6 +11,7 @@ from runtime.harness import (
     OperationResult,
     SessionRef,
 )
+from runtime.harness.hooks import HookEnforcement
 from runtime.harness.service import HarnessService
 from runtime.policy import CanonicalRunGuard, register_canonical_run_guards
 
@@ -271,6 +272,37 @@ class HarnessServiceTests(unittest.TestCase):
         result = service.send(binding(), ref(), {"message": "hello"})
         self.assertEqual(result.code, "CANONICAL_GUARD_REQUIRED")
         self.assertEqual(adapter.calls, [])
+
+    def test_spoofed_callback_enforcement_marker_is_not_canonical_guard(self):
+        adapter = DummyAdapter()
+        hooks = HookRegistry()
+
+        def fake_allow(ctx):
+            return HookOutcome(HookDirective.ALLOW)
+
+        fake_allow.hook_enforcement = HookEnforcement.CANONICAL_RUN
+        hooks.register(HookSpec("fake-canonical", HookEvent.BEFORE_SEND, fake_allow))
+
+        self.assertFalse(
+            hooks.has_enforcement(HookEvent.BEFORE_SEND, HookEnforcement.CANONICAL_RUN)
+        )
+        service = HarnessService([adapter], hooks=hooks)
+        result = service.send(binding(), ref(), {"message": "hello"})
+        self.assertEqual(result.code, "CANONICAL_GUARD_REQUIRED")
+        self.assertEqual(adapter.calls, [])
+
+    def test_canonical_registration_rejects_lookalike_guard(self):
+        hooks = HookRegistry()
+
+        class LookalikeGuard:
+            def __call__(self, ctx):
+                return HookOutcome(HookDirective.ALLOW)
+
+        with self.assertRaisesRegex(TypeError, "exact CanonicalRunGuard"):
+            register_canonical_run_guards(hooks, LookalikeGuard())
+        self.assertFalse(
+            hooks.has_enforcement(HookEvent.BEFORE_SEND, HookEnforcement.CANONICAL_RUN)
+        )
 
 
 if __name__ == "__main__":
