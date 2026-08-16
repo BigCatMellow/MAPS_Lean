@@ -125,7 +125,6 @@ def _review_projection(review: Mapping[str, Any]) -> dict[str, object]:
         "completed_at": review.get("completed_at"),
         "summary": _text_stub(review.get("summary")),
     }
-    # Accepted future trace enrichments can flow through without changing v1.
     if "subject" in review:
         result["subject"] = review.get("subject")
     return result
@@ -195,7 +194,8 @@ def _coverage(
     trace: Mapping[str, Any],
     *,
     run_id: str,
-    environment_projected: bool,
+    environment_source_available: bool,
+    environment_evidence_present: bool,
     reviews: list[dict[str, object]],
 ) -> dict[str, object]:
     canonical = trace.get("coverage")
@@ -220,6 +220,18 @@ def _coverage(
     else:
         review_subject_state = CoverageState.MISSING.value
         review_subject_reason = "current accepted trace does not expose immutable review-subject bindings"
+
+    if environment_evidence_present:
+        environment_state = CoverageState.VERIFIED.value
+        environment_reason = "one or more exact-run environment evidence observations are included"
+    elif environment_source_available:
+        environment_state = CoverageState.MISSING.value
+        environment_reason = (
+            "the source trace exposes run environment evidence, but the selected run has no recorded observations"
+        )
+    else:
+        environment_state = CoverageState.MISSING.value
+        environment_reason = "current accepted trace does not expose run environment evidence"
 
     return {
         "canonical_task_db": {
@@ -260,17 +272,10 @@ def _coverage(
             "reason": "current run manifest does not bind harness/hook configuration identity",
         },
         "environment": {
-            "state": (
-                CoverageState.VERIFIED.value
-                if environment_projected
-                else CoverageState.MISSING.value
-            ),
-            "included": environment_projected,
-            "reason": (
-                "run environment evidence is exposed by the source trace"
-                if environment_projected
-                else "current accepted trace does not expose run environment evidence"
-            ),
+            "state": environment_state,
+            "source_available": environment_source_available,
+            "included": environment_evidence_present,
+            "reason": environment_reason,
         },
         "review_subject": {
             "state": review_subject_state,
@@ -310,10 +315,14 @@ def build_run_record(
     run = dict(matches[0])
 
     context_refs = run.pop("context_refs", [])
-    environment_projected = "environment_evidence" in run
+    environment_source_available = "environment_evidence" in run
     environment = run.pop("environment_evidence", None)
     if not isinstance(context_refs, list):
         raise RunRecordError("run context_refs must be a list")
+    if environment_source_available and not isinstance(environment, list):
+        raise RunRecordError("run environment_evidence must be a list when exposed")
+    environment_list = environment if isinstance(environment, list) else []
+    environment_evidence_present = bool(environment_list)
 
     raw_reviews = trace.get("reviews")
     reviews = (
@@ -378,7 +387,7 @@ def build_run_record(
             "content_included": False,
             "reason": "Run Record preserves path/hash references, not file contents",
         },
-        "environment": environment if environment is not None else [],
+        "environment": environment_list,
         "completion": {
             "submission": _submission_projection(trace),
             "reviews": {
@@ -411,7 +420,8 @@ def build_run_record(
         "coverage": _coverage(
             trace,
             run_id=run_id,
-            environment_projected=environment_projected,
+            environment_source_available=environment_source_available,
+            environment_evidence_present=environment_evidence_present,
             reviews=reviews,
         ),
         "replay": {
