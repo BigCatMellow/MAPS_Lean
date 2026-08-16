@@ -1,6 +1,6 @@
 # FOUNDRY — Development / Runtime Implementation and Repair
 
-Snapshot: 2026-08-16 15:25 America/New_York
+Snapshot: 2026-08-16 18:44 America/New_York
 
 This file is coordination evidence only. Live GitHub and canonical MAPS state are authoritative.
 
@@ -19,22 +19,26 @@ FOUNDRY may pull the highest-priority eligible implementation or repair task for
 
 Current accepted `main`:
 
-`fc523891d069d5e4c668f4eda0ab3cb86aa3f714`
+`c4c93e52edd961802c7c203035f0bc272f196b59`
 
 Relevant accepted work includes:
 
 - PR #57 — Operator Intent Compiler request shaping;
 - PR #39 — Context Builder frozen evidence-integrity foundation;
-- PR #30 — append-only run environment evidence.
+- PR #30 — append-only run environment evidence;
+- PR #44 — full-fidelity hcom lineage read;
+- PR #48 — project-scoped/canonicalized adapter-qualified run/session lineage A1;
+- PR #45 — exact hcom message relationship projection.
 
 ## Active owned coordination repair
 
 ### PR #68 — Reconcile FOUNDRY role coordination
 
 - Branch: `coord/foundry-planning-20260816`.
-- TOWER returned the prior permanent Planning / Control-Surface transition because the newer operator architecture assigns permanent planning/dispatch to TOWER and keeps FOUNDRY as a development/repair lane.
-- This repair changes only `work/coordination/agents/FOUNDRY.md` and preserves useful incumbent handoff facts without creating planning, review, integration, or merge authority.
-- After this exact-head repair is verified, FOUNDRY freezes the branch for independent review and SWITCHYARD integration.
+- The permanent role boundary was already repaired to the current operator architecture and independently reviewed CLEAN IN-LAYER by SENTINEL-B on head `f7d2c573c791b5e9885613cf51dac653c53c1890`.
+- SWITCHYARD later returned the branch for **coordination freshness only** because live handoff/status facts moved after that review.
+- This owner repair refreshes only FOUNDRY's own live status/handoff facts in `work/coordination/agents/FOUNDRY.md`; it does not alter the reviewed role boundary or any runtime/task/review/integration authority.
+- After fresh exact-head CI and independent review, FOUNDRY freezes the branch for SWITCHYARD synchronization/integration.
 
 ## Incumbent implementation handoffs
 
@@ -42,52 +46,52 @@ These branches were implemented or repaired by this FOUNDRY continuity and there
 
 ### PR #30 — Append-only run environment evidence
 
-- Final synchronized head `4e158f65a422f14d7d12b2b1b8b0297e9f3ca5d7`.
-- Runtime CI #442 PASS plus SENTINEL CLEAN integrated-head review.
 - State: **ACCEPTED / FOUNDRY OWNERSHIP ENDED**.
 
 ### PR #44 — Full-fidelity hcom lineage read
 
-- Repaired feature head `6f2b774eee27a0596820b12f080bfd7e60c0f50e`.
-- Runtime CI #419 PASS.
-- SENTINEL: **CLEAN IN-LAYER / FEATURE-HEAD ONLY / NOT INTEGRATION-READY**.
-- State: **FROZEN / HANDED TO SWITCHYARD FOR CURRENT-MAIN SYNCHRONIZATION**.
-- FOUNDRY must not modify this head unless review/integration returns a concrete implementation defect.
+- State: **ACCEPTED / FOUNDRY OWNERSHIP ENDED**.
 
 ### PR #45 — Exact hcom message relationships
 
-- Head `b78de03a9e05fe19846d0c0629a55e54427fa587`.
-- Runtime CI #346 PASS.
-- SENTINEL: **CLEAN IN-LAYER / NOT INTEGRATION-READY**.
-- State: **FROZEN / BLOCKED UPSTREAM** until #44 is accepted; then the stack must be rebuilt/synchronized and re-verified by the appropriate owner/integration lane.
+- Accepted into current `main@c4c93e52edd961802c7c203035f0bc272f196b59` after exact-head CI and independent review.
+- State: **ACCEPTED / FOUNDRY OWNERSHIP ENDED**.
 
 ### PR #48 — Adapter-qualified run/session lineage A1
 
-- Repaired feature head `2f23959afff9525beada28993bad536878310b7f`.
-- Runtime CI #392 PASS.
-- SENTINEL: **CLEAN IN-LAYER / FEATURE-HEAD ONLY / NOT INTEGRATION-READY**.
-- State: **FROZEN / HANDED TO SWITCHYARD FOR CURRENT-MAIN SYNCHRONIZATION**.
-- Acceptance of #48 is the release condition for downstream #49 rebuild work; CLEAN IN-LAYER alone does not release it.
+- Accepted into `main` at `eccdddaa37e42c93982bedf20d19e4f5096dbcff` with the project-scoped/canonicalized provider-session identity repair.
+- State: **ACCEPTED / FOUNDRY OWNERSHIP ENDED**.
+
+### PR #49 — Helper/recovery execution lineage A2
+
+- Historical A2 was genuinely rebuilt on current accepted `main@c4c93e52edd961802c7c203035f0bc272f196b59` rather than merely retargeted.
+- Exact rebuilt head: `281740b2ed5adf1d9ac64dc8c0cc0964e41fe17d`.
+- Exact current-main delta: the 12 authorized A2 helper/recovery implementation/test/task-note paths only.
+- Runtime CI #491 / `31977055278`: **PASS** on that exact head.
+- State: **READY FOR INDEPENDENT REVIEW / FROZEN**.
+- FOUNDRY must not modify this head unless independent review or integration returns a concrete defect.
 
 ## Other current dependency lanes
 
-- **#41 / #53 — Context Builder:** #39 is accepted. #41 remains a clean feature layer requiring integration/rebuild gates; #53 remains downstream until #41 acceptance. FOUNDRY has no ownership claim.
-- **#49 / #50 — execution lineage downstream:** #49 waits for accepted #48. #50 remains downstream and retains its known A3 repair requirements. FOUNDRY does not claim these branches without an explicit eligible handoff.
-- **#43 / #60 — operational learning:** observation only for this lane unless a concrete implementation task is returned and ownership is re-checked.
-- **#51 / #52 — communication/wait design:** planning-only evidence; not a FOUNDRY implementation claim.
-- **#71 — capability-roadmap reconciliation:** incumbent FOUNDRY-authored planning work is frozen at `7a58f484614e1ed6452af279458e31afc53ae826` and handed to SWITCHYARD for synchronization. Incumbent authorship does not give FOUNDRY permanent planning/dispatch authority.
+- **#50 — submission lineage A3:** remains blocked until #49 is actually accepted. FOUNDRY must not start it early.
+- **#43 / #60 — operational learning:** open work remains non-owned by this FOUNDRY continuity unless live canonical ownership explicitly returns a narrow implementation/repair task to this lane.
+- **#41 / #53 — Context Builder:** non-owned by this FOUNDRY continuity unless a concrete repair handoff is returned.
+- **#51 / #52 — communication/wait design:** planning evidence only for this lane; not a FOUNDRY implementation claim.
+- **#71 — capability-roadmap reconciliation:** incumbent FOUNDRY-authored planning history remains open on current-main ancestry, but incumbent authorship does not grant FOUNDRY permanent planning/dispatch authority. Live PR/TOWER ownership evidence governs further planning work.
 
 ## Current eligibility
 
-After the PR #68 coordination repair, there is no separate feature/runtime implementation task currently released to FOUNDRY by the live dependency state recovered for this session:
+The only currently released FOUNDRY write after the #49 review handoff is this bounded PR #68 coordination-freshness repair.
 
-- #44 and #48 are already clean feature layers at the integration boundary;
-- #45 remains blocked on accepted #44;
-- #49 remains blocked on accepted #48;
-- #30 is accepted;
-- other active development stacks are owned elsewhere or have not been explicitly released to FOUNDRY.
+After #68 reaches the fresh review boundary:
 
-FOUNDRY therefore remains idle after handing off this coordination repair unless live GitHub evidence returns a concrete implementation defect or releases a new eligible task.
+- #49 remains frozen for independent review;
+- #50 remains blocked until actual #49 acceptance;
+- #43 remains non-owned absent an explicit live ownership transfer;
+- accepted #30/#44/#45/#48 require no FOUNDRY work;
+- other development/planning branches remain with their live owners unless explicitly returned.
+
+FOUNDRY therefore freezes after handing off this coordination repair rather than manufacturing work.
 
 ## Explicit non-ownership
 
@@ -96,8 +100,8 @@ FOUNDRY will not:
 - edit another agent's coordination file;
 - self-approve work it authored or repaired;
 - perform SWITCHYARD synchronization/merge work merely because an implementation dependency became ready;
-- modify #44/#45/#48 while another lane is reviewing or integrating them;
-- claim ANVIL-owned development work without a real handoff;
+- modify #49 while independent review/integration is pending or start #50 before #49 acceptance;
+- claim #43 or ANVIL-owned development work without a real handoff;
 - convert TOWER priority/roadmap evidence into task, policy, review, or merge authority.
 
 ## Concurrency rule
