@@ -9,34 +9,21 @@
 
 ## Inputs and source of truth
 
-Authoritative / stronger evidence, in order:
+Evidence order:
 
 1. root `AGENTS.md`;
-2. live GitHub `main`, PR metadata/ancestry, merged code/tests, and exact review/CI evidence;
-3. current multi-agent coordination notes under `work/coordination/agents/` for collision avoidance only;
+2. live GitHub `main`, exact PR/base/head/review/CI state, merged code/tests, and canonical MAPS state;
+3. current `work/coordination/agents/*.md` for collision avoidance only;
 4. accepted task/decision evidence;
-5. existing planning roadmaps and migration audits/backlog as non-authoritative design/history evidence.
+5. long-form roadmaps and migration audits/backlog as non-authoritative design/history evidence.
 
-Planning inputs inspected:
+Planning inputs include the master roadmap, Prime roadmap, all five detailed agent-harness roadmaps, migration legacy audit/backlog, and live capability-relevant PR state.
 
-- `work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md`;
-- `work/roadmaps/prime-agent-capability-roadmap.md`;
-- `work/roadmaps/agent-harness-capabilities/01-harness-mechanics.md`;
-- `work/roadmaps/agent-harness-capabilities/02-procedural-knowledge-and-skills.md`;
-- `work/roadmaps/agent-harness-capabilities/03-environment-and-reproducibility.md`;
-- `work/roadmaps/agent-harness-capabilities/04-agentic-security.md`;
-- `work/roadmaps/agent-harness-capabilities/05-learning-and-evaluation.md`;
-- `migration/LEGACY_IDEA_RECOVERY_AUDIT.md`;
-- `migration/FUTURE_IDEAS_BACKLOG.md`;
-- live capability-relevant PR/merge/review/CI state.
-
-Snapshot base for this planning branch: `main@146f092a63af63b0fd750445e584a39e82ea1442`.
+Snapshot base: `main@146f092a63af63b0fd750445e584a39e82ea1442`.
 
 ## Problem
 
-The high-level design remains useful, but the master and Prime roadmaps still describe draft PR #19 as the current foundation and Phase 0 as awaiting stabilization. Live evidence shows PR #19 is merged and later tranches have already accepted substantial Harness, Skills, Environment, review-subject, evaluation, wait-projection, and coordination capabilities.
-
-Without reconciliation, a fresh planning agent can repeat already-merged work, treat planning-only PRs as runtime authority, miss real dependency stacks, infer obsolete sequencing, or revive legacy subsystems unnecessarily.
+The architecture remains useful, but historical baseline prose still describes draft PR #19 / pending Phase 0 after #19 and many later capability foundations have already merged. A fresh agent could repeat accepted work, mistake planning PRs for authority, follow obsolete sequencing, or revive legacy subsystems unnecessarily.
 
 ## Change boundary
 
@@ -46,86 +33,76 @@ Changed only:
 - `work/roadmaps/current-capability-reconciliation-2026-08-16.md`;
 - `work/roadmaps/README.md`.
 
-Deliberately not changed:
-
-- runtime code or tests;
-- SQLite/schema/state;
-- provider behavior;
-- feature branches;
-- another agent's coordination file;
-- merge/integration state;
-- review dispositions;
-- the long-form master/Prime architecture itself.
-
-The dated reconciliation is a current-state overlay rather than a wholesale rewrite of historical design documents.
+No runtime, tests, schema/state, provider behavior, feature branches, other agent coordination files, merge state, or review dispositions are changed. The master/Prime architecture is preserved rather than rewritten wholesale.
 
 ## Decision authority
 
-FOUNDRY may classify planning state from verified live evidence, identify obsolete roadmap assumptions, preserve dependencies/UNKNOWNs, and shape bounded future questions.
+FOUNDRY may classify derived planning status from verified live evidence, identify obsolete assumptions, preserve dependency/UNKNOWN boundaries, and shape bounded future questions.
 
-FOUNDRY may not declare unmerged work accepted, choose SWITCHYARD's merge order, approve another lane's work, promote legacy candidates into runtime, assign implementation contrary to coordination, or invent missing runtime architecture.
+FOUNDRY may not declare unmerged work accepted, choose integration order, approve another lane's work, promote legacy candidates, take another lane's runtime branch, or invent missing architecture for roadmap completeness.
 
 ## Required invariants
 
 - one fact / one authority;
 - capability != authority;
 - source evidence > summaries;
-- derived planning status remains derived;
-- open PR != accepted capability;
-- planning/design PR != runtime dependency by citation alone;
+- planning status remains derived;
+- green CI does not override a semantic blocker;
+- clean feature review != merged capability;
+- planning/design PR != runtime authority;
 - UNKNOWN remains UNKNOWN where evidence is incomplete;
-- dependency ordering is not merge priority;
+- dependency ordering != merge priority;
 - no self-authorizing learning/promotion.
 
 ## Acceptance criteria
 
 - [x] exact snapshot base is stated and live GitHub explicitly supersedes it;
-- [x] merged PR #19 is recognized as accepted foundation; obsolete “draft PR #19 / pending Phase 0” status is retired;
-- [x] accepted Harness #20–#24 is separated from open durable lineage work;
-- [x] accepted Run Record/frozen regression/comparative evaluator #33–#35 is represented without claiming complete replay/refinement;
+- [x] merged PR #19 is recognized as accepted and obsolete “draft PR #19 / pending Phase 0” status is retired;
+- [x] accepted Harness #20–#24 is separated from open lineage work;
+- [x] accepted Run Record/evaluation #33–#35 is represented without claiming complete replay/refinement;
 - [x] accepted Skills #25–#27/#31 is separated from future production routing/promotion;
-- [x] accepted Environment #28/#29 is separated from open #30 and later recovery/environment automation;
-- [x] accepted review-subject #32 is represented as closing the basic immutable reviewed-output identity gap;
-- [x] accepted wait subset #59 is separated from future communication-response waits; #51/#52 remain planning-only;
+- [x] accepted Environment #28/#29 is separated from #30 and later recovery/environment automation;
+- [x] accepted review-subject #32 and wait subset #59 are represented without authority expansion;
 - [x] dependency stacks are explicit: #48→#49→#50, #44→#45, #39→#41→#53, #43→#60;
-- [x] repaired/unmerged heads remain `OPEN_REVIEW`, `OPEN_INTEGRATION`, or `BLOCKED_UPSTREAM`, never `ACCEPTED`;
-- [x] Context Builder v1 from #19 is separated from v2 evaluation work;
-- [x] legacy candidates are classified as absorbed, partial/open, or evidence-triggered rather than blindly copied into next work;
-- [x] bounded next questions are identified without prematurely choosing runtime architecture;
-- [x] roadmap index links the reconciliation as a dated implementation-status overlay;
+- [x] unmerged work is classified as `OPEN_REPAIR`, `OPEN_REVIEW`, `OPEN_INTEGRATION`, or `BLOCKED_UPSTREAM`, never `ACCEPTED`;
+- [x] #51/#52 remain planning-only and communication-response waits remain unimplemented;
+- [x] legacy candidates are classified as absorbed, partial/open, or evidence-triggered;
+- [x] bounded next questions/non-goals are identified without speculative implementation;
+- [x] roadmap index links the dated reconciliation;
 - [x] no runtime/schema/test files are modified.
 
-## Verification and exact-state evidence
+## Verification and review-returned corrections
 
-Immediately before final handoff:
+Accepted `main` was re-read and remained `146f092a63af63b0fd750445e584a39e82ea1442` during this revision.
 
-- accepted `main` was re-read and remained `146f092a63af63b0fd750445e584a39e82ea1442`;
-- live coordination/ownership lanes were re-read;
-- PR #48 moved materially twice during planning, so the reconciliation was refreshed rather than preserving stale status;
-- final #48 feature head is `2f23959afff9525beada28993bad536878310b7f`, Runtime CI #392 / `31931474528` PASS;
-- SENTINEL independently reviewed that exact #48 head and returned `CLEAN IN-LAYER / NOT INTEGRATION-READY`; therefore #48 is represented as `OPEN_INTEGRATION`, not accepted;
-- #39/#41/#53, #43/#60, #30, and #51/#52 authority/dependency boundaries were rechecked against live PR metadata;
-- final branch compare must remain limited to the three declared planning/task files.
+The first independent review of PR #71 correctly found four planning-truth errors. Each was rechecked against live exact PR/review evidence and corrected:
 
-No implementation status is inferred solely from this task/reconciliation; exact live state must be rechecked at use time.
+1. **PR #30** — exact head `1a4016c424e188e06560c9af125e97be774ac269`, CI #358 PASS, but SENTINEL `CHANGES REQUIRED`: Run Record marks environment coverage VERIFIED on key presence even when the exact run has zero observations. Reclassified `OPEN_REPAIR`.
+2. **PR #44** — exact head `4a11203f1faf0f8b5d199d6af2643ab7b7205764`, CI #343 PASS, but SENTINEL `CHANGES REQUIRED`: pinned hcom local storage uses bare event ID identity, so `(instance,event_id)` uniqueness is the wrong boundary. Reclassified `OPEN_REPAIR`.
+3. **PR #39/#41** — #39 `adf25a57...` CI #365 and #41 `ec525615...` CI #382 both have SENTINEL `CLEAN IN-LAYER / NOT INTEGRATION-READY`; #39 is `OPEN_INTEGRATION`, while #41 remains `BLOCKED_UPSTREAM` despite clean in-layer review because accepted #39/current-main synchronization must come first.
+4. **PR #57** — exact current base `main@146f092a...`, head `854226531acd740ed8c282e58654bc8da74bde47`, CI #379 PASS, SENTINEL CLEAN / technically ready for SWITCHYARD integration. Reclassified `OPEN_INTEGRATION`.
+
+PR #48 remains correctly represented as exact feature head `2f23959afff9525beada28993bad536878310b7f`, CI #392 PASS, SENTINEL `CLEAN IN-LAYER / NOT INTEGRATION-READY`, therefore `OPEN_INTEGRATION` rather than accepted.
+
+Final branch compare must remain limited to the three declared planning/task files.
 
 ## Independent review focus
 
-This planning artifact can affect future work selection/sequencing, so independent review is required. Reviewer should verify:
+Fresh independent review is required after these status corrections. Reviewer should verify:
 
-- factual status against live GitHub;
-- no unmerged capability is promoted to accepted;
-- no stale branch SHA is treated as authority;
-- dependency constraints are separated from merge priority;
-- no duplicate runtime authority is introduced through planning prose;
-- recovered legacy work is classified rather than revived wholesale;
-- #48 is represented as clean in-layer but still pending SWITCHYARD synchronization/integrated-head gates.
+- factual live classifications;
+- no unmerged capability promoted to accepted;
+- blockers not hidden by green CI;
+- dependency constraints separated from merge priority;
+- no duplicate runtime authority through roadmap prose;
+- legacy candidates classified rather than revived wholesale;
+- exact #30/#44 repair blockers and #39/#41/#48/#57 integration statuses are represented accurately.
 
 Review required: `INDEPENDENT_REVIEW`.
-FOUNDRY authored this planning change and is not eligible to provide the independent disposition.
+FOUNDRY authored the planning change and cannot provide the disposition.
 
 ## Stop / escalate
 
-Stop rather than guess if live main/PR movement invalidates a material status claim, ownership conflicts cannot be resolved from live evidence, a planning candidate would require a new authority store merely for roadmap neatness, or accepted runtime behavior conflicts with an open design in a way that cannot be safely classified.
+Stop rather than guess if live state invalidates a material claim, ownership conflicts cannot be resolved, a planning candidate requires new authority merely for roadmap neatness, or accepted runtime contradicts an open design in a way that cannot be safely classified.
 
-Escalate implementation questions to ANVIL, merge/integration order to SWITCHYARD, and independent review to SENTINEL or another eligible reviewer.
+Route runtime repair to the owning Development lane, integration order to SWITCHYARD, and independent review to SENTINEL or another eligible reviewer.
