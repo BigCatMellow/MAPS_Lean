@@ -316,7 +316,11 @@ def evaluate_acquisition_evidence(
                 else:
                     acquisition_status = "PASS"
                     usability_status = "NOT_APPLICABLE"
-                    stale_status = "PASS" if path["operator_visible"] else "NOT_APPLICABLE"
+                    # A permitted N/A decision proves scope/coverage only. It
+                    # does not prove that an operator-visible surface was
+                    # withdrawn, removed, redirected, or otherwise made
+                    # non-visible, so stale-visible truth remains unknown.
+                    stale_status = "UNKNOWN" if path["operator_visible"] else "NOT_APPLICABLE"
                     reason = "explicit_not_applicable"
             elif state == "UNKNOWN":
                 acquisition_status = "UNKNOWN"
