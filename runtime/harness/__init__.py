@@ -1,8 +1,8 @@
 """Provider-neutral harness contracts for MAPS Lean.
 
-This package defines execution-facing types, protocols, and deterministic hook
-mechanics. It does not own or infer task authority, policy, ownership, review,
-or completion state.
+This package defines execution-facing types, protocols, deterministic hook
+mechanics, and the provider-neutral service that composes them. It does not own
+or infer task authority, policy, ownership, review, or completion state.
 """
 
 from .hooks import (
@@ -16,6 +16,7 @@ from .hooks import (
     HookSpec,
 )
 from .protocol import HarnessAdapter
+from .service import HarnessService
 from .types import (
     ExecutionBinding,
     NormalizedSessionState,
@@ -29,6 +30,7 @@ from .types import (
 __all__ = [
     "ExecutionBinding",
     "HarnessAdapter",
+    "HarnessService",
     "HookDirective",
     "HookEvent",
     "HookFailurePolicy",
