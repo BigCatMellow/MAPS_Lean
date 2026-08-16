@@ -53,3 +53,59 @@ class SubmissionRunLineageMixin:
                     (task_id,),
                 ).fetchall()
             ]
+
+    def submission_run_attribution(self, task_id: str) -> dict[str, Any]:
+        """Derive one attribution state per known submission attempt.
+
+        Missing explicit relationships remain UNKNOWN. The method never infers a
+        run from timing, worker identity, or the number of runs on the task.
+        """
+        task_id = task_id.strip() if isinstance(task_id, str) else ""
+        if not task_id:
+            return {"task_id": task_id, "attempts": [], "complete": False}
+        with closing(self._connect()) as conn:
+            submission = conn.execute(
+                "SELECT submission_count FROM task_submissions WHERE task_id = ?",
+                (task_id,),
+            ).fetchone()
+            if submission is None:
+                return {"task_id": task_id, "attempts": [], "complete": True}
+            count = int(submission["submission_count"])
+            links = {
+                int(row["submission_count"]): self._submission_run_link(row)
+                for row in conn.execute(
+                    """
+                    SELECT * FROM submission_run_links
+                    WHERE task_id = ?
+                    ORDER BY submission_count
+                    """,
+                    (task_id,),
+                ).fetchall()
+            }
+
+        attempts = []
+        for submission_count in range(1, count + 1):
+            link = links.get(submission_count)
+            if link is None:
+                attempts.append(
+                    {
+                        "submission_count": submission_count,
+                        "state": "UNKNOWN",
+                        "run_id": None,
+                        "linked_at": None,
+                    }
+                )
+            else:
+                attempts.append(
+                    {
+                        "submission_count": submission_count,
+                        "state": "EXPLICIT",
+                        "run_id": link["run_id"],
+                        "linked_at": link["linked_at"],
+                    }
+                )
+        return {
+            "task_id": task_id,
+            "attempts": attempts,
+            "complete": all(item["state"] == "EXPLICIT" for item in attempts),
+        }
