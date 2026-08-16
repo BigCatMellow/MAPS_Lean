@@ -19,6 +19,20 @@ _SOURCE_KINDS = {
     "NON_TASK_OBSERVATION",
     "RESEARCH",
 }
+_LESSON_KEYS = {
+    "lesson_version",
+    "lesson_id",
+    "status",
+    "claim",
+    "source_kind",
+    "source_refs",
+    "applicability",
+    "created_by",
+    "created_at",
+    "promotion",
+    "superseded_by",
+    "retirement",
+}
 _APPLICABILITY_KEYS = {
     "global",
     "project_ids",
@@ -183,6 +197,15 @@ def _retirement(raw: object, lesson_id: str) -> dict[str, object]:
 
 def validate_lesson_record(record: Mapping[str, object]) -> dict[str, object]:
     """Validate one lesson snapshot without granting it authority or persisting it."""
+
+    if not isinstance(record, Mapping):
+        raise OperationalLearningError("lesson record must be a mapping")
+    if set(record) != _LESSON_KEYS:
+        missing = sorted(_LESSON_KEYS - set(record))
+        extra = sorted(set(record) - _LESSON_KEYS)
+        raise OperationalLearningError(
+            f"lesson record schema mismatch; missing={missing} extra={extra}"
+        )
 
     lesson_id = _safe_text(record.get("lesson_id"), "lesson_id", max_chars=128)
     if record.get("lesson_version") != 1:
