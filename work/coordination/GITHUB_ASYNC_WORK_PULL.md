@@ -35,7 +35,7 @@ A new browser session begins `UNBOUND` unless its role is already explicit in th
 - `ANVIL` — development;
 - `FOUNDRY` — development / repair;
 - `SENTINEL` — independent review;
-- `SWITCHYARD` — integration / merge safety.
+- `SWITCHYARD` — integration / PR-control / merge safety.
 
 Examples of valid binding:
 
@@ -73,7 +73,7 @@ The agent should:
 6. verify ownership, dependencies, authority, exact head/base, and stop conditions;
 7. execute until completion or a concrete blocker;
 8. record the result on GitHub so the next role can discover it;
-9. stop at its role boundary.
+9. continue with another independent eligible item when the role has a standing queue responsibility; otherwise stop at the role boundary.
 
 If no work is eligible, remain idle. Do not invent work or switch roles to stay busy.
 
@@ -197,18 +197,36 @@ Do not:
 
 ### SWITCHYARD
 
-Pull: highest-priority reviewed integration candidate whose prerequisites are satisfied.
+Pull: the **entire live open-PR backlog** as a standing repository-control queue, with integration candidates advanced whenever eligible.
+
+SWITCHYARD is the persistent PR-control lane. TOWER decides product/work priority; SWITCHYARD ensures no open PR becomes ownerless, stale, or ambiguous.
+
+For every open PR, recover live state and maintain one current disposition derived from GitHub evidence:
+
+- `INTEGRATE` — reviewed/eligible; advance synchronization, exact-delta, fresh CI, integrated review, and merge gates;
+- `REVIEW NEEDED` — leave a durable exact-head handoff for SENTINEL or another eligible independent reviewer;
+- `REPAIR NEEDED` — return the concrete defect to the owning development lane;
+- `BLOCKED` — record the exact prerequisite and avoid branch churn;
+- `SUPERSEDED / CLOSE CANDIDATE` — identify obsolete/duplicate work; close only when authority and evidence are clear, otherwise surface the decision;
+- `PLANNING / COORDINATION` — move through the appropriate review/integration path without treating prose as feature authority.
 
 Do:
-- synchronize;
-- verify exact ancestry/delta;
-- require fresh evidence;
+- enumerate and periodically re-scan all open PRs;
+- ensure every open PR has a current disposition, next legitimate gate, and discoverable owner/blocker;
+- work the highest-priority eligible SWITCHYARD action;
+- when one PR is waiting on SENTINEL, ANVIL, FOUNDRY, TOWER, CI, or another prerequisite, leave the handoff and continue scanning for another independent eligible PR;
+- re-scan after merges or material `main` changes because ancestry/readiness may have changed;
+- synchronize legitimately handed-off integration branches;
+- verify exact ancestry/delta and require fresh evidence;
 - merge only when existing integration gates and authority are satisfied.
 
 Do not:
+- reduce the PR count by bypassing dependency, review, CI, ownership, or exact-head gates;
 - merge merely because work is high priority;
 - take over feature development unless a specific integration defect is legitimately returned;
-- switch to review/development because integration is temporarily idle.
+- self-approve work requiring independent review;
+- create a second mutable PR database; the queue is derived from live GitHub;
+- stop merely because the highest-priority PR is waiting while other independent PR-control work is eligible.
 
 ## Parallelism rule
 
@@ -219,7 +237,7 @@ Safe example:
 ```text
 SENTINEL    reviews Context Builder
 FOUNDRY     repairs unrelated communication work
-SWITCHYARD  integrates environment evidence
+SWITCHYARD  integrates one PR while triaging the rest of the backlog
 TOWER       refreshes dependency/priority view
 ```
 
@@ -241,11 +259,13 @@ Suggested startup prompts:
 - `Your role is ANVIL. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
 - `Your role is FOUNDRY. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
 - `Your role is SENTINEL. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
-- `Your role is SWITCHYARD. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
+- `Your role is SWITCHYARD. Own the full open-PR backlog under work/coordination/GITHUB_ASYNC_WORK_PULL.md; classify every open PR and continuously advance eligible PR-control/integration work.`
 
 After binding, later prompts can usually be just:
 
 > `Continue. Recover live GitHub state and pull the highest-priority eligible work for your bound role.`
+
+For SWITCHYARD, `continue` means resume the standing full-backlog control loop, not merely return to one remembered PR.
 
 The operator still has to start/wake browser sessions. The protocol removes the need to manually relay detailed handoffs between sessions.
 
@@ -254,7 +274,7 @@ The operator still has to start/wake browser sessions. The protocol removes the 
 Do not add these merely because they are possible:
 
 - dynamic self-selection of roles;
-- another task database;
+- another task database or PR database;
 - a daemon or scheduler;
 - an agent-to-agent messaging service;
 - mandatory GitHub labels as a second mutable truth;
@@ -273,4 +293,6 @@ This protocol is working when the operator can open role-specific browser sessio
 - what exact evidence proves the wait is over;
 - where to record its result so another role can discover it.
 
-It fails if a new unbound browser session can plausibly decide for itself that it is SENTINEL, ANVIL, FOUNDRY, SWITCHYARD, or TOWER.
+Additionally, SWITCHYARD must be able to recover the complete live open-PR backlog and ensure every open PR has a current disposition, next legitimate gate, and discoverable owner/blocker while continuing other eligible PR-control work when one item is waiting.
+
+It fails if a new unbound browser session can plausibly decide for itself that it is SENTINEL, ANVIL, FOUNDRY, SWITCHYARD, or TOWER, or if open PRs can remain indefinitely unclassified/ownerless while SWITCHYARD is active.
