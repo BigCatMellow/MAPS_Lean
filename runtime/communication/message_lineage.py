@@ -10,17 +10,20 @@ class MessageLineageError(ValueError):
     pass
 
 
+_OPTIONAL_CORRELATION_FIELDS = (
+    "mentions",
+    "intent",
+    "thread",
+    "reply_to",
+    "reply_to_local",
+)
 _REQUIRED_EVENT_KEYS = {
     "event_id",
     "timestamp",
     "instance",
     "sender",
     "delivered_to",
-    "mentions",
-    "intent",
-    "thread",
-    "reply_to",
-    "reply_to_local",
+    *_OPTIONAL_CORRELATION_FIELDS,
     "coverage",
 }
 
@@ -51,6 +54,41 @@ def _optional_text(value: object, field: str) -> str | None:
     return value or None
 
 
+def _optional_scalar(value: object, field: str) -> int | str | None:
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, str)):
+        raise MessageLineageError(f"{field} must be integer/text/null")
+    if isinstance(value, int):
+        if value < 1:
+            raise MessageLineageError(f"{field} integer must be positive")
+        return value
+    value = value.strip()
+    return value or None
+
+
+def _field_presence(coverage: Mapping[str, object]) -> dict[str, bool]:
+    raw_presence = coverage.get("field_presence")
+    if not isinstance(raw_presence, Mapping):
+        raise MessageLineageError("coverage.field_presence must be a mapping")
+    if set(raw_presence) != set(_OPTIONAL_CORRELATION_FIELDS):
+        missing = sorted(set(_OPTIONAL_CORRELATION_FIELDS) - set(raw_presence))
+        extra = sorted(set(raw_presence) - set(_OPTIONAL_CORRELATION_FIELDS))
+        raise MessageLineageError(
+            "coverage.field_presence shape mismatch; "
+            f"missing={missing} extra={extra}"
+        )
+    presence: dict[str, bool] = {}
+    for field in _OPTIONAL_CORRELATION_FIELDS:
+        value = raw_presence[field]
+        if not isinstance(value, bool):
+            raise MessageLineageError(
+                f"coverage.field_presence.{field} must be boolean"
+            )
+        presence[field] = value
+    return presence
+
+
 def _normalize_event(raw: Mapping[str, object]) -> dict[str, object]:
     if set(raw) != _REQUIRED_EVENT_KEYS:
         missing = sorted(_REQUIRED_EVENT_KEYS - set(raw))
@@ -62,25 +100,6 @@ def _normalize_event(raw: Mapping[str, object]) -> dict[str, object]:
     event_id = raw.get("event_id")
     if isinstance(event_id, bool) or not isinstance(event_id, int) or event_id < 1:
         raise MessageLineageError("event_id must be a positive integer")
-    reply_to_local = raw.get("reply_to_local")
-    if reply_to_local is not None and (
-        isinstance(reply_to_local, bool)
-        or not isinstance(reply_to_local, int)
-        or reply_to_local < 1
-    ):
-        raise MessageLineageError("reply_to_local must be a positive integer or null")
-    if reply_to_local == event_id:
-        raise MessageLineageError("a message event cannot reply to itself")
-
-    intent = raw.get("intent")
-    if intent is not None:
-        intent = _text(intent, "intent").lower()
-        if intent not in VALID_INTENTS:
-            raise MessageLineageError(f"unsupported intent: {intent!r}")
-
-    mentions = raw.get("mentions")
-    if mentions is not None:
-        mentions = _text_list(mentions, "mentions")
 
     coverage = raw.get("coverage")
     if not isinstance(coverage, Mapping):
@@ -93,6 +112,48 @@ def _normalize_event(raw: Mapping[str, object]) -> dict[str, object]:
         raise MessageLineageError(
             "message relationship input must come from a full-fidelity lineage read"
         )
+    presence = _field_presence(coverage)
+
+    for field in _OPTIONAL_CORRELATION_FIELDS:
+        if not presence[field] and raw.get(field) is not None:
+            raise MessageLineageError(
+                f"{field} has a value but coverage.field_presence marks it absent"
+            )
+
+    mentions = raw.get("mentions")
+    if presence["mentions"]:
+        mentions = _text_list(mentions, "mentions")
+    else:
+        mentions = None
+
+    intent = raw.get("intent")
+    if presence["intent"]:
+        intent = _text(intent, "intent").lower()
+        if intent not in VALID_INTENTS:
+            raise MessageLineageError(f"unsupported intent: {intent!r}")
+    else:
+        intent = None
+
+    thread = (
+        _optional_text(raw.get("thread"), "thread")
+        if presence["thread"]
+        else None
+    )
+    reply_to = (
+        _optional_scalar(raw.get("reply_to"), "reply_to")
+        if presence["reply_to"]
+        else None
+    )
+
+    reply_to_local = raw.get("reply_to_local") if presence["reply_to_local"] else None
+    if reply_to_local is not None and (
+        isinstance(reply_to_local, bool)
+        or not isinstance(reply_to_local, int)
+        or reply_to_local < 1
+    ):
+        raise MessageLineageError("reply_to_local must be a positive integer or null")
+    if reply_to_local == event_id:
+        raise MessageLineageError("a message event cannot reply to itself")
 
     return {
         "event_id": event_id,
@@ -102,8 +163,8 @@ def _normalize_event(raw: Mapping[str, object]) -> dict[str, object]:
         "delivered_to": _text_list(raw.get("delivered_to"), "delivered_to"),
         "mentions": mentions,
         "intent": intent,
-        "thread": _optional_text(raw.get("thread"), "thread"),
-        "reply_to": raw.get("reply_to"),
+        "thread": thread,
+        "reply_to": reply_to,
         "reply_to_local": reply_to_local,
     }
 
