@@ -186,9 +186,15 @@ def _event_projection(event: Mapping[str, Any]) -> dict[str, object]:
     }
 
 
+def _review_subject_binds_run(review: Mapping[str, Any], run_id: str) -> bool:
+    subject = review.get("subject")
+    return isinstance(subject, Mapping) and subject.get("run_id") == run_id
+
+
 def _coverage(
     trace: Mapping[str, Any],
     *,
+    run_id: str,
     environment_projected: bool,
     reviews: list[dict[str, object]],
 ) -> dict[str, object]:
@@ -197,9 +203,23 @@ def _coverage(
     db_coverage = canonical_map.get("canonical_task_db")
     db_map = db_coverage if isinstance(db_coverage, Mapping) else {}
 
-    review_subjects_projected = bool(db_map.get("review_subjects_included")) or any(
+    review_subjects_observed = bool(db_map.get("review_subjects_included")) or any(
         "subject" in review for review in reviews
     )
+    review_subject_bound = any(
+        _review_subject_binds_run(review, run_id) for review in reviews
+    )
+    if review_subject_bound:
+        review_subject_state = CoverageState.VERIFIED.value
+        review_subject_reason = "an immutable review subject explicitly binds the selected run"
+    elif review_subjects_observed:
+        review_subject_state = CoverageState.UNKNOWN.value
+        review_subject_reason = (
+            "review subjects are exposed by the source trace, but none proves a binding to the selected run"
+        )
+    else:
+        review_subject_state = CoverageState.MISSING.value
+        review_subject_reason = "current accepted trace does not expose immutable review-subject bindings"
 
     return {
         "canonical_task_db": {
@@ -253,17 +273,9 @@ def _coverage(
             ),
         },
         "review_subject": {
-            "state": (
-                CoverageState.VERIFIED.value
-                if review_subjects_projected
-                else CoverageState.MISSING.value
-            ),
-            "included": review_subjects_projected,
-            "reason": (
-                "review subject projection is exposed by the source trace"
-                if review_subjects_projected
-                else "current accepted trace does not expose immutable review-subject bindings"
-            ),
+            "state": review_subject_state,
+            "included": review_subjects_observed,
+            "reason": review_subject_reason,
         },
     }
 
@@ -314,16 +326,31 @@ def build_run_record(
     criterion_map = criterion if isinstance(criterion, Mapping) else {}
     claims = criterion_map.get("claims")
     verdicts = criterion_map.get("verdicts")
-    claims_list = (
-        [_criterion_claim_projection(item) for item in claims if isinstance(item, Mapping)]
+    raw_claims = (
+        [item for item in claims if isinstance(item, Mapping)]
         if isinstance(claims, list)
         else []
     )
-    verdicts_list = (
-        [_criterion_verdict_projection(item) for item in verdicts if isinstance(item, Mapping)]
+    raw_verdicts = (
+        [item for item in verdicts if isinstance(item, Mapping)]
         if isinstance(verdicts, list)
         else []
     )
+    run_claims = [item for item in raw_claims if item.get("run_id") == run_id]
+    run_claim_ids = {
+        item.get("id") for item in run_claims if item.get("id") is not None
+    }
+    claims_list = [_criterion_claim_projection(item) for item in run_claims]
+    verdicts_list = [
+        _criterion_verdict_projection(item)
+        for item in raw_verdicts
+        if item.get("claim_id") in run_claim_ids
+    ]
+    unbound_claim_count = sum(
+        not isinstance(item.get("run_id"), str) or not str(item.get("run_id")).strip()
+        for item in raw_claims
+    )
+    other_run_claim_count = len(raw_claims) - len(run_claims) - unbound_claim_count
 
     raw_outcomes = trace.get("outcomes")
     all_outcomes = (
@@ -364,6 +391,12 @@ def build_run_record(
             "criterion_evidence": {
                 "claims": claims_list,
                 "verdicts": verdicts_list,
+                "join_state": CoverageState.VERIFIED.value,
+                "reason": (
+                    "only criterion claims explicitly bound to the selected run and verdicts for those claims are included"
+                ),
+                "omitted_task_unbound_claims": unbound_claim_count,
+                "omitted_other_run_claims": other_run_claim_count,
             },
         },
         "outcomes": {
@@ -377,6 +410,7 @@ def build_run_record(
         },
         "coverage": _coverage(
             trace,
+            run_id=run_id,
             environment_projected=environment_projected,
             reviews=reviews,
         ),
