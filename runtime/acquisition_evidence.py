@@ -122,6 +122,7 @@ def _manifest(raw: Mapping[str, object]) -> dict[str, object]:
         raise AcquisitionEvidenceError(
             "manifest must identify at least one operator-visible acquisition path"
         )
+    paths.sort(key=lambda item: str(item["path_id"]))
     return {
         "version": "maps-acquisition-paths-v1",
         "release_id": release_id,
