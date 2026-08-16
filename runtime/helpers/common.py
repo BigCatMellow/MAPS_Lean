@@ -4,8 +4,12 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import re
 from typing import Any, Mapping, Sequence
 from uuid import uuid4
+
+
+_HELPER_RUN_ID = re.compile(r"^HELP-[0-9a-f]{12}$")
 
 
 def now_z() -> str:
@@ -14,6 +18,18 @@ def now_z() -> str:
 
 class HelperError(RuntimeError):
     pass
+
+
+def new_helper_run_id() -> str:
+    """Allocate a stable helper invocation ID before consequential side effects."""
+    return f"HELP-{uuid4().hex[:12]}"
+
+
+def validate_helper_run_id(value: str) -> str:
+    normalized = value.strip() if isinstance(value, str) else ""
+    if not _HELPER_RUN_ID.fullmatch(normalized):
+        raise HelperError("helper_run_id must match HELP-<12 lowercase hex chars>")
+    return normalized
 
 
 @dataclass(frozen=True)
@@ -46,6 +62,12 @@ class HelperRunStore:
                 raise HelperError("helper run store must contain a JSON list")
         else:
             value = []
+        if any(
+            isinstance(item, Mapping)
+            and item.get("helper_run_id") == result.helper_run_id
+            for item in value
+        ):
+            raise HelperError("helper_run_id already exists in helper run store")
         value.append(result.to_dict())
         tmp = self.path.with_suffix(self.path.suffix + ".tmp")
         tmp.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -53,10 +75,21 @@ class HelperRunStore:
 
 
 def new_result(
-    *, task_id: str, helper: str, status: str, summary: str, output_paths: Sequence[str]
+    *,
+    task_id: str,
+    helper: str,
+    status: str,
+    summary: str,
+    output_paths: Sequence[str],
+    helper_run_id: str | None = None,
 ) -> HelperResult:
+    resolved_id = (
+        validate_helper_run_id(helper_run_id)
+        if helper_run_id is not None
+        else new_helper_run_id()
+    )
     return HelperResult(
-        helper_run_id=f"HELP-{uuid4().hex[:12]}",
+        helper_run_id=resolved_id,
         task_id=task_id,
         helper=helper,
         status=status,
