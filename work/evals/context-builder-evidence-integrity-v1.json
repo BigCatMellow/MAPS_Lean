@@ -133,6 +133,8 @@
           "source_sha256": "4252f696617767c9e8ac42c5b3c9b79b6900bbca2f70a8782504c961280a04f4",
           "anchor": {"type": "CODE_SYMBOL", "value": "ReviewMixin.claim_review"},
           "proof_role": "ACTIVE_MECHANICAL_GUARD",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT",
           "credit_only_if_retrieved": true
         }
       ]
@@ -161,14 +163,6 @@
       "expected_outcome": "EVIDENCE",
       "expected_cards": [
         {
-          "source_id": "CB-SRC-004",
-          "source_sha256": "4eb56fa7e6308de50b8aa800987493344f58d172ec22720b9b57b5f118436e1a",
-          "anchor": {"type": "MARKDOWN_SECTION", "value": "Provider status"},
-          "proof_role": "DESCRIPTIVE_CURRENT",
-          "polarity": "NEGATIVE_BOUNDARY",
-          "temporal_scope": "CURRENT"
-        },
-        {
           "source_id": "CB-SRC-001",
           "source_sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed",
           "anchor": {"type": "MARKDOWN_SECTION", "value": "Session truth"},
@@ -177,7 +171,17 @@
           "temporal_scope": "CURRENT"
         }
       ],
-      "acceptable_substitutes": []
+      "acceptable_substitutes": [
+        {
+          "source_id": "CB-SRC-004",
+          "source_sha256": "4eb56fa7e6308de50b8aa800987493344f58d172ec22720b9b57b5f118436e1a",
+          "anchor": {"type": "MARKDOWN_SECTION", "value": "Provider status"},
+          "proof_role": "DESCRIPTIVE_CURRENT",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT",
+          "credit_only_if_retrieved": true
+        }
+      ]
     },
     {
       "id": "CBI-004",
@@ -200,6 +204,8 @@
           "source_sha256": "4252f696617767c9e8ac42c5b3c9b79b6900bbca2f70a8782504c961280a04f4",
           "anchor": {"type": "CODE_SYMBOL", "value": "ReviewMixin.claim_review"},
           "proof_role": "ACTIVE_MECHANICAL_GUARD",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT",
           "credit_only_if_retrieved": true
         }
       ]
@@ -225,6 +231,8 @@
           "source_sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed",
           "anchor": {"type": "MARKDOWN_SECTION", "value": "Session truth"},
           "proof_role": "ACTIVE_AUTHORITY",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT",
           "credit_only_if_retrieved": true
         }
       ]
@@ -272,6 +280,8 @@
           "source_sha256": "4252f696617767c9e8ac42c5b3c9b79b6900bbca2f70a8782504c961280a04f4",
           "anchor": {"type": "CODE_SYMBOL", "value": "ReviewMixin.claim_review"},
           "proof_role": "ACTIVE_MECHANICAL_GUARD",
+          "polarity": "NEGATIVE_BOUNDARY",
+          "temporal_scope": "CURRENT",
           "credit_only_if_retrieved": true
         }
       ]
@@ -312,17 +322,19 @@
           "proof_role": "PROPOSAL",
           "polarity": "NEGATIVE_BOUNDARY",
           "temporal_scope": "CURRENT"
-        },
+        }
+      ],
+      "acceptable_substitutes": [
         {
           "source_id": "CB-SRC-007",
           "source_sha256": "aa02e567a66ddf48f031eb87b8cfbb421dfa5724fad57649ed60d6faf5ae7980",
           "anchor": {"type": "MARKDOWN_SECTION", "value": "Context Builder"},
           "proof_role": "CURRENT_BASELINE",
           "polarity": "NEGATIVE_BOUNDARY",
-          "temporal_scope": "CURRENT"
+          "temporal_scope": "CURRENT",
+          "credit_only_if_retrieved": true
         }
-      ],
-      "acceptable_substitutes": []
+      ]
     },
     {
       "id": "CBI-011",
@@ -390,6 +402,8 @@
           "source_sha256": "3a38e9ff77e31d101abb6228e018157dd227b69a955670a984ddcd816e0b89ed",
           "anchor": {"type": "MARKDOWN_SECTION", "value": "Review independence"},
           "proof_role": "ACTIVE_AUTHORITY",
+          "polarity": "POSITIVE",
+          "temporal_scope": "CURRENT",
           "credit_only_if_retrieved": true
         }
       ]
