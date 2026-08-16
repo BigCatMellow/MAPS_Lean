@@ -1,5 +1,6 @@
 from .base import BaseStore
 from .common import MutationResult, ValidationResult
+from .environment import EnvironmentEvidenceMixin
 from .execution import ExecutionMixin
 from .integrity import ExecutionIntegrityMixin
 from .integrity_scope import ExecutionScopeHardeningMixin
@@ -14,6 +15,7 @@ from .review_binding import ReviewBindingMixin
 class TaskStore(
     ExecutionScopeHardeningMixin,
     ExecutionIntegrityMixin,
+    EnvironmentEvidenceMixin,
     PolicyStateMixin,
     ReadinessMixin,
     ExecutionMixin,

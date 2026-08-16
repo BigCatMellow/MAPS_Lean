@@ -177,6 +177,41 @@ BEGIN
     SELECT RAISE(ABORT, 'run context refs are immutable');
 END;
 
+-- Environment observations are append-only evidence attached to an immutable
+-- run. They never alter the run contract, task lifecycle, ownership, or policy.
+CREATE TABLE IF NOT EXISTS run_environment_evidence (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    spec_ref TEXT NOT NULL,
+    environment_spec_hash TEXT NOT NULL,
+    fingerprint_sha256 TEXT NOT NULL,
+    compatibility_state TEXT NOT NULL CHECK (
+        compatibility_state IN (
+            'COMPATIBLE','COMPATIBLE_WITH_WARNINGS','DRIFTED','INCOMPATIBLE','UNKNOWN'
+        )
+    ),
+    reference_fingerprint_sha256 TEXT,
+    spec_snapshot TEXT NOT NULL,
+    fingerprint_snapshot TEXT NOT NULL,
+    compatibility_snapshot TEXT NOT NULL,
+    recorded_by TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_run_environment_evidence_run
+    ON run_environment_evidence(run_id, id);
+
+CREATE TRIGGER IF NOT EXISTS trg_run_environment_evidence_no_update
+BEFORE UPDATE ON run_environment_evidence
+BEGIN
+    SELECT RAISE(ABORT, 'run environment evidence is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_environment_evidence_no_delete
+BEFORE DELETE ON run_environment_evidence
+BEGIN
+    SELECT RAISE(ABORT, 'run environment evidence is immutable');
+END;
+
 -- Continuity is evidence that two worker/session identities share the same
 -- inherited execution context. It disqualifies independent review; it grants
 -- no ownership or task authority.
