@@ -52,10 +52,12 @@ class FakeCanonicalSource:
     def resolve_run_session(self, run_id):
         if run_id != "RUN-1":
             return None
+        project_id = self.task["project_id"]
         session_id = self.manifest.get("session_id")
         if not session_id:
             return {
                 "run_id": run_id,
+                "project_id": project_id,
                 "state": "UNBOUND",
                 "current": None,
                 "history": [],
@@ -63,9 +65,11 @@ class FakeCanonicalSource:
         if not self.session_adapter:
             return {
                 "run_id": run_id,
+                "project_id": project_id,
                 "state": "ADAPTER_UNPROVEN",
                 "current": {
                     "link_id": None,
+                    "project_id": project_id,
                     "adapter_id": None,
                     "session_id": session_id,
                 },
@@ -73,9 +77,11 @@ class FakeCanonicalSource:
             }
         return {
             "run_id": run_id,
+            "project_id": project_id,
             "state": "EXPLICIT",
             "current": {
                 "link_id": 1,
+                "project_id": project_id,
                 "adapter_id": self.session_adapter,
                 "session_id": session_id,
             },
