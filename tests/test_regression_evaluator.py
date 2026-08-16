@@ -90,6 +90,8 @@ class RegressionEvaluatorTests(unittest.TestCase):
                 tags=["aci"],
             ),
         ]
+        self.baseline_ref = "sha256:" + "b" * 64
+        self.candidate_ref = "sha256:" + "c" * 64
 
     def result(self, case, properties, measurements=None):
         value = {
@@ -105,16 +107,32 @@ class RegressionEvaluatorTests(unittest.TestCase):
     def case_report(report, case):
         return next(item for item in report["cases"] if item["case_id"] == case["case_id"])
 
+    def evaluate(self, results, *, cases=None, label="candidate", configuration_ref=None):
+        return evaluate_regression_cases(
+            self.cases if cases is None else cases,
+            results,
+            label=label,
+            configuration_ref=configuration_ref or self.candidate_ref,
+        )
+
+    def compare(self, baseline, candidate, *, cases=None):
+        return compare_regression_cases(
+            self.cases if cases is None else cases,
+            baseline,
+            candidate,
+            baseline_ref=self.baseline_ref,
+            candidate_ref=self.candidate_ref,
+        )
+
     def test_exact_case_hash_is_revalidated_before_scoring(self):
         self.assertEqual(validate_regression_case(self.cases[0]), self.cases[0])
         tampered = copy.deepcopy(self.cases[0])
         tampered["tags"].append("tampered")
         with self.assertRaisesRegex(EvaluationError, "content hash"):
-            evaluate_regression_cases([tampered], [], label="candidate")
+            self.evaluate([], cases=[tampered])
 
     def test_all_external_property_states_and_missing_are_explicit(self):
-        report = evaluate_regression_cases(
-            self.cases,
+        report = self.evaluate(
             [
                 self.result(
                     self.cases[0],
@@ -125,8 +143,7 @@ class RegressionEvaluatorTests(unittest.TestCase):
                         "tool.d": "NOT_RUN",
                     },
                 )
-            ],
-            label="candidate",
+            ]
         )
         metrics = report["metrics"]["properties"]
         self.assertEqual(metrics["pass"], 1)
@@ -144,14 +161,30 @@ class RegressionEvaluatorTests(unittest.TestCase):
     def test_unknown_duplicate_and_hash_mismatched_results_fail(self):
         valid = self.result(self.cases[0], {"tool.a": "PASS"})
         with self.assertRaisesRegex(EvaluationError, "duplicate result"):
-            evaluate_regression_cases(self.cases, [valid, valid], label="candidate")
+            self.evaluate([valid, valid])
         bad_property = self.result(self.cases[0], {"not.expected": "PASS"})
         with self.assertRaisesRegex(EvaluationError, "unknown properties"):
-            evaluate_regression_cases(self.cases, [bad_property], label="candidate")
+            self.evaluate([bad_property])
         bad_hash = self.result(self.cases[0], {"tool.a": "PASS"})
         bad_hash["case_sha256"] = "0" * 64
         with self.assertRaisesRegex(EvaluationError, "hash mismatch"):
-            evaluate_regression_cases(self.cases, [bad_hash], label="candidate")
+            self.evaluate([bad_hash])
+
+    def test_configuration_identity_is_immutable_and_reported(self):
+        with self.assertRaisesRegex(EvaluationError, "immutable"):
+            evaluate_regression_cases(
+                self.cases,
+                [],
+                label="candidate",
+                configuration_ref="candidate-latest",
+            )
+
+        report = self.evaluate([])
+        self.assertEqual(report["configuration_ref"], self.candidate_ref)
+
+        comparison = self.compare([], [])
+        self.assertEqual(comparison["baseline"]["configuration_ref"], self.baseline_ref)
+        self.assertEqual(comparison["candidate"]["configuration_ref"], self.candidate_ref)
 
     def test_categories_tags_metrics_and_determinism_are_preserved(self):
         results = [
@@ -161,9 +194,12 @@ class RegressionEvaluatorTests(unittest.TestCase):
             ),
             self.result(self.cases[1], {"aci.clear": "FAIL"}),
         ]
-        first = evaluate_regression_cases(self.cases, results, label="candidate")
+        first = self.evaluate(results)
         second = evaluate_regression_cases(
-            list(reversed(self.cases)), list(reversed(results)), label="candidate"
+            list(reversed(self.cases)),
+            list(reversed(results)),
+            label="candidate",
+            configuration_ref=self.candidate_ref,
         )
         self.assertEqual(first, second)
         tool_case = self.case_report(first, self.cases[0])
@@ -175,18 +211,16 @@ class RegressionEvaluatorTests(unittest.TestCase):
         self.assertFalse(first["promotion"]["automatic"])
 
     def test_measurements_are_present_only_when_explicitly_supplied(self):
-        without = evaluate_regression_cases(self.cases, [], label="candidate")
+        without = self.evaluate([])
         self.assertNotIn("measurements", without["metrics"])
-        measured = evaluate_regression_cases(
-            self.cases,
+        measured = self.evaluate(
             [
                 self.result(
                     self.cases[0],
                     {property_id: "PASS" for property_id in self.cases[0]["expected_properties"]},
                     {"cost_usd": 0.25, "latency_ms": 1200},
                 )
-            ],
-            label="candidate",
+            ]
         )
         summary = measured["metrics"]["measurements"]
         self.assertEqual(summary["cost_usd"]["measured_cases"], 1)
@@ -209,7 +243,7 @@ class RegressionEvaluatorTests(unittest.TestCase):
                 {"cost_usd": 0.8, "latency_ms": 900},
             )
         ]
-        comparison = compare_regression_cases([case], baseline, candidate)
+        comparison = self.compare(baseline, candidate, cases=[case])
         outcomes = {
             row["property_id"]: row["outcome"]
             for row in comparison["cases"][0]["properties"]
@@ -228,7 +262,7 @@ class RegressionEvaluatorTests(unittest.TestCase):
 
     def test_evaluation_is_read_only_and_never_authorizes_promotion(self):
         before = self.store.trace_task("TASK-EVAL")
-        comparison = compare_regression_cases(self.cases, [], [])
+        comparison = self.compare([], [])
         self.assertEqual(self.store.trace_task("TASK-EVAL"), before)
         self.assertFalse(comparison["promotion"]["automatic"])
         self.assertEqual(
