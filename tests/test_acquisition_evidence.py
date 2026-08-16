@@ -137,7 +137,7 @@ class AcquisitionEvidenceTests(unittest.TestCase):
             "decision:archive-na",
         )
 
-    def test_not_applicable_requires_manifest_permission(self):
+    def test_not_applicable_requires_manifest_permission_without_inventing_unusability(self):
         value = manifest()
         value["paths"][1]["allow_not_applicable"] = False
         report = evaluate_acquisition_evidence(
@@ -146,12 +146,22 @@ class AcquisitionEvidenceTests(unittest.TestCase):
             label="forbidden-na",
         )
 
+        fragments = report["benchmark_property_fragments"]
         self.assertEqual(
-            report["benchmark_property_fragments"]["release.acquisition_paths_verified"]["state"],
+            fragments["release.acquisition_paths_verified"]["state"],
             "FAIL",
+        )
+        self.assertEqual(
+            fragments["operator.result_usable"]["state"],
+            "UNKNOWN",
+        )
+        self.assertEqual(
+            fragments["operator.result_usable"]["evidence_refs"],
+            [],
         )
         archive = next(item for item in report["paths"] if item["path_id"] == "archive")
         self.assertEqual(archive["reason"], "not_applicable_not_allowed")
+        self.assertEqual(archive["usability_status"], "UNKNOWN")
 
     def test_unreachable_path_is_failure_but_does_not_invent_stale_content(self):
         unreachable = {
@@ -214,18 +224,19 @@ class AcquisitionEvidenceTests(unittest.TestCase):
                 label="duplicate-path",
             )
 
-    def test_report_identity_is_deterministic_across_observation_order(self):
+    def test_report_identity_is_content_derived_not_order_or_label_derived(self):
         first = evaluate_acquisition_evidence(
             manifest(),
             [observed("download", SHA_A, "download"), observed("archive", SHA_B, "archive")],
-            label="deterministic",
+            label="first-label",
         )
         second = evaluate_acquisition_evidence(
             manifest(),
             [observed("archive", SHA_B, "archive"), observed("download", SHA_A, "download")],
-            label="deterministic",
+            label="second-label",
         )
 
+        self.assertNotEqual(first["label"], second["label"])
         self.assertEqual(first["report_id"], second["report_id"])
         self.assertEqual(first["manifest_sha256"], second["manifest_sha256"])
 
