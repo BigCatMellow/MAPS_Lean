@@ -16,18 +16,12 @@
 - live open PR/base/head/review/CI/comment evidence;
 - accepted MAPS task/ownership state.
 
-Authority order for this task:
+Authority order:
 
 1. operator / policy authority;
 2. canonical MAPS task and ownership state;
 3. live GitHub repository/PR/review/CI evidence;
-4. this TOWER task/roadmap/dispatch as derived routing evidence only.
-
-Evidence labels:
-
-- `VERIFIED` — directly re-read from current GitHub/repository evidence during this refresh;
-- `REPORTED` — preserved source claim not mechanically reproduced by TOWER;
-- `UNKNOWN` — not safely established; route or block rather than guess.
+4. this TOWER packet as derived routing evidence only.
 
 ## Change boundary
 
@@ -41,111 +35,81 @@ Evidence labels:
 ### MUST NOT CHANGE
 
 - owner-controlled `ANVIL.md`, `FOUNDRY.md`, `SENTINEL.md`, `SWITCHYARD.md`;
-- runtime, tests, schemas, policies, feature branches, existing feature task records, or canonical project roadmaps;
-- canonical task lifecycle or ownership;
-- SENTINEL review findings;
+- runtime, tests, schemas, policies, feature branches, existing feature task records, canonical project roadmaps;
+- canonical lifecycle/ownership;
+- SENTINEL findings;
 - SWITCHYARD integration/merge state or authority.
-
-Any new repository path requires task amendment first.
 
 ## Decision authority
 
-TOWER may decide:
+TOWER may derive priority/order/hold conditions from verified dependencies. TOWER may not invent ownership, approve reviewed work, synchronize branches, implement features, or merge.
 
-- derived `NOW / NEXT / BLOCKED / PARKED` ordering from verified dependencies and operator priority;
-- which existing role should inspect an already-authorized gate;
-- hold/resume wording and dependency release conditions;
-- when stale TOWER planning evidence must be refreshed.
-
-TOWER must not decide:
-
-- assignment across an unresolved canonical ownership boundary;
-- independent review outcome;
-- integration safety/merge approval;
-- feature scope or runtime behavior outside an existing owner task.
-
-Escalate unresolved material ownership/authority to the operator.
+Unresolved material ownership/authority is escalated to the operator.
 
 ## Acceptance criteria
 
-- [x] Live `main` is recovered before refresh.
-- [x] Root `AGENTS.md`, coordination README, and current proposed PR #73 protocol are read before consequential TOWER edits.
-- [x] The stale root-centric queue is replaced with the current dependency frontier.
-- [x] Accepted roots #30/#39/#44/#48 are represented as foundations, not active waits.
-- [x] #41 is represented as exact integrated-head review in progress; #53 remains blocked until actual #41 acceptance.
-- [x] #45 is represented as exact integrated-head review in progress.
-- [x] #49 is represented as released to FOUNDRY for genuine rebuild on accepted #48/A1; #50 remains blocked until #49 acceptance.
-- [x] #73 is represented as exact integrated-head review in progress.
-- [x] #70/#71 are represented as distinct CI-green independent-review opportunities.
-- [x] #43 is represented as bounded repair-ready but owner-unresolved; TOWER does not invent an ANVIL/FOUNDRY transfer.
+- [x] Live state recovered before edits.
+- [x] Root AGENTS, coordination README, and proposed PR #73 protocol read.
+- [x] Accepted main refreshed after concurrent movement.
+- [x] Accepted roots #30/#39/#44/#45/#48 represented as foundations, not work items.
+- [x] #41 represented as `RESYNCHRONIZATION REQUIRED` after #45 moved main; #53 held until actual #41 acceptance.
+- [x] #49 represented as released to FOUNDRY for genuine rebuild on accepted A1/latest main; #50 held until #49 acceptance.
+- [x] #73 prior CLEAN review represented as stale after main movement; current gate is SWITCHYARD resynchronization then fresh CI/review.
+- [x] #70/#71 old-base integration packets represented as stale/potentially stale and routed to SWITCHYARD current-main re-grounding before current merge-authoritative review.
+- [x] #43 represented as bounded repair-ready but owner-unresolved; TOWER does not assign it to ANVIL/FOUNDRY without authority.
 - [x] #60 remains blocked behind accepted #43.
-- [x] #67/#68/#69 remain owner-controlled coordination freshness work rather than cross-lane rewrite targets.
-- [x] #51/#52 remain planning/design only and do not create runtime wait authority.
-- [x] TOWER priority is explicitly routing evidence only; SENTINEL review and SWITCHYARD merge authority remain separate.
-- [x] This branch changes only the three TOWER planning/coordination Markdown files.
-- [ ] Fresh exact-head CI completes on the refreshed #72 head.
-- [ ] Eligible independent review completes on the refreshed #72 head.
+- [x] #67/#68/#69 remain owner-controlled coordination freshness work.
+- [x] #51/#52 remain planning/design only with no runtime wait authority.
+- [x] Branch changes remain limited to the three TOWER Markdown files.
+- [ ] Fresh exact-head CI completes on the final refreshed #72 head.
+- [ ] Eligible independent review completes on the final refreshed #72 head.
 - [ ] If clean, SWITCHYARD performs current-main synchronization/integration; TOWER does not.
 
-## Verification evidence at refresh
+## Verification evidence at final refresh
 
 ### Accepted main
 
-`eccdddaa37e42c93982bedf20d19e4f5096dbcff`
+`c4c93e52edd961802c7c203035f0bc272f196b59`
 
-### Current product frontier
+PR #45 is merged at that commit.
 
-- #41: `main@eccdddaa... -> 6359e9246ef487d40fff60c2fb31b78067728fcb`; Runtime CI #480 / `31972177992` PASS; SENTINEL-A exact-head claim observed.
-- #45: `main@eccdddaa... -> fdf6baf6fe5f0a8b83532bbf79bc3ddfdf834dcb`; Runtime CI #476 / `31971839363` PASS; SENTINEL-B exact-head claim observed.
-- #49: historical head `ed865be729cf2d15663258fd46c9296ea32d28e7`; explicit SWITCHYARD release to FOUNDRY for rebuild on accepted A1; #50 held until acceptance.
-- #43: exact head `aeecf1b5775db1d5ac2484819620f476752f3654`; returned defect is bounded change-contract mismatch only; ANVIL explicitly declined claim because no ownership transfer exists; #60 held until acceptance.
+### Product frontier
 
-### Current coordination/review frontier
+- #41: unchanged head `6359e9246ef487d40fff60c2fb31b78067728fcb`; old-base Runtime CI #480 PASS; SENTINEL-A disposition `NOT READY — RESYNCHRONIZATION REQUIRED` after main moved. Next owner/gate: SWITCHYARD current-main synchronization -> fresh CI -> fresh independent review. #53 blocked.
+- #49: historical head `ed865be729cf2d15663258fd46c9296ea32d28e7`; explicit release to FOUNDRY for rebuild on accepted #48/A1/latest main. #50 blocked.
+- #43: head `aeecf1b5775db1d5ac2484819620f476752f3654`; narrow change-contract defect only; ANVIL explicitly declined claim because ownership was not transferred. #60 blocked.
 
-- #73: `main@eccdddaa... -> 7434b08e9343750f5d860070fa4005bcbf2da1e3`; Runtime CI #478 PASS; SENTINEL-C exact-head claim observed.
-- #70: `main@eccdddaa... -> 90c2d08ae3f45e176b914487401686f09021ab4f`; Runtime CI #479 PASS; independent review still required.
-- #71: `main@eccdddaa... -> cc8917b83c800863f8e3d8b6e0f34901f74b4d1b`; Runtime CI #477 PASS; independent review still required.
-- #67: ANVIL owner-note freshness repair required.
-- #68: FOUNDRY owner-note freshness repair required while preserving FOUNDRY development role.
-- #69: SENTINEL owner-note refresh required.
+### Coordination/protocol frontier
+
+- #73: old head `7434b08e9343750f5d860070fa4005bcbf2da1e3`; prior CI #478 PASS and CLEAN integrated-head review on `eccdddaa...`, explicitly marked stale after #45 moved main. Next: SWITCHYARD resync + fresh CI/review.
+- #70: head `90c2d08ae3f45e176b914487401686f09021ab4f`; prior CI #479 PASS on `eccdddaa...`; current main moved, so current-main re-grounding precedes merge-authoritative review.
+- #71: head `cc8917b83c800863f8e3d8b6e0f34901f74b4d1b`; prior CI #477 PASS on `eccdddaa...`; current main moved, so current-main re-grounding precedes merge-authoritative review.
+- #67/#68/#69: owner-controlled freshness work only.
 
 ## Conditional execution rules
 
 1. Recover live state.
-2. Compare it with the current TOWER packet.
-3. Update only legitimately derived facts.
-4. Move work to NOW only if ownership, dependencies, role, and authority are satisfied.
-5. Preserve blocked downstream work until actual prerequisite acceptance.
-6. If ownership is unresolved, record the blocker rather than assign from convenience.
-7. Update only the three TOWER files/comments.
-8. Verify exact branch delta.
-9. Require fresh CI and independent review.
-10. Stop at the TOWER boundary; SWITCHYARD owns synchronization/integration.
-
-Failure rules:
-
-- IF `main` or a claimed exact review target moves THEN re-read before further dispatch.
-- IF CI/review cannot be bound to the exact head THEN mark the gate unproven.
-- IF canonical ownership conflicts with TOWER routing THEN canonical ownership wins.
-- IF TOWER would need to implement, independently review, synchronize, or merge THEN hand off and stop.
-- IF #43 ownership remains unresolved THEN keep it blocked and surface the operator decision.
+2. Compare to current TOWER packet.
+3. Update only verified derived facts.
+4. Move work to NOW only when ownership/dependency/role/authority permit it.
+5. Invalidate merge-authoritative review assumptions when accepted main moves.
+6. Keep downstream work blocked until actual prerequisite acceptance.
+7. If ownership is unresolved, record blocker rather than assign from convenience.
+8. Change only the three TOWER files/comments.
+9. Verify exact branch delta.
+10. Require fresh CI and independent review.
+11. Stop at TOWER boundary; SWITCHYARD owns synchronization/integration.
 
 ## Stop / escalate
 
-Stop rather than guess when:
-
-- exact ownership is unresolved;
-- a review or CI claim is stale/ambiguous;
-- a new output path is required;
-- operator intent would materially change role/priority/scope;
-- branch movement occurs while writing.
+Stop rather than guess on unresolved ownership, stale exact-head evidence, material main movement, or authority conflicts.
 
 Escalate:
 
-- operator — material ownership/intent/priority/role decisions;
+- operator — #43 ownership or other material intent/role decisions;
 - SENTINEL — independent review;
 - SWITCHYARD — integration/merge safety;
-- legitimate development owner — concrete implementation repairs.
+- legitimate development owner — implementation repair.
 
 ## AGI readiness
 
@@ -159,22 +123,21 @@ Escalate:
 
 ## Notes / decisions
 
-- Checkpoint decision: `CHANGE` — the old #72 queue was materially stale.
-- Former roots #30/#39/#44/#48 are accepted and removed from NOW.
-- #41/#45 moved to integrated-head review in progress.
-- #49 moved from blocked to FOUNDRY rebuild released.
-- #53/#50 remain strict downstream holds.
-- #43 moved from generic parked work to explicit owner-unresolved blocker; runtime scope remains narrow.
-- #73 review is actively claimed; #70/#71 remain distinct review opportunities.
-- Coordination-note freshness #67/#68/#69 remains owner-controlled and cannot be repaired cross-lane.
+- Checkpoint decision: `CHANGE` twice during this run because live main moved while #72 CI was in progress.
+- #45 moved from review-in-progress to ACCEPTED.
+- #41 moved from review-in-progress to SWITCHYARD resynchronization required.
+- #73 moved from review-in-progress/CLEAN old-base evidence to SWITCHYARD resynchronization required.
+- #70/#71 moved from direct review opportunities to current-main re-grounding before merge-authoritative review.
+- #49 remains valid FOUNDRY parallel development.
+- #43 remains explicit owner-unresolved blocker.
 
 ## Completion / handoff
 
 TOWER refresh is complete when:
 
-1. the three TOWER files contain the same live-state model;
+1. all three TOWER files reflect `main@c4c93e52...` and the same dependency frontier;
 2. exact branch delta is still only those three files;
-3. fresh #72 exact-head CI is requested/observed;
-4. a durable independent-review handoff is left on PR #72.
+3. fresh Runtime CI passes on the final #72 head;
+4. a durable independent-review handoff is posted to PR #72.
 
-After that TOWER stops. It does not independently review, synchronize, or merge #72.
+TOWER then freezes. It does not independently review, synchronize, or merge #72.
