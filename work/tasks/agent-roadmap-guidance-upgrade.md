@@ -42,8 +42,8 @@
 
 ## Verification and evidence
 
-- Verification: fetched TOWER/task files; confirmed branch coordination directory contains ANVIL, FOUNDRY, SENTINEL, SWITCHYARD, and TOWER with no ATLAS file; compared branch against original base and current `main`; inspected changed paths and current live PR role state.
-- Evidence to preserve: original-base compare shows exactly the four existing coordination files, new `TOWER.md`, and this task record; current-main compare shows the documentation branch has diverged because `main` advanced after branch creation.
+- Verification: fetched TOWER/task files; confirmed branch coordination directory contains ANVIL, FOUNDRY, SENTINEL, SWITCHYARD, and TOWER with no ATLAS file; compared branch against original base and current `main`; inspected changed paths and current live PR role state; refreshed PR #70 title/body to the TOWER architecture.
+- Evidence to preserve: original-base compare shows exactly the four existing coordination files, new `TOWER.md`, and this task record; current-main compare shows the documentation branch diverged because `main` advanced after branch creation; PR #70 remains draft and explicitly requires independent review/current-main reconciliation.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -82,7 +82,7 @@ Escalate to: operator for intent/priority/consequential decisions; SENTINEL for 
 
 ## Completion / handoff
 
-- Completed: four-agent roadmap guidance; TOWER planning/dispatch identity; ATLAS removal; exact documentation-scope verification.
-- Not completed: PR #70 metadata refresh, independent review, current-main reconciliation, and integration.
-- Current blocker: no documentation blocker; PR #70 is not currently integration-ready because `main` advanced and independent review is still required.
-- Next action if not DONE: refresh PR #70 description/title with the TOWER architecture and hand the exact head to independent review/SWITCHYARD without self-approving or merging.
+- Completed: four-agent roadmap guidance; TOWER planning/dispatch identity; ATLAS removal; exact documentation-scope verification; PR #70 metadata refresh.
+- Not completed: required independent review, current-main reconciliation, and integration.
+- Current blocker: PR #70 is not yet integration-ready because `main` advanced and the required independent review has not been performed on the final exact head.
+- Next action if not DONE: hand the exact PR #70 head to independent review, then SWITCHYARD for current-main reconciliation/integration gating without TOWER self-approving or merging.
