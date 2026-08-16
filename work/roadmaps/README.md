@@ -17,6 +17,7 @@ The reconciliation is not canonical state. Live GitHub, accepted MAPS state, and
 Detailed roadmaps:
 
 - [Prime Agent capability adoption roadmap](prime-agent-capability-roadmap.md) — detailed Prime-derived lifecycle/harness concepts and their Lean translation. Its architecture remains useful, but historical phase/baseline text may predate the current reconciliation.
+- [Operator Intent Compiler / Request Normalizer](operator-intent-compiler.md) — operator-facing intake layer that turns concise natural-language requests into proposed AGI-ready task contracts before Context Builder, without creating new authority.
 - [Agent-harness capability roadmap set](agent-harness-capabilities/README.md) — five coordinated detailed roadmaps:
   1. Harness Mechanics
   2. Procedural Knowledge & Skills
