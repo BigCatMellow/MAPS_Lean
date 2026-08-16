@@ -9,6 +9,8 @@ import re
 from types import MappingProxyType
 from typing import Any, Mapping
 
+from runtime.state.observability import redact_sensitive_text
+
 
 class EnvironmentSpecError(ValueError):
     pass
@@ -29,6 +31,15 @@ def _required_text(value: object, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise EnvironmentSpecError(f"{field_name} must be non-empty text")
     return value.strip()
+
+
+def _persisted_text(value: object, field_name: str) -> str:
+    text = _required_text(value, field_name)
+    if redact_sensitive_text(text) != text:
+        raise EnvironmentSpecError(
+            f"{field_name} appears to contain sensitive credential material"
+        )
+    return text
 
 
 def _expect_object(value: object, field_name: str) -> Mapping[str, Any]:
@@ -68,12 +79,11 @@ def _identifiers(value: object, field_name: str, *, allow_empty: bool = True) ->
 def _commands(value: object, field_name: str) -> tuple[str, ...]:
     if not isinstance(value, list):
         raise EnvironmentSpecError(f"{field_name} must be a list of commands")
-    commands = tuple(_required_text(item, field_name) for item in value)
-    return commands
+    return tuple(_persisted_text(item, field_name) for item in value)
 
 
 def _repo_path(value: object, field_name: str) -> str:
-    text = _required_text(value, field_name)
+    text = _persisted_text(value, field_name)
     if "\\" in text:
         raise EnvironmentSpecError(f"{field_name} must use portable '/' separators")
     path = PurePosixPath(text)
@@ -215,7 +225,7 @@ def parse_environment_spec(data: Mapping[str, Any]) -> EnvironmentSpec:
     if base_revision_raw is None:
         base_revision = None
     else:
-        base_revision = _required_text(base_revision_raw, "repository.base_revision")
+        base_revision = _persisted_text(base_revision_raw, "repository.base_revision")
     clean = repository_data.get("require_clean_worktree")
     if not isinstance(clean, bool):
         raise EnvironmentSpecError("repository.require_clean_worktree must be boolean")
@@ -227,7 +237,7 @@ def parse_environment_spec(data: Mapping[str, Any]) -> EnvironmentSpec:
     runtimes: dict[str, str] = {}
     for raw_name, raw_constraint in runtimes_data.items():
         name = _identifier(raw_name, "runtime name")
-        constraint = _required_text(raw_constraint, f"runtimes.{name}")
+        constraint = _persisted_text(raw_constraint, f"runtimes.{name}")
         runtimes[name] = constraint
 
     required_tools = _identifiers(
