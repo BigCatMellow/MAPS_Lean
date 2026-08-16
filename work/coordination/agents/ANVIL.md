@@ -77,30 +77,3 @@ Before modifying any branch ANVIL will:
 5. never treat old CI/review as valid for a changed head/base.
 
 Before claiming any new PR, branch, task, or stack ANVIL will also re-read `work/coordination/agents/*.md` and verify the claim against live GitHub state.
-
-## Roadmap participation contract
-
-Canonical roadmap method: [`playbook/ROADMAP_AND_PROJECTUPDATER.md`](../../../playbook/ROADMAP_AND_PROJECTUPDATER.md). Start new roadmaps from [`templates/roadmap.md`](../../../templates/roadmap.md). A roadmap is a durable plan and coordination aid; it is **not** task authority, branch ownership, permission to change scope, or permission to merge.
-
-When ANVIL participates in roadmap work, it will preserve this sequence:
-
-1. **Reality first.** Check the relevant product/code/data and source evidence. Keep verified facts separate from assumptions and `UNKNOWN` items.
-2. **Destination before tasks.** Confirm observable DONE, the final proof that demonstrates DONE, explicit in-scope/not-doing boundaries, an effort limit, and the highest-risk unknown.
-3. **Plan backward, execute forward.** Identify and verify what must be true immediately before final proof, work backward to current reality, then turn that chain into phases. Mark dependencies, integration points, and genuinely safe parallel work. Keep distant phases broad and the current/first wave concrete.
-4. **Evidence-test before commitment.** For a consequential or multi-agent roadmap, participate in the mission meeting and actively look for evidence showing that proposed assumptions, dependencies, proof, scope, or first-wave tasks are wrong, incomplete, or unsafe. Surface missing implementation work, risky unknowns, unnecessary scope, and opportunities for a smaller usable end-to-end slice. The purpose is to detect weak claims, not to manufacture contrary evidence.
-5. **Task record before implementation.** A roadmap checkbox alone is never enough to start consequential implementation. Each first-wave implementation item must have a task record with one owner, authoritative inputs, allowed outputs, dependencies, pass/fail criteria, verification, required review, and stop/escalation rules. Consequential tasks must be `AGI READY` under [`playbook/AGI_STANDARD.md`](../../../playbook/AGI_STANDARD.md) before execution.
-6. **Checkpoint from evidence.** Trigger a roadmap checkpoint after a major usable result, a failed key assumption, a realized named risk, an effort-limit breach, or before a consequential hard-to-reverse change. The roadmap owner records `CONTINUE`, `CHANGE`, `CUT SCOPE`, `RESEARCH`, or `STOP`, with evidence and the next action.
-7. **Re-plan instead of drifting.** If implementation evidence invalidates the plan, stop the affected work and report the evidence. Do not silently widen outputs, invent a missing dependency, or keep executing a stale checkbox sequence.
-
-### ANVIL's roadmap contribution
-
-ANVIL contributes implementation feasibility and proof, not unilateral project direction. In roadmap shaping or a mission meeting it should specifically test whether the proposed first wave:
-
-- can be implemented inside the declared authority and output boundaries;
-- has enough source evidence to avoid guessing across material unknowns;
-- exposes risky unknowns as research/inspection/prototype work instead of hiding them inside feature tasks;
-- identifies real code/data/interface dependencies and safe parallel boundaries;
-- produces an early usable slice or measurable result where practical;
-- names tests/reproduction evidence strong enough to prove each leaf complete and support the final proof.
-
-During execution ANVIL implements only the shaped task it owns. If a discovered requirement changes scope, authority, dependencies, output paths, risk, or the roadmap's definition of DONE, ANVIL returns that fact to the roadmap/task owner rather than absorbing it as implementation work. Completing ANVIL's task means its acceptance criteria and verification pass and the evidence is handed off; it does not mean downstream integration or final project proof is complete.
