@@ -12,7 +12,7 @@ from runtime.state import TaskStore
 from runtime.state.common import utc_now
 
 
-def contract():
+def contract(*, output_path="src"):
     return {
         "title": "Run session lineage",
         "outcome": "Provider session identity stays bound to one immutable run",
@@ -27,7 +27,7 @@ def contract():
         "inputs": ["input"],
         "sources": ["source"],
         "dependencies": [],
-        "output_paths": ["src"],
+        "output_paths": [output_path],
         "non_goals": ["no task authority changes"],
         "acceptance_criteria": ["lineage is append-only"],
         "stop_conditions": ["stop on ambiguous identity"],
@@ -52,16 +52,22 @@ class RunSessionLineageTests(unittest.TestCase):
         (self.repo / "src").mkdir()
         self.store = TaskStore(self.root / "maps.db")
 
-    def make_active(self, worker="worker", *, project="default"):
+    def make_active(self, worker="worker", *, project="default", output_path="src"):
         created = self.store.create_task(title="x", project_id=project)
         self.assertTrue(created.ok)
         task_id = created.task["task_id"]
-        self.assertTrue(self.store.update_contract(task_id, contract()).ok)
+        self.assertTrue(
+            self.store.update_contract(
+                task_id,
+                contract(output_path=output_path),
+            ).ok
+        )
         self.assertTrue(self.store.promote_ready(task_id).ok)
         self.assertTrue(self.store.claim_task(task_id, worker, lease_seconds=600).ok)
         return task_id
 
     def make_run(self, task_id, *, worker="worker", session_id=None):
+        writable_paths = self.store.get_task(task_id)["output_paths"]
         result = self.store.create_run_manifest(
             task_id,
             worker,
@@ -69,7 +75,7 @@ class RunSessionLineageTests(unittest.TestCase):
             created_by="dispatcher",
             session_id=session_id,
             readable_paths=["."],
-            writable_paths=["src"],
+            writable_paths=writable_paths,
         )
         self.assertTrue(result.ok, result.message)
         return result.task
@@ -248,8 +254,14 @@ class RunSessionLineageTests(unittest.TestCase):
         self.assertEqual(duplicate.code, "SESSION_ALREADY_BOUND")
 
     def test_same_adapter_session_id_can_exist_in_distinct_projects(self):
-        project_a_task = self.make_active(project="project-a")
-        project_b_task = self.make_active(project="project-b")
+        project_a_task = self.make_active(
+            project="project-a",
+            output_path="src/project-a",
+        )
+        project_b_task = self.make_active(
+            project="project-b",
+            output_path="src/project-b",
+        )
         project_a_run = self.make_run(project_a_task)
         project_b_run = self.make_run(project_b_task)
 
