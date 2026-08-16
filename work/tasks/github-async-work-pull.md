@@ -75,6 +75,7 @@
 - Review required: `INDEPENDENT_REVIEW` because this is a shared multi-agent operating protocol.
 - Reviewer should specifically test for hidden/duplicate authority, stale-state risk, ambiguous work claiming, autonomous role self-selection, role drift, manufactured reviewer independence, duplicate-review races, abandoned-claim deadlock, reviewer mutation of reviewed work, unsafe parallelism, ownerless PR risk, PR-age-based ordering, stale-branch regression of accepted main, and backlog-control behavior that could accidentally bypass integration gates.
 - Any prior exact-head review is stale after changes to the protocol/roadmap/task files and must not be used as approval for the new head.
+- The anti-regression update itself requires a fresh exact-head independent review; no earlier #73 disposition is reusable.
 
 ## Stop / escalation
 
