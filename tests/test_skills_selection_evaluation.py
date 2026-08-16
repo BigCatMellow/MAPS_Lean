@@ -68,6 +68,23 @@ class SkillSelectionEvaluationTests(unittest.TestCase):
         self.assertEqual(report.ambiguity_misses, 0)
         self.assertTrue(all(value == 1.0 for value in report.category_accuracy.values()))
 
+    def test_false_activation_on_abstain_case_reduces_selection_precision(self):
+        corpus = self.load()
+        predictions = {
+            item.case_id: item for item in self.perfect_predictions(corpus)
+        }
+        predictions["SEL-017"] = SkillSelectionPrediction(
+            case_id="SEL-017",
+            outcome=SkillSelectionOutcome.SELECT,
+            selected_skills=("release-verification",),
+        )
+
+        report = evaluate_skill_selection(corpus, predictions.values())
+
+        self.assertEqual(report.false_activation_cases, 1)
+        self.assertLess(report.selection_precision, 1.0)
+        self.assertLess(report.selection_f1, 1.0)
+
     def test_failures_are_classified_without_becoming_routing_logic(self):
         corpus = self.load()
         predictions = {
@@ -94,6 +111,7 @@ class SkillSelectionEvaluationTests(unittest.TestCase):
         self.assertEqual(report.false_activation_cases, 1)
         self.assertEqual(report.missed_activation_cases, 1)
         self.assertEqual(report.ambiguity_misses, 1)
+        self.assertLess(report.selection_precision, 1.0)
         self.assertLess(report.abstention_accuracy, 1.0)
         self.assertEqual(report.ambiguity_accuracy, 0.0)
         self.assertLess(report.category_accuracy["HARD_NEGATIVE"], 1.0)
