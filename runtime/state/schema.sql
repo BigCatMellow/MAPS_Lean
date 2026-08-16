@@ -177,6 +177,45 @@ BEGIN
     SELECT RAISE(ABORT, 'run context refs are immutable');
 END;
 
+-- Adapter-qualified provider/session identity is separate append-only lineage.
+-- It extends an immutable run without rewriting the original run manifest.
+CREATE TABLE IF NOT EXISTS run_session_links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    relation TEXT NOT NULL CHECK (relation IN ('ATTACH','REPLACE')),
+    adapter_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    replaces_link_id INTEGER REFERENCES run_session_links(id),
+    evidence_ref TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    CHECK (
+        (relation = 'ATTACH' AND replaces_link_id IS NULL)
+        OR (relation = 'REPLACE' AND replaces_link_id IS NOT NULL)
+    ),
+    UNIQUE(adapter_id, session_id)
+);
+CREATE INDEX IF NOT EXISTS idx_run_session_links_run
+    ON run_session_links(run_id, id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_run_session_one_attach
+    ON run_session_links(run_id)
+    WHERE relation = 'ATTACH';
+CREATE UNIQUE INDEX IF NOT EXISTS idx_run_session_one_replacement
+    ON run_session_links(replaces_link_id)
+    WHERE replaces_link_id IS NOT NULL;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_session_links_no_update
+BEFORE UPDATE ON run_session_links
+BEGIN
+    SELECT RAISE(ABORT, 'run session links are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_session_links_no_delete
+BEFORE DELETE ON run_session_links
+BEGIN
+    SELECT RAISE(ABORT, 'run session links are immutable');
+END;
+
 -- Continuity is evidence that two worker/session identities share the same
 -- inherited execution context. It disqualifies independent review; it grants
 -- no ownership or task authority.
