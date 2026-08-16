@@ -272,6 +272,41 @@ BEGIN
     SELECT RAISE(ABORT, 'run session links are immutable');
 END;
 
+-- Environment observations are append-only evidence attached to an immutable
+-- run. They never alter the run contract, task lifecycle, ownership, or policy.
+CREATE TABLE IF NOT EXISTS run_environment_evidence (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    spec_ref TEXT NOT NULL,
+    environment_spec_hash TEXT NOT NULL,
+    fingerprint_sha256 TEXT NOT NULL,
+    compatibility_state TEXT NOT NULL CHECK (
+        compatibility_state IN (
+            'COMPATIBLE','COMPATIBLE_WITH_WARNINGS','DRIFTED','INCOMPATIBLE','UNKNOWN'
+        )
+    ),
+    reference_fingerprint_sha256 TEXT,
+    spec_snapshot TEXT NOT NULL,
+    fingerprint_snapshot TEXT NOT NULL,
+    compatibility_snapshot TEXT NOT NULL,
+    recorded_by TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_run_environment_evidence_run
+    ON run_environment_evidence(run_id, id);
+
+CREATE TRIGGER IF NOT EXISTS trg_run_environment_evidence_no_update
+BEFORE UPDATE ON run_environment_evidence
+BEGIN
+    SELECT RAISE(ABORT, 'run environment evidence is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_environment_evidence_no_delete
+BEFORE DELETE ON run_environment_evidence
+BEGIN
+    SELECT RAISE(ABORT, 'run environment evidence is immutable');
+END;
+
 -- Continuity is evidence that two worker/session identities share the same
 -- inherited execution context. It disqualifies independent review; it grants
 -- no ownership or task authority.
@@ -367,4 +402,35 @@ CREATE TRIGGER IF NOT EXISTS trg_task_outcomes_no_delete
 BEFORE DELETE ON task_outcomes
 BEGIN
     SELECT RAISE(ABORT, 'task outcomes are immutable');
+END;
+
+-- Immutable subject/evidence binding for a claimed review. This identifies the
+-- exact submission/task/run/artifact subject under review; it grants no review
+-- authority and does not alter the task lifecycle by itself.
+CREATE TABLE IF NOT EXISTS review_subjects (
+    review_id INTEGER PRIMARY KEY REFERENCES reviews(id) ON DELETE CASCADE,
+    task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
+    submission_count INTEGER NOT NULL CHECK (submission_count > 0),
+    task_revision TEXT NOT NULL,
+    run_id TEXT REFERENCES run_manifests(run_id),
+    artifact_refs TEXT NOT NULL DEFAULT '[]',
+    freshness_mode TEXT NOT NULL CHECK (
+        freshness_mode IN ('REVISION_BOUND','REDERIVED_AT_REVIEW','NON_CONSEQUENTIAL')
+    ),
+    bound_by TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_review_subjects_task
+    ON review_subjects(task_id, review_id);
+
+CREATE TRIGGER IF NOT EXISTS trg_review_subjects_no_update
+BEFORE UPDATE ON review_subjects
+BEGIN
+    SELECT RAISE(ABORT, 'review subjects are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_review_subjects_no_delete
+BEFORE DELETE ON review_subjects
+BEGIN
+    SELECT RAISE(ABORT, 'review subjects are immutable');
 END;
