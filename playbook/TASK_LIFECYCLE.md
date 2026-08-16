@@ -10,6 +10,12 @@ output paths are unknown, criteria are missing, dependencies are unclear, or a
 task exists only in chat. Do not start implementation merely to discover what
 the task should have said.
 
+When the starting point is concise conversational operator intent such as
+"continue", "fix the next blocker", or "get these PRs under control", use
+[Operator Request Compilation](REQUEST_COMPILATION.md) to resolve live referents
+and turn the request into the existing task/AGI contract without inventing new
+authority.
+
 The task record must state:
 
 - an action-oriented title and concise observable outcome;
