@@ -28,7 +28,7 @@ Planning inputs inspected:
 - `work/roadmaps/agent-harness-capabilities/05-learning-and-evaluation.md`;
 - `migration/LEGACY_IDEA_RECOVERY_AUDIT.md`;
 - `migration/FUTURE_IDEAS_BACKLOG.md`;
-- live capability-relevant PR/merge state.
+- live capability-relevant PR/merge/review/CI state.
 
 Snapshot base for this planning branch: `main@146f092a63af63b0fd750445e584a39e82ea1442`.
 
@@ -46,14 +46,13 @@ Without reconciliation, a fresh planning agent can:
 
 ## Change boundary
 
-May change only planning/task documentation:
+Changed only planning/task documentation:
 
 - this task file;
-- a dated current-capability reconciliation document under `work/roadmaps/`;
-- the roadmap index to make that reconciliation discoverable;
-- narrow stale-baseline annotations in the master and Prime roadmaps if needed to prevent the old PR #19/Phase 0 narrative from being mistaken for current state.
+- `work/roadmaps/current-capability-reconciliation-2026-08-16.md`;
+- `work/roadmaps/README.md`.
 
-Must not change:
+Deliberately not changed:
 
 - runtime code;
 - tests;
@@ -62,7 +61,10 @@ Must not change:
 - active feature branches;
 - another agent's coordination file;
 - merge/integration state;
-- review dispositions.
+- review dispositions;
+- the long-form master/Prime roadmap architecture itself.
+
+The dated reconciliation is used as a current-state overlay rather than rewriting historical architecture prose wholesale.
 
 ## Decision authority
 
@@ -90,48 +92,56 @@ FOUNDRY may not:
 - source evidence > summaries;
 - derived planning status remains derived;
 - open PR != accepted capability;
-- planning/design PR != runtime dependency unless an accepted implementation actually depends on it;
+- planning/design PR != runtime dependency unless accepted implementation actually depends on it;
 - UNKNOWN remains UNKNOWN where review/integration evidence is incomplete;
 - dependency ordering is preserved without turning it into speculative merge priority;
 - no self-authorizing learning/promotion.
 
 ## Acceptance criteria
 
-- [ ] roadmap reconciliation clearly states its exact snapshot base and that live GitHub supersedes it;
-- [ ] merged PR #19 is recognized as accepted foundation, retiring the obsolete “draft PR #19 / pending Phase 0” baseline;
-- [ ] accepted Harness Wave 1 (#20–#24) is distinguished from still-open durable lineage work;
-- [ ] accepted Run Record / frozen regression / comparative evaluator foundation (#33–#35) is represented without claiming full replay/refinement;
-- [ ] accepted Skills foundation/eval/static gate (#25–#27/#31) is separated from future production skill routing/promotion;
-- [ ] accepted Environment E1/E2 (#28/#29) is separated from open E3 run evidence (#30) and later recovery/environment automation;
-- [ ] accepted consequential review-subject binding (#32) is represented as closing the basic immutable reviewed-output identity gap;
-- [ ] accepted structured wait projection (#59) is separated from future communication-response waits; #51/#52 remain planning/design evidence rather than runtime authority;
-- [ ] open dependency stacks are explicit: #48→#49→#50, #44→#45, #39→#41→#53, #43→#60;
-- [ ] repaired/unmerged heads remain `OPEN_REVIEW` / `BLOCKED_UPSTREAM` rather than `ACCEPTED`;
-- [ ] Context Builder v1 from #19 is distinguished from evaluation-only v2 work;
-- [ ] legacy recovered candidates are classified as already absorbed, partially represented/open, or still evidence-triggered rather than blindly copied into “next work”;
-- [ ] the document identifies obsolete roadmap assumptions and bounded next planning questions without selecting runtime architecture prematurely;
-- [ ] `work/roadmaps/README.md` links the reconciliation as the place to check current implementation state;
-- [ ] no runtime/schema/test files are modified.
+- [x] roadmap reconciliation clearly states exact snapshot base and that live GitHub supersedes it;
+- [x] merged PR #19 is recognized as accepted foundation, retiring obsolete “draft PR #19 / pending Phase 0” baseline;
+- [x] accepted Harness Wave 1 (#20–#24) is distinguished from still-open durable lineage work;
+- [x] accepted Run Record / frozen regression / comparative evaluator foundation (#33–#35) is represented without claiming full replay/refinement;
+- [x] accepted Skills foundation/eval/static gate (#25–#27/#31) is separated from future production skill routing/promotion;
+- [x] accepted Environment E1/E2 (#28/#29) is separated from open E3 run evidence (#30) and later recovery/environment automation;
+- [x] accepted consequential review-subject binding (#32) is represented as closing the basic immutable reviewed-output identity gap;
+- [x] accepted structured wait projection (#59) is separated from future communication-response waits; #51/#52 remain planning/design evidence rather than runtime authority;
+- [x] open dependency stacks are explicit: #48→#49→#50, #44→#45, #39→#41→#53, #43→#60;
+- [x] repaired/unmerged heads remain `OPEN_REVIEW` / `OPEN_INTEGRATION` / `BLOCKED_UPSTREAM` rather than `ACCEPTED`;
+- [x] Context Builder v1 from #19 is distinguished from evaluation-only v2 work;
+- [x] legacy recovered candidates are classified as already absorbed, partially represented/open, or evidence-triggered rather than blindly copied into next work;
+- [x] obsolete roadmap assumptions and bounded next planning questions are identified without choosing runtime architecture prematurely;
+- [x] `work/roadmaps/README.md` links the reconciliation as the dated implementation-status overlay;
+- [x] no runtime/schema/test files are modified.
 
-## Verification
+## Verification and exact-state evidence
 
-Before handoff:
+Immediately before final handoff:
 
-1. compare planning branch against its creation base and verify only declared planning/task files changed;
-2. re-read live `main` and capability-relevant PR heads immediately before finalizing the snapshot;
-3. update any state that moved materially or label the item UNKNOWN/stale rather than guessing;
-4. require independent review because this planning document can affect future work selection/sequencing.
+- accepted `main` was re-read and remained `146f092a63af63b0fd750445e584a39e82ea1442`;
+- live ownership lanes were re-read from coordination files;
+- PR #48 moved materially during planning because independent review returned a second HIGH SQLite-normalization defect; the reconciliation was updated rather than preserving the stale earlier head;
+- final #48 repair head is `2f23959afff9525beada28993bad536878310b7f`, Runtime CI #392 / `31931474528` PASS, and remains `OPEN_REVIEW`, not accepted;
+- #39/#41/#53, #43/#60, #30, #51/#52 and their authority/dependency boundaries were rechecked against live PR metadata;
+- planning branch compare must remain limited to the three declared planning/task files.
 
-Review focus:
+No implementation status is inferred solely from this task or reconciliation; exact live state must be rechecked at use time.
+
+## Independent review focus
+
+Because this planning artifact can influence future work selection/sequencing, independent review is required. Reviewer should verify:
 
 - factual status against live GitHub;
-- no unmerged capability promoted to accepted;
-- no stale branch SHA treated as authority;
-- dependency constraints correctly separated from merge priority;
-- no duplicate runtime authority introduced through planning prose;
-- recovered legacy work correctly classified rather than revived wholesale.
+- no unmerged capability is promoted to accepted;
+- no stale branch SHA is treated as authority;
+- dependency constraints are separated from merge priority;
+- no duplicate runtime authority is introduced through planning prose;
+- recovered legacy work is classified rather than revived wholesale;
+- #48 is represented as repaired/CI-green but still pending independent review/integration.
 
 Review required: `INDEPENDENT_REVIEW`.
+FOUNDRY authored this planning change and is not eligible to supply the independent disposition.
 
 ## Stop / escalate
 
