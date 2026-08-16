@@ -29,6 +29,29 @@ class ContextRetrievalStage2Tests(unittest.TestCase):
     def _index(predictions):
         return {item["case_id"]: item["source_ids"] for item in predictions}
 
+    def _ideal_predictions(self):
+        predictions = []
+        explicit = {
+            item["case_id"]: item["explicit_source_ids"]
+            for item in self.overlay["cases"]
+        }
+        for case in self.corpus["cases"]:
+            if case["expected_outcome"] == "ABSTAIN":
+                source_ids = []
+            elif case["expected_outcome"] == "DRIFT_REPORTED":
+                source_ids = [
+                    case["drift"]["frozen_source_id"],
+                    case["drift"]["current_source_id"],
+                ]
+            else:
+                source_ids = [case["expected_cards"][0]["source_id"]]
+            # This fixture represents an ideal externally supplied candidate,
+            # not a production retriever. Preserve any frozen explicit prefix.
+            prefix = explicit[case["id"]]
+            source_ids = list(prefix) + [x for x in source_ids if x not in prefix]
+            predictions.append({"case_id": case["id"], "source_ids": source_ids})
+        return predictions
+
     def test_explicit_only_preserves_frozen_explicit_inputs(self):
         selected = self._index(explicit_only_rankings(self.corpus, self.overlay))
 
@@ -81,31 +104,10 @@ class ContextRetrievalStage2Tests(unittest.TestCase):
         self.assertFalse(report["promotion"]["automatic"])
 
     def test_future_external_candidate_can_use_same_evaluator(self):
-        predictions = []
-        explicit = {
-            item["case_id"]: item["explicit_source_ids"]
-            for item in self.overlay["cases"]
-        }
-        for case in self.corpus["cases"]:
-            if case["expected_outcome"] == "ABSTAIN":
-                source_ids = []
-            elif case["expected_outcome"] == "DRIFT_REPORTED":
-                source_ids = [
-                    case["drift"]["frozen_source_id"],
-                    case["drift"]["current_source_id"],
-                ]
-            else:
-                source_ids = [case["expected_cards"][0]["source_id"]]
-            # This fixture represents an ideal externally supplied candidate,
-            # not a production retriever. Preserve any frozen explicit prefix.
-            prefix = explicit[case["id"]]
-            source_ids = list(prefix) + [x for x in source_ids if x not in prefix]
-            predictions.append({"case_id": case["id"], "source_ids": source_ids})
-
         report = evaluate_source_rankings(
             self.corpus,
             self.overlay,
-            predictions,
+            self._ideal_predictions(),
             label="ideal-external-candidate-contract-test",
         )
 
@@ -113,7 +115,30 @@ class ContextRetrievalStage2Tests(unittest.TestCase):
         self.assertFalse(report["candidate_gate"]["automatic_promotion"])
         self.assertEqual(report["metrics"]["hard_negative_abstention_accuracy"], 1.0)
         self.assertEqual(report["metrics"]["evidence_source_recall"], 1.0)
+        self.assertEqual(report["metrics"]["evidence_source_precision"], 1.0)
         self.assertEqual(report["metrics"]["drift_pair_recall"], 1.0)
+
+    def test_source_pollution_blocks_future_candidate_proposal(self):
+        predictions = self._ideal_predictions()
+        polluted = next(
+            item for item in predictions if item["case_id"] == "CBI-004"
+        )
+        self.assertNotIn("CB-SRC-006", polluted["source_ids"])
+        polluted["source_ids"].append("CB-SRC-006")
+
+        report = evaluate_source_rankings(
+            self.corpus,
+            self.overlay,
+            predictions,
+            label="polluted-external-candidate",
+        )
+
+        self.assertEqual(report["metrics"]["evidence_source_recall"], 1.0)
+        self.assertLess(report["metrics"]["evidence_source_precision"], 1.0)
+        self.assertFalse(
+            report["candidate_gate"]["gates"]["evidence_precision_perfect"]
+        )
+        self.assertFalse(report["candidate_gate"]["eligible_for_proposal"])
 
     def test_overlay_must_cover_every_case_and_reference_known_sources(self):
         overlay = copy.deepcopy(self.overlay)
