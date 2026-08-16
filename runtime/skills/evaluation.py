@@ -375,6 +375,7 @@ def evaluate_skill_selection(
                 abstain_correct += 1
             if prediction.outcome == SkillSelectionOutcome.SELECT and predicted:
                 false_activation_cases += 1
+                false_positive += len(predicted)
         else:
             ambiguous_total += 1
             if exact:
