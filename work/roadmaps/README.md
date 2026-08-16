@@ -11,6 +11,7 @@ This is the top-level planning orientation for the MAPS capability program. It o
 Detailed roadmaps:
 
 - [Prime Agent capability adoption roadmap](prime-agent-capability-roadmap.md) — detailed Prime-derived lifecycle/harness concepts and their Lean translation.
+- [Operator Intent Compiler / Request Normalizer](operator-intent-compiler.md) — operator-facing intake layer that turns concise natural-language requests into proposed AGI-ready task contracts before Context Builder, without creating new authority.
 - [Agent-harness capability roadmap set](agent-harness-capabilities/README.md) — five coordinated detailed roadmaps:
   1. Harness Mechanics
   2. Procedural Knowledge & Skills
