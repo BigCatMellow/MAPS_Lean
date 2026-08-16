@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 import sqlite3
 import tempfile
@@ -9,6 +10,7 @@ from runtime.environment import (
     CompatibilityState,
     EnvironmentFingerprint,
     EnvironmentKind,
+    EnvironmentSpecError,
     NetworkMode,
     ObservationState,
     VersionObservation,
@@ -263,11 +265,16 @@ class RunEnvironmentEvidenceTests(unittest.TestCase):
         )
 
     def test_sensitive_spec_snapshot_is_rejected_not_redacted(self):
+        secret_command = "API_KEY=supersecret python -m pip install package"
         data = self.spec.to_dict()
-        data["setup"]["commands"] = [
-            "API_KEY=supersecret python -m pip install package"
-        ]
-        sensitive_spec = parse_environment_spec(data)
+        data["setup"]["commands"] = [secret_command]
+        with self.assertRaises(EnvironmentSpecError):
+            parse_environment_spec(data)
+
+        # Persistence is a separate defensive boundary: a typed EnvironmentSpec
+        # can be constructed without the parser, so sensitive snapshots must still
+        # fail rather than being redacted and stored under a changed identity.
+        sensitive_spec = replace(self.spec, setup_commands=(secret_command,))
         result = self.record(
             self.fingerprint(spec=sensitive_spec),
             spec=sensitive_spec,
