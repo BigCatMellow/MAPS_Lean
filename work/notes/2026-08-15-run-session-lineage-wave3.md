@@ -25,9 +25,24 @@ The repaired identity is therefore:
 
 `project_id` is not a new caller-controlled authority field. `record_run_session_link()` derives it from the canonical task owning the immutable run, and SQLite independently rejects direct inserts whose stored project does not match that run/task relationship.
 
+## SQLite identity canonicalization repair
+
+SENTINEL's re-review of the project-scoped repair found a second narrow but material boundary defect: SQLite uniqueness was still applied to raw stored strings while Python writer/resolver/guard code normalizes identity text. A direct SQL writer could therefore insert a trim-variant such as `project-a ` / `hcom ` / `sess-1 ` that SQLite considered distinct even though MAPS later treated it as the same logical provider identity.
+
+The repaired SQLite boundary now:
+
+- requires `run_session_links.project_id` to equal the owning task's canonical `project_id` **exactly**, not merely after `trim()`;
+- constrains `adapter_id` and `session_id` to the same lexical identity class accepted by runtime `_lineage_id`: first character alphanumeric, only `[A-Za-z0-9_.:@-]`, and length 1–128;
+- therefore rejects spaces, tabs, newlines, Unicode/other characters outside that identity alphabet, and any other raw-string variant that runtime normalization could collapse;
+- retains raw `UNIQUE(project_id, adapter_id, session_id)` because the stored adapter/session keys are now canonical under the runtime identity contract and the project key must exactly match canonical task state.
+
+Focused direct-SQL regression coverage attempts project trailing-space, adapter trailing-space/tab, and session trailing-space/newline variants against a second run after the canonical identity is already bound. All must fail at SQLite before the logical duplicate can exist.
+
+No Python writer/resolver/guard semantic change was needed for this second repair.
+
 ## Storage model
 
-New canonical cross-source relationship table:
+Canonical cross-source relationship table:
 
 `run_session_links`
 
@@ -51,9 +66,10 @@ Database constraints/triggers additionally enforce:
 - replacement predecessor belongs to the same run;
 - one durable run owner for a project-scoped `(project_id, adapter_id, session_id)` identity;
 - two different projects may independently use the same adapter/session ID;
-- stored `project_id` must match the canonical task project for the owning run;
+- stored `project_id` exactly matches the canonical task project for the owning run;
+- adapter/session stored keys satisfy the runtime identity alphabet and cannot carry normalization whitespace variants;
 - direct-SQL first attachment cannot contradict an immutable manifest's pre-existing bare `session_id`;
-- bounded non-empty adapter/session/evidence/actor values.
+- bounded non-empty evidence/actor values.
 
 No column is added to `tasks`. No `run_manifests` column is changed.
 
@@ -151,7 +167,7 @@ Legacy rows are not guessed into adapter-qualified identity.
 
 ## Development / integration boundary
 
-FOUNDRY owns this project-context implementation repair only. After focused/full CI, the branch must freeze for independent review. FOUNDRY is not eligible to provide that review because it modified the repaired head.
+FOUNDRY owns only the returned #48 implementation defects because this continuity already modified the branch. After fresh exact-head CI, the branch must freeze for independent re-review. FOUNDRY is not eligible to provide that review.
 
 SWITCHYARD owns eventual synchronization onto then-current accepted `main`, exact-delta verification, fresh integrated-head CI/review gating, and merge.
 
