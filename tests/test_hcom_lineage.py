@@ -66,6 +66,9 @@ if os.environ.get("HCOM_LINEAGE_MISSING_CORE") == "1":
     simple["data"].pop("delivered_to")
 if os.environ.get("HCOM_LINEAGE_BAD_INTENT") == "1":
     rich["data"]["intent"] = "approve"
+if os.environ.get("HCOM_LINEAGE_DUPLICATE_IDENTITY") == "1":
+    rich["id"] = simple["id"]
+    rich["instance"] = simple["instance"]
 
 print(json.dumps(simple))
 print(json.dumps(rich))
@@ -172,6 +175,19 @@ class HcomLineageTests(unittest.TestCase):
         )
         payload = capability.to_dict()
         self.assertEqual(payload["state"], "SUPPORTED")
+
+    def test_duplicate_provider_local_event_identity_fails_closed(self):
+        self._env("HCOM_LINEAGE_DUPLICATE_IDENTITY")
+        with self.assertRaisesRegex(
+            HcomLineageProtocolError,
+            "duplicate provider-local event identity",
+        ):
+            self.adapter.read_message_lineage()
+        with self.assertRaisesRegex(
+            HcomLineageProtocolError,
+            "duplicate provider-local event identity",
+        ):
+            self.adapter.probe_lineage_capability()
 
     def test_missing_core_delivery_metadata_fails_closed(self):
         self._env("HCOM_LINEAGE_MISSING_CORE")
