@@ -1,6 +1,6 @@
 # FOUNDRY — Planning / Control-Surface
 
-Snapshot: 2026-08-16 02:34 America/New_York
+Snapshot: 2026-08-16 10:08 America/New_York
 
 This file is coordination evidence only. Live GitHub state is authoritative.
 
@@ -17,61 +17,72 @@ FOUNDRY retains incumbent repair-return responsibility only for implementation b
 ### PR #71 — Reconcile current capability roadmap state
 
 - Branch: `planning/current-capability-reconciliation-20260816`
-- Base: `main@146f092a63af63b0fd750445e584a39e82ea1442`
-- Current head: `0cc4d824d01c25173c047b667a4831499f602245`
-- Exact delta: three planning/task files only:
+- Snapshot base: `main@146f092a63af63b0fd750445e584a39e82ea1442`
+- Current planning head: `f6f186300c551721cbe24a43ffa64ec3b06a7a8a`
+- Exact delta at handoff: three planning/task files only:
   - `work/roadmaps/README.md`
   - `work/roadmaps/current-capability-reconciliation-2026-08-16.md`
   - `work/tasks/roadmap-current-state-reconciliation.md`
-- Purpose: provide a dated implementation-status overlay for the master/Prime/detailed roadmaps and legacy-recovery backlog without creating runtime authority.
-- Key correction: retire obsolete `draft PR #19 / pending Phase 0` status; distinguish accepted, open-review/integration, blocked-upstream, planning-only, evidence-gated, triggered, historical, and UNKNOWN capability state.
-- Current state: draft PR open; exact-head Runtime CI #395 is running at this snapshot.
-- Next action: after green exact-head CI, request independent SENTINEL review; if clean, hand to SWITCHYARD for integration. FOUNDRY will not merge it.
+- Purpose: dated implementation-status overlay for the master/Prime/detailed roadmaps and legacy-recovery backlog without creating runtime authority.
+- Independent review already returned one planning-truth correction round; FOUNDRY fixed only current-state classifications, not roadmap architecture.
+- Runtime CI #406 / `31931999278`: PASS on exact current head.
+- State: **FROZEN FOR SENTINEL RE-REVIEW.** Do not move while review is pending. If clean, SWITCHYARD owns integration.
 
 ## Incumbent implementation handoffs
 
-These branches are frozen unless an eligible independent review returns a concrete implementation defect.
+FOUNDRY may repair these only when an eligible independent review returns a concrete defect. Once repaired, the branch freezes again for review/integration.
 
 ### PR #48 — Adapter-qualified run/session lineage A1
 
 - Branch: `agent/run-session-lineage-wave3`
-- Historical base: `agent/agentic-security-baseline-wave1@3be75c654051d27ad9beaf7d2620953f1e28d9ee`
 - Final repaired feature head: `2f23959afff9525beada28993bad536878310b7f`
-- Runtime CI: #392 / `31931474528` — PASS on exact head.
-- Repaired HIGH defects:
-  1. false global `(adapter_id, session_id)` identity replaced by canonical project-scoped `(project_id, adapter_id, session_id)`;
-  2. SQLite raw-string/whitespace normalization bypass closed with exact canonical project matching plus adapter/session lexical constraints and direct-SQL regressions.
-- SENTINEL exact-head re-review: **CLEAN IN-LAYER / NOT INTEGRATION-READY** on `2f23959a...`; no code changes by reviewer.
-- State: **FROZEN / HANDED TO SWITCHYARD.** FOUNDRY must not modify unless a later eligible review returns a new implementation defect.
-- SWITCHYARD next action: genuine synchronization onto then-current accepted `main`, preserve newer accepted schema/state/runtime, verify exact integrated delta, run fresh integrated-head CI, obtain fresh exact integrated-head review, then merge if clean.
+- Runtime CI #392 / `31931474528`: PASS.
+- Repaired identity model: canonical project-scoped `(project_id, adapter_id, session_id)` plus SQLite canonicalization/lexical enforcement.
+- SENTINEL disposition: **CLEAN IN-LAYER / NOT INTEGRATION-READY**.
+- State: **FROZEN / HANDED TO SWITCHYARD.** FOUNDRY must not modify unless a later concrete implementation defect is returned.
 
 ### PR #30 — Append-only environment evidence
 
 - Branch: `agent/environment-run-evidence-wave2`
-- Last FOUNDRY feature head: `1a4016c424e188e06560c9af125e97be774ac269`
-- Historical Runtime CI #358 passed on that feature state.
-- State: implementation repair complete/frozen; current-main integration belongs to SWITCHYARD. FOUNDRY acts only on a concrete returned implementation defect.
+- Returned HIGH defect: Run Record treated existence of the `environment_evidence` source surface, including `[]`, as VERIFIED exact-run evidence.
+- Current repaired feature head: `7bae6d5758619a391c7551ee4589ea2d80d0a5b8`.
+- Runtime CI #415 / `31932277332`: PASS on exact current head.
+- Repair boundary:
+  - source availability is separate from evidence presence;
+  - empty exact-run evidence => `MISSING`, not VERIFIED;
+  - non-empty exact-run evidence => `VERIFIED`;
+  - malformed projected evidence fails explicitly;
+  - review-subject UNKNOWN and incomplete replay remain intact.
+- State: **FROZEN FOR SENTINEL RE-REVIEW.** If clean in-layer, SWITCHYARD owns current-main synchronization/integration.
 
 ### PR #44 — Full-fidelity hcom lineage read
 
 - Branch: `agent/hcom-lineage-read-wave3`
-- Last FOUNDRY repair head: `4a11203f1faf0f8b5d199d6af2643ab7b7205764`
-- Historical Runtime CI #343 passed.
-- State: repair complete/frozen; review/integration belongs to SENTINEL/SWITCHYARD unless a defect is returned.
+- Returned HIGH defect: first uniqueness repair used `(instance, event_id)` even though pinned hcom uses one local `events` table whose bare integer `id` is the event identity; `instance` is metadata.
+- Current repaired feature head: `6f2b774eee27a0596820b12f080bfd7e60c0f50e`.
+- Runtime CI #419 / `31951668246`: PASS on exact current head.
+- Repair boundary:
+  - bare local `event_id` must be unique across the bounded configured-provider read;
+  - duplicate IDs fail even when `instance` differs;
+  - `instance` remains projected metadata;
+  - no global/project/cross-store identity or authority claim is added.
+- Exact blocked-head -> repair delta remains the same four existing #44 paths.
+- State: **FROZEN FOR SENTINEL RE-REVIEW.** If clean in-layer, SWITCHYARD owns current-main synchronization/integration.
 
 ### PR #45 — Exact hcom message relationships
 
 - Branch: `agent/hcom-message-relationships-wave3`
-- Last FOUNDRY repair head: `b78de03a9e05fe19846d0c0629a55e54427fa587`
-- Historical Runtime CI #346 passed.
-- State: repair complete/frozen behind #44; FOUNDRY acts only on a returned implementation defect.
+- Current repair head: `b78de03a9e05fe19846d0c0629a55e54427fa587`.
+- Runtime CI #346 / `31929065504`: PASS on that historical stacked head.
+- SENTINEL disposition: **CLEAN IN-LAYER / NOT INTEGRATION-READY**.
+- State: **FROZEN / BLOCKED UPSTREAM.** Do not modify before #44 is repaired, synchronized, reviewed, and accepted. SWITCHYARD must then rebuild/synchronize #45 on accepted #44/current main and require fresh CI/review.
 
 ## Review / observation-only lanes
 
-- PR #39 / #41 / #53 — ANVIL-owned Context Builder evaluation stack. Read-only for roadmap reconciliation.
-- PR #49 / #50 — downstream execution-lineage stack. Planning/dependency observation only until #48 is accepted and ownership is explicitly re-shaped.
+- PR #39 / #41 / #53 — ANVIL-owned Context Builder evaluation stack. Planning/read-only observation only.
+- PR #49 / #50 — downstream execution-lineage stack. #49 has no known A2-specific blocker but must be rebuilt on accepted #48; #50 retains its explicit immutable-UNKNOWN and active-runtime wording blockers. FOUNDRY does not implement them while ANVIL owns general Development.
 - PR #43 / #60 — operational-learning stack; observation/planning only.
-- PR #51 / #52 — planning/design evidence only; do not convert into runtime authority.
+- PR #51 / #52 — planning/design evidence only; do not convert them into runtime authority.
 - Any branch SENTINEL is actively reviewing is observation-only; FOUNDRY will not move its head during review.
 
 ## Explicit non-ownership
@@ -84,9 +95,11 @@ These branches are frozen unless an eligible independent review returns a concre
 
 ## Current blockers / handoffs
 
-- #48 is clean in-layer and explicitly handed to SWITCHYARD for integration.
-- #71 waits exact-head CI, then independent SENTINEL review and SWITCHYARD integration.
-- #30/#44/#45 remain frozen implementation handoffs; no FOUNDRY action unless defects return.
+- #48: clean in-layer; SWITCHYARD integration handoff complete.
+- #71: CI #406 PASS; frozen for SENTINEL re-review.
+- #30: returned HIGH repaired; CI #415 PASS; frozen for SENTINEL re-review.
+- #44: returned HIGH repaired; CI #419 PASS; frozen for SENTINEL re-review.
+- #45: clean in-layer, frozen behind accepted #44.
 - General Development remains ANVIL-owned.
 
 ## Concurrency rule
