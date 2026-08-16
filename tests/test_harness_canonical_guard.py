@@ -26,7 +26,7 @@ class FakeSource:
             "lease_expires_at": "2026-08-15T16:15:00Z",
         }
         # Mirrors the current run-manifest schema: session_id exists but there
-        # is no adapter-qualified durable session identity yet.
+        # is no adapter-qualified durable session identity in the manifest.
         self.manifest = {
             "run_id": "RUN-1",
             "task_id": "TASK-1",
@@ -34,6 +34,8 @@ class FakeSource:
             "worker_id": "worker-1",
             "session_id": "session-1",
         }
+        self.session_adapter = None
+        self.session_project = "project-1"
         self.current_revision = "rev-1"
         self.stale = False
 
@@ -49,6 +51,44 @@ class FakeSource:
     def check_run_stale(self, run_id, *, repo_root):
         return {"run_id": run_id, "stale": self.stale}
 
+    def resolve_run_session(self, run_id):
+        if run_id != "RUN-1":
+            return None
+        session_id = self.manifest.get("session_id")
+        if not session_id:
+            return {
+                "run_id": run_id,
+                "project_id": self.task["project_id"],
+                "state": "UNBOUND",
+                "current": None,
+                "history": [],
+            }
+        if not self.session_adapter:
+            return {
+                "run_id": run_id,
+                "project_id": self.task["project_id"],
+                "state": "ADAPTER_UNPROVEN",
+                "current": {
+                    "link_id": None,
+                    "project_id": self.task["project_id"],
+                    "adapter_id": None,
+                    "session_id": session_id,
+                },
+                "history": [],
+            }
+        return {
+            "run_id": run_id,
+            "project_id": self.session_project,
+            "state": "EXPLICIT",
+            "current": {
+                "link_id": 1,
+                "project_id": self.session_project,
+                "adapter_id": self.session_adapter,
+                "session_id": session_id,
+            },
+            "history": [],
+        }
+
 
 def binding(*, session_id="session-1"):
     return ExecutionBinding(
@@ -61,12 +101,12 @@ def binding(*, session_id="session-1"):
     )
 
 
-def ref(*, session_id="session-1", adapter="dummy"):
+def ref(*, session_id="session-1", adapter="dummy", project_id="project-1"):
     return SessionRef(
         session_id=session_id,
         worker_id="worker-1",
         adapter=adapter,
-        project_id="project-1",
+        project_id=project_id,
     )
 
 
@@ -158,6 +198,7 @@ class CanonicalRunGuardTests(unittest.TestCase):
         self.assertEqual(outcome.annotations["guard_code"], "SESSION_ADAPTER_UNPROVEN")
 
     def test_session_binding_mismatch_is_denied(self):
+        self.source.session_adapter = "dummy"
         value = context("send")
         value["session_ref"] = ref(session_id="other").to_dict()
 
@@ -166,8 +207,27 @@ class CanonicalRunGuardTests(unittest.TestCase):
         self.assertEqual(outcome.directive, HookDirective.DENY)
         self.assertEqual(outcome.annotations["guard_code"], "SESSION_BINDING_MISMATCH")
 
+    def test_session_ref_project_mismatch_is_denied_even_when_adapter_session_match(self):
+        self.source.session_adapter = "dummy"
+        value = context("send")
+        value["session_ref"] = ref(project_id="project-2").to_dict()
+
+        outcome = self.guard(value)
+
+        self.assertEqual(outcome.directive, HookDirective.DENY)
+        self.assertEqual(outcome.annotations["guard_code"], "SESSION_PROJECT_MISMATCH")
+
+    def test_durable_lineage_project_mismatch_is_denied(self):
+        self.source.session_adapter = "dummy"
+        self.source.session_project = "project-2"
+
+        outcome = self.guard(context("send"))
+
+        self.assertEqual(outcome.directive, HookDirective.DENY)
+        self.assertEqual(outcome.annotations["guard_code"], "SESSION_PROJECT_MISMATCH")
+
     def test_same_session_id_on_different_adapter_is_denied(self):
-        self.source.manifest["session_adapter"] = "dummy"
+        self.source.session_adapter = "dummy"
 
         outcome = self.guard(context("send", adapter="other"))
 
@@ -196,7 +256,7 @@ class CanonicalRunGuardTests(unittest.TestCase):
         self.source.task["lease_expires_at"] = "2026-08-15T15:00:00Z"
         self.source.current_revision = "rev-2"
         self.source.stale = True
-        self.source.manifest["session_adapter"] = "dummy"
+        self.source.session_adapter = "dummy"
 
         outcome = self.guard(context("stop"))
 
@@ -205,7 +265,7 @@ class CanonicalRunGuardTests(unittest.TestCase):
 
     def test_stop_still_requires_exact_historical_session_identity(self):
         self.source.manifest["session_id"] = "different"
-        self.source.manifest["session_adapter"] = "dummy"
+        self.source.session_adapter = "dummy"
 
         outcome = self.guard(context("stop"))
 
