@@ -98,8 +98,7 @@ def _validate_run_record(run_record: Mapping[str, object]) -> dict[str, object]:
             raise RegressionCaseError(
                 f"portable Run Record v1 is missing required mapping section: {section}"
             )
-    environment = record.get("environment")
-    if not isinstance(environment, list):
+    if not isinstance(record.get("environment"), list):
         raise RegressionCaseError(
             "portable Run Record v1 is missing required environment list"
         )
@@ -122,6 +121,87 @@ def _validate_run_record(run_record: Mapping[str, object]) -> dict[str, object]:
         raise RegressionCaseError(
             "Run Record v1 regression cases must preserve explicit partial-replay semantics"
         )
+    return record
+
+
+def validate_regression_case(case: Mapping[str, object]) -> dict[str, object]:
+    """Validate one exact frozen regression case without mutating any source state."""
+
+    if not isinstance(case, Mapping):
+        raise RegressionCaseError("regression case must be a mapping")
+    record = dict(case)
+    if record.get("case_version") != 1:
+        raise RegressionCaseError("only frozen regression case v1 is supported")
+    if record.get("case_kind") != "MAPS_FROZEN_REGRESSION_CASE":
+        raise RegressionCaseError("regression case kind is invalid")
+
+    content_sha = record.get("content_sha256")
+    case_id = record.get("case_id")
+    if not isinstance(content_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", content_sha):
+        raise RegressionCaseError("regression case content_sha256 is invalid")
+    if case_id != f"CASE-{content_sha}":
+        raise RegressionCaseError("regression case case_id/content_sha256 mismatch")
+    payload = {
+        key: value
+        for key, value in record.items()
+        if key not in {"case_id", "content_sha256"}
+    }
+    if _canonical_hash(payload) != content_sha:
+        raise RegressionCaseError("regression case content hash does not match its payload")
+
+    try:
+        IncidentCategory(record.get("incident_category"))
+    except (TypeError, ValueError) as exc:
+        raise RegressionCaseError("regression case incident_category is invalid") from exc
+
+    source = record.get("source_run_record")
+    if not isinstance(source, Mapping):
+        raise RegressionCaseError("regression case source_run_record is invalid")
+    validated_source = _validate_run_record(source)
+    if record.get("source_run_record_id") != validated_source["record_id"]:
+        raise RegressionCaseError("regression case source Run Record ID mismatch")
+    if record.get("source_run_record_sha256") != validated_source["content_sha256"]:
+        raise RegressionCaseError("regression case source Run Record hash mismatch")
+
+    fixture = _require_text(record.get("sanitized_fixture"), "sanitized_fixture")
+    if fixture != record.get("sanitized_fixture"):
+        raise RegressionCaseError("sanitized_fixture is not normalized")
+    if len(fixture) > _MAX_FIXTURE_CHARS:
+        raise RegressionCaseError(
+            f"sanitized_fixture exceeds {_MAX_FIXTURE_CHARS} characters"
+        )
+    if redact_sensitive_text(fixture) != fixture:
+        raise RegressionCaseError("sanitized_fixture contains text recognized as sensitive")
+
+    actor = _require_text(record.get("frozen_by"), "frozen_by")
+    if actor != record.get("frozen_by"):
+        raise RegressionCaseError("frozen_by is not normalized")
+    if redact_sensitive_text(actor) != actor:
+        raise RegressionCaseError("frozen_by appears to contain sensitive text")
+
+    raw_properties = record.get("expected_properties")
+    if not isinstance(raw_properties, list):
+        raise RegressionCaseError("expected_properties must be a list")
+    properties = _normalize_ids(
+        raw_properties,
+        field_name="expected_properties",
+        pattern=_PROPERTY_RE,
+    )
+    if not properties:
+        raise RegressionCaseError("expected_properties cannot be empty")
+    if list(properties) != raw_properties:
+        raise RegressionCaseError("expected_properties are not normalized")
+
+    raw_tags = record.get("tags")
+    if not isinstance(raw_tags, list):
+        raise RegressionCaseError("tags must be a list")
+    tags = _normalize_ids(raw_tags, field_name="tags", pattern=_TAG_RE)
+    if list(tags) != raw_tags:
+        raise RegressionCaseError("tags are not normalized")
+
+    promotion = record.get("promotion")
+    if not isinstance(promotion, Mapping) or promotion.get("automatic") is not False:
+        raise RegressionCaseError("regression case must explicitly disable automatic promotion")
     return record
 
 
