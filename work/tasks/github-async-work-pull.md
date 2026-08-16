@@ -5,12 +5,12 @@
 - Type: `PLANNING`
 - Owner: `TOWER`
 - Risk: `MEDIUM`
-- Goal: define a minimal GitHub-native coordination protocol so separate ChatGPT browser sessions can pull eligible work asynchronously without requiring manual operator relay between agents.
+- Goal: define a minimal GitHub-native coordination protocol so explicitly role-bound ChatGPT browser sessions can pull eligible work asynchronously without requiring manual operator relay between agents.
 
 ## Inputs and source of truth
 
-- Inputs: operator request; root `AGENTS.md`; `work/coordination/README.md`; current role split; live GitHub task/PR/branch/review/CI evidence.
-- Authoritative sources: operator/policy authority, canonical MAPS task state, live GitHub state. Coordination prose remains derived.
+- Inputs: operator request; observed browser trial where a fresh unbound session self-selected SENTINEL; root `AGENTS.md`; `work/coordination/README.md`; current role split; live GitHub task/PR/branch/review/CI evidence.
+- Authoritative sources: operator/policy authority, including browser-session role binding; canonical MAPS task state; live GitHub state. Coordination prose remains derived.
 - Constraint: browser sessions cannot wake/message one another directly; GitHub is the durable shared coordination surface.
 
 ## Change boundary
@@ -26,31 +26,34 @@
 
 ## Decision authority
 
+- Operator binds each browser session to exactly one existing MAPS role.
 - Owner may decide: wording and rollout of the minimal browser/GitHub pull protocol.
-- Owner must escalate: any design that creates duplicate task truth, weakens reviewer independence/integration gates, or requires new infrastructure/automation with consequential authority.
+- Owner must escalate: any design that creates duplicate task truth, permits autonomous permanent role selection, weakens reviewer independence/integration gates, or requires new infrastructure/automation with consequential authority.
 
 ## Acceptance criteria
 
-- [x] Shared protocol states the core model: `TOWER prioritizes; agents pull; GitHub coordinates`.
-- [x] Protocol defines how each role discovers eligible work after the operator starts the browser session.
+- [x] Shared protocol states the core model: `Operator binds roles; TOWER prioritizes; assigned agents pull; GitHub coordinates`.
+- [x] Protocol explicitly forbids a fresh/unbound browser session from choosing its own permanent role based on workload or repository activity.
+- [x] An unbound session is limited to safe orientation and must report `UNBOUND — role assignment required` before consequential work.
+- [x] Protocol defines how each explicitly bound role discovers eligible work after the operator starts the browser session.
 - [x] Protocol defines durable developer -> review -> integration handoffs through GitHub evidence rather than synchronous agent conversation.
 - [x] Protocol preserves canonical task authority, role ownership, independent review, current-main synchronization, exact-head CI/review, and merge authority.
 - [x] Protocol explicitly allows safe parallel work and identifies unsafe parallelism.
-- [x] Protocol does not add a second task database, daemon, mandatory inbox, automatic merge authority, or speculative infrastructure.
-- [x] Compact rollout roadmap exists.
+- [x] Protocol does not add a second task database, daemon, mandatory inbox, automatic merge authority, dynamic role allocation, or speculative infrastructure.
+- [x] Compact rollout roadmap includes a control test proving an unbound session will not self-select a role.
 
 ## Verification and review
 
 - Verify exact branch delta is documentation/planning only.
 - Review required: `INDEPENDENT_REVIEW` because this is a shared multi-agent operating protocol.
-- Reviewer should specifically test for hidden/duplicate authority, stale-state risk, ambiguous work claiming, reviewer-independence failure, and unsafe parallelism.
+- Reviewer should specifically test for hidden/duplicate authority, stale-state risk, ambiguous work claiming, autonomous role self-selection, role drift, reviewer-independence failure, and unsafe parallelism.
 
 ## Stop / escalation
 
-Stop rather than guess if the protocol would require an agent to infer task readiness/ownership from a coordination note alone or if GitHub routing state would become a competing source of truth.
+Stop rather than guess if the protocol would require an agent to infer its browser-session role, task readiness, or ownership from workload/coordination notes alone, or if GitHub routing state would become a competing source of truth.
 
 ## Completion / handoff
 
-- Completed: protocol + rollout roadmap + task contract.
+- Completed: protocol + explicit role-binding repair + rollout roadmap + task contract.
 - Not completed: independent review, integration, and empirical browser-session trial.
-- Next action: independent review; if clean, SWITCHYARD integrates. After acceptance, role-specific browser agents may be instructed to follow the protocol and TOWER observes whether discovery friction remains high enough to justify labels/generated views.
+- Next action: independent review; if clean, SWITCHYARD integrates. After acceptance, operator creates role-specific browser tabs by explicitly binding each one, then agents pull only within that bound role.
