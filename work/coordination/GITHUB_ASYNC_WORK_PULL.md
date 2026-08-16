@@ -42,11 +42,13 @@ Examples of valid binding:
 - `Your role is ANVIL. Continue under the GitHub async work-pull protocol.`
 - `You are SENTINEL for this browser session. Recover live state and continue.`
 
+The operator may explicitly bind **more than one browser session to the same role** when that role has safely parallelizable work. This does not create new roles or duplicate authority. For parallel SENTINEL work, each session should also receive a unique operator-provided continuity label such as `SENTINEL-A`, `SENTINEL-B`, or `SENTINEL-C` so GitHub handoffs can distinguish independent browser continuities sharing the same review role.
+
 An `UNBOUND` session may inspect public repository state to orient itself, but it must not claim consequential work, approve review, modify an owned feature branch, synchronize an integration candidate, or merge.
 
 If a generic startup prompt omits the role, the session must report `UNBOUND — role assignment required`; it must **not infer or self-select** a role.
 
-Role binding does not grant extra authority. It only tells the session which existing MAPS lane it is allowed to operate within. All task, ownership, review, and integration gates still apply.
+Role binding does not grant extra authority. A continuity label is coordination identity only. All task, ownership, reviewer-independence, review, and integration gates still apply.
 
 ## Sources of truth
 
@@ -90,6 +92,8 @@ Before pulling work, verify the underlying contract. For consequential implement
 - the bound role is allowed to perform the work;
 - required authority exists;
 - the current exact GitHub state still matches the handoff.
+
+For independent review, also verify that the specific browser continuity did not implement, repair, synchronize, or materially author the exact work it would review. A `SENTINEL-*` label does not manufacture independence.
 
 If any load-bearing fact is unknown, inspect or block rather than guess.
 
@@ -145,6 +149,67 @@ Suggested heading:
 
 Accepted main then becomes the dependency-release fact for downstream work.
 
+## Parallel SENTINEL reviewer pool
+
+SENTINEL is an **independent-review role**, not a singleton browser session. When review throughput is the bottleneck, the operator may explicitly bind multiple independent browser continuities to the SENTINEL role.
+
+Example:
+
+```text
+SENTINEL-A -> review PR X exact head
+SENTINEL-B -> review PR Y exact head
+SENTINEL-C -> review PR Z exact head
+```
+
+These are three browser continuities sharing one role. They are not three new permanent MAPS roles and do not gain different review authority.
+
+### Review claim protocol
+
+Before beginning a substantive review, a SENTINEL session should recover the live review queue and post a lightweight claim on the target PR:
+
+`MAPS REVIEW CLAIM — SENTINEL-<label>`
+
+The claim should include:
+
+- reviewer continuity label;
+- exact PR base/head being claimed;
+- review layer, such as feature-head or integrated-head;
+- statement that reviewer independence was checked;
+- statement that the claim is coordination only, not a review disposition.
+
+Then immediately re-read the PR before doing the full review.
+
+If another SENTINEL continuity already claimed the **same exact base/head** for the same review layer, the later claimant should normally release/withdraw its duplicate claim and pull another eligible review. If simultaneous claims race, GitHub comment ordering is the tie-break for duplication avoidance unless the operator or task explicitly requires multiple independent reviews.
+
+Suggested release heading:
+
+`MAPS REVIEW CLAIM RELEASED — SENTINEL-<label>`
+
+A claim:
+
+- does **not** make work review-ready;
+- does **not** approve or reject anything;
+- does **not** grant merge authority;
+- does **not** change canonical task state;
+- becomes irrelevant when base/head moves or an exact-head review disposition is posted;
+- must never deadlock the queue merely because a browser tab disappeared.
+
+If an older claim appears abandoned, other eligible reviews should be taken first. If no other eligible review exists, another independent SENTINEL may take over after re-checking live state and leaving `MAPS REVIEW CLAIM TAKEOVER — SENTINEL-<label>` with the displaced claim, exact base/head, and reason. Duplicate review is preferable to an indefinitely blocked acceptance gate when independence is preserved.
+
+### Reviewer-pool pull loop
+
+Each SENTINEL continuity should:
+
+1. recover all review-ready PRs, not only the last remembered PR;
+2. remove items it is not independent or otherwise eligible to review;
+3. prefer the highest-priority eligible exact head not already claimed by another active SENTINEL continuity;
+4. post the claim and re-read for a race;
+5. review without modifying the branch;
+6. post the exact review disposition;
+7. if another independent eligible review remains, continue the review queue rather than waiting on SWITCHYARD or a developer.
+
+Multiple SENTINEL sessions may therefore review different PRs concurrently while preserving the same independent-review standard.
+
 ## Role pull loops
 
 ### TOWER
@@ -182,17 +247,22 @@ Do not:
 
 ### SENTINEL
 
-Pull: highest-priority review-ready item for which reviewer independence is preserved.
+Pull: the review-ready queue, distributed across explicitly operator-bound SENTINEL continuities using the review-claim protocol above.
 
 Do:
 - verify exact state and CI;
+- verify continuity-specific reviewer independence;
+- claim a distinct eligible exact head before substantive review;
 - evidence-test the task/implementation;
 - record exact disposition;
-- return defects to owner and freshness/integration blockers to SWITCHYARD.
+- return defects to owner and freshness/integration blockers to SWITCHYARD;
+- continue to another independent eligible unclaimed review instead of waiting behind one blocked item.
 
 Do not:
 - patch work being independently reviewed;
 - treat TOWER priority as proof of readiness;
+- treat a claim as review authority or canonical state;
+- duplicate another active SENTINEL claim when a different eligible review exists;
 - switch to implementation or integration because those queues are non-empty.
 
 ### SWITCHYARD
@@ -235,18 +305,22 @@ Browser sessions do not need to take turns if their work is genuinely independen
 Safe example:
 
 ```text
-SENTINEL    reviews Context Builder
-FOUNDRY     repairs unrelated communication work
+SENTINEL-A  reviews integrated Context Builder
+SENTINEL-B  reviews integrated communication lineage
+SENTINEL-C  reviews another eligible exact head
+FOUNDRY     repairs unrelated development work
 SWITCHYARD  integrates one PR while triaging the rest of the backlog
 TOWER       refreshes dependency/priority view
 ```
 
 Unsafe parallelism includes:
 
-- multiple unbound sessions independently deciding to become the same role;
+- unbound sessions independently deciding to become SENTINEL or any other role;
 - two agents editing the same branch/output;
 - downstream implementation on unstable upstream ancestry;
 - reviewer modifying the work they must independently approve;
+- one SENTINEL continuity reviewing work it implemented/repaired/synchronized/materially authored;
+- multiple SENTINEL continuities knowingly duplicating the same exact-head review while other eligible reviews are unclaimed;
 - multiple agents independently synchronizing the same integration candidate.
 
 ## Operator workflow
@@ -258,12 +332,17 @@ Suggested startup prompts:
 - `Your role is TOWER. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
 - `Your role is ANVIL. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
 - `Your role is FOUNDRY. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
-- `Your role is SENTINEL. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
+- `Your role is SENTINEL. Your reviewer continuity label is SENTINEL-A. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md and claim a distinct eligible review before reviewing.`
+- `Your role is SENTINEL. Your reviewer continuity label is SENTINEL-B. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md and claim a distinct eligible review before reviewing.`
 - `Your role is SWITCHYARD. Own the full open-PR backlog under work/coordination/GITHUB_ASYNC_WORK_PULL.md; classify every open PR and continuously advance eligible PR-control/integration work.`
+
+Additional SENTINEL sessions may be bound with additional unique labels when review demand justifies them. They remain the same SENTINEL role.
 
 After binding, later prompts can usually be just:
 
 > `Continue. Recover live GitHub state and pull the highest-priority eligible work for your bound role.`
+
+For a SENTINEL pool tab, `continue` means recover the live review queue, claim a distinct eligible exact head, review it, record the disposition, and continue to another eligible unclaimed review when appropriate.
 
 For SWITCHYARD, `continue` means resume the standing full-backlog control loop, not merely return to one remembered PR.
 
@@ -274,12 +353,15 @@ The operator still has to start/wake browser sessions. The protocol removes the 
 Do not add these merely because they are possible:
 
 - dynamic self-selection of roles;
+- new permanent reviewer roles for each SENTINEL browser tab;
 - another task database or PR database;
 - a daemon or scheduler;
 - an agent-to-agent messaging service;
 - mandatory GitHub labels as a second mutable truth;
 - per-agent inbox files that must be kept synchronized with tasks/PRs;
 - automatic merge authority.
+
+Review claims are lightweight coordination comments only; they are deliberately not another task/review database.
 
 If browser use later shows that discovery is still too costly, labels or generated inbox views may be added as **derived projections** from canonical/live state, never as authority.
 
@@ -293,6 +375,11 @@ This protocol is working when the operator can open role-specific browser sessio
 - what exact evidence proves the wait is over;
 - where to record its result so another role can discover it.
 
-Additionally, SWITCHYARD must be able to recover the complete live open-PR backlog and ensure every open PR has a current disposition, next legitimate gate, and discoverable owner/blocker while continuing other eligible PR-control work when one item is waiting.
+Additionally:
 
-It fails if a new unbound browser session can plausibly decide for itself that it is SENTINEL, ANVIL, FOUNDRY, SWITCHYARD, or TOWER, or if open PRs can remain indefinitely unclassified/ownerless while SWITCHYARD is active.
+- multiple operator-bound SENTINEL continuities can concurrently claim and review different eligible exact heads without weakening reviewer independence;
+- a same-head claim race converges on one primary reviewer unless multiple reviews are explicitly required;
+- an abandoned claim cannot permanently block review progress;
+- SWITCHYARD can recover the complete live open-PR backlog and ensure every open PR has a current disposition, next legitimate gate, and discoverable owner/blocker while continuing other eligible PR-control work when one item is waiting.
+
+It fails if a new unbound browser session can plausibly decide for itself that it is SENTINEL, ANVIL, FOUNDRY, SWITCHYARD, or TOWER; if parallel SENTINEL tabs manufacture reviewer independence from labels alone; or if open PRs can remain indefinitely unclassified/ownerless while SWITCHYARD is active.
