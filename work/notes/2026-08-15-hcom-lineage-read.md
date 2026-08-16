@@ -4,7 +4,7 @@ Status: `IMPLEMENTED ON ISOLATED DRAFT BRANCH — COMMUNICATION EVIDENCE ONLY`
 
 Branch: `agent/hcom-lineage-read-wave3`
 
-Base: `main@1652d515a5b991b1ed07c7f2e624fea95927ddfb`.
+Historical base: `main@1652d515a5b991b1ed07c7f2e624fea95927ddfb`.
 
 Upstream evidence checked: hcom release `v0.7.25`, commit `79ebde134c4d29b5ba64e5c9839a12bedb7ee125`.
 
@@ -60,6 +60,37 @@ Therefore:
 > Missing optional correlation fields are not protocol failure and must not be invented/defaulted.
 
 The reader records field presence explicitly.
+
+## Local event identity correction
+
+A later independent review found that the first duplicate-identity repair used the wrong local key.
+
+Pinned hcom source shows one configured SQLite `events` table whose schema gives the event row:
+
+```text
+id INTEGER PRIMARY KEY AUTOINCREMENT
+instance TEXT NOT NULL
+```
+
+That means bare `id` is the local event identity inside this configured store. `instance` is event metadata; it does not create a separate event-ID namespace.
+
+The earlier repair incorrectly treated:
+
+```text
+(instance, event_id)
+```
+
+as the identity that had to be unique. That could accept two rows with the same local event ID if their `instance` values differed.
+
+The corrected reader now requires:
+
+```text
+event_id
+```
+
+to be unique across the bounded full-message result. A duplicate bare ID fails closed in both `read_message_lineage()` and `probe_lineage_capability()`, even when the duplicate rows carry different `instance` metadata.
+
+This remains a **configured-provider local** proof. It does not claim the same integer is globally unique across projects or independent hcom stores. Any later durable persistence layer must carry the appropriate provider/store/project context separately rather than redefining what this source proves.
 
 ## Implementation
 
@@ -188,6 +219,8 @@ observed_optional_fields: [...]
 
 Only optional fields actually observed in returned events appear in `observed_optional_fields`.
 
+The probe reports `SUPPORTED` only after the bounded projected result also proves bare local event IDs are unambiguous.
+
 This is preferable to:
 
 ```text
@@ -204,6 +237,7 @@ The reader rejects:
 - non-JSON full records;
 - non-message records from the message query;
 - missing/invalid event IDs;
+- duplicate bare local event IDs, including duplicates whose `instance` metadata differs;
 - missing timestamps/instances;
 - missing sender or delivery metadata;
 - malformed delivery/mention lists;
@@ -256,8 +290,23 @@ The fake-hcom suite covers:
 - rich thread/request/reply metadata;
 - no-message capability => UNKNOWN;
 - observed optional-field capability reporting;
+- duplicate bare local event IDs across different `instance` metadata failing closed in both read and probe;
 - missing core delivery metadata failure;
 - malformed JSON failure;
 - unsupported returned intent failure;
 - invalid filters rejected before subprocess execution;
 - no task-store/authority dependency.
+
+## Integration boundary
+
+This branch remains historical relative to accepted `main`. Correcting the local identity proof does not make it integration-ready by itself.
+
+Required sequence remains:
+
+1. pass Runtime CI on the exact repaired feature head;
+2. receive independent exact-head re-review from an agent that did not implement the repair;
+3. hand the clean feature layer to SWITCHYARD;
+4. genuinely synchronize the four-file #44 layer onto then-current accepted main;
+5. verify exact integrated delta and rerun full CI;
+6. obtain fresh independent review on that integrated head before merge;
+7. only after accepted #44, rebuild/synchronize downstream #45.

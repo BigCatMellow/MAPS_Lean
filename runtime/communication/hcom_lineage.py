@@ -63,7 +63,9 @@ class HcomLineageAdapter(HcomAdapter):
 
         result = self._run(args)
         events = self._parse_json_lines(result.stdout)
-        return [self._project_message(event) for event in events]
+        projected = [self._project_message(event) for event in events]
+        self._require_unique_event_identities(projected)
+        return projected
 
     def probe_lineage_capability(self, *, last: int = 25) -> HcomLineageCapability:
         """Probe the configured hcom boundary without trusting a version string.
@@ -94,6 +96,7 @@ class HcomLineageAdapter(HcomAdapter):
             )
 
         projected = [self._project_message(event) for event in events]
+        self._require_unique_event_identities(projected)
         observed = sorted(
             {
                 field
@@ -133,6 +136,26 @@ class HcomLineageAdapter(HcomAdapter):
                 )
             events.append(event)
         return events
+
+    @staticmethod
+    def _require_unique_event_identities(events: list[dict[str, Any]]) -> None:
+        """Fail closed when one local hcom event ID names multiple rows.
+
+        The pinned configured hcom store uses one ``events`` table whose bare
+        integer ``id`` is the local event identity. ``instance`` is preserved as
+        event metadata but is not an event-ID namespace. This check proves only
+        uniqueness inside the bounded configured-provider read; it does not claim
+        global identity across projects or independent hcom stores.
+        """
+
+        seen: set[int] = set()
+        for event in events:
+            event_id = event["event_id"]
+            if event_id in seen:
+                raise HcomLineageProtocolError(
+                    "hcom events --full returned duplicate provider-local event id"
+                )
+            seen.add(event_id)
 
     @classmethod
     def _project_message(cls, event: dict[str, Any]) -> dict[str, Any]:

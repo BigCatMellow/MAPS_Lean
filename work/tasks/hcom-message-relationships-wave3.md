@@ -9,10 +9,10 @@
 
 ## Inputs and source of truth
 
-- Inputs: root `AGENTS.md`, PR #44 full-fidelity projection contract, `runtime/communication/hcom_lineage.py`, upstream hcom reply semantics where `reply_to_local` resolves the parent local event ID.
+- Inputs: root `AGENTS.md`, accepted PR #44 full-fidelity projection contract, `runtime/communication/hcom_lineage.py`, upstream hcom reply semantics where `reply_to_local` resolves the parent local event ID.
 - Authoritative sources: exact hcom event metadata for provider-local communication relationships only. Canonical task/run/policy/review state remains elsewhere.
 - Evidence labels: thread grouping, delivery, reply, request, and ack are communication evidence; no relationship grants task authority.
-- Dependencies / preconditions: repaired PR #44 must be accepted before final integration. #44 now rejects ambiguous provider-local `(instance, event_id)` identities.
+- Dependencies / preconditions: PR #44 is accepted in `main@70843f24a3fb55fe3999964639c448862d1d97fe`. Its configured-store identity check requires bare provider-local `event_id` uniqueness; `instance` is preserved metadata and is not an event-ID namespace.
 
 ## Change boundary
 
@@ -41,16 +41,18 @@
 - [x] Duplicate event IDs, self-replies, invalid intents, malformed presence evidence, and non-full/body-including inputs fail closed.
 - [x] Input ordering does not change the derived projection.
 - [x] Projection is explicitly non-authoritative and states task/run correlation and wait state are not included.
-- [ ] synchronize to exact repaired/accepted #44, then to then-current accepted main.
-- [ ] fresh exact-head Runtime CI and independent exact-head re-review required after synchronization.
+- [x] rebuild onto exact accepted #44/current main using real merge ancestry while carrying only the four authorized #45 paths.
+- [ ] fresh exact-head Runtime CI and independent exact-head re-review required after rebuild.
 
 ## Verification and evidence
 
 - Historical exact-head Runtime CI `31920742408` / #196 passed before the presence-evidence repair.
 - Independent review on old head `803db6e404a7a5256acda1c4b90648afb8e17933` found one HIGH blocker: optional values were trusted even when `coverage.field_presence` said the provider had not observed them.
-- Repair validates exact presence-map shape/types and value/presence consistency before any relationship derivation.
+- Repaired feature head `b78de03a9e05fe19846d0c0629a55e54427fa587` validates exact presence-map shape/types and value/presence consistency before any relationship derivation; Runtime CI #346 / `31929065504` passed and SENTINEL review `4945554935` was CLEAN IN-LAYER on the historical stack.
+- Accepted PR #44 is now in `main@70843f24a3fb55fe3999964639c448862d1d97fe` and proves bare provider-local `event_id` uniqueness within the configured bounded read; `instance` does not qualify event identity.
+- Owner rebuild uses accepted main as the tree baseline and preserves the repaired #45 runtime/test layer without widening semantics; only this task/note provenance text changes alongside that ancestry rebuild.
 - Adversarial tests cover contradictory `intent`, `reply_to_local`, and `thread` values; missing/incomplete/non-boolean `field_presence`; and explicit-null provider fields that remain relationship-free.
-- Evidence to preserve: old blocker review, repaired head, focused/full CI, exact synchronized base/head and changed-file list, final independent review.
+- Evidence to preserve: old blocker review, repaired historical head, accepted #44 merge, exact synchronized base/head and four-file changed list, fresh full CI, final independent review.
 - Review required: `INDEPENDENT_REVIEW`
 
 ## Conditional execution rules
@@ -62,7 +64,7 @@
 - Security / privacy controls: inputs must preserve `message_body_included=false`; projection carries only IDs/routing/correlation metadata.
 - External side effects: none.
 - Effort limit: provider-local relationships only; no task correlation or explainable waits.
-- Approved reference: repaired PR #44 full-fidelity lineage read output.
+- Approved reference: accepted PR #44 full-fidelity lineage read output.
 
 ## Stop / escalate
 
@@ -85,11 +87,13 @@ Escalate to: future A4 task/run communication-correlation tranche after A1 linea
 - Request/ack observations are bounded-window facts. `NOT_OBSERVED_IN_INPUT` deliberately does not mean pending, unanswered globally, or waiting.
 - Explicit thread membership is useful grouping evidence but cannot substitute for exact reply metadata.
 - `field_presence` is provider evidence, not decorative metadata. An inconsistent mapper must be rejected rather than allowed to manufacture exact relationships.
+- Provider-local event identity follows accepted #44: bare `event_id` within the configured store/read boundary; `instance` remains metadata only.
 - This tranche advances future A4 without requiring the unsettled task/run lineage interface.
 
 ## Completion / handoff
 
-- Completed in repair layer: provider-local relationship resolver, exact #44 optional-field-presence validation, adversarial tests.
-- Not completed: synchronization onto repaired/accepted #44 and current main, fresh exact-head CI, independent exact-head re-review, task/run/request attribution, communication-complete trace, explainable waits.
-- Current blocker: #44 must be accepted first; the repair agent also cannot independently review its own #45 change.
-- Next action if not DONE: verify repaired-head CI, then after #44 acceptance synchronize this four-file layer, rerun CI, and obtain independent review before merge.
+- Completed in feature layer: provider-local relationship resolver, exact #44 optional-field-presence validation, adversarial tests.
+- Completed in owner rebuild: genuine merge ancestry onto accepted `main@70843f24a3fb55fe3999964639c448862d1d97fe` containing repaired #44, with only the four authorized #45 paths carried forward and stale identity/provenance wording corrected.
+- Not completed: fresh exact-head Runtime CI, independent exact-head re-review, task/run/request attribution, communication-complete trace, explainable waits.
+- Current blocker: fresh exact-head CI and independent review are required before returning the branch to SWITCHYARD.
+- Next action if not DONE: run fresh Runtime CI on the rebuilt exact head, obtain independent review without further branch mutation, then hand the unchanged reviewed head to SWITCHYARD for integration/merge gating.
