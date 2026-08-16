@@ -11,12 +11,14 @@ from .readiness import ReadinessMixin
 from .review import ReviewMixin
 from .run_lineage import RunSessionLineageMixin
 from .run_lineage_trace import RunSessionTraceMixin
+from .submission_lineage import SubmissionRunLineageMixin
 
 
 class TaskStore(
     RunSessionTraceMixin,
     ExecutionScopeHardeningMixin,
     HelperRecoveryLineageMixin,
+    SubmissionRunLineageMixin,
     RunSessionLineageMixin,
     ExecutionIntegrityMixin,
     PolicyStateMixin,
