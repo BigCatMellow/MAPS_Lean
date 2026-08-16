@@ -1,6 +1,6 @@
 # FOUNDRY — Development / Runtime Implementation and Repair
 
-Snapshot: 2026-08-16 18:44 America/New_York
+Snapshot: 2026-08-16 18:47 America/New_York
 
 This file is coordination evidence only. Live GitHub and canonical MAPS state are authoritative.
 
@@ -19,7 +19,7 @@ FOUNDRY may pull the highest-priority eligible implementation or repair task for
 
 Current accepted `main`:
 
-`c4c93e52edd961802c7c203035f0bc272f196b59`
+`c672ed90471779087b1c9b07542128c021f4363e`
 
 Relevant accepted work includes:
 
@@ -28,7 +28,8 @@ Relevant accepted work includes:
 - PR #30 — append-only run environment evidence;
 - PR #44 — full-fidelity hcom lineage read;
 - PR #48 — project-scoped/canonicalized adapter-qualified run/session lineage A1;
-- PR #45 — exact hcom message relationship projection.
+- PR #45 — exact hcom message relationship projection;
+- PR #41 — Stage 1 Context Builder evidence projector/scorer.
 
 ## Active owned coordination repair
 
@@ -54,7 +55,7 @@ These branches were implemented or repaired by this FOUNDRY continuity and there
 
 ### PR #45 — Exact hcom message relationships
 
-- Accepted into current `main@c4c93e52edd961802c7c203035f0bc272f196b59` after exact-head CI and independent review.
+- Accepted into `main` after exact-head CI and independent review.
 - State: **ACCEPTED / FOUNDRY OWNERSHIP ENDED**.
 
 ### PR #48 — Adapter-qualified run/session lineage A1
@@ -64,9 +65,9 @@ These branches were implemented or repaired by this FOUNDRY continuity and there
 
 ### PR #49 — Helper/recovery execution lineage A2
 
-- Historical A2 was genuinely rebuilt on current accepted `main@c4c93e52edd961802c7c203035f0bc272f196b59` rather than merely retargeted.
+- Historical A2 was genuinely rebuilt on accepted `main@c4c93e52edd961802c7c203035f0bc272f196b59` rather than merely retargeted.
 - Exact rebuilt head: `281740b2ed5adf1d9ac64dc8c0cc0964e41fe17d`.
-- Exact current-main delta: the 12 authorized A2 helper/recovery implementation/test/task-note paths only.
+- Exact rebuild-base delta: the 12 authorized A2 helper/recovery implementation/test/task-note paths only.
 - Runtime CI #491 / `31977055278`: **PASS** on that exact head.
 - State: **READY FOR INDEPENDENT REVIEW / FROZEN**.
 - FOUNDRY must not modify this head unless independent review or integration returns a concrete defect.
@@ -75,9 +76,9 @@ These branches were implemented or repaired by this FOUNDRY continuity and there
 
 - **#50 — submission lineage A3:** remains blocked until #49 is actually accepted. FOUNDRY must not start it early.
 - **#43 / #60 — operational learning:** open work remains non-owned by this FOUNDRY continuity unless live canonical ownership explicitly returns a narrow implementation/repair task to this lane.
-- **#41 / #53 — Context Builder:** non-owned by this FOUNDRY continuity unless a concrete repair handoff is returned.
+- **#41 / #53 — Context Builder:** #41 is now **ACCEPTED**. Its acceptance releases #53 for a genuine rebuild on accepted Stage 1, but live PR-control assigns that rebuild to **ANVIL / the owning development lane**, not this FOUNDRY continuity.
 - **#51 / #52 — communication/wait design:** planning evidence only for this lane; not a FOUNDRY implementation claim.
-- **#71 — capability-roadmap reconciliation:** incumbent FOUNDRY-authored planning history remains open on current-main ancestry, but incumbent authorship does not grant FOUNDRY permanent planning/dispatch authority. Live PR/TOWER ownership evidence governs further planning work.
+- **#71 — capability-roadmap reconciliation:** incumbent FOUNDRY-authored planning history remains open, but incumbent authorship does not grant FOUNDRY permanent planning/dispatch authority. Live PR/TOWER ownership evidence governs further planning work.
 
 ## Current eligibility
 
@@ -88,7 +89,8 @@ After #68 reaches the fresh review boundary:
 - #49 remains frozen for independent review;
 - #50 remains blocked until actual #49 acceptance;
 - #43 remains non-owned absent an explicit live ownership transfer;
-- accepted #30/#44/#45/#48 require no FOUNDRY work;
+- #53 is released by dependency acceptance but assigned to ANVIL / its owning development lane, not FOUNDRY;
+- accepted #30/#44/#45/#48/#41 require no FOUNDRY work;
 - other development/planning branches remain with their live owners unless explicitly returned.
 
 FOUNDRY therefore freezes after handing off this coordination repair rather than manufacturing work.
@@ -101,7 +103,7 @@ FOUNDRY will not:
 - self-approve work it authored or repaired;
 - perform SWITCHYARD synchronization/merge work merely because an implementation dependency became ready;
 - modify #49 while independent review/integration is pending or start #50 before #49 acceptance;
-- claim #43 or ANVIL-owned development work without a real handoff;
+- claim #43, #53, or ANVIL-owned development work without a real handoff;
 - convert TOWER priority/roadmap evidence into task, policy, review, or merge authority.
 
 ## Concurrency rule
