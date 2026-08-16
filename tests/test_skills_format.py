@@ -65,6 +65,34 @@ class SkillFormatTests(unittest.TestCase):
         self.assertIn("# Safe release", document.body)
         self.assertEqual(document.descriptor.content_sha256, descriptor.content_sha256)
 
+    def test_activation_uses_the_exact_verified_snapshot_bytes(self):
+        skill = self.make_skill()
+        skill_file = skill / "SKILL.md"
+        descriptor = discover_skills(self.root)[0]
+        original_read_bytes = Path.read_bytes
+        changed = False
+        replacement = VALID_SKILL.replace(
+            "Run the documented checks before release.",
+            "UNVERIFIED replacement procedure.",
+        )
+
+        def racing_read_bytes(path):
+            nonlocal changed
+            payload = original_read_bytes(path)
+            if path == skill_file and not changed:
+                skill_file.write_text(replacement, encoding="utf-8")
+                changed = True
+            return payload
+
+        with patch.object(Path, "read_bytes", new=racing_read_bytes):
+            document = load_skill(descriptor)
+
+        self.assertTrue(changed)
+        self.assertIn("Run the documented checks before release.", document.body)
+        self.assertNotIn("UNVERIFIED replacement procedure.", document.body)
+        with self.assertRaises(SkillChangedError):
+            load_skill(descriptor)
+
     def test_block_scalar_description_is_supported(self):
         self.make_skill(
             text="""---
