@@ -41,6 +41,17 @@ class IncidentCategory(str, Enum):
 _PROPERTY_RE = re.compile(r"^[a-z][a-z0-9_.:-]{0,127}$")
 _TAG_RE = re.compile(r"^[a-z0-9][a-z0-9_.:-]{0,63}$")
 _MAX_FIXTURE_CHARS = 12_000
+_RUN_RECORD_KIND = "MAPS_PORTABLE_RUN_RECORD"
+_RUN_RECORD_MAPPING_SECTIONS = (
+    "task",
+    "run",
+    "context",
+    "completion",
+    "outcomes",
+    "timeline",
+    "coverage",
+    "replay",
+)
 
 
 def _canonical_hash(value: object) -> str:
@@ -80,6 +91,18 @@ def _validate_run_record(run_record: Mapping[str, object]) -> dict[str, object]:
     record = dict(run_record)
     if record.get("record_version") != 1:
         raise RegressionCaseError("only portable Run Record v1 can be frozen")
+    if record.get("record_kind") != _RUN_RECORD_KIND:
+        raise RegressionCaseError("artifact is not a MAPS portable Run Record")
+    for section in _RUN_RECORD_MAPPING_SECTIONS:
+        if not isinstance(record.get(section), Mapping):
+            raise RegressionCaseError(
+                f"portable Run Record v1 is missing required mapping section: {section}"
+            )
+    if not isinstance(record.get("environment"), list):
+        raise RegressionCaseError(
+            "portable Run Record v1 is missing required environment list"
+        )
+
     content_sha = record.get("content_sha256")
     record_id = record.get("record_id")
     if not isinstance(content_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", content_sha):
@@ -94,7 +117,7 @@ def _validate_run_record(run_record: Mapping[str, object]) -> dict[str, object]:
     if _canonical_hash(payload) != content_sha:
         raise RegressionCaseError("Run Record content hash does not match its payload")
     replay = record.get("replay")
-    if not isinstance(replay, Mapping) or replay.get("complete") is not False:
+    if replay.get("complete") is not False:
         raise RegressionCaseError(
             "Run Record v1 regression cases must preserve explicit partial-replay semantics"
         )
