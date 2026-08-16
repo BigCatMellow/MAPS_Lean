@@ -470,6 +470,7 @@ def evaluate_source_rankings(
         "drift_pairs_complete": drift_pair_recall == 1.0,
         "vocabulary_shift_recalled": vocabulary_recall == 1.0,
         "evidence_recall_perfect": evidence_recall == 1.0,
+        "evidence_precision_perfect": evidence_precision == 1.0,
         "explicit_prefix_preserved": all(
             report["checks"]["explicit_prefix_preserved"] for report in reports
         ),
