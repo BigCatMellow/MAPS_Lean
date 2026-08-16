@@ -164,7 +164,10 @@ class PortableRunRecordTests(unittest.TestCase):
             coverage["harness_operation_trajectory"]["state"],
             CoverageState.MISSING.value,
         )
-        self.assertEqual(coverage["environment"]["state"], CoverageState.VERIFIED.value)
+        self.assertEqual(coverage["environment"]["state"], CoverageState.MISSING.value)
+        self.assertTrue(coverage["environment"]["source_available"])
+        self.assertFalse(coverage["environment"]["included"])
+        self.assertEqual(record["environment"], [])
         self.assertEqual(coverage["review_subject"]["state"], CoverageState.UNKNOWN.value)
 
     def test_task_level_reviews_and_timeline_are_not_claimed_as_run_joined(self):
@@ -266,9 +269,19 @@ class PortableRunRecordTests(unittest.TestCase):
 
         record = build_run_record(FakeTraceSource(trace), "TASK-RR", self.run_id)
         self.assertEqual(record["coverage"]["environment"]["state"], CoverageState.VERIFIED.value)
+        self.assertTrue(record["coverage"]["environment"]["source_available"])
+        self.assertTrue(record["coverage"]["environment"]["included"])
         self.assertEqual(record["coverage"]["review_subject"]["state"], CoverageState.VERIFIED.value)
         self.assertEqual(record["environment"][0]["compatibility_state"], "COMPATIBLE")
         self.assertFalse(record["replay"]["complete"])
+
+    def test_malformed_projected_environment_evidence_fails_explicitly(self):
+        trace = self.store.trace_task("TASK-RR")
+        self.assertIsNotNone(trace)
+        trace["runs"][0]["environment_evidence"] = {"not": "a list"}
+
+        with self.assertRaisesRegex(RunRecordError, "environment_evidence must be a list"):
+            build_run_record(FakeTraceSource(trace), "TASK-RR", self.run_id)
 
     def test_json_dump_round_trips(self):
         record = build_run_record(self.store, "TASK-RR", self.run_id)
