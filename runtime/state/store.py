@@ -10,10 +10,14 @@ from .policy import PolicyStateMixin
 from .readiness import ReadinessMixin
 from .review import ReviewMixin
 from .review_binding import ReviewBindingMixin
+from .run_lineage import RunSessionLineageMixin
+from .run_lineage_trace import RunSessionTraceMixin
 
 
 class TaskStore(
+    RunSessionTraceMixin,
     ExecutionScopeHardeningMixin,
+    RunSessionLineageMixin,
     ExecutionIntegrityMixin,
     EnvironmentEvidenceMixin,
     PolicyStateMixin,

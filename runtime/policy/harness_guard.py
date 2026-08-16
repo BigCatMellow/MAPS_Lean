@@ -21,6 +21,7 @@ class CanonicalRunSource(Protocol):
     def get_run_manifest(self, run_id: str) -> dict[str, Any] | None: ...
     def compute_task_revision(self, task_id: str) -> str | None: ...
     def check_run_stale(self, run_id: str, *, repo_root: str | Path) -> dict[str, Any]: ...
+    def resolve_run_session(self, run_id: str) -> dict[str, Any] | None: ...
 
 
 class CanonicalRunGuard:
@@ -91,27 +92,67 @@ class CanonicalRunGuard:
             return self._deny("RUN_STALE", "Run context or task definition is stale.")
         return None
 
-    def _require_durable_session(self, manifest: Mapping[str, Any], context: Mapping[str, Any]) -> HookOutcome | None:
+    def _require_durable_session(
+        self,
+        run_id: str,
+        project_id: str,
+        context: Mapping[str, Any],
+    ) -> HookOutcome | None:
         session_ref = context.get("session_ref")
         if not isinstance(session_ref, Mapping):
             return self._deny("SESSION_REF_REQUIRED", "Session-bound operation requires an explicit SessionRef.")
         requested_session = self._text(session_ref, "session_id")
         requested_adapter = self._text(session_ref, "adapter")
+        requested_project = self._text(session_ref, "project_id")
         routed_adapter = self._text(context, "adapter_id")
-        recorded_session = str(manifest.get("session_id") or "").strip()
-        recorded_adapter = str(manifest.get("session_adapter") or "").strip()
-        if not requested_session or not requested_adapter or not routed_adapter:
-            return self._deny("SESSION_REF_INCOMPLETE", "Session-bound operation requires explicit adapter and session identity.")
+        if not requested_session or not requested_adapter or not requested_project or not routed_adapter:
+            return self._deny(
+                "SESSION_REF_INCOMPLETE",
+                "Session-bound operation requires explicit project, adapter, and session identity.",
+            )
+        if requested_project != project_id:
+            return self._deny(
+                "SESSION_PROJECT_MISMATCH",
+                "SessionRef project does not match the canonical run/task project context.",
+            )
         if requested_adapter != routed_adapter:
             return self._deny("SESSION_ADAPTER_MISMATCH", "SessionRef adapter does not match the adapter selected for this operation.")
-        if not recorded_session:
-            return self._deny("SESSION_NOT_DURABLY_BOUND", "Run manifest has no durable session binding for this operation.")
-        if recorded_session != requested_session:
-            return self._deny("SESSION_BINDING_MISMATCH", "SessionRef does not match the run manifest session binding.")
-        if not recorded_adapter:
+
+        lineage = self.source.resolve_run_session(run_id)
+        if lineage is None:
+            return self._deny("SESSION_NOT_DURABLY_BOUND", "Run has no durable session lineage for this operation.")
+        state = str(lineage.get("state", "")).upper()
+        if state == "UNBOUND":
+            return self._deny("SESSION_NOT_DURABLY_BOUND", "Run has no durable session binding for this operation.")
+        if state == "ADAPTER_UNPROVEN":
             return self._deny("SESSION_ADAPTER_UNPROVEN", "Canonical run evidence does not prove adapter-qualified session identity.")
+        if state == "INVALID":
+            return self._deny("SESSION_LINEAGE_INVALID", "Canonical run/session lineage is not a valid linear chain.")
+        if state != "EXPLICIT":
+            return self._deny("SESSION_LINEAGE_UNPROVEN", "Canonical run/session lineage state is not sufficient for this operation.")
+
+        lineage_project = self._text(lineage, "project_id")
+        if lineage_project != project_id:
+            return self._deny(
+                "SESSION_PROJECT_MISMATCH",
+                "Durable run/session lineage does not match the canonical project context.",
+            )
+
+        current = lineage.get("current")
+        if not isinstance(current, Mapping):
+            return self._deny("SESSION_LINEAGE_INVALID", "Canonical run/session lineage has no current relationship.")
+        recorded_project = self._text(current, "project_id")
+        recorded_session = self._text(current, "session_id")
+        recorded_adapter = self._text(current, "adapter_id")
+        if recorded_project != requested_project:
+            return self._deny(
+                "SESSION_PROJECT_MISMATCH",
+                "SessionRef project does not match the current durable run/session relationship.",
+            )
+        if recorded_session != requested_session:
+            return self._deny("SESSION_BINDING_MISMATCH", "SessionRef does not match the current durable run/session relationship.")
         if recorded_adapter != requested_adapter:
-            return self._deny("SESSION_ADAPTER_MISMATCH", "SessionRef adapter does not match the durable run session adapter.")
+            return self._deny("SESSION_ADAPTER_MISMATCH", "SessionRef adapter does not match the current durable run/session relationship.")
         return None
 
     def __call__(self, context: Mapping[str, Any]) -> HookOutcome:
@@ -130,6 +171,7 @@ class CanonicalRunGuard:
         assert task is not None and manifest is not None
         worker_id = self._text(binding, "worker_id")
         run_id = self._text(binding, "run_id")
+        project_id = self._text(binding, "project_id")
         if continuing:
             error = self._require_live_claim(task, worker_id)
             if error is not None:
@@ -138,7 +180,7 @@ class CanonicalRunGuard:
             if error is not None:
                 return error
         if session_bound:
-            error = self._require_durable_session(manifest, context)
+            error = self._require_durable_session(run_id, project_id, context)
             if error is not None:
                 return error
         return HookOutcome(
