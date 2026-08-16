@@ -21,7 +21,7 @@ Inputs:
 
 - root `AGENTS.md`;
 - PR #40 frozen end-to-end benchmark protocol;
-- PR #42 benchmark result validator at exact head `beeef987e25509136ff3de5b79263c984cc501da`;
+- merged PR #42 benchmark-result repair, accepted on `main@2cfb4bb8eef5526c074942421e7567f6a7c52159`;
 - merged `scripts/install_maps.sh` only as an example of an operator-consumable install surface; it is preview-only unless `--apply` is explicit.
 
 ## Change boundary
@@ -83,14 +83,15 @@ Rules:
 - immutable-ref mismatch -> acquisition FAIL and visible-stale FAIL for operator-visible paths;
 - missing/UNKNOWN observation -> UNKNOWN, never PASS;
 - unreachable path -> acquisition FAIL but stale-content state remains UNKNOWN unless stale content was actually observed;
-- N/A only passes when manifest allows it and an explicit decision ref is supplied;
+- allowed N/A may satisfy acquisition-path coverage when manifest permission and an explicit decision ref are present;
+- operator-visible N/A does **not** prove stale-visible safety: without separate structured removal/non-visibility evidence, `release.no_stale_visible_artifact` remains UNKNOWN;
 - usability does not erase content mismatch (a stale artifact may be usable and still fail release correctness).
 
 ## Provenance / authority boundary
 
 A deterministic acquisition report can be an evidence reference, but this validator does **not** prove that the supplied acquisition evidence came from a real production path.
 
-PR #42 still requires verified Layer-3 provenance for:
+The merged benchmark-result validator still requires verified Layer-3 provenance for:
 
 - real task;
 - real run;
@@ -115,10 +116,11 @@ This validator also does not:
 - [x] Missing observations preserve UNKNOWN.
 - [x] Stale-but-usable artifacts fail content/stale checks without falsely failing usability.
 - [x] Unreachable paths fail acquisition without inventing a stale-content claim.
-- [x] N/A requires both manifest permission and an explicit decision ref.
+- [x] N/A requires both manifest permission and an explicit decision ref for acquisition coverage.
+- [x] Operator-visible N/A without separate withdrawal/non-visibility proof preserves stale-visible UNKNOWN rather than PASS.
 - [x] Observation schema rejects contradictory evidence states.
 - [x] Report identity is deterministic regardless of observation input order.
-- [x] Report emits property fragments compatible with #42.
+- [x] Report emits property fragments compatible with the merged benchmark-result validator.
 - [x] One valid E2E-L3-001 report cannot make the entire benchmark complete while other scenarios are missing.
 - [x] Report explicitly denies acquisition/provenance/publication authority.
 - [x] No network, shell, installer, publishing, or state mutation is added.
@@ -152,5 +154,5 @@ After acceptance:
 1. use this report shape for a real authorized E2E-L3-001 sample;
 2. preserve the real acquisition evidence outside this validator and bind it through accepted benchmark provenance adapters;
 3. record the real post-completion outcome;
-4. evaluate the full Layer-3 scenario through #42;
+4. evaluate the full Layer-3 scenario through the merged benchmark-result validator;
 5. add direct acquisition tooling only if repeated evidence shows the pure observation/validation split is insufficient.
