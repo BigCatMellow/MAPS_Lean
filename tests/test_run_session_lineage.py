@@ -253,6 +253,44 @@ class RunSessionLineageTests(unittest.TestCase):
         self.assertFalse(duplicate.ok)
         self.assertEqual(duplicate.code, "SESSION_ALREADY_BOUND")
 
+    def test_sqlite_rejects_normalization_variants_of_same_identity(self):
+        task_id = self.make_active(project="project-a")
+        first = self.make_run(task_id)
+        second = self.make_run(task_id)
+        self.assertTrue(self.attach(first, session="shared").ok)
+
+        variants = (
+            ("project-a ", "hcom", "shared"),
+            ("project-a", "hcom ", "shared"),
+            ("project-a", "hcom\t", "shared"),
+            ("project-a", "hcom", "shared "),
+            ("project-a", "hcom", "shared\n"),
+        )
+        for project_id, adapter_id, session_id in variants:
+            with self.subTest(
+                project_id=project_id,
+                adapter_id=adapter_id,
+                session_id=session_id,
+            ):
+                with self.assertRaises(sqlite3.IntegrityError):
+                    with self.store._connect() as conn:
+                        conn.execute(
+                            """
+                            INSERT INTO run_session_links(
+                                run_id, relation, project_id, adapter_id, session_id,
+                                replaces_link_id, evidence_ref, created_by, created_at
+                            ) VALUES (?, 'ATTACH', ?, ?, ?, NULL, ?, 'tester', ?)
+                            """,
+                            (
+                                second["run_id"],
+                                project_id,
+                                adapter_id,
+                                session_id,
+                                "provider:event:duplicate",
+                                utc_now().isoformat(),
+                            ),
+                        )
+
     def test_same_adapter_session_id_can_exist_in_distinct_projects(self):
         project_a_task = self.make_active(
             project="project-a",
