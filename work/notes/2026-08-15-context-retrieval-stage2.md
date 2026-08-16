@@ -123,10 +123,13 @@ perfect hard-negative abstention
 + complete drift-pair recall
 + vocabulary-shift recall
 + perfect evidence-source recall
++ perfect evidence-source precision
 + explicit-first prefix preserved
 ```
 
-No weighted average can compensate for a failed hard-negative or forbidden-source gate.
+Perfect precision is intentional on this small frozen corpus. A candidate that finds the right source by returning the right source **plus unrelated sources** has not earned proposal eligibility. High recall cannot wash out source pollution.
+
+No weighted average can compensate for a failed hard-negative, forbidden-source, or precision gate.
 
 ## Why source selection stays separate from evidence cards
 
@@ -187,7 +190,8 @@ The tests intentionally lock several qualitative expectations rather than preten
 - lexical overlap activates on the hard-negative traps;
 - therefore lexical hard-negative abstention is imperfect;
 - therefore lexical is not eligible even before its forced-negative-control flag is considered;
-- an ideal externally supplied ranking can pass the evaluator contract while still having `automatic_promotion = false`.
+- an ideal externally supplied ranking can pass the evaluator contract while still having `automatic_promotion = false`;
+- an otherwise ideal ranking polluted with an unrelated source keeps perfect recall but fails the precision gate and is not proposal-eligible.
 
 ## Why this is not EXP-0006 again
 
@@ -218,4 +222,4 @@ After this scaffold passes CI, the highest-value next Context Builder work is no
 - same-path drift control;
 - lexical negative control.
 
-If semantic supplementation cannot maintain perfect hard-negative/temporal gates, it should not advance merely because paraphrase recall improves.
+If semantic supplementation cannot maintain perfect hard-negative, temporal, and precision gates, it should not advance merely because paraphrase recall improves.
