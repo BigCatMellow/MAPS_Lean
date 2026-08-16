@@ -27,8 +27,6 @@ class CanonicalRunSource(Protocol):
 class CanonicalRunGuard:
     """Read-only Hook guard over canonical task/run evidence."""
 
-    hook_enforcement = HookEnforcement.CANONICAL_RUN
-
     def __init__(self, source: CanonicalRunSource, *, repo_root: str | Path, now: Callable[[], datetime] = utc_now) -> None:
         self.source = source
         self.repo_root = Path(repo_root).resolve()
@@ -168,13 +166,17 @@ class CanonicalRunGuard:
 def register_canonical_run_guards(registry: HookRegistry, guard: CanonicalRunGuard, *, priority: int = 10) -> None:
     """Register mandatory fail-closed guards at consequential lifecycle points."""
 
+    if type(guard) is not CanonicalRunGuard:
+        raise TypeError("guard must be an exact CanonicalRunGuard")
+
     for event in (HookEvent.RUN_STARTING, HookEvent.BEFORE_SEND, HookEvent.BEFORE_RESUME, HookEvent.SESSION_STOPPING):
-        registry.register(
+        registry._register_enforcement(
             HookSpec(
                 hook_id=f"canonical-run:{event.value}",
                 event=event,
                 callback=guard,
                 priority=priority,
                 side_effect=HookSideEffect.READ_ONLY,
-            )
+            ),
+            HookEnforcement.CANONICAL_RUN,
         )
