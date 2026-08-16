@@ -2,432 +2,295 @@
 
 Status: proposed shared coordination protocol for browser-only multi-agent operation.
 
-## Why this exists
+## Core model
 
-When MAPS agents are separate ChatGPT browser sessions, they cannot reliably message or wake one another directly. GitHub is the one durable shared surface available to every session.
+> **Operator binds roles. TOWER prioritizes. Development lanes build/repair. SENTINEL reviews. SWITCHYARD integrates. GitHub carries live coordination.**
 
-The coordination model is therefore:
+Separate browser sessions cannot reliably message or wake one another directly. GitHub is therefore the durable shared surface for current work evidence.
 
-> **Operator binds roles. TOWER prioritizes. Assigned agents pull. GitHub coordinates.**
+This protocol is coordination only. It does not create a second task database, review authority, branch authority, or merge authority.
 
-```text
-operator starts + binds browser sessions
-                 |
-               TOWER
-       derived priority / dependencies
-                 |
-               GitHub
-        live repository + task/PR evidence
-          /        |         |        \
-       ANVIL    FOUNDRY   SENTINEL  SWITCHYARD
-            each bound role pulls eligible work
-```
+## Start here
 
-This protocol is a coordination method only. It does **not** create a second task database, review authority, branch authority, or merge authority.
+Every role-bound browser session reads:
+
+1. root `AGENTS.md`;
+2. `work/coordination/README.md`;
+3. this protocol;
+4. `work/coordination/BACKLOG_RECOVERY.md` while recovery mode is active;
+5. its own role contract under `work/coordination/agents/`;
+6. current live task/PR/branch/CI/review evidence.
+
+Volatile status is recovered from GitHub, not from role files.
 
 ## Mandatory role binding
 
-A browser session **MUST NOT choose its own permanent role** from repository activity, workload, open PRs, apparent demand, or whichever lane looks most useful.
+A new browser session is `UNBOUND` unless its role is already explicit in that conversation.
 
-A new browser session begins `UNBOUND` unless its role is already explicit in that conversation. The operator binds the session to exactly one role:
+The operator binds each session to one permanent role:
 
-- `TOWER` — planning / priority / dispatch;
-- `ANVIL` — development;
-- `FOUNDRY` — development / repair;
+- `TOWER` — planning / dependency reasoning / dispatch;
+- `ANVIL` — development / runtime implementation;
+- `FOUNDRY` — development / runtime implementation and repair;
 - `SENTINEL` — independent review;
 - `SWITCHYARD` — integration / PR-control / merge safety.
 
-Examples of valid binding:
+The operator may bind multiple browser continuities to SENTINEL, such as `SENTINEL-A`, `SENTINEL-B`, and `SENTINEL-C`. These labels are coordination identities only, not new roles or evidence of independence.
 
-- `Your role is ANVIL. Continue under the GitHub async work-pull protocol.`
-- `You are SENTINEL for this browser session. Recover live state and continue.`
+An unbound session may orient itself but must not claim consequential work, modify an owned branch, approve review, synchronize an integration candidate, or merge. It reports:
 
-The operator may explicitly bind **more than one browser session to the same role** when that role has safely parallelizable work. This does not create new roles or duplicate authority. For parallel SENTINEL work, each session should also receive a unique operator-provided continuity label such as `SENTINEL-A`, `SENTINEL-B`, or `SENTINEL-C` so GitHub handoffs can distinguish independent browser continuities sharing the same review role.
+`UNBOUND — role assignment required`
 
-An `UNBOUND` session may inspect public repository state to orient itself, but it must not claim consequential work, approve review, modify an owned feature branch, synchronize an integration candidate, or merge.
-
-If a generic startup prompt omits the role, the session must report `UNBOUND — role assignment required`; it must **not infer or self-select** a role.
-
-Role binding does not grant extra authority. A continuity label is coordination identity only. All task, ownership, reviewer-independence, review, and integration gates still apply.
+A session never self-selects or switches permanent role merely because another queue has work.
 
 ## Sources of truth
 
-Use existing authority, in this order:
+Use authority in this order:
 
-1. operator / policy authority, including browser-session role binding;
+1. operator / policy authority;
 2. canonical MAPS task state and task contract;
-3. live GitHub repository, PR, branch, CI, and review evidence;
-4. TOWER roadmaps / dispatch notes / coordination comments as derived routing evidence only.
+3. accepted `main` and live GitHub PR/branch/CI/review evidence;
+4. TOWER routing/roadmap/coordination prose as derived guidance.
 
-If a coordination note conflicts with live or canonical state, the note loses.
+If a coordination note conflicts with stronger live/canonical state, the note loses.
 
-## Browser-session startup rule
+Preserve `UNKNOWN` rather than inventing a missing ownership, dependency, readiness, reviewer-independence, or authority fact.
 
-When the operator says **continue**, **go**, or otherwise starts a role-bound agent session, the agent should not wait for a bespoke handoff from another session.
+## Durable state vs live state
 
-The agent should:
+Repository coordination files contain stable rules, role boundaries, architecture, task contracts, and durable planning reasoning.
 
-1. confirm its operator-bound role; if none is explicit, remain `UNBOUND` and stop before consequential work;
-2. recover current `main`;
-3. read its role contract and this protocol;
-4. inspect current GitHub task/PR/review/CI/coordination evidence relevant to its bound role;
-5. find the highest-priority **eligible** work for that role;
-6. verify ownership, dependencies, authority, exact head/base, and stop conditions;
-7. execute until completion or a concrete blocker;
-8. record the result on GitHub so the next role can discover it;
-9. continue with another independent eligible item when the role has a standing queue responsibility; otherwise stop at the role boundary.
+Live GitHub contains current heads, owners/workers, CI, reviewer claims/dispositions, blockers, queue position, and handoffs.
 
-If no work is eligible, remain idle. Do not invent work or switch roles to stay busy.
+> **A fact expected to change merely because another PR merges is normally live coordination state and must not require its own merge to remain current.**
 
-## Eligibility
+Do not create or refresh status-snapshot PRs merely to mirror GitHub activity.
 
-A TOWER priority item is not automatically executable.
+## Browser pull loop
 
-Before pulling work, verify the underlying contract. For consequential implementation this normally includes:
+When the operator says `continue`, a role-bound session should:
 
-- the browser session is explicitly bound to the required role;
-- task is legitimately `READY` / `AGI READY` as required;
-- dependencies are accepted/stable;
-- no conflicting owner or mutable-output claim exists;
-- the bound role is allowed to perform the work;
-- required authority exists;
-- the current exact GitHub state still matches the handoff.
+1. recover accepted `main`;
+2. read the durable coordination files above;
+3. inspect live GitHub evidence relevant to its role;
+4. identify the highest-priority eligible work for that role;
+5. verify ownership/assignment, dependency readiness, authority, exact subject, and stop conditions;
+6. execute until completion or a concrete blocker;
+7. record the result on GitHub;
+8. continue another independent eligible item only when the role has a standing queue responsibility.
 
-For independent review, also verify that the specific browser continuity did not implement, repair, synchronize, or materially author the exact work it would review. A `SENTINEL-*` label does not manufacture independence.
+If no eligible work exists, remain idle. Do not invent work or change roles.
 
-If any load-bearing fact is unknown, inspect or block rather than guess.
+## TOWER routing
 
-## Integration order and anti-regression rule
+TOWER maintains dependency/priority reasoning but does not maintain a second live queue file.
 
-**PR age, PR number, creation time, and recency do not determine integration order.** MAPS integrates **dependency-first / bottom-up**:
+TOWER uses relevant PR/task threads for bounded routing decisions and dependency holds.
 
-1. accepted prerequisites and root foundations first;
-2. then direct dependents rebuilt or synchronized against those accepted prerequisites;
-3. then later dependents, repeating until the stack is exhausted.
+During operator-declared backlog recovery, TOWER may make the bounded orphaned-development assignment defined in `BACKLOG_RECOVERY.md`: an existing already-task-authorized ownerless development/repair step may be assigned to ANVIL or FOUNDRY after verifying no active incumbent owner and recording the exact bounded handoff.
 
-For unrelated eligible roots, TOWER priority and SWITCHYARD integration safety may choose order. Regardless of order, every candidate must integrate **forward onto the latest accepted `main`**.
+That mechanism does not transfer review, integration, merge, policy, or broader task authority.
 
-An older branch is never allowed to make the repository travel backward merely because it was created first. Before merge, SWITCHYARD must:
+## Development flow
 
-- recover the latest accepted `main`;
-- genuinely synchronize the reviewed feature layer onto that exact `main` using real Git ancestry;
-- treat accepted `main` as the baseline that must be preserved;
-- compare exact `current main -> synchronized head` rather than trusting the branch's historical base;
-- verify that the synchronized delta contains only the task-authorized intended change plus explicit, reviewed conflict reconciliation;
-- fail/return the candidate if it silently deletes, reverts, replaces, or reintroduces stale versions of newer accepted behavior outside its authorized change.
+ANVIL/FOUNDRY pull only legitimately owned/assigned work whose dependencies and task boundary permit action.
 
-When a historical branch overlaps newer accepted work, **newer accepted `main` wins by default**. A task may intentionally supersede accepted behavior only when that replacement is explicitly within current task/operator authority and receives fresh exact-head review; an old branch may never overwrite newer accepted behavior implicitly.
+A development owner may rebuild against an actually accepted dependency interface when correctness requires it.
 
-After any merge changes `main`, every remaining integration candidate must be treated as potentially stale. Re-check ancestry, dependencies, exact delta, CI, and review freshness before the next merge.
+When a stable feature/repair head is ready:
 
-Therefore the safe model is not `newest -> oldest` or `oldest -> newest` by date. It is:
+- run task-appropriate verification;
+- post `MAPS HANDOFF — READY FOR INDEPENDENT REVIEW` with exact subject/evidence;
+- freeze the feature head after the required feature/repair review boundary;
+- do not chase unrelated `main` movement merely for freshness.
 
-```text
-dependency root
-      ↓ accept into current main
-next dependent synchronized onto new main
-      ↓ accept
-next dependent synchronized onto newer main
-      ↓
-...
-```
+Final latest-main synchronization belongs to SWITCHYARD.
 
-This rule prevents historical PRs from overwriting accepted newer work while still allowing old but valid feature layers to be carried forward safely.
+## Review layers
 
-## Handoff model: agent -> GitHub state transition
+### Feature / repair review
 
-Prefer durable GitHub evidence over direct agent-to-agent conversation.
+`MAPS REVIEW DISPOSITION — CLEAN IN-LAYER / FEATURE-HEAD ONLY`
 
-### Development -> review
+This proves the exact bounded feature/repair head survived independent review.
 
-Developer finishes bounded work, then records on the owning PR/task:
+It does not mean current-main compatible, dependency-accepted, integration-ready, or merge-authorized.
 
-- exact head/base;
-- exact intended delta;
-- verification / CI evidence;
-- known limitations or blockers;
-- explicit request for independent review;
-- statement that the developer is freezing/stopping unless review returns a defect.
+### Integrated-head review
 
-Suggested heading:
+`MAPS REVIEW DISPOSITION — CLEAN INTEGRATED-HEAD`
 
-`MAPS HANDOFF — READY FOR INDEPENDENT REVIEW`
+This binds the exact accepted base + synchronized head + exact delta + fresh required exact-head verification.
 
-The developer does not need SENTINEL to be online.
+It returns the candidate to SWITCHYARD; it does not itself merge.
 
-### Review -> integration or repair
+A prior clean feature review may be reused as evidence. A fresh exact integrated-head disposition remains required under current accepted rules. When the strict equivalence conditions in `BACKLOG_RECOVERY.md` are all verified, that integrated review may focus on ancestry-only equivalence and anti-regression instead of re-litigating unchanged feature semantics.
 
-An eligible independent reviewer discovers review-ready work, reviews the exact state, and records one of:
+## Parallel SENTINEL pool
 
-- `CLEAN IN-LAYER` / equivalent clean disposition;
-- `CHANGES REQUIRED` with concrete defect and required correction;
-- `NOT READY` with exact freshness/CI/ancestry reason.
+SENTINEL is one logical review role that may have multiple explicitly operator-bound browser continuities.
 
-Suggested heading:
+Reviewer independence is continuity-specific. A reviewer must not have materially implemented, repaired, synchronized, merged, or authored the work being independently reviewed. A label never proves independence.
 
-`MAPS REVIEW DISPOSITION — <result>`
+Prior read-only review of an earlier layer does not by itself destroy later independence unless a stronger task/operator rule requires distinct reviewers.
 
-If clean, the result becomes discoverable integration evidence. If defective, the implementation owner can discover and pull the repair later.
+### Review claim
 
-### Integration -> accepted main or blocker
-
-SWITCHYARD discovers reviewed candidates and performs the normal integration gates:
-
-- recover current main;
-- apply the dependency-first / anti-regression rule above;
-- genuine synchronization using real ancestry;
-- exact delta verification against current accepted main;
-- fresh exact-head CI;
-- eligible integrated-head independent review where required;
-- merge only under existing authority and expected-head protection.
-
-Suggested heading:
-
-`MAPS INTEGRATION HANDOFF — <result>`
-
-Accepted main then becomes the dependency-release fact for downstream work.
-
-## Parallel SENTINEL reviewer pool
-
-SENTINEL is an **independent-review role**, not a singleton browser session. When review throughput is the bottleneck, the operator may explicitly bind multiple independent browser continuities to the SENTINEL role.
-
-Example:
-
-```text
-SENTINEL-A -> review PR X exact head
-SENTINEL-B -> review PR Y exact head
-SENTINEL-C -> review PR Z exact head
-```
-
-These are three browser continuities sharing one role. They are not three new permanent MAPS roles and do not gain different review authority.
-
-### Review claim protocol
-
-Before beginning a substantive review, a SENTINEL session should recover the live review queue and post a lightweight claim on the target PR:
+Before substantive review post:
 
 `MAPS REVIEW CLAIM — SENTINEL-<label>`
 
-The claim should include:
+The claim subject is:
 
-- reviewer continuity label;
-- exact PR base/head being claimed;
-- review layer, such as feature-head or integrated-head;
-- statement that reviewer independence was checked;
-- statement that the claim is coordination only, not a review disposition.
+`PR + exact base + exact head + review layer`
 
-Then immediately re-read the PR before doing the full review.
+Then re-read GitHub for races or subject movement.
 
-If another SENTINEL continuity already claimed the **same exact base/head** for the same review layer, the later claimant should normally release/withdraw its duplicate claim and pull another eligible review. If simultaneous claims race, GitHub comment ordering is the tie-break for duplication avoidance unless the operator or task explicitly requires multiple independent reviews.
+A claim is an advisory duplicate-work lease only. It does not choose priority, reserve an integration slot, approve/reject work, alter task state, survive base/head/layer movement, or block takeover indefinitely.
 
-Suggested release heading:
+Parallel SENTINEL continuities should prefer distinct useful review subjects. During backlog recovery, one eligible reviewer should remain available for the active final integration candidate while other reviewers may process stable feature/repair heads.
 
-`MAPS REVIEW CLAIM RELEASED — SENTINEL-<label>`
+Reviewers never patch the work they must independently review.
 
-A claim:
+## SWITCHYARD backlog control
 
-- does **not** make work review-ready;
-- does **not** approve or reject anything;
-- does **not** grant merge authority;
-- does **not** change canonical task state;
-- becomes irrelevant when base/head moves or an exact-head review disposition is posted;
-- must never deadlock the queue merely because a browser tab disappeared.
+SWITCHYARD continuously derives the full live open-PR queue from GitHub and classifies each PR as one of:
 
-If an older claim appears abandoned, other eligible reviews should be taken first. If no other eligible review exists, another independent SENTINEL may take over after re-checking live state and leaving `MAPS REVIEW CLAIM TAKEOVER — SENTINEL-<label>` with the displaced claim, exact base/head, and reason. Duplicate review is preferable to an indefinitely blocked acceptance gate when independence is preserved.
+- `INTEGRATE`;
+- `REVIEW NEEDED`;
+- `REPAIR NEEDED`;
+- `BLOCKED`;
+- `SUPERSEDED / CLOSE CANDIDATE`;
+- `PLANNING / COORDINATION`.
 
-### Reviewer-pool pull loop
+Every open PR should have a discoverable next legitimate gate and owner/blocker from live evidence.
 
-Each SENTINEL continuity should:
+The backlog view is not stored as a second mutable repository database.
 
-1. recover all review-ready PRs, not only the last remembered PR;
-2. remove items it is not independent or otherwise eligible to review;
-3. prefer the highest-priority eligible exact head not already claimed by another active SENTINEL continuity;
-4. post the claim and re-read for a race;
-5. review without modifying the branch;
-6. post the exact review disposition;
-7. if another independent eligible review remains, continue the review queue rather than waiting on SWITCHYARD or a developer.
+When one PR waits on another role/CI/dependency, SWITCHYARD continues other eligible PR-control work rather than idling.
 
-Multiple SENTINEL sessions may therefore review different PRs concurrently while preserving the same independent-review standard.
+## Dependency-first integration
 
-## Role pull loops
+PR age, PR number, creation time, and recency do not determine merge order.
 
-### TOWER
-
-Pull: current repository/project planning work.
-
-Do:
-- recover live state;
-- maintain a **derived** priority/dependency view;
-- identify eligible vs blocked work;
-- prioritize dependency roots before downstream dependents when acceptance of the root gates the stack;
-- update shared roadmap/dispatch evidence when material state changes;
-- surface operator decisions only when evidence cannot resolve them.
-
-Do not:
-- create canonical task truth from the queue;
-- approve independent review;
-- merge;
-- repair another role's branch without a valid handoff.
-
-### ANVIL / FOUNDRY
-
-Pull: highest-priority eligible development/repair task assigned or legitimately available to that bound development lane.
-
-Do:
-- implement the smallest task-authorized change;
-- test it;
-- publish exact evidence;
-- freeze at review/integration boundary.
-
-Do not:
-- start downstream work on unaccepted ancestry just because the upstream looks likely to pass;
-- self-approve;
-- absorb another lane's work to avoid waiting;
-- switch to SENTINEL/SWITCHYARD because review/integration work is available.
-
-### SENTINEL
-
-Pull: the review-ready queue, distributed across explicitly operator-bound SENTINEL continuities using the review-claim protocol above.
-
-Do:
-- verify exact state and CI;
-- verify continuity-specific reviewer independence;
-- claim a distinct eligible exact head before substantive review;
-- evidence-test the task/implementation;
-- for integrated-head review, verify current-main synchronization did not regress newer accepted behavior;
-- record exact disposition;
-- return defects to owner and freshness/integration blockers to SWITCHYARD;
-- continue to another independent eligible unclaimed review instead of waiting behind one blocked item.
-
-Do not:
-- patch work being independently reviewed;
-- treat TOWER priority as proof of readiness;
-- treat a claim as review authority or canonical state;
-- duplicate another active SENTINEL claim when a different eligible review exists;
-- switch to implementation or integration because those queues are non-empty.
-
-### SWITCHYARD
-
-Pull: the **entire live open-PR backlog** as a standing repository-control queue, with integration candidates advanced whenever eligible.
-
-SWITCHYARD is the persistent PR-control lane. TOWER decides product/work priority; SWITCHYARD ensures no open PR becomes ownerless, stale, ambiguous, or able to regress accepted `main`.
-
-For every open PR, recover live state and maintain one current disposition derived from GitHub evidence:
-
-- `INTEGRATE` — reviewed/eligible; advance dependency-first synchronization, exact-delta, fresh CI, integrated review, and merge gates;
-- `REVIEW NEEDED` — leave a durable exact-head handoff for SENTINEL or another eligible independent reviewer;
-- `REPAIR NEEDED` — return the concrete defect to the owning development lane;
-- `BLOCKED` — record the exact prerequisite and avoid branch churn;
-- `SUPERSEDED / CLOSE CANDIDATE` — identify obsolete/duplicate work; close only when authority and evidence are clear, otherwise surface the decision;
-- `PLANNING / COORDINATION` — move through the appropriate review/integration path without treating prose as feature authority.
-
-Do:
-- enumerate and periodically re-scan all open PRs;
-- derive integration order from dependency structure and current authority, never PR age/number;
-- ensure every open PR has a current disposition, next legitimate gate, and discoverable owner/blocker;
-- work the highest-priority eligible SWITCHYARD action;
-- when one PR is waiting on SENTINEL, ANVIL, FOUNDRY, TOWER, CI, or another prerequisite, leave the handoff and continue scanning for another independent eligible PR;
-- re-scan after merges or material `main` changes because ancestry/readiness may have changed;
-- synchronize legitimately handed-off integration branches onto the latest accepted `main`;
-- preserve accepted `main` by default during conflicts and fail closed on unauthorized regression;
-- verify exact ancestry/delta against current main and require fresh evidence;
-- merge only when existing integration gates and authority are satisfied.
-
-Do not:
-- integrate newest-to-oldest or oldest-to-newest merely from PR chronology;
-- let historical branch content silently overwrite/revert newer accepted behavior;
-- reduce the PR count by bypassing dependency, review, CI, ownership, or exact-head gates;
-- merge merely because work is high priority;
-- take over feature development unless a specific integration defect is legitimately returned;
-- self-approve work requiring independent review;
-- create a second mutable PR database; the queue is derived from live GitHub;
-- stop merely because the highest-priority PR is waiting while other independent PR-control work is eligible.
-
-## Parallelism rule
-
-Browser sessions do not need to take turns if their work is genuinely independent.
-
-Safe example:
+MAPS integrates dependency-first / bottom-up:
 
 ```text
-SENTINEL-A  reviews integrated Context Builder
-SENTINEL-B  reviews integrated communication lineage
-SENTINEL-C  reviews another eligible exact head
-FOUNDRY     repairs unrelated development work
-SWITCHYARD  integrates one PR while triaging the rest of the backlog
-TOWER       refreshes dependency/priority view
+accepted root
+   ↓
+next direct dependent
+   ↓
+next dependent
+   ↓
+...
 ```
 
-Unsafe parallelism includes:
+A downstream layer is not released by green CI or a clean feature review. Its prerequisite must actually be accepted.
 
-- unbound sessions independently deciding to become SENTINEL or any other role;
-- two agents editing the same branch/output;
-- downstream implementation on unstable upstream ancestry;
-- reviewer modifying the work they must independently approve;
-- one SENTINEL continuity reviewing work it implemented/repaired/synchronized/materially authored;
-- multiple SENTINEL continuities knowingly duplicating the same exact-head review while other eligible reviews are unclaimed;
-- multiple agents independently synchronizing the same integration candidate.
+## Accepted-main anti-regression rule
 
-## Operator workflow
+Every final integration candidate moves **forward onto latest accepted `main`**.
 
-Keep role-specific browser tabs. Bind each tab once and keep that role for the life of the session.
+Accepted `main` is the baseline that must be preserved. Historical branch content has no authority to silently delete, revert, replace, or reintroduce stale versions of newer accepted behavior.
 
-Suggested startup prompts:
+Before merge SWITCHYARD must:
 
-- `Your role is TOWER. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
-- `Your role is ANVIL. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
-- `Your role is FOUNDRY. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md.`
-- `Your role is SENTINEL. Your reviewer continuity label is SENTINEL-A. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md and claim a distinct eligible review before reviewing.`
-- `Your role is SENTINEL. Your reviewer continuity label is SENTINEL-B. Continue under work/coordination/GITHUB_ASYNC_WORK_PULL.md and claim a distinct eligible review before reviewing.`
-- `Your role is SWITCHYARD. Own the full open-PR backlog under work/coordination/GITHUB_ASYNC_WORK_PULL.md; integrate dependency-first, synchronize every candidate onto latest accepted main, reject regressions of accepted behavior, and continuously advance eligible PR-control/integration work.`
+1. recover latest accepted `main`;
+2. genuinely synchronize the active candidate using real ancestry;
+3. prove exact `current main -> synchronized head` delta;
+4. verify only task-authorized changes plus explicit reviewed reconciliation remain;
+5. preserve newer accepted behavior by default;
+6. require fresh task-appropriate exact-head verification;
+7. require the eligible integrated-head review required by current rules;
+8. expected-head merge only if all gates remain valid.
 
-Additional SENTINEL sessions may be bound with additional unique labels when review demand justifies them. They remain the same SENTINEL role.
+If historical content conflicts with accepted behavior, accepted `main` wins by default unless an explicitly authorized current task intentionally supersedes it and receives appropriate fresh review.
 
-After binding, later prompts can usually be just:
+If reconciliation requires an unresolved authority choice, stop that candidate rather than guess.
 
-> `Continue. Recover live GitHub state and pull the highest-priority eligible work for your bound role.`
+## Backlog recovery mode
 
-For a SENTINEL pool tab, `continue` means recover the live review queue, claim a distinct eligible exact head, review it, record the disposition, and continue to another eligible unclaimed review when appropriate.
+When `work/coordination/BACKLOG_RECOVERY.md` is active, its stricter flow controls apply.
 
-For SWITCHYARD, `continue` means resume the standing full-backlog control loop, derive integration order from dependencies rather than PR age, and never merge a historical branch without synchronizing it onto latest accepted `main` and proving no unauthorized regression.
+Most importantly:
 
-The operator still has to start/wake browser sessions. The protocol removes the need to manually relay detailed handoffs between sessions.
+- no new speculative capability work;
+- cap active dependency depth;
+- preserve safe parallel development and feature review;
+- freeze stable non-slot heads;
+- exactly **one merge-authoritative product integration candidate at a time**;
+- synchronize that candidate just in time;
+- after each merge, rescan the full backlog before selecting the next candidate;
+- evaluate status/checkpoint PRs by unique durable future-main value rather than freshness.
 
-## What v1 intentionally does NOT add
+Recovery-mode WIP limits are flow guidance, not task authority.
 
-Do not add these merely because they are possible:
+## Superseded coordination/status PRs
 
-- dynamic self-selection of roles;
-- new permanent reviewer roles for each SENTINEL browser tab;
-- another task database or PR database;
-- a daemon or scheduler;
-- an agent-to-agent messaging service;
-- mandatory GitHub labels as a second mutable truth;
-- per-agent inbox files that must be kept synchronized with tasks/PRs;
-- automatic merge authority.
+For a status/checkpoint PR ask:
 
-Review claims are lightweight coordination comments only; they are deliberately not another task/review database.
+> Why must this content exist in future accepted `main` rather than remain preserved in GitHub history?
 
-If browser use later shows that discovery is still too costly, labels or generated inbox views may be added as **derived projections** from canonical/live state, never as authority.
+If no unique durable value remains, SWITCHYARD may classify it `SUPERSEDED / CLOSE CANDIDATE` and close under existing authority after checking no durable information needs preservation.
 
-## Success test
+Closing it is not acceptance of its prose.
 
-This protocol is working when the operator can open role-specific browser sessions, bind each one once, and later say roughly **continue**; each agent can independently discover:
+## Standard handoffs
 
-- what it should do now within its bound role;
-- what it must not touch;
-- what it is waiting for;
-- what exact evidence proves the wait is over;
-- where to record its result so another role can discover it.
+### Development -> review
 
-Additionally:
+`MAPS HANDOFF — READY FOR INDEPENDENT REVIEW`
 
-- dependency stacks are integrated root-first, never by PR age alone;
-- every historical candidate is synchronized onto latest accepted `main` before merge;
-- exact current-main deltas prove older branches do not silently revert newer accepted behavior;
-- after each merge, remaining candidates are rechecked for staleness;
-- multiple operator-bound SENTINEL continuities can concurrently claim and review different eligible exact heads without weakening reviewer independence;
-- a same-head claim race converges on one primary reviewer unless multiple reviews are explicitly required;
-- an abandoned claim cannot permanently block review progress;
-- SWITCHYARD can recover the complete live open-PR backlog and ensure every open PR has a current disposition, next legitimate gate, and discoverable owner/blocker while continuing other eligible PR-control work when one item is waiting.
+Include exact base/head, intended delta, verification/CI, dependencies, relevant limitations/UNKNOWNs, and freeze statement.
 
-It fails if a new unbound browser session can plausibly decide for itself that it is SENTINEL, ANVIL, FOUNDRY, SWITCHYARD, or TOWER; if an older PR can silently overwrite or revert newer accepted behavior; if parallel SENTINEL tabs manufacture reviewer independence from labels alone; or if open PRs can remain indefinitely unclassified/ownerless while SWITCHYARD is active.
+### Review -> repair/integration
+
+`MAPS REVIEW DISPOSITION — <result>`
+
+Bind the exact review layer and subject.
+
+### Integration
+
+`MAPS INTEGRATION HANDOFF — <result>`
+
+Include accepted base, synchronized head, exact delta/anti-regression proof, fresh verification, review result, and next gate.
+
+### TOWER routing
+
+`TOWER ROUTING — <bounded assignment / dependency decision>`
+
+Routing is derived coordination evidence. It does not silently grant broader task/review/merge authority.
+
+## Unsafe behavior
+
+Do not:
+
+- self-select or switch roles;
+- race another agent on the same mutable branch/output;
+- build deep downstream work on unaccepted ancestry;
+- review work a continuity materially authored/modified;
+- treat feature review as merge authority;
+- treat review claims as locks/priority/merge authority;
+- pre-synchronize several merge-authoritative candidates during backlog recovery;
+- integrate by PR chronology;
+- let historical content regress accepted `main`;
+- bypass dependency, ownership, CI, review, or operator gates to reduce the PR count;
+- create a second status/PR/review database in Markdown.
+
+## Operator usage
+
+A normal role tab can be started with:
+
+`Your role is ANVIL. Read work/coordination/README.md, your role file, the async protocol, and active backlog-recovery rules. Recover live GitHub state and continue.`
+
+A reviewer tab:
+
+`Your role is SENTINEL. Your reviewer continuity label is SENTINEL-A. Read work/coordination/README.md, SENTINEL.md, the async protocol, and active backlog-recovery rules. Recover live GitHub state and pull an eligible review.`
+
+SWITCHYARD:
+
+`Your role is SWITCHYARD. Read work/coordination/README.md, SWITCHYARD.md, the async protocol, and active backlog-recovery rules. Recover the full live PR backlog and continue the one-slot dependency-first merge train.`
+
+After the session is bound, later instructions can simply be:
+
+`Continue. Recover live GitHub state and pull the highest-priority eligible work for your bound role.`
