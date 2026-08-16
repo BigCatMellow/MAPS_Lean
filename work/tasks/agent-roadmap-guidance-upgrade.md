@@ -83,11 +83,11 @@ mandatory AGI requirement passes.
 - The operator explicitly requested upgrading all agent files. This permits the documentation-only cross-file change despite the coordination README's normal rule that each lane edits only its own note.
 - Durable roadmap guidance was appended rather than mixed into volatile PR/head/status sections, minimizing contention with active coordination-refresh PRs.
 - Pre-review compare against base `146f092a63af63b0fd750445e584a39e82ea1442` showed exactly the four agent notes plus this task record, with zero deletions and no runtime/test/schema/roadmap changes.
-- Draft PR #70 is the review/integration surface for this task.
+- SENTINEL wording uses "actively look for evidence that could disprove" rather than "falsify" so the instruction cannot be mistaken for altering or manufacturing false information.
 
 ## Completion / handoff
 
-- Completed: canonical roadmap guidance appended to ANVIL, FOUNDRY, SENTINEL, and SWITCHYARD; documentation-only delta verified against the task base; draft PR #70 opened.
+- Completed: canonical roadmap guidance appended to ANVIL, FOUNDRY, SENTINEL, and SWITCHYARD; documentation-only delta verified against the task base.
 - Not completed: required independent review and integration to `main`.
-- Current blocker: none; independent review is the next gate.
-- Next action if not DONE: independently review the exact PR #70 head, then hand clean review evidence to SWITCHYARD for live-main reconciliation and integration without self-approving or merging.
+- Current blocker: none; review is the next gate.
+- Next action if not DONE: hand the exact branch head to an independent reviewer/SWITCHYARD without self-approving or merging.
