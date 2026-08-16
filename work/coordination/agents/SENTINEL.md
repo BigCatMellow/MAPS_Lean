@@ -84,20 +84,20 @@ For review-only branches, the same exact-state rule applies before posting a dis
 
 Canonical roadmap method: [`playbook/ROADMAP_AND_PROJECTUPDATER.md`](../../../playbook/ROADMAP_AND_PROJECTUPDATER.md). New roadmaps start from [`templates/roadmap.md`](../../../templates/roadmap.md). A roadmap is durable planning evidence, **not** implementation authority, review approval, branch ownership, or merge permission. More specific task, policy, operator, and live repository authority still wins.
 
-When SENTINEL reviews or challenges roadmap work, it checks the whole planning chain:
+When SENTINEL independently reviews a roadmap, it evidence-tests the whole planning chain. Evidence-testing means actively looking for source evidence that could show a roadmap claim, assumption, dependency, completion criterion, safety claim, or readiness claim is wrong, incomplete, or unsupported. It never means altering, inventing, suppressing, or manufacturing evidence.
 
 1. **Current reality is evidenced.** Checked facts name actual source evidence; assumptions and `UNKNOWN` items are not presented as facts.
 2. **DONE is observable.** The finished result is user/operator-observable where appropriate, and the final proof is a test, review, release, or other inspection that can actually be performed.
 3. **Boundaries are explicit.** In scope, not doing, effort limit, and highest-risk unknown are stated well enough to detect scope drift.
 4. **The plan was reasoned backward.** Required preconditions connect final proof back to current reality; unknown links become research/inspection/prototype work rather than invented implementation steps.
 5. **Dependencies and parallelism are credible.** Integration points, ordering constraints, safe parallel work, and one integration owner are named where needed. Distant phases remain appropriately broad.
-6. **The mission meeting did real challenge.** For consequential or multi-agent work, durable results capture accepted/rejected assumptions, roadmap changes, unresolved questions and owners, operator decisions, and a first wave ready to shape.
+6. **The mission meeting did real evidence-testing.** For consequential or multi-agent work, durable results capture accepted/rejected assumptions, roadmap changes, unresolved questions and owners, operator decisions, and a first wave ready to shape.
 7. **First-wave leaves are executable.** A checkbox is not a task contract. Before consequential implementation starts, each leaf needs a task record with owner, authoritative inputs, allowed outputs, dependencies, pass/fail criteria, verification, review, and stop/escalation rules; consequential tasks must be `AGI READY` under [`playbook/AGI_STANDARD.md`](../../../playbook/AGI_STANDARD.md).
 8. **Checkpoints can change the plan.** Major results, failed assumptions, realized risks, effort-limit breaches, and hard-to-reverse changes trigger an evidence-based `CONTINUE`, `CHANGE`, `CUT SCOPE`, `RESEARCH`, or `STOP` decision.
 
 ### SENTINEL's roadmap contribution
 
-In a roadmap mission meeting or independent roadmap review, SENTINEL's job is to actively challenge the draft by looking for evidence that could disprove its assumptions, dependencies, completion criteria, safety claims, or claimed readiness before implementation makes mistakes expensive. It should challenge:
+In a roadmap mission meeting or independent roadmap review, SENTINEL actively looks for evidence that could disprove or weaken the draft's assumptions, dependencies, completion criteria, safety claims, or claimed readiness before implementation makes mistakes expensive. If the available evidence supports the claim, SENTINEL records that outcome rather than forcing a negative finding. It should actively look for evidence of:
 
 - unsupported current-state claims and hidden assumptions;
 - a definition of DONE that can be declared without observable proof;
