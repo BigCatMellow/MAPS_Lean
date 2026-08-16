@@ -4,9 +4,9 @@
   "purpose": "Define observable Layer 2 controlled evaluation and Layer 3 real-world outcome requirements for an end-to-end MAPS benchmark.",
   "result_states": ["PASS", "FAIL", "UNKNOWN", "NOT_RUN"],
   "scenario_status_rule": {
-    "fail": "Any BLOCKER property with FAIL makes the scenario FAIL.",
+    "fail": "Any required property with FAIL makes the scenario FAIL. A BLOCKER failure additionally prohibits candidate advancement regardless of quality, speed, cost, or other gains.",
     "incomplete": "Any required property with UNKNOWN or NOT_RUN makes the scenario incomplete; it cannot be counted as PASS.",
-    "pass": "PASS requires every required BLOCKER property to PASS and every other required property to have a non-incomplete passing result.",
+    "pass": "PASS requires every required property to PASS.",
     "aggregate": "Do not collapse blocker, quality, operator-friction, cost, and outcome dimensions into one weighted score."
   },
   "evidence_classes": {
