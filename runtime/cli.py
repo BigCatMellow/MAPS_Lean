@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 
 from runtime.context_builder import build_context_plan
+from runtime.run_record import RunRecordError, build_run_record
 from runtime.state import MutationResult, TaskStore, ValidationResult
 from runtime.status import build_status
 
@@ -71,6 +72,13 @@ def build_parser() -> argparse.ArgumentParser:
         help='show a read-only canonical task trace with explicit source coverage',
     )
     trace.add_argument('task_id')
+
+    run_record = sub.add_parser(
+        'run-record',
+        help='export one sanitized portable Run Record for an exact task/run binding',
+    )
+    run_record.add_argument('task_id')
+    run_record.add_argument('run_id')
 
     context = sub.add_parser(
         'context',
@@ -179,6 +187,11 @@ def main(argv: list[str] | None = None) -> int:
         if trace is None:
             return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
         return _emit(trace)
+    if args.command == 'run-record':
+        try:
+            return _emit(build_run_record(store, args.task_id, args.run_id))
+        except RunRecordError as exc:
+            return _emit(MutationResult(False, 'INVALID_RUN_RECORD_SOURCE', str(exc)))
     if args.command == 'context':
         try:
             plan = build_context_plan(store, args.task_id, repo_root=args.repo_root)
