@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import re
@@ -63,10 +64,23 @@ def _resolves(source: Mapping[str, object], anchor: Mapping[str, str]) -> bool:
         return any(f"{'#' * n} {value}" in headings for n in range(1, 7))
     if kind == "DOCUMENT_STATUS":
         return value in content
-    if "." not in value:
+    if value.count(".") != 1:
         return False
-    owner, symbol = value.rsplit(".", 1)
-    return f"class {owner}" in content and f"def {symbol}" in content
+    owner, symbol = value.split(".", 1)
+    if not owner.isidentifier() or not symbol.isidentifier():
+        return False
+    try:
+        tree = ast.parse(content)
+    except SyntaxError:
+        return False
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef) and node.name == owner:
+            return any(
+                isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and child.name == symbol
+                for child in node.body
+            )
+    return False
 
 
 def _source(raw: Mapping[str, object]) -> dict[str, object]:
