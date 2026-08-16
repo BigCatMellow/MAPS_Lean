@@ -86,9 +86,15 @@ class WaitProjectionTests(unittest.TestCase):
             item for item in report["reasons"] if item["code"] == "WAIT_DEPENDENCY"
         ]
         self.assertEqual(len(dependency_reasons), 2)
-        details = {item["details"]["dependency_id"]: item["details"] for item in dependency_reasons}
-        self.assertEqual(details["TASK-2"]["dependency_status"], "ACTIVE")
-        self.assertEqual(details["TASK-3"]["dependency_status"], "MISSING")
+        by_id = {
+            item["details"]["dependency_id"]: item for item in dependency_reasons
+        }
+        self.assertEqual(by_id["TASK-2"]["details"]["dependency_status"], "ACTIVE")
+        self.assertEqual(by_id["TASK-2"]["source_refs"], ["task:TASK-1", "task:TASK-2"])
+        self.assertEqual(by_id["TASK-3"]["details"]["dependency_status"], "MISSING")
+        # The missing task is not a source. The parent task proves only that the
+        # missing dependency ID was declared.
+        self.assertEqual(by_id["TASK-3"]["source_refs"], ["task:TASK-1"])
         self.assertEqual(report["coverage"]["dependencies"], "VERIFIED")
 
     def test_done_dependency_removes_dependency_wait(self):
@@ -119,7 +125,33 @@ class WaitProjectionTests(unittest.TestCase):
         self.assertEqual(report["summary_state"], "WAITING")
         self.assertEqual(codes(report), ["WAIT_REVIEW_UNCLAIMED"])
         self.assertEqual(report["reasons"][0]["details"]["submission_count"], 2)
+        self.assertEqual(
+            report["reasons"][0]["source_refs"],
+            ["submission:TASK-1:2", "task:TASK-1"],
+        )
         self.assertEqual(report["coverage"]["review"], "VERIFIED")
+
+    def test_ready_for_review_invalid_submission_count_preserves_unknown(self):
+        source = FakeSource(
+            {
+                "TASK-1": task(
+                    status="READY_FOR_REVIEW",
+                    submission={"submission_count": 0, "author_id": "worker-a"},
+                )
+            }
+        )
+
+        report = project_task_waits(source, "TASK-1")
+
+        self.assertEqual(report["summary_state"], "UNKNOWN")
+        self.assertEqual(codes(report), ["REVIEW_GATE_EVIDENCE_INCOMPLETE"])
+        self.assertEqual(
+            report["reasons"][0]["details"],
+            {"missing": "valid_submission_count"},
+        )
+        self.assertFalse(
+            any(ref.startswith("submission:") for ref in report["reasons"][0]["source_refs"])
+        )
 
     def test_ready_for_review_with_one_open_review_is_in_progress_wait(self):
         source = FakeSource(
