@@ -5,7 +5,7 @@
 - Type: `MAINTENANCE`
 - Owner: roadmap-guidance documentation lane
 - Risk: `MEDIUM`
-- Goal: each active coordination agent file contains durable, role-specific guidance for participating in MAPS roadmap creation, challenge, execution, review, and integration without changing the agent's current lane ownership or volatile status.
+- Goal: each active coordination agent file contains durable, role-specific guidance for participating in MAPS roadmap creation, evidence-testing, execution, review, and integration without changing the agent's current lane ownership or volatile status.
 
 ## Inputs and source of truth
 
@@ -29,14 +29,14 @@
 ## Acceptance criteria
 
 - [x] All four active agent files point to the canonical roadmap playbook/template and summarize the roadmap lifecycle sufficiently to operate without inventing missing authority.
-- [x] ANVIL and FOUNDRY guidance explains how implementation lanes challenge feasibility, execute only shaped first-wave tasks, surface unknowns, and trigger re-planning without silently expanding scope.
-- [x] SENTINEL guidance explains independent roadmap challenge/review, exact-evidence checks, defect routing, and preservation of reviewer independence.
-- [x] SWITCHYARD guidance explains dependency/integration sequencing, exact-head proof, checkpoint/re-plan triggers, and why roadmap state never substitutes for merge authority.
+- [x] ANVIL and FOUNDRY guidance explains how implementation lanes evidence-test feasibility, execute only shaped first-wave tasks, surface unknowns, and trigger re-planning without silently expanding scope.
+- [x] SENTINEL guidance explicitly defines independent roadmap evidence-testing as looking for source evidence that could show claims or assumptions are wrong, incomplete, or unsupported; it also covers exact-evidence checks, defect routing, and preservation of reviewer independence.
+- [x] SWITCHYARD guidance explains dependency/integration sequencing, evidence-testing of parallelism and ordering assumptions, exact-head proof, checkpoint/re-plan triggers, and why roadmap state never substitutes for merge authority.
 - [x] Existing active-lane/status content is otherwise preserved and the branch delta is documentation-only.
 
 ## Verification and evidence
 
-- Verification: re-fetch every changed file from the branch; compare branch against its base and confirm only the declared Markdown paths changed; inspect the rendered guidance for canonical links, role boundaries, roadmap checkpoints, task-record gating, and explicit non-authority language.
+- Verification: re-fetch every changed file from the branch; compare branch against its base and confirm only the declared Markdown paths changed; inspect the rendered guidance for canonical links, role boundaries, roadmap checkpoints, task-record gating, explicit non-authority language, and unambiguous evidence-testing instructions.
 - Evidence to preserve: branch compare, resulting commit/head SHA, and draft PR if connector support permits.
 - Review required: `INDEPENDENT_REVIEW`
 
@@ -83,7 +83,7 @@ mandatory AGI requirement passes.
 - The operator explicitly requested upgrading all agent files. This permits the documentation-only cross-file change despite the coordination README's normal rule that each lane edits only its own note.
 - Durable roadmap guidance was appended rather than mixed into volatile PR/head/status sections, minimizing contention with active coordination-refresh PRs.
 - Pre-review compare against base `146f092a63af63b0fd750445e584a39e82ea1442` showed exactly the four agent notes plus this task record, with zero deletions and no runtime/test/schema/roadmap changes.
-- SENTINEL wording uses "actively look for evidence that could disprove" rather than "falsify" so the instruction cannot be mistaken for altering or manufacturing false information.
+- Evidence-testing wording is explicit throughout the added guidance: agents actively look for source evidence that could show a claim, assumption, dependency, proof, safety statement, or readiness statement is wrong, incomplete, or unsupported. They must not alter, invent, suppress, or manufacture contrary evidence, and a supported claim remains supported when the evidence withstands the check.
 
 ## Completion / handoff
 
