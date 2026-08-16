@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import closing
 from datetime import datetime, timezone
 import sqlite3
+from typing import Sequence
 
 from .common import MutationResult, iso_z, utc_now
 
@@ -110,6 +111,7 @@ class ReviewMixin:
         verdict: str,
         summary: str,
         *,
+        rederived_artifact_refs: Sequence[str] | None = None,
         now: datetime | None = None,
     ) -> MutationResult:
         verdict = verdict.strip().upper()
@@ -176,6 +178,9 @@ class ReviewMixin:
                     )
 
             if verdict == "APPROVED":
+                # Preserve the established criterion-verification failure order.
+                # Once criterion mode is complete, the review-binding hook validates
+                # the independently bound immutable review subject.
                 criterion_issues = self._criterion_approval_issues_conn(conn, task_id)
                 if criterion_issues:
                     conn.rollback()
@@ -184,6 +189,20 @@ class ReviewMixin:
                         "CRITERION_VERIFICATION_INCOMPLETE",
                         "; ".join(criterion_issues),
                     )
+
+                approval_hook = getattr(self, "_validate_review_approval_conn", None)
+                if callable(approval_hook):
+                    issue = approval_hook(
+                        conn,
+                        task=task,
+                        submission=submission,
+                        review=review,
+                        rederived_artifact_refs=rederived_artifact_refs,
+                    )
+                    if issue is not None:
+                        conn.rollback()
+                        code, message = issue
+                        return MutationResult(False, code, message)
 
             new_status = {
                 "APPROVED": "DONE",

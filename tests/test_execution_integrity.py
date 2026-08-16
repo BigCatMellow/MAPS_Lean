@@ -307,8 +307,21 @@ class IntegrityTests(unittest.TestCase):
                 second.task["claim_id"], "confirmed", reviewer_id="reviewer"
             ).ok
         )
-        approved = self.store.record_review(
+        missing_subject = self.store.record_review(
             task_id, "reviewer", "APPROVED", "all criteria confirmed"
+        )
+        self.assertFalse(missing_subject.ok)
+        self.assertEqual(missing_subject.code, "REVIEW_SUBJECT_REQUIRED")
+        bound = self.store.bind_review_subject(
+            task_id,
+            "reviewer",
+            freshness_mode="REVISION_BOUND",
+            run_id=run["run_id"],
+            artifact_refs=("sha256:" + "d" * 64,),
+        )
+        self.assertTrue(bound.ok, bound.message)
+        approved = self.store.record_review(
+            task_id, "reviewer", "APPROVED", "all criteria and exact output reviewed"
         )
         self.assertTrue(approved.ok, approved.message)
         self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
