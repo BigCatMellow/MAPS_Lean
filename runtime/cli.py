@@ -7,6 +7,8 @@ from pathlib import Path
 import sys
 
 from runtime.context_builder import build_context_plan
+from runtime.evaluation import IncidentCategory, RegressionCaseError, freeze_regression_case
+from runtime.run_record import RunRecordError, build_run_record
 from runtime.state import MutationResult, TaskStore, ValidationResult
 from runtime.status import build_status
 
@@ -22,6 +24,12 @@ def _read_contract(path: str) -> dict:
     if not isinstance(data, dict):
         raise ValueError('contract JSON must be an object')
     return data
+
+
+def _read_text(path: str) -> str:
+    if path == '-':
+        return sys.stdin.read()
+    return Path(path).read_text(encoding='utf-8')
 
 
 def _emit(value: MutationResult | ValidationResult | dict | list) -> int:
@@ -71,6 +79,38 @@ def build_parser() -> argparse.ArgumentParser:
         help='show a read-only canonical task trace with explicit source coverage',
     )
     trace.add_argument('task_id')
+
+    run_record = sub.add_parser(
+        'run-record',
+        help='export one sanitized portable Run Record for an exact task/run binding',
+    )
+    run_record.add_argument('task_id')
+    run_record.add_argument('run_id')
+
+    freeze_case = sub.add_parser(
+        'freeze-case',
+        help='emit a deterministic frozen regression case from an exact Run Record',
+    )
+    freeze_case.add_argument('task_id')
+    freeze_case.add_argument('run_id')
+    freeze_case.add_argument(
+        '--category',
+        required=True,
+        choices=[item.value for item in IncidentCategory],
+    )
+    freeze_case.add_argument(
+        '--fixture-file',
+        required=True,
+        help='sanitized fixture text file or - for stdin',
+    )
+    freeze_case.add_argument(
+        '--expect',
+        action='append',
+        required=True,
+        help='expected property ID; repeat for multiple properties',
+    )
+    freeze_case.add_argument('--tag', action='append', default=[])
+    freeze_case.add_argument('--frozen-by', required=True)
 
     context = sub.add_parser(
         'context',
@@ -179,6 +219,26 @@ def main(argv: list[str] | None = None) -> int:
         if trace is None:
             return _emit(MutationResult(False, 'NOT_FOUND', f'{args.task_id} does not exist'))
         return _emit(trace)
+    if args.command == 'run-record':
+        try:
+            return _emit(build_run_record(store, args.task_id, args.run_id))
+        except RunRecordError as exc:
+            return _emit(MutationResult(False, 'INVALID_RUN_RECORD_SOURCE', str(exc)))
+    if args.command == 'freeze-case':
+        try:
+            record = build_run_record(store, args.task_id, args.run_id)
+            fixture = _read_text(args.fixture_file)
+            case = freeze_regression_case(
+                record,
+                category=args.category,
+                sanitized_fixture=fixture,
+                expected_properties=args.expect,
+                frozen_by=args.frozen_by,
+                tags=args.tag,
+            )
+            return _emit(case)
+        except (OSError, RunRecordError, RegressionCaseError) as exc:
+            return _emit(MutationResult(False, 'INVALID_REGRESSION_CASE', str(exc)))
     if args.command == 'context':
         try:
             plan = build_context_plan(store, args.task_id, repo_root=args.repo_root)
