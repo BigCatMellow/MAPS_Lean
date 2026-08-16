@@ -4,7 +4,7 @@ Status: `IMPLEMENTED ON STACKED DRAFT BRANCH — NOT PRODUCTION AUTHORITY`
 
 Branch: `agent/context-evidence-scorer-wave3`
 
-Base dependency: PR #39 exact head `57b42557af1db2d7d23849766b0841c3a0395460`.
+Base dependency: repaired PR #39 exact head `adf25a5721808cd272bc9eb9af90a25038f568eb`. Earlier head `57b42557af1db2d7d23849766b0841c3a0395460` is historical/superseded.
 
 ## Purpose
 
