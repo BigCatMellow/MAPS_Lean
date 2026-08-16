@@ -177,12 +177,14 @@ BEGIN
     SELECT RAISE(ABORT, 'run context refs are immutable');
 END;
 
--- Adapter-qualified provider/session identity is separate append-only lineage.
--- It extends an immutable run without rewriting the original run manifest.
+-- Project/adapter-qualified provider/session identity is separate append-only
+-- lineage. Project identity is copied from canonical task state at record time
+-- only to preserve the provider namespace; it grants no task authority.
 CREATE TABLE IF NOT EXISTS run_session_links (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
     relation TEXT NOT NULL CHECK (relation IN ('ATTACH','REPLACE')),
+    project_id TEXT NOT NULL CHECK (length(trim(project_id)) > 0),
     adapter_id TEXT NOT NULL CHECK (length(trim(adapter_id)) BETWEEN 1 AND 128),
     session_id TEXT NOT NULL CHECK (length(trim(session_id)) BETWEEN 1 AND 128),
     replaces_link_id INTEGER REFERENCES run_session_links(id),
@@ -193,7 +195,7 @@ CREATE TABLE IF NOT EXISTS run_session_links (
         (relation = 'ATTACH' AND replaces_link_id IS NULL)
         OR (relation = 'REPLACE' AND replaces_link_id IS NOT NULL)
     ),
-    UNIQUE(adapter_id, session_id)
+    UNIQUE(project_id, adapter_id, session_id)
 );
 CREATE INDEX IF NOT EXISTS idx_run_session_links_run
     ON run_session_links(run_id, id);
@@ -203,6 +205,21 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_run_session_one_attach
 CREATE UNIQUE INDEX IF NOT EXISTS idx_run_session_one_replacement
     ON run_session_links(replaces_link_id)
     WHERE replaces_link_id IS NOT NULL;
+
+-- Every stored provider-context key must match canonical task state for the
+-- owning immutable run. Direct SQL cannot invent a competing project identity.
+CREATE TRIGGER IF NOT EXISTS trg_run_session_project_match
+BEFORE INSERT ON run_session_links
+WHEN NOT EXISTS (
+    SELECT 1
+    FROM run_manifests AS r
+    JOIN tasks AS t ON t.task_id = r.task_id
+    WHERE r.run_id = NEW.run_id
+      AND trim(t.project_id) = trim(NEW.project_id)
+)
+BEGIN
+    SELECT RAISE(ABORT, 'run session project must match canonical task project');
+END;
 
 -- Direct SQL must preserve the immutable manifest's only pre-existing session
 -- fact. A bare manifest session may be adapter-qualified, never silently replaced.
