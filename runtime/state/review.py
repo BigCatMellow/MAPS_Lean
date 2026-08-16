@@ -179,8 +179,8 @@ class ReviewMixin:
 
             if verdict == "APPROVED":
                 # Preserve the established criterion-verification failure order.
-                # Once criterion mode is complete, a later review-binding hook may
-                # derive the overall subject from the same confirmed run evidence.
+                # Once criterion mode is complete, the review-binding hook validates
+                # the independently bound immutable review subject.
                 criterion_issues = self._criterion_approval_issues_conn(conn, task_id)
                 if criterion_issues:
                     conn.rollback()
