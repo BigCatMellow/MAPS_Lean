@@ -1,0 +1,38 @@
+{
+  "version": "context-builder-retrieval-stage2-v1",
+  "status": "FROZEN_EVALUATION_OVERLAY_NOT_RUNTIME_AUTHORITY",
+  "base_corpus_version": "context-builder-evidence-integrity-v1",
+  "purpose": "Compare explicit-first source selection with bounded retrieval supplementation before any production Context Builder routing decision.",
+  "principles": [
+    "Explicit task-linked sources remain first and are never displaced by supplementation.",
+    "Same-path source drift may be surfaced mechanically without repository-wide semantic inference.",
+    "The lexical candidate is a negative control, not a production proposal or revival of the legacy claim-card retriever.",
+    "Hard-negative abstention and forbidden temporal-source safety are non-tradeable gates.",
+    "Retrieval selects candidate sources only; evidence-card truth still belongs to the Stage 1 integrity scorer.",
+    "Future semantic/vector candidates must submit rankings to the same frozen evaluator and receive no automatic promotion."
+  ],
+  "lexical_negative_control": {
+    "top_k": 3,
+    "minimum_shared_terms": 1,
+    "supplement_when": "EXPLICIT_SOURCE_SET_EMPTY",
+    "promotion_candidate": false
+  },
+  "cases": [
+    {"case_id": "CBI-001", "explicit_source_ids": ["CB-SRC-001"]},
+    {"case_id": "CBI-002", "explicit_source_ids": ["CB-SRC-003"]},
+    {"case_id": "CBI-003", "explicit_source_ids": ["CB-SRC-001"]},
+    {"case_id": "CBI-004", "explicit_source_ids": []},
+    {"case_id": "CBI-005", "explicit_source_ids": []},
+    {"case_id": "CBI-006", "explicit_source_ids": []},
+    {"case_id": "CBI-007", "explicit_source_ids": []},
+    {"case_id": "CBI-008", "explicit_source_ids": ["CB-SRC-001"]},
+    {"case_id": "CBI-009", "explicit_source_ids": ["CB-SRC-002"]},
+    {"case_id": "CBI-010", "explicit_source_ids": ["CB-SRC-005"]},
+    {"case_id": "CBI-011", "explicit_source_ids": ["CB-SRC-006"]},
+    {"case_id": "CBI-012", "explicit_source_ids": ["CB-SRC-011"]},
+    {"case_id": "CBI-013", "explicit_source_ids": ["CB-SRC-012"]},
+    {"case_id": "CBI-014", "explicit_source_ids": []},
+    {"case_id": "CBI-015", "explicit_source_ids": ["CB-SRC-006"]},
+    {"case_id": "CBI-016", "explicit_source_ids": ["CB-SRC-007"]}
+  ]
+}
