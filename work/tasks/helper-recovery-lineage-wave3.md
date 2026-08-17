@@ -5,11 +5,23 @@
 - Type: `IMPLEMENTATION`
 - Owner: `agent/helper-recovery-lineage-wave3`
 - Risk: `MEDIUM`
-- Dependency: PR #48 / A1 exact base head `13b3293781a43980066f642edb79cf7f4528d4aa`
+- Dependency: accepted A1 / PR #48 in `main@eccdddaa37e42c93982bedf20d19e4f5096dbcff`; rebuilt on current accepted `main@c4c93e52edd961802c7c203035f0bc272f196b59`
 
 ## Goal
 
 Add explicit append-only run↔helper and predecessor-run↔replacement-run relationships while keeping existing helper/recovery stores authoritative for their own result/mutable state.
+
+## Accepted A1 composition boundary
+
+Accepted A1 defines durable provider session identity as `(project_id, adapter_id, session_id)`, with `project_id` derived from canonical task state and enforced at the SQLite boundary.
+
+A2 does not add another project authority:
+
+- a helper's optional `parent_session_link_id` must point to a session link belonging to the same immutable run, so accepted A1's canonical project context is inherited mechanically;
+- a recovery predecessor and replacement must belong to the same canonical task, which likewise fixes project context;
+- A2 stores only cross-source relationship evidence and does not duplicate `project_id` into helper/recovery rows.
+
+The later accepted #45 hcom relationship layer is outside these twelve A2 paths and is preserved wholesale from current main.
 
 ## Required boundaries
 
@@ -17,8 +29,9 @@ Add explicit append-only run↔helper and predecessor-run↔replacement-run rela
 - Do not turn recovery/session liveness into task truth.
 - Do not create or imply review independence from recovery/helper identity.
 - Do not add a permanent supervisor or new worker process.
-- Do not modify A1/PR #48's branch.
+- Do not weaken or replace accepted A1 project-scoped session invariants.
 - Existing helper and recovery APIs remain usable without a lineage-aware orchestrator.
+- PR #50 / submission-attempt lineage remains downstream and out of scope.
 
 ## Helper lineage semantics
 
@@ -46,27 +59,43 @@ Add explicit append-only run↔helper and predecessor-run↔replacement-run rela
 - [x] helper links are append-only and same-run parent relationships are mechanically enforced.
 - [x] helper link creation rejects wrong/stale claimant authority.
 - [x] helper result fields are not duplicated into SQLite lineage.
+- [x] accepted A1 project-scoped session identity remains authoritative; A2 helper parents cannot escape the owning run/project context.
 - [x] recovery links are append-only, same-task, chronological, non-self, linear, and acyclic.
 - [x] recovery linkage does not mutate either run manifest or RecoveryStore.
 - [x] direct SQLite writes cannot bypass same-task, chronology, or cycle constraints.
-- [x] trace exposes explicit helper/recovery relationships with incomplete legacy/external coverage.
-- [x] focused adversarial tests pass in active discovery.
-- [x] full Runtime CI #266 passed on implementation head `176a8eec8ad24cfef2cb4ef3dafa0bf8023fd35f`.
+- [x] trace exposes explicit helper/recovery relationships with UNKNOWN/incomplete legacy/external coverage.
+- [x] rebuild composition is limited to the twelve declared A2 paths and preserves current-main accepted state outside them.
+- [ ] fresh exact-head Runtime CI passes on the rebuilt current-main head.
+- [ ] independent exact-head review is CLEAN before integration.
 
 ## Verification
 
-Focused targets:
+Historical focused targets:
 
 ```text
 python -m unittest tests.test_helper_recovery_lineage tests.test_helper_recovery_lineage_sql tests.test_bounded_helpers tests.test_recovery_supervisor -v
 ```
 
-Full validation: Runtime stack CI #266 — PASS on implementation head `176a8eec8ad24cfef2cb4ef3dafa0bf8023fd35f` before this documentation-only status update.
+Historical Runtime CI #268 passed on `ed865be729cf2d15663258fd46c9296ea32d28e7`; it is stale after the accepted-A1/current-main rebuild.
+
+Final rebuilt head requires fresh full Runtime CI and independent review. Review must verify the exact current-main delta, accepted A1 preservation, same-run/same-task composition, append-only invariants, bounded UNKNOWN coverage language, and absence of new authority.
 
 Review required: `INDEPENDENT_REVIEW` before merge/completion.
 
+## Rebuild / conflict resolution
+
+A direct Git synchronization of historical #49 with accepted main conflicts at the two expected composition points in `runtime/state/schema.sql` and `runtime/state/store.py`.
+
+The owner resolution is intentionally narrow:
+
+- preserve current-main `run_session_links` schema/triggers and `RunSessionLineageMixin` wiring verbatim;
+- add A2 `run_helper_links` / `run_recovery_links` schema and triggers after accepted A1 lineage;
+- add `HelperRecoveryLineageMixin` to `TaskStore` without removing accepted mixins;
+- carry the remaining historical A2 implementation/tests unchanged;
+- refresh only task/note ancestry evidence.
+
 ## Stop
 
-A2 implementation scope is mechanically complete and stops here.
+A2 implementation/rebuild scope stops after fresh exact-head CI and independent handoff.
 
-Submission lineage (A3), communication task/run joins (A4c), and explainable waits (A4d) must remain separate review units.
+Submission lineage (A3 / PR #50), communication task/run joins (A4c), and explainable waits (A4d) remain separate review units.

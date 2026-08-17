@@ -14,7 +14,7 @@ _REF_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:@/#+=-]{0,255}$")
 
 
 class RunSessionLineageMixin:
-    """Append-only adapter-qualified run/session relationships.
+    """Append-only project/adapter-qualified run/session relationships.
 
     These records identify provider sessions for an immutable run. They do not
     grant task authority and do not represent provider liveness/readiness.
@@ -47,6 +47,7 @@ class RunSessionLineageMixin:
             "link_id": int(row["id"]),
             "run_id": str(row["run_id"]),
             "relation": str(row["relation"]),
+            "project_id": str(row["project_id"]),
             "adapter_id": str(row["adapter_id"]),
             "session_id": str(row["session_id"]),
             "replaces_link_id": (
@@ -67,12 +68,18 @@ class RunSessionLineageMixin:
         manifest_session_id: str | None = None,
     ) -> dict[str, Any] | None:
         manifest = conn.execute(
-            "SELECT run_id, session_id FROM run_manifests WHERE run_id = ?",
+            """
+            SELECT r.run_id, r.session_id, t.project_id
+            FROM run_manifests AS r
+            JOIN tasks AS t ON t.task_id = r.task_id
+            WHERE r.run_id = ?
+            """,
             (run_id,),
         ).fetchone()
         if manifest is None:
             return None
 
+        project_id = str(manifest["project_id"] or "").strip()
         legacy_session = (
             str(manifest_session_id).strip()
             if manifest_session_id is not None
@@ -89,11 +96,13 @@ class RunSessionLineageMixin:
             if legacy_session:
                 return {
                     "run_id": run_id,
+                    "project_id": project_id,
                     "state": "ADAPTER_UNPROVEN",
                     "chain_complete": False,
                     "legacy_manifest_session_id": legacy_session,
                     "current": {
                         "link_id": None,
+                        "project_id": project_id,
                         "adapter_id": None,
                         "session_id": legacy_session,
                     },
@@ -101,11 +110,24 @@ class RunSessionLineageMixin:
                 }
             return {
                 "run_id": run_id,
+                "project_id": project_id,
                 "state": "UNBOUND",
                 "chain_complete": True,
                 "legacy_manifest_session_id": None,
                 "current": None,
                 "history": [],
+            }
+
+        if any(str(row["project_id"] or "").strip() != project_id for row in rows):
+            return {
+                "run_id": run_id,
+                "project_id": project_id,
+                "state": "INVALID",
+                "chain_complete": False,
+                "reason": "project_context_mismatch",
+                "legacy_manifest_session_id": legacy_session or None,
+                "current": None,
+                "history": [self._public_link(row) for row in rows],
             }
 
         by_id = {int(row["id"]): row for row in rows}
@@ -117,6 +139,7 @@ class RunSessionLineageMixin:
         if len(roots) != 1:
             return {
                 "run_id": run_id,
+                "project_id": project_id,
                 "state": "INVALID",
                 "chain_complete": False,
                 "reason": "root_count",
@@ -134,6 +157,7 @@ class RunSessionLineageMixin:
             if parent_id not in by_id:
                 return {
                     "run_id": run_id,
+                    "project_id": project_id,
                     "state": "INVALID",
                     "chain_complete": False,
                     "reason": "predecessor_outside_run",
@@ -151,6 +175,7 @@ class RunSessionLineageMixin:
             if current_id in seen:
                 return {
                     "run_id": run_id,
+                    "project_id": project_id,
                     "state": "INVALID",
                     "chain_complete": False,
                     "reason": "cycle",
@@ -164,6 +189,7 @@ class RunSessionLineageMixin:
             if len(next_rows) > 1:
                 return {
                     "run_id": run_id,
+                    "project_id": project_id,
                     "state": "INVALID",
                     "chain_complete": False,
                     "reason": "branch",
@@ -178,6 +204,7 @@ class RunSessionLineageMixin:
         if len(seen) != len(rows):
             return {
                 "run_id": run_id,
+                "project_id": project_id,
                 "state": "INVALID",
                 "chain_complete": False,
                 "reason": "disconnected_links",
@@ -189,6 +216,7 @@ class RunSessionLineageMixin:
         current_link = self._public_link(ordered[-1])
         return {
             "run_id": run_id,
+            "project_id": project_id,
             "state": "EXPLICIT",
             "chain_complete": True,
             "legacy_manifest_session_id": legacy_session or None,
@@ -260,6 +288,14 @@ class RunSessionLineageMixin:
             if task is None:
                 conn.rollback()
                 return MutationResult(False, "TASK_NOT_FOUND", "run task does not exist")
+            project_id = str(task["project_id"] or "").strip()
+            if not project_id:
+                conn.rollback()
+                return MutationResult(
+                    False,
+                    "PROJECT_CONTEXT_UNAVAILABLE",
+                    "session lineage requires canonical task project identity",
+                )
             if str(task["status"]).upper() != "ACTIVE" or str(task["claimed_by"] or "").strip() != worker_id:
                 conn.rollback()
                 return MutationResult(
@@ -301,16 +337,16 @@ class RunSessionLineageMixin:
             existing_identity = conn.execute(
                 """
                 SELECT id, run_id FROM run_session_links
-                WHERE adapter_id = ? AND session_id = ?
+                WHERE project_id = ? AND adapter_id = ? AND session_id = ?
                 """,
-                (adapter_id, session_id),
+                (project_id, adapter_id, session_id),
             ).fetchone()
             if existing_identity is not None:
                 conn.rollback()
                 return MutationResult(
                     False,
                     "SESSION_ALREADY_BOUND",
-                    "adapter-qualified provider session is already durably bound",
+                    "project-scoped adapter-qualified provider session is already durably bound",
                 )
 
             history: Sequence[Mapping[str, Any]] = lineage["history"]
@@ -351,7 +387,8 @@ class RunSessionLineageMixin:
                         "session replacement must replace the current link",
                     )
                 if (
-                    str(current["adapter_id"]) == adapter_id
+                    str(current["project_id"]) == project_id
+                    and str(current["adapter_id"]) == adapter_id
                     and str(current["session_id"]) == session_id
                 ):
                     conn.rollback()
@@ -367,13 +404,14 @@ class RunSessionLineageMixin:
                 cursor = conn.execute(
                     """
                     INSERT INTO run_session_links(
-                        run_id, relation, adapter_id, session_id,
+                        run_id, relation, project_id, adapter_id, session_id,
                         replaces_link_id, evidence_ref, created_by, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         run_id,
                         relation,
+                        project_id,
                         adapter_id,
                         session_id,
                         predecessor,
@@ -396,7 +434,7 @@ class RunSessionLineageMixin:
                 str(manifest["task_id"]),
                 "RUN_SESSION_ATTACHED" if relation == "ATTACH" else "RUN_SESSION_REPLACED",
                 created_by,
-                f"adapter-qualified session link {link_id} recorded for {run_id}",
+                f"project-scoped adapter-qualified session link {link_id} recorded for {run_id}",
             )
             conn.commit()
 
