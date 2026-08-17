@@ -105,6 +105,8 @@ independent INTEGRATED-HEAD REVIEW — CLEAN
         ↓
 expected-head merge
         ↓
+retarget any PR whose base was just orphaned by this merge
+        ↓
 full backlog rescan
         ↓
 next dependency-correct candidate
@@ -113,6 +115,8 @@ next dependency-correct candidate
 Do not proactively synchronize the rest of the queue to current `main`.
 
 Already-synchronized candidates may remain frozen. If `main` moves, they are refreshed only when they later enter the active slot.
+
+A squash merge does not delete the merged branch (`delete-branch=false`), so GitHub does not auto-retarget any PR stacked on it. That PR keeps comparing against dead ancestry and reads CLEAN/MERGEABLE while its delta is meaningless. Retargeting orphaned bases to the branch the merge itself landed on (normally `main`) is not optional cleanup — it is part of "full backlog rescan," not a separate later step. `scripts/coordination_housekeeping.py` does this mechanically on a schedule as a floor between sessions, but SWITCHYARD's own rescan must check it directly rather than assume the automation already ran.
 
 ## Accepted-main anti-regression rule
 
@@ -203,7 +207,7 @@ Route existing eligible work, resolve dependency order, make bounded orphan assi
 
 ### ANVIL / FOUNDRY
 
-Work only on existing assigned/owned implementation, returned repair, accepted-dependency rebuild, or explicit bounded TOWER assignment. Freeze at the review/integration boundary.
+Work only on existing assigned/owned implementation, returned repair, accepted-dependency rebuild, or explicit bounded TOWER assignment. Freeze at the review/integration boundary, and clear draft status before or with the handoff post — a frozen draft cannot be merged and stalls the backlog exactly like an unowned PR.
 
 ### SENTINEL
 
@@ -211,7 +215,7 @@ Keep one eligible reviewer available for the active integration slot while other
 
 ### SWITCHYARD
 
-Own the full open-PR backlog as a control queue, but actively advance exactly one product integration candidate through the final train. Close genuinely superseded status artifacts only after the durable-value check.
+Own the full open-PR backlog as a control queue, but actively advance exactly one product integration candidate through the final train. Close genuinely superseded status artifacts only after the durable-value check. Treat a stuck-draft PR with posted handoff evidence and green CI, and a PR whose base was orphaned by an upstream squash merge, as backlog-control work in their own right — both silently stall a PR that otherwise reads as ready, independent of the one-slot merge train.
 
 ## Exit criteria
 

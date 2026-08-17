@@ -100,9 +100,12 @@ A development owner may rebuild against an actually accepted dependency interfac
 When a stable feature/repair head is ready:
 
 - run task-appropriate verification;
+- **mark the PR ready for review** (not draft) before or at the same time as posting the handoff; a draft PR cannot be merged by GitHub regardless of CI/review state, so a frozen draft is not actually ready;
 - post `MAPS HANDOFF — READY FOR INDEPENDENT REVIEW` with exact subject/evidence;
 - freeze the feature head after the required feature/repair review boundary;
 - do not chase unrelated `main` movement merely for freshness.
+
+Open a PR as a draft only while it is genuinely still being shaped; once handoff is posted, draft state is stale and must be cleared in the same action. `scripts/coordination_housekeeping.py` runs on a schedule (`.github/workflows/coordination-housekeeping.yml`) and will promote a draft that already has posted handoff evidence and green CI, but that is a safety net for gaps between sessions, not a substitute for the author clearing draft state directly.
 
 Final latest-main synchronization belongs to SWITCHYARD.
 
@@ -163,11 +166,13 @@ SWITCHYARD continuously derives the full live open-PR queue from GitHub and clas
 - `SUPERSEDED / CLOSE CANDIDATE`;
 - `PLANNING / COORDINATION`.
 
-Every open PR should have a discoverable next legitimate gate and owner/blocker from live evidence.
+Every open PR should have a discoverable next legitimate gate and owner/blocker from live evidence. This includes a draft PR that already carries handoff evidence and green CI (it needs promotion, not just a disposition label) and any PR whose base was orphaned by a squash merge (it needs retargeting before its disposition means anything).
 
 The backlog view is not stored as a second mutable repository database.
 
 When one PR waits on another role/CI/dependency, SWITCHYARD continues other eligible PR-control work rather than idling.
+
+A scheduled workflow (`.github/workflows/coordination-housekeeping.yml`, running `scripts/coordination_housekeeping.py`) performs the two purely mechanical parts of this — promoting ready drafts and retargeting orphaned bases — so the backlog does not silently grow between role-bound sessions. It never merges, approves, or closes anything; it is a floor under the process, not a replacement for SWITCHYARD's own rescan.
 
 ## Dependency-first integration
 
@@ -207,6 +212,18 @@ Before merge SWITCHYARD must:
 If historical content conflicts with accepted behavior, accepted `main` wins by default unless an explicitly authorized current task intentionally supersedes it and receives appropriate fresh review.
 
 If reconciliation requires an unresolved authority choice, stop that candidate rather than guess.
+
+### Orphaned stacked bases after a squash merge
+
+A squash merge does not rewrite the merged branch's downstream PRs. Any open PR whose `base` is a branch that was just squash-merged into `main` still compares against that now-dead branch — GitHub only auto-retargets a PR's base when the base *branch* is deleted, not when it is merged with `--delete-branch=false`. An orphaned base looks CLEAN/MERGEABLE while actually comparing against stale ancestry, which silently defeats the exact-delta proof this section requires.
+
+As part of the full backlog rescan after every merge, SWITCHYARD must:
+
+1. list every open PR whose base branch matches the head branch of a PR that just merged;
+2. retarget each one's base to the branch the merged PR itself targeted (normally `main`);
+3. only then re-derive that PR's disposition (`INTEGRATE` / `REVIEW NEEDED` / etc.).
+
+`scripts/coordination_housekeeping.py` performs step 1-2 mechanically on a schedule so an orphaned base does not sit unnoticed between sessions, but SWITCHYARD's own rescan must not assume the automation already ran.
 
 ## Backlog recovery mode
 

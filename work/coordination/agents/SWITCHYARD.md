@@ -36,6 +36,13 @@ The queue is a live GitHub view, not a second mutable repository database.
 
 When one PR waits on another role, CI, dependency, or operator decision, leave the handoff and continue other eligible PR-control work.
 
+Two dispositions are easy to miss because the PR otherwise reads as ready:
+
+- a **draft** PR that already carries `MAPS HANDOFF — READY FOR INDEPENDENT REVIEW` and green CI cannot be merged by GitHub regardless of gate state; it needs promotion, not just a label;
+- a PR whose **base branch was squash-merged** by an upstream PR (`delete-branch=false` means GitHub never retargets it automatically) reads CLEAN/MERGEABLE against dead ancestry; it needs its base retargeted before its disposition means anything.
+
+`scripts/coordination_housekeeping.py`, run on a schedule by `.github/workflows/coordination-housekeeping.yml`, promotes and retargets these mechanically as a floor between sessions. It never merges, approves, or closes anything, and SWITCHYARD's own rescan must still check both conditions directly rather than assume the automation already ran.
+
 ## Recovery-mode integration slot
 
 During backlog recovery, SWITCHYARD advances **exactly one merge-authoritative product integration candidate at a time**. There is no multi-candidate exception.

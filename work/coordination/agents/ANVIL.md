@@ -53,9 +53,11 @@ If an active incumbent owner is discovered, stop and return the conflict to TOWE
 
 ## Development handoff
 
-When work is ready for independent review, post on the owning PR/task:
+When work is ready for independent review, mark the PR ready for review (not draft) and post on the owning PR/task:
 
 `MAPS HANDOFF — READY FOR INDEPENDENT REVIEW`
+
+A draft PR cannot be merged by GitHub no matter how clean its CI/review evidence is, so leaving it in draft state after this handoff is a stall, not a freeze.
 
 Include:
 
