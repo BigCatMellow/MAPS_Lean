@@ -63,7 +63,7 @@ class RunSessionTraceMixin:
                 "source": "submission_run_links",
                 "reason": (
                     "each known submission attempt is explicit or UNKNOWN; "
-                    "unlinked legacy/omitted attempts are never inferred from timing or run count"
+                    "unlinked legacy or omitted attempts are never inferred from timing or run count"
                 ),
             }
         return trace
