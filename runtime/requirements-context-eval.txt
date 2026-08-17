@@ -1,0 +1,14 @@
+# Optional, evaluation-only dependency for the Context Builder Stage 2
+# semantic-embedding retrieval candidate (runtime/context_retrieval_semantic.py).
+#
+# This is deliberately NOT part of runtime/requirements.txt: it is not a core
+# runtime/production dependency, only tooling used to score one candidate
+# retrieval method against the frozen, evaluation-only Stage 2 harness in
+# runtime/context_retrieval_eval.py. CI for the core runtime stack
+# (.github/workflows/runtime-stack-tests.yml) does not install this file, so
+# tests/test_context_retrieval_semantic.py skips itself cleanly when this
+# dependency is absent.
+#
+# fastembed is CPU-only (ONNX Runtime backed) and has no torch/GPU dependency,
+# keeping install size and CI time small relative to sentence-transformers.
+fastembed
