@@ -74,7 +74,7 @@ class SubmissionRunLineageTests(unittest.TestCase):
     def request_changes_and_reclaim(self, task_id, worker="worker"):
         claimed = self.store.claim_review(task_id, "reviewer")
         self.assertTrue(claimed.ok, claimed.message)
-        reviewed = self.store.complete_review(
+        reviewed = self.store.record_review(
             task_id, "reviewer", "CHANGES_REQUESTED", "revise"
         )
         self.assertTrue(reviewed.ok, reviewed.message)
