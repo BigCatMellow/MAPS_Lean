@@ -2,3 +2,5 @@
 # Keep provider/model SDKs out of the core runtime unless a specific adapter needs them.
 langgraph
 langgraph-checkpoint-sqlite
+# intentional break
+not-a-real-package===broken
