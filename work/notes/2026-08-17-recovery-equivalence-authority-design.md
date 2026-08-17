@@ -293,3 +293,17 @@ ELSE:
 
 Until operator decisions 1-5 land, recovery-equivalence work is correctly
 **BLOCKED_ON_OPERATOR_DECISION**, not an invitation to pick a default.
+
+## Operator decisions (recorded 2026-08-17)
+
+The operator reviewed the five flagged questions and decided:
+
+1. **Option A only, for now: environment-compatibility evidence stays advisory, zero change to what currently authorizes recovery.** Option B (bounded gating of an already-authorized action) is explicitly not approved at this time. Recovery actions have real consequences; advisory-only needs to accumulate real operational experience before any gating is reconsidered.
+2. **Deferred.** Since no gating is authorized (per #1), whether `DRIFTED` should hard-block like `INCOMPATIBLE` does not need an answer yet.
+3. **Approved: bind `RecoveryIncident` to `run_id`.** This is the concrete prerequisite Stage 1 needs regardless of the bigger authority questions, and is low-risk (additive field, append-only).
+4. **Human operators only, for now.** No automated policy layer may consume surfaced environment evidence to make recovery decisions.
+5. **Out of scope.** This work stays scoped to RnS session-resume; it does not extend toward snapshot/rehydration (roadmap 6.17, still `TRIGGERED`).
+
+## Unblocked next step
+
+With #1 and #3 decided, **Stage 1** (bind `RecoveryIncident` to `run_id`) and **Stage 2, Option A only** (pure read-only environment-evidence surfacing in `tick()`'s output, zero behavior change) are now authorized as bounded implementation tasks, each requiring independent review per the continuation plan above. Stage 3 (any gating) remains **BLOCKED_ON_OPERATOR_DECISION** and is not authorized by this record.
