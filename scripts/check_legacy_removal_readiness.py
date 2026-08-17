@@ -30,9 +30,19 @@ EXECUTABLE_SUFFIXES = {
 HISTORICAL_SUFFIXES = EXECUTABLE_SUFFIXES | {".md"}
 
 # These are executable/runtime dependency markers, not a ban on historical
-# discussion of legacy in documentation/review records.
+# discussion of legacy in documentation/review records. The "legacy path"
+# pattern requires an actual path-like continuation (a further path segment
+# or a recognized file extension) so prose like "legacy/omitted" (meaning
+# "legacy or omitted") does not false-positive as a filesystem dependency.
 FORBIDDEN_TEXT = (
-    ("legacy path", re.compile(r"(?<![A-Za-z0-9_])legacy/")),
+    (
+        "legacy path",
+        re.compile(
+            r"(?<![A-Za-z0-9_])legacy/(?=[A-Za-z0-9_./-]*\."
+            r"(?:py|json|sh|bash|yml|yaml|cfg|toml|txt|md|ini)\b"
+            r"|[A-Za-z0-9_.-]*/)"
+        ),
+    ),
     ("runtime preservation snapshot", re.compile(r"migration/legacy-runtime-source")),
     ("knowledge preservation snapshot", re.compile(r"migration/legacy-knowledge-source")),
     ("old MAP_System path", re.compile(r"\bMAP_System\b")),

@@ -59,9 +59,11 @@ If an active incumbent owner appears, stop and return the ownership conflict rat
 
 ## Development handoff
 
-When ready for independent review, post:
+When ready for independent review, mark the PR ready for review (not draft) and post:
 
 `MAPS HANDOFF — READY FOR INDEPENDENT REVIEW`
+
+A draft PR cannot be merged by GitHub regardless of CI/review state, so leaving it in draft after this handoff is a stall, not a freeze.
 
 Include exact base/head, intended delta, verification/CI, relevant UNKNOWNs, dependency state, and a statement that the feature head is frozen.
 

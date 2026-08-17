@@ -1,0 +1,28 @@
+name: Coordination backlog housekeeping
+
+# Runs the mechanical PR housekeeping in scripts/coordination_housekeeping.py
+# on a schedule so the backlog does not silently pile up between agent
+# sessions. It only promotes drafts that already posted handoff evidence and
+# have green CI, and retargets PRs whose base branch was already squash-
+# merged into main by an upstream PR. It never merges, approves, or closes.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  housekeeping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Promote ready drafts and retarget orphaned stacked PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/coordination_housekeeping.py "${{ github.repository }}" --apply
