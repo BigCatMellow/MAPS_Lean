@@ -1,79 +1,104 @@
-# ANVIL — Development
+# ANVIL — Development / Runtime Implementation
 
-Snapshot: 2026-08-16 01:59 America/New_York
+Snapshot: 2026-08-16 14:44 America/New_York
 
-This file is coordination evidence only. Live GitHub state is authoritative.
+This file is coordination evidence only. Live GitHub state and accepted MAPS state are authoritative.
 
 ## Role
 
-ANVIL is the feature/runtime implementation lane. It owns narrowly scoped implementation and review-returned defect repairs, including focused tests, and stops at the integration boundary. ANVIL does not merge its own feature work and does not provide the required independent review for code it implemented, repaired, or synchronized.
+ANVIL is the primary general Development / Runtime Implementation lane. It owns narrowly scoped new runtime/feature implementation and concrete review-returned repairs that are not already incumbent-owned by another development continuity.
 
-## Active owned lanes
+ANVIL stops at the integration boundary: it does not perform SWITCHYARD current-main synchronization/merge work and does not provide required independent approval for code it implemented or repaired.
 
-### PR #39 — Add Context Builder v2 evidence-integrity eval foundation
+FOUNDRY incumbent branches remain non-owned unless live coordination explicitly hands one to ANVIL.
 
-- Branch: `agent/context-builder-evidence-integrity-wave3`
-- PR base: `main`
-- Current head at snapshot: `9efcb9f3998f8791d31aa8a356f567ef761093b5`
-- Purpose: repair the frozen-truth authority-status blocker for CBI-010 without introducing retrieval/runtime authority.
-- Declared output stack: `work/evals/context-builder-evidence-integrity-v1.json`, its focused fixture test, task, and note only.
-- Current state: the CBI-010 substitute was removed so current implementation state cannot substitute for proposal authorization status. Runtime CI #357 / `31929900875` failed only because the existing fixture still requires every CBI-010 single-source truth case to have at least one acceptable substitute.
-- Next action: after re-reading live main and exact PR head, make the smallest fixture correction so CBI-010 explicitly requires zero answer-sufficient substitutes while preserving CBI-003's valid substitute contract; rerun full Runtime CI and request independent review.
+## Current Context Builder stack
 
-### PR #41 — Add Stage 1 Context Builder evidence projector and scorer
+### PR #39 — frozen evidence-integrity foundation — ACCEPTED
 
-- Branch: `agent/context-evidence-scorer-wave3`
-- PR base: `agent/context-builder-evidence-integrity-wave3`
-- Current head at snapshot: `c997821c4a5f3d11c2bc7f8a98dd7a33750c3feb`
-- Purpose: deterministic explicit evidence-card projection/scoring only; no retrieval.
-- Declared output stack: `runtime/context_evidence.py`, focused Stage-1 tests, task, and note.
-- Current state: independently returned for repair because `CODE_SYMBOL` resolution is approximate substring matching rather than exact structural ownership. It also depends on the repaired #39 ancestry.
-- Next action: after #39 is repaired and stable, synchronize #41 to that exact #39 head, replace Python `Owner.symbol` resolution with the narrow AST-based exact owner/symbol check, add module-level and prefix-collision adversarial tests, rerun full Runtime CI, and request independent review.
+- PR #39 is merged.
+- Accepted merge commit / current main at this checkpoint: `8397cbc2941a706440cabd0ffb93cac4ab1bdf6d`.
+- Integrated feature head: `5928abe4550dbf7a75c2a2825e3cda5033ead830` on prior accepted base `7269ce2be25993fa19b172f65c95381328585a35`.
+- Runtime CI #422 / `31951875209`: **PASS** on the exact integrated head.
+- SENTINEL integrated-head review `4947047122`: **CLEAN — INTEGRATED HEAD**.
+- The accepted four-file layer preserves the repaired CBI-010 authority rule: implementation/current-state evidence cannot substitute for proposal-authorization proof.
+- **ANVIL ownership ended at merge. Do not modify #39.**
 
-### PR #53 — Add Context Builder Stage 2 retrieval evaluation controls
+### PR #41 — Stage-1 structural evidence projector/scorer
 
-- Branch: `agent/context-retrieval-stage2-wave3`
-- PR base: `agent/context-evidence-scorer-wave3`
-- Current head at snapshot: `d5c03a8e09bc5c49b884bc452d3c487a04ce5974`
-- Purpose: evaluation-only Stage-2 source-selection comparison; no production semantic/vector retrieval or routing authority.
-- Declared output stack: `runtime/context_retrieval_eval.py`, focused Stage-2 tests, frozen Stage-2 overlay, task, and note.
-- Current state: ANVIL's Stage-2 repair addresses drift-case source pollution and exact overlay content identity. Runtime CI #348 / `31929616706` passed on this exact head. Final integration is still blocked by repaired/stable #39 and #41 ancestry plus fresh exact-head review after synchronization.
-- Next action: do not widen the feature. After #39/#41 are independently accepted and stable, synchronize #53 onto the exact repaired #41 head, rerun full Runtime CI, and hand the exact head to independent review and then SWITCHYARD.
+- Branch: `agent/context-evidence-scorer-wave3`.
+- Current live feature head remains `ec525615fd708610bc3e90e07a95bb6c791d2465`; no concurrent branch movement was found after #39 acceptance.
+- Historical reviewed dependency: repaired #39 `adf25a5721808cd272bc9eb9af90a25038f568eb`.
+- Runtime CI #382 / `31930788766`: **PASS** on that historical exact head.
+- SENTINEL review `4945581933`: **CLEAN IN-LAYER / NOT INTEGRATION-READY**.
+- Closed implementation blocker: Python `CODE_SYMBOL` resolution uses exact AST ownership for supported `Owner.symbol`; module-level same-name functions and class/method prefix collisions fail closed.
+- Read-only preflight before #39 merge found no implementation conflict:
+  - historical reviewed #39 corpus and synchronized/accepted #39 corpus share exact blob `04be9e9c2729d0ab22e7f754e7610a771835bd62`;
+  - none of #41's five output paths existed on then-current accepted main, so no direct path collision was present.
+- **Dependency status: READY.** #39 is now accepted.
+- **Development status: NO DEFECT RETURNED.** No ANVIL code repair is currently justified.
+- **Integration boundary: SWITCHYARD owns current-main synchronization.** The operator explicitly forbids ANVIL from performing SWITCHYARD's integration work, so ANVIL will not rebase/merge/reconstruct #41 merely because its upstream is now accepted.
+- If SWITCHYARD synchronization or integrated review exposes a concrete implementation conflict, return that exact defect to ANVIL; ANVIL will repair the smallest coherent defect, run fresh exact-head Runtime CI, freeze, and hand it to SENTINEL.
 
-## Review / observation-only lanes
+### PR #53 — Stage-2 retrieval evaluation controls
 
-- PR #43 / PR #60 operational-learning stack: observe only; ANVIL will not modify without explicit handoff.
-- PR #57 Operator Intent Compiler: SWITCHYARD-owned; observation only.
-- PR #59 explainable waits: already merged by SWITCHYARD; no ANVIL ownership remains.
+- Branch: `agent/context-retrieval-stage2-wave3`.
+- Current historical head: `d5c03a8e09bc5c49b884bc452d3c487a04ce5974`.
+- Historical base: `agent/context-evidence-scorer-wave3@c997821c4a5f3d11c2bc7f8a98dd7a33750c3feb`.
+- Runtime CI #348 / `31929616706`: **PASS** on that historical exact head.
+- Independent disposition: **CLEAN IN-LAYER / UPSTREAM INTEGRATION BLOCKED**.
+- Closed Stage-2 blockers: strict drift-case source precision and deterministic exact `overlay_sha256` binding.
+- Boundary remains evaluation only: no production semantic/vector retrieval, routing authority, or automatic promotion.
+- **HOLD.** #53 remains blocked until #41 is actually accepted. Do not synchronize early and do not widen the feature.
 
-## Explicit non-ownership
+## New-work preflight
 
-ANVIL will not touch these stacks unless an explicit handoff is recorded and live GitHub state confirms it:
+FOUNDRY planning/task shaping and TOWER dispatch were read after confirming no current ANVIL runtime defect.
 
-- SWITCHYARD's integration/PR-control work or `work/coordination/agents/SWITCHYARD.md`;
+Current result: **no unrelated runtime task is ready for ANVIL to claim.**
+
+- FOUNDRY incumbent #30/#44/#45/#48 remain non-owned by ANVIL.
+- #49/#50 remain dependency/ownership gated; no reassignment to ANVIL is accepted here.
+- #43/#60 are parked; #51/#52 remain planning/design.
+- post-Context-Builder production retrieval remains an evidence-gated future question after #39/#41/#53 acceptance, not a current implementation assignment.
+- TOWER's derived dispatch anticipated an ANVIL rebuild after #39 acceptance, but the operator's current explicit boundary assigns integration synchronization to SWITCHYARD. Operator authority wins; ANVIL does not silently take that integration work.
+
+ANVIL will not manufacture work while integration proof is the actual bottleneck.
+
+## Explicit non-ownership / holds
+
+Do not modify without explicit live handoff:
+
+- merged PR #39;
 - PR #30 environment run evidence;
-- PR #43/#60 operational learning;
 - PR #44/#45 communication lineage;
-- PR #48/#49/#50 execution lineage;
-- PR #51/#52 communication/wait design;
-- other feature branches declared by another coordination identity.
+- PR #48/#49/#50 execution lineage unless coordination explicitly assigns a downstream Development repair after prerequisites are accepted;
+- PR #43/#60 operational learning;
+- PR #51/#52 planning/design;
+- PR #68/#71 FOUNDRY planning/coordination;
+- SWITCHYARD integration branches or `work/coordination/agents/SWITCHYARD.md`;
+- SENTINEL review work or `work/coordination/agents/SENTINEL.md`;
+- FOUNDRY incumbent branches or `work/coordination/agents/FOUNDRY.md`;
+- TOWER planning/dispatch branches.
 
-## Current blockers / handoffs
+## Current blocker / next action
 
-- PR #39: development repair in progress; CI #357 exposed one stale fixture expectation after the authority-truth correction.
-- PR #41: returned to ANVIL for implementation repair after #39 stabilizes; requires exact AST `CODE_SYMBOL` ownership semantics and adversarial tests.
-- PR #53: Stage-2 repair is implemented at `d5c03a8e...` with CI #348 PASS, but final review/integration must wait for repaired #39/#41 ancestry and a fresh synchronized exact head.
-- After ANVIL completes each repaired exact head, an independent REVIEW-lane agent is required. ANVIL will not self-approve.
-- After independent review is clean, ANVIL requests SWITCHYARD perform synchronization/integration/merge. ANVIL will stop modifying a branch once SWITCHYARD takes it for integration.
+ANVIL currently has **no concrete runtime implementation defect to repair**.
+
+1. #39 is accepted; no further ANVIL action exists there.
+2. Keep #41's clean feature head unchanged while SWITCHYARD owns accepted-ancestry synchronization/integration.
+3. Keep #53 frozen until #41 is actually accepted.
+4. If #41 integration returns a concrete implementation defect, repair only that defect and refreeze for independent review.
+5. Do not claim unrelated work merely to keep the Development lane busy.
 
 ## Concurrency rule
 
-Before modifying any branch ANVIL will:
+Before any write ANVIL will:
 
 1. re-read live `main`;
-2. re-read the exact target PR/base/head;
-3. stop writing if the head moved unexpectedly;
-4. never force-push or overwrite another agent;
-5. never treat old CI/review as valid for a changed head/base.
-
-Before claiming any new PR, branch, task, or stack ANVIL will also re-read `work/coordination/agents/*.md` and verify the claim against live GitHub state.
+2. re-read `work/coordination/README.md` and every live `work/coordination/agents/*.md` on accepted main;
+3. re-read exact target PR/base/head, latest review/handoff evidence, and task boundary;
+4. stop if another agent moved the branch into integration or otherwise owns the target;
+5. never force-push or overwrite another agent;
+6. never reuse CI/review evidence after a material head/base change;
+7. prefer no write when no concrete Development work is authorized or ready.
