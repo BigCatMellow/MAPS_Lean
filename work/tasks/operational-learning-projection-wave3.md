@@ -24,6 +24,7 @@
 - MAY CHANGE:
   - `runtime/operational_learning.py`
   - `tests/test_operational_learning.py`
+  - `tests/test_operational_learning_schema.py`
   - this task file
   - `work/notes/2026-08-15-operational-learning-projection.md`
 - MUST NOT CHANGE:
@@ -54,12 +55,14 @@
 - [x] Promotion cannot begin before lesson creation; retirement cannot predate creation/promotion.
 - [x] Unsafe repository path matchers fail closed.
 - [x] Duplicate lesson IDs fail closed and output ordering is deterministic.
+- [x] Unknown/missing top-level record fields and non-mapping records fail closed under the declared immutable lesson contract.
 - [x] No database/store, mutation API, promotion API, or production injection path is added.
 
 ## Verification and evidence
 
 - Verification:
   - `python -m unittest tests.test_operational_learning -v`
+  - `python -m unittest tests.test_operational_learning_schema -v`
   - full PR Runtime stack CI
 - Evidence to preserve: exact head, changed-file list, focused/full CI result.
 - Review required: `INDEPENDENT_REVIEW`
@@ -103,10 +106,11 @@ Escalate to: operator / separately shaped authority or integration task.
 - Guidance projection is derived/read-only. It is not a second policy database in disguise.
 - Review-due guidance is withheld rather than silently remaining active forever.
 - This tranche does not decide where reviewed lesson records should eventually live.
+- Scope amendment 2026-08-16: the already-present focused `tests/test_operational_learning_schema.py` is explicitly included in the bounded task contract. This closes the returned change-boundary defect without changing runtime semantics or widening authority.
 
 ## Completion / handoff
 
-- Completed: pure validation/projection implementation and lifecycle/applicability adversarial tests.
+- Completed: pure validation/projection implementation and lifecycle/applicability/schema adversarial tests.
 - Not completed: durable lesson registry, promotion/retirement mutation flow, production Context Builder/startup integration, independent review.
-- Current blocker: none for this bounded tranche.
-- Next action if not DONE: open isolated draft PR against current main and run full Runtime CI.
+- Current blocker: none for this bounded tranche; returned scope-contract mismatch has been corrected.
+- Next action if not DONE: run fresh exact-head Runtime CI and obtain independent review; final current-main synchronization is deferred to SWITCHYARD at the merge train.
