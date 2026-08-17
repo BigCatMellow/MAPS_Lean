@@ -4,7 +4,15 @@ from pathlib import Path
 import subprocess
 from typing import Any, Mapping, Sequence
 
-from .common import HelperError, HelperResult, HelperRunStore, new_result, validate_active_scope
+from .common import (
+    HelperError,
+    HelperResult,
+    HelperRunStore,
+    new_helper_run_id,
+    new_result,
+    validate_active_scope,
+    validate_helper_run_id,
+)
 
 
 class AiderHelper:
@@ -75,6 +83,7 @@ class AiderHelper:
         message: str,
         scope_summary: str,
         model: str | None = None,
+        helper_run_id: str | None = None,
     ) -> HelperResult:
         if not targets:
             raise HelperError("at least one Aider target is required")
@@ -89,6 +98,11 @@ class AiderHelper:
             for path in targets
         ]
         validate_active_scope(task, resolved, repo=repo_path)
+        resolved_helper_run_id = (
+            validate_helper_run_id(helper_run_id)
+            if helper_run_id is not None
+            else new_helper_run_id()
+        )
 
         # Attribution must be provable. With a dirty worktree, a path-set diff
         # cannot prove that Aider did not modify an already-dirty unrelated file.
@@ -140,6 +154,7 @@ class AiderHelper:
                 ) from exc
 
         record = new_result(
+            helper_run_id=resolved_helper_run_id,
             task_id=str(task["task_id"]),
             helper="aider" if not model else f"aider:{model}",
             status="completed",
