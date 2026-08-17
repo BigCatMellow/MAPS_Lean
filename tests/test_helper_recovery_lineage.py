@@ -358,7 +358,17 @@ class HelperRecoveryLineageTests(unittest.TestCase):
         )
         self.assertTrue(chain.ok, chain.message)
 
-        fourth = self.make_run(task_id)
+        # Pin fourth's created_at to first's rather than letting it fall out
+        # naturally at wall-clock speed: the assertions below intend to
+        # exercise the link-uniqueness constraint (RECOVERY_LINK_CONFLICT),
+        # not chronology (RECOVERY_TIME_CONFLICT). An explicit timestamp
+        # equal to first's keeps fourth >= first (needed for the first
+        # assertion) and <= second's real created_at (needed for the second
+        # assertion) regardless of how fast the test host's clock advances
+        # between make_run() calls.
+        fourth_run_id = "RUN-FOURTH-BRANCH"
+        self.insert_run(fourth_run_id, task_id, "worker", first["created_at"])
+        fourth = {"run_id": fourth_run_id}
         branch = self.store.record_run_recovery_link(
             first["run_id"],
             fourth["run_id"],
