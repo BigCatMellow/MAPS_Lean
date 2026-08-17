@@ -607,3 +607,46 @@ BEFORE DELETE ON review_subjects
 BEGIN
     SELECT RAISE(ABORT, 'review subjects are immutable');
 END;
+
+-- Operational-learning candidate lessons (Storage-0 only). Records only
+-- CANDIDATE-status lesson snapshots produced by runtime/operational_learning.py
+-- validation; there is no promotion/retirement mechanism yet, enforced here at
+-- the schema level (status is restricted to 'CANDIDATE') as well as by the
+-- Python layer. promotion/retirement/superseded_by columns exist for future
+-- schema stability but are always NULL while this constraint holds, since
+-- validate_lesson_record() rejects a CANDIDATE record carrying promotion or
+-- retirement data.
+CREATE TABLE IF NOT EXISTS operational_lessons (
+    lesson_id TEXT PRIMARY KEY CHECK (length(trim(lesson_id)) BETWEEN 1 AND 128),
+    lesson_version INTEGER NOT NULL CHECK (lesson_version = 1),
+    status TEXT NOT NULL CHECK (status = 'CANDIDATE'),
+    claim TEXT NOT NULL CHECK (length(trim(claim)) > 0),
+    source_kind TEXT NOT NULL CHECK (
+        source_kind IN (
+            'TASK_OUTCOME','INCIDENT','OPERATOR_OBSERVATION',
+            'NON_TASK_OBSERVATION','RESEARCH'
+        )
+    ),
+    source_refs TEXT NOT NULL CHECK (json_valid(source_refs) AND json_array_length(source_refs) > 0),
+    applicability TEXT NOT NULL CHECK (json_valid(applicability)),
+    created_by TEXT NOT NULL CHECK (length(trim(created_by)) BETWEEN 1 AND 128),
+    created_at TEXT NOT NULL,
+    promotion TEXT CHECK (promotion IS NULL OR json_valid(promotion)),
+    retirement TEXT CHECK (retirement IS NULL OR json_valid(retirement)),
+    superseded_by TEXT REFERENCES operational_lessons(lesson_id),
+    CHECK (superseded_by IS NULL OR superseded_by <> lesson_id)
+);
+CREATE INDEX IF NOT EXISTS idx_operational_lessons_status_created
+    ON operational_lessons(status, created_at);
+
+CREATE TRIGGER IF NOT EXISTS trg_operational_lessons_no_update
+BEFORE UPDATE ON operational_lessons
+BEGIN
+    SELECT RAISE(ABORT, 'operational lesson candidates are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operational_lessons_no_delete
+BEFORE DELETE ON operational_lessons
+BEGIN
+    SELECT RAISE(ABORT, 'operational lesson candidates are immutable');
+END;
