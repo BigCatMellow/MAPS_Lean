@@ -6,6 +6,7 @@ from .helper_recovery_lineage import HelperRecoveryLineageMixin
 from .integrity import ExecutionIntegrityMixin
 from .integrity_scope import ExecutionScopeHardeningMixin
 from .observability import ObservabilityMixin
+from .operational_learning_storage import OperationalLessonStorageMixin
 from .outcomes import OutcomeMixin
 from .policy import PolicyStateMixin
 from .readiness import ReadinessMixin
@@ -19,6 +20,7 @@ from .submission_lineage import SubmissionRunLineageMixin
 class TaskStore(
     RunSessionTraceMixin,
     ExecutionScopeHardeningMixin,
+    OperationalLessonStorageMixin,
     HelperRecoveryLineageMixin,
     SubmissionRunLineageMixin,
     RunSessionLineageMixin,
