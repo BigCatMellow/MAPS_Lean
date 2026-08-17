@@ -272,6 +272,136 @@ BEGIN
     SELECT RAISE(ABORT, 'run session links are immutable');
 END;
 
+-- Helper invocation lineage records only relationship identity. HelperResult JSON
+-- remains the source for helper status, summary, and output paths. A session parent
+-- is already project-scoped by accepted A1; requiring the same immutable run keeps
+-- the helper relation inside that canonical project context without copying a
+-- second project authority into this table.
+CREATE TABLE IF NOT EXISTS run_helper_links (
+    helper_run_id TEXT PRIMARY KEY CHECK (length(trim(helper_run_id)) BETWEEN 1 AND 128),
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    invoker_worker_id TEXT NOT NULL CHECK (length(trim(invoker_worker_id)) BETWEEN 1 AND 128),
+    parent_session_link_id INTEGER REFERENCES run_session_links(id),
+    parent_helper_run_id TEXT REFERENCES run_helper_links(helper_run_id),
+    evidence_ref TEXT NOT NULL CHECK (length(trim(evidence_ref)) BETWEEN 1 AND 256),
+    created_by TEXT NOT NULL CHECK (length(trim(created_by)) BETWEEN 1 AND 128),
+    created_at TEXT NOT NULL,
+    CHECK (parent_session_link_id IS NULL OR parent_helper_run_id IS NULL),
+    CHECK (parent_helper_run_id IS NULL OR parent_helper_run_id <> helper_run_id)
+);
+CREATE INDEX IF NOT EXISTS idx_run_helper_links_run
+    ON run_helper_links(run_id, created_at, helper_run_id);
+
+CREATE TRIGGER IF NOT EXISTS trg_run_helper_parent_session_same_run
+BEFORE INSERT ON run_helper_links
+WHEN NEW.parent_session_link_id IS NOT NULL
+     AND NOT EXISTS (
+        SELECT 1 FROM run_session_links
+        WHERE id = NEW.parent_session_link_id AND run_id = NEW.run_id
+     )
+BEGIN
+    SELECT RAISE(ABORT, 'helper parent session must belong to the same run');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_helper_parent_helper_same_run
+BEFORE INSERT ON run_helper_links
+WHEN NEW.parent_helper_run_id IS NOT NULL
+     AND NOT EXISTS (
+        SELECT 1 FROM run_helper_links
+        WHERE helper_run_id = NEW.parent_helper_run_id AND run_id = NEW.run_id
+     )
+BEGIN
+    SELECT RAISE(ABORT, 'helper parent helper must belong to the same run');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_helper_links_no_update
+BEFORE UPDATE ON run_helper_links
+BEGIN
+    SELECT RAISE(ABORT, 'run helper links are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_helper_links_no_delete
+BEFORE DELETE ON run_helper_links
+BEGIN
+    SELECT RAISE(ABORT, 'run helper links are immutable');
+END;
+
+-- Recovery lineage relates immutable runs. RecoveryStore continues to own the
+-- mutable incident state/attempt/backoff/error record referenced by recovery_ref.
+-- Same-task enforcement also keeps predecessor/replacement inside the canonical
+-- project owned by that task; no project field is duplicated here.
+CREATE TABLE IF NOT EXISTS run_recovery_links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    predecessor_run_id TEXT NOT NULL UNIQUE REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    replacement_run_id TEXT NOT NULL UNIQUE REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    recovery_ref TEXT NOT NULL CHECK (length(trim(recovery_ref)) BETWEEN 1 AND 256),
+    evidence_ref TEXT NOT NULL CHECK (length(trim(evidence_ref)) BETWEEN 1 AND 256),
+    created_by TEXT NOT NULL CHECK (length(trim(created_by)) BETWEEN 1 AND 128),
+    created_at TEXT NOT NULL,
+    CHECK (predecessor_run_id <> replacement_run_id)
+);
+CREATE INDEX IF NOT EXISTS idx_run_recovery_replacement
+    ON run_recovery_links(replacement_run_id);
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_same_task
+BEFORE INSERT ON run_recovery_links
+WHEN NOT EXISTS (
+    SELECT 1
+    FROM run_manifests predecessor
+    JOIN run_manifests replacement
+      ON predecessor.task_id = replacement.task_id
+    WHERE predecessor.run_id = NEW.predecessor_run_id
+      AND replacement.run_id = NEW.replacement_run_id
+)
+BEGIN
+    SELECT RAISE(ABORT, 'recovery runs must belong to the same task');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_chronological
+BEFORE INSERT ON run_recovery_links
+WHEN (
+    SELECT julianday(replacement.created_at) < julianday(predecessor.created_at)
+    FROM run_manifests predecessor, run_manifests replacement
+    WHERE predecessor.run_id = NEW.predecessor_run_id
+      AND replacement.run_id = NEW.replacement_run_id
+)
+BEGIN
+    SELECT RAISE(ABORT, 'replacement run cannot predate predecessor run');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_no_cycle
+BEFORE INSERT ON run_recovery_links
+WHEN EXISTS (
+    WITH RECURSIVE descendants(run_id) AS (
+        SELECT replacement_run_id
+        FROM run_recovery_links
+        WHERE predecessor_run_id = NEW.replacement_run_id
+        UNION ALL
+        SELECT links.replacement_run_id
+        FROM run_recovery_links links
+        JOIN descendants
+          ON links.predecessor_run_id = descendants.run_id
+    )
+    SELECT 1
+    FROM descendants
+    WHERE run_id = NEW.predecessor_run_id
+)
+BEGIN
+    SELECT RAISE(ABORT, 'recovery lineage cannot contain a cycle');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_links_no_update
+BEFORE UPDATE ON run_recovery_links
+BEGIN
+    SELECT RAISE(ABORT, 'run recovery links are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_recovery_links_no_delete
+BEFORE DELETE ON run_recovery_links
+BEGIN
+    SELECT RAISE(ABORT, 'run recovery links are immutable');
+END;
+
 -- Environment observations are append-only evidence attached to an immutable
 -- run. They never alter the run contract, task lifecycle, ownership, or policy.
 CREATE TABLE IF NOT EXISTS run_environment_evidence (
