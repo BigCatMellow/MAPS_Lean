@@ -526,3 +526,15 @@ Injection-0 → Injection-1: attributed GUIDANCE_ONLY evidence item, only if
 Until those two operator decisions land, operational-learning persistence and
 promotion correctly remain `BLOCKED_ON_OPERATOR_DECISION`, not an invitation
 to infer a default.
+
+## Operator decisions (recorded 2026-08-17)
+
+The operator reviewed the three flagged questions and decided:
+
+1. **Promotion/retirement authority: Option A — operator-only, every promotion and every retirement.** Rationale: matches Wave 6's own stated "review/operator promotion gate" requirement and its explicit non-goal ("MAPS never says: I changed my own policy because my internal metric improved"). Revisable later once there is real operational history to justify a bounded automatic path, but that is not this decision.
+2. **Applicability conflict/precedence: surface conflicts as evidence, do not auto-resolve.** No specificity/recency heuristic is authorized. A conflict between two ACTIVE lessons matching the same context remains visible, unresolved evidence rather than a silently-picked winner.
+3. **Safe context injection: authorized, bounded to operator-promoted ACTIVE lessons only, as an attributed `GUIDANCE_ONLY` Context Builder evidence item — never spliced into instructions.** Because promotion now requires an explicit human decision (per #1 above), this is a safe next surface: a worker sees labeled, sourced guidance the same way it sees any other evidence, never something it is structurally obligated to obey.
+
+## Unblocked next step
+
+With #1-#3 decided, `Storage-0` (append-only `CANDIDATE` row landing in schema, no promotion path) is now authorized as a bounded implementation task. `Authority-1` (implementing the chosen operator-only promotion mechanism) and `Injection-0/1` (the attributed `GUIDANCE_ONLY` evidence surface) are also authorized in scope, but as separate bounded tasks from `Storage-0` — do not combine them into one unreviewed implementation.
