@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
+import sqlite3
 
 from .common import MutationResult, iso_z, parse_time, utc_now
+
 
 class ExecutionMixin:
     def claim_task(
@@ -159,6 +161,7 @@ class ExecutionMixin:
         worker_id: str,
         evidence: str,
         *,
+        run_id: str | None = None,
         now: datetime | None = None,
         ) -> MutationResult:
         if not evidence.strip():
@@ -167,6 +170,16 @@ class ExecutionMixin:
                 "MISSING_EVIDENCE",
                 "submission evidence is required",
             )
+        explicit_run_id: str | None = None
+        if run_id is not None:
+            explicit_run_id = run_id.strip() if isinstance(run_id, str) else ""
+            if not explicit_run_id:
+                return MutationResult(
+                    False,
+                    "INVALID_RUN_ID",
+                    "explicit run_id must be non-empty text",
+                )
+
         current = (now or utc_now()).astimezone(timezone.utc)
         stamp = iso_z(current)
         with closing(self._connect()) as conn:
@@ -195,46 +208,135 @@ class ExecutionMixin:
                     dict(row),
                 )
 
+            if explicit_run_id is not None:
+                manifest = conn.execute(
+                    "SELECT * FROM run_manifests WHERE run_id = ?",
+                    (explicit_run_id,),
+                ).fetchone()
+                if manifest is None:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "SUBMISSION_RUN_NOT_FOUND",
+                        "explicit submission run does not exist",
+                        dict(row),
+                    )
+                if str(manifest["task_id"]) != task_id:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "SUBMISSION_RUN_TASK_MISMATCH",
+                        "explicit submission run belongs to another task",
+                        dict(row),
+                    )
+                if str(manifest["worker_id"]) != worker_id:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "SUBMISSION_RUN_WORKER_MISMATCH",
+                        "explicit submission run belongs to another worker",
+                        dict(row),
+                    )
+                current_revision = self._task_revision_conn(conn, task_id)
+                if str(manifest["task_revision"]) != current_revision:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "SUBMISSION_RUN_STALE",
+                        "explicit submission run is bound to an older task revision",
+                        dict(row),
+                    )
+
             existing = conn.execute(
                 "SELECT * FROM task_submissions WHERE task_id = ?", (task_id,)
             ).fetchone()
-            if existing is None:
-                conn.execute(
+            submission_count = 1 if existing is None else int(existing["submission_count"]) + 1
+
+            if explicit_run_id is not None:
+                conflict = conn.execute(
                     """
-                    INSERT INTO task_submissions(
-                        task_id, author_id, evidence, first_submitted_at, submitted_at
-                    ) VALUES (?, ?, ?, ?, ?)
+                    SELECT 1 FROM submission_run_links
+                    WHERE task_id = ? AND submission_count = ?
                     """,
-                    (task_id, worker_id, evidence.strip(), stamp, stamp),
-                )
-            else:
+                    (task_id, submission_count),
+                ).fetchone()
+                if conflict is not None:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "SUBMISSION_RUN_LINK_CONFLICT",
+                        "submission attempt already has explicit run lineage",
+                        dict(row),
+                    )
+
+            try:
+                if existing is None:
+                    conn.execute(
+                        """
+                        INSERT INTO task_submissions(
+                            task_id, author_id, evidence, first_submitted_at, submitted_at
+                        ) VALUES (?, ?, ?, ?, ?)
+                        """,
+                        (task_id, worker_id, evidence.strip(), stamp, stamp),
+                    )
+                else:
+                    conn.execute(
+                        """
+                        UPDATE task_submissions
+                        SET author_id = ?, evidence = ?,
+                            submission_count = ?, submitted_at = ?
+                        WHERE task_id = ?
+                        """,
+                        (
+                            worker_id,
+                            evidence.strip(),
+                            submission_count,
+                            stamp,
+                            task_id,
+                        ),
+                    )
+
+                if explicit_run_id is not None:
+                    conn.execute(
+                        """
+                        INSERT INTO submission_run_links(
+                            task_id, submission_count, run_id, linked_at
+                        ) VALUES (?, ?, ?, ?)
+                        """,
+                        (task_id, submission_count, explicit_run_id, stamp),
+                    )
+
                 conn.execute(
                     """
-                    UPDATE task_submissions
-                    SET author_id = ?, evidence = ?,
-                        submission_count = submission_count + 1, submitted_at = ?
+                    UPDATE tasks
+                    SET status = 'READY_FOR_REVIEW', claimed_by = NULL,
+                        lease_expires_at = NULL, heartbeat_at = NULL, updated_at = ?
                     WHERE task_id = ?
                     """,
-                    (worker_id, evidence.strip(), stamp, task_id),
+                    (stamp, task_id),
                 )
-
-            conn.execute(
-                """
-                UPDATE tasks
-                SET status = 'READY_FOR_REVIEW', claimed_by = NULL,
-                    lease_expires_at = NULL, heartbeat_at = NULL, updated_at = ?
-                WHERE task_id = ?
-                """,
-                (stamp, task_id),
-            )
-            self._append_event(
-                conn,
-                task_id,
-                "TASK_SUBMITTED",
-                worker_id,
-                "Task submitted with evidence",
-            )
-            conn.commit()
+                self._append_event(
+                    conn,
+                    task_id,
+                    "TASK_SUBMITTED",
+                    worker_id,
+                    (
+                        f"Task submitted with evidence; explicit run {explicit_run_id}"
+                        if explicit_run_id is not None
+                        else "Task submitted with evidence; run attribution not supplied"
+                    ),
+                )
+                conn.commit()
+            except sqlite3.IntegrityError:
+                conn.rollback()
+                if explicit_run_id is None:
+                    raise
+                return MutationResult(
+                    False,
+                    "SUBMISSION_RUN_LINK_CONFLICT",
+                    "submission/run lineage constraints rejected the atomic submission",
+                    self.get_task(task_id),
+                )
         return MutationResult(
             True,
             "SUBMITTED",

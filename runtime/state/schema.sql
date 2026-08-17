@@ -151,8 +151,6 @@ CREATE TABLE IF NOT EXISTS run_context_refs (
     PRIMARY KEY(run_id, path)
 );
 
--- Run bindings are append-only audit evidence. There is intentionally no
--- UPDATE/DELETE path, even for internal callers.
 CREATE TRIGGER IF NOT EXISTS trg_run_manifests_no_update
 BEFORE UPDATE ON run_manifests
 BEGIN
@@ -175,6 +173,53 @@ CREATE TRIGGER IF NOT EXISTS trg_run_context_no_delete
 BEFORE DELETE ON run_context_refs
 BEGIN
     SELECT RAISE(ABORT, 'run context refs are immutable');
+END;
+
+-- Exact submission-attempt/run attribution is append-only and optional. The
+-- mutable task_submissions row remains the source for the current submission.
+CREATE TABLE IF NOT EXISTS submission_run_links (
+    task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
+    submission_count INTEGER NOT NULL CHECK (submission_count > 0),
+    run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    linked_at TEXT NOT NULL,
+    PRIMARY KEY(task_id, submission_count)
+);
+CREATE INDEX IF NOT EXISTS idx_submission_run_links_run
+    ON submission_run_links(run_id, task_id, submission_count);
+
+CREATE TRIGGER IF NOT EXISTS trg_submission_run_same_task
+BEFORE INSERT ON submission_run_links
+WHEN NOT EXISTS (
+    SELECT 1
+    FROM run_manifests
+    WHERE run_id = NEW.run_id AND task_id = NEW.task_id
+)
+BEGIN
+    SELECT RAISE(ABORT, 'submission run must belong to the same task');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_submission_run_attempt_exists
+BEFORE INSERT ON submission_run_links
+WHEN NOT EXISTS (
+    SELECT 1
+    FROM task_submissions
+    WHERE task_id = NEW.task_id
+      AND submission_count >= NEW.submission_count
+)
+BEGIN
+    SELECT RAISE(ABORT, 'submission attempt does not exist');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_submission_run_links_no_update
+BEFORE UPDATE ON submission_run_links
+BEGIN
+    SELECT RAISE(ABORT, 'submission run links are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_submission_run_links_no_delete
+BEFORE DELETE ON submission_run_links
+BEGIN
+    SELECT RAISE(ABORT, 'submission run links are immutable');
 END;
 
 -- Project/adapter-qualified provider/session identity is separate append-only
@@ -245,8 +290,6 @@ BEGIN
     SELECT RAISE(ABORT, 'run session attach conflicts with immutable manifest session');
 END;
 
--- Replacement lineage is local to one run. The self-FK alone cannot express
--- this cross-column invariant, so enforce it at the SQLite boundary too.
 CREATE TRIGGER IF NOT EXISTS trg_run_session_replace_same_run
 BEFORE INSERT ON run_session_links
 WHEN NEW.relation = 'REPLACE'
