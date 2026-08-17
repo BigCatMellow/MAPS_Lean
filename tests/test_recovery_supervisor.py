@@ -174,5 +174,156 @@ class RecoverySupervisorTests(unittest.TestCase):
             self.assertNotIn(forbidden, text.lower())
 
 
+class FakeEnvironmentReader:
+    def __init__(self, evidence=None, *, raise_error=False):
+        self.evidence = evidence if evidence is not None else []
+        self.raise_error = raise_error
+        self.calls = []
+
+    def list_run_environment_evidence(self, run_id):
+        self.calls.append(run_id)
+        if self.raise_error:
+            raise RuntimeError("simulated environment evidence lookup failure")
+        return list(self.evidence)
+
+
+class RecoveryRunBindingAndEvidenceTests(unittest.TestCase):
+    """Stage 1 (run_id binding) + Stage 2 Option A (advisory evidence surfacing).
+
+    Per work/notes/2026-08-17-recovery-equivalence-authority-design.md, this is
+    explicitly advisory-only: environment evidence must never change a
+    recovery decision, only appear alongside it.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.store = RecoveryStore(Path(self.td.name) / "recovery.json")
+        self.now = datetime(2026, 8, 17, 20, 0, tzinfo=timezone.utc)
+
+    def supervisor(self, tasks=None, sessions=None, **kwargs):
+        self.hcom = FakeHcom(sessions)
+        return RecoverySupervisor(
+            task_reader=FakeTasks(tasks or [active_task()]),
+            hcom=self.hcom,
+            recovery_store=self.store,
+            backoff_seconds=(60, 120),
+            silent_stop_probe_delay_seconds=30,
+            **kwargs,
+        )
+
+    def schedule_due(self, **changes):
+        values = {
+            "task_id": "TASK-1",
+            "worker_id": "worker-1",
+            "session_name": "session-1",
+            "reason": "scheduled",
+            "resume_after": (self.now - timedelta(seconds=1)).isoformat(),
+        }
+        values.update(changes)
+        return self.store.schedule(**values)
+
+    def test_run_id_defaults_to_none_when_not_supplied(self):
+        incident = self.schedule_due()
+        self.assertIsNone(incident.run_id)
+        stored = self.store.load()["incidents"][incident.incident_id]
+        self.assertIsNone(stored["run_id"])
+
+    def test_run_id_can_be_bound_at_schedule_time(self):
+        incident = self.schedule_due(run_id="RUN-1")
+        self.assertEqual(incident.run_id, "RUN-1")
+        stored = self.store.load()["incidents"][incident.incident_id]
+        self.assertEqual(stored["run_id"], "RUN-1")
+
+    def test_no_environment_reader_configured_means_no_evidence_key_populated(self):
+        self.schedule_due(run_id="RUN-1")
+        sup = self.supervisor(sessions=[{"name": "session-1", "status": "stopped"}])
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertIsNone(actions[0]["environment_evidence"])
+
+    def test_evidence_absent_without_run_id_even_with_reader_present(self):
+        self.schedule_due()  # no run_id
+        reader = FakeEnvironmentReader(evidence=[{"compatibility_state": "DRIFTED"}])
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            environment_reader=reader,
+        )
+        actions = sup.tick(now=self.now)
+        self.assertIsNone(actions[0]["environment_evidence"])
+        self.assertEqual(reader.calls, [])
+
+    def test_evidence_surfaced_when_run_id_and_reader_both_present(self):
+        self.schedule_due(run_id="RUN-1")
+        reader = FakeEnvironmentReader(
+            evidence=[{"compatibility_state": "INCOMPATIBLE", "run_id": "RUN-1"}]
+        )
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            environment_reader=reader,
+        )
+        actions = sup.tick(now=self.now)
+        self.assertEqual(reader.calls, ["RUN-1"])
+        self.assertEqual(
+            actions[0]["environment_evidence"],
+            [{"compatibility_state": "INCOMPATIBLE", "run_id": "RUN-1"}],
+        )
+        # The resume action itself still fired -- evidence is additive only.
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertEqual(len(self.hcom.resumes), 1)
+
+    def test_evidence_lookup_failure_does_not_break_tick(self):
+        self.schedule_due(run_id="RUN-1")
+        reader = FakeEnvironmentReader(raise_error=True)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            environment_reader=reader,
+        )
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertIsNone(actions[0]["environment_evidence"])
+        self.assertEqual(len(self.hcom.resumes), 1)
+
+    def test_incompatible_evidence_never_changes_the_recovery_decision(self):
+        """The core safety property: identical scenario, only evidence differs."""
+
+        def run(reader):
+            store = RecoveryStore(Path(self.td.name) / f"recovery-{id(reader)}.json")
+            store.schedule(
+                task_id="TASK-1",
+                worker_id="worker-1",
+                session_name="session-1",
+                reason="scheduled",
+                resume_after=(self.now - timedelta(seconds=1)).isoformat(),
+                run_id="RUN-1",
+            )
+            hcom = FakeHcom(sessions=[{"name": "session-1", "status": "stopped"}])
+            sup = RecoverySupervisor(
+                task_reader=FakeTasks([active_task()]),
+                hcom=hcom,
+                recovery_store=store,
+                backoff_seconds=(60, 120),
+                environment_reader=reader,
+            )
+            actions = sup.tick(now=self.now)
+            return actions, hcom.resumes
+
+        no_evidence_actions, no_evidence_resumes = run(None)
+        incompatible_actions, incompatible_resumes = run(
+            FakeEnvironmentReader(evidence=[{"compatibility_state": "INCOMPATIBLE"}])
+        )
+
+        self.assertEqual(no_evidence_resumes, incompatible_resumes)
+        for a, b in zip(no_evidence_actions, incompatible_actions):
+            a = dict(a)
+            b = dict(b)
+            # incident_id is a random uuid4 per schedule() call, distinct
+            # across the two independent runs by construction -- not part
+            # of the decision this test is verifying.
+            del a["environment_evidence"], a["incident_id"]
+            del b["environment_evidence"], b["incident_id"]
+            self.assertEqual(a, b)
+
+
 if __name__ == "__main__":
     unittest.main()

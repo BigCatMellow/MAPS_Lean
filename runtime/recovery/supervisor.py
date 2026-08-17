@@ -37,14 +37,37 @@ class RecoverySupervisor:
         recovery_store: RecoveryStore | None = None,
         backoff_seconds: tuple[int, ...] = DEFAULT_BACKOFF_SECONDS,
         silent_stop_probe_delay_seconds: int = 900,
+        environment_reader: Any | None = None,
     ):
         self.task_reader = task_reader
         self.hcom = hcom
         self.store = recovery_store or RecoveryStore()
         self.backoff_seconds = backoff_seconds
         self.silent_stop_probe_delay_seconds = silent_stop_probe_delay_seconds
+        # Optional, advisory-only. When set, must expose
+        # list_run_environment_evidence(run_id) -> list[dict]. Never consulted
+        # to make or change any recovery decision -- see _advisory_environment_evidence.
+        self.environment_reader = environment_reader
         if not backoff_seconds or any(value <= 0 for value in backoff_seconds):
             raise ValueError("backoff_seconds must contain positive values")
+
+    def _advisory_environment_evidence(self, run_id: str | None) -> list[dict[str, Any]] | None:
+        """Read-only environment-compatibility evidence for an incident's bound run.
+
+        Stage 2 Option A per work/notes/2026-08-17-recovery-equivalence-authority-design.md:
+        purely advisory context, never consulted by any branch in tick() to make
+        or change a recovery decision. Returns None (not an empty list) when no
+        run is bound or no reader is configured, so absence of evidence is never
+        confused with "checked and found nothing" -- both this function's
+        failure to look anything up and a genuinely empty result are distinct
+        from an actual list of evidence records.
+        """
+        if not run_id or self.environment_reader is None:
+            return None
+        try:
+            return self.environment_reader.list_run_environment_evidence(run_id)
+        except Exception:  # noqa: BLE001 - advisory lookup must never break recovery
+            return None
 
     @staticmethod
     def _open_incident_for(state: dict[str, Any], task_id: str, session_name: str) -> bool:
@@ -137,6 +160,9 @@ class RecoverySupervisor:
             session_name = str(incident["session_name"])
             task_id = str(incident["task_id"])
             worker_id = str(incident["worker_id"])
+            # Advisory only -- never read by any branch below to make or
+            # change a decision. See _advisory_environment_evidence docstring.
+            evidence = self._advisory_environment_evidence(incident.get("run_id"))
 
             if session_name in state["terminal_sessions"]:
                 incident["state"] = "suppressed"
@@ -147,6 +173,7 @@ class RecoverySupervisor:
                         "incident_id": incident_id,
                         "action": "suppress",
                         "reason": "terminal_session",
+                        "environment_evidence": evidence,
                     }
                 )
                 continue
@@ -165,7 +192,12 @@ class RecoverySupervisor:
                 incident["last_error"] = reason
                 incident["updated_at"] = _time_z(now)
                 actions.append(
-                    {"incident_id": incident_id, "action": "suppress", "reason": reason}
+                    {
+                        "incident_id": incident_id,
+                        "action": "suppress",
+                        "reason": reason,
+                        "environment_evidence": evidence,
+                    }
                 )
                 continue
 
@@ -178,6 +210,7 @@ class RecoverySupervisor:
                         "incident_id": incident_id,
                         "action": "resolve",
                         "reason": "session_live",
+                        "environment_evidence": evidence,
                     }
                 )
                 continue
@@ -198,6 +231,7 @@ class RecoverySupervisor:
                         "incident_id": incident_id,
                         "action": "fail",
                         "reason": "retry_budget_exhausted",
+                        "environment_evidence": evidence,
                     }
                 )
                 continue
@@ -230,6 +264,7 @@ class RecoverySupervisor:
                     "action": action,
                     "attempt": attempt,
                     "error": error,
+                    "environment_evidence": evidence,
                 }
             )
 

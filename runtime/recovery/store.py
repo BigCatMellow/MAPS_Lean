@@ -34,6 +34,13 @@ class RecoveryIncident:
     last_error: str = ""
     created_at: str = ""
     updated_at: str = ""
+    # Optional binding to the immutable MAPS run this incident concerns. Never
+    # inferred/guessed here -- absent (None/UNKNOWN) unless a caller that
+    # already knows the exact run explicitly supplies it via schedule(). This
+    # is the Stage 1 prerequisite for advisory environment-evidence surfacing
+    # (see RecoverySupervisor.tick()); it grants no recovery authority by
+    # itself and does not change any existing recovery decision.
+    run_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -74,6 +81,7 @@ class RecoveryStore:
         session_name: str,
         reason: str,
         resume_after: str,
+        run_id: str | None = None,
     ) -> RecoveryIncident:
         parse_time(resume_after)
         state = self.load()
@@ -85,6 +93,7 @@ class RecoveryStore:
             session_name=session_name,
             reason=reason,
             resume_after=resume_after,
+            run_id=run_id,
             created_at=now,
             updated_at=now,
         )
