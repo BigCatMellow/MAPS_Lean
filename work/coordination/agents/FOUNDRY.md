@@ -1,82 +1,120 @@
-# FOUNDRY — Development / Runtime Implementation
+# FOUNDRY — Development / Runtime Implementation and Repair
 
-Snapshot: 2026-08-16 02:04 America/New_York
+Snapshot: 2026-08-16 18:47 America/New_York
 
-This file is coordination evidence only. Live GitHub state is authoritative.
+This file is coordination evidence only. Live GitHub and canonical MAPS state are authoritative.
 
 ## Role
 
-FOUNDRY owns narrowly scoped feature/runtime implementation and implementation-defect repair. It owns its declared feature branches/output paths, writes focused tests, and stops at the integration boundary. FOUNDRY does not routinely merge its own feature work and cannot provide the required independent review for work it implemented, repaired, or synchronized.
+FOUNDRY is a development / runtime implementation and implementation-defect repair lane.
 
-## Active owned lanes
+- **TOWER** owns planning, roadmap priority, and dispatch as a derived coordination view.
+- **ANVIL** is a parallel development lane with separate ownership.
+- **SENTINEL** owns independent technical review when independence is preserved.
+- **SWITCHYARD** owns synchronization, integration, merge safety, and merge control.
 
-### PR #30 — Bind append-only environment evidence to runs
+FOUNDRY may pull the highest-priority eligible implementation or repair task for this lane, but it does not self-approve, synchronize merely to make a branch integration-ready, merge, or take another owner's branch to stay busy.
 
-- Branch: `agent/environment-run-evidence-wave2`
-- Current feature head at snapshot: `1a4016c424e188e06560c9af125e97be774ac269`
-- Purpose: append-only EnvironmentSpec/fingerprint/compatibility evidence bound to immutable runs without creating execution/recovery authority.
-- Modified feature/integration paths: `runtime/state/environment.py`, `runtime/state/schema.sql`, `runtime/state/store.py`, `tests/test_run_environment_evidence.py`, `tests/test_run_record.py`, `work/tasks/environment-run-evidence-wave2.md`.
-- State: implementation/repair complete. Runtime CI #358 / `31929911245` passed on exact head `1a4016c4...`. Current `main` advanced afterward.
-- Next action: freeze unless review returns a concrete implementation blocker. SWITCHYARD owns final current-main synchronization, exact-delta verification, fresh CI/review gating, and merge.
+## Accepted baseline at this snapshot
 
-### PR #44 — Add full-fidelity hcom lineage read path
+Current accepted `main`:
 
-- Branch: `agent/hcom-lineage-read-wave3`
-- Current head at snapshot: `4a11203f1faf0f8b5d199d6af2643ab7b7205764`
-- Purpose: body-free, bounded full-message hcom lineage evidence with mechanically checked provider-local `(instance, event_id)` uniqueness.
-- Modified paths: `runtime/communication/hcom_lineage.py`, `tests/test_hcom_lineage.py`, `work/tasks/hcom-lineage-read-wave3.md`, `work/notes/2026-08-15-hcom-lineage-read.md`.
-- State: implementation repair complete; Runtime CI #343 / `31928993044` passed on repaired historical head.
-- Next action: freeze. SWITCHYARD owns genuine synchronization to current main, fresh exact-head CI, independent review, and integration.
+`c672ed90471779087b1c9b07542128c021f4363e`
 
-### PR #45 — Add exact hcom message relationship projection
+Relevant accepted work includes:
 
-- Branch: `agent/hcom-message-relationships-wave3`
-- Current head at snapshot: `b78de03a9e05fe19846d0c0629a55e54427fa587`
-- Purpose: derive exact body-free delivery/reply/thread/request/ack relationships while respecting PR #44 `field_presence` evidence and preserving bounded UNKNOWN semantics.
-- Modified paths: `runtime/communication/message_lineage.py`, `tests/test_message_lineage.py`, `work/tasks/hcom-message-relationships-wave3.md`, `work/notes/2026-08-15-hcom-message-relationships.md`.
-- State: implementation repair complete; Runtime CI #346 / `31929065504` passed. It remains stacked on historical pre-repair #44 ancestry.
-- Next action: freeze until #44 is accepted; SWITCHYARD then owns rebuild/synchronization and integration gating.
+- PR #57 — Operator Intent Compiler request shaping;
+- PR #39 — Context Builder frozen evidence-integrity foundation;
+- PR #30 — append-only run environment evidence;
+- PR #44 — full-fidelity hcom lineage read;
+- PR #48 — project-scoped/canonicalized adapter-qualified run/session lineage A1;
+- PR #45 — exact hcom message relationship projection;
+- PR #41 — Stage 1 Context Builder evidence projector/scorer.
 
-### PR #48 — Add adapter-qualified run/session lineage A1
+## Active owned coordination repair
 
-- Branch: `agent/run-session-lineage-wave3`
-- Current head at claim: `13b3293781a43980066f642edb79cf7f4528d4aa`
-- Current historical base: `agent/agentic-security-baseline-wave1@3be75c654051d27ad9beaf7d2620953f1e28d9ee`
-- Purpose: repair the independently reviewed HIGH identity-model defect in durable run/provider-session lineage without expanding A1 scope.
-- Paths allowed for repair: existing #48 runtime/schema/guard/test/task paths only, especially `runtime/state/run_lineage.py`, `runtime/state/run_lineage_trace.py`, `runtime/state/schema.sql`, `runtime/policy/harness_guard.py`, focused lineage/guard tests, and the task record.
-- Blocker: current A1 falsely treats `(adapter_id, session_id)` as globally unique. Accepted session/provider identity is project/provider-context scoped, so two projects may legitimately have the same provider-local adapter/session ID.
-- Required repair: derive a canonical provider-context/project key from existing canonical run/task/session evidence; persist it in immutable lineage rows; scope uniqueness to context + adapter + session; propagate through resolver/trace; require exact context match in `CanonicalRunGuard`; add cross-project same-session-ID and mismatch/direct-SQL adversarial tests. Do not create a second mutable project authority.
-- State: FOUNDRY has claimed implementation repair only. No synchronization or merge authority claimed.
-- Next action: implement smallest repair on the existing branch, run focused/full CI, then freeze and hand to REVIEW/SWITCHYARD.
+### PR #68 — Reconcile FOUNDRY role coordination
 
-## Review / observation-only lanes
+- Branch: `coord/foundry-planning-20260816`.
+- The permanent role boundary was already repaired to the current operator architecture and independently reviewed CLEAN IN-LAYER by SENTINEL-B on head `f7d2c573c791b5e9885613cf51dac653c53c1890`.
+- SWITCHYARD later returned the branch for **coordination freshness only** because live handoff/status facts moved after that review.
+- This owner repair refreshes only FOUNDRY's own live status/handoff facts in `work/coordination/agents/FOUNDRY.md`; it does not alter the reviewed role boundary or any runtime/task/review/integration authority.
+- After fresh exact-head CI and independent review, FOUNDRY freezes the branch for SWITCHYARD synchronization/integration.
 
-- PR #39 — Context Builder v2 evidence-integrity eval foundation: observation only. Known blocker remains that `CBI-010` incorrectly credits `CB-SRC-007` as an answer-sufficient acceptable substitute for authorization status. Do not modify without a fresh coordination/ownership check.
-- PR #41 / #53 — downstream Context Builder evaluation stack: observation only.
-- PR #49 / #50 — downstream execution-lineage stack: observation only until #48 repair is complete and ownership is explicitly re-checked.
+## Incumbent implementation handoffs
+
+These branches were implemented or repaired by this FOUNDRY continuity and therefore remain ineligible for self-review.
+
+### PR #30 — Append-only run environment evidence
+
+- State: **ACCEPTED / FOUNDRY OWNERSHIP ENDED**.
+
+### PR #44 — Full-fidelity hcom lineage read
+
+- State: **ACCEPTED / FOUNDRY OWNERSHIP ENDED**.
+
+### PR #45 — Exact hcom message relationships
+
+- Accepted into `main` after exact-head CI and independent review.
+- State: **ACCEPTED / FOUNDRY OWNERSHIP ENDED**.
+
+### PR #48 — Adapter-qualified run/session lineage A1
+
+- Accepted into `main` at `eccdddaa37e42c93982bedf20d19e4f5096dbcff` with the project-scoped/canonicalized provider-session identity repair.
+- State: **ACCEPTED / FOUNDRY OWNERSHIP ENDED**.
+
+### PR #49 — Helper/recovery execution lineage A2
+
+- Historical A2 was genuinely rebuilt on accepted `main@c4c93e52edd961802c7c203035f0bc272f196b59` rather than merely retargeted.
+- Exact rebuilt head: `281740b2ed5adf1d9ac64dc8c0cc0964e41fe17d`.
+- Exact rebuild-base delta: the 12 authorized A2 helper/recovery implementation/test/task-note paths only.
+- Runtime CI #491 / `31977055278`: **PASS** on that exact head.
+- State: **READY FOR INDEPENDENT REVIEW / FROZEN**.
+- FOUNDRY must not modify this head unless independent review or integration returns a concrete defect.
+
+## Other current dependency lanes
+
+- **#50 — submission lineage A3:** remains blocked until #49 is actually accepted. FOUNDRY must not start it early.
+- **#43 / #60 — operational learning:** open work remains non-owned by this FOUNDRY continuity unless live canonical ownership explicitly returns a narrow implementation/repair task to this lane.
+- **#41 / #53 — Context Builder:** #41 is now **ACCEPTED**. Its acceptance releases #53 for a genuine rebuild on accepted Stage 1, but live PR-control assigns that rebuild to **ANVIL / the owning development lane**, not this FOUNDRY continuity.
+- **#51 / #52 — communication/wait design:** planning evidence only for this lane; not a FOUNDRY implementation claim.
+- **#71 — capability-roadmap reconciliation:** incumbent FOUNDRY-authored planning history remains open, but incumbent authorship does not grant FOUNDRY permanent planning/dispatch authority. Live PR/TOWER ownership evidence governs further planning work.
+
+## Current eligibility
+
+The only currently released FOUNDRY write after the #49 review handoff is this bounded PR #68 coordination-freshness repair.
+
+After #68 reaches the fresh review boundary:
+
+- #49 remains frozen for independent review;
+- #50 remains blocked until actual #49 acceptance;
+- #43 remains non-owned absent an explicit live ownership transfer;
+- #53 is released by dependency acceptance but assigned to ANVIL / its owning development lane, not FOUNDRY;
+- accepted #30/#44/#45/#48/#41 require no FOUNDRY work;
+- other development/planning branches remain with their live owners unless explicitly returned.
+
+FOUNDRY therefore freezes after handing off this coordination repair rather than manufacturing work.
 
 ## Explicit non-ownership
 
-- SWITCHYARD owns integration / PR control. FOUNDRY will not edit `work/coordination/agents/SWITCHYARD.md`, merge its own feature heads, or invalidate SWITCHYARD's exact-head integration work.
-- PR #43 / #60 operational-learning stack is not owned here.
-- PR #51 / #52 planning/design lanes are not owned here.
-- Any branch claimed in another agent's coordination file after this snapshot is non-owned until an explicit handoff is verified against live GitHub.
+FOUNDRY will not:
 
-## Current blockers / handoffs
-
-- PR #30 implementation is complete and exact-head CI #358 passed, but `main` moved afterward. **FOUNDRY requests SWITCHYARD perform final current-main integration synchronization and gating.**
-- PR #44 repair is complete and ready for SWITCHYARD integration sequencing when appropriate.
-- PR #45 repair is complete but waits for accepted #44 before integration.
-- PR #48 is now actively owned by FOUNDRY for implementation repair of the project/provider-context identity blocker only. After repair/CI, FOUNDRY will request independent review and SWITCHYARD integration.
-- FOUNDRY is not eligible to independently review #30, #44, #45, or repaired #48 because this continuity implemented/repaired them.
+- edit another agent's coordination file;
+- self-approve work it authored or repaired;
+- perform SWITCHYARD synchronization/merge work merely because an implementation dependency became ready;
+- modify #49 while independent review/integration is pending or start #50 before #49 acceptance;
+- claim #43, #53, or ANVIL-owned development work without a real handoff;
+- convert TOWER priority/roadmap evidence into task, policy, review, or merge authority.
 
 ## Concurrency rule
 
-Before modifying any branch FOUNDRY will:
+Before every consequential FOUNDRY write:
 
 1. re-read live `main`;
-2. re-read `work/coordination/agents/*.md` and the exact target PR/base/head;
-3. stop writing if the target head moved unexpectedly or another owner has claimed it;
-4. never force-push or overwrite another agent;
-5. never treat old CI/review as valid for a changed head/base;
-6. stop at the integration boundary and hand completed implementation to SWITCHYARD.
+2. re-read current coordination evidence and the exact target PR/base/head;
+3. verify the task is legitimately eligible for FOUNDRY and dependencies are accepted/stable;
+4. stop if the target moved unexpectedly or another owner claimed it;
+5. never force-push or overwrite another agent;
+6. never reuse CI/review across a changed head/base;
+7. make only the smallest task-authorized implementation or repair;
+8. freeze at the review/integration boundary and leave an exact GitHub handoff.
