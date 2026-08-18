@@ -275,6 +275,18 @@ class PortableRunRecordTests(unittest.TestCase):
         self.assertEqual(record["environment"][0]["compatibility_state"], "COMPATIBLE")
         self.assertFalse(record["replay"]["complete"])
 
+    def test_harness_config_hash_present_in_run_marks_coverage_verified(self):
+        trace = self.store.trace_task("TASK-RR")
+        self.assertIsNotNone(trace)
+        trace["runs"][0]["harness_config_hash"] = "sha256:" + "b" * 64
+
+        record = build_run_record(FakeTraceSource(trace), "TASK-RR", self.run_id)
+        self.assertEqual(
+            record["coverage"]["harness_configuration"]["state"],
+            CoverageState.VERIFIED.value,
+        )
+        self.assertTrue(record["coverage"]["harness_configuration"]["included"])
+
     def test_malformed_projected_environment_evidence_fails_explicitly(self):
         trace = self.store.trace_task("TASK-RR")
         self.assertIsNotNone(trace)

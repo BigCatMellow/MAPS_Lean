@@ -235,6 +235,7 @@ class ExecutionBinding:
     session_id: str | None = None
     context_hashes: tuple[str, ...] = ()
     environment_spec_hash: str | None = None
+    harness_config_hash: str | None = None
 
     def __post_init__(self) -> None:
         for field_name in ("task_id", "run_id", "worker_id", "task_revision", "project_id"):
@@ -246,6 +247,12 @@ class ExecutionBinding:
                 self,
                 "environment_spec_hash",
                 _require_text(self.environment_spec_hash, "environment_spec_hash"),
+            )
+        if self.harness_config_hash is not None:
+            object.__setattr__(
+                self,
+                "harness_config_hash",
+                _require_text(self.harness_config_hash, "harness_config_hash"),
             )
         object.__setattr__(
             self,
@@ -263,6 +270,7 @@ class ExecutionBinding:
             "session_id": self.session_id,
             "context_hashes": list(self.context_hashes),
             "environment_spec_hash": self.environment_spec_hash,
+            "harness_config_hash": self.harness_config_hash,
         }
 
 
