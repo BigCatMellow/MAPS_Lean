@@ -11,7 +11,9 @@ Implemented components:
   outcomes, secret-safer task events, and a read-only canonical task trace.
 - `runtime/context_builder.py` — disposable explicit context plan from task
   relationships, root authority, exact file hashes, and dependency state; no
-  repository scan or semantic retrieval.
+  repository scan or semantic retrieval. Its `authority`/`required`/`guidance`
+  fields correspond to the authority/task-context/fact-knowledge classes in
+  `playbook/INFORMATION_CLASSES.md`.
 - `runtime/status.py` — compact read-only operator projection of canonical task
   counts, active claims, attention items, recent events, and outcome failures.
 - `runtime/policy/` — explicit task policy metadata, operator approvals, worker
