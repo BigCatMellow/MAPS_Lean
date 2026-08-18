@@ -90,3 +90,7 @@ ELSE IF Option D:
 ```
 
 Until an operator decision lands, independent-review enforcement beyond required CI is correctly **BLOCKED_ON_OPERATOR_DECISION** — issue #61 stays open, re-scoped to exactly this.
+
+## Operator decision (recorded 2026-08-18)
+
+Operator deferred entirely to task-owner judgment ("whatever you think is best, just do it"). **Option B chosen**: no second identity — operational cost/credentialing (questions 1/3 above) not worth it without a concrete driving need. Implemented: `scripts/check_review_evidence.py` + `.github/workflows/review-evidence.yml`, required status check `review-evidence`, verifying `work/reviews/pr-<N>-review-evidence.md` exists on the exact PR head with `reviewer`/`head_sha`/`independent: true`/`summary` fields (template: `templates/review-evidence.md`). Does not prove reviewer identity distinctness — documented as such in the script's own docstring. Question 4 (D's revisit trigger) is moot since D wasn't chosen. Option A/C (second identity) remains available as a future upgrade if a concrete need arises.
