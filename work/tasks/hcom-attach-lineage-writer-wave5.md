@@ -1,6 +1,6 @@
 # Task: real writer for run_session_links via HcomHarnessAdapter.attach()
 
-- Status: `READY_FOR_REVIEW`
+- Status: `MERGED` (PR #100; INVALID-lineage-state test added as a follow-up in this pass)
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: `agent/hcom-attach-lineage-writer-wave5`
@@ -100,28 +100,28 @@ MUST NOT CHANGE:
 
 ## Acceptance criteria
 
-- [ ] `test_unsupported_operations_are_explicit` (existing) still passes
+- [x] `test_unsupported_operations_are_explicit` (existing) still passes
       unmodified -- default-off preserved.
-- [ ] With a configured writer and an `UNBOUND` run, `attach()` records an
+- [x] With a configured writer and an `UNBOUND` run, `attach()` records an
       `ATTACH` link and returns success with `mutated=True`.
-- [ ] Calling `attach()` again with the same session on the same run is
+- [x] Calling `attach()` again with the same session on the same run is
       idempotent: success, `mutated=False`, no second row written.
-- [ ] Calling `attach()` with a different session on an already-`EXPLICIT`
+- [x] Calling `attach()` with a different session on an already-`EXPLICIT`
       run records a `REPLACE` naming the correct current link.
-- [ ] An `INVALID` lineage state fails closed without writing.
-- [ ] An unknown `run_id` fails closed with `RUN_NOT_FOUND` without writing.
-- [ ] A `record_run_session_link()` rejection (e.g. mismatched worker, or a
+- [x] An `INVALID` lineage state fails closed without writing.
+- [x] An unknown `run_id` fails closed with `RUN_NOT_FOUND` without writing.
+- [x] A `record_run_session_link()` rejection (e.g. mismatched worker, or a
       session already bound to a different run) is surfaced verbatim as a
       failed `OperationResult`, not swallowed or reinterpreted.
-- [ ] `RecoverySupervisor._resolve_run_id` (unmodified) returns a real
+- [x] `RecoverySupervisor._resolve_run_id` (unmodified) returns a real
       `run_id` end-to-end when a `TaskStore` instance is used as both the
       supervisor's `task_reader` and the adapter's `lineage_writer` and a
       link was recorded via `attach()` -- one integration-style test proves
       the reader side is now actually reachable, not just independently
       correct.
-- [ ] `python -m unittest tests.test_harness_hcom_adapter -v` and
+- [x] `python -m unittest tests.test_harness_hcom_adapter -v` and
       `python -m unittest tests.test_recovery_supervisor -v` pass.
-- [ ] independent exact-head review confirms no new task/session authority
+- [x] independent exact-head review confirms no new task/session authority
       is granted and the default-off contract genuinely holds.
 
 ## Verification
