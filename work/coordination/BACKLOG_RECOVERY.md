@@ -1,6 +1,6 @@
 # MAPS backlog recovery mode
 
-Status: **ACTIVE by operator direction until the recovery exit criteria are met or the operator ends the mode.**
+Status: **ENDED by operator direction, 2026-08-17.** All six exit criteria below were materially true (0 open PRs, no dependency stacks, no status-snapshot loops, nothing outrunning integration capacity) and the operator confirmed exit. This file is preserved for its durable lessons (see "Durable state vs live state" and "Exit criteria"); the recovery-mode flow limits (1 merge-authoritative candidate at a time, etc.) are no longer an active operating constraint.
 
 This file is a durable temporary operating contract. It defines how the existing roles should reduce the inherited backlog without weakening MAPS safety. It does **not** contain a live PR queue; recover that from GitHub.
 
