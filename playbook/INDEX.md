@@ -27,6 +27,7 @@ that fits the project. Historical behavior worth retaining is curated under
 | Make a consequential decision or handle security/destruction | [DECISIONS_AND_SAFETY.md](DECISIONS_AND_SAFETY.md) | Treating access or model capability as authority. |
 | Capture a worthwhile discovery | [EMERGENCE.md](EMERGENCE.md) | Silently expanding the current task. |
 | Repair drift and learn from repeat failures | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | Repeating an unrecorded manual fix. |
+| Name what kind of information something is (authority, task context, fact, Skill, flow, tool, example) | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Confusing this with lifecycle state (active/retired/archived), or treating a Skill/fact as authority. |
 | Keep a project brain trustworthy over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Deleting history or loading all history by default. |
 | Continue across sessions | [Context](../docs/CONTEXT.md) and [handoff template](../templates/handoff.md) | Keeping every old transcript in context. |
 

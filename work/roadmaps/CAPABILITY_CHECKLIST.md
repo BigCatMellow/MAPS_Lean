@@ -30,7 +30,7 @@ Status legend:
 
 | Phase | Status | Evidence |
 |---|---|---|
-| S1 — Information classification | NOT STARTED | No doc anywhere (`AGENTS.md`, `docs/`, `playbook/`) names/maps the MAPS information classes (authority/Skill/Tool/Context/Flow) as a consistent applied vocabulary; the concept exists only as roadmap prose. |
+| S1 — Information classification | DONE | `playbook/INFORMATION_CLASSES.md` names all 7 classes (authority/task context/fact/Skill/flow/tool/example) with the roadmap's own examples, ties them to what `runtime/context_builder.py` and `runtime/skills/` already do, and is indexed in `playbook/INDEX.md`; `runtime/README.md`'s `context_builder.py` bullet now points to it as the applied vocabulary for the plan's `authority`/`required`/`guidance` fields. `work/tasks/information-classification-doc-wave9.md`. |
 | S2 — Skills format support | DONE | `runtime/skills/format.py` (`discover_skills`, `load_skill`, hash-verified snapshot activation); merged via PR #25 ("Add Agent Skills format foundation") + `tests/test_skills_format.py`. |
 | S3 — Catalog + provenance | DONE | `runtime/skills/catalog.py` (`SkillCatalog`, `SkillProvenance`, `SkillTrustState.UNASSESSED`); merged via PR #26 ("Add Skills catalog provenance read model") + `tests/test_skills_catalog.py`. |
 | S4 — Routing evaluation | DONE | `runtime/skills/evaluation.py` (`SkillSelectionCorpus`, `evaluate_skill_selection`, precision/recall/F1/hard-negative/ambiguity metrics); merged via PR #27 ("Add frozen Skill selection evaluation corpus") + `tests/test_skills_selection_evaluation.py`. This is an eval harness only — see S6 for why it is not yet wired to a production selector. |
