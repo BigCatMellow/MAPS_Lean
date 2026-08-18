@@ -38,8 +38,9 @@ Implemented components:
   (fastembed-based), not a production path.
 - `runtime/wait_projection.py` — read-only explainable-wait projection over
   task/review/dependency state.
-- `runtime/skills/` — lightweight skill discovery (id/name/content-hash),
-  no procedure-body loading.
+- `runtime/skills/` — skill discovery (`discover_skills`: id/name/content-hash
+  only), full loading (`load_skill`/`load_catalog_skill`, returns procedure
+  body), a content-safety gate (`gate.py`), and a selection-evaluation harness.
 - `runtime/benchmark_results.py`, `runtime/acquisition_evidence.py`,
   `runtime/evaluation/` — evidence-binding and benchmark-protocol support.
 
