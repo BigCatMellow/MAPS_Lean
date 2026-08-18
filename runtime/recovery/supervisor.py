@@ -51,6 +51,34 @@ class RecoverySupervisor:
         if not backoff_seconds or any(value <= 0 for value in backoff_seconds):
             raise ValueError("backoff_seconds must contain positive values")
 
+    def _resolve_run_id(
+        self, task: Mapping[str, Any], session: Mapping[str, Any]
+    ) -> str | None:
+        """Best-available, non-heuristic run_id binding for a detected silent stop.
+
+        Uses the exact, schema-enforced reverse lookup
+        (project_id, adapter_id, session_id) -> run_id on `run_session_links`
+        (see `RunSessionLineageMixin.resolve_session_run`), never a
+        "most recent run for this task" guess. `session` is the raw hcom
+        session record (keyed by hcom's own `session_id` field, which is a
+        distinct identifier from the display `name` used elsewhere in this
+        module for session_name bookkeeping). Returns None whenever any part
+        of the lookup is unavailable -- missing project_id, missing hcom
+        session_id, no resolver on task_reader, or no matching row -- which is
+        exactly today's existing behavior (no advisory evidence).
+        """
+        resolver = getattr(self.task_reader, "resolve_session_run", None)
+        if resolver is None:
+            return None
+        project_id = str(task.get("project_id") or "").strip()
+        session_id = str(session.get("session_id") or "").strip()
+        if not project_id or not session_id:
+            return None
+        try:
+            return resolver(project_id, "hcom", session_id)
+        except Exception:  # noqa: BLE001 - advisory lookup must never break detection
+            return None
+
     def _advisory_environment_evidence(self, run_id: str | None) -> list[dict[str, Any]] | None:
         """Read-only environment-compatibility evidence for an incident's bound run.
 
@@ -96,7 +124,7 @@ class RecoverySupervisor:
             for item in self.hcom.list_sessions(include_stopped=True)
         }
         state = self.store.load()
-        detected: list[tuple[str, str, str]] = []
+        detected: list[tuple[str, str, str, dict[str, Any]]] = []
 
         tasks_by_worker: dict[str, list[dict[str, Any]]] = {}
         for task in self.task_reader.list_tasks(statuses=("ACTIVE",)):
@@ -127,11 +155,12 @@ class RecoverySupervisor:
             if previous and not current and not self._open_incident_for(
                 state, str(task["task_id"]), session_name
             ):
-                detected.append((str(task["task_id"]), worker_id, session_name))
+                detected.append((str(task["task_id"]), worker_id, session_name, task))
 
         self.store.save(state)
         opened: list[str] = []
-        for task_id, worker_id, session_name in detected:
+        for task_id, worker_id, session_name, task in detected:
+            run_id = self._resolve_run_id(task, sessions.get(session_name, {}))
             incident = self.store.schedule(
                 task_id=task_id,
                 worker_id=worker_id,
@@ -140,6 +169,7 @@ class RecoverySupervisor:
                 resume_after=_time_z(
                     now + timedelta(seconds=self.silent_stop_probe_delay_seconds)
                 ),
+                run_id=run_id,
             )
             opened.append(incident.incident_id)
         return opened
