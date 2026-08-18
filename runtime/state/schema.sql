@@ -650,3 +650,55 @@ BEFORE DELETE ON operational_lessons
 BEGIN
     SELECT RAISE(ABORT, 'operational lesson candidates are immutable');
 END;
+
+-- Operational-learning promotion/retirement decisions (Authority-1). The
+-- base operational_lessons row above never changes -- status stays
+-- CHECK-locked to 'CANDIDATE' and the row is immutable, per Storage-0. A
+-- lesson's effective status (CANDIDATE / ACTIVE / RETIRED) is derived by
+-- composing the base row with the rows below, never by mutating a status
+-- column. Every row here is one explicit, operator-authored decision
+-- (decision_ref + actor required); there is no automatic/evidence-gated
+-- promotion path (operator decision recorded 2026-08-17, Option A).
+CREATE TABLE IF NOT EXISTS operational_lesson_decisions (
+    decision_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lesson_id TEXT NOT NULL REFERENCES operational_lessons(lesson_id),
+    decision_kind TEXT NOT NULL CHECK (decision_kind IN ('PROMOTE', 'RETIRE')),
+    decision_payload TEXT NOT NULL CHECK (json_valid(decision_payload)),
+    decided_by TEXT NOT NULL CHECK (length(trim(decided_by)) BETWEEN 1 AND 128),
+    decided_at TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_operational_lesson_decisions_lesson
+    ON operational_lesson_decisions(lesson_id, created_at);
+
+CREATE TRIGGER IF NOT EXISTS trg_operational_lesson_decisions_no_update
+BEFORE UPDATE ON operational_lesson_decisions
+BEGIN
+    SELECT RAISE(ABORT, 'operational lesson decisions are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operational_lesson_decisions_no_delete
+BEFORE DELETE ON operational_lesson_decisions
+BEGIN
+    SELECT RAISE(ABORT, 'operational lesson decisions are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operational_lesson_decisions_no_reretire
+BEFORE INSERT ON operational_lesson_decisions
+WHEN EXISTS (
+    SELECT 1 FROM operational_lesson_decisions
+    WHERE lesson_id = NEW.lesson_id AND decision_kind = 'RETIRE'
+)
+BEGIN
+    SELECT RAISE(ABORT, 'operational lesson is already retired; retirement is terminal');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_operational_lesson_decisions_no_repromote
+BEFORE INSERT ON operational_lesson_decisions
+WHEN NEW.decision_kind = 'PROMOTE' AND EXISTS (
+    SELECT 1 FROM operational_lesson_decisions
+    WHERE lesson_id = NEW.lesson_id AND decision_kind = 'PROMOTE'
+)
+BEGIN
+    SELECT RAISE(ABORT, 'operational lesson is already promoted');
+END;
