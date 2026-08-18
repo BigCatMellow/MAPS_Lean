@@ -10,6 +10,12 @@ import unittest
 
 from runtime.cli import main as cli_main
 from runtime.context_builder import build_context_plan
+from runtime.skills import (
+    SkillCatalog,
+    SkillCatalogSource,
+    SkillSourceKind,
+    build_skill_catalog,
+)
 from runtime.state import TaskStore
 
 
@@ -301,6 +307,106 @@ class ContextBuilderTests(unittest.TestCase):
         self.assertEqual(plan["task_id"], task_id)
         self.assertEqual(plan["authority"], baseline["authority"])
         self.assertEqual(plan["required"], baseline["required"])
+
+
+    @staticmethod
+    def _write_skill(skills_root: Path, directory: str, *, name: str, description: str) -> None:
+        skill_dir = skills_root / directory
+        skill_dir.mkdir(parents=True)
+        (skill_dir / "SKILL.md").write_text(
+            f"---\nname: {name}\ndescription: {description}\n---\nProcedure body.\n",
+            encoding="utf-8",
+        )
+
+    def _catalog_with_matching_and_unrelated_skill(self) -> SkillCatalog:
+        skills_root = self.root / "skills-src"
+        skills_root.mkdir()
+        self._write_skill(
+            skills_root,
+            "context-plan-builder",
+            name="context-plan-builder",
+            description=(
+                "Reference guidance for assembling a task context plan during "
+                "RESEARCH work."
+            ),
+        )
+        self._write_skill(
+            skills_root,
+            "database-migration",
+            name="database-migration",
+            description=(
+                "Procedure for safely running PostgreSQL schema migrations in "
+                "production clusters."
+            ),
+        )
+        source = SkillCatalogSource(
+            source_id="local",
+            root=skills_root,
+            kind=SkillSourceKind.LOCAL,
+        )
+        return build_skill_catalog([source])
+
+    def test_skills_default_empty_without_catalog(self):
+        task_id = self.create_task()
+        plan = build_context_plan(self.store, task_id, repo_root=self.root)
+        self.assertEqual(plan["skills"], [])
+
+    def test_skills_empty_when_catalog_has_no_matching_skill(self):
+        task_id = self.create_task()
+        skills_root = self.root / "skills-src-unrelated"
+        skills_root.mkdir()
+        self._write_skill(
+            skills_root,
+            "database-migration",
+            name="database-migration",
+            description=(
+                "Procedure for safely running PostgreSQL schema migrations in "
+                "production clusters."
+            ),
+        )
+        catalog = build_skill_catalog(
+            [SkillCatalogSource(source_id="local", root=skills_root, kind=SkillSourceKind.LOCAL)]
+        )
+        plan = build_context_plan(
+            self.store, task_id, repo_root=self.root, skill_catalog=catalog
+        )
+        self.assertEqual(plan["skills"], [])
+
+    def test_matching_skill_is_selected_and_unrelated_skill_stays_out_of_context(self):
+        task_id = self.create_task()
+        catalog = self._catalog_with_matching_and_unrelated_skill()
+
+        plan = build_context_plan(
+            self.store, task_id, repo_root=self.root, skill_catalog=catalog
+        )
+
+        skill_ids = {item["skill_id"] for item in plan["skills"]}
+        self.assertEqual(skill_ids, {"context-plan-builder"})
+        self.assertNotIn("database-migration", skill_ids)
+
+        entry = plan["skills"][0]
+        self.assertEqual(entry["name"], "context-plan-builder")
+        self.assertEqual(entry["source_id"], "local")
+        self.assertEqual(entry["trust_state"], "UNASSESSED")
+        self.assertIn("context", entry["selection_reason"])
+        self.assertTrue(entry["catalog_key"])
+
+        # Exit gate: the unrelated Skill must not merely be "not selected" --
+        # it must be demonstrably absent from the serialized plan entirely,
+        # including anywhere content could leak (e.g. instructions/boundaries).
+        serialized = json.dumps(plan)
+        self.assertNotIn("database-migration", serialized)
+        self.assertNotIn("PostgreSQL", serialized)
+
+        # Skill selection is attributed evidence, never spliced into
+        # instruction-bearing fields.
+        self.assertNotIn("skills", plan["boundaries"])
+
+    def test_skills_not_loaded_when_catalog_omitted_even_with_lessons(self):
+        task_id = self.create_task()
+        plan = build_context_plan(self.store, task_id, repo_root=self.root)
+        self.assertIn("skills", plan)
+        self.assertEqual(plan["skills"], [])
 
 
 if __name__ == "__main__":
