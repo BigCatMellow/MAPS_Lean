@@ -18,6 +18,18 @@ promoting an already-ready draft, and retargeting an orphaned base to the
 branch its now-merged parent PR itself targeted. It never merges, approves,
 closes, or edits PR content, and it never acts on a PR whose title/body
 signals it is intentionally still in progress.
+
+Both mechanisms bind to exact-head/exact-identity evidence rather than
+mutable text or branch names:
+
+- ``has_handoff_evidence`` only accepts a handoff *comment* posted at or
+  after the current head commit's timestamp. A handoff comment left before
+  a force-push added new, unreviewed commits no longer counts as evidence
+  for the new head.
+- ``retarget_orphaned_bases`` refuses to guess when a head branch name maps
+  to more than one distinct base across merged PRs (a reused branch name).
+  It only auto-retargets when the branch name's merge history is
+  unambiguous, and always reports the exact merged PR number it relied on.
 """
 
 from __future__ import annotations
@@ -25,9 +37,14 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from datetime import datetime, timezone
 
 HANDOFF_MARKER = "MAPS HANDOFF"
 WIP_MARKERS = ("wip", "work in progress", "do not merge", "draft:", "[skip promote]")
+
+
+def _parse_ts(value: str) -> datetime:
+    return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
 
 
 def gh_json(*args: str) -> object:
@@ -50,8 +67,8 @@ def open_prs(repo: str) -> list[dict]:
         "--state",
         "open",
         "--json",
-        "number,title,body,baseRefName,headRefName,isDraft,mergeable,"
-        "mergeStateStatus,statusCheckRollup,comments",
+        "number,title,body,baseRefName,headRefName,headRefOid,isDraft,mergeable,"
+        "mergeStateStatus,statusCheckRollup,comments,commits",
         "--limit",
         "200",
     )
@@ -62,11 +79,40 @@ def looks_wip(pr: dict) -> bool:
     return any(marker in haystack for marker in WIP_MARKERS)
 
 
+def _head_commit_timestamp(pr: dict) -> datetime | None:
+    commits = pr.get("commits") or []
+    head_oid = pr.get("headRefOid")
+    if head_oid:
+        # Only trust a commit that is explicitly the current head. If the
+        # commits list is truncated/stale and doesn't contain headRefOid,
+        # fail closed rather than guessing from an older listed commit --
+        # that guess is exactly the stale-evidence gap this binding exists
+        # to close.
+        for commit in commits:
+            if commit.get("oid") == head_oid:
+                ts = commit.get("committedDate") or commit.get("authoredDate")
+                return _parse_ts(ts) if ts else None
+        return None
+    if commits:
+        ts = commits[-1].get("committedDate") or commits[-1].get("authoredDate")
+        if ts:
+            return _parse_ts(ts)
+    return None
+
+
 def has_handoff_evidence(pr: dict) -> bool:
-    if HANDOFF_MARKER in (pr.get("body") or ""):
-        return True
+    head_ts = _head_commit_timestamp(pr)
+    if head_ts is None:
+        # No reliable commit timestamp to bind against -- refuse to trust
+        # any evidence rather than silently accepting a possibly-stale one.
+        return False
     for comment in pr.get("comments") or []:
-        if HANDOFF_MARKER in (comment.get("body") or ""):
+        if HANDOFF_MARKER not in (comment.get("body") or ""):
+            continue
+        created_at = comment.get("createdAt")
+        if not created_at:
+            continue
+        if _parse_ts(created_at) >= head_ts:
             return True
     return False
 
@@ -102,8 +148,27 @@ def promote_ready_drafts(repo: str, prs: list[dict], dry_run: bool) -> list[int]
     return promoted
 
 
+def _build_merge_map(merged: list[dict]) -> dict[str, tuple[str, int] | None]:
+    """Map merged headRefName -> (baseRefName, PR number), or None if the
+    branch name was reused across merges with different bases (ambiguous:
+    the name alone no longer identifies a single merge, so it is unsafe to
+    resolve automatically)."""
+    by_head: dict[str, tuple[str, int]] = {}
+    ambiguous: set[str] = set()
+    for m in merged:
+        head = m["headRefName"]
+        entry = (m["baseRefName"], m["number"])
+        if head in by_head and by_head[head][0] != entry[0]:
+            ambiguous.add(head)
+            continue
+        by_head[head] = entry
+    result: dict[str, tuple[str, int] | None] = {h: v for h, v in by_head.items()}
+    for head in ambiguous:
+        result[head] = None
+    return result
+
+
 def retarget_orphaned_bases(repo: str, prs: list[dict], dry_run: bool) -> list[int]:
-    merged_head_to_base: dict[str, str] = {}
     merged = gh_json(
         "pr",
         "list",
@@ -112,27 +177,52 @@ def retarget_orphaned_bases(repo: str, prs: list[dict], dry_run: bool) -> list[i
         "--state",
         "merged",
         "--json",
-        "headRefName,baseRefName",
+        "number,headRefName,baseRefName",
         "--limit",
         "200",
     )
-    for m in merged:
-        merged_head_to_base[m["headRefName"]] = m["baseRefName"]
+    merge_map = _build_merge_map(merged)
 
     retargeted: list[int] = []
     for pr in prs:
         base = pr["baseRefName"]
+        number = pr["number"]
         seen: set[str] = set()
         resolved = base
-        while resolved in merged_head_to_base and resolved not in seen:
+        via_prs: list[int] = []
+        blocked_reason: str | None = None
+        while resolved in merge_map and resolved not in seen:
+            entry = merge_map[resolved]
+            if entry is None:
+                blocked_reason = (
+                    f"base {resolved!r} was merged more than once under "
+                    f"different parent bases (reused branch name)"
+                )
+                break
             seen.add(resolved)
-            resolved = merged_head_to_base[resolved]
+            resolved, merged_pr_number = entry
+            via_prs.append(merged_pr_number)
+        else:
+            if resolved in merge_map:
+                # Loop exited because `resolved` was already in `seen`,
+                # i.e. the chain cycled back on itself.
+                blocked_reason = (
+                    f"base-resolution chain from {base!r} revisited "
+                    f"{resolved!r} (cycle in merge history)"
+                )
+
+        if blocked_reason is not None:
+            print(
+                f"SKIP #{number}: {blocked_reason} -> refusing to guess, "
+                f"needs human resolution"
+            )
+            continue
         if resolved == base:
             continue
-        number = pr["number"]
         print(
             f"RETARGET #{number}: base {base!r} was already merged into "
-            f"main via an upstream PR -> retargeting base to {resolved!r}"
+            f"main via upstream PR(s) {via_prs} -> retargeting base to "
+            f"{resolved!r}"
         )
         if not dry_run:
             gh(
