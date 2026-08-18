@@ -5,6 +5,7 @@ import unittest
 
 from runtime.communication import HcomError
 from runtime.recovery import RecoveryStore, RecoverySupervisor, session_is_live
+from runtime.state import TaskStore
 
 
 class FakeTasks:
@@ -323,6 +324,187 @@ class RecoveryRunBindingAndEvidenceTests(unittest.TestCase):
             del a["environment_evidence"], a["incident_id"]
             del b["environment_evidence"], b["incident_id"]
             self.assertEqual(a, b)
+
+
+def _lineage_contract(output_path="src"):
+    return {
+        "title": "Recovery run_id lineage",
+        "outcome": "Silent-stop incidents carry an exact run_id when one is bound",
+        "task_type": "IMPLEMENTATION",
+        "owner": "owner",
+        "risk": "MEDIUM",
+        "decision_authority": "bounded implementation",
+        "verification": "recovery supervisor tests",
+        "evidence_expected": "passing tests",
+        "review_required": "INDEPENDENT_REVIEW",
+        "escalation": "stop on ambiguous lineage",
+        "inputs": ["input"],
+        "sources": ["source"],
+        "dependencies": [],
+        "output_paths": [output_path],
+        "non_goals": ["no task authority change"],
+        "acceptance_criteria": ["run_id binding is exact, never guessed"],
+        "stop_conditions": ["lineage identity is ambiguous"],
+        "policy": {
+            "requires_operator_approval": False,
+            "destructive_action": False,
+            "external_side_effect": False,
+            "security_sensitive": False,
+            "broad_architecture": False,
+            "paid_execution": False,
+        },
+    }
+
+
+class RecoveryRunIdResolutionTests(unittest.TestCase):
+    """observe_silent_stops resolves run_id via the exact, non-heuristic
+    (project_id, adapter_id, session_id) -> run_id reverse lookup on
+    `run_session_links` (RunSessionLineageMixin.resolve_session_run), using a
+    real TaskStore rather than a fake, so the schema's UNIQUE constraint is
+    actually exercised.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+        self.repo = self.root / "repo"
+        self.repo.mkdir()
+        (self.repo / "src").mkdir()
+        self.task_store = TaskStore(self.root / "maps.db")
+        self.recovery_store = RecoveryStore(self.root / "recovery.json")
+        self.now = datetime(2026, 8, 17, 20, 0, tzinfo=timezone.utc)
+
+    def make_active_run(self, *, worker="worker-1", session_id="sess-1"):
+        created = self.task_store.create_task(title="x", project_id="proj-1")
+        self.assertTrue(created.ok)
+        task_id = created.task["task_id"]
+        self.assertTrue(
+            self.task_store.update_contract(task_id, _lineage_contract()).ok
+        )
+        self.assertTrue(self.task_store.promote_ready(task_id).ok)
+        self.assertTrue(
+            self.task_store.claim_task(task_id, worker, lease_seconds=600).ok
+        )
+        writable_paths = self.task_store.get_task(task_id)["output_paths"]
+        manifest = self.task_store.create_run_manifest(
+            task_id,
+            worker,
+            repo_root=self.repo,
+            created_by="dispatcher",
+            readable_paths=["."],
+            writable_paths=writable_paths,
+        )
+        self.assertTrue(manifest.ok, manifest.message)
+        run_id = manifest.task["run_id"]
+        link = self.task_store.record_run_session_link(
+            run_id,
+            worker,
+            adapter_id="hcom",
+            session_id=session_id,
+            evidence_ref=f"provider:event:{session_id}",
+            created_by="dispatcher",
+        )
+        self.assertTrue(link.ok, link.message)
+        return task_id, run_id
+
+    def supervisor(self, sessions):
+        self.hcom = FakeHcom(sessions)
+        return RecoverySupervisor(
+            task_reader=self.task_store,
+            hcom=self.hcom,
+            recovery_store=self.recovery_store,
+            backoff_seconds=(60, 120),
+            silent_stop_probe_delay_seconds=30,
+        )
+
+    def test_silent_stop_binds_exact_run_id_via_reverse_session_lookup(self):
+        task_id, run_id = self.make_active_run(worker="worker-1", session_id="sess-1")
+        sup = self.supervisor(
+            sessions=[
+                {
+                    "name": "session-1",
+                    "session_id": "sess-1",
+                    "status": "active",
+                    "process_bound": True,
+                }
+            ]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "session-1"}, now=self.now), []
+        )
+        self.hcom.sessions = [
+            {
+                "name": "session-1",
+                "session_id": "sess-1",
+                "status": "stopped",
+                "process_bound": False,
+            }
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "session-1"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["task_id"], task_id)
+        self.assertEqual(incident["run_id"], run_id)
+
+    def test_silent_stop_leaves_run_id_none_when_no_matching_link(self):
+        # A task/run exists, but the hcom session_id observed at stop time
+        # does not match any run_session_links row for this project/adapter --
+        # e.g. the session was never durably attached. No exact match exists,
+        # so resolution must not guess; it must return None without raising.
+        task_id, _run_id = self.make_active_run(worker="worker-1", session_id="sess-1")
+        sup = self.supervisor(
+            sessions=[
+                {
+                    "name": "session-1",
+                    "session_id": "sess-unbound",
+                    "status": "active",
+                    "process_bound": True,
+                }
+            ]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "session-1"}, now=self.now), []
+        )
+        self.hcom.sessions = [
+            {
+                "name": "session-1",
+                "session_id": "sess-unbound",
+                "status": "stopped",
+                "process_bound": False,
+            }
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "session-1"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["task_id"], task_id)
+        self.assertIsNone(incident["run_id"])
+
+    def test_silent_stop_leaves_run_id_none_when_hcom_session_lacks_session_id(self):
+        # hcom's own `name` field must never be substituted for its distinct
+        # `session_id` field -- if the session record has no session_id at
+        # all, resolution must decline rather than looking up by name.
+        task_id, _run_id = self.make_active_run(worker="worker-1", session_id="sess-1")
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "active", "process_bound": True}]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "session-1"}, now=self.now), []
+        )
+        self.hcom.sessions = [
+            {"name": "session-1", "status": "stopped", "process_bound": False}
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "session-1"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["task_id"], task_id)
+        self.assertIsNone(incident["run_id"])
 
 
 if __name__ == "__main__":

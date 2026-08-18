@@ -231,6 +231,34 @@ class RunSessionLineageMixin:
         with closing(self._connect()) as conn:
             return self._resolve_run_session_conn(conn, run_id)
 
+    def resolve_session_run(
+        self, project_id: str, adapter_id: str, session_id: str
+    ) -> str | None:
+        """Reverse lookup: exact provider-session identity -> bound run_id.
+
+        `run_session_links` enforces `UNIQUE(project_id, adapter_id, session_id)`
+        at the schema level (see schema.sql), so a matching row -- if any -- is
+        provably the only one for that exact identity triple, regardless of
+        whether it is the run's ATTACH row or a later REPLACE row. This is a
+        non-heuristic binding: it never guesses among multiple candidates, it
+        either finds the one row the identity triple can possibly match, or it
+        finds nothing and returns None.
+        """
+        project_id = project_id.strip() if isinstance(project_id, str) else ""
+        adapter_id = adapter_id.strip() if isinstance(adapter_id, str) else ""
+        session_id = session_id.strip() if isinstance(session_id, str) else ""
+        if not project_id or not adapter_id or not session_id:
+            return None
+        with closing(self._connect()) as conn:
+            row = conn.execute(
+                """
+                SELECT run_id FROM run_session_links
+                WHERE project_id = ? AND adapter_id = ? AND session_id = ?
+                """,
+                (project_id, adapter_id, session_id),
+            ).fetchone()
+        return str(row["run_id"]) if row is not None else None
+
     def record_run_session_link(
         self,
         run_id: str,
