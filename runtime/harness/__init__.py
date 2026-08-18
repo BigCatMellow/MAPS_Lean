@@ -5,6 +5,7 @@ mechanics, and the provider-neutral service that composes them. It does not own
 or infer task authority, policy, ownership, review, or completion state.
 """
 
+from .contract import AdapterContractMixin
 from .hooks import (
     HookDirective,
     HookEvent,
@@ -28,6 +29,7 @@ from .types import (
 )
 
 __all__ = [
+    "AdapterContractMixin",
     "ExecutionBinding",
     "HarnessAdapter",
     "HarnessService",
