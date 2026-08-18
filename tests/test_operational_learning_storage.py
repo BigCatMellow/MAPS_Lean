@@ -456,5 +456,57 @@ class OperationalLessonAuthorityTests(unittest.TestCase):
                 )
 
 
+class ListActiveOperationalLessonsTests(unittest.TestCase):
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+        self.store = TaskStore(self.root / "maps.db")
+
+    def test_empty_store_returns_empty_list(self):
+        self.assertEqual(self.store.list_active_operational_lessons(), [])
+
+    def test_only_promoted_not_retired_lessons_are_returned(self):
+        self.assertTrue(
+            self.store.record_operational_lesson_candidate(
+                lesson_record("LESSON-CAND"), created_by="observer-a"
+            ).ok
+        )
+        self.assertTrue(
+            self.store.record_operational_lesson_candidate(
+                lesson_record("LESSON-ACTIVE"), created_by="observer-a"
+            ).ok
+        )
+        self.assertTrue(
+            self.store.record_operational_lesson_candidate(
+                lesson_record("LESSON-RETIRED"), created_by="observer-a"
+            ).ok
+        )
+        self.store.promote_operational_lesson(
+            "LESSON-ACTIVE",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        self.store.promote_operational_lesson(
+            "LESSON-RETIRED",
+            decision_ref="decision:2",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        self.store.retire_operational_lesson(
+            "LESSON-RETIRED",
+            decision_ref="decision:3",
+            retired_by="operator-a",
+            retired_at="2026-08-18T19:00:00Z",
+        )
+
+        active = self.store.list_active_operational_lessons()
+        self.assertEqual([item["lesson_id"] for item in active], ["LESSON-ACTIVE"])
+        self.assertEqual(active[0]["status"], "ACTIVE")
+
+
 if __name__ == "__main__":
     unittest.main()
