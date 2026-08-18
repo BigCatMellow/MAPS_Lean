@@ -6,6 +6,15 @@ APPLY=0
 INSTALL_HCOM=0
 RUN_SMOKE=0
 
+# hcom install source. Temporarily pinned to the BigCatMellow/hcom fork
+# branch that adds `--json` output to `hcom send` (upstream PR
+# https://github.com/aannoo/hcom/pull/107, open/unreviewed as of 2026-08-17).
+# MAPS wants exact event-correlation IDs from that feature now rather than
+# wait on upstream review. Revert to plain "hcom" (PyPI) once #107 merges
+# upstream, or override for one run with:
+#   HCOM_SOURCE=hcom bash scripts/install_maps.sh --apply --install-hcom
+HCOM_SOURCE="${HCOM_SOURCE:-git+https://github.com/BigCatMellow/hcom@send-json-event-receipt}"
+
 usage() {
   cat <<'EOF'
 Usage: scripts/install_maps.sh [--apply] [--install-hcom] [--run-smoke]
@@ -77,7 +86,7 @@ echo "Separate hcom installation:"
   if command -v hcom >/dev/null 2>&1; then
     echo "+ hcom already available: $(command -v hcom)"
   elif command -v uv >/dev/null 2>&1; then
-    run uv tool install hcom
+    run uv tool install "$HCOM_SOURCE"
   else
     HCOM_VENV="$HOME/.local/share/hcom-venv"
     HCOM_BIN="$HOME/.local/bin/hcom"
@@ -87,11 +96,11 @@ echo "Separate hcom installation:"
     fi
     if [[ "$APPLY" -eq 1 ]]; then
       run "$HCOM_VENV/bin/python" -m pip install --upgrade pip
-      run "$HCOM_VENV/bin/python" -m pip install -U hcom
+      run "$HCOM_VENV/bin/python" -m pip install -U "$HCOM_SOURCE"
       run ln -sfn "$HCOM_VENV/bin/hcom" "$HCOM_BIN"
     else
       show_cmd "$HCOM_VENV/bin/python" -m pip install --upgrade pip
-      show_cmd "$HCOM_VENV/bin/python" -m pip install -U hcom
+      show_cmd "$HCOM_VENV/bin/python" -m pip install -U "$HCOM_SOURCE"
       show_cmd ln -sfn "$HCOM_VENV/bin/hcom" "$HCOM_BIN"
     fi
   fi
