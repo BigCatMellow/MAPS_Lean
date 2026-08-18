@@ -1,0 +1,58 @@
+name: Context Builder semantic-eval tests
+
+# Runs the fastembed-dependent Stage 2 semantic-retrieval candidate tests
+# (tests/test_context_retrieval_semantic.py) that core CI
+# (runtime-stack-tests.yml) intentionally skips, since fastembed is an
+# optional evaluation-only dependency, not a core runtime dependency (see
+# runtime/requirements-context-eval.txt). Without this lane, those tests had
+# no CI coverage at all -- they only ran when someone happened to install
+# the optional dependency locally.
+#
+# This lane is evaluation-only: it does not gate merges to main and is not
+# a required status check. A failure here means the candidate's evaluation
+# harness broke, not that the core runtime is unsafe to merge.
+
+on:
+  pull_request:
+    paths:
+      - "runtime/context_retrieval_semantic.py"
+      - "runtime/context_retrieval_eval.py"
+      - "runtime/requirements-context-eval.txt"
+      - "tests/test_context_retrieval_semantic.py"
+      - "work/evals/context-builder-evidence-integrity-v1.json"
+      - "work/evals/context-builder-retrieval-stage2-v1.json"
+      - ".github/workflows/semantic-eval-tests.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "runtime/context_retrieval_semantic.py"
+      - "runtime/context_retrieval_eval.py"
+      - "runtime/requirements-context-eval.txt"
+      - "tests/test_context_retrieval_semantic.py"
+      - "work/evals/context-builder-evidence-integrity-v1.json"
+      - "work/evals/context-builder-retrieval-stage2-v1.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  semantic-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+
+      - name: Install core + optional context-eval dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r runtime/requirements.txt
+          python -m pip install -r runtime/requirements-context-eval.txt
+
+      - name: Run semantic-retrieval evaluation tests
+        run: python -m unittest tests.test_context_retrieval_semantic -v

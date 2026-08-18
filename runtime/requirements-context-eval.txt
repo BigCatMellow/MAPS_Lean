@@ -11,4 +11,12 @@
 #
 # fastembed is CPU-only (ONNX Runtime backed) and has no torch/GPU dependency,
 # keeping install size and CI time small relative to sentence-transformers.
-fastembed
+#
+# Pinned to an exact version: fastembed's TextEmbedding does not expose a
+# model-revision/hash parameter, so the only mechanical reproducibility
+# lever available here is pinning the package version itself (its model
+# registry -- which HuggingFace files/URLs "BAAI/bge-small-en-v1.5" resolves
+# to -- is baked into the fastembed release, not resolved dynamically at
+# runtime). This does not cryptographically pin the model weights
+# themselves; it pins which fastembed release's model registry is used.
+fastembed==0.8.0
