@@ -4,6 +4,8 @@ import tempfile
 import unittest
 
 from runtime.communication import HcomError
+from runtime.harness import ExecutionBinding, SessionRef
+from runtime.harness.adapters import HcomHarnessAdapter
 from runtime.recovery import RecoveryStore, RecoverySupervisor, session_is_live
 from runtime.state import TaskStore
 
@@ -505,6 +507,86 @@ class RecoveryRunIdResolutionTests(unittest.TestCase):
         incident = self.recovery_store.load()["incidents"][opened[0]]
         self.assertEqual(incident["task_id"], task_id)
         self.assertIsNone(incident["run_id"])
+
+    def make_active_run_without_link(self, *, worker="worker-1"):
+        created = self.task_store.create_task(title="x", project_id="proj-1")
+        self.assertTrue(created.ok)
+        task_id = created.task["task_id"]
+        self.assertTrue(
+            self.task_store.update_contract(task_id, _lineage_contract()).ok
+        )
+        self.assertTrue(self.task_store.promote_ready(task_id).ok)
+        self.assertTrue(
+            self.task_store.claim_task(task_id, worker, lease_seconds=600).ok
+        )
+        writable_paths = self.task_store.get_task(task_id)["output_paths"]
+        manifest = self.task_store.create_run_manifest(
+            task_id,
+            worker,
+            repo_root=self.repo,
+            created_by="dispatcher",
+            readable_paths=["."],
+            writable_paths=writable_paths,
+        )
+        self.assertTrue(manifest.ok, manifest.message)
+        return task_id, manifest.task["run_id"], manifest.task["task_revision"]
+
+    def test_silent_stop_binds_run_id_written_via_hcom_harness_adapter_attach(self):
+        # Proves the reader (resolve_session_run, consumed here) is actually
+        # reachable end to end from the writer HcomHarnessAdapter.attach()
+        # now calls -- not just independently correct in isolation.
+        task_id, run_id, task_revision = self.make_active_run_without_link(
+            worker="worker-1"
+        )
+        adapter = HcomHarnessAdapter(
+            FakeHcom([]), project_id="proj-1", lineage_writer=self.task_store
+        )
+        binding = ExecutionBinding(
+            task_id=task_id,
+            run_id=run_id,
+            worker_id="worker-1",
+            task_revision=task_revision,
+            project_id="proj-1",
+            session_id="sess-1",
+        )
+        session_ref = SessionRef(
+            session_id="sess-1",
+            worker_id="worker-1",
+            adapter="hcom",
+            project_id="proj-1",
+            remote_ref="session-1",
+        )
+        attach_result = adapter.attach(binding, session_ref)
+        self.assertTrue(attach_result.ok, attach_result.summary)
+
+        sup = self.supervisor(
+            sessions=[
+                {
+                    "name": "session-1",
+                    "session_id": "sess-1",
+                    "status": "active",
+                    "process_bound": True,
+                }
+            ]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "session-1"}, now=self.now), []
+        )
+        self.hcom.sessions = [
+            {
+                "name": "session-1",
+                "session_id": "sess-1",
+                "status": "stopped",
+                "process_bound": False,
+            }
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "session-1"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["task_id"], task_id)
+        self.assertEqual(incident["run_id"], run_id)
 
 
 if __name__ == "__main__":
