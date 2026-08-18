@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 from runtime.state import TaskStore
+from runtime.operational_learning import OperationalLearningError, project_applicable_lessons
 
 _PATH_SUFFIXES = {
     ".cfg",
@@ -112,6 +114,35 @@ def _describe_reference(root: Path, value: str, role: str) -> dict[str, Any]:
     }
 
 
+def _lesson_guidance(
+    store: TaskStore, task: dict[str, Any]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Attributed GUIDANCE_ONLY evidence from operator-promoted ACTIVE lessons.
+
+    Injection-0/1 (work/notes/2026-08-17-operational-learning-authority-design.md
+    section 5): reuses `project_applicable_lessons()`'s existing shape and
+    `GUIDANCE_ONLY` label verbatim; never merged into instructions/boundaries.
+    Fails closed (empty guidance) rather than breaking the rest of the plan
+    if lesson storage or projection is unavailable/invalid.
+    """
+    try:
+        lessons = store.list_active_operational_lessons()
+    except Exception:
+        return [], []
+    context = {
+        "project_id": task["project_id"],
+        "task_type": task["task_type"],
+        "risk": task["risk"],
+        "paths": list(task["output_paths"]),
+    }
+    at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    try:
+        projection = project_applicable_lessons(lessons, context, at=at)
+    except OperationalLearningError:
+        return [], []
+    return list(projection["projected"]), list(projection["withheld"])
+
+
 def build_context_plan(
     store: TaskStore,
     task_id: str,
@@ -172,11 +203,15 @@ def build_context_plan(
         if item["status"] in {"missing", "outside_repo", "directory_not_expanded"}
     ]
 
+    guidance, withheld_guidance = _lesson_guidance(store, task)
+
     return {
         "task_id": task_id,
         "task_revision": store.compute_task_revision(task_id),
         "authority": authority,
         "required": required,
+        "guidance": guidance,
+        "withheld_guidance": withheld_guidance,
         "dependencies": dependencies,
         "boundaries": {
             "decision_authority": task["decision_authority"],

@@ -153,6 +153,23 @@ class OperationalLessonStorageMixin:
             ).fetchall()
         return [self._lesson_row(row) for row in rows]
 
+    def list_active_operational_lessons(self) -> list[dict[str, Any]]:
+        """Return every lesson whose composed status is currently `ACTIVE`.
+
+        Used by Injection-0/1 (Context Builder guidance surfacing) as the
+        sole read path into `project_applicable_lessons()`; never used to
+        grant any authority.
+        """
+        with closing(self._connect()) as conn:
+            rows = conn.execute(
+                "SELECT * FROM operational_lessons ORDER BY created_at, lesson_id"
+            ).fetchall()
+            composed = [
+                self._compose(row, self._decisions_for(conn, str(row["lesson_id"])))
+                for row in rows
+            ]
+        return [record for record in composed if record["status"] == "ACTIVE"]
+
     # -- Authority-1: operator-only promotion / retirement -----------------
     #
     # The base operational_lessons row (above) never changes. A lesson's
