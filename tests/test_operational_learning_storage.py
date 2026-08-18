@@ -178,5 +178,283 @@ class OperationalLessonStorageTests(unittest.TestCase):
         self.assertEqual(result.code, "INVALID_ACTOR")
 
 
+class OperationalLessonAuthorityTests(unittest.TestCase):
+    """Authority-1: operator-only promotion/retirement mechanism."""
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+        self.store = TaskStore(self.root / "maps.db")
+
+    def _seed(self, lesson_id: str) -> None:
+        self.assertTrue(
+            self.store.record_operational_lesson_candidate(
+                lesson_record(lesson_id), created_by="observer-a"
+            ).ok
+        )
+
+    def test_promote_unknown_lesson_is_rejected(self):
+        result = self.store.promote_operational_lesson(
+            "MISSING",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "LESSON_NOT_FOUND")
+
+    def test_promote_then_composed_view_reports_active(self):
+        self._seed("LESSON-P1")
+        result = self.store.promote_operational_lesson(
+            "LESSON-P1",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        self.assertTrue(result.ok, result.message)
+        self.assertEqual(result.code, "LESSON_PROMOTED")
+
+        fetched = self.store.get_operational_lesson("LESSON-P1")
+        self.assertEqual(fetched["status"], "ACTIVE")
+        self.assertEqual(fetched["promotion"]["decision_ref"], "decision:1")
+        self.assertEqual(fetched["promotion"]["promoted_by"], "operator-a")
+        self.assertIsNone(fetched["retirement"])
+
+    def test_promoted_lesson_no_longer_lists_as_candidate(self):
+        self._seed("LESSON-P2")
+        self.store.promote_operational_lesson(
+            "LESSON-P2",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        listed = self.store.list_operational_lesson_candidates()
+        self.assertNotIn("LESSON-P2", [item["lesson_id"] for item in listed])
+
+    def test_repromotion_is_rejected(self):
+        self._seed("LESSON-P3")
+        first = self.store.promote_operational_lesson(
+            "LESSON-P3",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        self.assertTrue(first.ok)
+        second = self.store.promote_operational_lesson(
+            "LESSON-P3",
+            decision_ref="decision:2",
+            promoted_by="operator-a",
+            starts_at="2026-08-18T19:00:00Z",
+            review_at="2026-08-21T19:00:00Z",
+        )
+        self.assertFalse(second.ok)
+        self.assertEqual(second.code, "ALREADY_PROMOTED")
+
+    def test_promotion_requires_actor(self):
+        self._seed("LESSON-P4")
+        result = self.store.promote_operational_lesson(
+            "LESSON-P4",
+            decision_ref="decision:1",
+            promoted_by="  ",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "INVALID_ACTOR")
+        self.assertEqual(self.store.get_operational_lesson("LESSON-P4")["status"], "CANDIDATE")
+
+    def test_retire_candidate_directly_without_promotion(self):
+        self._seed("LESSON-R1")
+        result = self.store.retire_operational_lesson(
+            "LESSON-R1",
+            decision_ref="decision:1",
+            retired_by="operator-b",
+            retired_at="2026-08-17T19:00:00Z",
+        )
+        self.assertTrue(result.ok, result.message)
+        fetched = self.store.get_operational_lesson("LESSON-R1")
+        self.assertEqual(fetched["status"], "RETIRED")
+        self.assertIsNone(fetched["promotion"])
+        self.assertEqual(fetched["retirement"]["retired_by"], "operator-b")
+
+    def test_retire_active_lesson_preserves_promotion_record(self):
+        self._seed("LESSON-R2")
+        self.store.promote_operational_lesson(
+            "LESSON-R2",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        result = self.store.retire_operational_lesson(
+            "LESSON-R2",
+            decision_ref="decision:2",
+            retired_by="operator-b",
+            retired_at="2026-08-21T19:00:00Z",
+        )
+        self.assertTrue(result.ok, result.message)
+        fetched = self.store.get_operational_lesson("LESSON-R2")
+        self.assertEqual(fetched["status"], "RETIRED")
+        self.assertIsNotNone(fetched["promotion"])
+        self.assertEqual(fetched["promotion"]["decision_ref"], "decision:1")
+        self.assertEqual(fetched["retirement"]["decision_ref"], "decision:2")
+
+    def test_retirement_is_terminal_no_re_retirement(self):
+        self._seed("LESSON-R3")
+        first = self.store.retire_operational_lesson(
+            "LESSON-R3",
+            decision_ref="decision:1",
+            retired_by="operator-b",
+            retired_at="2026-08-17T19:00:00Z",
+        )
+        self.assertTrue(first.ok)
+        second = self.store.retire_operational_lesson(
+            "LESSON-R3",
+            decision_ref="decision:2",
+            retired_by="operator-b",
+            retired_at="2026-08-18T19:00:00Z",
+        )
+        self.assertFalse(second.ok)
+        self.assertEqual(second.code, "ALREADY_RETIRED")
+
+    def test_promotion_after_retirement_is_rejected(self):
+        self._seed("LESSON-R4")
+        self.store.retire_operational_lesson(
+            "LESSON-R4",
+            decision_ref="decision:1",
+            retired_by="operator-b",
+            retired_at="2026-08-17T19:00:00Z",
+        )
+        result = self.store.promote_operational_lesson(
+            "LESSON-R4",
+            decision_ref="decision:2",
+            promoted_by="operator-a",
+            starts_at="2026-08-18T19:00:00Z",
+            review_at="2026-08-21T19:00:00Z",
+        )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "LESSON_RETIRED")
+
+    def test_composed_active_view_passes_validate_lesson_record(self):
+        from runtime.operational_learning import validate_lesson_record
+
+        self._seed("LESSON-V1")
+        self.store.promote_operational_lesson(
+            "LESSON-V1",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        fetched = self.store.get_operational_lesson("LESSON-V1")
+        # get_operational_lesson() already re-validates internally; re-running
+        # it here proves the returned dict is itself a valid input, not just
+        # that the internal call succeeded.
+        revalidated = validate_lesson_record(fetched)
+        self.assertEqual(revalidated["status"], "ACTIVE")
+
+    def test_decision_history_is_ordered_and_immutable_in_practice(self):
+        self._seed("LESSON-D1")
+        self.store.promote_operational_lesson(
+            "LESSON-D1",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        self.store.retire_operational_lesson(
+            "LESSON-D1",
+            decision_ref="decision:2",
+            retired_by="operator-b",
+            retired_at="2026-08-21T19:00:00Z",
+        )
+        history = self.store.list_operational_lesson_decisions("LESSON-D1")
+        self.assertEqual([d["decision_kind"] for d in history], ["PROMOTE", "RETIRE"])
+        self.assertEqual(history[0]["decided_by"], "operator-a")
+        self.assertEqual(history[1]["decided_by"], "operator-b")
+
+    def test_direct_sql_second_promote_decision_violates_trigger(self):
+        self._seed("LESSON-SQL1")
+        self.store.promote_operational_lesson(
+            "LESSON-SQL1",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        with self.assertRaises(sqlite3.IntegrityError):
+            with self.store._connect() as conn:
+                conn.execute(
+                    "INSERT INTO operational_lesson_decisions("
+                    "lesson_id, decision_kind, decision_payload, decided_by, "
+                    "decided_at, created_at) VALUES ("
+                    "'LESSON-SQL1', 'PROMOTE', '{}', 'sneaky', "
+                    "'2026-08-18T19:00:00Z', '2026-08-18T19:00:00Z')"
+                )
+
+    def test_direct_sql_decision_after_retire_violates_trigger(self):
+        self._seed("LESSON-SQL2")
+        self.store.retire_operational_lesson(
+            "LESSON-SQL2",
+            decision_ref="decision:1",
+            retired_by="operator-b",
+            retired_at="2026-08-17T19:00:00Z",
+        )
+        with self.assertRaises(sqlite3.IntegrityError):
+            with self.store._connect() as conn:
+                conn.execute(
+                    "INSERT INTO operational_lesson_decisions("
+                    "lesson_id, decision_kind, decision_payload, decided_by, "
+                    "decided_at, created_at) VALUES ("
+                    "'LESSON-SQL2', 'PROMOTE', '{}', 'sneaky', "
+                    "'2026-08-18T19:00:00Z', '2026-08-18T19:00:00Z')"
+                )
+
+    def test_direct_sql_decisions_are_immutable(self):
+        self._seed("LESSON-SQL3")
+        self.store.promote_operational_lesson(
+            "LESSON-SQL3",
+            decision_ref="decision:1",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        with self.assertRaises(sqlite3.IntegrityError):
+            with self.store._connect() as conn:
+                conn.execute(
+                    "UPDATE operational_lesson_decisions SET decided_by = 'x' "
+                    "WHERE lesson_id = 'LESSON-SQL3'"
+                )
+        with self.assertRaises(sqlite3.IntegrityError):
+            with self.store._connect() as conn:
+                conn.execute(
+                    "DELETE FROM operational_lesson_decisions "
+                    "WHERE lesson_id = 'LESSON-SQL3'"
+                )
+
+    def test_storage0_status_check_constraint_still_holds(self):
+        # Authority-1 must not have loosened Storage-0's own boundary.
+        with self.assertRaises(sqlite3.IntegrityError):
+            with self.store._connect() as conn:
+                conn.execute(
+                    """
+                    INSERT INTO operational_lessons(
+                        lesson_id, lesson_version, status, claim, source_kind,
+                        source_refs, applicability, created_by, created_at,
+                        promotion, retirement, superseded_by
+                    ) VALUES (
+                        'LESSON-STILL-LOCKED', 1, 'ACTIVE', 'x', 'TASK_OUTCOME',
+                        '["outcome:x"]', '{"global": true, "project_ids": [], "task_types": [], "risk_levels": [], "path_prefixes": []}',
+                        'observer-a', '2026-08-17T19:00:00Z', NULL, NULL, NULL
+                    )
+                    """
+                )
+
+
 if __name__ == "__main__":
     unittest.main()
