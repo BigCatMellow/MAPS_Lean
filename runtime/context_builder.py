@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -8,6 +9,7 @@ from urllib.parse import urlparse
 
 from runtime.state import TaskStore
 from runtime.operational_learning import OperationalLearningError, project_applicable_lessons
+from runtime.skills.catalog import SkillCatalog
 
 _PATH_SUFFIXES = {
     ".cfg",
@@ -143,11 +145,100 @@ def _lesson_guidance(
     return list(projection["projected"]), list(projection["withheld"])
 
 
+_TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
+_MIN_TOKEN_LEN = 3
+
+
+def _text_tokens(text: str) -> set[str]:
+    return {
+        word
+        for word in _TOKEN_PATTERN.findall(text.lower())
+        if len(word) >= _MIN_TOKEN_LEN
+    }
+
+
+def _path_segment_tokens(path: str) -> set[str]:
+    tokens: set[str] = set()
+    for segment in Path(path).parts:
+        if segment in ("/", ".", ".."):
+            continue
+        tokens |= _text_tokens(Path(segment).stem)
+    return tokens
+
+
+def _skill_task_signal_tokens(task: dict[str, Any]) -> set[str]:
+    tokens: set[str] = set()
+    task_type = task.get("task_type")
+    if isinstance(task_type, str) and task_type.strip():
+        tokens |= _text_tokens(task_type)
+    project_id = task.get("project_id")
+    if isinstance(project_id, str) and project_id.strip():
+        tokens |= _text_tokens(project_id)
+    for path in task.get("output_paths") or []:
+        if isinstance(path, str) and path.strip():
+            tokens |= _path_segment_tokens(path)
+    return tokens
+
+
+def _select_skills(
+    skill_catalog: SkillCatalog | None, task: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Attributed, provenance-labeled Skill selection evidence.
+
+    Fails closed: an absent/empty catalog, or any error while deriving task
+    signals, yields no skills rather than breaking the rest of the plan. Only
+    descriptor/provenance metadata is read here -- `load_skill`/
+    `load_catalog_skill` (procedure body activation) is never called, so no
+    Skill instruction text can enter the plan. Matching uses only the
+    metadata the v1 Skill format actually exposes (name/description text)
+    against task signal tokens (task_type, project_id, output-path
+    segments); an unmatched Skill is simply omitted, satisfying the S6 exit
+    gate that unrelated Skills demonstrably stay out of context. A matched
+    Skill's `trust_state` is always its real provenance value (`UNASSESSED`
+    in all current cases) -- selection never implies vetting that hasn't
+    happened.
+    """
+
+    if skill_catalog is None or not skill_catalog.entries:
+        return []
+    try:
+        signals = _skill_task_signal_tokens(task)
+    except Exception:
+        return []
+    if not signals:
+        return []
+
+    selected: list[dict[str, Any]] = []
+    for entry in skill_catalog.entries:
+        descriptor = entry.descriptor
+        skill_tokens = _text_tokens(descriptor.name) | _text_tokens(descriptor.description)
+        matched = sorted(signals & skill_tokens)
+        if not matched:
+            continue
+        selected.append(
+            {
+                "skill_id": descriptor.skill_id,
+                "name": descriptor.name,
+                "description": descriptor.description,
+                "source_id": entry.provenance.source_id,
+                "trust_state": entry.provenance.trust_state.value,
+                "selection_reason": (
+                    "Matched task signal(s) "
+                    + ", ".join(matched)
+                    + " against Skill name/description"
+                ),
+                "catalog_key": entry.catalog_key,
+            }
+        )
+    return selected
+
+
 def build_context_plan(
     store: TaskStore,
     task_id: str,
     *,
     repo_root: str | Path = ".",
+    skill_catalog: SkillCatalog | None = None,
 ) -> dict[str, Any] | None:
     """Build a disposable context plan from explicit relationships only."""
 
@@ -204,6 +295,7 @@ def build_context_plan(
     ]
 
     guidance, withheld_guidance = _lesson_guidance(store, task)
+    skills = _select_skills(skill_catalog, task)
 
     return {
         "task_id": task_id,
@@ -212,6 +304,7 @@ def build_context_plan(
         "required": required,
         "guidance": guidance,
         "withheld_guidance": withheld_guidance,
+        "skills": skills,
         "dependencies": dependencies,
         "boundaries": {
             "decision_authority": task["decision_authority"],
