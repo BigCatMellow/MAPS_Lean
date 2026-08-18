@@ -43,10 +43,15 @@ CommandExecutor = Callable[[str, Path], CommandOutcome]
 
 
 def _default_executor(command: str, repo_root: Path) -> CommandOutcome:
+    # command is one EnvironmentSpec.validation.<tier> entry: operator-declared
+    # trusted content (same trust boundary as setup_commands/maintenance_commands),
+    # never caller/task-supplied input. shell=True is required because real tier
+    # commands rely on shell syntax (e.g. "VAR=value some-command ..." env-var
+    # prefixes) that plain argv execution cannot express.
     try:
         result = subprocess.run(
             command,
-            shell=True,
+            shell=True,  # nosec B602
             cwd=repo_root,
             check=False,
             capture_output=True,
