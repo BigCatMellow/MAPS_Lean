@@ -21,8 +21,16 @@ from .spec import (
     load_environment_spec,
     parse_environment_spec,
 )
+from .validation import (
+    CommandOutcome,
+    ValidationTierError,
+    ValidationTierResult,
+    make_validation_hook,
+    run_validation_tier,
+)
 
 __all__ = [
+    "CommandOutcome",
     "CommandResult",
     "CompatibilityReport",
     "CompatibilityState",
@@ -33,11 +41,15 @@ __all__ = [
     "NetworkMode",
     "ObservationState",
     "RepositoryEnvironment",
+    "ValidationTierError",
+    "ValidationTierResult",
     "ValidationTiers",
     "VersionObservation",
     "evaluate_environment_compatibility",
     "inspect_local_environment",
     "load_environment_spec",
+    "make_validation_hook",
     "parse_environment_spec",
+    "run_validation_tier",
     "version_satisfies",
 ]

@@ -29,6 +29,9 @@ Implemented components:
   continuity-aware review support, and optional criterion evidence.
 - `runtime/environment/` — EnvironmentSpec/EnvironmentFingerprint declaration
   and compatibility evaluation; advisory only, never task authority.
+  `validation.py` executes a spec's declared quick/normal/full validation-tier
+  commands and exposes a Hook-callback factory so a `HookRegistry` can gate on
+  the result; no production call site invokes it yet.
 - `runtime/operational_learning.py` — lesson record validation and
   guidance-only projection; `runtime/outcome_lesson_candidate.py` builds
   CANDIDATE snapshots from task outcomes. Promotion/retirement is
