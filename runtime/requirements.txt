@@ -1,4 +1,13 @@
 # Active MAPS Lean control-plane dependencies.
 # Keep provider/model SDKs out of the core runtime unless a specific adapter needs them.
-langgraph
-langgraph-checkpoint-sqlite
+#
+# Pinned to exact versions (direct + transitive) so that
+# runtime.environment.fingerprint's dependency_hashes -- which hashes this
+# file, not the installed packages -- actually identifies a specific,
+# reproducible dependency set. Refresh by installing into a clean venv and
+# running `pip freeze | grep -i langgraph`; review the diff before bumping.
+langgraph==1.2.11
+langgraph-checkpoint==4.2.0
+langgraph-checkpoint-sqlite==3.1.1
+langgraph-prebuilt==1.1.0
+langgraph-sdk==0.4.2
