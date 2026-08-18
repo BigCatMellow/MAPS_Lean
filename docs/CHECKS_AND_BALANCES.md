@@ -52,6 +52,38 @@ tests that merely match exact source text. For consequential evidence, verify
 the state/revision actually being approved rather than assuming an older
 submission snapshot is still current.
 
+## Enforced `main` merge gate
+
+`main` is protected by a GitHub branch protection rule (configurable via
+`repos/BigCatMellow/MAPS_Lean/branches/main/protection`), not by agent
+discipline alone (issue #61):
+
+- pull requests only — direct pushes to `main` are rejected;
+- two required status checks must pass on an up-to-date head before merge:
+  - `test` — the Runtime stack CI job;
+  - `review-evidence` — `scripts/check_review_evidence.py`, which requires a
+    committed `work/reviews/pr-<N>-review-evidence.md` bound to the PR's
+    exact reviewed code head (see the script's module docstring for how it
+    walks past evidence-only trailing commits to find that head);
+- force-push and branch deletion are disabled on `main`.
+
+**What this does not solve.** The connected GitHub identity used by MAPS
+agents is also the repository/PR author identity, so GitHub cannot enforce a
+native "required approving review" from a genuinely distinct identity, and
+`required_approving_review_count` is deliberately left at `0` rather than
+faked. The `review-evidence` check mechanically guarantees a review-shaped
+artifact exists and is bound to the exact reviewed commit — it does **not**
+prove the reviewer was a distinct identity from the author. Reviewer
+distinctness is still a process discipline (dispatch a fresh agent for
+review; never self-certify), not a mechanically enforced property.
+
+**Emergency bypass.** `enforce_admins` is `false`: the repository owner can
+merge around the required checks as a genuine recovery action (e.g. CI
+infrastructure outage blocking all merges). This is not the normal path —
+routine PRs merge through the standard gate above — and any admin-bypass
+merge should be called out explicitly in the merge/handoff record so it
+isn't mistaken for a reviewed, gate-passing change.
+
 ## High-risk completion summary
 
 `OPERATOR_VISIBLE_RELEASE_CHECK` does **not** create another task status or a
