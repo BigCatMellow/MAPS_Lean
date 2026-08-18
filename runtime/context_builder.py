@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from runtime.operational_learning import OperationalLearningError, project_applicable_lessons
 from runtime.state import TaskStore
+from runtime.operational_learning import OperationalLearningError, project_applicable_lessons
 
 _PATH_SUFFIXES = {
     ".cfg",

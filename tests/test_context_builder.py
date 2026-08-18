@@ -229,6 +229,79 @@ class ContextBuilderTests(unittest.TestCase):
         self.assertNotIn("LESSON-CAND", serialized)
         self.assertNotIn("LESSON-RETIRED", serialized)
 
+    def test_active_lesson_with_non_matching_applicability_is_withheld(self):
+        task_id = self.create_task()
+        lesson = self._lesson("LESSON-OTHER-PROJECT")
+        lesson["applicability"] = {
+            "global": False,
+            "project_ids": ["some-other-project"],
+            "task_types": [],
+            "risk_levels": [],
+            "path_prefixes": [],
+        }
+        self.assertTrue(
+            self.store.record_operational_lesson_candidate(
+                lesson, created_by="observer-a"
+            ).ok
+        )
+        self.store.promote_operational_lesson(
+            "LESSON-OTHER-PROJECT",
+            decision_ref="decision:other",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+
+        plan = build_context_plan(self.store, task_id, repo_root=self.root)
+        self.assertEqual(plan["guidance"], [])
+        withheld = {item["lesson_id"]: item["reason"] for item in plan["withheld_guidance"]}
+        self.assertEqual(withheld.get("LESSON-OTHER-PROJECT"), "NOT_APPLICABLE")
+
+    def test_malformed_lesson_record_fails_closed_without_breaking_plan(self):
+        task_id = self.create_task()
+
+        class _BrokenLessonsStore(TaskStore):
+            def list_active_operational_lessons(self):
+                return [
+                    {
+                        "lesson_version": 1,
+                        "lesson_id": "LESSON-BROKEN",
+                        "status": "ACTIVE",
+                        "claim": "",  # invalid: must be non-empty text
+                        "source_kind": "TASK_OUTCOME",
+                        "source_refs": ["outcome:LESSON-BROKEN"],
+                        "applicability": {
+                            "global": True,
+                            "project_ids": [],
+                            "task_types": [],
+                            "risk_levels": [],
+                            "path_prefixes": [],
+                        },
+                        "created_by": "observer-a",
+                        "created_at": "2026-08-17T19:00:00Z",
+                        "promotion": {
+                            "decision_ref": "decision:broken",
+                            "promoted_by": "operator-a",
+                            "starts_at": "2026-08-17T19:00:00Z",
+                            "review_at": "2026-08-20T19:00:00Z",
+                            "expires_at": None,
+                        },
+                        "superseded_by": None,
+                        "retirement": None,
+                    }
+                ]
+
+        broken_store = _BrokenLessonsStore(self.db)
+        plan = build_context_plan(broken_store, task_id, repo_root=self.root)
+        baseline = build_context_plan(self.store, task_id, repo_root=self.root)
+
+        self.assertIsNotNone(plan)
+        self.assertEqual(plan["guidance"], [])
+        self.assertEqual(plan["withheld_guidance"], [])
+        self.assertEqual(plan["task_id"], task_id)
+        self.assertEqual(plan["authority"], baseline["authority"])
+        self.assertEqual(plan["required"], baseline["required"])
+
 
 if __name__ == "__main__":
     unittest.main()
