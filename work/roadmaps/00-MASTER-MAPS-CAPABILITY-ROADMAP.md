@@ -131,11 +131,19 @@ If this master conflicts with a detailed roadmap, inspect the date/context and r
 
 # 3. Current MAPS Lean baseline
 
-At the time of this consolidation, the active development tranche is on draft PR `#19`, branch:
+**STALE POINTER (flagged 2026-08-17):** the "draft PR #19" baseline below
+describes a past consolidation snapshot, not current `main`. PR #19 merged
+long ago; `main` has advanced through dozens of further PRs since, including
+a full backlog-gridlock recovery, branch protection, and roadmap-native work
+past this baseline. For current state, use `work/coordination/README.md` and
+live GitHub, not this section. The capability list below is retained as
+historical context for what this consolidation covered, not as current truth.
+
+At the time of this consolidation, the active development tranche was on draft PR `#19`, branch:
 
 `agent/preserve-recovered-legacy-ideas`
 
-The draft work includes or represents:
+The draft work included or represented:
 
 - canonical SQLite task lifecycle;
 - claims, leases, heartbeat and ownership evidence;

@@ -29,7 +29,12 @@ For component-level installation and migration details, use
 
 ## Active runtime
 
-PR #16 promoted the reviewed replacement runtime to `main`.
+The replacement runtime landed on `main` via PR #16 and has continued to grow
+since. **Do not trust a PR number or test count in this README as current —
+recover live state from GitHub and `work/coordination/README.md`, the durable
+coordination entry point.** As of this edit, `main` carries the following
+capability areas (non-exhaustive; see `runtime/` and `tests/` for the current
+ground truth):
 
 - **SQLite task truth + AGI gate** — canonical task lifecycle, atomic claims,
   leases, durable submission authorship, scoped reservations, review separation,
@@ -38,7 +43,8 @@ PR #16 promoted the reviewed replacement runtime to `main`.
   capability profiles and policy gates; checkpoint DB is separate from task truth.
 - **hcom adapter** — project-isolated messaging/session transport; no task authority.
 - **RnS recovery** — deterministic recovery of already-active, explicitly bound
-  sessions with bounded retries and no WezTerm requirement.
+  sessions with bounded retries, `run_id` binding, and advisory (non-gating)
+  environment-equivalence evidence surfacing; no WezTerm requirement.
 - **Bounded local helpers** — Ollama text/draft work and scoped Aider editing;
   helpers cannot approve or complete parent tasks.
 - **Fresh-clone setup/smoke** — preview-first installer and disposable end-to-end
@@ -46,16 +52,23 @@ PR #16 promoted the reviewed replacement runtime to `main`.
 - **Execution integrity** — immutable run/context binding, task/context staleness,
   writable/forbidden Git scope proof, run-budget checks, continuity-aware review,
   and optional criterion-level evidence.
+- **Operational learning (Storage-0)** — append-only, CANDIDATE-only lesson
+  persistence; promotion/retirement authority is operator-only and not yet
+  mechanically implemented (design record: `work/notes/2026-08-17-operational-learning-authority-design.md`).
+- **Context Builder Stage 2 retrieval** — evaluated candidates including a
+  local `fastembed` embedding-based retriever, excluded from core CI (see
+  `runtime/requirements.txt` and the review finding on a missing semantic-eval
+  CI lane).
+- **Branch protection on `main`** — PR-only, required Runtime CI status check,
+  no force-push/delete. Independent-review enforcement beyond CI is not yet
+  mechanically enforced; see issue #61.
 
-The integration review is recorded in
+The original integration review is recorded in
 [`work/reviews/RUNTIME_INTEGRATION_REVIEW.md`](work/reviews/RUNTIME_INTEGRATION_REVIEW.md).
 The final active dependency sweep is recorded in
 [`migration/FINAL_LEGACY_DEPENDENCY_SWEEP.md`](migration/FINAL_LEGACY_DEPENDENCY_SWEEP.md).
-
-Latest removal-readiness verification on the cleanup branch passed **93/93 unit
-tests**, SQLite/LangGraph smoke, installer checks, static/security/dependency
-checks, and a mechanical scan of 50 active executable/config files with no
-active dependency on `legacy/` or the curated migration snapshots.
+Both describe `main` as of PR #16, not current `main` — check `tests/` and CI
+for the current test count rather than trusting a number here.
 
 ## Core responsibility boundaries
 
