@@ -46,12 +46,24 @@ class HcomHarnessAdapter:
 
     adapter_id = "hcom"
 
-    def __init__(self, backend: HcomAdapter, *, project_id: str):
+    def __init__(
+        self,
+        backend: HcomAdapter,
+        *,
+        project_id: str,
+        lineage_writer: Any | None = None,
+    ):
         project_id = project_id.strip()
         if not project_id:
             raise ValueError("project_id cannot be empty")
         self.backend = backend
         self.project_id = project_id
+        # Optional. When set, must expose resolve_run_session(run_id) and
+        # record_run_session_link(...) matching RunSessionLineageMixin
+        # (TaskStore satisfies this by duck typing). With no writer
+        # configured, attach() stays UNSUPPORTED -- default-off is the
+        # safety property; this adapter grants no authority either way.
+        self.lineage_writer = lineage_writer
 
     @staticmethod
     def _unsupported(summary: str) -> OperationResult:
@@ -160,8 +172,70 @@ class HcomHarnessAdapter:
                 "SessionRef and binding belong to different projects.",
                 retry=RetryDisposition.UNSAFE,
             )
-        return self._unsupported(
-            "hcom attachment requires durable run/session lineage before it can be represented honestly."
+        if self.lineage_writer is None:
+            return self._unsupported(
+                "hcom attachment requires durable run/session lineage before it can be represented honestly."
+            )
+        return self._record_attach(binding, session_ref)
+
+    def _record_attach(
+        self,
+        binding: ExecutionBinding,
+        session_ref: SessionRef,
+    ) -> OperationResult:
+        lineage = self.lineage_writer.resolve_run_session(binding.run_id)
+        if lineage is None:
+            return OperationResult.failure(
+                "RUN_NOT_FOUND",
+                "No run exists for this binding's run_id.",
+                retry=RetryDisposition.UNSAFE,
+            )
+
+        state = lineage.get("state")
+        replaces_link_id: int | None = None
+        if state == "EXPLICIT":
+            current = lineage["current"]
+            if (
+                current["adapter_id"] == self.adapter_id
+                and current["session_id"] == session_ref.session_id
+            ):
+                return OperationResult.success(
+                    "SESSION_ALREADY_ATTACHED",
+                    "hcom session is already the durably bound session for this run.",
+                    data={"link": current},
+                    retry=RetryDisposition.SAFE,
+                )
+            replaces_link_id = int(current["link_id"])
+        elif state == "INVALID":
+            return OperationResult.failure(
+                "SESSION_LINEAGE_INVALID",
+                "Existing session lineage is not a single linear chain.",
+                data={"reason": str(lineage.get("reason", ""))},
+                retry=RetryDisposition.UNSAFE,
+            )
+
+        evidence_ref = f"harness:attach:{session_ref.remote_ref or session_ref.session_id}"
+        result = self.lineage_writer.record_run_session_link(
+            binding.run_id,
+            binding.worker_id,
+            adapter_id=self.adapter_id,
+            session_id=session_ref.session_id,
+            evidence_ref=evidence_ref,
+            created_by=binding.worker_id,
+            replaces_link_id=replaces_link_id,
+        )
+        if not result.ok:
+            return OperationResult.failure(
+                result.code,
+                result.message,
+                retry=RetryDisposition.UNSAFE,
+            )
+        return OperationResult.success(
+            "SESSION_ATTACHED" if replaces_link_id is None else "SESSION_REPLACED",
+            "hcom session durably bound to run.",
+            data={"link": result.task or {}},
+            mutated=True,
+            retry=RetryDisposition.SAFE,
         )
 
     def inspect(self, session_ref: SessionRef) -> OperationResult:

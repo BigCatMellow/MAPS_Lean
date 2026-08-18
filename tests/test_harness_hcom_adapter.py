@@ -1,8 +1,11 @@
+from pathlib import Path
+import tempfile
 import unittest
 
 from runtime.communication import HcomError
 from runtime.harness import ExecutionBinding, SessionRef
 from runtime.harness.adapters import HcomHarnessAdapter
+from runtime.state import TaskStore
 
 
 class FakeHcom:
@@ -168,6 +171,158 @@ class HcomHarnessAdapterTests(unittest.TestCase):
         self.assertEqual(self.adapter.heartbeat(binding()).code, "UNSUPPORTED")
         self.assertEqual(self.adapter.resume(binding()).code, "UNSUPPORTED")
         self.assertEqual(self.adapter.collect(binding()).code, "UNSUPPORTED")
+
+
+def _contract(*, output_path="src"):
+    return {
+        "title": "hcom attach lineage",
+        "outcome": "hcom attach durably binds a session to a run",
+        "task_type": "IMPLEMENTATION",
+        "owner": "owner",
+        "risk": "MEDIUM",
+        "decision_authority": "bounded implementation only",
+        "verification": "harness adapter lineage tests",
+        "evidence_expected": "test output",
+        "review_required": "INDEPENDENT_REVIEW",
+        "escalation": "operator on authority conflict",
+        "inputs": ["input"],
+        "sources": ["source"],
+        "dependencies": [],
+        "output_paths": [output_path],
+        "non_goals": ["no task authority changes"],
+        "acceptance_criteria": ["attach is durable"],
+        "stop_conditions": ["stop on ambiguous identity"],
+        "policy": {
+            "requires_operator_approval": False,
+            "destructive_action": False,
+            "external_side_effect": False,
+            "security_sensitive": False,
+            "broad_architecture": False,
+            "paid_execution": False,
+        },
+    }
+
+
+class HcomHarnessAdapterLineageWriterTests(unittest.TestCase):
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+        self.repo = self.root / "repo"
+        self.repo.mkdir()
+        (self.repo / "src").mkdir()
+        self.store = TaskStore(self.root / "maps.db")
+        self.backend = FakeHcom()
+        self.adapter = HcomHarnessAdapter(
+            self.backend, project_id="default", lineage_writer=self.store
+        )
+
+    def _make_run(self, worker="worker-1"):
+        created = self.store.create_task(title="x")
+        self.assertTrue(created.ok)
+        task_id = created.task["task_id"]
+        self.assertTrue(self.store.update_contract(task_id, _contract()).ok)
+        self.assertTrue(self.store.promote_ready(task_id).ok)
+        self.assertTrue(self.store.claim_task(task_id, worker, lease_seconds=600).ok)
+        result = self.store.create_run_manifest(
+            task_id,
+            worker,
+            repo_root=self.repo,
+            created_by="dispatcher",
+            readable_paths=["."],
+            writable_paths=["src"],
+        )
+        self.assertTrue(result.ok, result.message)
+        return result.task
+
+    def _binding(self, run, *, worker="worker-1", session_id="s1"):
+        return ExecutionBinding(
+            task_id=run["task_id"],
+            run_id=run["run_id"],
+            worker_id=worker,
+            task_revision=run["task_revision"],
+            project_id="default",
+            session_id=session_id,
+        )
+
+    def _session_ref(self, *, worker="worker-1", session_id="s1", remote_ref="codex-1"):
+        return SessionRef(
+            session_id=session_id,
+            worker_id=worker,
+            adapter="hcom",
+            project_id="default",
+            remote_ref=remote_ref,
+        )
+
+    def test_first_attach_records_link_and_mutates(self):
+        run = self._make_run()
+        result = self.adapter.attach(self._binding(run), self._session_ref())
+
+        self.assertTrue(result.ok, result.summary)
+        self.assertEqual(result.code, "SESSION_ATTACHED")
+        self.assertTrue(result.mutated)
+
+        resolved = self.store.resolve_run_session(run["run_id"])
+        self.assertEqual(resolved["state"], "EXPLICIT")
+        self.assertEqual(resolved["current"]["session_id"], "s1")
+        self.assertEqual(resolved["current"]["adapter_id"], "hcom")
+
+    def test_repeated_attach_to_same_session_is_idempotent(self):
+        run = self._make_run()
+        first = self.adapter.attach(self._binding(run), self._session_ref())
+        self.assertTrue(first.ok)
+
+        second = self.adapter.attach(self._binding(run), self._session_ref())
+        self.assertTrue(second.ok)
+        self.assertEqual(second.code, "SESSION_ALREADY_ATTACHED")
+        self.assertFalse(second.mutated)
+
+        history = self.store.resolve_run_session(run["run_id"])["history"]
+        self.assertEqual(len(history), 1)
+
+    def test_attach_to_different_session_records_replace(self):
+        run = self._make_run()
+        first = self.adapter.attach(self._binding(run), self._session_ref())
+        self.assertTrue(first.ok)
+
+        replace = self.adapter.attach(
+            self._binding(run, session_id="s2"),
+            self._session_ref(session_id="s2", remote_ref="codex-2"),
+        )
+        self.assertTrue(replace.ok, replace.summary)
+        self.assertEqual(replace.code, "SESSION_REPLACED")
+        self.assertTrue(replace.mutated)
+
+        resolved = self.store.resolve_run_session(run["run_id"])
+        self.assertEqual(resolved["current"]["session_id"], "s2")
+        self.assertEqual(len(resolved["history"]), 2)
+
+    def test_attach_unknown_run_fails_closed(self):
+        binding = ExecutionBinding(
+            task_id="TASK-MISSING",
+            run_id="RUN-MISSING",
+            worker_id="worker-1",
+            task_revision="rev-x",
+            project_id="default",
+            session_id="s1",
+        )
+        result = self.adapter.attach(binding, self._session_ref())
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "RUN_NOT_FOUND")
+
+    def test_attach_rejection_from_writer_is_surfaced_verbatim(self):
+        run = self._make_run(worker="worker-1")
+        # A different worker than the run's immutable worker_id triggers
+        # record_run_session_link's own RUN_WORKER_MISMATCH rejection.
+        other_worker_binding = self._binding(run, worker="worker-2")
+        result = self.adapter.attach(other_worker_binding, self._session_ref(worker="worker-2"))
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "RUN_WORKER_MISMATCH")
+
+        resolved = self.store.resolve_run_session(run["run_id"])
+        self.assertEqual(resolved["state"], "UNBOUND")
 
 
 if __name__ == "__main__":
