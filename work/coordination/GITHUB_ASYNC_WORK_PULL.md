@@ -1,6 +1,8 @@
 # GitHub-native asynchronous work-pull protocol
 
-Status: proposed shared coordination protocol for browser-only multi-agent operation.
+Status: adopted. `work/coordination/README.md`'s required read order lists this
+file as mandatory reading (step 3) for every role-bound session, not optional
+proposed reading.
 
 ## Core model
 
