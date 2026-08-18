@@ -324,6 +324,53 @@ class HcomHarnessAdapterLineageWriterTests(unittest.TestCase):
         resolved = self.store.resolve_run_session(run["run_id"])
         self.assertEqual(resolved["state"], "UNBOUND")
 
+    def test_attach_invalid_lineage_fails_closed_without_writing(self):
+        # The schema's own constraints (one ATTACH per run, one replacement
+        # per parent link, FK-checked replaces_link_id, project-match
+        # trigger) make an actual INVALID resolve() result unreachable
+        # through TaskStore's legitimate write paths -- that side is already
+        # covered by test_run_session_lineage.py's IntegrityError tests. This
+        # test instead proves the adapter's own INVALID branch: given any
+        # writer that resolves to INVALID, attach() must fail closed and
+        # never attempt a write.
+        class InvalidLineageWriter:
+            def __init__(self):
+                self.write_calls = 0
+
+            def resolve_run_session(self, run_id):
+                return {
+                    "run_id": run_id,
+                    "project_id": "default",
+                    "state": "INVALID",
+                    "chain_complete": False,
+                    "reason": "branch",
+                    "legacy_manifest_session_id": None,
+                    "current": None,
+                    "history": [],
+                }
+
+            def record_run_session_link(self, *args, **kwargs):
+                self.write_calls += 1
+                raise AssertionError("must not write for INVALID lineage")
+
+        writer = InvalidLineageWriter()
+        adapter = HcomHarnessAdapter(self.backend, project_id="default", lineage_writer=writer)
+        binding = ExecutionBinding(
+            task_id="TASK-1",
+            run_id="RUN-INVALID",
+            worker_id="worker-1",
+            task_revision="rev-1",
+            project_id="default",
+            session_id="s1",
+        )
+
+        result = adapter.attach(binding, self._session_ref())
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "SESSION_LINEAGE_INVALID")
+        self.assertEqual(result.data["reason"], "branch")
+        self.assertEqual(writer.write_calls, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
