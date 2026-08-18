@@ -228,6 +228,85 @@ no product or architecture decisions
 A local model may qualify for a stronger class on tasks where it has been
 proven reliable. "Local" does not automatically mean "weak."
 
+## Effort-level routing
+
+Worker class (which model/harness) and reasoning effort (`low | medium | high
+| xhigh | max`, where the harness exposes such a dial) are two different
+routing decisions. Do not conflate them: a Core agent can be run at low
+effort for a trivial sub-step, and a Bounded implementer can be run at high
+effort for a fiddly pattern-match. Choose each axis per task.
+
+### Low / medium effort
+
+Use for mechanical or narrow work with a clear, checkable answer:
+
+- formatting;
+- running a fixed command;
+- filling a template with facts already supplied;
+- simple bounded implementation that follows an established pattern.
+
+### High effort
+
+Use for work that requires integrating multiple sources, catching subtle
+inconsistencies, or where a wrong answer is expensive to discover later:
+
+- implementing a novel feature;
+- most independent review work.
+
+### xhigh / max
+
+Use for:
+
+- architecture or authority-boundary decisions;
+- independent review of something that already had a review pass and needs a
+  second, more skeptical look;
+- any review whose whole purpose is catching what a first pass at the same
+  effort level would also miss.
+
+### Reviewer effort must not be lower than implementer effort
+
+An independent reviewer should generally run at **equal or higher** effort
+than the implementer it is reviewing, never lower. Reviewing at the same or
+lower effort as the implementation risks reproducing the exact blind spot the
+review exists to catch.
+
+## Roadmap and checklist construction and maintenance
+
+Building or updating a *status* claim in a roadmap/checklist document (for
+example, marking a phase `DONE`) is Core-agent-class work at **high effort
+minimum**, not Helper/investigator or Mechanical/local-worker class. Getting
+a status claim right requires synthesizing across code, tests, and PR
+history — the same integration demand as consequential review. A false
+`DONE` claim is worse than an honest `NOT STARTED`, because future sessions
+will trust the doc and skip work that still needs doing.
+
+```text
+Every status claim carries a one-line evidence citation
+(PR number, file path, or test name)
+that a reader could independently check.
+Never write an unsupported status.
+```
+
+A checklist a session writes about its own completed work is a
+self-certification risk — structurally identical to the code-review
+self-certification problem this repo already solves with independent
+SENTINEL-style review. Therefore: any new or updated roadmap/checklist status
+document requires the same independent-review-before-merge treatment as
+code. A fresh reviewer spot-checks a sample of the status claims against
+real evidence; checking that the file is well-formatted is not sufficient.
+
+Status drift prevention: any PR that changes what a checklist item's status
+should be (starts or finishes a phase) must update that phase's status line
+in the checklist file in the **same** PR, not a separate follow-up. A status
+document that lags the merged state it describes is worse than no status
+document.
+
+Keep one canonical status-checklist file per program. Do not let
+per-sub-roadmap or per-session duplicate status trackers accumulate — the
+sub-roadmap files stay as design-detail references, while a single
+consolidated file (for example, `work/roadmaps/CAPABILITY_CHECKLIST.md`)
+owns the live status view.
+
 ## Increase instruction detail as capability decreases
 
 The task stays the same; the execution contract changes.
