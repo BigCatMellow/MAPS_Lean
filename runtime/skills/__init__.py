@@ -42,6 +42,12 @@ from .gate import (
     SkillGateSeverity,
 )
 from .gate_hardened import assess_skill
+from .lifecycle import (
+    SkillLifecycleError,
+    SkillLifecycleState,
+    initial_transition_from_gate_report,
+    transition,
+)
 
 __all__ = [
     "SkillAmbiguousError",
@@ -57,6 +63,8 @@ __all__ = [
     "SkillGateFinding",
     "SkillGateReport",
     "SkillGateSeverity",
+    "SkillLifecycleError",
+    "SkillLifecycleState",
     "SkillNameConflict",
     "SkillNotFoundError",
     "SkillParseError",
@@ -75,7 +83,9 @@ __all__ = [
     "build_skill_catalog",
     "discover_skills",
     "evaluate_skill_selection",
+    "initial_transition_from_gate_report",
     "load_catalog_skill",
     "load_skill",
     "load_skill_selection_corpus",
+    "transition",
 ]
