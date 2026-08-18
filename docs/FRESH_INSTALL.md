@@ -35,9 +35,23 @@ It installs `runtime/requirements.txt` into `.venv`.
 If `--install-hcom` is requested, hcom stays separate from the project Python
 environment:
 
-1. use `uv tool install hcom` when `uv` exists; otherwise
-2. create `$HOME/.local/share/hcom-venv` and link the executable into
-   `$HOME/.local/bin/hcom`.
+1. use `uv tool install "$HCOM_SOURCE"` when `uv` exists; otherwise
+2. create `$HOME/.local/share/hcom-venv`, `pip install -U "$HCOM_SOURCE"`
+   there, and link the executable into `$HOME/.local/bin/hcom`.
+
+`HCOM_SOURCE` is temporarily pinned (in `scripts/install_maps.sh`) to the
+`BigCatMellow/hcom` fork branch that adds `--json` output to `hcom send`
+(upstream [PR #107](https://github.com/aannoo/hcom/pull/107), open and
+unreviewed as of 2026-08-17). Revert the pin to plain `hcom` (PyPI) once #107
+merges upstream, or override it for one run without editing the script:
+
+```bash
+HCOM_SOURCE=hcom bash scripts/install_maps.sh --apply --install-hcom --run-smoke
+```
+
+hcom is a Rust binary; installing from source (the fork) builds it locally
+with `cargo`/`rustc`, which is slower than the prebuilt PyPI wheel -- expect
+the install step to take noticeably longer while this pin is in effect.
 
 It does not use `sudo`, install a terminal multiplexer, or create/change API
 keys and credentials.
