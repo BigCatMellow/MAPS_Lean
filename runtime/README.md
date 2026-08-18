@@ -27,6 +27,22 @@ Implemented components:
 - `runtime/integrity/` — immutable execution-time contract/context binding,
   staleness checks, writable/forbidden Git scope proof, run-budget checks,
   continuity-aware review support, and optional criterion evidence.
+- `runtime/environment/` — EnvironmentSpec/EnvironmentFingerprint declaration
+  and compatibility evaluation; advisory only, never task authority.
+- `runtime/operational_learning.py` — lesson record validation and
+  guidance-only projection; `runtime/outcome_lesson_candidate.py` builds
+  CANDIDATE snapshots from task outcomes. Promotion/retirement is
+  operator-only (`runtime/state/operational_learning_storage.py`).
+- `runtime/context_retrieval_eval.py` — frozen Stage 2 retrieval evaluator;
+  `context_retrieval_semantic.py` is one evaluation-only candidate
+  (fastembed-based), not a production path.
+- `runtime/wait_projection.py` — read-only explainable-wait projection over
+  task/review/dependency state.
+- `runtime/skills/` — skill discovery (`discover_skills`: id/name/content-hash
+  only), full loading (`load_skill`/`load_catalog_skill`, returns procedure
+  body), a content-safety gate (`gate.py`), and a selection-evaluation harness.
+- `runtime/benchmark_results.py`, `runtime/acquisition_evidence.py`,
+  `runtime/evaluation/` — evidence-binding and benchmark-protocol support.
 
 Active runtime does not import executable code from `legacy/` or `migration/`.
 The final removal-readiness gate additionally scans active runtime/tests/scripts/
