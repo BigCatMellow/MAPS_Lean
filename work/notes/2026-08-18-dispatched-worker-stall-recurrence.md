@@ -8,7 +8,11 @@
   prescribes checking live GitHub evidence and proactively resuming/re-contacting the worker when elapsed time
   exceeds the plausible task duration. Later the same day, the S6 task (Context Builder Skill integration,
   `work/tasks/context-builder-skill-integration-s6.md`, landed as PR #109) stalled this way **three separate
-  times in a row** on dispatch attempts for that task:
+  times in a row** on dispatch attempts for that task, per AGI-03 (`playbook/AGI_STANDARD.md`) labeled
+  `REPORTED` — this session's own account of the dispatch attempts, not independently checkable against a
+  git/GitHub artifact: a dispatched worker that stalls before committing anything leaves no commit, PR, or
+  timestamp trail to verify against, so the count and sequence below rest on the coordinating session's
+  contemporaneous observation, not on reproducible evidence:
   1. First attempt: stalled with no explicit instruction against backgrounding tests.
   2. Second attempt: stalled again *despite* an explicit prompt instruction telling the dispatched agent to run
      the test suite as a blocking foreground call rather than background it.
@@ -16,10 +20,15 @@
      wait (a background/poll construct) on its own test run anyway, reproducing the exact failure mode the
      instruction was meant to prevent.
 
-  In each case the recorded/assumed state was "the dispatched agent will resume on its own once its test run
-  completes." Verified reality (checked against live GitHub per the PR #95 triage habit) was that the agent's
-  turn did not resume; the coordinating session had to detect the stall and re-dispatch/re-prompt each time
-  before PR #109 could progress.
+  In each case the recorded/assumed (`ASSUMED`) state was "the dispatched agent will resume on its own once its
+  test run completes." The eventual outcome — that the agent's turn did not resume and the coordinating session
+  had to detect the stall and re-dispatch/re-prompt before PR #109 could progress — matches the pattern the PR
+  #95 triage habit exists to catch, and is consistent with (though not independently provable from) PR #109's
+  own commit history showing multiple distinct review-evidence/re-sync cycles spread across roughly 1h26m
+  (`fe7e9b9` 22:36:53Z through `5445513` 23:44:39Z; see the companion record for the full breakdown). That
+  commit history corroborates that PR #109's path to merge involved several distinct resumption points; it does
+  not, by itself, prove the specific count or cause ("stalled," specifically, versus other friction) claimed for
+  each of the three dispatch attempts above, which remains `REPORTED` rather than `VERIFIED`.
 
 ## Finding
 
@@ -63,11 +72,13 @@ review) as a follow-up if adopted.
 
 ## Verification and rollback
 
-- Verification: the pattern is directly evidenced by the S6/PR #109 dispatch history within this session (three
-  stall-then-resume cycles on the same task, the second and third occurring after an explicit
-  foreground-test-only instruction was added to the dispatch prompt). No code or config changes are made by
-  this record, so there is nothing to re-run beyond re-reading the incident against the PR #95 triage section
-  it references.
+- Verification: the specific "three stalls" count and sequence is `REPORTED` (this session's own account, per
+  AGI-03) rather than `VERIFIED` against a git/GitHub artifact — a stalled dispatch attempt that never commits
+  leaves nothing to check. What is independently checkable is the surrounding shape: PR #109's commit history
+  shows multiple distinct resumption points (four review-evidence commits, three merge-sync commits, spanning
+  ~1h26m) consistent with a task that needed repeated coordinator intervention to progress, per the companion
+  record's verified commit hashes/timestamps. No code or config changes are made by this record, so there is
+  nothing to re-run beyond re-reading the incident against the PR #95 triage section it references.
 - Rollback: none needed; this is a documentation-only record. If the STRUCTURAL proposal above is later
   implemented and found wrong, revert that follow-up change, not this record.
 
