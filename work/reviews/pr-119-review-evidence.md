@@ -1,5 +1,6 @@
 reviewer: SENTINEL
-head_sha: c4f7537bfc200f6746aabe2391e8e5ba29761877
+head_sha: cf24f30f616e14c6406b1081525e90445b495420
+rebase_note: original review was at code head c4f7537bfc200f6746aabe2391e8e5ba29761877; head_sha updated to merge commit cf24f30f616e14c6406b1081525e90445b495420 (merges origin/main to bring the branch up to date after PR #118 merged) because merge commits are never walked past by the review-evidence check. git diff 07995b0 cf24f30 --stat for every file this review covers (work/notes/2026-08-19-harness-production-wiring-gap.md, work/tasks/harness-production-wiring-gap-wave14.md) is empty -- byte-identical, independently confirmed.
 base_sha: 697729c7081ef95a662a1957b3894198a1d0af9c (main)
 independent: true
 summary: APPROVE (CLEAN, docs-only). Second opinion: concur with Option B with two caveats (see below).
