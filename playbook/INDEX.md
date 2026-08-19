@@ -11,6 +11,7 @@ that fits the project. Historical behavior worth retaining is curated under
 | Turn a concise operator request into a bounded agent-ready contract | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) | Making prompts longer, inventing permission, or creating a second task authority. |
 | Decide whether instructions are formally ready for execution | [AGI_STANDARD.md](AGI_STANDARD.md) | Treating a capable model's ability to guess as proof the instruction is good. |
 | Check whether self-selected work is the right work before shaping it | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Treating an empty issue queue as an empty backlog, or AGI readiness as proof the task itself is worth doing. |
+| Step back across a work arc and check the roadmap itself is still on track, or decide to pivot | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) | Re-deriving per-task steering (that's PROGRAM_STEERING.md) or treating a pivot decision as something to wait on approval for. |
 | Write instructions an agent can execute without guessing | [AGENT_GRADE_INSTRUCTIONS.md](AGENT_GRADE_INSTRUCTIONS.md) | Making prompts longer without making outcomes, boundaries, or proof clearer. |
 | Freeze context/scope for a consequential run, handle conflicts, or preserve reviewer independence | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) | Turning every tiny edit into a run-manifest ceremony. |
 | Apply tool/provider-specific operating guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Making MAPS depend on one vendor's UI or commands. |
