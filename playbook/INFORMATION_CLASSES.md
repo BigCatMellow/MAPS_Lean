@@ -4,7 +4,7 @@ MAPS distinguishes seven kinds of information so authority, procedure, and
 context never blur together. This is a naming/vocabulary reference, not a new
 mechanism — it names distinctions the runtime already makes (see "Where this
 shows up" below). It is the applied version of
-`work/roadmaps/agent-harness-capabilities/02-procedural-knowledge-and-skills.md`
+[`work/roadmaps/agent-harness-capabilities/02-procedural-knowledge-and-skills.md`](../work/roadmaps/agent-harness-capabilities/02-procedural-knowledge-and-skills.md)
 section 2 ("Information classes"); if that roadmap section changes, update
 both together.
 
@@ -84,7 +84,7 @@ own.
 
 - **Authority and task context are already split in Context Builder.**
   `runtime/context_builder.py::build_context_plan` returns separate
-  `authority` (root `AGENTS.md`, class 1) and `required` (task `inputs`/
+  `authority` (root [`AGENTS.md`](../AGENTS.md), class 1) and `required` (task `inputs`/
   `sources`, class 2) lists, plus a `guidance` list of attributed
   `GUIDANCE_ONLY` operational-lesson evidence (class 3 — fact/knowledge
   surfaced as advisory context, never merged into authority or boundaries).
@@ -97,12 +97,12 @@ own.
   reusable, hash-verified procedure body with provenance/trust metadata —
   loading a Skill never grants it the standing of `AGENTS.md` authority, and
   Context Builder does not currently load or select Skills at all (S6 in
-  `work/roadmaps/CAPABILITY_CHECKLIST.md` is `NOT STARTED`).
+  [`work/roadmaps/CAPABILITY_CHECKLIST.md`](../work/roadmaps/CAPABILITY_CHECKLIST.md) is `NOT STARTED`).
 - **Flows are not yet mechanized.** No `maps flow` execution path exists yet
   (`work/roadmaps/CAPABILITY_CHECKLIST.md` item 6.21); today's flow-shaped
   sequences (e.g. the review/submission process in
-  `playbook/TASK_LIFECYCLE.md`) are documented procedure, not class 4 turned
-  into deterministic class-5 execution.
+  [`playbook/TASK_LIFECYCLE.md`](TASK_LIFECYCLE.md)) are documented procedure,
+  not class 4 turned into deterministic class-5 execution.
 - **Tools stay distinct from the guidance for using them.** `runtime/harness/`
   (adapter operations) and `runtime/helpers/` (Ollama/Aider lanes) are class 6
   capabilities; the safe-use guidance around them lives separately, as class

@@ -304,7 +304,8 @@ document.
 Keep one canonical status-checklist file per program. Do not let
 per-sub-roadmap or per-session duplicate status trackers accumulate — the
 sub-roadmap files stay as design-detail references, while a single
-consolidated file (for example, `work/roadmaps/CAPABILITY_CHECKLIST.md`)
+consolidated file (for example,
+[`work/roadmaps/CAPABILITY_CHECKLIST.md`](../work/roadmaps/CAPABILITY_CHECKLIST.md))
 owns the live status view.
 
 ## Increase instruction detail as capability decreases

@@ -16,7 +16,7 @@ The parent master owns cross-program capability inventory, sequencing, dependenc
 
 # 1. Roadmap set
 
-This directory contains five coordinated roadmaps.
+This directory contains six coordinated roadmaps.
 
 | Roadmap | Core question | Major mechanisms |
 |---|---|---|
@@ -25,6 +25,7 @@ This directory contains five coordinated roadmaps.
 | [03 — Environment & Reproducibility](03-environment-and-reproducibility.md) | How do we make executions reproducible and recoverable across machines/sandboxes? | EnvironmentSpec, environment fingerprints, setup/validation, harness/compute separation, snapshots/rehydration, worktree/sandbox integration |
 | [04 — Agentic Security](04-agentic-security.md) | How do we safely expand tools, skills, memory, and autonomy? | threat model, adversarial regression corpus, memory trust classes, skill/MCP supply-chain controls, least privilege, credential brokering, cross-agent trust boundaries |
 | [05 — Learning & Evaluation](05-learning-and-evaluation.md) | How does MAPS learn from real runs without self-authorizing changes? | portable trajectories, frozen incident corpus, three-layer evals, skill/ACI/environment evals, outcome-linked metrics, operational learning, controlled harness refinement |
+| [06 — Portable Deployment](06-portable-deployment.md) | How does MAPS install/target its control plane at an external project's repo, not just MAPS_Lean itself? | installer target-path design, portability audit, bounded v1 task/review discipline for one external project, review-evidence portability |
 
 Each roadmap is intentionally detailed. They are planning artifacts, not instructions to implement every feature immediately.
 
