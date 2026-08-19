@@ -4,7 +4,7 @@ Status: `PLANNING MASTER — NOT ACTIVE AUTHORITY`
 
 Last consolidated: `2026-08-15`
 
-Purpose: provide one top-level planning map for the entire MAPS Lean capability program. This document sits **above the Prime-derived roadmap, the external-agent research, and the five detailed capability roadmaps** as the primary orientation document for future planning and implementation.
+Purpose: provide one top-level planning map for the entire MAPS Lean capability program. This document sits **above the Prime-derived roadmap, the external-agent research, and the six detailed capability roadmaps** as the primary orientation document for future planning and implementation.
 
 It does not replace active authority. `AGENTS.md`, canonical task/policy/review state, accepted task requirements, merged code, tests, and explicit operator decisions remain stronger than this roadmap.
 
@@ -102,7 +102,8 @@ Use this structure:
 │   ├── 02-procedural-knowledge-and-skills.md
 │   ├── 03-environment-and-reproducibility.md
 │   ├── 04-agentic-security.md
-│   └── 05-learning-and-evaluation.md
+│   ├── 05-learning-and-evaluation.md
+│   └── 06-portable-deployment.md
 │
 ├── ../research/agent-harness-patterns-scan-2026-08.md
 │   └── external research/evidence
@@ -120,7 +121,7 @@ Use this structure:
 |---|---|---|
 | **This master roadmap** | capability inventory, program sequence, dependencies, gates, planning status | runtime authority, detailed implementation design |
 | **Prime roadmap** | Prime-derived lifecycle concepts and detailed translation | later external-research discoveries as the sole source |
-| **Five capability roadmaps** | subsystem architecture, candidate interfaces, tests, failure behavior, task breakdown | cross-program priority by themselves |
+| **Six capability roadmaps** | subsystem architecture, candidate interfaces, tests, failure behavior, task breakdown | cross-program priority by themselves |
 | **Research scan** | evidence from external systems and standards | implementation authority |
 | **Context notes** | chronology, rationale, operator preferences | policy or current task truth |
 | **AGENTS.md / canonical task state / code** | active behavior and authority | historical rationale |
@@ -1401,6 +1402,35 @@ A thin Mission object may group intent across tasks, but:
 - Mission cannot bypass task policy/readiness/review;
 - Mission references tasks rather than copies their mutable state;
 - no permanent Mission agent is automatically created.
+
+---
+
+## 6.35 Portable deployment to external projects — `P0 design / open decision`
+
+### Goal
+
+Let MAPS's control-plane discipline (task truth, harness, hcom, review-evidence)
+be installed and used against an external project's repository — one that is
+not MAPS_Lean itself and did not previously use MAPS — not only against this
+repository.
+
+### Current mechanisms
+
+None. `scripts/install_maps.sh` cannot currently target any repository other
+than the one it ships in (its `ROOT` resolves from the script's own location,
+not an operator-supplied path), and no task/review/roadmap convention has
+been designed for a project that is not MAPS_Lean.
+
+### Improvement direction
+
+Do not assume the full SQLite task-truth schema must be ported wholesale
+before v1; do not assume every target language/stack must be supported at
+once. See the detailed reference for the recorded open questions this
+requires an explicit operator decision on.
+
+### Detailed reference
+
+- `work/roadmaps/agent-harness-capabilities/06-portable-deployment.md`
 
 ---
 

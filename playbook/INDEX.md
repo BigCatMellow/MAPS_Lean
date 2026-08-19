@@ -8,6 +8,7 @@ that fits the project. Historical behavior worth retaining is curated under
 | --- | --- | --- |
 | Understand retained runtime controls | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Treating a terminal pane or an agent window as authority. |
 | Install/verify SQLite, LangGraph, and hcom on a fresh clone | [Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md) | Combining their databases or letting transport/routing become task authority. |
+| Plan installing/targeting MAPS's control plane at an external project's repo | [Portable Deployment roadmap](../work/roadmaps/agent-harness-capabilities/06-portable-deployment.md) | Assuming `scripts/install_maps.sh` can already target a repo other than the one it ships in — it cannot. |
 | Turn a concise operator request into a bounded agent-ready contract | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) | Making prompts longer, inventing permission, or creating a second task authority. |
 | Decide whether instructions are formally ready for execution | [AGI_STANDARD.md](AGI_STANDARD.md) | Treating a capable model's ability to guess as proof the instruction is good. |
 | Check whether self-selected work is the right work before shaping it | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Treating an empty issue queue as an empty backlog, or AGI readiness as proof the task itself is worth doing. |
