@@ -176,7 +176,14 @@ Phases below are `D1`, `D2`, ...
   enforcement (a human or agent could violate no-self-review by not noticing
   a status field) unless a lightweight validator hook is also designed.
   **This roadmap does not resolve this — it is recorded as an open question
-  requiring an explicit operator decision (see below).**
+  requiring an explicit operator decision (see below).** **RESOLVED
+  2026-08-19: file-convention-only**, per the operator decisions recorded in
+  Mission meeting below and in
+  [`work/notes/2026-08-19-portable-deployment-operator-decisions.md`](../../notes/2026-08-19-portable-deployment-operator-decisions.md).
+  The mechanical no-self-review enforcement gap this leaves is accepted for
+  v1 (decision 3, best-effort review discipline) rather than closed by a
+  validator hook — `D2a` may still design a lightweight validator if cheap,
+  but it is not a v1 requirement.
 
 ## Backward plan
 
@@ -218,32 +225,61 @@ Work from DONE toward the present.
   MAPS-owned control location).
 - Assumptions accepted/rejected: none yet — this document is the input to
   that meeting, not a record of it having happened.
-- Unresolved questions + owner: all five items below → operator.
+- Unresolved questions + owner: all five items below → operator. **RESOLVED
+  2026-08-19** — see
+  [`work/notes/2026-08-19-portable-deployment-operator-decisions.md`](../../notes/2026-08-19-portable-deployment-operator-decisions.md)
+  for the full record.
 - Operator decisions needed:
   1. SQLite task-truth port vs. lightweight file-convention-only discipline
-     for v1 (the highest-risk unknown, above).
+     for v1 (the highest-risk unknown, above). **Decided: lightweight
+     file-convention-only** — Markdown files + status convention + git, no
+     database, no atomic claim/lease guarantees.
   2. Distribution model: vendor/copy `runtime/` into each target project,
      build an installable Python package other projects `pip install`, or
      keep MAPS_Lean as a sibling clone that a lightweight adapter in the
-     target project calls out to.
+     target project calls out to. **Decided: sibling-clone + lightweight
+     adapter.** No packaged/pip-installable distribution for v1.
   3. How strictly the review-evidence/CI enforcement pattern
      (`scripts/check_review_evidence.py` + GitHub branch protection) must be
      replicated in the target project versus treated as best-effort guidance
      — material because not every target repo uses GitHub, or CI at all.
+     **Decided: best-effort discipline, not a hard CI gate**, for v1. The
+     GitHub Actions pattern may optionally be offered/documented if the
+     target project happens to use GitHub, but is not required for v1
+     success.
   4. v1 language/stack scope: is v1 explicitly Python-stack-only (since
      `runtime/` is Python), or must the first pilot handle a non-Python
-     target project's build/test tooling too?
+     target project's build/test tooling too? **Decided: stack-agnostic.**
+     Decision 1 means no MAPS Python runtime code needs to run inside the
+     target project for v1, so there is no reason to restrict to
+     Python-stack targets.
   5. Where does the target project's MAPS-managed state live: committed
      inside the external repo itself (visible to and possibly confusing for
      that repo's own contributors) versus kept in a separate MAPS-owned
      location that references the external repo by path (keeps X's tree
      untouched but adds an indirection RnS/hcom/task tooling must resolve
-     correctly).
-- Roadmap changes: N/A — first draft.
+     correctly). **Decided: committed inside the external repo itself**,
+     under a clearly-named directory (e.g. `.maps/`), visible to that
+     repo's own contributors.
+- Roadmap changes: `D2` (previously a single placeholder "implement the
+  operator-chosen v1 discipline" item, blocked on all five decisions above)
+  is split into three concrete design/planning phases — `D2a`, `D2b`, `D2c`
+  — now that the architecture fork is resolved. See "First wave selected"
+  and Phase 1 below. This split is scoping, not implementation: all three
+  remain design/planning tasks per this roadmap's own boundary against
+  building or shipping runtime code.
+- First pilot target selected: **Chain Shovel**, a real external game-dev
+  project (unrelated to MAPS_Lean) with an already-identified bounded bug
+  (ES-module-split + logger issue). Chosen over a synthetic/throwaway repo
+  because Definition of DONE requires a real, observable pilot; recorded in
+  the same decision note linked above. Running the pilot itself is `D3`,
+  still future work.
 - First wave selected: `D0` (portability audit) and `D1` (installer targeting
   design) only; both are research/design tasks that do not depend on the
-  open questions above being resolved yet. Everything past `D1` is blocked on
-  the operator decisions.
+  open questions above being resolved yet. **Now that the five operator
+  decisions are recorded, the next wave is `D2a`, `D2b`, `D2c`** (see Phase 1)
+  — all three are design/planning tasks, not implementation, and do not by
+  themselves authorize running the Chain Shovel pilot (`D3`).
 
 ## First wave
 
@@ -270,18 +306,47 @@ above to start; every later task in Phase 1+ does.
 
 ## Phase 1 — Delivery (bounded v1)
 
-- [ ] `D2` — Implement the operator-chosen v1 discipline (SQLite port or
-  file-convention-only) as an installable/adoptable pattern for one external
-  project at a time. Scope explicitly limited by the operator's D1-adjacent
-  decisions (packaging model, language/stack scope, state location).
-  - [ ] Installer actually accepts and honors a target-repo path.
-  - [ ] Task-record contract (full `templates/task.md` or a documented
-    lighter equivalent) works when the "project" is X, not MAPS_Lean.
-  - [ ] Review-evidence-equivalent mechanism works against X's own PR/merge
-    surface (or documented substitute if X has none).
-- [ ] `D3` — First real pilot: one external repository, one real task,
-  shape → implement → independent review → merge, using only the v1
-  mechanism. This is the roadmap's final proof (see Definition of DONE).
+`D2` is split into three design/planning phases, now that the operator's
+2026-08-19 decisions (see Mission meeting, and the decision note linked
+there) have resolved the architecture fork. All three are design documents
+— Markdown design notes and template drafts, not code — consistent with
+this roadmap's boundary against building or shipping runtime code. `D3`
+(actual pilot execution) remains the only phase that produces a real PR
+against an external repo, and is blocked on all three.
+
+- [ ] `D2a-file-convention-design` — design the exact v1 file-convention
+  shape for a target repo's `.maps/` directory: the status vocabulary for
+  task files (a lighter equivalent of `templates/task.md`'s `Status`/`AGI
+  status` fields), the directory layout for tasks/reviews/roadmap-equivalent
+  documents, and what a "review-evidence" Markdown artifact looks like under
+  the best-effort (non-CI-gated) enforcement model decided above. Output:
+  a design note plus draft template file(s), not a working installer.
+  Owner: design agent (PLANNING task, no code changes). Depends on the
+  operator decisions (resolved) — no longer blocked.
+- [ ] `D2b-adapter-design` — design the sibling-clone adapter: what small
+  script/tooling lives inside the target project's own tree and calls out
+  to a sibling MAPS_Lean clone (e.g. to reuse `templates/`, run
+  `scripts/check_review_evidence.py`-equivalent checks optionally, or read
+  playbook guidance), what interface boundary it crosses, and what it must
+  refuse to do (e.g. never write into MAPS_Lean's own `.maps/state/` or
+  `work/tasks/`). Output: a design note, not a working adapter script.
+  Owner: design agent (PLANNING task, no code changes). Depends on `D2a`
+  (the adapter has to know what it's adapting to).
+- [ ] `D2c-chain-shovel-pilot-plan` — write the concrete plan for running
+  `D3` against Chain Shovel: which real task will be shaped (the
+  ES-module-split + logger bug), what the `.maps/` layout will look like in
+  that repo specifically, who/what performs independent review given Chain
+  Shovel's own CI/hosting setup (not assumed to be GitHub Actions), and what
+  "done" looks like for that one pilot task. Output: a design/plan note, not
+  a pilot run — actually executing against Chain Shovel's repo is `D3`, a
+  separate future task this session does not perform (no repo access here).
+  Owner: design agent (PLANNING task, no code changes, no repo access).
+  Depends on `D2a` and `D2b`.
+- [ ] `D3` — First real pilot: Chain Shovel, one real task (the
+  ES-module-split + logger bug), shape → implement → independent review →
+  merge, using only the `D2a`/`D2b` v1 mechanism per the `D2c` plan. This is
+  the roadmap's final proof (see Definition of DONE). Not started; blocked
+  on `D2a`–`D2c`.
 
 ## Phase 2 — Integration and final proof
 
