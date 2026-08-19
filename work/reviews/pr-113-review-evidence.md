@@ -1,7 +1,8 @@
 ---
 reviewer: SENTINEL
-head_sha: 8fd683dfb5cde1822f832f90616b0e739acb2100
+head_sha: c1475756521d75006b90a025160098a9d57ef0fb
 base: main (origin/main at review time, merge-base 4f481826225eb4e0db0ee067d4c275eafc4cdebb)
+rebase_note: original review was at code head 8fd683dfb5cde1822f832f90616b0e739acb2100; head_sha updated to merge commit c1475756521d75006b90a025160098a9d57ef0fb (merges origin/main to bring the branch up to date after PR #112 merged) because merge commits are never walked past by the review-evidence check. git diff bf1a125 c1475756 --stat for every file this review covers (runtime/skills/lifecycle.py, runtime/skills/__init__.py, tests/test_skill_lifecycle.py, work/tasks/skill-trust-lifecycle-wave11.md) is empty -- byte-identical, independently confirmed.
 independent: true
 summary: APPROVE (CLEAN). Independently reviewed PR #113 at exact head 8fd683dfb5cde1822f832f90616b0e739acb2100 against origin/main in an isolated worktree (/tmp/pr113-review-worktree, never touching the shared checkout). Diff is exactly the 4 files claimed -- runtime/skills/lifecycle.py (new, +161), runtime/skills/__init__.py (+10, additive-only), tests/test_skill_lifecycle.py (new, +184), work/tasks/skill-trust-lifecycle-wave11.md (new, +149); `git diff origin/main...HEAD --stat` shows 4 files changed, 504 insertions(+), 0 deletions -- and I separately confirmed `git diff origin/main...HEAD -- runtime/skills/gate.py runtime/skills/catalog.py runtime/context_builder.py runtime/state/schema.sql | wc -l` returns 0, so none of the four named sensitive files are touched. No schema/persistence change anywhere in the diff.
 verdict: CLEAN, no changes required
