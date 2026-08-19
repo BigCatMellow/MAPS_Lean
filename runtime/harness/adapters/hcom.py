@@ -382,11 +382,32 @@ class HcomHarnessAdapter:
         )
 
     def resume(self, binding: ExecutionBinding) -> OperationResult:
-        project_error = self._project_error(binding.project_id)
-        if project_error is not None:
-            return project_error
-        return self._unsupported(
-            "hcom resume mode is not normalized yet; no headless/terminal behavior is guessed."
+        record, error = self._binding_session(binding)
+        if error is not None:
+            return error
+        assert record is not None
+
+        try:
+            self.backend.resume(str(record["name"]), headless=True, go=True)
+        except (HcomError, ValueError) as exc:
+            if isinstance(exc, HcomError):
+                return self._provider_failure(exc)
+            return OperationResult.failure(
+                "INVALID_ARGUMENT",
+                "hcom resume arguments were rejected.",
+                data={"error_type": type(exc).__name__},
+                retry=RetryDisposition.UNSAFE,
+            )
+
+        return OperationResult.success(
+            "SESSION_RESUMED",
+            "hcom resume request completed.",
+            data={
+                "session_id": binding.session_id,
+                "remote_name": str(record["name"]),
+            },
+            mutated=True,
+            retry=RetryDisposition.UNKNOWN,
         )
 
     def stop(self, binding: ExecutionBinding, reason: str) -> OperationResult:
