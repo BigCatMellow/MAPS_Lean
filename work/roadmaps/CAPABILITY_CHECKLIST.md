@@ -130,7 +130,7 @@ re-researched, only cross-referenced, except where noted as a standalone gap.
 | 6.24 | Least-privilege capability intersection | IN PROGRESS | `runtime/policy/` (capability envelopes) + `CanonicalRunGuard` intersect worker/task/policy for the one enforced path (canonical run identity); not proven across scope/environment-availability dimensions the roadmap lists. |
 | 6.25 | Credential broker | NOT STARTED | = SEC6. |
 | 6.26 | Portable Run Records / trajectories | DONE | = L1. |
-| 6.27 | Outcome-linked incident taxonomy | DONE (foundation) | `runtime/state/outcomes.py` append-only outcomes exist (`tests/test_outcomes.py`); the roadmap's expanded incident-class enum (`TOOL_FAILURE`, `CONTEXT_POISONING`, etc.) is not itself encoded as a distinct type anywhere — foundation met, expansion not started. |
+| 6.27 | Outcome-linked incident taxonomy | IN PROGRESS | `runtime/state/outcomes.py` append-only outcomes exist (`tests/test_outcomes.py`); the roadmap's expanded 19-member incident-class vocabulary now exists as a real type, `IncidentClass` (`runtime/incident_taxonomy.py`, `tests/test_incident_taxonomy.py`) -- foundation and vocabulary both done, but nothing consumes or validates against it yet: `OutcomeMixin.record_outcome`'s `failure_class` param is still unmodified free-text, unwired to this enum. |
 | 6.28 | Frozen regression corpus | DONE | = L2. |
 | 6.29 | Three-layer evaluation | DONE | = L3. |
 | 6.30 | Operational learning lifecycle | DONE | = L5/SEC5. |
