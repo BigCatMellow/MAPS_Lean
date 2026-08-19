@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Mapping
 
 from runtime.communication import HcomAdapter, HcomError
+from runtime.harness import ExecutionBinding, SessionRef
 from .store import RecoveryStore, parse_time
 
 LIVE_STATUSES = {"active", "listening", "waiting", "blocked"}
@@ -38,6 +39,7 @@ class RecoverySupervisor:
         backoff_seconds: tuple[int, ...] = DEFAULT_BACKOFF_SECONDS,
         silent_stop_probe_delay_seconds: int = 900,
         environment_reader: Any | None = None,
+        harness_service: Any | None = None,
     ):
         self.task_reader = task_reader
         self.hcom = hcom
@@ -48,6 +50,11 @@ class RecoverySupervisor:
         # list_run_environment_evidence(run_id) -> list[dict]. Never consulted
         # to make or change any recovery decision -- see _advisory_environment_evidence.
         self.environment_reader = environment_reader
+        # Optional, advisory-only. When set, must duck-type HarnessService
+        # (a resume(binding, session_ref) -> OperationResult method).
+        # Never consulted to make or change any recovery decision -- see
+        # _advisory_harness_resume_shadow.
+        self.harness_service = harness_service
         if not backoff_seconds or any(value <= 0 for value in backoff_seconds):
             raise ValueError("backoff_seconds must contain positive values")
 
@@ -96,6 +103,88 @@ class RecoverySupervisor:
             return self.environment_reader.list_run_environment_evidence(run_id)
         except Exception:  # noqa: BLE001 - advisory lookup must never break recovery
             return None
+
+    def _advisory_harness_resume_shadow(
+        self, incident: Mapping[str, Any], session_name: str
+    ) -> dict[str, Any] | None:
+        """Read-only, parallel harness-path resume shadow for one incident.
+
+        Shadow-only instrumentation per work/notes/2026-08-19-harness-
+        production-wiring-gap.md's Option B recommendation and the "explicit
+        dry-run/shadow-mode... before its automated retry loop depends on the
+        harness path" caveat in work/reviews/pr-119-review-evidence.md's
+        "Second opinion on Option B recommendation" section. Purely advisory
+        context, never consulted by any branch in tick() to make or change a
+        recovery decision -- its result is threaded into the returned action
+        record purely as observational evidence for a later trajectory check
+        on whether Option B's full migration is viable. Returns None (not an
+        empty dict) when no harness_service is configured, mirroring
+        _advisory_environment_evidence's exact early-return shape. When a
+        harness_service is configured, this may still not be able to attempt
+        anything real (most tasks have no run manifest / durable session
+        lineage) -- in that case it reports what could not even be tried
+        rather than guessing or forcing a doomed call.
+        """
+        if self.harness_service is None:
+            return None
+        run_id = incident.get("run_id")
+        if not run_id:
+            return {"attempted": False, "reason": "no_run_id_bound"}
+        try:
+            run_id = str(run_id)
+            task_id = str(incident.get("task_id", ""))
+            worker_id = str(incident.get("worker_id", ""))
+            task = self.task_reader.get_task(task_id)
+            if task is None:
+                return {"attempted": False, "reason": "task_missing"}
+            project_id = str(task.get("project_id") or "").strip()
+            compute_task_revision = getattr(self.task_reader, "compute_task_revision", None)
+            task_revision = (
+                str(compute_task_revision(task_id) or "").strip()
+                if compute_task_revision is not None
+                else ""
+            )
+            if not project_id or not task_revision:
+                return {"attempted": False, "reason": "task_binding_incomplete"}
+
+            resolve_run_session = getattr(self.task_reader, "resolve_run_session", None)
+            if resolve_run_session is None:
+                return {"attempted": False, "reason": "no_lineage_resolver"}
+            lineage = resolve_run_session(run_id)
+            if not isinstance(lineage, Mapping) or lineage.get("state") != "EXPLICIT":
+                return {"attempted": False, "reason": "session_not_durably_bound"}
+            current = lineage.get("current")
+            if not isinstance(current, Mapping):
+                return {"attempted": False, "reason": "session_not_durably_bound"}
+            adapter_session_id = str(current.get("session_id") or "").strip()
+            adapter_id = str(current.get("adapter_id") or "").strip()
+            if not adapter_session_id or adapter_id != "hcom":
+                return {"attempted": False, "reason": "session_not_durably_bound"}
+
+            binding = ExecutionBinding(
+                task_id=task_id,
+                run_id=run_id,
+                worker_id=worker_id,
+                task_revision=task_revision,
+                project_id=project_id,
+                session_id=adapter_session_id,
+            )
+            session_ref = SessionRef(
+                session_id=adapter_session_id,
+                worker_id=worker_id,
+                adapter="hcom",
+                project_id=project_id,
+                remote_ref=session_name,
+            )
+            result = self.harness_service.resume(binding, session_ref)
+            return {
+                "attempted": True,
+                "ok": bool(result.ok),
+                "code": str(result.code),
+                "summary": str(result.summary),
+            }
+        except Exception:  # noqa: BLE001 - advisory lookup must never break recovery
+            return {"attempted": False, "reason": "shadow_lookup_error"}
 
     @staticmethod
     def _open_incident_for(state: dict[str, Any], task_id: str, session_name: str) -> bool:
@@ -193,6 +282,9 @@ class RecoverySupervisor:
             # Advisory only -- never read by any branch below to make or
             # change a decision. See _advisory_environment_evidence docstring.
             evidence = self._advisory_environment_evidence(incident.get("run_id"))
+            # Advisory only -- never read by any branch below to make or
+            # change a decision. See _advisory_harness_resume_shadow docstring.
+            shadow = self._advisory_harness_resume_shadow(incident, session_name)
 
             if session_name in state["terminal_sessions"]:
                 incident["state"] = "suppressed"
@@ -204,6 +296,7 @@ class RecoverySupervisor:
                         "action": "suppress",
                         "reason": "terminal_session",
                         "environment_evidence": evidence,
+                        "harness_resume_shadow": shadow,
                     }
                 )
                 continue
@@ -227,6 +320,7 @@ class RecoverySupervisor:
                         "action": "suppress",
                         "reason": reason,
                         "environment_evidence": evidence,
+                        "harness_resume_shadow": shadow,
                     }
                 )
                 continue
@@ -241,6 +335,7 @@ class RecoverySupervisor:
                         "action": "resolve",
                         "reason": "session_live",
                         "environment_evidence": evidence,
+                        "harness_resume_shadow": shadow,
                     }
                 )
                 continue
@@ -262,6 +357,7 @@ class RecoverySupervisor:
                         "action": "fail",
                         "reason": "retry_budget_exhausted",
                         "environment_evidence": evidence,
+                        "harness_resume_shadow": shadow,
                     }
                 )
                 continue
@@ -295,6 +391,7 @@ class RecoverySupervisor:
                     "attempt": attempt,
                     "error": error,
                     "environment_evidence": evidence,
+                    "harness_resume_shadow": shadow,
                 }
             )
 
