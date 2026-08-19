@@ -89,8 +89,21 @@
     `work/roadmaps/agent-harness-capabilities/06-portable-deployment.md` as
     disconnecting `work/notes/2026-08-19-portable-deployment-operator-decisions.md`
     from `docs/FIRST_RUN.md`.
-  - `resolved_edges` increased 510 -> 517, `unlinked_file_mentions` decreased
-    1332 -> 1325, `first_run_active_reach` increased 55 -> 57.
+  - `resolved_edges` increased 510 -> 517 (exactly the 7 mentions converted:
+    1 + 1 + 4 + 1), `first_run_active_reach` increased 55 -> 57.
+  - Note on `unlinked_file_mentions`: measured against only the four
+    `playbook/`/`work/roadmaps/` edits (before this task doc existed), the
+    count dropped 1332 -> 1325 (-7), matching the 7 resolved edges exactly.
+    Once this task doc itself is added to the tree, the *committed PR's*
+    total rises to 1339, because this doc's own prose documents the fixed
+    targets as code-styled paths (`work/roadmaps/CAPABILITY_CHECKLIST.md`,
+    etc. — 14 new self-referential mentions), which the analyzer correctly
+    counts as new unlinked mentions of its own. That is expected
+    self-documentation noise from this file, not a regression in the
+    fix — the four originally-flagged production docs remain fixed. An
+    independent reviewer re-running the tool on the full committed PR
+    branch should expect to see `unlinked_file_mentions` net *increase*
+    versus `origin/main` (1332 -> 1339) for that reason, not decrease.
 
 ## Completion
 
