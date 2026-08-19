@@ -33,8 +33,9 @@ Before writing a task doc for self-selected work, a session MUST answer:
 
 1. **Does this trace back?** Does the candidate task correspond to an entry
    marked `NOT STARTED` or `IN PROGRESS` in
-   `work/roadmaps/CAPABILITY_CHECKLIST.md` (the consolidated capability
-   status tracker), or to an explicit operator request?
+   [`work/roadmaps/CAPABILITY_CHECKLIST.md`](../work/roadmaps/CAPABILITY_CHECKLIST.md)
+   (the consolidated capability status tracker), or to an explicit operator
+   request?
    - If neither, that is a flag, not an automatic stop. The gap MUST be
      named explicitly in the new task doc's own inputs/reasoning section
      (for example, under `Inputs and source of truth`) — never silently
