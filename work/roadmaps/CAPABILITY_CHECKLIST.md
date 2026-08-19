@@ -81,8 +81,8 @@ Status legend:
 All phases below are `NOT STARTED` — this roadmap was added as a design-only
 document; no implementation exists yet for any phase. The five operator
 decisions blocking `D2`+ were recorded 2026-08-19 (see
-`work/notes/2026-08-19-portable-deployment-operator-decisions.md`), which
-split the former single `D2` placeholder into `D2a`/`D2b`/`D2c` below —
+[`work/notes/2026-08-19-portable-deployment-operator-decisions.md`](../notes/2026-08-19-portable-deployment-operator-decisions.md)),
+which split the former single `D2` placeholder into `D2a`/`D2b`/`D2c` below —
 still all design/planning, no code.
 
 | Phase | Status | Evidence |
