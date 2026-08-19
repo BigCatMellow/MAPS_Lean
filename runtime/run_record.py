@@ -196,6 +196,7 @@ def _coverage(
     run_id: str,
     environment_source_available: bool,
     environment_evidence_present: bool,
+    harness_config_hash_available: bool,
     reviews: list[dict[str, object]],
 ) -> dict[str, object]:
     canonical = trace.get("coverage")
@@ -233,6 +234,19 @@ def _coverage(
         environment_state = CoverageState.MISSING.value
         environment_reason = "current accepted trace does not expose run environment evidence"
 
+    if harness_config_hash_available:
+        harness_configuration_state = CoverageState.VERIFIED.value
+        harness_configuration_included = True
+        harness_configuration_reason = (
+            "an exact-run harness/hook configuration identity is included"
+        )
+    else:
+        harness_configuration_state = CoverageState.MISSING.value
+        harness_configuration_included = False
+        harness_configuration_reason = (
+            "current run manifest does not bind harness/hook configuration identity"
+        )
+
     return {
         "canonical_task_db": {
             "state": CoverageState.VERIFIED.value,
@@ -267,9 +281,9 @@ def _coverage(
             "reason": "current run manifest does not bind selected Skill identities/hashes",
         },
         "harness_configuration": {
-            "state": CoverageState.MISSING.value,
-            "included": False,
-            "reason": "current run manifest does not bind harness/hook configuration identity",
+            "state": harness_configuration_state,
+            "included": harness_configuration_included,
+            "reason": harness_configuration_reason,
         },
         "environment": {
             "state": environment_state,
@@ -323,6 +337,7 @@ def build_run_record(
         raise RunRecordError("run environment_evidence must be a list when exposed")
     environment_list = environment if isinstance(environment, list) else []
     environment_evidence_present = bool(environment_list)
+    harness_config_hash_available = "harness_config_hash" in run
 
     raw_reviews = trace.get("reviews")
     reviews = (
@@ -422,6 +437,7 @@ def build_run_record(
             run_id=run_id,
             environment_source_available=environment_source_available,
             environment_evidence_present=environment_evidence_present,
+            harness_config_hash_available=harness_config_hash_available,
             reviews=reviews,
         ),
         "replay": {
