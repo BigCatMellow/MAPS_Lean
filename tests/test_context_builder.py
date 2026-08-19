@@ -117,6 +117,94 @@ class ContextBuilderTests(unittest.TestCase):
         self.assertEqual(self.store.get_task(task_id), before_task)
         self.assertEqual(self.store.list_events(task_id), before_events)
 
+    def test_budget_classes_are_assigned_per_item_type(self):
+        task_id = self.create_task()
+        plan = build_context_plan(self.store, task_id, repo_root=self.root)
+
+        for item in plan["authority"]:
+            self.assertEqual(item["budget_class"], "MUST_LOAD")
+        self.assertTrue(plan["required"])
+        for item in plan["required"]:
+            self.assertEqual(item["budget_class"], "MUST_LOAD")
+        self.assertTrue(plan["dependencies"])
+        for item in plan["dependencies"]:
+            self.assertEqual(item["budget_class"], "SHOULD_LOAD")
+        # unresolved items inherit their originating authority/required
+        # item's budget_class (same dict object) rather than being
+        # independently reclassified as unavailable.
+        self.assertTrue(plan["unresolved"])
+        for item in plan["unresolved"]:
+            self.assertEqual(item["budget_class"], "MUST_LOAD")
+
+        self.assertTrue(plan["coverage"]["budget_classification_present"])
+
+    def test_missing_dependency_is_tagged_should_load(self):
+        task_id = self.create_task()
+        updated = self.store.update_contract(
+            task_id,
+            {"dependencies": ["TASK-DEP", "TASK-MISSING"]},
+        )
+        self.assertTrue(updated.ok, updated)
+        plan = build_context_plan(self.store, task_id, repo_root=self.root)
+        missing = next(
+            item for item in plan["dependencies"] if item["task_id"] == "TASK-MISSING"
+        )
+        self.assertEqual(missing["status"], "MISSING")
+        self.assertEqual(missing["budget_class"], "SHOULD_LOAD")
+
+    def test_guidance_and_withheld_guidance_budget_classes(self):
+        task_id = self.create_task()
+        self.assertTrue(
+            self.store.record_operational_lesson_candidate(
+                self._lesson("LESSON-ACTIVE"), created_by="observer-a"
+            ).ok
+        )
+        self.store.promote_operational_lesson(
+            "LESSON-ACTIVE",
+            decision_ref="decision:active",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+        other = self._lesson("LESSON-OTHER-PROJECT")
+        other["applicability"] = {
+            "global": False,
+            "project_ids": ["some-other-project"],
+            "task_types": [],
+            "risk_levels": [],
+            "path_prefixes": [],
+        }
+        self.assertTrue(
+            self.store.record_operational_lesson_candidate(
+                other, created_by="observer-a"
+            ).ok
+        )
+        self.store.promote_operational_lesson(
+            "LESSON-OTHER-PROJECT",
+            decision_ref="decision:other",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2026-08-20T19:00:00Z",
+        )
+
+        plan = build_context_plan(self.store, task_id, repo_root=self.root)
+        self.assertTrue(plan["guidance"])
+        for item in plan["guidance"]:
+            self.assertEqual(item["budget_class"], "SHOULD_LOAD")
+        self.assertTrue(plan["withheld_guidance"])
+        for item in plan["withheld_guidance"]:
+            self.assertEqual(item["budget_class"], "ON_DEMAND")
+
+    def test_matching_skill_budget_class_is_should_load(self):
+        task_id = self.create_task()
+        catalog = self._catalog_with_matching_and_unrelated_skill()
+        plan = build_context_plan(
+            self.store, task_id, repo_root=self.root, skill_catalog=catalog
+        )
+        self.assertTrue(plan["skills"])
+        for item in plan["skills"]:
+            self.assertEqual(item["budget_class"], "SHOULD_LOAD")
+
     def test_dependency_state_and_boundaries_are_projected(self):
         task_id = self.create_task()
         plan = build_context_plan(self.store, task_id, repo_root=self.root)

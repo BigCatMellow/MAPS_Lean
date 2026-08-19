@@ -228,9 +228,15 @@ def _select_skills(
                     + " against Skill name/description"
                 ),
                 "catalog_key": entry.catalog_key,
+                "budget_class": "SHOULD_LOAD",
             }
         )
     return selected
+
+
+_BUDGET_MUST_LOAD = "MUST_LOAD"
+_BUDGET_SHOULD_LOAD = "SHOULD_LOAD"
+_BUDGET_ON_DEMAND = "ON_DEMAND"
 
 
 def build_context_plan(
@@ -240,7 +246,53 @@ def build_context_plan(
     repo_root: str | Path = ".",
     skill_catalog: SkillCatalog | None = None,
 ) -> dict[str, Any] | None:
-    """Build a disposable context plan from explicit relationships only."""
+    """Build a disposable context plan from explicit relationships only.
+
+    Budget classing (roadmap 6.11, `work/roadmaps/00-MASTER-MAPS-CAPABILITY-
+    ROADMAP.md` "Context budgets / progressive context"): this is advisory
+    metadata *classifying* items the plan already explicitly gathers -- it
+    adds no new retrieval, file search, or content-fetching, per the
+    section's guardrail ("Explicit-first Context Builder remains preferred
+    until retrieval methods prove value in frozen evaluations"). Mapping
+    from the roadmap's four classes onto this function's existing structure
+    (each call documented, since some are not 1:1):
+
+    - `authority` (AGENTS.md) -> MUST_LOAD. Matches the roadmap's own
+      "active authority" example exactly.
+    - `required` (task `inputs`/`sources`) -> MUST_LOAD for every item,
+      regardless of resolution `status`. These came from the task's own
+      declared inputs/sources by construction, so they are MUST_LOAD
+      ("task contract" / "critical current files") whether or not the
+      referenced file currently resolves; resolution failure is a
+      correctness signal (see `unresolved` below), not a demotion in
+      importance.
+    - `boundaries` (decision_authority, output_paths, acceptance_criteria,
+      stop_conditions, verification, evidence_expected, review_required,
+      escalation) -> conceptually MUST_LOAD as a whole ("task contract" /
+      "policy"). It is not itemized with a per-field `budget_class` tag:
+      `boundaries` is already always present in full on every plan (there is
+      no partial-boundaries case to distinguish), so a uniform per-field tag
+      would carry no information beyond what this docstring already states.
+    - `dependencies` -> SHOULD_LOAD. Matches the roadmap's own "direct
+      dependencies" example exactly.
+    - `guidance` (GUIDANCE_ONLY lesson projections) -> SHOULD_LOAD
+      ("relevant decisions").
+    - `withheld_guidance` -> ON_DEMAND. These lessons were explicitly
+      withheld (not applicable / superseded / expired) rather than loaded;
+      ON_DEMAND ("old trajectories" / material only pulled in if
+      specifically pursued) is the closest fit -- they are not part of the
+      default load set.
+    - `skills` -> SHOULD_LOAD. Matches the roadmap's own "applicable Skill"
+      example exactly.
+    - `unresolved` items are *not* independently reclassified: this list is
+      built by filtering `[*authority, *required]` by resolution `status`,
+      so each entry is the same dict object as its `authority`/`required`
+      counterpart and already carries that item's MUST_LOAD tag. That is a
+      deliberate choice, not an oversight: `budget_class` here answers "how
+      important would this be if available", not "is it currently
+      loadable" -- a missing MUST_LOAD input does not become less important
+      for being missing. No separate ON_DEMAND tag is layered on.
+    """
 
     task = store.get_task(task_id)
     if task is None:
@@ -252,7 +304,9 @@ def build_context_plan(
     authority: list[dict[str, Any]] = []
     agents = root / "AGENTS.md"
     if agents.is_file():
-        authority.append(_describe_reference(root, "AGENTS.md", "authority"))
+        authority_item = _describe_reference(root, "AGENTS.md", "authority")
+        authority_item["budget_class"] = _BUDGET_MUST_LOAD
+        authority.append(authority_item)
 
     required: list[dict[str, Any]] = []
     seen: set[tuple[str, str]] = set()
@@ -264,7 +318,9 @@ def build_context_plan(
             seen.add(key)
             if value.strip() == "AGENTS.md" and agents.is_file():
                 continue
-            required.append(_describe_reference(root, value, role))
+            required_item = _describe_reference(root, value, role)
+            required_item["budget_class"] = _BUDGET_MUST_LOAD
+            required.append(required_item)
 
     dependencies: list[dict[str, Any]] = []
     for dependency_id in task["dependencies"]:
@@ -275,6 +331,7 @@ def build_context_plan(
                     "task_id": dependency_id,
                     "status": "MISSING",
                     "agi_status": "UNKNOWN",
+                    "budget_class": _BUDGET_SHOULD_LOAD,
                 }
             )
             continue
@@ -285,6 +342,7 @@ def build_context_plan(
                 "agi_status": dependency["agi_status"],
                 "title": dependency["title"],
                 "outcome": dependency["outcome"],
+                "budget_class": _BUDGET_SHOULD_LOAD,
             }
         )
 
@@ -294,7 +352,11 @@ def build_context_plan(
         if item["status"] in {"missing", "outside_repo", "directory_not_expanded"}
     ]
 
-    guidance, withheld_guidance = _lesson_guidance(store, task)
+    guidance_raw, withheld_guidance_raw = _lesson_guidance(store, task)
+    guidance = [dict(item, budget_class=_BUDGET_SHOULD_LOAD) for item in guidance_raw]
+    withheld_guidance = [
+        dict(item, budget_class=_BUDGET_ON_DEMAND) for item in withheld_guidance_raw
+    ]
     skills = _select_skills(skill_catalog, task)
 
     return {
@@ -327,6 +389,14 @@ def build_context_plan(
             "note": (
                 "v1 identifies exact trustworthy inputs to read; it does not "
                 "search for unreferenced context"
+            ),
+            "budget_classification_present": True,
+            "budget_classification_note": (
+                "authority/required tagged MUST_LOAD, dependencies/guidance/"
+                "skills tagged SHOULD_LOAD, withheld_guidance tagged "
+                "ON_DEMAND; classification is advisory only and does not "
+                "change what is loaded or introduce any new retrieval "
+                "mechanism (roadmap 6.11 guardrail)"
             ),
         },
     }

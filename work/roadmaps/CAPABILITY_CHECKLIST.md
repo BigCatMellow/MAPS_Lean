@@ -93,7 +93,7 @@ re-researched, only cross-referenced, except where noted as a standalone gap.
 | 6.8 | Reusable Agent Skills | DONE | = S2. |
 | 6.9 | Skill routing and progressive disclosure | IN PROGRESS | = S4 (eval exists) + S6 (attributed-evidence selection now wired into Context Builder, but progressive *loading* of Skill bodies is still not real). |
 | 6.10 | Skill provenance, trust and quarantine | IN PROGRESS | = S3 (provenance, done) + SEC4 (transition-validation primitive now exists, but unpersisted — no durable lifecycle state or real authority wiring yet). |
-| 6.11 | Context budgets / progressive context | NOT STARTED | `runtime/context_builder.py` coverage explicitly states "v1 identifies exact trustworthy inputs to read; it does not search for unreferenced context" — no MUST/SHOULD/MAY/ON-DEMAND budget classing exists. |
+| 6.11 | Context budgets / progressive context | IN PROGRESS | `runtime/context_builder.py` now tags each `authority`/`required`/`dependencies`/`guidance`/`withheld_guidance`/`skills` item with a `budget_class` (MUST_LOAD/SHOULD_LOAD/ON_DEMAND), plus `coverage.budget_classification_present`; classification only, no new retrieval/search mechanism. No `MAY_LOAD` tier yet (no data source for it), and `budget_class` does not yet drive any actual load/fetch behavior downstream — see `work/tasks/context-budget-classification-wave12.md`. |
 | 6.12 | Capability Packs | NOT STARTED | = S7. |
 | 6.13 | EnvironmentSpec | DONE | = E1. |
 | 6.14 | EnvironmentFingerprint and compatibility | DONE | = E2. |
