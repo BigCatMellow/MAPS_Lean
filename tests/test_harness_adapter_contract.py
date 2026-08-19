@@ -18,6 +18,7 @@ class _FakeHcomBackend:
         ]
         self.sent = []
         self.stopped = []
+        self.resumed = []
 
     def list_sessions(self, *, include_stopped=False):
         return list(self.sessions)
@@ -27,6 +28,11 @@ class _FakeHcomBackend:
 
     def stop(self, name):
         self.stopped.append(name)
+
+    def resume(self, name, *, headless=False, terminal=None, go=True):
+        self.resumed.append(
+            {"name": name, "headless": headless, "terminal": terminal, "go": go}
+        )
 
 
 class HcomAdapterContractTests(AdapterContractMixin, unittest.TestCase):

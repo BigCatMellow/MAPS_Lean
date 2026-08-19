@@ -20,6 +20,7 @@ class FakeHcom:
         ]
         self.sent = []
         self.stopped = []
+        self.resumed = []
 
     def list_sessions(self, *, include_stopped=False):
         return list(self.sessions)
@@ -37,6 +38,16 @@ class FakeHcom:
 
     def stop(self, name):
         self.stopped.append(name)
+
+    def resume(self, name, *, headless=False, terminal=None, go=True):
+        self.resumed.append(
+            {
+                "name": name,
+                "headless": headless,
+                "terminal": terminal,
+                "go": go,
+            }
+        )
 
 
 def binding(*, session_id="s1", project_id="project-1"):
@@ -169,8 +180,63 @@ class HcomHarnessAdapterTests(unittest.TestCase):
         self.assertEqual(self.adapter.start(binding(), {}).code, "UNSUPPORTED")
         self.assertEqual(self.adapter.attach(binding(), session_ref()).code, "UNSUPPORTED")
         self.assertEqual(self.adapter.heartbeat(binding()).code, "UNSUPPORTED")
-        self.assertEqual(self.adapter.resume(binding()).code, "UNSUPPORTED")
         self.assertEqual(self.adapter.collect(binding()).code, "UNSUPPORTED")
+
+    def test_resume_resolves_explicit_binding_session(self):
+        result = self.adapter.resume(binding())
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.code, "SESSION_RESUMED")
+        self.assertTrue(result.mutated)
+        self.assertEqual(result.data["session_id"], "s1")
+        self.assertEqual(result.data["remote_name"], "codex-1")
+        self.assertEqual(
+            self.backend.resumed,
+            [{"name": "codex-1", "headless": True, "terminal": None, "go": True}],
+        )
+
+    def test_resume_requires_explicit_session(self):
+        result = self.adapter.resume(binding(session_id=None))
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "SESSION_REQUIRED")
+
+    def test_resume_session_not_found(self):
+        self.backend.sessions = []
+
+        result = self.adapter.resume(binding())
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "SESSION_NOT_FOUND")
+
+    def test_resume_rejects_project_mismatch(self):
+        result = self.adapter.resume(binding(project_id="other"))
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "PROJECT_MISMATCH")
+
+    def test_resume_maps_provider_failure(self):
+        def fail(name, *, headless=False, terminal=None, go=True):
+            raise HcomError("do not expose me")
+
+        self.backend.resume = fail
+        result = self.adapter.resume(binding())
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "TRANSPORT_ERROR")
+        self.assertNotIn("do not expose me", result.summary)
+
+    def test_resume_normalizes_low_level_value_error(self):
+        def reject(name, *, headless=False, terminal=None, go=True):
+            raise ValueError("provider-controlled invalid target")
+
+        self.backend.resume = reject
+        result = self.adapter.resume(binding())
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "INVALID_ARGUMENT")
+        self.assertEqual(result.data["error_type"], "ValueError")
+        self.assertNotIn("provider-controlled", result.summary)
 
 
 def _contract(*, output_path="src"):
