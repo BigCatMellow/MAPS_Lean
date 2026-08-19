@@ -144,13 +144,35 @@ class HarnessTypeTests(unittest.TestCase):
             session_id="session-1",
             context_hashes=("sha256:abc",),
             environment_spec_hash="sha256:def",
+            harness_config_hash="sha256:ghi",
         )
         payload = binding.to_dict()
 
         self.assertEqual(payload["task_id"], "TASK-1")
         self.assertEqual(payload["session_id"], "session-1")
+        self.assertEqual(payload["harness_config_hash"], "sha256:ghi")
         self.assertNotIn("writable_scope", payload)
         self.assertNotIn("policy", payload)
+
+    def test_execution_binding_harness_config_hash_accepts_none_and_rejects_empty(self):
+        binding = ExecutionBinding(
+            task_id="TASK-1",
+            run_id="RUN-1",
+            worker_id="worker-1",
+            task_revision="rev-abc",
+            project_id="project-1",
+        )
+        self.assertIsNone(binding.harness_config_hash)
+
+        with self.assertRaises(ValueError):
+            ExecutionBinding(
+                task_id="TASK-1",
+                run_id="RUN-1",
+                worker_id="worker-1",
+                task_revision="rev-abc",
+                project_id="project-1",
+                harness_config_hash="   ",
+            )
 
     def test_session_status_preserves_unknown_recoverability(self):
         ref = SessionRef(
