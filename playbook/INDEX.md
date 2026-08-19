@@ -21,6 +21,7 @@ that fits the project. Historical behavior worth retaining is curated under
 | Shape, assign, and finish a task | [TASK_LIFECYCLE.md](TASK_LIFECYCLE.md) | Assigning vague chat intent to an implementer. |
 | Route work to the right agent/model | [HPOM_ROUTING.md](HPOM_ROUTING.md) | Giving a capable tool decision authority. |
 | Use spawned helpers safely | [HELPERS_AND_COMMUNICATION.md](HELPERS_AND_COMMUNICATION.md) | Creating an unmanaged parallel workforce. |
+| Isolate a dispatched agent's writable repo work, sync a branch with `main` mid-PR, or recover from an empty-commit review-evidence break | [WORKTREE_ISOLATION.md](WORKTREE_ISOLATION.md) | Letting a helper `git checkout`/`stash`/`clean` the shared clone, or assuming worktree isolation grants merge authority. |
 | Test or tune the active workflow with an agent scenario | [SIMULATION_DESIGN.md](SIMULATION_DESIGN.md) | Treating a plausible output as proof of a usable process. |
 | Plan a project or import it into ProjectUpdater | [ROADMAP_AND_PROJECTUPDATER.md](ROADMAP_AND_PROJECTUPDATER.md) | A prose plan that cannot be tracked. |
 | Establish facts before acting | [RESEARCH.md](RESEARCH.md) | Model recall presented as verified truth. |

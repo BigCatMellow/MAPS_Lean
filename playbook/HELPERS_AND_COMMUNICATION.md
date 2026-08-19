@@ -45,3 +45,14 @@ stop condition, and integration owner before acting.
 
 Native Codex and Claude agent views are sufficient. Visibility is useful for
 the operator, but an open pane/window never confers authority.
+
+## Writable repo work in a shared clone
+
+If a helper does writable repository work (edits, commits, pushes) in a
+clone another lane might also be touching, give it its own `git worktree`
+rather than letting it operate directly in the shared checkout — see
+[WORKTREE_ISOLATION.md](WORKTREE_ISOLATION.md) for the exact recipe, the
+branch-behind-`main` sync procedure, and a known sharp edge with empty
+commits and review evidence. Worktree isolation is a safe place to work; it
+is not merge authority, and it does not change who owns, reviews, or
+integrates the task.
