@@ -1,0 +1,160 @@
+{
+  "version": "exp-a-skill-routing-v1",
+  "description": "EXP-A frozen corpus (roadmap work/roadmaps/agent-harness-capabilities/05-learning-and-evaluation.md L4) exercising the real runtime/context_builder.py::_select_skills selector through runtime/skills/evaluation.py::evaluate_skill_selection. Each case carries both a human-readable `task` description (for the SkillSelectionCorpus schema) and the literal `task_type`/`project_id`/`output_paths` fixture fields that `_select_skills` actually reads to derive its token signals -- the two are designed to agree, but only the fixture fields drive the real selector under test.",
+  "candidates": [
+    {
+      "name": "incident-response-playbook",
+      "description": "Runbook for triaging active production incidents, assessing customer impact, coordinating rollback, and identifying root cause during an outage."
+    },
+    {
+      "name": "api-contract-review",
+      "description": "Checklist for reviewing changes to a public HTTP API contract, including backward compatibility, versioning, and breaking-change detection."
+    },
+    {
+      "name": "secrets-rotation",
+      "description": "Procedure for rotating leaked or expiring credentials, access keys, and certificates across services without downtime."
+    },
+    {
+      "name": "load-test-planning",
+      "description": "Guide for designing and running load and performance tests against a service before a capacity-sensitive launch."
+    },
+    {
+      "name": "changelog-authoring",
+      "description": "Guidance for writing a clear customer-facing changelog entry that summarizes a release's user-visible changes."
+    }
+  ],
+  "cases": [
+    {
+      "id": "EXPA-001",
+      "category": "DIRECT",
+      "task": "A payment processor outage is in progress; investigate impact and start the incident timeline.",
+      "task_type": "incident_response",
+      "project_id": "payments-outage",
+      "output_paths": ["docs/incident-timeline.md"],
+      "expected_outcome": "SELECT",
+      "expected_skills": ["incident-response-playbook"],
+      "note": "task_type/project_id/path tokens overlap only with the incident-response-playbook description."
+    },
+    {
+      "id": "EXPA-002",
+      "category": "DIRECT",
+      "task": "Review the proposed billing API contract change for backward compatibility before merge.",
+      "task_type": "api_contract_review",
+      "project_id": "billing-api",
+      "output_paths": ["runtime/api/openapi_spec.yaml"],
+      "expected_outcome": "SELECT",
+      "expected_skills": ["api-contract-review"],
+      "note": "Direct token overlap on api/contract/review."
+    },
+    {
+      "id": "EXPA-003",
+      "category": "DIRECT",
+      "task": "Rotate the auth platform's leaked secrets immediately.",
+      "task_type": "secrets_rotation",
+      "project_id": "auth-platform",
+      "output_paths": ["scripts/rotate_secrets.sh"],
+      "expected_outcome": "SELECT",
+      "expected_skills": ["secrets-rotation"],
+      "note": "project_id deliberately uses 'platform' rather than 'service' to avoid an accidental token collision with load-test-planning's description (which contains the singular token 'service')."
+    },
+    {
+      "id": "EXPA-004",
+      "category": "DIRECT",
+      "task": "Plan a load test for the checkout service ahead of the holiday traffic spike.",
+      "task_type": "load_test_planning",
+      "project_id": "checkout-service",
+      "output_paths": ["docs/load-test-plan.md"],
+      "expected_outcome": "SELECT",
+      "expected_skills": ["load-test-planning"],
+      "note": "Direct token overlap on load/test/planning/service."
+    },
+    {
+      "id": "EXPA-005",
+      "category": "DIRECT",
+      "task": "Write the changelog entry for the next public release.",
+      "task_type": "changelog_authoring",
+      "project_id": "release-notes",
+      "output_paths": ["CHANGELOG.md"],
+      "expected_outcome": "SELECT",
+      "expected_skills": ["changelog-authoring"],
+      "note": "project_id deliberately avoids the literal word 'public' to avoid an accidental token collision with api-contract-review's description."
+    },
+    {
+      "id": "EXPA-006",
+      "category": "PARAPHRASE",
+      "task": "Our checkout flow just went down -- figure out the blast radius and get a postmortem started.",
+      "task_type": "incident_response",
+      "project_id": "checkout-outage",
+      "output_paths": ["docs/postmortem.md"],
+      "expected_outcome": "SELECT",
+      "expected_skills": ["incident-response-playbook"],
+      "note": "Reworded prose describing the same intent as EXPA-001; the structured fixture fields (task_type=incident_response, project_id/path containing 'outage') still literally overlap with the Skill description, so the selector succeeds even though the free-text framing changed."
+    },
+    {
+      "id": "EXPA-007",
+      "category": "VOCABULARY_SHIFT",
+      "task": "Our identity platform's access keys are expiring; cycle them across every service with zero downtime.",
+      "task_type": "key_cycling",
+      "project_id": "identity-platform",
+      "output_paths": ["ops/refresh_tokens.py"],
+      "expected_outcome": "SELECT",
+      "expected_skills": ["secrets-rotation"],
+      "note": "Genuine intent matches secrets-rotation, but every fixture token ('key' singular, 'cycling', 'identity', 'platform', 'refresh', 'tokens') is a synonym rather than a literal match for the Skill's description tokens ('rotation', 'rotating', 'credentials', 'keys' plural, 'certificates', ...). Documented as an expected miss: the selector only does literal any-token-overlap matching, so a genuine vocabulary shift with zero literal overlap is invisible to it."
+    },
+    {
+      "id": "EXPA-008",
+      "category": "HARD_NEGATIVE",
+      "task": "Write a marketing blog post recapping our Q3 product launches for the public site.",
+      "task_type": "blog_post_writing",
+      "project_id": "marketing-site",
+      "output_paths": ["content/blog/q3-recap.md"],
+      "expected_outcome": "ABSTAIN",
+      "expected_skills": [],
+      "note": "Deliberately designed to expose the selector's permissiveness: task_type contributes the token 'writing', which also appears in changelog-authoring's description ('Guidance for writing a clear customer-facing changelog entry...'). A marketing blog post is not a changelog entry, so this is expected to be a genuine false activation on the real selector, not a corpus bug."
+    },
+    {
+      "id": "EXPA-009",
+      "category": "HARD_NEGATIVE",
+      "task": "Refresh the company logo and brand palette for the upcoming rebrand.",
+      "task_type": "brand_design_update",
+      "project_id": "brand-refresh",
+      "output_paths": ["design/logo-v2.svg"],
+      "expected_outcome": "ABSTAIN",
+      "expected_skills": [],
+      "note": "Superficially adjacent to 'design'/'review' style Skill names but shares zero literal tokens with any candidate description; included as the abstain-side control case that the selector is expected to handle correctly, contrasting with EXPA-008."
+    },
+    {
+      "id": "EXPA-010",
+      "category": "NO_SKILL",
+      "task": "Clean up the vector math helper library; no behavior change intended.",
+      "task_type": "math_helper_cleanup",
+      "project_id": "math-utils",
+      "output_paths": ["lib/vector_math.py"],
+      "expected_outcome": "ABSTAIN",
+      "expected_skills": [],
+      "note": "No candidate Skill covers general internal refactors; zero token overlap by design."
+    },
+    {
+      "id": "EXPA-011",
+      "category": "NO_SKILL",
+      "task": "Schedule the quarterly team offsite and draft the agenda.",
+      "task_type": "team_offsite_scheduling",
+      "project_id": "people-ops",
+      "output_paths": ["docs/offsite-agenda.md"],
+      "expected_outcome": "ABSTAIN",
+      "expected_skills": [],
+      "note": "task_type deliberately says 'scheduling' rather than 'planning' to avoid an accidental token collision with load-test-planning's description (which contains the token 'planning')."
+    },
+    {
+      "id": "EXPA-012",
+      "category": "MULTI_SKILL",
+      "task": "An incident is in progress because leaked secrets were used to access production; rotate the leaked credentials and write the incident report.",
+      "task_type": "incident_response",
+      "project_id": "leaked-secrets-outage",
+      "output_paths": ["docs/incident-report.md", "scripts/rotate_secrets.sh"],
+      "expected_outcome": "SELECT",
+      "expected_skills": ["incident-response-playbook", "secrets-rotation"],
+      "note": "Legitimately implicates two Skills at once: incident-response-playbook via incident/response/outage tokens, secrets-rotation via secrets/leaked tokens."
+    }
+  ]
+}
