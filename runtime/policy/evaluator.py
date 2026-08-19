@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any, Mapping
 
 from .models import PolicyDecision, WorkerProfile
+
+if TYPE_CHECKING:
+    from ..environment.fingerprint import CompatibilityReport
 
 MUTATING_TASK_TYPES = {"IMPLEMENTATION", "MAINTENANCE", "REPAIR", "ARCHITECTURE"}
 HIGH_AUTHORITY_TYPES = {"ARCHITECTURE", "PLANNING"}
@@ -36,11 +39,33 @@ def task_needs_operator_approval(
 
 
 def evaluate_assignment(
-    task: Mapping[str, Any], worker: WorkerProfile
+    task: Mapping[str, Any],
+    worker: WorkerProfile,
+    *,
+    environment_report: CompatibilityReport | None = None,
 ) -> PolicyDecision:
+    """Evaluate whether `worker` may be assigned `task`.
+
+    `environment_report`, when supplied, is the environment-availability
+    dimension of the least-privilege intersection (worker capability x task
+    scope x policy/approval x environment availability). It is optional and
+    defaults to `None`, which preserves prior behavior exactly for callers
+    that do not yet source environment evidence.
+    """
     reasons: list[str] = []
     if not worker.available:
         return PolicyDecision("reject", ("worker_unavailable",))
+
+    # Only a proven INCOMPATIBLE result blocks assignment; DRIFTED/UNKNOWN are
+    # merely not-proven-compatible and must not cause false-positive rejections.
+    # Imported locally (not at module scope) to avoid a policy<->environment<->
+    # state import cycle: runtime.environment's package __init__ transitively
+    # imports runtime.state, which imports runtime.policy's package.
+    if environment_report is not None:
+        from ..environment.fingerprint import CompatibilityState
+
+        if environment_report.state == CompatibilityState.INCOMPATIBLE:
+            reasons.append("environment_incompatible")
 
     status = str(task.get("status", "")).upper()
     if status not in {"READY", "CHANGES_REQUESTED"}:

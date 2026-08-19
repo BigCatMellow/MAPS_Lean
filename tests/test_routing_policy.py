@@ -2,8 +2,19 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from runtime.environment.fingerprint import CompatibilityReport, CompatibilityState
 from runtime.policy import HaltRecord, HaltStore, WorkerProfile, evaluate_assignment
 from runtime.routing import recommend_route
+
+
+def compatibility_report(state: CompatibilityState) -> CompatibilityReport:
+    return CompatibilityReport(
+        state=state,
+        reasons=(),
+        warnings=(),
+        environment_spec_hash="spec-hash",
+        fingerprint_sha256="fingerprint-hash",
+    )
 
 
 def task(task_id="TASK-1", **changes):
@@ -88,6 +99,43 @@ class PolicyRoutingTests(unittest.TestCase):
         decision = evaluate_assignment(task(risk="HIGH"), helper)
         self.assertFalse(decision.allowed)
         self.assertIn("narrow_worker_high_risk", decision.reasons)
+
+    def test_no_environment_report_is_unchanged_behavior(self):
+        core = WorkerProfile("core", "core")
+        decision = evaluate_assignment(task(), core)
+        self.assertTrue(decision.allowed)
+
+    def test_incompatible_environment_report_rejects(self):
+        core = WorkerProfile("core", "core")
+        report = compatibility_report(CompatibilityState.INCOMPATIBLE)
+        decision = evaluate_assignment(task(), core, environment_report=report)
+        self.assertFalse(decision.allowed)
+        self.assertIn("environment_incompatible", decision.reasons)
+
+    def test_drifted_environment_report_does_not_reject_on_environment(self):
+        core = WorkerProfile("core", "core")
+        report = compatibility_report(CompatibilityState.DRIFTED)
+        decision = evaluate_assignment(task(), core, environment_report=report)
+        self.assertNotIn("environment_incompatible", decision.reasons)
+        self.assertTrue(decision.allowed)
+
+    def test_unknown_environment_report_does_not_reject_on_environment(self):
+        core = WorkerProfile("core", "core")
+        report = compatibility_report(CompatibilityState.UNKNOWN)
+        decision = evaluate_assignment(task(), core, environment_report=report)
+        self.assertNotIn("environment_incompatible", decision.reasons)
+        self.assertTrue(decision.allowed)
+
+    def test_compatible_environment_report_does_not_reject(self):
+        core = WorkerProfile("core", "core")
+        for state in (
+            CompatibilityState.COMPATIBLE,
+            CompatibilityState.COMPATIBLE_WITH_WARNINGS,
+        ):
+            report = compatibility_report(state)
+            decision = evaluate_assignment(task(), core, environment_report=report)
+            self.assertNotIn("environment_incompatible", decision.reasons)
+            self.assertTrue(decision.allowed)
 
     def test_review_prefers_eligible_independent_reviewer(self):
         review_task = task(
