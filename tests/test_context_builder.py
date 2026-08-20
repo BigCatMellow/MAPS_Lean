@@ -164,7 +164,7 @@ class ContextBuilderTests(unittest.TestCase):
             decision_ref="decision:active",
             promoted_by="operator-a",
             starts_at="2026-08-17T19:00:00Z",
-            review_at="2026-08-20T19:00:00Z",
+            review_at="2099-08-20T19:00:00Z",
         )
         other = self._lesson("LESSON-OTHER-PROJECT")
         other["applicability"] = {
@@ -184,7 +184,7 @@ class ContextBuilderTests(unittest.TestCase):
             decision_ref="decision:other",
             promoted_by="operator-a",
             starts_at="2026-08-17T19:00:00Z",
-            review_at="2026-08-20T19:00:00Z",
+            review_at="2099-08-20T19:00:00Z",
         )
 
         plan = build_context_plan(self.store, task_id, repo_root=self.root)
@@ -296,7 +296,7 @@ class ContextBuilderTests(unittest.TestCase):
             decision_ref="decision:retired",
             promoted_by="operator-a",
             starts_at="2026-08-17T19:00:00Z",
-            review_at="2026-08-20T19:00:00Z",
+            review_at="2099-08-20T19:00:00Z",
         )
         self.store.retire_operational_lesson(
             "LESSON-RETIRED",
@@ -309,7 +309,7 @@ class ContextBuilderTests(unittest.TestCase):
             decision_ref="decision:active",
             promoted_by="operator-a",
             starts_at="2026-08-17T19:00:00Z",
-            review_at="2026-08-20T19:00:00Z",
+            review_at="2099-08-20T19:00:00Z",
         )
 
         plan = build_context_plan(self.store, task_id, repo_root=self.root)
@@ -343,7 +343,7 @@ class ContextBuilderTests(unittest.TestCase):
             decision_ref="decision:other",
             promoted_by="operator-a",
             starts_at="2026-08-17T19:00:00Z",
-            review_at="2026-08-20T19:00:00Z",
+            review_at="2099-08-20T19:00:00Z",
         )
 
         plan = build_context_plan(self.store, task_id, repo_root=self.root)
