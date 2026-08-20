@@ -336,7 +336,7 @@ against an external repo, and is blocked on all three.
   Owner: design agent (PLANNING task, no code changes). Depends on `D2a`
   (the adapter has to know what it's adapting to). Completed in
   `work/notes/2026-08-20-portable-deployment-d2b-sibling-adapter-design.md`.
-- [ ] `D2c-chain-shovel-pilot-plan` — write the concrete plan for running
+- [x] `D2c-chain-shovel-pilot-plan` — write the concrete plan for running
   `D3` against Chain Shovel: which real task will be shaped (the
   ES-module-split + logger bug), what the `.maps/` layout will look like in
   that repo specifically, who/what performs independent review given Chain
@@ -345,12 +345,15 @@ against an external repo, and is blocked on all three.
   a pilot run — actually executing against Chain Shovel's repo is `D3`, a
   separate future task this session does not perform (no repo access here).
   Owner: design agent (PLANNING task, no code changes, no repo access).
-  Depends on `D2a` and `D2b`.
+  Depends on `D2a` and `D2b`. Completed in
+  `work/notes/2026-08-20-portable-deployment-d2c-chain-shovel-pilot-plan.md`;
+  target-specific facts are explicit D3 preflight gates, not assumptions.
 - [ ] `D3` — First real pilot: Chain Shovel, one real task (the
   ES-module-split + logger bug), shape → implement → independent review →
   merge, using only the `D2a`/`D2b` v1 mechanism per the `D2c` plan. This is
   the roadmap's final proof (see Definition of DONE). Not started; blocked
-  on `D2a`–`D2c`.
+  on target access/authority and an AGI-ready execution task under the D2c
+  plan; no external-project pilot has been attempted.
 
 ## Phase 2 — Integration and final proof
 
