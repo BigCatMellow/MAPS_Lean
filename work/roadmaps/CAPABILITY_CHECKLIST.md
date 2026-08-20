@@ -78,18 +78,18 @@ Status legend:
 
 ## 6. Portable Deployment (`agent-harness-capabilities/06-portable-deployment.md`)
 
-All phases below are `NOT STARTED` — this roadmap was added as a design-only
-document; no implementation exists yet for any phase. The five operator
-decisions blocking `D2`+ were recorded 2026-08-19 (see
+This roadmap remains design-first; no portable deployment runtime or external
+pilot exists yet. The five operator decisions blocking `D2`+ were recorded
+2026-08-19 (see
 [`work/notes/2026-08-19-portable-deployment-operator-decisions.md`](../notes/2026-08-19-portable-deployment-operator-decisions.md)),
 which split the former single `D2` placeholder into `D2a`/`D2b`/`D2c` below —
-still all design/planning, no code.
+all design/planning, no runtime code.
 
 | Phase | Status | Evidence |
 |---|---|---|
 | D0 — Portability audit | NOT STARTED | No audit document exists; `runtime/` modules have not been classified for portability outside MAPS_Lean's own tree. |
 | D1 — Installer targeting design | NOT STARTED | No design note exists; `scripts/install_maps.sh` still resolves its root from its own script location only, no `--target-repo` concept designed. |
-| D2a — File-convention shape design | NOT STARTED | Operator decided v1 = file-convention-only (2026-08-19); no design note for the `.maps/` directory layout, status vocabulary, or review-evidence artifact shape exists yet. |
+| D2a — File-convention shape design | DONE | `work/notes/2026-08-20-portable-deployment-d2a-file-convention.md` defines the target repo `.maps/` layout, status vocabulary, task/review/roadmap file requirements, and non-goals; draft templates live under `templates/portable-deployment/`. No installer, adapter, CI enforcement, or external pilot is implemented. |
 | D2b — Sibling-clone adapter design | NOT STARTED | Operator decided v1 distribution = sibling-clone + lightweight adapter (2026-08-19); no design note for the adapter's interface boundary exists yet. Depends on D2a. |
 | D2c — Chain Shovel pilot plan | NOT STARTED | Operator selected Chain Shovel as first pilot target (2026-08-19, ES-module-split + logger bug); no concrete pilot plan written yet. Depends on D2a/D2b. |
 | D3 — First real pilot (Chain Shovel) | NOT STARTED | Blocked on D2a–D2c; no external-project pilot has been attempted. This session has no access to Chain Shovel's repo. |
@@ -138,7 +138,7 @@ re-researched, only cross-referenced, except where noted as a standalone gap.
 | 6.32 | Time-travel / fork debugging | NOT STARTED | = L9. |
 | 6.33 | Semantic retrieval / query expansion | IN PROGRESS (evaluation-only, by design) | `runtime/context_retrieval_semantic.py` + `tests/test_context_retrieval_semantic.py` exist as one evaluation-only candidate; `runtime/README.md` explicitly states it is "not a production path" — this matches the roadmap's own current decision (`EVIDENCE-GATED`, Context Builder stays explicit-first), so this is expected, not a gap. |
 | 6.34 | Mission / multi-task goal object | NOT STARTED | No `Mission`-shaped object anywhere; matches the roadmap's own current decision not to build one yet. |
-| 6.35 | Portable deployment to external projects | NOT STARTED | = D0–D6 above. Design-only roadmap added 2026-08-19; no code exists yet. The highest-risk unknown (SQLite port vs. file-convention-only for v1) and four other operator decisions were resolved 2026-08-19 (file-convention-only, sibling-clone adapter, best-effort review discipline, stack-agnostic scope, in-repo `.maps/` state); `D2` split into `D2a`–`D2c` design phases accordingly, all still NOT STARTED. |
+| 6.35 | Portable deployment to external projects | IN PROGRESS | = D0–D6 above. Design-only roadmap added 2026-08-19; no code exists yet. The highest-risk unknown (SQLite port vs. file-convention-only for v1) and four other operator decisions were resolved 2026-08-19 (file-convention-only, sibling-clone adapter, best-effort review discipline, stack-agnostic scope, in-repo `.maps/` state); `D2a` now defines the target `.maps/` file convention and draft templates. D2b/D2c/D3 remain not started, so portable deployment is not proven against an external project yet. |
 
 ## How to keep this current
 
