@@ -80,8 +80,9 @@ Status legend:
 
 This roadmap remains design-first; no portable deployment runtime or external
 pilot exists yet. `D0` is complete as a research audit, `D1` as an
-installer-targeting design, `D2a` as a file-convention design, and `D2b` as a
-sibling-clone adapter design; `D2c` and later implementation phases remain not started. The five operator decisions blocking `D2`+ were
+installer-targeting design, `D2a` as a file-convention design, `D2b` as a
+sibling-clone adapter design, and `D2c` as a no-access Chain Shovel pilot
+plan; later implementation phases remain not started. The five operator decisions blocking `D2`+ were
 recorded 2026-08-19 (see
 [`work/notes/2026-08-19-portable-deployment-operator-decisions.md`](../notes/2026-08-19-portable-deployment-operator-decisions.md)),
 which split the former single `D2` placeholder into `D2a`/`D2b`/`D2c` below —
@@ -93,8 +94,8 @@ all design/planning, no runtime code.
 | D1 — Installer targeting design | DONE | `work/notes/2026-08-20-portable-deployment-d1-installer-targeting-design.md` defines the planned explicit `--target-repo <path>` surface: separate canonical MAPS and target roots, preview/apply boundaries, and refusals that prevent target mode from using MAPS_Lean state. No installer or adapter is implemented. |
 | D2a — File-convention shape design | DONE | `work/notes/2026-08-20-portable-deployment-d2a-file-convention.md` defines the target repo `.maps/` layout, status vocabulary, task/review/roadmap file requirements, and non-goals; draft templates live under `templates/portable-deployment/`. No installer, adapter, CI enforcement, or external pilot is implemented. |
 | D2b — Sibling-clone adapter design | DONE | `work/notes/2026-08-20-portable-deployment-d2b-sibling-adapter-design.md` defines explicit canonical sibling/target roots, the allowlisted target-local adapter operations, target-only `.maps/` writes, and refusal/authority boundaries. No adapter, installer, runtime, or external target change is implemented. |
-| D2c — Chain Shovel pilot plan | NOT STARTED | Operator selected Chain Shovel as first pilot target (2026-08-19, ES-module-split + logger bug); no concrete pilot plan written yet. Depends on D2a/D2b. |
-| D3 — First real pilot (Chain Shovel) | NOT STARTED | Blocked on D2a–D2c; no external-project pilot has been attempted. This session has no access to Chain Shovel's repo. |
+| D2c — Chain Shovel pilot plan | DONE | `work/notes/2026-08-20-portable-deployment-d2c-chain-shovel-pilot-plan.md` preserves the reported ES-module-split + logger bug, names the target `.maps/` evidence paths and D3 sequence, and makes target facts explicit preflight gates. No Chain Shovel access or action occurred. |
+| D3 — First real pilot (Chain Shovel) | NOT STARTED | Blocked on target access/authority and a separately AGI-ready target execution task under the D2c plan; no external-project pilot has been attempted. |
 | D4 — Stack-specific onboarding packs | NOT STARTED | Explicitly `TRIGGERED`; no non-Python target has been requested yet — moot in practice now that v1 itself is decided stack-agnostic (2026-08-19). |
 | D5 — Cross-project review/CI portability | NOT STARTED | Explicitly `TRIGGERED`; no non-GitHub-Actions target has been requested yet. |
 | D6 — Multi-project/fleet management | NOT STARTED | Explicitly out of scope until single-project v1 (D2/D3) is proven. |
@@ -140,7 +141,7 @@ re-researched, only cross-referenced, except where noted as a standalone gap.
 | 6.32 | Time-travel / fork debugging | NOT STARTED | = L9. |
 | 6.33 | Semantic retrieval / query expansion | IN PROGRESS (evaluation-only, by design) | `runtime/context_retrieval_semantic.py` + `tests/test_context_retrieval_semantic.py` exist as one evaluation-only candidate; `runtime/README.md` explicitly states it is "not a production path" — this matches the roadmap's own current decision (`EVIDENCE-GATED`, Context Builder stays explicit-first), so this is expected, not a gap. |
 | 6.34 | Mission / multi-task goal object | NOT STARTED | No `Mission`-shaped object anywhere; matches the roadmap's own current decision not to build one yet. |
-| 6.35 | Portable deployment to external projects | IN PROGRESS | = D0–D6 above. Design-only roadmap added 2026-08-19; no code exists yet. The highest-risk unknown (SQLite port vs. file-convention-only for v1) and four other operator decisions were resolved 2026-08-19 (file-convention-only, sibling-clone adapter, best-effort review discipline, stack-agnostic scope, in-repo `.maps/` state); D1 defines the explicit target-root contract, D2a defines the target `.maps/` convention and draft templates, and D2b defines the thin target-local adapter contract. D2c/D3 remain not started, so portable deployment is not proven against an external project yet. |
+| 6.35 | Portable deployment to external projects | IN PROGRESS | = D0–D6 above. Design-only roadmap added 2026-08-19; no code exists yet. The highest-risk unknown (SQLite port vs. file-convention-only for v1) and four other operator decisions were resolved 2026-08-19 (file-convention-only, sibling-clone adapter, best-effort review discipline, stack-agnostic scope, in-repo `.maps/` state); D1 defines the explicit target-root contract, D2a defines the target `.maps/` convention and draft templates, D2b defines the thin target-local adapter contract, and D2c defines the Chain Shovel preflight/evidence sequence. D3 remains not started, so portable deployment is not proven against an external project yet. |
 
 ## How to keep this current
 
