@@ -303,7 +303,7 @@ above to start; every later task in Phase 1+ does.
 
 - [x] `D0` — Portability audit (see First wave).
 - [ ] `D1` — Installer targeting design (see First wave).
-- [ ] Operator resolves the five open questions in "Mission meeting."
+- [x] Operator resolves the five open questions in "Mission meeting."
 
 ## Phase 1 — Delivery (bounded v1)
 
@@ -315,15 +315,16 @@ this roadmap's boundary against building or shipping runtime code. `D3`
 (actual pilot execution) remains the only phase that produces a real PR
 against an external repo, and is blocked on all three.
 
-- [ ] `D2a-file-convention-design` — design the exact v1 file-convention
+- [x] `D2a-file-convention-design` — design the exact v1 file-convention
   shape for a target repo's `.maps/` directory: the status vocabulary for
   task files (a lighter equivalent of `templates/task.md`'s `Status`/`AGI
   status` fields), the directory layout for tasks/reviews/roadmap-equivalent
   documents, and what a "review-evidence" Markdown artifact looks like under
   the best-effort (non-CI-gated) enforcement model decided above. Output:
-  a design note plus draft template file(s), not a working installer.
-  Owner: design agent (PLANNING task, no code changes). Depends on the
-  operator decisions (resolved) — no longer blocked.
+  `work/notes/2026-08-20-portable-deployment-d2a-file-convention.md` plus
+  draft templates under `templates/portable-deployment/`, not a working
+  installer. Owner: design agent (PLANNING task, no code changes). Depends
+  on the operator decisions (resolved).
 - [ ] `D2b-adapter-design` — design the sibling-clone adapter: what small
   script/tooling lives inside the target project's own tree and calls out
   to a sibling MAPS_Lean clone (e.g. to reuse `templates/`, run
