@@ -326,7 +326,7 @@ against an external repo, and is blocked on all three.
   draft templates under `templates/portable-deployment/`, not a working
   installer. Owner: design agent (PLANNING task, no code changes). Depends
   on the operator decisions (resolved).
-- [ ] `D2b-adapter-design` — design the sibling-clone adapter: what small
+- [x] `D2b-adapter-design` — design the sibling-clone adapter: what small
   script/tooling lives inside the target project's own tree and calls out
   to a sibling MAPS_Lean clone (e.g. to reuse `templates/`, run
   `scripts/check_review_evidence.py`-equivalent checks optionally, or read
@@ -334,7 +334,8 @@ against an external repo, and is blocked on all three.
   refuse to do (e.g. never write into MAPS_Lean's own `.maps/state/` or
   `work/tasks/`). Output: a design note, not a working adapter script.
   Owner: design agent (PLANNING task, no code changes). Depends on `D2a`
-  (the adapter has to know what it's adapting to).
+  (the adapter has to know what it's adapting to). Completed in
+  `work/notes/2026-08-20-portable-deployment-d2b-sibling-adapter-design.md`.
 - [ ] `D2c-chain-shovel-pilot-plan` — write the concrete plan for running
   `D3` against Chain Shovel: which real task will be shaped (the
   ES-module-split + logger bug), what the `.maps/` layout will look like in
