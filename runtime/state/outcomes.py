@@ -4,11 +4,21 @@ from contextlib import closing
 import sqlite3
 from typing import Any
 
+from runtime.incident_taxonomy import classify_failure_text
+
 from .common import MutationResult, iso_z, utc_now
 from .observability import redact_sensitive_text
 
 VALID_OUTCOME_STATUSES = {"SUCCESS", "PARTIAL", "FAILURE", "UNKNOWN"}
 VALID_ACTOR_CLASSES = {"OPERATOR", "CORE_AGENT", "HELPER", "SYSTEM", "UNKNOWN"}
+
+
+def _outcome_read_model(record: dict[str, Any]) -> dict[str, Any]:
+    """Add non-persistent presentation fields to one outcome record."""
+
+    record["escaped_defect"] = bool(record["escaped_defect"])
+    record["incident_class"] = classify_failure_text(record.get("failure_class")).value
+    return record
 
 
 class OutcomeMixin:
@@ -179,9 +189,7 @@ class OutcomeMixin:
             ).fetchone()
         if row is None:
             return None
-        record = dict(row)
-        record["escaped_defect"] = bool(record["escaped_defect"])
-        return record
+        return _outcome_read_model(dict(row))
 
     def list_outcomes(self, task_id: str) -> list[dict[str, Any]]:
         with closing(self._connect()) as conn:
@@ -192,6 +200,4 @@ class OutcomeMixin:
                     (task_id,),
                 ).fetchall()
             ]
-        for row in rows:
-            row["escaped_defect"] = bool(row["escaped_defect"])
-        return rows
+        return [_outcome_read_model(row) for row in rows]

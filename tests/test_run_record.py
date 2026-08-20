@@ -148,6 +148,7 @@ class PortableRunRecordTests(unittest.TestCase):
         record = build_run_record(self.store, "TASK-RR", self.run_id)
         self.assertEqual(len(record["outcomes"]["run_bound"]), 1)
         self.assertEqual(record["outcomes"]["run_bound"][0]["run_id"], self.run_id)
+        self.assertEqual(record["outcomes"]["run_bound"][0]["incident_class"], "UNKNOWN")
         self.assertEqual(record["outcomes"]["task_unbound"], [])
 
     def test_coverage_is_honest_about_missing_external_trajectory(self):

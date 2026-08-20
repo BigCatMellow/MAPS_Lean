@@ -4,6 +4,7 @@ from contextlib import closing
 from datetime import datetime, timezone
 from typing import Any
 
+from runtime.incident_taxonomy import classify_failure_text
 from runtime.state import TaskStore
 from runtime.state.common import iso_z, parse_time, utc_now
 
@@ -110,6 +111,7 @@ def build_status(
                     "task_id": row["task_id"],
                     "outcome_id": row["id"],
                     "failure_class": row["failure_class"],
+                    "incident_class": classify_failure_text(row["failure_class"]).value,
                     "escaped_defect": bool(row["escaped_defect"]),
                     "created_at": row["created_at"],
                 }

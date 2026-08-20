@@ -9,6 +9,7 @@ import tempfile
 import unittest
 
 from runtime.cli import main as cli_main
+from runtime.incident_taxonomy import IncidentClass
 from runtime.state import TaskStore
 
 
@@ -123,6 +124,7 @@ class OutcomeFeedbackTests(unittest.TestCase):
         self.assertEqual(record["actor_id"], "operator-1")
         self.assertEqual(record["run_id"], run_id)
         self.assertEqual(record["failure_class"], "regression")
+        self.assertEqual(record["incident_class"], "UNKNOWN")
         self.assertTrue(record["escaped_defect"])
         self.assertTrue(record["task_revision"])
         self.assertNotIn("source-secret", record["source"])
@@ -131,8 +133,52 @@ class OutcomeFeedbackTests(unittest.TestCase):
         trace = self.store.trace_task(task_id)
         serialized = json.dumps(trace)
         self.assertEqual(len(trace["outcomes"]), 1)
+        self.assertEqual(trace["outcomes"][0]["incident_class"], "UNKNOWN")
         self.assertNotIn("source-secret", serialized)
         self.assertNotIn("outcome-secret", serialized)
+
+    def test_incident_class_projection_preserves_canonical_and_legacy_failure_text(self):
+        canonical_task = "TASK-CANONICAL-INCIDENT"
+        legacy_task = "TASK-LEGACY-INCIDENT"
+        blank_task = "TASK-BLANK-INCIDENT"
+        self.create_done(canonical_task)
+        self.create_done(legacy_task)
+        self.create_done(blank_task)
+
+        canonical = self.store.record_outcome(
+            canonical_task,
+            "FAILURE",
+            source="operator report",
+            failure_class=IncidentClass.TOOL_FAILURE,
+        )
+        self.assertTrue(canonical.ok, canonical)
+        self.assertEqual(
+            canonical.task["outcome_record"]["failure_class"], IncidentClass.TOOL_FAILURE
+        )
+        self.assertEqual(
+            canonical.task["outcome_record"]["incident_class"], IncidentClass.TOOL_FAILURE
+        )
+
+        legacy = self.store.record_outcome(
+            legacy_task,
+            "FAILURE",
+            source="operator report",
+            failure_class=" legacy-regression ",
+        )
+        self.assertTrue(legacy.ok, legacy)
+        self.assertEqual(legacy.task["outcome_record"]["failure_class"], "legacy-regression")
+        self.assertEqual(legacy.task["outcome_record"]["incident_class"], "UNKNOWN")
+        trace = self.store.trace_task(legacy_task)
+        self.assertEqual(trace["outcomes"][0]["incident_class"], "UNKNOWN")
+
+        blank = self.store.record_outcome(
+            blank_task,
+            "FAILURE",
+            source="operator report",
+        )
+        self.assertTrue(blank.ok, blank)
+        self.assertEqual(blank.task["outcome_record"]["failure_class"], "UNKNOWN")
+        self.assertEqual(blank.task["outcome_record"]["incident_class"], "UNKNOWN")
 
     def test_outcome_rows_are_sqlite_immutable(self):
         task_id = "TASK-IMMUTABLE"
@@ -231,6 +277,7 @@ class OutcomeFeedbackTests(unittest.TestCase):
         self.assertEqual(code, 0)
         recorded = json.loads(output.getvalue())
         self.assertEqual(recorded["code"], "OUTCOME_RECORDED")
+        self.assertEqual(recorded["task"]["outcome_record"]["incident_class"], "UNKNOWN")
 
         output = StringIO()
         with redirect_stdout(output):
@@ -239,6 +286,7 @@ class OutcomeFeedbackTests(unittest.TestCase):
         records = json.loads(output.getvalue())
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]["outcome_status"], "SUCCESS")
+        self.assertEqual(records[0]["incident_class"], "UNKNOWN")
 
 
 if __name__ == "__main__":
