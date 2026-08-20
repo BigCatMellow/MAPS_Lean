@@ -283,11 +283,12 @@ Work from DONE toward the present.
 
 ## First wave
 
-- [ ] `D0-portability-audit` — produce a written audit of every `runtime/`
+- [x] `D0-portability-audit` — produce a written audit of every `runtime/`
   module `install_maps.sh`/`runtime.smoke` touch, classified as
   "path-relative to MAPS_Lean only," "Python-stdlib-portable," or "needs a
   real interface boundary before another repo could import it" — Owner:
-  research agent (RESEARCH task, no code changes).
+  research agent (RESEARCH task, no code changes). Completed in
+  `work/notes/2026-08-20-portable-deployment-d0-portability-audit.md`.
 - [ ] `D1-installer-targeting-design` — design (Markdown design note, not
   code) an explicit `--target-repo <path>` surface for
   `scripts/install_maps.sh`'s successor/extension, including what it must
@@ -300,7 +301,7 @@ above to start; every later task in Phase 1+ does.
 
 ## Phase 0 — Foundation
 
-- [ ] `D0` — Portability audit (see First wave).
+- [x] `D0` — Portability audit (see First wave).
 - [ ] `D1` — Installer targeting design (see First wave).
 - [x] Operator resolves the five open questions in "Mission meeting."
 

@@ -25,7 +25,7 @@
 ## Change boundary
 
 - MAY CHANGE:
-  - `work/notes/2026-08-20-roadmap-trajectory-check-4.md`
+  - `work/notes/2026-08-20-roadmap-trajectory-check-5.md`
   - `work/notes/2026-08-20-portable-deployment-d2a-file-convention.md`
   - `templates/portable-deployment/target-task.md`
   - `templates/portable-deployment/target-review-evidence.md`
@@ -101,7 +101,7 @@ research/design task for adapter behavior beyond D2a.
 
 ## Completion / handoff
 
-- Completed: D2a design note, draft templates, trajectory pass #4 note, and
+- Completed: D2a design note, draft templates, trajectory pass #5 note, and
   roadmap/checklist updates are ready for independent review.
 - Not completed: independent review and merge.
 - Current blocker: none.

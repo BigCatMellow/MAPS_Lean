@@ -79,15 +79,17 @@ Status legend:
 ## 6. Portable Deployment (`agent-harness-capabilities/06-portable-deployment.md`)
 
 This roadmap remains design-first; no portable deployment runtime or external
-pilot exists yet. The five operator decisions blocking `D2`+ were recorded
-2026-08-19 (see
+pilot exists yet. `D0` is complete as a research audit and `D2a` is complete
+as a file-convention design; `D1`, `D2b`, `D2c`, and later implementation
+phases remain not started. The five operator decisions blocking `D2`+ were
+recorded 2026-08-19 (see
 [`work/notes/2026-08-19-portable-deployment-operator-decisions.md`](../notes/2026-08-19-portable-deployment-operator-decisions.md)),
 which split the former single `D2` placeholder into `D2a`/`D2b`/`D2c` below —
 all design/planning, no runtime code.
 
 | Phase | Status | Evidence |
 |---|---|---|
-| D0 — Portability audit | NOT STARTED | No audit document exists; `runtime/` modules have not been classified for portability outside MAPS_Lean's own tree. |
+| D0 — Portability audit | DONE | `work/notes/2026-08-20-portable-deployment-d0-portability-audit.md` classifies the `scripts/install_maps.sh` / `runtime.smoke` surface across installer shell behavior, mandatory smoke lifecycle imports, and optional LangGraph/hcom integrations. |
 | D1 — Installer targeting design | NOT STARTED | No design note exists; `scripts/install_maps.sh` still resolves its root from its own script location only, no `--target-repo` concept designed. |
 | D2a — File-convention shape design | DONE | `work/notes/2026-08-20-portable-deployment-d2a-file-convention.md` defines the target repo `.maps/` layout, status vocabulary, task/review/roadmap file requirements, and non-goals; draft templates live under `templates/portable-deployment/`. No installer, adapter, CI enforcement, or external pilot is implemented. |
 | D2b — Sibling-clone adapter design | NOT STARTED | Operator decided v1 distribution = sibling-clone + lightweight adapter (2026-08-19); no design note for the adapter's interface boundary exists yet. Depends on D2a. |
