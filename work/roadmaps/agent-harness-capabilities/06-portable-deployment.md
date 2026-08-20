@@ -289,12 +289,13 @@ Work from DONE toward the present.
   real interface boundary before another repo could import it" — Owner:
   research agent (RESEARCH task, no code changes). Completed in
   `work/notes/2026-08-20-portable-deployment-d0-portability-audit.md`.
-- [ ] `D1-installer-targeting-design` — design (Markdown design note, not
+- [x] `D1-installer-targeting-design` — design (Markdown design note, not
   code) an explicit `--target-repo <path>` surface for
   `scripts/install_maps.sh`'s successor/extension, including what it must
   refuse to do (e.g. never silently write into MAPS_Lean's own `.maps/state/`
   when a target is given) — Owner: design agent (PLANNING task, no code
-  changes), depends on `D0`.
+  changes), depends on `D0`. Completed in
+  `work/notes/2026-08-20-portable-deployment-d1-installer-targeting-design.md`.
 
 Both are read-only/design-only and do not require the operator decisions
 above to start; every later task in Phase 1+ does.
@@ -302,7 +303,7 @@ above to start; every later task in Phase 1+ does.
 ## Phase 0 — Foundation
 
 - [x] `D0` — Portability audit (see First wave).
-- [ ] `D1` — Installer targeting design (see First wave).
+- [x] `D1` — Installer targeting design (see First wave).
 - [x] Operator resolves the five open questions in "Mission meeting."
 
 ## Phase 1 — Delivery (bounded v1)
