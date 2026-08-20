@@ -103,6 +103,9 @@ research/design task for adapter behavior beyond D2a.
 
 - Completed: D2a design note, draft templates, trajectory pass #5 note, and
   roadmap/checklist updates are ready for independent review.
-- Not completed: independent review and merge.
-- Current blocker: none.
-- Next action if not DONE: open PR and obtain independent review evidence.
+- Not completed: updated independent review evidence and merge.
+- Current blocker: PR #133 review requested explicit owner decision authority
+  in the target task template and owner/owning-task tracking in the target
+  roadmap template; both corrections have been applied.
+- Next action if not DONE: obtain fresh independent review evidence at the
+  corrected head.

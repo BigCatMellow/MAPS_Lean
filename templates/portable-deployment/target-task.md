@@ -18,6 +18,11 @@
 - MUST NOT CHANGE: <paths/actions outside this task>
 - OPERATOR APPROVAL REQUIRED: <external, destructive, security, privacy, cost, or scope decisions>
 
+## Decision Authority
+
+- Owner may decide: <bounded implementation or documentation choices>
+- Owner must escalate: <operator-reserved product, scope, security, privacy, cost, external, destructive, or irreversible decisions>
+
 ## Acceptance Criteria
 
 - [ ] <observable pass/fail result>
