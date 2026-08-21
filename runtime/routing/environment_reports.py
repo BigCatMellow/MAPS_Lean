@@ -1,0 +1,148 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path, PurePosixPath
+from typing import TYPE_CHECKING, Any, Mapping
+
+from runtime.state import TaskStore
+
+if TYPE_CHECKING:
+    from runtime.environment.fingerprint import CompatibilityReport
+
+
+@dataclass(frozen=True, slots=True)
+class RoutingEnvironmentReportSelection:
+    reports: dict[str, "CompatibilityReport"] = field(default_factory=dict)
+    diagnostics: dict[str, str] = field(default_factory=dict)
+
+
+def _time(value: object, field_name: str) -> datetime:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{field_name} must be a timestamp string")
+    text = value.strip().replace("Z", "+00:00")
+    parsed = datetime.fromisoformat(text)
+    if parsed.tzinfo is None:
+        raise ValueError(f"{field_name} must include a timezone")
+    return parsed.astimezone(timezone.utc)
+
+
+def _positive_int(value: object, field_name: str) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+        raise ValueError(f"{field_name} must be a positive integer")
+    return value
+
+
+def _safe_spec_ref(value: object) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("spec_ref must be non-empty text")
+    text = value.strip()
+    path = PurePosixPath(text)
+    if path.is_absolute() or ".." in path.parts or text in {".", "./"}:
+        raise ValueError("spec_ref must be a safe repo-relative path")
+    return path.as_posix()
+
+
+def _report(value: object) -> "CompatibilityReport":
+    from runtime.environment.fingerprint import CompatibilityReport, CompatibilityState
+
+    if not isinstance(value, Mapping):
+        raise ValueError("report must be an object")
+    state = value.get("state")
+    reasons = value.get("reasons", [])
+    warnings = value.get("warnings", [])
+    environment_spec_hash = value.get("environment_spec_hash")
+    fingerprint_sha256 = value.get("fingerprint_sha256")
+    reference_fingerprint_sha256 = value.get("reference_fingerprint_sha256")
+    if not isinstance(state, str):
+        raise ValueError("report.state must be a string")
+    if not isinstance(reasons, (list, tuple)) or not all(
+        isinstance(item, str) for item in reasons
+    ):
+        raise ValueError("report.reasons must be strings")
+    if not isinstance(warnings, (list, tuple)) or not all(
+        isinstance(item, str) for item in warnings
+    ):
+        raise ValueError("report.warnings must be strings")
+    if not isinstance(environment_spec_hash, str) or not isinstance(
+        fingerprint_sha256, str
+    ):
+        raise ValueError("report hashes must be strings")
+    if reference_fingerprint_sha256 is not None and not isinstance(
+        reference_fingerprint_sha256, str
+    ):
+        raise ValueError("reference_fingerprint_sha256 must be a string or null")
+    return CompatibilityReport(
+        state=CompatibilityState(state),
+        reasons=tuple(reasons),
+        warnings=tuple(warnings),
+        environment_spec_hash=environment_spec_hash,
+        fingerprint_sha256=fingerprint_sha256,
+        reference_fingerprint_sha256=reference_fingerprint_sha256,
+    )
+
+
+def select_fresh_environment_reports(
+    envelopes: Mapping[str, Mapping[str, Any]],
+    *,
+    store: TaskStore,
+    repo_root: str | Path = ".",
+    now: datetime | None = None,
+) -> RoutingEnvironmentReportSelection:
+    """Select fresh caller-supplied routing environment reports.
+
+    This is a pure routing-boundary filter. It never inspects the environment,
+    computes a fingerprint, writes state, or turns stale/malformed/missing
+    evidence into an incompatibility. Invalid entries are reported in
+    diagnostics and omitted from the returned router input.
+    """
+
+    root = Path(repo_root).resolve()
+    current_time = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    reports: dict[str, "CompatibilityReport"] = {}
+    diagnostics: dict[str, str] = {}
+
+    for raw_key, raw_envelope in envelopes.items():
+        task_id = str(raw_key)
+        try:
+            if not isinstance(raw_envelope, Mapping):
+                raise ValueError("envelope must be an object")
+            declared_task_id = str(raw_envelope.get("task_id", "")).strip()
+            if declared_task_id != task_id:
+                raise ValueError("task_id mismatch")
+            task = store.get_task(task_id)
+            if task is None:
+                diagnostics[task_id] = "task_missing"
+                continue
+            project_id = str(raw_envelope.get("project_id", "")).strip()
+            if project_id and project_id != str(task.get("project_id", "")).strip():
+                diagnostics[task_id] = "project_mismatch"
+                continue
+            spec_ref = _safe_spec_ref(raw_envelope.get("spec_ref"))
+            from runtime.environment.spec import load_environment_spec
+
+            spec = load_environment_spec(root / spec_ref)
+            report = _report(raw_envelope.get("report"))
+            if report.environment_spec_hash != spec.sha256:
+                diagnostics[task_id] = "spec_hash_mismatch"
+                continue
+            task_revision = str(raw_envelope.get("task_revision", "")).strip()
+            if task_revision != store.compute_task_revision(task_id):
+                diagnostics[task_id] = "task_revision_mismatch"
+                continue
+            produced_at = _time(raw_envelope.get("produced_at"), "produced_at")
+            max_age_seconds = _positive_int(
+                raw_envelope.get("max_age_seconds"), "max_age_seconds"
+            )
+            age = (current_time - produced_at).total_seconds()
+            if age < 0:
+                diagnostics[task_id] = "produced_at_in_future"
+                continue
+            if age > max_age_seconds:
+                diagnostics[task_id] = "report_stale"
+                continue
+            reports[task_id] = report
+            diagnostics[task_id] = "fresh"
+        except Exception:
+            diagnostics[task_id] = "malformed_envelope"
+    return RoutingEnvironmentReportSelection(reports=reports, diagnostics=diagnostics)
