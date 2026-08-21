@@ -10,6 +10,12 @@ from urllib.parse import urlparse
 from runtime.state import TaskStore
 from runtime.operational_learning import OperationalLearningError, project_applicable_lessons
 from runtime.skills.catalog import SkillCatalog
+from runtime.trust import (
+    MemoryTrustClass,
+    TrustClassError,
+    operational_learning_trust_class,
+    skill_trust_class,
+)
 
 _PATH_SUFFIXES = {
     ".cfg",
@@ -142,7 +148,34 @@ def _lesson_guidance(
         projection = project_applicable_lessons(lessons, context, at=at)
     except OperationalLearningError:
         return [], []
-    return list(projection["projected"]), list(projection["withheld"])
+    try:
+        guidance = [
+            dict(
+                item,
+                trust_class=operational_learning_trust_class("ACTIVE").value,
+            )
+            for item in projection["projected"]
+        ]
+        withheld = [
+            _withheld_lesson_with_trust_class(item)
+            for item in projection["withheld"]
+        ]
+    except (TrustClassError, TypeError, KeyError):
+        return [], []
+    return guidance, withheld
+
+
+def _withheld_lesson_with_trust_class(item: dict[str, Any]) -> dict[str, Any]:
+    reason = str(item["reason"])
+    trust_class = {
+        "CANDIDATE_NOT_PROMOTED": MemoryTrustClass.CANDIDATE_LESSON,
+        "RETIRED": MemoryTrustClass.RETIRED,
+        "SUPERSEDED": MemoryTrustClass.SUPERSEDED,
+    }.get(reason, operational_learning_trust_class("ACTIVE"))
+    payload = dict(item, trust_class=trust_class.value)
+    if reason in {"EXPIRED", "REVIEW_DUE"}:
+        payload["stale_trust_metadata"] = True
+    return payload
 
 
 _TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
@@ -215,6 +248,10 @@ def _select_skills(
         matched = sorted(signals & skill_tokens)
         if not matched:
             continue
+        try:
+            trust_class = skill_trust_class(entry.provenance.trust_state).value
+        except TrustClassError:
+            continue
         selected.append(
             {
                 "skill_id": descriptor.skill_id,
@@ -222,6 +259,7 @@ def _select_skills(
                 "description": descriptor.description,
                 "source_id": entry.provenance.source_id,
                 "trust_state": entry.provenance.trust_state.value,
+                "trust_class": trust_class,
                 "selection_reason": (
                     "Matched task signal(s) "
                     + ", ".join(matched)
@@ -358,6 +396,11 @@ def build_context_plan(
         dict(item, budget_class=_BUDGET_ON_DEMAND) for item in withheld_guidance_raw
     ]
     skills = _select_skills(skill_catalog, task)
+    memory_like = [*guidance, *withheld_guidance, *skills]
+    memory_trust_classification_present = all(
+        isinstance(item.get("trust_class"), str) and bool(item["trust_class"].strip())
+        for item in memory_like
+    )
 
     return {
         "task_id": task_id,
@@ -397,6 +440,13 @@ def build_context_plan(
                 "ON_DEMAND; classification is advisory only and does not "
                 "change what is loaded or introduce any new retrieval "
                 "mechanism (roadmap 6.11 guardrail)"
+            ),
+            "memory_trust_classification_present": memory_trust_classification_present,
+            "memory_trust_classification_note": (
+                "memory-like guidance/withheld_guidance/skills carry "
+                "MemoryTrustClass metadata when present; malformed optional "
+                "memory evidence fails closed without suppressing canonical "
+                "authority or required task context"
             ),
         },
     }
