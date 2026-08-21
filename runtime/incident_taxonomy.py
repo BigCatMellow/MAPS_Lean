@@ -17,14 +17,13 @@ enum for the first time, exactly matching `runtime.trust.MemoryTrustClass`
 - A single `str, Enum` subclass, member values equal to member names.
 - Pure/read-only: this module owns NO persistence, NO task/session
   authority, and NO canonical storage.
-- NOT wired into any decision-gating code path. In particular, it does NOT
-  modify `runtime.state.outcomes.OutcomeMixin.record_outcome`'s signature or
-  validation in any way -- `failure_class` there remains free-text and
-  fully backward compatible, including for values outside this enum.
-  Actually validating/gating `record_outcome` against this taxonomy is
-  deliberately out of scope and left for a future task, exactly as 6.22's
-  wave19 `MemoryTrustClass` left decision-gating wiring out of its own
-  scope.
+- NOT wired into any decision-gating code path. Outcome read models may use
+  this helper to expose an `incident_class` projection, but
+  `runtime.state.outcomes.OutcomeMixin.record_outcome` keeps its free-text
+  `failure_class` signature and validation behavior fully backward compatible,
+  including for values outside this enum. Validating/gating `record_outcome`
+  against this taxonomy remains out of scope, exactly as 6.22's wave19
+  `MemoryTrustClass` left decision-gating wiring out of its own scope.
 
 One roadmap rule this module preserves explicitly: "Classification must
 preserve uncertainty; do not force every incident into a confident story."
@@ -66,12 +65,12 @@ class IncidentClass(str, Enum):
 def classify_failure_text(text: str) -> IncidentClass:
     """Map an exact-match uppercase string to its `IncidentClass`.
 
-    Pure, read-only convenience lookup. Never called from
-    `runtime.state.outcomes.OutcomeMixin.record_outcome` -- that method's
-    free-text `failure_class` parameter is unmodified and unvalidated by
-    this function. Returns `IncidentClass.UNKNOWN` for any non-exact-match
-    input rather than raising, matching the roadmap's explicit rule to
-    preserve uncertainty instead of forcing a confident classification.
+    Pure, read-only convenience lookup. Outcome read models may call it, but
+    `runtime.state.outcomes.OutcomeMixin.record_outcome` neither validates nor
+    changes its free-text `failure_class` parameter with it. Returns
+    `IncidentClass.UNKNOWN` for any non-exact-match input rather than raising,
+    matching the roadmap's explicit rule to preserve uncertainty instead of
+    forcing a confident classification.
     """
 
     if not isinstance(text, str):

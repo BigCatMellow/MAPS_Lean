@@ -120,6 +120,13 @@ class StatusProjectionTests(unittest.TestCase):
         self.assertIn(("STALE_LEASE", "TASK-STALE"), attention)
         self.assertIn(("REVIEW_NEEDED", "TASK-REVIEW"), attention)
         self.assertIn(("POST_COMPLETION_FAILURE", "TASK-FAILED-LATER"), attention)
+        post_completion_failure = next(
+            item
+            for item in result["attention"]
+            if item["type"] == "POST_COMPLETION_FAILURE"
+        )
+        self.assertEqual(post_completion_failure["failure_class"], "regression")
+        self.assertEqual(post_completion_failure["incident_class"], "UNKNOWN")
 
         self.assertLessEqual(len(result["recent"]), 3)
         self.assertTrue(all("summary" not in item for item in result["recent"]))

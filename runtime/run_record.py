@@ -162,6 +162,7 @@ def _outcome_projection(outcome: Mapping[str, Any]) -> dict[str, object]:
         "run_id": outcome.get("run_id"),
         "outcome_status": outcome.get("outcome_status"),
         "failure_class": outcome.get("failure_class"),
+        "incident_class": outcome.get("incident_class", "UNKNOWN"),
         "escaped_defect": bool(outcome.get("escaped_defect", False)),
         "rework_count": outcome.get("rework_count"),
         "operator_intervention_count": outcome.get("operator_intervention_count"),

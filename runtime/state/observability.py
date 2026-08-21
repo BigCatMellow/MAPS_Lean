@@ -6,6 +6,8 @@ import re
 import sqlite3
 from typing import Any
 
+from runtime.incident_taxonomy import classify_failure_text
+
 from .common import iso_z, utc_now
 
 _PRIVATE_KEY_RE = re.compile(
@@ -226,6 +228,9 @@ class ObservabilityMixin:
             ]
             for outcome in outcomes:
                 outcome["escaped_defect"] = bool(outcome["escaped_defect"])
+                outcome["incident_class"] = classify_failure_text(
+                    outcome.get("failure_class")
+                ).value
 
             revision_method = getattr(self, "_task_revision_conn", None)
             task_revision = (
