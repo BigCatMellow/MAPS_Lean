@@ -6,6 +6,7 @@ import json
 import sys
 
 from runtime.policy import HaltStore, WorkerProfile
+from runtime.routing.environment_reports import select_fresh_environment_reports
 from runtime.routing import route_project
 from runtime.routing.langgraph_runtime import _deserialize_environment_reports
 from runtime.state import TaskStore
@@ -25,9 +26,23 @@ def read_workers(path: str) -> list[WorkerProfile]:
     return [WorkerProfile.from_mapping(item) for item in value]
 
 
-def read_environment_reports(path: str):
+def read_environment_reports(
+    path: str,
+    *,
+    store: TaskStore | None = None,
+    repo_root: str = ".",
+):
     with open(path, "r", encoding="utf-8") as handle:
         value = json.load(handle)
+    if isinstance(value, dict) and "environment_report_envelopes" in value:
+        if store is None:
+            raise ValueError("environment report envelopes require a task store")
+        envelopes = value["environment_report_envelopes"]
+        if not isinstance(envelopes, dict):
+            raise ValueError("environment_report_envelopes must be an object")
+        return select_fresh_environment_reports(
+            envelopes, store=store, repo_root=repo_root
+        ).reports
     if isinstance(value, dict) and "environment_reports" in value:
         value = value["environment_reports"]
     if not isinstance(value, dict):
@@ -46,6 +61,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="MAPS Lean routing/policy CLI")
     parser.add_argument("--db", default=DEFAULT_DB)
     parser.add_argument("--halt-path", default=DEFAULT_HALT)
+    parser.add_argument("--repo-root", default=".")
     sub = parser.add_subparsers(dest="command", required=True)
 
     route = sub.add_parser("route", help="produce one read-only LangGraph recommendation")
@@ -98,12 +114,16 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "route":
             workers = read_workers(args.workers_json)
+            store = TaskStore(args.db)
             environment_reports = (
-                read_environment_reports(args.environment_reports_json)
+                read_environment_reports(
+                    args.environment_reports_json,
+                    store=store,
+                    repo_root=args.repo_root,
+                )
                 if args.environment_reports_json
                 else None
             )
-            store = TaskStore(args.db)
             return emit(
                 route_project(
                     store,
