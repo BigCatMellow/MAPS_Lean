@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Any, Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
 from runtime.policy.evaluator import (
     evaluate_assignment,
@@ -10,6 +10,9 @@ from runtime.policy.evaluator import (
 )
 from runtime.policy.halt import HaltRecord, halt_block_reason
 from runtime.policy.models import WorkerProfile
+
+if TYPE_CHECKING:
+    from runtime.environment.fingerprint import CompatibilityReport
 
 
 @dataclass(frozen=True)
@@ -33,7 +36,16 @@ def recommend_route(
     tasks: Iterable[Mapping[str, Any]],
     workers: Iterable[WorkerProfile],
     halt: HaltRecord | None = None,
+    *,
+    environment_reports: Mapping[str, CompatibilityReport] | None = None,
 ) -> RouteRecommendation:
+    """Return a deterministic recommendation from supplied task evidence.
+
+    `environment_reports` is an optional, caller-owned mapping keyed by task
+    ID. The router does not inspect an environment, select an EnvironmentSpec,
+    or infer report freshness. A missing mapping or task ID preserves prior
+    routing behavior.
+    """
     task_list = sorted(
         (dict(task) for task in tasks), key=lambda item: str(item.get("task_id", ""))
     )
@@ -79,6 +91,9 @@ def recommend_route(
     ]
     for task in executable:
         task_id = str(task["task_id"])
+        environment_report = (
+            environment_reports.get(task_id) if environment_reports is not None else None
+        )
         block = halt_block_reason(task, halt_record)
         if block:
             blocked_fallbacks.append(
@@ -103,12 +118,17 @@ def recommend_route(
 
         allowed: list[WorkerProfile] = []
         approval_required: set[str] = set()
+        environment_incompatible = False
         for worker in worker_list:
-            decision = evaluate_assignment(task, worker)
+            decision = evaluate_assignment(
+                task, worker, environment_report=environment_report
+            )
             if decision.allowed:
                 allowed.append(worker)
             elif decision.requires_approval:
                 approval_required.update(decision.reasons)
+            elif "environment_incompatible" in decision.reasons:
+                environment_incompatible = True
 
         if allowed:
             selected = allowed[0]
@@ -118,6 +138,13 @@ def recommend_route(
                 else "claim_or_assign"
             )
             return RouteRecommendation(route, task_id, selected.worker_id)
+        if environment_incompatible:
+            blocked_fallbacks.append(
+                RouteRecommendation(
+                    "policy_gate", task_id, reasons=("environment_incompatible",)
+                )
+            )
+            continue
         if approval_required:
             blocked_fallbacks.append(
                 RouteRecommendation(

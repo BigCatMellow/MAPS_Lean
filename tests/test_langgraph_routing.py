@@ -4,7 +4,12 @@ import unittest
 from pathlib import Path
 
 from runtime.policy import HaltRecord, WorkerProfile
-from runtime.routing.langgraph_runtime import run_checkpointed_route
+from runtime.routing.langgraph_runtime import (
+    _deserialize_environment_reports,
+    _serialize_environment_reports,
+    run_checkpointed_route,
+)
+from runtime.environment.fingerprint import CompatibilityReport, CompatibilityState
 
 LANGGRAPH_AVAILABLE = (
     importlib.util.find_spec("langgraph") is not None
@@ -13,6 +18,18 @@ LANGGRAPH_AVAILABLE = (
 
 
 class LangGraphRoutingTests(unittest.TestCase):
+    def test_environment_reports_serialize_without_environment_access(self):
+        report = CompatibilityReport(
+            state=CompatibilityState.INCOMPATIBLE,
+            reasons=("missing_tool",),
+            warnings=(),
+            environment_spec_hash="spec-hash",
+            fingerprint_sha256="fingerprint-hash",
+        )
+        serialized = _serialize_environment_reports({"TASK-1": report})
+        restored = _deserialize_environment_reports(serialized)
+        self.assertEqual(restored, {"TASK-1": report})
+
     def test_checkpoint_db_cannot_equal_task_db(self):
         with tempfile.TemporaryDirectory() as td:
             same = Path(td) / "state.db"
