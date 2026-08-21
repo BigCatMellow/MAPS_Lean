@@ -17,9 +17,9 @@
 ## Change boundary
 
 - MAY CHANGE: `work/tasks/portable-deployment-d0-portability-audit.md`, `work/notes/2026-08-20-portable-deployment-d0-portability-audit.md`, `work/notes/2026-08-20-roadmap-trajectory-check-4.md`, `work/roadmaps/CAPABILITY_CHECKLIST.md`, and D0 status text in `work/roadmaps/agent-harness-capabilities/06-portable-deployment.md`.
-- MUST NOT CHANGE: runtime code, installer behavior, tests, external repositories, PR #132 history, and any Chain Shovel files.
+- MUST NOT CHANGE: runtime code, installer behavior, tests, external repositories, PR #132 history, and any external target files.
 - MAY CHANGE IF NECESSARY: none.
-- OPERATOR APPROVAL REQUIRED: executing the Chain Shovel pilot or mutating any external project.
+- OPERATOR APPROVAL REQUIRED: executing an external pilot or mutating any external project.
 
 ## Decision authority
 
@@ -45,7 +45,7 @@
 - Ordered procedure: inspect current main before editing; write audit; update status; obtain independent review before merge.
 - Failure branches: if inspection finds D0 already done elsewhere, stop and update status only with evidence.
 - Rollback / recovery: revert the docs-only PR.
-- Security / privacy controls: do not inspect or mutate Chain Shovel or other external repositories.
+- Security / privacy controls: do not inspect or mutate external repositories.
 - External side effects: GitHub PR publication only.
 - Effort limit: one bounded audit; no implementation.
 - Approved reference: Roadmap 06 D0 definition.
@@ -54,7 +54,7 @@
 
 Stop rather than guess if:
 
-- a classification depends on running inside Chain Shovel or another external repo;
+- a classification depends on running inside an external repo;
 - the audit would require changing installer/runtime behavior;
 - a target-project convention decision beyond the recorded operator decisions is needed.
 

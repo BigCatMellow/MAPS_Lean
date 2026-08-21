@@ -9,23 +9,23 @@
 
 - VERIFIED: PRs #133 through #140 were merged to `main` by 2026-08-21 00:15 UTC.
 - VERIFIED: portable deployment 6.35 has D0, D1, D2a, D2b, and D2c complete.
-- VERIFIED: D3 remains not started and is blocked on Chain Shovel target access/authority plus a separately AGI-ready execution task.
+- VERIFIED: D3 remains not started and is blocked on explicit target/task selection, target access/authority, and a separately AGI-ready execution task.
 - VERIFIED: roadmap 6.27 is now DONE: outcome read models expose derived `incident_class` while preserving free-text `failure_class`.
 - VERIFIED: roadmap 6.24 remains IN PROGRESS: routing can consume explicit caller-supplied compatibility reports, but no live report source/freshness/spec association exists.
-- UNKNOWN: Chain Shovel checkout path, reproduction, source scope, verification commands, reviewer, hosting/CI, and merge policy.
+- UNKNOWN: the first pilot target, checkout path, reproduction, source scope, verification commands, reviewer, hosting/CI, and merge policy.
 
 ## Work completed
 
 - Merged PR #133: D2a portable deployment file convention.
 - Merged PR #136: D1 installer targeting design.
 - Merged PR #137: D2b sibling-clone adapter design.
-- Merged PR #138: D2c Chain Shovel pilot plan.
+- Merged PR #138: D2c pilot plan, later corrected so no example target is treated as selected.
 - Merged PR #139: incident taxonomy projection for outcome read models.
 - Merged PR #140: explicit environment compatibility report plumbing through routing.
 
 ## Work not completed
 
-- D3 Chain Shovel pilot was not started; no Chain Shovel repo was accessed.
+- D3 pilot was not started; no external target repo was accessed.
 - No portable installer or adapter implementation exists.
 - No live environment report sourcing, freshness/cache policy, task-to-`EnvironmentSpec` association, or routing CLI input exists.
 - H4/E4 validation-tier production call site remains unresolved; do not wire it without a trusted composition root.
@@ -39,7 +39,7 @@
 
 ## Current blocker / risk
 
-- Portable deployment is blocked on external Chain Shovel access/authority.
+- Portable deployment is blocked on target/task selection and external target access/authority.
 - Validation-tier production wiring is a risk because no existing composition root both owns an `EnvironmentSpec` and constructs production `HarnessService` hooks.
 
 ## Working state
@@ -58,7 +58,7 @@
 
 - Do not redo D0-D2c portable deployment design; they are merged.
 - Do not assume D3 authority from the D2c plan.
-- Do not assume Chain Shovel target facts that the D2c plan marks `UNKNOWN`.
+- Do not assume any concrete target facts before an explicit D3 target/task selection.
 - Do not mark 6.24 DONE merely because explicit report plumbing exists.
 - Do not wire validation hooks into a production path until the spec/source/authority boundary is explicit.
 
@@ -67,7 +67,7 @@
 - `work/notes/2026-08-20-portable-deployment-d1-installer-targeting-design.md`
 - `work/notes/2026-08-20-portable-deployment-d2a-file-convention.md`
 - `work/notes/2026-08-20-portable-deployment-d2b-sibling-adapter-design.md`
-- `work/notes/2026-08-20-portable-deployment-d2c-chain-shovel-pilot-plan.md`
+- `work/notes/2026-08-20-portable-deployment-d2c-first-external-pilot-selection-plan.md`
 - `work/tasks/incident-taxonomy-outcome-wiring.md`
 - `work/tasks/router-environment-report-routing.md`
 - `work/roadmaps/CAPABILITY_CHECKLIST.md`

@@ -127,12 +127,12 @@ target by default.
 
 D1 does not implement this flag, modify `scripts/install_maps.sh`, define the
 sibling-clone adapter, create target files, port SQLite state, mandate CI, or
-access Chain Shovel. In particular:
+access any external target. In particular:
 
 - D2b decides the adapter's actual target-local entry point and its template
   copy/render/optional-check interface.
-- D2c decides the Chain Shovel task, target layout instance, reviewer, and
-  pilot proof.
+- D2c decides the target/task selection gates, target layout instance,
+  reviewer, and pilot proof.
 - D3 executes the real external-project pilot only after D2a-D2c.
 
 The implementation task that follows D2b must reproduce this design's

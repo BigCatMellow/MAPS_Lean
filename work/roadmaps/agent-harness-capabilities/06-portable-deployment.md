@@ -268,18 +268,17 @@ Work from DONE toward the present.
   and Phase 1 below. This split is scoping, not implementation: all three
   remain design/planning tasks per this roadmap's own boundary against
   building or shipping runtime code.
-- First pilot target selected: **Chain Shovel**, a real external game-dev
-  project (unrelated to MAPS_Lean) with an already-identified bounded bug
-  (ES-module-split + logger issue). Chosen over a synthetic/throwaway repo
-  because Definition of DONE requires a real, observable pilot; recorded in
-  the same decision note linked above. Running the pilot itself is `D3`,
-  still future work.
+- First pilot target is **not selected**. Corrected 2026-08-21: the earlier
+  named target was an example, not an authorized selection. Definition of DONE
+  still requires a real, observable external-project pilot; choosing the
+  target/task/reviewer/access path is future operator/target-owner decision
+  work. Running the pilot itself is `D3`, still future work.
 - First wave selected: `D0` (portability audit) and `D1` (installer targeting
   design) only; both are research/design tasks that do not depend on the
   open questions above being resolved yet. **Now that the five operator
   decisions are recorded, the next wave is `D2a`, `D2b`, `D2c`** (see Phase 1)
   — all three are design/planning tasks, not implementation, and do not by
-  themselves authorize running the Chain Shovel pilot (`D3`).
+  themselves authorize selecting or running an external pilot (`D3`).
 
 ## First wave
 
@@ -336,24 +335,23 @@ against an external repo, and is blocked on all three.
   Owner: design agent (PLANNING task, no code changes). Depends on `D2a`
   (the adapter has to know what it's adapting to). Completed in
   `work/notes/2026-08-20-portable-deployment-d2b-sibling-adapter-design.md`.
-- [x] `D2c-chain-shovel-pilot-plan` — write the concrete plan for running
-  `D3` against Chain Shovel: which real task will be shaped (the
-  ES-module-split + logger bug), what the `.maps/` layout will look like in
-  that repo specifically, who/what performs independent review given Chain
-  Shovel's own CI/hosting setup (not assumed to be GitHub Actions), and what
+- [x] `D2c-first-external-pilot-selection-plan` — write the concrete
+  target-selection and D3 execution gate for the first real external pilot:
+  what facts must be known before a target/task is selected, what the
+  target `.maps/` layout must contain once selected, who/what performs
+  independent review under the target's own hosting/CI policy, and what
   "done" looks like for that one pilot task. Output: a design/plan note, not
-  a pilot run — actually executing against Chain Shovel's repo is `D3`, a
-  separate future task this session does not perform (no repo access here).
-  Owner: design agent (PLANNING task, no code changes, no repo access).
-  Depends on `D2a` and `D2b`. Completed in
-  `work/notes/2026-08-20-portable-deployment-d2c-chain-shovel-pilot-plan.md`;
+  a pilot run. Owner: design agent (PLANNING task, no code changes, no repo
+  access). Depends on `D2a` and `D2b`. Completed in
+  `work/notes/2026-08-20-portable-deployment-d2c-first-external-pilot-selection-plan.md`;
   target-specific facts are explicit D3 preflight gates, not assumptions.
-- [ ] `D3` — First real pilot: Chain Shovel, one real task (the
-  ES-module-split + logger bug), shape → implement → independent review →
+- [ ] `D3` — First real external pilot: select one real target repository and
+  one bounded target task, then shape → implement → independent review →
   merge, using only the `D2a`/`D2b` v1 mechanism per the `D2c` plan. This is
   the roadmap's final proof (see Definition of DONE). Not started; blocked
-  on target access/authority and an AGI-ready execution task under the D2c
-  plan; no external-project pilot has been attempted.
+  on explicit target/task selection, target access/authority, and an
+  AGI-ready execution task under the D2c plan; no external-project pilot has
+  been attempted.
 
 ## Phase 2 — Integration and final proof
 

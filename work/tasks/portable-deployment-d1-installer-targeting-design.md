@@ -79,6 +79,6 @@ Escalate to: the operator for new portability scope or external-target authority
 ## Completion / handoff
 
 - Completed: D1 design and only its canonical roadmap/checklist status updates.
-- Not completed: installer/adapter implementation, target-repo initialization, Chain Shovel planning, pilot, review, and merge.
+- Not completed: installer/adapter implementation, target-repo initialization, pilot target/task selection, pilot execution, review, and merge.
 - Current blocker: independent review before merge.
 - Next action if not DONE: obtain independent review of this documentation-only PR.

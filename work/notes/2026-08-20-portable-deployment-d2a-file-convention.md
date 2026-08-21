@@ -3,7 +3,7 @@
 This note defines the v1 target-repo `.maps/` file convention for Portable
 Deployment. It implements D2a only: Markdown state shape and templates for a
 target repository. It does not implement an installer, sibling-clone adapter,
-CI enforcement, or the Chain Shovel pilot.
+CI enforcement, target selection, or an external pilot.
 
 ## Source Decisions
 
@@ -120,8 +120,8 @@ task through shape, implementation, review, and merge.
 D2a does not:
 
 - define the sibling-clone adapter interface (D2b);
-- plan the Chain Shovel pilot (D2c);
-- execute against Chain Shovel or any external repository (D3);
+- plan target selection or a concrete pilot (D2c);
+- execute against any external repository (D3);
 - add installer flags such as `--target-repo`;
 - port MAPS_Lean's SQLite task state;
 - require a specific programming language, package manager, or CI system.

@@ -36,5 +36,5 @@ Not selected:
 - D1: still needed, but its installer-targeting design should consume the D0
   audit and D2a target file shape.
 - D2b: depends on D2a.
-- D2c/D3: depend on D2a/D2b and require Chain Shovel-specific planning/access.
+- D2c/D3: depend on D2a/D2b and require explicit target/task selection plus target-specific planning/access.
 - Runtime implementation: outside Roadmap 06's current design/planning boundary.
