@@ -9,11 +9,10 @@ instructs — that is the authoritative live-state entry point, not this file.
 
 ## Latest coordination handoff
 
-No durable multi-session coordination handoff document is currently in force.
-If one exists when you read this, it will be linked from
-`work/coordination/README.md`; follow that link before deciding what may
-safely continue. If none exists, recover current state directly from GitHub
-(open PRs, recent merges, open issues) per `work/coordination/README.md`.
+The latest compact multi-session handoff is
+[`work/handoffs/2026-08-20-session-portable-and-roadmap-progress.md`](../work/handoffs/2026-08-20-session-portable-and-roadmap-progress.md).
+Use it for durable orientation only, then recover live GitHub state per
+`work/coordination/README.md` before acting on PRs, CI, or current blockers.
 
 ## Durable facts (unlikely to need per-PR updates)
 
