@@ -126,6 +126,14 @@ CREATE TABLE IF NOT EXISTS task_policy (
     approval_note TEXT NOT NULL DEFAULT ''
 );
 
+CREATE TABLE IF NOT EXISTS task_environment (
+    task_id TEXT PRIMARY KEY REFERENCES tasks(task_id) ON DELETE CASCADE,
+    spec_ref TEXT NOT NULL,
+    max_age_seconds INTEGER NOT NULL CHECK (max_age_seconds > 0),
+    required_for_routing INTEGER NOT NULL DEFAULT 0 CHECK (required_for_routing IN (0,1)),
+    allow_older_task_revision INTEGER NOT NULL DEFAULT 0 CHECK (allow_older_task_revision IN (0,1))
+);
+
 -- Immutable execution binding. Full context is not copied; file references are
 -- hashed separately. Task revision excludes lifecycle churn.
 CREATE TABLE IF NOT EXISTS run_manifests (

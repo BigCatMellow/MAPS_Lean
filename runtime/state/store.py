@@ -1,5 +1,6 @@
 from .base import BaseStore
 from .common import MutationResult, ValidationResult
+from .environment_contract import EnvironmentContractMixin
 from .environment import EnvironmentEvidenceMixin
 from .execution import ExecutionMixin
 from .helper_recovery_lineage import HelperRecoveryLineageMixin
@@ -25,6 +26,7 @@ class TaskStore(
     SubmissionRunLineageMixin,
     RunSessionLineageMixin,
     ExecutionIntegrityMixin,
+    EnvironmentContractMixin,
     EnvironmentEvidenceMixin,
     PolicyStateMixin,
     ReadinessMixin,
