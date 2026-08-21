@@ -2,9 +2,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from runtime.environment.fingerprint import CompatibilityReport, CompatibilityState
 from runtime.policy import HaltRecord, HaltStore, WorkerProfile, evaluate_assignment
 from runtime.routing import recommend_route
+from runtime.environment.fingerprint import CompatibilityReport, CompatibilityState
 
 
 def compatibility_report(state: CompatibilityState) -> CompatibilityReport:
@@ -136,6 +136,65 @@ class PolicyRoutingTests(unittest.TestCase):
             decision = evaluate_assignment(task(), core, environment_report=report)
             self.assertNotIn("environment_incompatible", decision.reasons)
             self.assertTrue(decision.allowed)
+
+    def test_router_gates_explicitly_incompatible_environment(self):
+        core = WorkerProfile("core", "core")
+        result = recommend_route(
+            [task()],
+            [core],
+            environment_reports={
+                "TASK-1": compatibility_report(CompatibilityState.INCOMPATIBLE)
+            },
+        )
+        self.assertEqual(result.route, "policy_gate")
+        self.assertEqual(result.task_id, "TASK-1")
+        self.assertEqual(result.reasons, ("environment_incompatible",))
+
+    def test_router_gates_incompatible_environment_without_workers(self):
+        result = recommend_route(
+            [task()],
+            [],
+            environment_reports={
+                "TASK-1": compatibility_report(CompatibilityState.INCOMPATIBLE)
+            },
+        )
+        self.assertEqual(result.route, "policy_gate")
+        self.assertEqual(result.reasons, ("environment_incompatible",))
+
+    def test_router_gates_incompatible_environment_with_unavailable_worker(self):
+        unavailable = WorkerProfile("core", "core", available=False)
+        result = recommend_route(
+            [task()],
+            [unavailable],
+            environment_reports={
+                "TASK-1": compatibility_report(CompatibilityState.INCOMPATIBLE)
+            },
+        )
+        self.assertEqual(result.route, "policy_gate")
+        self.assertEqual(result.reasons, ("environment_incompatible",))
+
+    def test_router_skips_incompatible_task_for_compatible_task(self):
+        core = WorkerProfile("core", "core")
+        result = recommend_route(
+            [task("TASK-1"), task("TASK-2")],
+            [core],
+            environment_reports={
+                "TASK-1": compatibility_report(CompatibilityState.INCOMPATIBLE),
+                "TASK-2": compatibility_report(CompatibilityState.COMPATIBLE),
+            },
+        )
+        self.assertEqual(result.route, "claim_or_assign")
+        self.assertEqual(result.task_id, "TASK-2")
+
+    def test_router_unknown_environment_report_preserves_assignment(self):
+        core = WorkerProfile("core", "core")
+        result = recommend_route(
+            [task()],
+            [core],
+            environment_reports={"TASK-1": compatibility_report(CompatibilityState.UNKNOWN)},
+        )
+        self.assertEqual(result.route, "claim_or_assign")
+        self.assertEqual(result.task_id, "TASK-1")
 
     def test_review_prefers_eligible_independent_reviewer(self):
         review_task = task(
