@@ -7,6 +7,7 @@ import sys
 
 from runtime.policy import HaltStore, WorkerProfile
 from runtime.routing import route_project
+from runtime.routing.langgraph_runtime import _deserialize_environment_reports
 from runtime.state import TaskStore
 
 DEFAULT_DB = ".maps/state/maps.db"
@@ -22,6 +23,18 @@ def read_workers(path: str) -> list[WorkerProfile]:
     if not isinstance(value, list):
         raise ValueError("workers JSON must be a list or an object with a workers list")
     return [WorkerProfile.from_mapping(item) for item in value]
+
+
+def read_environment_reports(path: str):
+    with open(path, "r", encoding="utf-8") as handle:
+        value = json.load(handle)
+    if isinstance(value, dict) and "environment_reports" in value:
+        value = value["environment_reports"]
+    if not isinstance(value, dict):
+        raise ValueError(
+            "environment reports JSON must be an object or contain environment_reports"
+        )
+    return _deserialize_environment_reports(value)
 
 
 def emit(value: object) -> int:
@@ -40,6 +53,13 @@ def main(argv: list[str] | None = None) -> int:
     route.add_argument("--project-id", default="default")
     route.add_argument("--checkpoint-db", default=DEFAULT_CHECKPOINT)
     route.add_argument("--thread-id")
+    route.add_argument(
+        "--environment-reports-json",
+        help=(
+            "JSON object mapping task IDs to CompatibilityReport values; this "
+            "is caller-supplied evidence, not environment inspection"
+        ),
+    )
 
     approve = sub.add_parser(
         "approve", help="record operator approval for an explicitly gated task"
@@ -78,6 +98,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "route":
             workers = read_workers(args.workers_json)
+            environment_reports = (
+                read_environment_reports(args.environment_reports_json)
+                if args.environment_reports_json
+                else None
+            )
             store = TaskStore(args.db)
             return emit(
                 route_project(
@@ -87,6 +112,7 @@ def main(argv: list[str] | None = None) -> int:
                     halt_path=args.halt_path,
                     checkpoint_path=args.checkpoint_db,
                     thread_id=args.thread_id,
+                    environment_reports=environment_reports,
                 )
             )
         if args.command == "approve":
