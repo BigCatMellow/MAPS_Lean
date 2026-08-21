@@ -4,8 +4,15 @@ from pathlib import Path
 import stat
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 
-from runtime.helpers import AiderHelper, HelperError, HelperRunStore, OllamaHelper
+from runtime.helpers import (
+    AiderHelper,
+    HelperContinuityStore,
+    HelperError,
+    HelperRunStore,
+    OllamaHelper,
+)
 
 
 FAKE_OLLAMA = r'''#!/usr/bin/env python3
@@ -73,6 +80,9 @@ class BoundedHelperTests(unittest.TestCase):
         os.environ["HELPER_FAKE_LOG"] = str(self.log)
         self.addCleanup(os.environ.pop, "HELPER_FAKE_LOG", None)
         self.run_store = HelperRunStore(Path(self.td.name) / "helper-runs.json")
+        self.continuity_store = HelperContinuityStore(
+            Path(self.td.name) / "helper-continuity.json"
+        )
 
     def test_ollama_writes_only_scoped_output_and_records_result(self):
         helper = OllamaHelper(executable=self.ollama, run_store=self.run_store)
@@ -142,6 +152,150 @@ class BoundedHelperTests(unittest.TestCase):
             "record_review(", "record_operator_approval(",
         ):
             self.assertNotIn(forbidden, lowered)
+
+    def test_helper_continuity_reuses_exact_unexpired_match_only(self):
+        now = datetime(2026, 8, 21, 12, 0, tzinfo=timezone.utc)
+        record = self.continuity_store.register(
+            task_id="TASK-1",
+            project_id="default",
+            helper="ollama:qwen3",
+            purpose="summarize logs",
+            context_key="rev:abc",
+            session_ref="ollama-session-1",
+            ttl_seconds=600,
+            now=now,
+        )
+
+        reusable = self.continuity_store.resolve(
+            task_id="TASK-1",
+            project_id="default",
+            helper="ollama:qwen3",
+            purpose="summarize logs",
+            context_key="rev:abc",
+            now=now + timedelta(seconds=60),
+        )
+        self.assertTrue(reusable["reusable"])
+        self.assertEqual(reusable["record"]["continuity_id"], record.continuity_id)
+        self.assertEqual(reusable["record"]["session_ref"], "ollama-session-1")
+
+        changed_context = self.continuity_store.resolve(
+            task_id="TASK-1",
+            project_id="default",
+            helper="ollama:qwen3",
+            purpose="summarize logs",
+            context_key="rev:def",
+            now=now + timedelta(seconds=60),
+        )
+        self.assertFalse(changed_context["reusable"])
+        self.assertEqual(changed_context["reason"], "NO_MATCH")
+
+    def test_helper_continuity_expires_and_invalidates_fail_closed(self):
+        now = datetime(2026, 8, 21, 12, 0, tzinfo=timezone.utc)
+        record = self.continuity_store.register(
+            task_id="TASK-1",
+            project_id="default",
+            helper="aider",
+            purpose="edit src",
+            context_key="rev:abc",
+            session_ref="aider-session-1",
+            ttl_seconds=10,
+            now=now,
+        )
+
+        expired = self.continuity_store.resolve(
+            task_id="TASK-1",
+            project_id="default",
+            helper="aider",
+            purpose="edit src",
+            context_key="rev:abc",
+            now=now + timedelta(seconds=11),
+        )
+        self.assertFalse(expired["reusable"])
+        self.assertEqual(expired["reason"], "EXPIRED")
+
+        self.assertTrue(
+            self.continuity_store.invalidate(
+                record.continuity_id,
+                reason="task changed",
+                now=now + timedelta(seconds=2),
+            )["ok"]
+        )
+        invalidated = self.continuity_store.resolve(
+            task_id="TASK-1",
+            project_id="default",
+            helper="aider",
+            purpose="edit src",
+            context_key="rev:abc",
+            now=now + timedelta(seconds=3),
+        )
+        self.assertFalse(invalidated["reusable"])
+        self.assertEqual(invalidated["reason"], "INVALIDATED")
+
+    def test_helper_continuity_malformed_store_fails_closed(self):
+        now = datetime(2026, 8, 21, 12, 0, tzinfo=timezone.utc)
+        self.continuity_store.path.write_text(
+            json.dumps(
+                [
+                    {
+                        "task_id": "TASK-1",
+                        "project_id": "default",
+                        "helper": "aider",
+                        "purpose": "edit src",
+                        "context_key": "rev:abc",
+                        "status": "active",
+                        "expires_at": "2026-08-21T12:10:00Z",
+                    }
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+        result = self.continuity_store.resolve(
+            task_id="TASK-1",
+            project_id="default",
+            helper="aider",
+            purpose="edit src",
+            context_key="rev:abc",
+            now=now,
+        )
+
+        self.assertFalse(result["reusable"])
+        self.assertEqual(result["reason"], "MALFORMED_STORE")
+
+    def test_helper_continuity_rejects_non_object_and_invalid_timestamp(self):
+        now = datetime(2026, 8, 21, 12, 0, tzinfo=timezone.utc)
+        for payload in (
+            ["not an object"],
+            [
+                {
+                    "continuity_id": "HC-123456789abc",
+                    "task_id": "TASK-1",
+                    "project_id": "default",
+                    "helper": "aider",
+                    "purpose": "edit src",
+                    "context_key": "rev:abc",
+                    "session_ref": "aider-session-1",
+                    "status": "active",
+                    "created_at": "not-a-time",
+                    "expires_at": "2026-08-21T12:10:00Z",
+                }
+            ],
+        ):
+            with self.subTest(payload=payload):
+                self.continuity_store.path.write_text(
+                    json.dumps(payload),
+                    encoding="utf-8",
+                )
+                result = self.continuity_store.resolve(
+                    task_id="TASK-1",
+                    project_id="default",
+                    helper="aider",
+                    purpose="edit src",
+                    context_key="rev:abc",
+                    now=now,
+                )
+                self.assertFalse(result["reusable"])
+                self.assertEqual(result["reason"], "MALFORMED_STORE")
 
 
 if __name__ == "__main__":
