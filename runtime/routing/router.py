@@ -116,9 +116,24 @@ def recommend_route(
             )
             continue
 
+        # This is task evidence, not a worker-dependent capability result. It
+        # must gate before worker selection so an unavailable or empty worker
+        # pool cannot hide a proven incompatibility behind a generic wait.
+        if environment_report is not None:
+            from runtime.environment.fingerprint import CompatibilityState
+
+            if environment_report.state == CompatibilityState.INCOMPATIBLE:
+                blocked_fallbacks.append(
+                    RouteRecommendation(
+                        "policy_gate",
+                        task_id,
+                        reasons=("environment_incompatible",),
+                    )
+                )
+                continue
+
         allowed: list[WorkerProfile] = []
         approval_required: set[str] = set()
-        environment_incompatible = False
         for worker in worker_list:
             decision = evaluate_assignment(
                 task, worker, environment_report=environment_report
@@ -127,8 +142,6 @@ def recommend_route(
                 allowed.append(worker)
             elif decision.requires_approval:
                 approval_required.update(decision.reasons)
-            elif "environment_incompatible" in decision.reasons:
-                environment_incompatible = True
 
         if allowed:
             selected = allowed[0]
@@ -138,13 +151,6 @@ def recommend_route(
                 else "claim_or_assign"
             )
             return RouteRecommendation(route, task_id, selected.worker_id)
-        if environment_incompatible:
-            blocked_fallbacks.append(
-                RouteRecommendation(
-                    "policy_gate", task_id, reasons=("environment_incompatible",)
-                )
-            )
-            continue
         if approval_required:
             blocked_fallbacks.append(
                 RouteRecommendation(

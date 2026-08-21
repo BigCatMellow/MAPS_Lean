@@ -150,6 +150,29 @@ class PolicyRoutingTests(unittest.TestCase):
         self.assertEqual(result.task_id, "TASK-1")
         self.assertEqual(result.reasons, ("environment_incompatible",))
 
+    def test_router_gates_incompatible_environment_without_workers(self):
+        result = recommend_route(
+            [task()],
+            [],
+            environment_reports={
+                "TASK-1": compatibility_report(CompatibilityState.INCOMPATIBLE)
+            },
+        )
+        self.assertEqual(result.route, "policy_gate")
+        self.assertEqual(result.reasons, ("environment_incompatible",))
+
+    def test_router_gates_incompatible_environment_with_unavailable_worker(self):
+        unavailable = WorkerProfile("core", "core", available=False)
+        result = recommend_route(
+            [task()],
+            [unavailable],
+            environment_reports={
+                "TASK-1": compatibility_report(CompatibilityState.INCOMPATIBLE)
+            },
+        )
+        self.assertEqual(result.route, "policy_gate")
+        self.assertEqual(result.reasons, ("environment_incompatible",))
+
     def test_router_skips_incompatible_task_for_compatible_task(self):
         core = WorkerProfile("core", "core")
         result = recommend_route(

@@ -105,6 +105,9 @@ environment-evidence task.
 
 - The mapping is an evidence injection boundary, not a source-of-truth or a
   compatibility evaluator. Missing entries deliberately preserve legacy routing.
+- Explicit `INCOMPATIBLE` evidence gates after existing halt and operator
+  approval checks but before worker selection, so an empty or unavailable-only
+  worker pool cannot conceal a proven incompatibility.
 
 ## Completion / handoff
 
