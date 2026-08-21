@@ -10,7 +10,7 @@ instructs — that is the authoritative live-state entry point, not this file.
 ## Latest coordination handoff
 
 The latest compact multi-session handoff is
-[`work/handoffs/2026-08-20-session-portable-and-roadmap-progress.md`](../work/handoffs/2026-08-20-session-portable-and-roadmap-progress.md).
+[`work/handoffs/2026-08-21-roadmap-progress-and-handoff.md`](../work/handoffs/2026-08-21-roadmap-progress-and-handoff.md).
 Use it for durable orientation only, then recover live GitHub state per
 `work/coordination/README.md` before acting on PRs, CI, or current blockers.
 
