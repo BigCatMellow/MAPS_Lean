@@ -1,0 +1,4 @@
+reviewer: /root/pr152_reviewer
+head_sha: d7d50b3f468f72f6bfb46a5c767b7457d22acb46
+independent: true
+summary: APPROVE. Independently reviewed PR #152 at exact head d7d50b3f468f72f6bfb46a5c767b7457d22acb46. The docs-only design accurately identifies the missing task-to-EnvironmentSpec contract surface in runtime/state/schema.sql, base.py, policy.py, integrity.py, and readiness.py; its additive optional task_environment table, atomic shaping-hook integration, task-revision inclusion, and readiness checks are bounded and implementable. The design preserves current routing behavior in runtime/routing/environment_reports.py: missing, DRIFTED, and UNKNOWN evidence remain non-rejecting, and only explicit fresh INCOMPATIBLE evidence gates. No runtime, test, or schema behavior changes are claimed; git diff --check passed.
