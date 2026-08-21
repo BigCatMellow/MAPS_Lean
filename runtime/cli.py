@@ -8,6 +8,7 @@ import sys
 
 from runtime.context_builder import build_context_plan
 from runtime.evaluation import IncidentCategory, RegressionCaseError, freeze_regression_case
+from runtime.flow_start import flow_start_from_runtime_limit_args
 from runtime.run_record import RunRecordError, build_run_record
 from runtime.state import MutationResult, TaskStore, ValidationResult
 from runtime.status import build_status
@@ -38,7 +39,7 @@ def _emit(value: MutationResult | ValidationResult | dict | list) -> int:
         ok = value.ok
     else:
         payload = value
-        ok = True
+        ok = value.get('ok', True) if isinstance(value, dict) else True
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0 if ok else 2
 
@@ -179,6 +180,29 @@ def build_parser() -> argparse.ArgumentParser:
     reviews = sub.add_parser('reviews', help='show task review history')
     reviews.add_argument('task_id')
 
+    flow = sub.add_parser('flow', help='run deterministic lifecycle flows')
+    flow_sub = flow.add_subparsers(dest='flow_command', required=True)
+    flow_start = flow_sub.add_parser(
+        'start',
+        help='claim, plan context, and bind a run manifest without provider launch',
+    )
+    flow_start.add_argument('task_id')
+    flow_start.add_argument('--worker-id', required=True)
+    flow_start.add_argument('--repo-root', default='.')
+    flow_start.add_argument('--created-by', default='maps-flow-start')
+    flow_start.add_argument('--lease-seconds', type=int, default=900)
+    flow_start.add_argument('--context-path', action='append', default=[])
+    flow_start.add_argument('--readable-path', action='append', default=None)
+    flow_start.add_argument('--writable-path', action='append', default=None)
+    flow_start.add_argument('--forbidden-path', action='append', default=[])
+    flow_start.add_argument(
+        '--runtime-limit',
+        action='append',
+        default=[],
+        help='runtime limit as KEY=INT; repeat for multiple limits',
+    )
+    flow_start.add_argument('--base-revision')
+
     return parser
 
 
@@ -288,6 +312,25 @@ def main(argv: list[str] | None = None) -> int:
         return _emit(store.list_events(args.task_id))
     if args.command == 'reviews':
         return _emit(store.list_reviews(args.task_id))
+    if args.command == 'flow':
+        if args.flow_command == 'start':
+            return _emit(flow_start_from_runtime_limit_args(
+                store,
+                args.task_id,
+                worker_id=args.worker_id,
+                repo_root=args.repo_root,
+                created_by=args.created_by,
+                lease_seconds=args.lease_seconds,
+                context_paths=args.context_path,
+                readable_paths=(
+                    args.readable_path if args.readable_path is not None else ('.',)
+                ),
+                writable_paths=args.writable_path,
+                forbidden_paths=args.forbidden_path,
+                runtime_limit_args=args.runtime_limit,
+                base_revision=args.base_revision,
+            ))
+        raise AssertionError(args.flow_command)
     raise AssertionError(args.command)
 
 
