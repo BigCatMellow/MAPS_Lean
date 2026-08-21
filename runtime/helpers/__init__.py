@@ -1,5 +1,7 @@
 from .aider import AiderHelper
 from .common import (
+    HelperContinuityRecord,
+    HelperContinuityStore,
     HelperError,
     HelperResult,
     HelperRunStore,
@@ -11,6 +13,8 @@ from .ollama import OllamaHelper
 
 __all__ = [
     "AiderHelper",
+    "HelperContinuityRecord",
+    "HelperContinuityStore",
     "HelperError",
     "HelperResult",
     "HelperRunStore",

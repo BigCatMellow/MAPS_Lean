@@ -23,6 +23,23 @@ accountable owner integrates/verifies
 Helper records default to `.maps/state/helper-runs.json`. They are evidence of a
 helper invocation, not canonical lifecycle state.
 
+Helper continuity records default to `.maps/state/helper-continuity.json`. They
+are metadata-only reuse candidates for a prior helper session reference:
+
+```text
+same task/project
++ same helper kind and purpose
++ same caller-provided context key
++ unexpired TTL
++ not explicitly invalidated
+      ↓
+reusable candidate
+```
+
+A reusable candidate still does not prove provider health, task authority,
+review authority, or permission to resume the helper. Callers must re-check the
+current task and provider state before any consequential action.
+
 ## Ollama
 
 `OllamaHelper` is a text/draft lane:
