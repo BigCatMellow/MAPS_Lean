@@ -1,11 +1,12 @@
 # Portable Deployment operator decisions (roadmap 06)
 
 Roadmap `06-portable-deployment.md` (#128) closed its Mission meeting with
-five open questions the roadmap explicitly could not resolve itself, plus an
-unpicked pilot target. The operator has now made all five calls, and named
-the first pilot target. This note is the record; the roadmap itself is
-updated in the same PR to point back here and to rescope `D2`/`D3` onto the
-now-resolved architecture.
+five open architecture questions the roadmap explicitly could not resolve
+itself. The operator has made all five architecture calls; the first pilot
+target remains unselected after the 2026-08-21 correction that the previously
+named target was only an example. This note is the record; the roadmap itself
+is updated to point back here and to rescope `D2`/`D3` onto the now-resolved
+architecture while keeping target selection as future D3 preflight work.
 
 ## Operator decisions (recorded 2026-08-19)
 
@@ -51,15 +52,14 @@ now-resolved architecture.
    confusion/drift roadmap 06's Definition of DONE is trying to rule out;
    visibility in-tree is the cheaper failure mode to detect and fix.
 
-**First pilot target: Chain Shovel.** A real, currently-active game dev
-project (unrelated to MAPS_Lean) with a known, bounded bug — an ES-module-
-split + logger issue — already identified. Chosen over a synthetic/throwaway
-repo because roadmap 06's Definition of DONE explicitly requires a real,
-observable pilot with an inspectable merged PR and review-evidence artifact;
-a bounded, already-diagnosed bug gives genuine end-to-end proof without
-open-ended risk. Note: actually running the D2/D3 pilot against Chain Shovel
-is separate future work — not part of the decision-recording or rescoping
-done in this PR, and this session has no access to Chain Shovel's repo.
+**Pilot target: not selected.** Corrected 2026-08-21 by operator instruction:
+the previously named target was an example, not an authorized selection. The
+first real external pilot still must be a real, bounded, inspectable task in a
+target repository, because roadmap 06's Definition of DONE requires a real PR
+and review-evidence artifact. Selecting that target, task, reviewer, access
+path, verification command, hosting policy, and merge authority is future
+operator/target-owner decision work; this decision record does not authorize
+any external repository action.
 
 ## What this unblocks
 

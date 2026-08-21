@@ -19,7 +19,7 @@
   `.maps/` state.
 - VERIFIED: `templates/task.md`, `templates/review-evidence.md`, and
   `docs/CHECKS_AND_BALANCES.md` are the local MAPS patterns to adapt.
-- UNKNOWN: the actual Chain Shovel repository shape; D2a must not depend on
+- UNKNOWN: the actual future target repository shape; D2a must not depend on
   access to it.
 
 ## Change boundary
@@ -36,7 +36,7 @@
 - MUST NOT CHANGE:
   - `runtime/`
   - `scripts/install_maps.sh`
-  - any external repository, including Chain Shovel
+  - any external repository
   - `.maps/state/`
 - OPERATOR APPROVAL REQUIRED: actually running a pilot against an external
   repository, adding installer behavior, or changing the already-recorded v1
@@ -82,7 +82,7 @@
 
 ## Stop / escalate
 
-Stop rather than guess if the work requires Chain Shovel repository details,
+Stop rather than guess if the work requires external target repository details,
 an executable adapter, installer behavior, CI enforcement, or a change to the
 operator's recorded v1 decisions.
 

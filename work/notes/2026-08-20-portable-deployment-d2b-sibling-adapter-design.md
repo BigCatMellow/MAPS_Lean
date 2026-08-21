@@ -5,7 +5,7 @@
 Portable v1 uses a lightweight adapter committed in a target repository and a
 separate sibling MAPS_Lean clone. This note defines the adapter's narrow
 contract. It is not an adapter implementation, an installer change, a target
-initialization, or authority to access Chain Shovel.
+initialization, target selection, or authority to access any external target.
 
 The adapter exists to make D2a's target-owned Markdown convention convenient
 to use. It must not turn the sibling clone into a second target task store or
@@ -143,8 +143,8 @@ show that it:
 
 ## Non-goals and follow-on
 
-D2b does not decide Chain Shovel's task, detailed target layout, CI/hosting,
-or reviewer; those belong to D2c. It does not execute the pilot; that is D3.
+D2b does not decide the pilot target/task, detailed target layout, CI/hosting,
+or reviewer; those belong to D2c/D3. It does not execute the pilot; that is D3.
 It does not implement the adapter or D1's installer flag. Any implementation
 must start with a new AGI-ready task that turns this contract into a limited
 entry point with executable refusal and write-boundary tests.

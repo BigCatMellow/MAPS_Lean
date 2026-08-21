@@ -8,7 +8,7 @@ Fourth pass after PRs #128-#132 landed and before selecting new self-directed wo
 - `gh pr view 131` showed PR #131 merged with `test` and `review-evidence` successful.
 - `git log --oneline --max-count=8` shows PRs #128, #129, #130, #132, and #131 merged after trajectory check #3.
 - `work/roadmaps/CAPABILITY_CHECKLIST.md` now includes the portable deployment section and marks D0-D6 `NOT STARTED`.
-- `work/notes/2026-08-19-portable-deployment-operator-decisions.md` records the five operator decisions for portable deployment v1 and the Chain Shovel pilot target.
+- `work/notes/2026-08-19-portable-deployment-operator-decisions.md` records the five operator decisions for portable deployment v1. Its earlier example-target language was corrected on 2026-08-21; no pilot target is selected.
 
 ## 2. What changed the picture
 
@@ -34,5 +34,5 @@ Not selected:
 
 - D1: depends on D0.
 - D2a/D2b/D2c: unblocked, but better sequenced after D0/D1 or at least after D0.
-- Chain Shovel pilot D3: blocked on D2a-D2c and requires external repo access/authority.
+- D3 pilot: blocked on D2a-D2c, explicit target/task selection, and external repo access/authority.
 - Existing runtime lanes 6.19/6.20/6.21/6.25: still `TRIGGERED` or otherwise not evidenced as triggered.

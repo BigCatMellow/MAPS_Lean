@@ -11,7 +11,7 @@
 
 - Inputs: `AGENTS.md`, `docs/CHECKS_AND_BALANCES.md`, `work/roadmaps/CAPABILITY_CHECKLIST.md`, `work/roadmaps/agent-harness-capabilities/06-portable-deployment.md`, `scripts/install_maps.sh`, the D0 audit, D1 installer-targeting design, D2a file-convention note, and `templates/portable-deployment/`.
 - Authoritative sources: the recorded portable-v1 operator decisions and Roadmap 06 govern product intent; D1 governs the two-root installer boundary; D2a governs the target `.maps/` convention.
-- Evidence labels: `VERIFIED` for inspected repository files; `REPORTED` for D0 findings not re-run here; `UNKNOWN` for Chain Shovel and any real target repository.
+- Evidence labels: `VERIFIED` for inspected repository files; `REPORTED` for D0 findings not re-run here; `UNKNOWN` for any real target repository.
 - Dependencies / preconditions: D0, D1, and D2a are complete; the five 2026-08-19 operator decisions are recorded.
 
 ## Change boundary
@@ -31,7 +31,7 @@
 - [x] The design names explicit canonical `MAPS_CLONE_ROOT` and `TARGET_REPO_ROOT` inputs and preserves D1's MAPS/target root separation.
 - [x] The design bounds target-local adapter operations, output paths, and optional checks to the D2a file convention.
 - [x] The design states refusal conditions for ambiguous paths, cross-store writes, implicit control-plane state, arbitrary command execution, target test/readiness claims, and review/merge authority.
-- [x] The design leaves implementation and Chain Shovel planning/execution to separate D2c/D3 work.
+- [x] The design leaves implementation and target-selection/pilot execution to separate D2c/D3 work.
 - [x] Only D2b tracking is updated; D2c and D3 remain `NOT STARTED`.
 
 ## Verification and evidence
@@ -59,7 +59,7 @@ Stop rather than guess if:
 - target support requires a non-Git root, implicit target discovery, or a runtime/SQLite/hcom state model not decided for v1;
 - the work would require target tests, readiness claims, review approval, auto-merge, or external repository access.
 
-Escalate to: the operator for scope/authority changes; D2c for the Chain Shovel-specific plan; a separately shaped implementation task for any adapter code.
+Escalate to: the operator for scope/authority changes; D2c for target/task selection planning; a separately shaped implementation task for any adapter code.
 
 ## AGI readiness
 
@@ -79,6 +79,6 @@ Escalate to: the operator for scope/authority changes; D2c for the Chain Shovel-
 ## Completion / handoff
 
 - Completed: D2b design note and its canonical tracking updates.
-- Not completed: adapter implementation, target initialization, Chain Shovel pilot plan/execution, independent review, and merge.
+- Not completed: adapter implementation, target initialization, target/task selection, pilot execution, independent review, and merge.
 - Current blocker: independent review before merge.
 - Next action if not DONE: obtain independent review of this documentation-only change.

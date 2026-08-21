@@ -6,8 +6,7 @@
 - Owner: agent (this session)
 - Risk: `LOW`
 - Goal: record the operator's five Mission-meeting decisions from roadmap
-  `06-portable-deployment.md` (#128) plus the chosen first pilot target
-  (Chain Shovel) as a decision note, and rescope the roadmap's `D2`
+  `06-portable-deployment.md` (#128) as a decision note, and rescope the roadmap's `D2`
   placeholder into concrete `D2a`/`D2b`/`D2c` design/planning phases now
   that the architecture fork is resolved. Docs-only.
 
@@ -37,7 +36,7 @@
   section of `06-portable-deployment.md` (Current reality, Definition of
   DONE, Boundaries' scope lists, Backward plan, Later/TRIGGERED, Checkpoints
   are left as-is except where a decision resolution note is appended
-  inline), Chain Shovel's own repository (no access from this session).
+  inline), or any external target repository.
 - MAY CHANGE IF NECESSARY: none.
 - OPERATOR APPROVAL REQUIRED: none beyond the decisions already relayed —
   this task only records them and re-derives their scoping consequences for
@@ -56,8 +55,9 @@
 
 - [x] Decision note exists at
   `work/notes/2026-08-19-portable-deployment-operator-decisions.md`, records
-  all five decisions plus the Chain Shovel pilot-target choice, each with a
-  one-line reasoning restatement, in this repo's own notes-file voice.
+  all five decisions, each with a one-line reasoning restatement, in this
+  repo's own notes-file voice. Corrected 2026-08-21: earlier example-target
+  language is superseded; no pilot target is selected by this task.
 - [x] Roadmap 06's Mission meeting section marks all five operator decisions
   as resolved with inline decision text and a link to the new note.
 - [x] Roadmap 06's "First wave selected" text and Phase 1 now name `D2a`,
