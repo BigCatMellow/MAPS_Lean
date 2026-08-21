@@ -17,6 +17,7 @@ from runtime.skills import (
     build_skill_catalog,
 )
 from runtime.state import TaskStore
+from runtime.trust import MemoryTrustClass
 
 
 class ContextBuilderTests(unittest.TestCase):
@@ -191,9 +192,12 @@ class ContextBuilderTests(unittest.TestCase):
         self.assertTrue(plan["guidance"])
         for item in plan["guidance"]:
             self.assertEqual(item["budget_class"], "SHOULD_LOAD")
+            self.assertEqual(item["trust_class"], MemoryTrustClass.REVIEWED_GUIDANCE.value)
         self.assertTrue(plan["withheld_guidance"])
         for item in plan["withheld_guidance"]:
             self.assertEqual(item["budget_class"], "ON_DEMAND")
+            self.assertEqual(item["trust_class"], MemoryTrustClass.REVIEWED_GUIDANCE.value)
+        self.assertTrue(plan["coverage"]["memory_trust_classification_present"])
 
     def test_matching_skill_budget_class_is_should_load(self):
         task_id = self.create_task()
@@ -317,6 +321,7 @@ class ContextBuilderTests(unittest.TestCase):
         self.assertEqual(guidance_ids, {"LESSON-ACTIVE"})
         item = plan["guidance"][0]
         self.assertEqual(item["authority"], "GUIDANCE_ONLY")
+        self.assertEqual(item["trust_class"], MemoryTrustClass.REVIEWED_GUIDANCE.value)
         self.assertEqual(item["promotion_decision_ref"], "decision:active")
         self.assertEqual(item["source_refs"], ["outcome:LESSON-ACTIVE"])
         serialized = json.dumps(plan)
@@ -350,6 +355,44 @@ class ContextBuilderTests(unittest.TestCase):
         self.assertEqual(plan["guidance"], [])
         withheld = {item["lesson_id"]: item["reason"] for item in plan["withheld_guidance"]}
         self.assertEqual(withheld.get("LESSON-OTHER-PROJECT"), "NOT_APPLICABLE")
+        trust = {
+            item["lesson_id"]: item["trust_class"] for item in plan["withheld_guidance"]
+        }
+        self.assertEqual(
+            trust.get("LESSON-OTHER-PROJECT"),
+            MemoryTrustClass.REVIEWED_GUIDANCE.value,
+        )
+
+    def test_stale_lessons_stay_withheld_with_trust_metadata(self):
+        task_id = self.create_task()
+        for lesson_id, review_at, expires_at in (
+            ("LESSON-REVIEW", "2026-08-20T19:00:00Z", None),
+            ("LESSON-EXPIRED", "2099-08-20T19:00:00Z", "2026-08-20T19:00:00Z"),
+        ):
+            self.assertTrue(
+                self.store.record_operational_lesson_candidate(
+                    self._lesson(lesson_id), created_by="observer-a"
+                ).ok
+            )
+            self.store.promote_operational_lesson(
+                lesson_id,
+                decision_ref=f"decision:{lesson_id}",
+                promoted_by="operator-a",
+                starts_at="2026-08-17T19:00:00Z",
+                review_at=review_at,
+                expires_at=expires_at,
+            )
+
+        plan = build_context_plan(self.store, task_id, repo_root=self.root)
+
+        self.assertEqual(plan["guidance"], [])
+        withheld = {item["lesson_id"]: item for item in plan["withheld_guidance"]}
+        self.assertEqual(withheld["LESSON-REVIEW"]["reason"], "REVIEW_DUE")
+        self.assertEqual(withheld["LESSON-EXPIRED"]["reason"], "EXPIRED")
+        for item in withheld.values():
+            self.assertEqual(item["trust_class"], MemoryTrustClass.REVIEWED_GUIDANCE.value)
+            self.assertTrue(item["stale_trust_metadata"])
+        self.assertTrue(plan["coverage"]["memory_trust_classification_present"])
 
     def test_malformed_lesson_record_fails_closed_without_breaking_plan(self):
         task_id = self.create_task()
@@ -476,8 +519,10 @@ class ContextBuilderTests(unittest.TestCase):
         self.assertEqual(entry["name"], "context-plan-builder")
         self.assertEqual(entry["source_id"], "local")
         self.assertEqual(entry["trust_state"], "UNASSESSED")
+        self.assertEqual(entry["trust_class"], MemoryTrustClass.OBSERVATION.value)
         self.assertIn("context", entry["selection_reason"])
         self.assertTrue(entry["catalog_key"])
+        self.assertTrue(plan["coverage"]["memory_trust_classification_present"])
 
         # Exit gate: the unrelated Skill must not merely be "not selected" --
         # it must be demonstrably absent from the serialized plan entirely,
