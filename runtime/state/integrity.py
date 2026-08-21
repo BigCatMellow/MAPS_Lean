@@ -74,6 +74,26 @@ class ExecutionIntegrityMixin:
                 "paid_execution": True,
             }
         )
+        environment = conn.execute(
+            """
+            SELECT spec_ref, max_age_seconds, required_for_routing,
+                   allow_older_task_revision
+            FROM task_environment WHERE task_id = ?
+            """,
+            (task_id,),
+        ).fetchone()
+        definition["environment"] = (
+            None
+            if environment is None
+            else {
+                "spec_ref": environment["spec_ref"],
+                "max_age_seconds": environment["max_age_seconds"],
+                "required_for_routing": bool(environment["required_for_routing"]),
+                "allow_older_task_revision": bool(
+                    environment["allow_older_task_revision"]
+                ),
+            }
+        )
         return definition
 
     def _task_revision_conn(self, conn: sqlite3.Connection, task_id: str) -> str:

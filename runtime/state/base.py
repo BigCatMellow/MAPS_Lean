@@ -26,6 +26,11 @@ class BaseStore:
         conn.execute("PRAGMA busy_timeout = 5000")
         return conn
 
+    def _contract_shaping_hooks(self):
+        """Return mixin hooks to apply within a contract-shaping transaction."""
+
+        return ()
+
     @staticmethod
     def _clean(values: Iterable[str] | None) -> tuple[str, ...]:
         if not values:
@@ -221,12 +226,11 @@ class BaseStore:
                     ((task_id, item) for item in cleaned),
                 )
 
-            # Optional mixins can participate in the same shaping transaction.
-            # PolicyStateMixin uses this hook so policy flags and approval reset
-            # cannot drift from the task contract if a second write fails.
-            policy_hook = getattr(self, "_apply_policy_contract_conn", None)
-            if callable(policy_hook):
-                policy_hook(conn, task_id, contract)
+            # Optional mixins participate in ordered shaping hooks before the
+            # transaction commits, so their state cannot drift from this task
+            # contract if a later hook fails.
+            for hook in self._contract_shaping_hooks():
+                hook(conn, task_id, contract)
 
             conn.execute(
                 "UPDATE tasks SET agi_status = 'UNCHECKED', updated_at = ? WHERE task_id = ?",

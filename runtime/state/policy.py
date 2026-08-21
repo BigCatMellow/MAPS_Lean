@@ -58,6 +58,9 @@ class PolicyStateMixin:
         # policy flags, AGI reset, and approval invalidation are one atomic shape.
         return super().update_contract(task_id, contract)
 
+    def _contract_shaping_hooks(self):
+        return (*super()._contract_shaping_hooks(), self._apply_policy_contract_conn)
+
     def _apply_policy_contract_conn(
         self,
         conn: sqlite3.Connection,

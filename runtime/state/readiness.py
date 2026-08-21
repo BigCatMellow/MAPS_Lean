@@ -14,6 +14,7 @@ from .common import (
     iso_z,
     utc_now,
 )
+from .environment_contract import validate_persisted_environment_contract
 
 
 class ReadinessMixin:
@@ -107,6 +108,19 @@ class ReadinessMixin:
         )
         if task_id in dependencies:
             reasons.append("task cannot depend on itself")
+
+        environment = conn.execute(
+            """
+            SELECT spec_ref, max_age_seconds, required_for_routing,
+                   allow_older_task_revision
+            FROM task_environment WHERE task_id = ?
+            """,
+            (task_id,),
+        ).fetchone()
+        if environment is not None:
+            validation = validate_persisted_environment_contract(dict(environment))
+            if validation is not None:
+                reasons.append(f"invalid environment contract: {validation.message}")
 
         dependency_blockers: list[str] = []
         for dependency in dependencies:
