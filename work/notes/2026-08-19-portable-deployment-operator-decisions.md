@@ -1,11 +1,12 @@
 # Portable Deployment operator decisions (roadmap 06)
 
 Roadmap `06-portable-deployment.md` (#128) closed its Mission meeting with
-five open questions the roadmap explicitly could not resolve itself, plus an
-unpicked pilot target. The operator has now made all five calls, and named
-the first pilot target. This note is the record; the roadmap itself is
-updated in the same PR to point back here and to rescope `D2`/`D3` onto the
-now-resolved architecture.
+five open architecture questions the roadmap explicitly could not resolve
+itself. The operator has made all five architecture calls; the first pilot
+target remains unselected after the 2026-08-21 correction that the previously
+named target was only an example. This note is the record; the roadmap itself
+is updated to point back here and to rescope `D2`/`D3` onto the now-resolved
+architecture while keeping target selection as future D3 preflight work.
 
 ## Operator decisions (recorded 2026-08-19)
 
