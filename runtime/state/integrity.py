@@ -8,6 +8,8 @@ import sqlite3
 from typing import Any, Iterable, Mapping, Sequence
 from uuid import uuid4
 
+from runtime.integrity.git_scope import collect_git_worktree_identity
+
 from .common import MutationResult, iso_z, utc_now
 
 
@@ -195,6 +197,13 @@ class ExecutionIntegrityMixin:
         if not root.is_dir():
             return MutationResult(False, "INVALID_RUN", "repo_root must be a directory")
 
+        worktree_identity: dict[str, str] | None = None
+        if base_revision is not None:
+            try:
+                worktree_identity = collect_git_worktree_identity(root)
+            except RuntimeError:
+                worktree_identity = None
+
         try:
             readable = self._normalize_scopes(readable_paths, root)
             forbidden = self._normalize_scopes(forbidden_paths, root)
@@ -326,6 +335,24 @@ class ExecutionIntegrityMixin:
                     created_at,
                 ),
             )
+            if worktree_identity is not None:
+                conn.execute(
+                    """
+                    INSERT INTO run_worktree_bindings(
+                        run_id, repo_root, git_common_dir, git_dir,
+                        worktree_private_dir, head_revision, bound_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        run_id,
+                        worktree_identity["repo_root"],
+                        worktree_identity["git_common_dir"],
+                        worktree_identity["git_dir"],
+                        worktree_identity["worktree_private_dir"],
+                        worktree_identity["head_revision"],
+                        created_at,
+                    ),
+                )
             conn.executemany(
                 "INSERT INTO run_context_refs(run_id, path, sha256) VALUES (?, ?, ?)",
                 ((run_id, path, sha) for path, sha in sorted(context_refs)),
@@ -358,6 +385,11 @@ class ExecutionIntegrityMixin:
                     (run_id,),
                 ).fetchall()
             ]
+            worktree = conn.execute(
+                "SELECT * FROM run_worktree_bindings WHERE run_id = ?",
+                (run_id,),
+            ).fetchone()
+            record["worktree"] = dict(worktree) if worktree is not None else None
             return record
 
     def check_run_stale(

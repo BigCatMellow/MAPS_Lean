@@ -78,6 +78,13 @@ reports both:
 - paths outside the frozen writable scope; and
 - paths inside explicitly forbidden scope.
 
+When run creation can read Git identity at `repo_root`, the run manifest also
+binds the local Git worktree identity observed at run creation. Verification compares the supplied
+`repo_root` identity before changed-path analysis and reports
+`worktree_mismatch` or `worktree_unavailable` rather than evaluating a different
+worktree as if it were the assigned run surface. Runs without a stored binding
+preserve legacy behavior and report the binding coverage as missing.
+
 Rename/copy parsing preserves both the source and destination path so moving a
 protected file cannot hide the original path.
 
