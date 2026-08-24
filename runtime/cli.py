@@ -8,6 +8,7 @@ import sys
 
 from runtime.context_builder import build_context_plan
 from runtime.evaluation import IncidentCategory, RegressionCaseError, freeze_regression_case
+from runtime.flow_review import flow_review_start
 from runtime.flow_start import flow_start_from_runtime_limit_args
 from runtime.run_record import RunRecordError, build_run_record
 from runtime.state import MutationResult, TaskStore, ValidationResult
@@ -202,6 +203,18 @@ def build_parser() -> argparse.ArgumentParser:
         help='runtime limit as KEY=INT; repeat for multiple limits',
     )
     flow_start.add_argument('--base-revision')
+    flow_review_start = flow_sub.add_parser(
+        'review-start',
+        help='claim review work and optionally bind the immutable review subject',
+    )
+    flow_review_start.add_argument('task_id')
+    flow_review_start.add_argument('--reviewer-id', required=True)
+    flow_review_start.add_argument(
+        '--freshness-mode',
+        choices=['REVISION_BOUND', 'REDERIVED_AT_REVIEW', 'NON_CONSEQUENTIAL'],
+    )
+    flow_review_start.add_argument('--run-id')
+    flow_review_start.add_argument('--artifact-ref', action='append', default=[])
 
     return parser
 
@@ -329,6 +342,15 @@ def main(argv: list[str] | None = None) -> int:
                 forbidden_paths=args.forbidden_path,
                 runtime_limit_args=args.runtime_limit,
                 base_revision=args.base_revision,
+            ))
+        if args.flow_command == 'review-start':
+            return _emit(flow_review_start(
+                store,
+                args.task_id,
+                reviewer_id=args.reviewer_id,
+                freshness_mode=args.freshness_mode,
+                run_id=args.run_id,
+                artifact_refs=args.artifact_ref,
             ))
         raise AssertionError(args.flow_command)
     raise AssertionError(args.command)
