@@ -1,7 +1,12 @@
-# Roadmap trajectory check #4 — arc: PRs #128-#156 (+#157 open)
+# Roadmap trajectory check #6 — arc: PRs #128-#156 (+#157 open)
 
-Fourth pass. `-3.md` covered #126-#127 + a re-verify gate with no new PRs.
-This pass covers everything merged since then: #128 through #156 on
+Sixth pass (this branch was cut from `37c609b`, "check #3," before
+`2026-08-20-roadmap-trajectory-check-4.md` and `-5.md` landed on
+`origin/main` — renumbered from a stale "#4" during review, see
+`work/reviews/pr-158-review-evidence.md`). `-3.md` covered #126-#127 + a
+re-verify gate with no new PRs; `-4.md`/`-5.md` (already merged, covering
+the #128-#135 portable-deployment-D0 sub-arc) are unrelated prior passes.
+This pass covers everything merged since `-3.md`: #128 through #156 on
 `origin/main` (HEAD `ee7d14c`), plus PR #157 (`Bind Git runs to worktree
 identity`), currently OPEN/draft, mergeable, not yet merged.
 
@@ -92,7 +97,19 @@ All sampled `CAPABILITY_CHECKLIST.md` rows held up against actual code.
 - **Git worktree isolation (6.16) got a second real increment** (#156
   design, #157 implementation-in-review) closing the gap pass #3's arc
   didn't touch: run manifests can now bind and verify actual Git worktree
-  identity, not just changed-path scope.
+  identity, not just changed-path scope. **Same trigger-scrutiny issue as
+  6.19/20/21 applies here and was missed in this note's first draft**: the
+  master roadmap tags 6.16 `TRIGGERED` (line 914), not `P1` — promotion
+  condition is "concurrent writable work becomes common enough that
+  shared-worktree collisions are plausible or observed." That trigger did
+  fire and was recorded (pass #1's "Shared-worktree collisions" finding,
+  cited in `CAPABILITY_CHECKLIST.md`'s own E6 row), which is exactly the
+  documented-trigger case #157 is building on — so 6.16 is not part of the
+  #2-flagged pattern of undocumented triggers. It differs from 6.19/20/21
+  in exactly this way: 6.16 has a named, recorded trigger event; they don't.
+  Treat 6.16 as legitimately active, not as a second instance of the same
+  gap — but note the tag itself is `TRIGGERED`, not `P1`, so it shouldn't be
+  cited as a "P1 candidate" without that context (fixed in §4b below).
 - **Memory trust (6.22) got its enforcement-seam design** (#148) and first
   real annotation wiring (#149) — vocabulary (from pass #3's own #127 work)
   now actually touches `context_builder.py` output, though no gate consults
@@ -168,10 +185,13 @@ another increment.
    an incremental next slice on infrastructure that's already 4 PRs deep
    this arc (#146, #150, #151, #152/153) with a design note already
    resolving the freshness/filtering boundary.
-5. **6.16 — finish worktree-binding integration** (`P1` architectural,
-   currently `IN PROGRESS`). #157 is open/mergeable now — get it reviewed
-   and merged, then verify `verify_git_run()`'s new mismatch path is
-   actually exercised by a production call site (currently only tested,
+5. **6.16 — finish worktree-binding integration** (tagged `TRIGGERED` in
+   the master roadmap, not `P1` — corrected from this note's first draft;
+   its promotion trigger already fired and was recorded at pass #1, so it's
+   legitimately active work, unlike 6.19/20/21's undocumented triggers,
+   see §2). Currently `IN PROGRESS`. #157 is open/mergeable now — get it
+   reviewed and merged, then verify `verify_git_run()`'s new mismatch path
+   is actually exercised by a production call site (currently only tested,
    not proven wired into a real dispatch flow).
 
 ### 4c. Correctly gated/blocked — do not re-investigate
@@ -223,6 +243,8 @@ exactly as scoped in `work/notes/2026-08-21-rns-harness-validation-
 callsite-design.md`'s "Bounded follow-up implementation" section — that
 design is complete and ready, nobody has picked it up yet. Once that lands
 and its validation-tier fast-follow lands, run `ROADMAP_TRAJECTORY_CHECK.md`
-pass #5. Otherwise, self-select from §4b's ranked list (SEC3 hook guards or
+pass #7 (this is pass #6; `-4.md`/`-5.md` on `origin/main` are earlier,
+unrelated passes — don't re-run them). Otherwise, self-select from §4b's
+ranked list (SEC3 hook guards or
 SEC4 skill-lifecycle persistence are the next-best-shaped candidates after
 RnS/validation).
