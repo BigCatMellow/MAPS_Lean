@@ -10,6 +10,19 @@ from .store import RecoveryStore, parse_time
 LIVE_STATUSES = {"active", "listening", "waiting", "blocked"}
 DEFAULT_BACKOFF_SECONDS = (300, 900, 1800, 3600, 7200)
 
+# Codes that mean an installed CANONICAL_RUN Hook actively evaluated this
+# resume and found a concrete mismatch (HOOK_DENIED) or withheld automatic
+# approval (APPROVAL_REQUIRED). This is the only outcome tick() treats as an
+# explicit canonical-run denial -- the one case where routing through the
+# harness changes observable behavior versus the pre-existing direct hcom
+# resume call. CANONICAL_GUARD_REQUIRED (no CANONICAL_RUN Hook installed at
+# all -- a configuration gap, not a concrete mismatch) and every other
+# failure code are deliberately NOT included here: per the design note's
+# "does not silently suppress a resume the direct path would have attempted
+# unless the canonical-run guard has a concrete mismatch," those fall back to
+# the pre-existing direct-resume call instead (see tick()).
+_CANONICAL_DENIAL_CODES = {"HOOK_DENIED", "APPROVAL_REQUIRED"}
+
 
 def session_is_live(session: Mapping[str, Any], *, stale_after_seconds: int = 1800) -> bool:
     if str(session.get("status", "")).lower() not in LIVE_STATUSES:
@@ -50,10 +63,14 @@ class RecoverySupervisor:
         # list_run_environment_evidence(run_id) -> list[dict]. Never consulted
         # to make or change any recovery decision -- see _advisory_environment_evidence.
         self.environment_reader = environment_reader
-        # Optional, advisory-only. When set, must duck-type HarnessService
-        # (a resume(binding, session_ref) -> OperationResult method).
-        # Never consulted to make or change any recovery decision -- see
-        # _advisory_harness_resume_shadow.
+        # Optional. When set, must duck-type HarnessService (a
+        # resume(binding, session_ref) -> OperationResult method). This is
+        # the real production resume path (see tick()): when the incident's
+        # existing session/run lineage lets _resolve_harness_binding build an
+        # ExecutionBinding/SessionRef, resume is routed through this service
+        # instead of the direct self.hcom.resume(...) call. When unset, or
+        # when that lineage can't be resolved for a given incident, tick()
+        # preserves the pre-existing direct-resume behavior unchanged.
         self.harness_service = harness_service
         if not backoff_seconds or any(value <= 0 for value in backoff_seconds):
             raise ValueError("backoff_seconds must contain positive values")
@@ -104,39 +121,29 @@ class RecoverySupervisor:
         except Exception:  # noqa: BLE001 - advisory lookup must never break recovery
             return None
 
-    def _advisory_harness_resume_shadow(
+    def _resolve_harness_binding(
         self, incident: Mapping[str, Any], session_name: str
-    ) -> dict[str, Any] | None:
-        """Read-only, parallel harness-path resume shadow for one incident.
+    ) -> tuple[ExecutionBinding | None, SessionRef | None, str]:
+        """Construct the ExecutionBinding/SessionRef for a harness-routed resume.
 
-        Shadow-only instrumentation per work/notes/2026-08-19-harness-
-        production-wiring-gap.md's Option B recommendation and the "explicit
-        dry-run/shadow-mode... before its automated retry loop depends on the
-        harness path" caveat in work/reviews/pr-119-review-evidence.md's
-        "Second opinion on Option B recommendation" section. Purely advisory
-        context, never consulted by any branch in tick() to make or change a
-        recovery decision -- its result is threaded into the returned action
-        record purely as observational evidence for a later trajectory check
-        on whether Option B's full migration is viable. Returns None (not an
-        empty dict) when no harness_service is configured, mirroring
-        _advisory_environment_evidence's exact early-return shape. When a
-        harness_service is configured, this may still not be able to attempt
-        anything real (most tasks have no run manifest / durable session
-        lineage) -- in that case it reports what could not even be tried
-        rather than guessing or forcing a doomed call.
+        Reuses exactly the incident/session/run lineage relationship already
+        used for _advisory_environment_evidence -- no new lineage-resolution
+        machinery. Returns (None, None, reason) whenever any part of that
+        lineage is missing or ambiguous; callers must treat that as "the
+        harness path cannot be constructed for this incident" and fall back
+        to the pre-existing direct hcom resume behavior (see tick()). Never
+        raises: any lookup failure is reported as a reason string.
         """
-        if self.harness_service is None:
-            return None
         run_id = incident.get("run_id")
         if not run_id:
-            return {"attempted": False, "reason": "no_run_id_bound"}
+            return None, None, "no_run_id_bound"
         try:
             run_id = str(run_id)
             task_id = str(incident.get("task_id", ""))
             worker_id = str(incident.get("worker_id", ""))
             task = self.task_reader.get_task(task_id)
             if task is None:
-                return {"attempted": False, "reason": "task_missing"}
+                return None, None, "task_missing"
             project_id = str(task.get("project_id") or "").strip()
             compute_task_revision = getattr(self.task_reader, "compute_task_revision", None)
             task_revision = (
@@ -145,21 +152,21 @@ class RecoverySupervisor:
                 else ""
             )
             if not project_id or not task_revision:
-                return {"attempted": False, "reason": "task_binding_incomplete"}
+                return None, None, "task_binding_incomplete"
 
             resolve_run_session = getattr(self.task_reader, "resolve_run_session", None)
             if resolve_run_session is None:
-                return {"attempted": False, "reason": "no_lineage_resolver"}
+                return None, None, "no_lineage_resolver"
             lineage = resolve_run_session(run_id)
             if not isinstance(lineage, Mapping) or lineage.get("state") != "EXPLICIT":
-                return {"attempted": False, "reason": "session_not_durably_bound"}
+                return None, None, "session_not_durably_bound"
             current = lineage.get("current")
             if not isinstance(current, Mapping):
-                return {"attempted": False, "reason": "session_not_durably_bound"}
+                return None, None, "session_not_durably_bound"
             adapter_session_id = str(current.get("session_id") or "").strip()
             adapter_id = str(current.get("adapter_id") or "").strip()
             if not adapter_session_id or adapter_id != "hcom":
-                return {"attempted": False, "reason": "session_not_durably_bound"}
+                return None, None, "session_not_durably_bound"
 
             binding = ExecutionBinding(
                 task_id=task_id,
@@ -176,15 +183,9 @@ class RecoverySupervisor:
                 project_id=project_id,
                 remote_ref=session_name,
             )
-            result = self.harness_service.resume(binding, session_ref)
-            return {
-                "attempted": True,
-                "ok": bool(result.ok),
-                "code": str(result.code),
-                "summary": str(result.summary),
-            }
-        except Exception:  # noqa: BLE001 - advisory lookup must never break recovery
-            return {"attempted": False, "reason": "shadow_lookup_error"}
+            return binding, session_ref, ""
+        except Exception:  # noqa: BLE001 - binding construction must never break recovery
+            return None, None, "binding_lookup_error"
 
     @staticmethod
     def _open_incident_for(state: dict[str, Any], task_id: str, session_name: str) -> bool:
@@ -282,9 +283,11 @@ class RecoverySupervisor:
             # Advisory only -- never read by any branch below to make or
             # change a decision. See _advisory_environment_evidence docstring.
             evidence = self._advisory_environment_evidence(incident.get("run_id"))
-            # Advisory only -- never read by any branch below to make or
-            # change a decision. See _advisory_harness_resume_shadow docstring.
-            shadow = self._advisory_harness_resume_shadow(incident, session_name)
+            # harness_resume is populated only once an actual resume attempt
+            # is made below (this incident wasn't suppressed/resolved/failed
+            # first); no lineage lookup or harness call happens for those
+            # other outcomes.
+            harness_resume: dict[str, Any] | None = None
 
             if session_name in state["terminal_sessions"]:
                 incident["state"] = "suppressed"
@@ -296,7 +299,7 @@ class RecoverySupervisor:
                         "action": "suppress",
                         "reason": "terminal_session",
                         "environment_evidence": evidence,
-                        "harness_resume_shadow": shadow,
+                        "harness_resume": harness_resume,
                     }
                 )
                 continue
@@ -320,7 +323,7 @@ class RecoverySupervisor:
                         "action": "suppress",
                         "reason": reason,
                         "environment_evidence": evidence,
-                        "harness_resume_shadow": shadow,
+                        "harness_resume": harness_resume,
                     }
                 )
                 continue
@@ -335,7 +338,7 @@ class RecoverySupervisor:
                         "action": "resolve",
                         "reason": "session_live",
                         "environment_evidence": evidence,
-                        "harness_resume_shadow": shadow,
+                        "harness_resume": harness_resume,
                     }
                 )
                 continue
@@ -357,18 +360,67 @@ class RecoverySupervisor:
                         "action": "fail",
                         "reason": "retry_budget_exhausted",
                         "environment_evidence": evidence,
-                        "harness_resume_shadow": shadow,
+                        "harness_resume": harness_resume,
                     }
                 )
                 continue
 
-            try:
-                self.hcom.resume(session_name, headless=True, go=True)
-                error = ""
-                action = "resume"
-            except HcomError as exc:
-                error = str(exc)
-                action = "resume_failed"
+            resolved = False
+            if self.harness_service is not None:
+                binding, session_ref, binding_reason = self._resolve_harness_binding(
+                    incident, session_name
+                )
+                if binding is not None and session_ref is not None:
+                    try:
+                        result = self.harness_service.resume(binding, session_ref)
+                    except Exception as exc:  # noqa: BLE001 - service failure must not crash the tick
+                        harness_resume = {
+                            "attempted": True,
+                            "ok": False,
+                            "code": "HARNESS_CALL_ERROR",
+                            "summary": str(exc),
+                        }
+                    else:
+                        harness_resume = {
+                            "attempted": True,
+                            "ok": bool(result.ok),
+                            "code": str(result.code),
+                            "summary": str(result.summary),
+                        }
+                        if result.ok:
+                            error = ""
+                            action = "resume"
+                            resolved = True
+                        elif str(result.code) in _CANONICAL_DENIAL_CODES:
+                            # A concrete canonical-run mismatch -- an
+                            # installed CANONICAL_RUN Hook actively denied
+                            # (or required approval for) this resume. This
+                            # is the one outcome allowed to change behavior
+                            # versus the pre-existing direct-resume call: no
+                            # fallback, the denial is observable via
+                            # harness_resume above, and no task truth is
+                            # touched.
+                            error = str(result.summary)
+                            action = "resume_denied"
+                            resolved = True
+                        # else: harness attempt failed for a non-canonical
+                        # reason (e.g. no CANONICAL_RUN Hook installed at
+                        # all, an adapter/provider failure) -- fall through
+                        # below and preserve current direct-resume behavior
+                        # for this incident so a resume is never silently
+                        # suppressed by anything short of an explicit
+                        # canonical-run denial.
+                else:
+                    harness_resume = {"attempted": False, "reason": binding_reason}
+
+            if not resolved:
+                try:
+                    self.hcom.resume(session_name, headless=True, go=True)
+                    error = ""
+                    action = "resume"
+                except HcomError as exc:
+                    error = str(exc)
+                    action = "resume_failed"
 
             attempt += 1
             incident["attempt"] = attempt
@@ -391,7 +443,7 @@ class RecoverySupervisor:
                     "attempt": attempt,
                     "error": error,
                     "environment_evidence": evidence,
-                    "harness_resume_shadow": shadow,
+                    "harness_resume": harness_resume,
                 }
             )
 

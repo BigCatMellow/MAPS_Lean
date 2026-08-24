@@ -4,8 +4,15 @@ import tempfile
 import unittest
 
 from runtime.communication import HcomError
-from runtime.harness import ExecutionBinding, OperationResult, SessionRef
+from runtime.harness import (
+    ExecutionBinding,
+    HookRegistry,
+    OperationResult,
+    SessionRef,
+)
 from runtime.harness.adapters import HcomHarnessAdapter
+from runtime.harness.service import HarnessService
+from runtime.policy.harness_guard import CanonicalRunGuard, register_canonical_run_guards
 from runtime.recovery import RecoveryStore, RecoverySupervisor, session_is_live
 from runtime.state import TaskStore
 
@@ -608,17 +615,20 @@ class FakeHarnessServiceResume:
         )
 
 
-class RecoveryHarnessResumeShadowTests(unittest.TestCase):
-    """Shadow-only harness resume observation (Option B shadow instrumentation).
+class RecoveryHarnessResumeCallSiteTests(unittest.TestCase):
+    """RnS harness resume production call site.
 
-    Per work/notes/2026-08-19-harness-production-wiring-gap.md (Option B
-    recommendation) and work/reviews/pr-119-review-evidence.md's "Second
-    opinion on Option B recommendation" (an explicit shadow-mode step before
-    RnS's automated retry loop depends on the harness path), this must be
-    provably shadow-only: never consulted by any branch in tick() to make or
-    change a recovery decision. Uses a real TaskStore so the durable
-    run/session lineage lookup (resolve_run_session) is actually exercised,
-    not faked.
+    Per work/notes/2026-08-21-rns-harness-validation-callsite-design.md, this
+    is the first behavior-changing production call site: tick()'s resume
+    attempt is routed through HarnessService.resume() (via the real,
+    already-implemented HcomHarnessAdapter) instead of the direct
+    self.hcom.resume(...) call, whenever the incident's existing
+    session/run lineage lets a real ExecutionBinding/SessionRef be built.
+    Behavior is preserved for every outcome except an explicit canonical-run
+    denial (a real, installed CANONICAL_RUN Hook actively denying) -- see
+    work/tasks/rns-harness-resume-callsite.md's Decisions section. Uses a
+    real TaskStore so the durable run/session lineage lookup
+    (resolve_run_session) is actually exercised, not faked.
     """
 
     def setUp(self):
@@ -699,18 +709,18 @@ class RecoveryHarnessResumeShadowTests(unittest.TestCase):
             **kwargs,
         )
 
-    def test_no_harness_service_configured_leaves_shadow_key_none(self):
-        """(a) Not configured: tick() behaves identically, shadow key is None."""
+    def test_no_harness_service_configured_direct_resume_unchanged(self):
+        """Not configured: tick() behaves identically to before this task, key is None."""
         task_id, run_id = self.make_bound_run()
         self.schedule_due(task_id=task_id, run_id=run_id)
         sup = self.supervisor(sessions=[{"name": "session-1", "status": "stopped"}])
         actions = sup.tick(now=self.now)
         self.assertEqual(actions[0]["action"], "resume")
-        self.assertIsNone(actions[0]["harness_resume_shadow"])
+        self.assertIsNone(actions[0]["harness_resume"])
         self.assertEqual(len(self.hcom.resumes), 1)
 
-    def test_no_run_id_bound_reports_not_attempted_real_resume_unaffected(self):
-        """(b) Configured but no run_id bound: honest 'not attempted', real resume proceeds."""
+    def test_missing_run_binding_falls_back_to_direct_resume(self):
+        """Configured but no run_id bound: harness path can't be built, direct resume proceeds unchanged."""
         task_id, _run_id = self.make_bound_run()
         self.schedule_due(task_id=task_id, run_id=None)
         harness = FakeHarnessServiceResume()
@@ -721,78 +731,15 @@ class RecoveryHarnessResumeShadowTests(unittest.TestCase):
         actions = sup.tick(now=self.now)
         self.assertEqual(actions[0]["action"], "resume")
         self.assertEqual(
-            actions[0]["harness_resume_shadow"],
+            actions[0]["harness_resume"],
             {"attempted": False, "reason": "no_run_id_bound"},
         )
         self.assertEqual(harness.calls, [])
         self.assertEqual(len(self.hcom.resumes), 1)
 
-    def test_harness_path_raises_but_real_resume_completes_identically(self):
-        """(c) The core safety proof.
-
-        Identical scenario run twice, differing only in whether a
-        harness_service is configured and raises on resume(). The real
-        hcom resume call, the resulting action/error/state transition, and
-        the incident's persisted state must be byte-for-byte identical
-        (aside from the shadow key itself and the per-run incident_id) --
-        proving the shadow call never gates the real decision, empirically.
-        """
-        task_id, run_id = self.make_bound_run(attach=True)
-
-        def run(harness_service):
-            store = RecoveryStore(self.root / f"recovery-{id(harness_service)}.json")
-            self.schedule_due(task_id=task_id, run_id=run_id, store=store)
-            hcom = FakeHcom(sessions=[{"name": "session-1", "status": "stopped"}])
-            sup = RecoverySupervisor(
-                task_reader=self.task_store,
-                hcom=hcom,
-                recovery_store=store,
-                backoff_seconds=(60, 120),
-                harness_service=harness_service,
-            )
-            actions = sup.tick(now=self.now)
-            incidents = store.load()["incidents"]
-            return actions, hcom.resumes, incidents
-
-        no_shadow_actions, no_shadow_resumes, no_shadow_incidents = run(None)
-        failing_harness = FakeHarnessServiceResume(raise_error=True)
-        failing_actions, failing_resumes, failing_incidents = run(failing_harness)
-
-        # The shadow path was actually attempted and did raise -- otherwise
-        # this test would not be exercising the property it claims to prove.
-        self.assertEqual(len(failing_harness.calls), 1)
-
-        self.assertEqual(no_shadow_resumes, failing_resumes)
-        self.assertEqual(len(failing_resumes), 1)
-
-        for a, b in zip(no_shadow_actions, failing_actions):
-            a = dict(a)
-            b = dict(b)
-            del a["harness_resume_shadow"], a["incident_id"]
-            del b["harness_resume_shadow"], b["incident_id"]
-            self.assertEqual(a, b)
-
-        self.assertEqual(failing_actions[0]["action"], "resume")
-        self.assertEqual(failing_actions[0]["error"], "")
-        self.assertEqual(
-            failing_actions[0]["harness_resume_shadow"],
-            {"attempted": False, "reason": "shadow_lookup_error"},
-        )
-
-        for no_shadow_incident, failing_incident in zip(
-            no_shadow_incidents.values(), failing_incidents.values()
-        ):
-            no_shadow_incident = dict(no_shadow_incident)
-            failing_incident = dict(failing_incident)
-            # incident_id is a random uuid4 per schedule() call, distinct
-            # across the two independent runs by construction -- not part
-            # of the decision/state this test is verifying.
-            del no_shadow_incident["incident_id"], failing_incident["incident_id"]
-            self.assertEqual(no_shadow_incident, failing_incident)
-
-    def test_harness_resume_shadow_observes_success_without_affecting_real_path(self):
-        """A successful shadow call is also purely observational, additive data."""
-        task_id, run_id = self.make_bound_run(attach=True)
+    def test_ambiguous_binding_falls_back_to_direct_resume(self):
+        """Run bound but no durable hcom session lineage: same fallback as a missing run_id."""
+        task_id, run_id = self.make_bound_run(attach=False)
         self.schedule_due(task_id=task_id, run_id=run_id)
         harness = FakeHarnessServiceResume()
         sup = self.supervisor(
@@ -800,13 +747,171 @@ class RecoveryHarnessResumeShadowTests(unittest.TestCase):
             harness_service=harness,
         )
         actions = sup.tick(now=self.now)
-        self.assertEqual(len(harness.calls), 1)
         self.assertEqual(actions[0]["action"], "resume")
         self.assertEqual(
-            actions[0]["harness_resume_shadow"],
-            {"attempted": True, "ok": True, "code": "SESSION_RESUMED", "summary": "hcom resume request completed."},
+            actions[0]["harness_resume"],
+            {"attempted": False, "reason": "session_not_durably_bound"},
+        )
+        self.assertEqual(harness.calls, [])
+        self.assertEqual(len(self.hcom.resumes), 1)
+
+    def test_successful_resume_routes_through_harness_adapter_not_direct_path(self):
+        """Binding constructible: resume reaches hcom via the real HcomHarnessAdapter, not self.hcom directly."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+
+        harness_backend = FakeHcom(sessions=[{"name": "session-1", "status": "stopped", "session_id": "sess-1"}])
+        adapter = HcomHarnessAdapter(harness_backend, project_id="proj-1", lineage_writer=self.task_store)
+        hooks = HookRegistry()
+        register_canonical_run_guards(
+            hooks, CanonicalRunGuard(self.task_store, repo_root=self.repo)
+        )
+        harness_service = HarnessService([adapter], hooks=hooks)
+
+        # self.hcom below is the direct-path adapter passed to RecoverySupervisor;
+        # it must never be called once the harness path succeeds.
+        sup = self.supervisor(sessions=[], harness_service=harness_service)
+        actions = sup.tick(now=self.now)
+
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertEqual(actions[0]["error"], "")
+        self.assertEqual(
+            actions[0]["harness_resume"],
+            {
+                "attempted": True,
+                "ok": True,
+                "code": "SESSION_RESUMED",
+                "summary": "hcom resume request completed.",
+            },
+        )
+        # The real hcom call happened exactly once, through the harness
+        # adapter's own backend, with the same headless/go intent the direct
+        # path used to send -- and the direct path was never invoked.
+        self.assertEqual(
+            harness_backend.resumes,
+            [{"name": "session-1", "headless": True, "terminal": None, "go": True}],
+        )
+        self.assertEqual(self.hcom.resumes, [])
+
+    def test_canonical_run_denial_surfaces_in_evidence_without_direct_fallback(self):
+        """An explicit canonical-run denial (HOOK_DENIED) is surfaced and does not fall back."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        denial = OperationResult.failure(
+            "HOOK_DENIED", "Deterministic Hook denied the operation."
+        )
+        harness = FakeHarnessServiceResume(result=denial)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+        )
+        actions = sup.tick(now=self.now)
+        self.assertEqual(len(harness.calls), 1)
+        self.assertEqual(actions[0]["action"], "resume_denied")
+        self.assertEqual(actions[0]["error"], "Deterministic Hook denied the operation.")
+        self.assertEqual(
+            actions[0]["harness_resume"],
+            {
+                "attempted": True,
+                "ok": False,
+                "code": "HOOK_DENIED",
+                "summary": "Deterministic Hook denied the operation.",
+            },
+        )
+        # No task-truth mutation and no direct-path resume: a denial is a
+        # real behavior change from the pre-existing direct call, and it is
+        # the only such change this call site makes.
+        self.assertEqual(self.hcom.resumes, [])
+        incident_id = actions[0]["incident_id"]
+        stored = self.recovery_store.load()["incidents"][incident_id]
+        self.assertEqual(stored["state"], "probing")
+        self.assertEqual(stored["last_error"], "Deterministic Hook denied the operation.")
+
+    def test_missing_canonical_guard_falls_back_to_direct_resume(self):
+        """CANONICAL_GUARD_REQUIRED (no CANONICAL_RUN Hook installed) is not a concrete
+        mismatch -- it falls back to direct resume instead of denying."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        no_guard = OperationResult.failure(
+            "CANONICAL_GUARD_REQUIRED",
+            "Consequential harness operation requires canonical run enforcement.",
+        )
+        harness = FakeHarnessServiceResume(result=no_guard)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+        )
+        actions = sup.tick(now=self.now)
+        self.assertEqual(len(harness.calls), 1)
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertEqual(actions[0]["error"], "")
+        self.assertEqual(
+            actions[0]["harness_resume"],
+            {
+                "attempted": True,
+                "ok": False,
+                "code": "CANONICAL_GUARD_REQUIRED",
+                "summary": "Consequential harness operation requires canonical run enforcement.",
+            },
         )
         self.assertEqual(len(self.hcom.resumes), 1)
+
+    def test_harness_call_exception_falls_back_to_direct_resume(self):
+        """The real resume attempt still completes if calling the harness_service raises."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        harness = FakeHarnessServiceResume(raise_error=True)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+        )
+        actions = sup.tick(now=self.now)
+        self.assertEqual(len(harness.calls), 1)
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertEqual(actions[0]["error"], "")
+        self.assertEqual(
+            actions[0]["harness_resume"],
+            {
+                "attempted": True,
+                "ok": False,
+                "code": "HARNESS_CALL_ERROR",
+                "summary": "simulated harness resume failure",
+            },
+        )
+        self.assertEqual(len(self.hcom.resumes), 1)
+
+    def test_environment_evidence_unaffected_by_harness_routing(self):
+        """_advisory_environment_evidence's behavior is untouched by this task."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        reader = FakeEnvironmentReader(evidence=[{"kind": "note", "detail": "ok"}])
+        harness = FakeHarnessServiceResume()
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            environment_reader=reader,
+            harness_service=harness,
+        )
+        actions = sup.tick(now=self.now)
+        self.assertEqual(reader.calls, [run_id])
+        self.assertEqual(
+            actions[0]["environment_evidence"], [{"kind": "note", "detail": "ok"}]
+        )
+        self.assertEqual(actions[0]["action"], "resume")
+
+    def test_no_validation_tier_commands_or_task_mutation_in_source(self):
+        """No validation-tier wiring or task-truth mutation was introduced by this task."""
+        source = Path(__file__).parents[1] / "runtime" / "recovery" / "supervisor.py"
+        text = source.read_text(encoding="utf-8").lower()
+        for forbidden in (
+            "environmentspec",
+            "make_validation_hook",
+            "claim_task(",
+            "submit_task(",
+            "record_review(",
+            "promote_ready(",
+            "update_contract(",
+        ):
+            self.assertNotIn(forbidden, text)
 
 
 if __name__ == "__main__":
