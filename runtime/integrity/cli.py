@@ -42,6 +42,11 @@ def main(argv: list[str] | None = None) -> int:
     create.add_argument("--write", action="append")
     create.add_argument("--forbid", action="append", default=[])
     create.add_argument("--base-revision")
+    create.add_argument(
+        "--require-worktree-binding",
+        action="store_true",
+        help="fail run creation unless --repo has readable Git worktree identity",
+    )
     create.add_argument("--runtime-seconds", type=int)
     create.add_argument("--max-tool-failures", type=int)
     create.add_argument("--max-attempts", type=int)
@@ -121,6 +126,7 @@ def main(argv: list[str] | None = None) -> int:
                 forbidden_paths=args.forbid,
                 runtime_limits=limits,
                 base_revision=args.base_revision,
+                require_worktree_binding=args.require_worktree_binding,
             )
         )
     if args.command == "run-show":

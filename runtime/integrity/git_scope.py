@@ -55,6 +55,46 @@ def _name_status_paths(raw: bytes) -> set[str]:
     return paths
 
 
+def _resolved_git_path(repo: Path, raw: str) -> str:
+    path = Path(raw)
+    if not path.is_absolute():
+        path = repo / path
+    return str(path.resolve())
+
+
+def collect_git_worktree_identity(repo_root: str | Path) -> dict[str, str]:
+    """Return immutable-ish local Git worktree identity without mutating Git."""
+    repo = Path(repo_root).resolve()
+    top = Path(
+        _git(repo, "rev-parse", "--show-toplevel")
+        .decode("utf-8", errors="replace")
+        .strip()
+    ).resolve()
+    if top != repo:
+        raise RuntimeError(f"repo_root must be Git top-level: {top}")
+
+    git_common_dir = _git(repo, "rev-parse", "--git-common-dir").decode(
+        "utf-8", errors="replace"
+    ).strip()
+    git_dir = _git(repo, "rev-parse", "--git-dir").decode(
+        "utf-8", errors="replace"
+    ).strip()
+    worktree_private_dir = _git(repo, "rev-parse", "--git-path", ".").decode(
+        "utf-8", errors="replace"
+    ).strip()
+    head_revision = _git(repo, "rev-parse", "--verify", "HEAD^{commit}").decode(
+        "utf-8", errors="replace"
+    ).strip()
+
+    return {
+        "repo_root": str(top),
+        "git_common_dir": _resolved_git_path(repo, git_common_dir),
+        "git_dir": _resolved_git_path(repo, git_dir),
+        "worktree_private_dir": _resolved_git_path(repo, worktree_private_dir),
+        "head_revision": head_revision,
+    }
+
+
 def collect_git_changes(
     repo_root: str | Path,
     *,
@@ -97,10 +137,42 @@ def verify_git_run(store: Any, run_id: str, *, repo_root: str | Path) -> dict:
             "out_of_scope": [],
             "forbidden_changes": [],
         }
+    expected = manifest.get("worktree")
+    if isinstance(expected, dict):
+        try:
+            actual = collect_git_worktree_identity(repo_root)
+        except RuntimeError as exc:
+            return {
+                "ok": False,
+                "run_id": run_id,
+                "reason": "worktree_unavailable",
+                "error": str(exc),
+                "changed_paths": [],
+                "out_of_scope": [],
+                "forbidden_changes": [],
+                "worktree_binding": "unavailable",
+            }
+        compared = ("repo_root", "git_common_dir", "git_dir", "worktree_private_dir")
+        if any(expected.get(field) != actual.get(field) for field in compared):
+            return {
+                "ok": False,
+                "run_id": run_id,
+                "reason": "worktree_mismatch",
+                "changed_paths": [],
+                "out_of_scope": [],
+                "forbidden_changes": [],
+                "worktree_binding": "mismatch",
+                "worktree_mismatch": {
+                    f"expected_{field}": expected.get(field)
+                    for field in compared
+                }
+                | {f"actual_{field}": actual.get(field) for field in compared},
+            }
     changed = collect_git_changes(
         repo_root,
         base_revision=manifest.get("base_revision"),
     )
     result = store.verify_run_changes(run_id, changed, repo_root=repo_root)
     result["base_revision"] = manifest.get("base_revision") or "HEAD"
+    result["worktree_binding"] = "verified" if isinstance(expected, dict) else "missing"
     return result

@@ -68,11 +68,11 @@ class IntegrityTests(unittest.TestCase):
         self.assertTrue(self.store.claim_task(task_id, worker, lease_seconds=600).ok)
         return task_id
 
-    def make_run(self, task_id, *, worker="worker", **kwargs):
+    def make_run(self, task_id, *, worker="worker", repo_root=None, **kwargs):
         result = self.store.create_run_manifest(
             task_id,
             worker,
-            repo_root=self.repo,
+            repo_root=repo_root or self.repo,
             created_by="dispatcher",
             context_paths=["context.md"],
             readable_paths=["."],
@@ -111,6 +111,43 @@ class IntegrityTests(unittest.TestCase):
         self.assertEqual(manifest["task_revision"], self.store.compute_task_revision(task_id))
         self.assertEqual(manifest["context_refs"][0]["path"], "context.md")
         self.assertEqual(len(manifest["context_refs"][0]["sha256"]), 64)
+        self.assertIsNone(manifest["worktree"])
+
+    def test_non_git_placeholder_base_revision_remains_unbound(self):
+        task_id = self.make_active()
+        manifest = self.make_run(
+            task_id,
+            writable_paths=["src"],
+            base_revision="placeholder",
+        )
+
+        self.assertEqual(manifest["base_revision"], "placeholder")
+        self.assertIsNone(manifest["worktree"])
+
+    def test_required_worktree_binding_rejects_non_git_repo(self):
+        task_id = self.make_active()
+        result = self.store.create_run_manifest(
+            task_id,
+            "worker",
+            repo_root=self.repo,
+            created_by="dispatcher",
+            context_paths=["context.md"],
+            readable_paths=["."],
+            writable_paths=["src"],
+            base_revision="placeholder",
+            require_worktree_binding=True,
+        )
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "WORKTREE_BINDING_REQUIRED")
+        self.assertEqual(
+            [
+                run
+                for run in self.store.trace_task(task_id)["runs"]
+                if run["task_id"] == task_id
+            ],
+            [],
+        )
 
     def test_writable_scope_cannot_exceed_task_outputs(self):
         task_id = self.make_active(outputs=["src"])
@@ -182,13 +219,88 @@ class IntegrityTests(unittest.TestCase):
         base = self.init_git_repo()
         task_id = self.make_active(outputs=["src"])
         manifest = self.make_run(task_id, writable_paths=["src"], base_revision=base)
+        self.assertEqual(manifest["worktree"]["repo_root"], str(self.repo.resolve()))
+        self.assertEqual(len(manifest["worktree"]["head_revision"]), 40)
         (self.repo / "src" / "a.py").write_text("x = 2\n", encoding="utf-8")
         (self.repo / "README.md").write_text("changed\n", encoding="utf-8")
         result = verify_git_run(self.store, manifest["run_id"], repo_root=self.repo)
         self.assertFalse(result["ok"])
+        self.assertEqual(result["worktree_binding"], "verified")
         self.assertIn("README.md", result["out_of_scope"])
         self.assertIn("src/a.py", result["changed_paths"])
         self.assertEqual((self.repo / "README.md").read_text(), "changed\n")
+
+    def test_required_worktree_binding_accepts_git_repo(self):
+        base = self.init_git_repo()
+        task_id = self.make_active(outputs=["src"])
+        result = self.store.create_run_manifest(
+            task_id,
+            "worker",
+            repo_root=self.repo,
+            created_by="dispatcher",
+            context_paths=["context.md"],
+            readable_paths=["."],
+            writable_paths=["src"],
+            base_revision=base,
+            require_worktree_binding=True,
+        )
+
+        self.assertTrue(result.ok, result.message)
+        self.assertEqual(result.task["worktree"]["repo_root"], str(self.repo.resolve()))
+
+    def test_git_scope_verifier_rejects_different_clone_before_scope_check(self):
+        base = self.init_git_repo()
+        task_id = self.make_active(outputs=["src"])
+        manifest = self.make_run(task_id, writable_paths=["src"], base_revision=base)
+        clone = self.root / "clone"
+        subprocess.run(
+            ["git", "clone", str(self.repo), str(clone)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        result = verify_git_run(self.store, manifest["run_id"], repo_root=clone)
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["reason"], "worktree_mismatch")
+        self.assertEqual(result["changed_paths"], [])
+        mismatch = result["worktree_mismatch"]
+        self.assertEqual(mismatch["expected_repo_root"], str(self.repo.resolve()))
+        self.assertEqual(mismatch["actual_repo_root"], str(clone.resolve()))
+        self.assertNotEqual(mismatch["expected_git_dir"], mismatch["actual_git_dir"])
+
+    def test_linked_worktree_identity_shares_common_dir_but_not_git_dir(self):
+        base = self.init_git_repo()
+        linked = self.root / "linked"
+        subprocess.run(
+            ["git", "-C", str(self.repo), "worktree", "add", str(linked), "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        task_id = self.make_active(outputs=["src"])
+        manifest = self.make_run(
+            task_id,
+            repo_root=linked,
+            writable_paths=["src"],
+            base_revision=base,
+        )
+        original_task = self.make_active(worker="other", outputs=["docs"])
+        original = self.make_run(
+            original_task,
+            worker="other",
+            repo_root=self.repo,
+            writable_paths=["docs"],
+            base_revision=base,
+        )
+
+        self.assertEqual(
+            manifest["worktree"]["git_common_dir"],
+            original["worktree"]["git_common_dir"],
+        )
+        self.assertNotEqual(manifest["worktree"]["git_dir"], original["worktree"]["git_dir"])
+        self.assertNotEqual(manifest["worktree"]["repo_root"], original["worktree"]["repo_root"])
 
     def test_continuity_component_is_transitive(self):
         self.assertTrue(
