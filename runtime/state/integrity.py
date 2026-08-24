@@ -188,6 +188,7 @@ class ExecutionIntegrityMixin:
         forbidden_paths: Sequence[str | Path] = (),
         runtime_limits: Mapping[str, int] | None = None,
         base_revision: str | None = None,
+        require_worktree_binding: bool = False,
     ) -> MutationResult:
         if not worker_id.strip() or not created_by.strip():
             return MutationResult(
@@ -202,6 +203,12 @@ class ExecutionIntegrityMixin:
             try:
                 worktree_identity = collect_git_worktree_identity(root)
             except RuntimeError:
+                if require_worktree_binding:
+                    return MutationResult(
+                        False,
+                        "WORKTREE_BINDING_REQUIRED",
+                        "required Git worktree identity could not be read",
+                    )
                 worktree_identity = None
 
         try:

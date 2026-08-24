@@ -203,6 +203,11 @@ def build_parser() -> argparse.ArgumentParser:
         help='runtime limit as KEY=INT; repeat for multiple limits',
     )
     flow_start.add_argument('--base-revision')
+    flow_start.add_argument(
+        '--require-worktree-binding',
+        action='store_true',
+        help='fail run creation unless repo-root has readable Git worktree identity',
+    )
     flow_review_start = flow_sub.add_parser(
         'review-start',
         help='claim review work and optionally bind the immutable review subject',
@@ -342,6 +347,7 @@ def main(argv: list[str] | None = None) -> int:
                 forbidden_paths=args.forbidden_path,
                 runtime_limit_args=args.runtime_limit,
                 base_revision=args.base_revision,
+                require_worktree_binding=args.require_worktree_binding,
             ))
         if args.flow_command == 'review-start':
             return _emit(flow_review_start(

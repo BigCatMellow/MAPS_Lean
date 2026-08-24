@@ -167,7 +167,7 @@ Examples:
 python -m runtime.integrity.cli run-create TASK-0042 worker-1 \
   --created-by dispatcher --context AGENTS.md --write runtime/state \
   --forbid secrets --runtime-seconds 900 --max-attempts 3 \
-  --base-revision HEAD
+  --base-revision HEAD --require-worktree-binding
 
 python -m runtime.integrity.cli run-stale RUN-... --repo .
 python -m runtime.integrity.cli run-verify-git RUN-... --repo .
