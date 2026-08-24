@@ -76,6 +76,243 @@ class ReviewBindingMixin:
             and any(bool(policy[field]) for field in _CONSEQUENTIAL_POLICY_FLAGS)
         )
 
+    def review_subject_required(self, task_id: str) -> MutationResult:
+        """Return whether approval requires an immutable review subject.
+
+        This is a read-only projection of the same consequential-review rule
+        enforced during approval. It grants no review authority and binds
+        nothing; deterministic flows use it only to fail preflight before
+        claiming review work that cannot proceed without subject evidence.
+        """
+
+        task_id = task_id.strip()
+        if not task_id:
+            return MutationResult(False, "INVALID_TASK", "task_id is required")
+        with closing(self._connect()) as conn:
+            task = conn.execute(
+                "SELECT * FROM tasks WHERE task_id = ?",
+                (task_id,),
+            ).fetchone()
+            if task is None:
+                return MutationResult(False, "NOT_FOUND", f"{task_id} does not exist")
+            required = self._requires_bound_subject_conn(conn, task)
+        return MutationResult(
+            True,
+            "REVIEW_SUBJECT_REQUIREMENT",
+            "review subject requirement projected",
+            {"required": required},
+        )
+
+    def claim_review_with_subject(
+        self,
+        task_id: str,
+        reviewer_id: str,
+        *,
+        freshness_mode: str,
+        run_id: str | None = None,
+        artifact_refs: Sequence[str] = (),
+    ) -> MutationResult:
+        """Claim review work and bind its immutable subject atomically.
+
+        This composes the same eligibility and binding rules as
+        `claim_review()` plus `bind_review_subject()`, but avoids leaving an
+        open review claim behind when the proposed subject is invalid.
+        """
+
+        task_id = task_id.strip()
+        reviewer_id = reviewer_id.strip()
+        mode = freshness_mode.strip().upper()
+        if not reviewer_id:
+            return MutationResult(False, "INVALID_REVIEWER", "reviewer_id is required")
+        if not task_id:
+            return MutationResult(False, "INVALID_REVIEW_SUBJECT", "task_id is required")
+        if mode not in FRESHNESS_MODES:
+            return MutationResult(
+                False,
+                "INVALID_FRESHNESS_MODE",
+                "freshness_mode must be REVISION_BOUND, REDERIVED_AT_REVIEW, or NON_CONSEQUENTIAL",
+            )
+        normalized_run = run_id.strip() if isinstance(run_id, str) and run_id.strip() else None
+        try:
+            refs = self._normalize_artifact_refs(artifact_refs)
+        except ValueError as exc:
+            return MutationResult(False, "INVALID_ARTIFACT_REF", str(exc))
+
+        stamp = iso_z(utc_now())
+        with closing(self._connect()) as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            task = conn.execute(
+                "SELECT * FROM tasks WHERE task_id = ?",
+                (task_id,),
+            ).fetchone()
+            if task is None:
+                conn.rollback()
+                return MutationResult(False, "NOT_FOUND", f"{task_id} does not exist")
+            if task["status"] != "READY_FOR_REVIEW":
+                conn.rollback()
+                return MutationResult(
+                    False,
+                    "NOT_REVIEWABLE",
+                    f"task status is {task['status']}",
+                    dict(task),
+                )
+            submission = conn.execute(
+                "SELECT * FROM task_submissions WHERE task_id = ?",
+                (task_id,),
+            ).fetchone()
+            if submission is None:
+                conn.rollback()
+                return MutationResult(
+                    False,
+                    "MISSING_SUBMISSION",
+                    "review requires durable submission authorship",
+                )
+            if task["review_required"] != "OWNER_CHECK":
+                disqualified = self._continuity_component_conn(
+                    conn, submission["author_id"]
+                )
+                if reviewer_id in disqualified:
+                    conn.rollback()
+                    code = (
+                        "SELF_REVIEW_FORBIDDEN"
+                        if reviewer_id == submission["author_id"]
+                        else "CONTINUITY_REVIEW_FORBIDDEN"
+                    )
+                    return MutationResult(
+                        False,
+                        code,
+                        "independent review cannot be claimed by the submission "
+                        "author or a continuation identity in the same lineage",
+                    )
+
+            requires_bound = self._requires_bound_subject_conn(conn, task)
+            if mode == "NON_CONSEQUENTIAL" and requires_bound:
+                conn.rollback()
+                return MutationResult(
+                    False,
+                    "CONSEQUENTIAL_REVIEW_REQUIRES_FRESHNESS",
+                    "consequential work cannot use NON_CONSEQUENTIAL freshness",
+                )
+            if mode == "REVISION_BOUND" and requires_bound and not refs:
+                conn.rollback()
+                return MutationResult(
+                    False,
+                    "CONSEQUENTIAL_REVIEW_ARTIFACT_REQUIRED",
+                    "consequential REVISION_BOUND review requires immutable artifact/evidence refs",
+                )
+            if mode == "REVISION_BOUND" and normalized_run is None and not refs:
+                conn.rollback()
+                return MutationResult(
+                    False,
+                    "REVISION_BOUND_SUBJECT_REQUIRED",
+                    "REVISION_BOUND review requires run_id or immutable artifact refs",
+                )
+            if mode == "REDERIVED_AT_REVIEW" and not refs:
+                conn.rollback()
+                return MutationResult(
+                    False,
+                    "REDERIVATION_ARTIFACTS_REQUIRED",
+                    "REDERIVED_AT_REVIEW requires immutable artifact/evidence refs",
+                )
+
+            current_revision = self._task_revision_conn(conn, task_id)
+            if normalized_run is not None:
+                run = conn.execute(
+                    "SELECT * FROM run_manifests WHERE run_id = ?",
+                    (normalized_run,),
+                ).fetchone()
+                if run is None or run["task_id"] != task_id:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "INVALID_REVIEW_RUN",
+                        "review run does not belong to task",
+                    )
+                if run["task_revision"] != current_revision:
+                    conn.rollback()
+                    return MutationResult(
+                        False,
+                        "STALE_REVIEW_RUN",
+                        "review run is bound to a stale task revision",
+                    )
+
+            try:
+                cursor = conn.execute(
+                    "INSERT INTO reviews(task_id, reviewer_id, created_at) VALUES (?, ?, ?)",
+                    (task_id, reviewer_id, stamp),
+                )
+            except sqlite3.IntegrityError:
+                open_review = conn.execute(
+                    """
+                    SELECT reviewer_id FROM reviews
+                    WHERE task_id = ? AND completed_at IS NULL
+                    """,
+                    (task_id,),
+                ).fetchone()
+                conn.rollback()
+                holder = open_review["reviewer_id"] if open_review else "another reviewer"
+                return MutationResult(
+                    False,
+                    "REVIEW_ALREADY_CLAIMED",
+                    f"open review held by {holder}",
+                    dict(task),
+                )
+            review_id = int(cursor.lastrowid)
+
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO review_subjects(
+                        review_id, task_id, submission_count, task_revision,
+                        run_id, artifact_refs, freshness_mode, bound_by, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        review_id,
+                        task_id,
+                        submission["submission_count"],
+                        current_revision,
+                        normalized_run,
+                        json.dumps(refs, separators=(",", ":")),
+                        mode,
+                        reviewer_id,
+                        stamp,
+                    ),
+                )
+            except sqlite3.IntegrityError as exc:
+                conn.rollback()
+                return MutationResult(False, "REVIEW_SUBJECT_CONFLICT", str(exc))
+            self._append_event(
+                conn,
+                task_id,
+                "REVIEW_CLAIMED",
+                reviewer_id,
+                f"review {review_id} claimed",
+            )
+            self._append_event(
+                conn,
+                task_id,
+                "REVIEW_SUBJECT_BOUND",
+                reviewer_id,
+                f"review {review_id} subject bound with {mode}",
+            )
+            conn.commit()
+
+        return MutationResult(
+            True,
+            "REVIEW_CLAIMED_WITH_SUBJECT",
+            f"{reviewer_id} claimed review and bound subject",
+            {
+                "task": self.get_task(task_id),
+                "review": next(
+                    review
+                    for review in self.list_reviews(task_id)
+                    if int(review["id"]) == review_id
+                ),
+                "review_subject": self.get_review_subject(review_id),
+            },
+        )
+
     def bind_review_subject(
         self,
         task_id: str,
