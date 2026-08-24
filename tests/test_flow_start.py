@@ -121,6 +121,25 @@ class FlowStartTests(unittest.TestCase):
         self.assertEqual(result["failed_step"], "run_manifest")
         self.assertEqual(result["step_result"]["code"], "INVALID_CONTEXT")
 
+    def test_flow_start_can_require_worktree_binding(self):
+        task_id = self.make_ready()
+
+        result = flow_start(
+            self.store,
+            task_id,
+            worker_id="worker-1",
+            repo_root=self.repo,
+            created_by="tester",
+            context_paths=["README.md"],
+            base_revision="placeholder",
+            require_worktree_binding=True,
+        )
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["failed_step"], "run_manifest")
+        self.assertEqual(result["step_result"]["code"], "WORKTREE_BINDING_REQUIRED")
+        self.assertEqual(self.store.trace_task(task_id)["runs"], [])
+
     def test_cli_flow_start_emits_json_success(self):
         task_id = self.make_ready()
         buffer = io.StringIO()
@@ -174,6 +193,36 @@ class FlowStartTests(unittest.TestCase):
         payload = json.loads(buffer.getvalue())
         self.assertFalse(payload["ok"])
         self.assertEqual(payload["failed_step"], "claim")
+
+    def test_cli_flow_start_require_worktree_binding_exits_nonzero(self):
+        task_id = self.make_ready()
+        buffer = io.StringIO()
+
+        with redirect_stdout(buffer):
+            exit_code = main(
+                [
+                    "--db",
+                    str(self.root / "maps.db"),
+                    "flow",
+                    "start",
+                    task_id,
+                    "--worker-id",
+                    "worker-1",
+                    "--repo-root",
+                    str(self.repo),
+                    "--context-path",
+                    "README.md",
+                    "--base-revision",
+                    "placeholder",
+                    "--require-worktree-binding",
+                ]
+            )
+
+        self.assertEqual(exit_code, 2)
+        payload = json.loads(buffer.getvalue())
+        self.assertFalse(payload["ok"])
+        self.assertEqual(payload["failed_step"], "run_manifest")
+        self.assertEqual(payload["step_result"]["code"], "WORKTREE_BINDING_REQUIRED")
 
 
 if __name__ == "__main__":

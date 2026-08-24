@@ -124,6 +124,31 @@ class IntegrityTests(unittest.TestCase):
         self.assertEqual(manifest["base_revision"], "placeholder")
         self.assertIsNone(manifest["worktree"])
 
+    def test_required_worktree_binding_rejects_non_git_repo(self):
+        task_id = self.make_active()
+        result = self.store.create_run_manifest(
+            task_id,
+            "worker",
+            repo_root=self.repo,
+            created_by="dispatcher",
+            context_paths=["context.md"],
+            readable_paths=["."],
+            writable_paths=["src"],
+            base_revision="placeholder",
+            require_worktree_binding=True,
+        )
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "WORKTREE_BINDING_REQUIRED")
+        self.assertEqual(
+            [
+                run
+                for run in self.store.trace_task(task_id)["runs"]
+                if run["task_id"] == task_id
+            ],
+            [],
+        )
+
     def test_writable_scope_cannot_exceed_task_outputs(self):
         task_id = self.make_active(outputs=["src"])
         result = self.store.create_run_manifest(
@@ -204,6 +229,24 @@ class IntegrityTests(unittest.TestCase):
         self.assertIn("README.md", result["out_of_scope"])
         self.assertIn("src/a.py", result["changed_paths"])
         self.assertEqual((self.repo / "README.md").read_text(), "changed\n")
+
+    def test_required_worktree_binding_accepts_git_repo(self):
+        base = self.init_git_repo()
+        task_id = self.make_active(outputs=["src"])
+        result = self.store.create_run_manifest(
+            task_id,
+            "worker",
+            repo_root=self.repo,
+            created_by="dispatcher",
+            context_paths=["context.md"],
+            readable_paths=["."],
+            writable_paths=["src"],
+            base_revision=base,
+            require_worktree_binding=True,
+        )
+
+        self.assertTrue(result.ok, result.message)
+        self.assertEqual(result.task["worktree"]["repo_root"], str(self.repo.resolve()))
 
     def test_git_scope_verifier_rejects_different_clone_before_scope_check(self):
         base = self.init_git_repo()
