@@ -180,6 +180,11 @@ class ObservabilityMixin:
                         (run["run_id"],),
                     ).fetchall()
                 ]
+                worktree = conn.execute(
+                    "SELECT * FROM run_worktree_bindings WHERE run_id = ?",
+                    (run["run_id"],),
+                ).fetchone()
+                run["worktree"] = dict(worktree) if worktree is not None else None
                 runs.append(run)
 
             policy_row = conn.execute(

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 
@@ -58,6 +59,29 @@ class PortableRunRecordTests(unittest.TestCase):
         self.repo.mkdir()
         (self.repo / "src").mkdir()
         (self.repo / "src" / "context.txt").write_text("context\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(self.repo), "init"], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", str(self.repo), "config", "user.email", "maps@example.invalid"],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(self.repo), "config", "user.name", "MAPS Test"],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(["git", "-C", str(self.repo), "add", "."], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", str(self.repo), "commit", "-m", "base"],
+            check=True,
+            capture_output=True,
+        )
+        base_revision = subprocess.run(
+            ["git", "-C", str(self.repo), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
         self.store = TaskStore(self.root / "maps.db")
         self.assertTrue(self.store.create_task(task_id="TASK-RR").ok)
         self.assertTrue(self.store.update_contract("TASK-RR", contract()).ok)
@@ -72,7 +96,7 @@ class PortableRunRecordTests(unittest.TestCase):
             readable_paths=["."],
             writable_paths=["src"],
             runtime_limits={"max_attempts": 2},
-            base_revision="abc123",
+            base_revision=base_revision,
         )
         self.assertTrue(run.ok, run.message)
         self.run_id = run.task["run_id"]
@@ -111,6 +135,7 @@ class PortableRunRecordTests(unittest.TestCase):
         self.assertEqual(first["record_version"], 1)
         self.assertEqual(first["record_kind"], "MAPS_PORTABLE_RUN_RECORD")
         self.assertEqual(first["run"]["run_id"], self.run_id)
+        self.assertEqual(first["run"]["worktree"]["repo_root"], str(self.repo.resolve()))
         self.assertEqual(first["record_id"], f"RR-{first['content_sha256']}")
         self.assertEqual(len(first["content_sha256"]), 64)
         self.assertFalse(first["replay"]["complete"])
@@ -168,6 +193,9 @@ class PortableRunRecordTests(unittest.TestCase):
         self.assertEqual(coverage["environment"]["state"], CoverageState.MISSING.value)
         self.assertTrue(coverage["environment"]["source_available"])
         self.assertFalse(coverage["environment"]["included"])
+        self.assertEqual(coverage["worktree_identity"]["state"], CoverageState.VERIFIED.value)
+        self.assertTrue(coverage["worktree_identity"]["source_available"])
+        self.assertTrue(coverage["worktree_identity"]["included"])
         self.assertEqual(record["environment"], [])
         self.assertEqual(coverage["review_subject"]["state"], CoverageState.UNKNOWN.value)
 
