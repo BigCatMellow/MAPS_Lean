@@ -31,7 +31,20 @@ from runtime.recovery.production import (
 )
 from runtime.state import TaskStore
 
-VOLATILE_TASK_KEYS = ("task_id", "created_at", "updated_at", "claimed_at", "lease_expires_at")
+# Keys whose value legitimately differs between two runs of the same claim.
+# Every timestamp column belongs here: `now_z()` truncates to whole seconds, so
+# any wall-clock gap between the two comparison arms below can straddle a second
+# boundary and red the test intermittently. `normalize()` additionally blanks
+# ANY key ending in `_at`, so a timestamp column added later cannot silently
+# reintroduce that flake.
+VOLATILE_TASK_KEYS = (
+    "task_id",
+    "created_at",
+    "updated_at",
+    "claimed_at",
+    "heartbeat_at",
+    "lease_expires_at",
+)
 
 
 def ready_contract(output_path: str) -> dict:
@@ -371,8 +384,8 @@ class ClaimPiggybackTests(CliTestBase):
         normalized = json.loads(json.dumps(payload))
         task = normalized.get("task")
         if isinstance(task, dict):
-            for key in VOLATILE_TASK_KEYS:
-                if key in task:
+            for key in list(task):
+                if key in VOLATILE_TASK_KEYS or key.endswith("_at"):
                     task[key] = "<volatile>"
         return normalized
 
