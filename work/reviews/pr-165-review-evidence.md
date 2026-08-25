@@ -1,37 +1,45 @@
 reviewer: agent-aaa1b01bbb3211fbc (independent reviewer, did not author this PR)
-head_sha: 9f41a42641fd1c703d54eabe0f17563d753a8e25
+head_sha: 148357bbf6fb68c817141e3aad986871bde41e3f
 independent: true
-summary: CHANGES_REQUESTED — the design-note compliance, the bounded-trigger claims and both fixes in 9f41a42 all verify clean (F1 latency and F4 guard-evasion are genuinely RESOLVED, confirmed empirically), but this PR's own `test_claim_success_payload_matches_direct_store_call` is flaky at roughly 10-25% locally because `heartbeat_at` is missing from `VOLATILE_TASK_KEYS`, so a claim that straddles a one-second boundary reds one of the PR's headline correctness tests.
+summary: APPROVED — design-note compliance, the bounded-trigger claims, and all three rounds of fixes verify clean: F1 (claim latency, now bounded at 3.0s per hcom call) and F4 (guard evadable by `from threading import Thread`) confirmed RESOLVED empirically, and B1 (the `heartbeat_at` timestamp flake) confirmed RESOLVED by a 100-execution repeat-run loop with zero failures plus a perturbation check proving the widened normalization did not make the tests vacuous; five non-blocking findings remain recorded.
 
 # Review: PR #165 RnS production trigger loop call site
 
 - Design note (spec): `work/notes/2026-08-24-rns-production-trigger-loop-design.md`
 - Reviewer: `agent-aaa1b01bbb3211fbc`
-- Reviewed code head: `9f41a42641fd1c703d54eabe0f17563d753a8e25`
+- Reviewed code head: `148357bbf6fb68c817141e3aad986871bde41e3f`
 - True merge-base: `f02ed62f16799a977532f4a4930e5841cf8207af`
-- Verdict: `CHANGES_REQUESTED` — one blocking item (B1), three non-blocking findings carried
-  forward, two new non-blocking findings
+- Verdict: `APPROVED` — no blocking item outstanding; five non-blocking findings
+  recorded (F2, F3, F5, F8, F9)
 
 ## Review history
 
-Reviewed in three passes against three shas, all with identical intent:
+Reviewed in four passes against four shas, all with identical intent:
 
 1. `c286da7` — full review. Verdict `APPROVED` with six non-blocking findings F1-F6.
 2. `2d4fd0a` — same content, rebased onto `origin/main` `f02ed62`. Confirmed unchanged:
    `git diff c286da7 2d4fd0a --stat -- runtime/ tests/` is **empty**. All boundary
    greps re-run against the new merge-base and still hold.
 3. `9f41a42` — the author's fix commit for F1 and F4. Targeted re-verification of
-   those two fixes, plus repeat runs of the new test module, which surfaced B1.
+   those two fixes (both `RESOLVED`, sections 8 and 9), plus repeat runs of the new
+   test module, which surfaced the blocking finding B1. Verdict at that sha was
+   `CHANGES_REQUESTED`.
+4. `148357b` — the author's test-only fix for B1. Targeted re-verification of that
+   fix alone (section 10). Verdict `APPROVED`.
 
 Everything in sections 1-7 was verified at `c286da7`/`2d4fd0a` and re-confirmed to
-still hold at `9f41a42`.
+still hold at `9f41a42` and `148357b`.
 
 ## 1. Change set
 
-`git diff f02ed62..9f41a42 --stat` — the three expected files and nothing else
+`git diff f02ed62..148357b --stat` — the three expected files and nothing else
 (`runtime/cli.py` modified, `runtime/recovery/production.py` new,
-`tests/test_recovery_production_trigger.py` new). The fix commit
-`git diff 2d4fd0a..9f41a42 --stat` touches those same three files only. `PASS`.
+`tests/test_recovery_production_trigger.py` new), plus this evidence file. The F1/F4
+fix commit `git diff 2d4fd0a..9f41a42 --stat` touches those same three files only, and
+the B1 fix commit `git diff --stat 8991fcc..148357b` touches
+`tests/test_recovery_production_trigger.py` alone (16 insertions, 3 deletions) —
+`git diff --name-only 8991fcc..148357b -- runtime/ scripts/` is **empty**, so no
+production file was changed to fix the flake. `PASS`.
 
 ## 2. Non-tautology check — `PASS`
 
@@ -85,9 +93,9 @@ Working tree restored afterward: `git checkout HEAD -- runtime/` then
 
 ## 3. Boundary compliance (design note "Must not do") — `PASS`
 
-Verified by diff/grep, not prose, and re-run against `9f41a42`:
+Verified by diff/grep, not prose, and re-run against `148357b`:
 
-- `git diff f02ed62..9f41a42 -- runtime/recovery/supervisor.py runtime/harness/ | wc -l`
+- `git diff f02ed62..148357b -- runtime/recovery/supervisor.py runtime/harness/ | wc -l`
   → **`0`**. `tick()`/`observe_silent_stops()` internals and signatures are untouched.
 - `grep -rn "HarnessService(\|HcomHarnessAdapter(" runtime/ scripts/ | wc -l` → **`0`**.
   The PR's answer 6 (re-confirm the gap by grep) is true at this commit; no new harness
@@ -98,9 +106,10 @@ Verified by diff/grep, not prose, and re-run against `9f41a42`:
   cron entry, thread, process, or daemon is introduced.
 - No validation-tier execution: zero hits for `validation_tier` / `EnvironmentSpec` /
   `make_validation_hook` in the diff.
-- `git diff f02ed62..HEAD --name-only -- work/` → **empty**, and
-  `git diff 2d4fd0a..9f41a42 --name-only -- work/` → **empty**. No roadmap, checklist,
-  or status file is touched by either commit; no row is marked `DONE`.
+- `git diff f02ed62..148357b --name-only -- work/` names **only this evidence file**;
+  `git diff 2d4fd0a..9f41a42 --name-only -- work/` and
+  `git diff 8991fcc..148357b --name-only -- work/` are both **empty**. No roadmap,
+  checklist, or status file is touched anywhere in this PR; no row is marked `DONE`.
 
 ## 4. `claim` behavior provably unchanged on the success path — `PASS`
 
@@ -281,10 +290,12 @@ guard is correct now (independently confirmed by the tamper test above, which ex
 the real check, not the predicate), but the meta-tests could keep passing if the real
 check drifted. Recommend the real check call `guard_trips(text)`. Non-blocking (F9).
 
-## Blocking finding
+## 10. B1 (timestamp flake) — `RESOLVED`, verified
 
-- **B1 — `heartbeat_at` is missing from `VOLATILE_TASK_KEYS`, making two of this PR's
-  headline tests flaky.** `VOLATILE_TASK_KEYS` is
+### The finding, as raised at `9f41a42`
+
+- **B1 — `heartbeat_at` was missing from `VOLATILE_TASK_KEYS`, making two of this PR's
+  headline tests flaky.** `VOLATILE_TASK_KEYS` was
   `("task_id", "created_at", "updated_at", "claimed_at", "lease_expires_at")`, but a
   claimed task's payload also carries `heartbeat_at`, a wall-clock timestamp truncated
   to whole seconds by `now_z()`. `test_claim_success_payload_matches_direct_store_call`
@@ -306,11 +317,55 @@ check drifted. Recommend the real check call `guard_trips(text)`. Non-blocking (
   ```
 
   This is test-only — no production behavior is wrong, and every claim-contract
-  assertion in section 4 holds. But it will intermittently red the suite for everyone
+  assertion in section 4 holds. But it would intermittently red the suite for everyone
   afterward, and it is invisible on CI precisely because CI runs the whole suite in ~22s.
   A green CI run is not evidence against it. The fix is one word in `VOLATILE_TASK_KEYS`;
-  per this review's mandate I have not applied it. Requesting the author fix and
-  re-request review.
+  per this review's mandate I did not apply it.
+
+### The fix at `148357b`, and what I verified
+
+Test-only, one file. `heartbeat_at` was added to the enumerated tuple, and
+`normalize()` was widened to blank any key ending in `_at` so a timestamp column added
+later cannot silently reintroduce the same flake. The enumerated tuple is kept with a
+comment naming `now_z()`'s whole-second truncation as the root cause.
+
+**Repeat-run check.** The two affected tests, loaded unmodified from the repo module
+(the real `ClaimPiggybackTests` methods, not a reimplementation) and run in-process:
+
+```
+RESULT: 50 iterations x 2 tests = 100 test executions, 0 failing iterations
+```
+
+That is **100 consecutive executions of the two affected tests with zero failures**,
+comfortably past the flake's pre-fix rate. For calibration, the same two tests before
+the fix produced 2 failures in 8 runs, twice over, and a driver replicating the test
+body hit the mismatch on attempt 2 of 40.
+Independent single run of the whole module at `148357b`:
+`Ran 24 tests in 118.715s / OK`; `python3 -m compileall -q runtime tests` clean.
+
+**Non-vacuity check — the one that mattered more.** A flake "fixed" by blanking
+everything would be worse than the flake, so the widened `normalize()` was measured
+directly on a real claimed-task payload, using the repo's own
+`ClaimPiggybackTests.normalize`:
+
+- It blanks exactly **5** keys — `created_at`, `heartbeat_at`, `lease_expires_at`,
+  `task_id`, `updated_at` — and preserves **27** task fields plus all three top-level
+  fields (`ok`, `code`, `message`).
+- The `endswith("_at")` widening blanks **nothing** beyond the enumerated tuple on the
+  current schema (the set difference is empty). It is pure future-proofing at zero
+  present cost, not a broadening of what the test tolerates today.
+- Normalization is shallow, so nested values are still fully compared — confirmed by
+  the `task.policy.paid_execution` perturbation below being caught even though
+  `policy` itself contains an `approved_at` key.
+
+Perturbing one field at a time and re-running the tests' own comparison
+(`normalize(cli_payload) == normalize(direct)`), **13 of 13 meaningful perturbations
+were still DETECTED**: `status`, `claimed_by`, `attempt`, `risk`, `owner`, `title`,
+`review_required`, `output_paths`, `policy.paid_execution`, `agi_status`, and the
+top-level `ok`, `code` and `message`. The only two tolerated were the deliberate
+controls — `heartbeat_at` and `task_id`, which are supposed to be tolerated. The tests
+still compare real, meaningful task content and would still catch an actual change to
+`claim`'s success-path payload. **Not vacuous.**
 
 ## Non-blocking findings carried forward
 
@@ -342,18 +397,20 @@ check drifted. Recommend the real check call `guard_trips(text)`. Non-blocking (
 
 ## Test results
 
-- **Full suite (CI, on the exact reviewed sha `9f41a42`)** — GitHub Actions
-  `Runtime stack tests`, run id **32812139993**, conclusion `success`, running the
+- **Full suite (CI, on the exact reviewed sha `148357b`)** — GitHub Actions
+  `Runtime stack tests`, run id **32813805003**, conclusion `success`, running the
   command from `.github/workflows/runtime-stack-tests.yml`
   (`PYTHONWARNINGS: error::ResourceWarning`, `python -m unittest discover -s tests -v`).
-  Final lines observed in that run's log: `Ran 788 tests in 22.379s` / `OK (skipped=5)`.
-  (Run **32811283328** is the same green result on `2d4fd0a`, `Ran 782 tests in 21.711s`
-  / `OK (skipped=5)`; run **32798079630** likewise on `c286da7`.) Green here does **not**
-  clear B1 — see that finding.
-- **New module, locally, at `9f41a42`** — run twice:
-  `Ran 24 tests in 102.594s / FAILED (failures=1)` then
-  `Ran 24 tests in 98.385s / OK`. The differing run is B1.
-- **`python3 -m compileall -q runtime tests`** — clean.
+  Final lines observed in that run's log: `Ran 806 tests in 27.504s` / `OK (skipped=5)`.
+  (Earlier green runs: **32812139993** on `9f41a42`, `Ran 788 tests in 22.379s`;
+  **32811283328** on `2d4fd0a`, `Ran 782 tests in 21.711s`; **32798079630** on
+  `c286da7`.) A green CI run alone would **not** have cleared B1 — the repeat-run loop
+  in section 10 is what clears it.
+- **New module, locally, at `148357b`** — `Ran 24 tests in 118.715s / OK`, plus the
+  repeat-run loop in section 10. At `9f41a42` the same module ran twice as
+  `Ran 24 tests in 102.594s / FAILED (failures=1)` then `Ran 24 tests in 98.385s / OK`
+  — that difference was B1.
+- **`python3 -m compileall -q runtime tests`** — clean at `148357b`.
 - **Targeted, against parent-commit `cli.py`** —
   `Ran 18 tests in 98.777s / FAILED (failures=3, errors=6)` (non-tautology, section 2).
 - **Full suite locally** — started at `2d4fd0a` and abandoned when `9f41a42` superseded
@@ -368,7 +425,9 @@ check drifted. Recommend the real check call `guard_trips(text)`. Non-blocking (
 
 - `[x]` Functional / acceptance — every design-note deliverable and all six behavior
   answers traced to code and to observed CLI behavior, not to prose; both fixes in
-  `9f41a42` re-verified end to end against a real hanging subprocess.
+  `9f41a42` re-verified end to end against a real hanging subprocess; the `148357b`
+  test fix re-verified by repeat runs *and* by a perturbation check proving the tests
+  did not go vacuous.
 - `[x]` Destructive / data-loss — zero task-truth mutation surface in the triggered path
   (grep, 0 hits); the only new write is `.maps/state/recovery.json` (F2).
 - `[x]` Authority / permission boundary — `tick()` can call
@@ -379,8 +438,9 @@ check drifted. Recommend the real check call `guard_trips(text)`. Non-blocking (
   action is the incident bookkeeping in `.maps/state/recovery.json`; the returned action
   list is discarded on the `claim` path, which is what the design note's "silent on
   stdout" requirement mandates.
-- `[x]` Scope discipline — three files across both commits, no roadmap or checklist edit,
-  no `DONE` claim, no harness or validation-tier scope creep.
+- `[x]` Scope discipline — three files across all three author commits, no roadmap or
+  checklist edit, no `DONE` claim, no harness or validation-tier scope creep. The B1 fix
+  is test-only and touches no production file.
 
 ## Reviewer limits
 
@@ -388,4 +448,9 @@ check drifted. Recommend the real check call `guard_trips(text)`. Non-blocking (
 - Real `hcom` behavior was exercised through controlled fakes on `PATH` and through
   timing measurements of the real binary, never against a live multi-session hcom
   deployment.
-- No local full-suite run is claimed at `9f41a42`; CI's run on that exact sha is cited.
+- No local full-suite run is claimed at any sha; CI's run on the exact reviewed sha
+  `148357b` is cited instead.
+- The B1 repeat-run loop is a finite sample. It cannot prove the flake is impossible,
+  only that the observed failure rate went from roughly 25% to zero across the sample
+  in section 10, on a machine where the pre-fix rate reproduced readily. Combined with
+  the root cause being understood and directly addressed, that is sufficient evidence.
