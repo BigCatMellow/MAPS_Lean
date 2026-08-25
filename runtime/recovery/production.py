@@ -37,6 +37,18 @@ DEFAULT_HCOM_DIR = ".hcom"
 DEFAULT_HCOM_EXECUTABLE = "hcom"
 # Match RecoveryStore's own constructor default.
 DEFAULT_RECOVERY_STATE_PATH = ".maps/state/recovery.json"
+# HcomAdapter's own default, used by the standalone `recovery-tick` subcommand,
+# which is a deliberate, explicitly-invoked diagnostic pass.
+DEFAULT_HCOM_TIMEOUT_SECONDS = 30.0
+# Deliberately much shorter for the `claim`-piggybacked pass. That pass is
+# best-effort and opportunistic, never a requirement for the claim to be
+# correct, so it must not stall a previously pure-local, fast operation behind
+# an unresponsive hcom. One pass makes two `hcom list` calls
+# (observe_silent_stops, then tick), so this bounds the added worst-case
+# latency on a successful `claim` at roughly 2x this value, after which the
+# pass fails, is contained by run_recovery_tick_isolated, and the claim
+# result is emitted unchanged.
+CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS = 3.0
 
 
 def run_recovery_tick(
@@ -45,6 +57,7 @@ def run_recovery_tick(
     bindings: Mapping[str, str] | None = None,
     hcom_dir: str | Path = DEFAULT_HCOM_DIR,
     hcom_executable: str | Path = DEFAULT_HCOM_EXECUTABLE,
+    hcom_timeout_seconds: float = DEFAULT_HCOM_TIMEOUT_SECONDS,
     recovery_state_path: str | Path = DEFAULT_RECOVERY_STATE_PATH,
 ) -> dict[str, Any]:
     """Run exactly one bounded RnS pass and return an audit-friendly summary.
@@ -57,12 +70,20 @@ def run_recovery_tick(
     and get an empty mapping -- which detects no silent stops rather than
     guessing at a binding.
 
+    `hcom_timeout_seconds` bounds each individual hcom subprocess call. A pass
+    makes two of them (one per `hcom list`), so worst-case added latency is
+    about twice this value.
+
     Raises whatever the underlying supervisor/hcom calls raise. Callers that
     must not fail on a recovery problem should use `run_recovery_tick_isolated`.
     """
     supervisor = RecoverySupervisor(
         task_reader=task_reader,
-        hcom=HcomAdapter(hcom_dir=hcom_dir, executable=hcom_executable),
+        hcom=HcomAdapter(
+            hcom_dir=hcom_dir,
+            executable=hcom_executable,
+            timeout_seconds=hcom_timeout_seconds,
+        ),
         recovery_store=RecoveryStore(recovery_state_path),
         # environment_reader/harness_service deliberately omitted -- see module docstring.
     )
@@ -82,6 +103,7 @@ def run_recovery_tick_isolated(
     bindings: Mapping[str, str] | None = None,
     hcom_dir: str | Path = DEFAULT_HCOM_DIR,
     hcom_executable: str | Path = DEFAULT_HCOM_EXECUTABLE,
+    hcom_timeout_seconds: float = DEFAULT_HCOM_TIMEOUT_SECONDS,
     recovery_state_path: str | Path = DEFAULT_RECOVERY_STATE_PATH,
 ) -> dict[str, Any]:
     """`run_recovery_tick` with every failure contained in the return value.
@@ -89,7 +111,8 @@ def run_recovery_tick_isolated(
     Used by call sites (notably the `claim` CLI branch) whose own contract must
     never regress because a piggybacked recovery pass failed -- an unreachable
     hcom, a corrupt recovery-state file, or any other supervisor error becomes
-    `{"ok": False, "error": ...}` instead of an exception.
+    `{"ok": False, "error": ...}` instead of an exception. An hcom that hangs is
+    contained the same way, via `hcom_timeout_seconds`.
     """
     try:
         return run_recovery_tick(
@@ -97,6 +120,7 @@ def run_recovery_tick_isolated(
             bindings=bindings,
             hcom_dir=hcom_dir,
             hcom_executable=hcom_executable,
+            hcom_timeout_seconds=hcom_timeout_seconds,
             recovery_state_path=recovery_state_path,
         )
     except Exception as exc:  # noqa: BLE001 - deliberate isolation boundary

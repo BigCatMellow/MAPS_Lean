@@ -11,8 +11,10 @@ from runtime.evaluation import IncidentCategory, RegressionCaseError, freeze_reg
 from runtime.flow_review import flow_review_start
 from runtime.flow_start import flow_start_from_runtime_limit_args
 from runtime.recovery.production import (
+    CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS,
     DEFAULT_HCOM_DIR,
     DEFAULT_HCOM_EXECUTABLE,
+    DEFAULT_HCOM_TIMEOUT_SECONDS,
     run_recovery_tick_isolated,
 )
 from runtime.run_record import RunRecordError, build_run_record
@@ -167,6 +169,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     recovery_tick.add_argument('--hcom-dir', default=DEFAULT_HCOM_DIR)
     recovery_tick.add_argument('--hcom-executable', default=DEFAULT_HCOM_EXECUTABLE)
+    recovery_tick.add_argument(
+        '--hcom-timeout-seconds',
+        type=float,
+        default=DEFAULT_HCOM_TIMEOUT_SECONDS,
+        help='per-hcom-call timeout for this deliberate, explicitly-invoked pass',
+    )
 
     heartbeat = sub.add_parser('heartbeat', help='renew the active claim lease')
     heartbeat.add_argument('task_id')
@@ -341,8 +349,19 @@ def main(argv: list[str] | None = None) -> int:
         # silent on stdout so `claim`'s existing machine-readable output and
         # exit code are byte-for-byte unchanged, and can never fail the claim:
         # any recovery error is contained and reported on stderr only.
+        #
+        # Latency: the pass shells out to `hcom list` twice (once for
+        # observe_silent_stops, once for tick), so it adds real wall time to
+        # what was previously a pure-local operation. It is best-effort and
+        # opportunistic -- never required for the claim to be correct -- so it
+        # runs with CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS rather than
+        # HcomAdapter's much longer default, bounding the worst case for an
+        # unresponsive hcom at roughly 2x that timeout, after which the pass
+        # fails, is contained, and the claim result is emitted unchanged.
         if result.ok:
-            recovery = run_recovery_tick_isolated(store)
+            recovery = run_recovery_tick_isolated(
+                store, hcom_timeout_seconds=CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS
+            )
             if not recovery['ok']:
                 print(f"recovery-tick failed (claim unaffected): {recovery['error']}", file=sys.stderr)
         return _emit(result)
@@ -356,6 +375,7 @@ def main(argv: list[str] | None = None) -> int:
             bindings=bindings,
             hcom_dir=args.hcom_dir,
             hcom_executable=args.hcom_executable,
+            hcom_timeout_seconds=args.hcom_timeout_seconds,
         ))
     if args.command == 'heartbeat':
         return _emit(store.heartbeat(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))

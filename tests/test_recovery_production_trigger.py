@@ -10,10 +10,12 @@ from __future__ import annotations
 
 from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import asdict
+import io
 from io import StringIO
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 import tokenize
 import unittest
@@ -21,7 +23,12 @@ from unittest import mock
 
 from runtime.cli import main as cli_main
 from runtime.communication import HcomError
-from runtime.recovery.production import run_recovery_tick, run_recovery_tick_isolated
+from runtime.recovery.production import (
+    CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS,
+    DEFAULT_HCOM_TIMEOUT_SECONDS,
+    run_recovery_tick,
+    run_recovery_tick_isolated,
+)
 from runtime.state import TaskStore
 
 VOLATILE_TASK_KEYS = ("task_id", "created_at", "updated_at", "claimed_at", "lease_expires_at")
@@ -83,7 +90,34 @@ class RecordingSupervisor:
         return [{"action": "noop"}]
 
 
-def code_text(path: Path) -> str:
+# Modules whose mere import would mean a daemon/scheduler/background worker (or
+# out-of-scope harness wiring) had been introduced. Matched as import
+# *statements*, so `from threading import Thread` is caught as well as
+# `import threading`.
+FORBIDDEN_MODULES = (
+    "threading",
+    "multiprocessing",
+    "asyncio",
+    "concurrent",
+    "sched",
+    "signal",
+    "subprocess",
+    "crontab",
+    "apscheduler",
+    "schedule",
+)
+FORBIDDEN_SUBSTRINGS = (
+    "hookevent",
+    "hookregistry",
+    "harnessservice",
+    "hcomharnessadapter",
+    "daemon",
+    "time . sleep",
+    "while true",
+)
+
+
+def code_text_from_source(source: str) -> str:
     """Source text with comments and string literals stripped.
 
     Keeps the source-level guard below honest: prose in a docstring that names
@@ -91,12 +125,24 @@ def code_text(path: Path) -> str:
     that mechanism being present, and must not mask a real occurrence either.
     """
     pieces: list[str] = []
-    with open(path, "rb") as handle:
-        for token in tokenize.tokenize(handle.readline):
-            if token.type in (tokenize.COMMENT, tokenize.STRING):
-                continue
-            pieces.append(token.string)
+    readline = io.BytesIO(source.encode("utf-8")).readline
+    for token in tokenize.tokenize(readline):
+        if token.type in (tokenize.COMMENT, tokenize.STRING):
+            continue
+        pieces.append(token.string)
     return " ".join(pieces).lower()
+
+
+def code_text(path: Path) -> str:
+    return code_text_from_source(path.read_text(encoding="utf-8"))
+
+
+def guard_trips(text: str) -> bool:
+    """Shared guard predicate, so the tripwire tests exercise the real check."""
+    for module in FORBIDDEN_MODULES:
+        if re.search(rf"(?:^|\s)(?:import|from)\s+(?:[\w.]+\s*\.\s*)?{module}\b", text):
+            return True
+    return any(forbidden in text for forbidden in FORBIDDEN_SUBSTRINGS)
 
 
 class TriggerHelperTests(unittest.TestCase):
@@ -247,6 +293,31 @@ class RecoveryTickCommandTests(CliTestBase):
         )
         self.assertEqual(json.loads(out)["ok"], True)
 
+    def test_subcommand_uses_the_full_default_timeout(self):
+        """The standalone pass is deliberate, so it keeps HcomAdapter's default."""
+        captured: dict = {}
+
+        def factory(**kwargs):
+            captured.update(kwargs)
+            return FakeHcom()
+
+        with mock.patch("runtime.recovery.production.HcomAdapter", factory):
+            self.run_cli(["--db", str(self.db), "recovery-tick"])
+        self.assertEqual(captured["timeout_seconds"], DEFAULT_HCOM_TIMEOUT_SECONDS)
+
+    def test_subcommand_timeout_is_overridable(self):
+        captured: dict = {}
+
+        def factory(**kwargs):
+            captured.update(kwargs)
+            return FakeHcom()
+
+        with mock.patch("runtime.recovery.production.HcomAdapter", factory):
+            self.run_cli(
+                ["--db", str(self.db), "recovery-tick", "--hcom-timeout-seconds", "1.5"]
+            )
+        self.assertEqual(captured["timeout_seconds"], 1.5)
+
     def test_subcommand_defaults_match_hcom_adapter_defaults(self):
         captured: dict = {}
 
@@ -256,7 +327,22 @@ class RecoveryTickCommandTests(CliTestBase):
 
         with mock.patch("runtime.recovery.production.HcomAdapter", factory):
             self.run_cli(["--db", str(self.db), "recovery-tick"])
-        self.assertEqual(captured, {"hcom_dir": ".hcom", "executable": "hcom"})
+        self.assertEqual(
+            captured,
+            {"hcom_dir": ".hcom", "executable": "hcom", "timeout_seconds": 30.0},
+        )
+        # ...and those really are HcomAdapter's own defaults, not new values.
+        import inspect
+
+        from runtime.communication import HcomAdapter
+
+        adapter_defaults = {
+            name: parameter.default
+            for name, parameter in inspect.signature(HcomAdapter).parameters.items()
+        }
+        self.assertEqual(adapter_defaults["hcom_dir"], ".hcom")
+        self.assertEqual(adapter_defaults["executable"], "hcom")
+        self.assertEqual(adapter_defaults["timeout_seconds"], 30.0)
 
     def test_subcommand_rejects_malformed_binding(self):
         code, out, _ = self.run_cli(
@@ -298,6 +384,40 @@ class ClaimPiggybackTests(CliTestBase):
         self.assertEqual(code, 0)
         self.assertTrue(payload["ok"])
         self.assertEqual(fake.list_calls, [True, True])
+
+    def test_claim_piggyback_uses_a_short_hcom_timeout(self):
+        """A slow/unresponsive hcom must not meaningfully stall `claim`."""
+        self.create_ready("task-a")
+        captured: dict = {}
+
+        def factory(**kwargs):
+            captured.update(kwargs)
+            return FakeHcom()
+
+        with mock.patch("runtime.recovery.production.HcomAdapter", factory):
+            code, payload, _ = self.claim_payload("task-a")
+        self.assertEqual(code, 0)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(
+            captured["timeout_seconds"], CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS
+        )
+        # Materially shorter than the adapter default the standalone pass uses,
+        # so the worst case a claim can inherit stays small.
+        self.assertLess(CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS, 5.0)
+        self.assertLess(
+            CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS, DEFAULT_HCOM_TIMEOUT_SECONDS / 4
+        )
+
+    def test_claim_survives_an_hcom_timeout(self):
+        """A timed-out recovery pass is contained exactly like any other failure."""
+        self.create_ready("task-a")
+        fake = FakeHcom(error=HcomError("hcom command timed out: hcom list --json"))
+        with mock.patch("runtime.recovery.production.HcomAdapter", lambda **kw: fake):
+            code, payload, err = self.claim_payload("task-a")
+        self.assertEqual(code, 0)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["code"], "CLAIMED")
+        self.assertIn("timed out", err)
 
     def test_claim_does_not_trigger_recovery_when_the_claim_itself_fails(self):
         fake = FakeHcom()
@@ -386,24 +506,51 @@ class TriggerSourceGuardTests(unittest.TestCase):
         root = Path(__file__).parents[1]
         for relative in ("runtime/recovery/production.py", "runtime/cli.py"):
             text = code_text(root / relative)
-            for forbidden in (
-                "hookevent",
-                "hookregistry",
-                "harnessservice",
-                "hcomharnessadapter",
-                "import threading",
-                "import multiprocessing",
-                "import asyncio",
-                "import sched",
-                "import signal",
-                "import subprocess",
-                "crontab",
-                "apscheduler",
-                "daemon",
-                "time . sleep",
-                "while true",
-            ):
+            # Import forms are matched by pattern, not substring: a plain
+            # `import threading` check is trivially evaded by
+            # `from threading import Thread`, and this test's entire job is to
+            # be a tripwire.
+            for module in FORBIDDEN_MODULES:
+                pattern = rf"(?:^|\s)(?:import|from)\s+(?:[\w.]+\s*\.\s*)?{module}\b"
+                match = re.search(pattern, text)
+                self.assertIsNone(
+                    match,
+                    f"{relative} must not import {module!r}"
+                    + (f" (matched {match.group(0)!r})" if match else ""),
+                )
+            for forbidden in FORBIDDEN_SUBSTRINGS:
                 self.assertNotIn(forbidden, text, f"{relative} must not contain {forbidden!r}")
+
+    def test_the_guard_actually_trips(self):
+        """The guard is a real tripwire, not decoration."""
+        for violation in (
+            "import threading",
+            "from threading import Thread",
+            "from concurrent.futures import ThreadPoolExecutor",
+            "import multiprocessing.pool",
+            "import asyncio",
+            "from apscheduler.schedulers.background import BackgroundScheduler",
+            "x = HookEvent.BEFORE_RESUME",
+            "while True: pass",
+            "time.sleep(60)",
+        ):
+            self.assertTrue(
+                guard_trips(code_text_from_source(violation)),
+                f"guard failed to trip on {violation!r}",
+            )
+
+    def test_the_guard_does_not_trip_on_innocuous_source(self):
+        for benign in (
+            "import json",
+            "from pathlib import Path",
+            "from runtime.recovery.store import RecoveryStore",
+            "value = 'a daemon is deliberately absent here'",
+            "# no scheduler, no cron, no daemon, no threading",
+        ):
+            self.assertFalse(
+                guard_trips(code_text_from_source(benign)),
+                f"guard wrongly tripped on {benign!r}",
+            )
 
     def test_supervisor_public_signatures_untouched(self):
         """This task changed no RecoverySupervisor entrypoint signature."""
