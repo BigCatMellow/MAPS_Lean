@@ -198,6 +198,8 @@ def _coverage(
     environment_source_available: bool,
     environment_evidence_present: bool,
     harness_config_hash_available: bool,
+    worktree_binding_present: bool,
+    worktree_binding_source_available: bool,
     reviews: list[dict[str, object]],
 ) -> dict[str, object]:
     canonical = trace.get("coverage")
@@ -248,6 +250,16 @@ def _coverage(
             "current run manifest does not bind harness/hook configuration identity"
         )
 
+    if worktree_binding_present:
+        worktree_state = CoverageState.VERIFIED.value
+        worktree_reason = "the selected run includes immutable Git worktree identity"
+    elif worktree_binding_source_available:
+        worktree_state = CoverageState.MISSING.value
+        worktree_reason = "the selected run is explicitly missing Git worktree identity"
+    else:
+        worktree_state = CoverageState.MISSING.value
+        worktree_reason = "current accepted trace does not expose Git worktree identity"
+
     return {
         "canonical_task_db": {
             "state": CoverageState.VERIFIED.value,
@@ -292,6 +304,12 @@ def _coverage(
             "included": environment_evidence_present,
             "reason": environment_reason,
         },
+        "worktree_identity": {
+            "state": worktree_state,
+            "source_available": worktree_binding_source_available,
+            "included": worktree_binding_present,
+            "reason": worktree_reason,
+        },
         "review_subject": {
             "state": review_subject_state,
             "included": review_subjects_observed,
@@ -332,6 +350,9 @@ def build_run_record(
     context_refs = run.pop("context_refs", [])
     environment_source_available = "environment_evidence" in run
     environment = run.pop("environment_evidence", None)
+    worktree_binding_source_available = "worktree" in run
+    worktree_binding = run.get("worktree")
+    worktree_binding_present = isinstance(worktree_binding, Mapping)
     if not isinstance(context_refs, list):
         raise RunRecordError("run context_refs must be a list")
     if environment_source_available and not isinstance(environment, list):
@@ -439,6 +460,8 @@ def build_run_record(
             environment_source_available=environment_source_available,
             environment_evidence_present=environment_evidence_present,
             harness_config_hash_available=harness_config_hash_available,
+            worktree_binding_present=worktree_binding_present,
+            worktree_binding_source_available=worktree_binding_source_available,
             reviews=reviews,
         ),
         "replay": {

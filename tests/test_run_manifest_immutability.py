@@ -1,4 +1,5 @@
 import sqlite3
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -43,6 +44,29 @@ class RunManifestImmutabilityTests(unittest.TestCase):
             repo = root / "repo"
             (repo / "src").mkdir(parents=True)
             (repo / "context.md").write_text("context\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "init"], check=True, capture_output=True)
+            subprocess.run(
+                ["git", "-C", str(repo), "config", "user.email", "maps@example.invalid"],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(repo), "config", "user.name", "MAPS Test"],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True, capture_output=True)
+            subprocess.run(
+                ["git", "-C", str(repo), "commit", "-m", "base"],
+                check=True,
+                capture_output=True,
+            )
+            base = subprocess.run(
+                ["git", "-C", str(repo), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
             store = TaskStore(root / "maps.db")
             created = store.create_task(title="x")
             task_id = created.task["task_id"]
@@ -55,9 +79,11 @@ class RunManifestImmutabilityTests(unittest.TestCase):
                 repo_root=repo,
                 created_by="dispatcher",
                 context_paths=["context.md"],
+                base_revision=base,
             )
             self.assertTrue(run.ok)
             run_id = run.task["run_id"]
+            self.assertIsNotNone(run.task["worktree"])
 
             with store._connect() as conn:
                 with self.assertRaises(sqlite3.IntegrityError):
@@ -71,7 +97,17 @@ class RunManifestImmutabilityTests(unittest.TestCase):
                         (run_id,),
                     )
                 with self.assertRaises(sqlite3.IntegrityError):
+                    conn.execute(
+                        "UPDATE run_worktree_bindings SET repo_root = 'x' WHERE run_id = ?",
+                        (run_id,),
+                    )
+                with self.assertRaises(sqlite3.IntegrityError):
                     conn.execute("DELETE FROM run_manifests WHERE run_id = ?", (run_id,))
+                with self.assertRaises(sqlite3.IntegrityError):
+                    conn.execute(
+                        "DELETE FROM run_worktree_bindings WHERE run_id = ?",
+                        (run_id,),
+                    )
 
 
 if __name__ == "__main__":

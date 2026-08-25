@@ -152,6 +152,16 @@ CREATE TABLE IF NOT EXISTS run_manifests (
 );
 CREATE INDEX IF NOT EXISTS idx_run_manifests_task ON run_manifests(task_id, created_at);
 
+CREATE TABLE IF NOT EXISTS run_worktree_bindings (
+    run_id TEXT PRIMARY KEY REFERENCES run_manifests(run_id) ON DELETE CASCADE,
+    repo_root TEXT NOT NULL,
+    git_common_dir TEXT NOT NULL,
+    git_dir TEXT NOT NULL,
+    worktree_private_dir TEXT NOT NULL DEFAULT '',
+    head_revision TEXT NOT NULL,
+    bound_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS run_context_refs (
     run_id TEXT NOT NULL REFERENCES run_manifests(run_id) ON DELETE CASCADE,
     path TEXT NOT NULL,
@@ -169,6 +179,18 @@ CREATE TRIGGER IF NOT EXISTS trg_run_manifests_no_delete
 BEFORE DELETE ON run_manifests
 BEGIN
     SELECT RAISE(ABORT, 'run manifests are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_worktree_bindings_no_update
+BEFORE UPDATE ON run_worktree_bindings
+BEGIN
+    SELECT RAISE(ABORT, 'run worktree bindings are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_run_worktree_bindings_no_delete
+BEFORE DELETE ON run_worktree_bindings
+BEGIN
+    SELECT RAISE(ABORT, 'run worktree bindings are immutable');
 END;
 
 CREATE TRIGGER IF NOT EXISTS trg_run_context_no_update
