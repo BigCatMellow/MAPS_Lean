@@ -49,6 +49,7 @@ class HookEnforcement(str, Enum):
     """Mechanical guard roles required by consequential service paths."""
 
     CANONICAL_RUN = "CANONICAL_RUN"
+    DESTRUCTIVE_EXTERNAL_ACTION = "DESTRUCTIVE_EXTERNAL_ACTION"
 
 
 HookCallback = Callable[[Mapping[str, Any]], "HookOutcome"]
