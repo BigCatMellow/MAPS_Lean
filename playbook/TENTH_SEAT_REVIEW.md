@@ -72,11 +72,15 @@ a status flip that a reviewer pushed back on has already been tested by
 someone. It is the **conjunction** that matches Sanhedrin 17a: the claim with
 the longest downstream half-life is exactly the one nobody could argue against.
 
-Historically rare, by design. Across the 82 files in `work/reviews/` as of
-2026-08-25, two literally record "No findings" and at most about eight contain
-no critique-shaped language at all; exactly one of the former (PR #134,
-flipping portable-deployment D0 to `DONE`) also flips a status row. Expect the
-conjunction to fire on the order of once per few dozen PRs.
+Historically rare, by design — but it is the *conjunction* that is rare, not
+condition 1. Across `work/reviews/` as of 2026-08-25 (82 files, 69 of them PR
+evidence), somewhere between 2 and 23 files show no articulated case against
+the change, depending on how strictly you read it. Only **three** also flip a
+status row: **#105** (one commit creating `CAPABILITY_CHECKLIST.md` with 35
+`DONE` lines), **#111** (S1 → `DONE`), **#134** (portable-deployment D0 →
+`DONE`). Three in 69 — about one per 23 PRs. #105 is the case to keep in mind:
+35 status rows that future sessions read instead of re-deriving, created under
+a review that articulated nothing against them.
 
 Condition 1 is a judgment, not a string match — a review with three cosmetic
 notes and no substantive challenge may well qualify. Read the review and decide.
@@ -89,10 +93,13 @@ finding** — no stale row, no mislabeled status, no changed picture — and the
 **two immediately preceding passes each found at least one real issue**.
 
 That pattern is the source protocol's Trigger D (extreme confidence) combined
-with documented recent evidence of the opposite. Passes #4 and #6 both caught
-real defects (a note-numbering collision; a wrong roadmap tag). A sudden clean
-pass is more likely to mean the check got shallower than that the project got
-perfect, and that is a hypothesis worth writing down rather than assuming away.
+with documented recent evidence of the opposite. Pass #6 caught two real
+defects (a note-numbering collision; a wrong roadmap tag) and pass #7 caught
+another; passes #4 and #5 were clean. A sudden clean pass is more likely to
+mean the check got shallower than that the project got perfect, and that is a
+hypothesis worth writing down rather than assuming away. As of 2026-08-25 the
+two most recent passes (#6, #7) both found something, so this tripwire is armed
+for pass #8.
 
 ### Not a trigger
 
@@ -252,7 +259,14 @@ report never grants or changes authority.
 - **No runtime code, no new roadmap capability number.** This is a review
   convention. It builds no capability and belongs to no H/E/SEC lane.
 
-## 7. Signs this has gone wrong
+## 7. Signs this has gone wrong — and who checks for them
+
+**Assigned reader:** whoever runs the next `ROADMAP_TRAJECTORY_CHECK.md` pass,
+as one bullet inside that existing pass — read this list against whatever
+minority reports have accumulated since the previous pass. Existing owner,
+existing cadence, no new machinery, and it costs nothing when no report exists.
+A warning list nobody is assigned to read is exactly the unowned checkbox this
+whole file is arguing against, so it gets an owner or it does not belong here.
 
 Adapted from §24. If any of these are true, the practice has failed regardless
 of what this file says, and it should be narrowed or dropped rather than

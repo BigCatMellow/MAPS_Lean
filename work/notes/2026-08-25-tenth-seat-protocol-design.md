@@ -98,10 +98,12 @@ culturally acceptable here, not a reason to consider it already covered.
 ### 2.3 Trajectory checks — careful re-verification, not dissent-forcing
 
 `playbook/ROADMAP_TRAJECTORY_CHECK.md` is a real periodic self-audit and it
-demonstrably works: pass #4 and pass #6 each caught genuine review-cycle
-defects, and pass #7 independently re-confirmed the zero-production-caller gap
-for `RecoverySupervisor.tick()` *before* reading the design note that also
-claimed it.
+demonstrably works: pass #6 caught two genuine review-cycle defects (a
+note-numbering collision, a wrong roadmap tag), and pass #7 independently
+re-confirmed the zero-production-caller gap for `RecoverySupervisor.tick()`
+*before* reading the design note that also claimed it. Passes #4 and #5 found
+nothing and recorded "continue, no pivot" — which is useful calibration for
+§3's Trigger 2, not a criticism of them.
 
 But read §2 of that doc carefully. Its instruction is "**re-verify, don't
 re-read**" — spot-check rows against real `main`. That is careful
@@ -141,25 +143,39 @@ Why both conditions:
   nothing there worth steelmanning, and firing on it would be pure ceremony.
 - **(b) alone is already covered.** A status flip that drew reviewer findings
   has, by definition, had the other side articulated.
-- **Together they are rare and consequential.** Measured over the 82 files in
-  `work/reviews/` on `main` @ `8923adb`, with the measurement method stated so
-  it can be checked rather than trusted:
+- **Together they are rare and consequential.** Measured over `work/reviews/`
+  on `main` @ `8923adb` — 82 files in total, of which **69** are
+  `pr-*-review-evidence.md` and the other 13 are older `TASK-*` reports and
+  `RUNTIME_INTEGRATION_REVIEW.md`. Method stated so it can be rechecked rather
+  than trusted; an earlier draft of this note got two of these numbers wrong
+  and the independent review of this very PR caught both, which is a fair
+  illustration of the point:
   - Files whose text literally records **"No findings"**: **2** — `pr-134` and
     `pr-135`.
-  - A looser upper bound, files containing *none* of
-    `finding|gap|nit|caveat|concern|recommend|non-blocking|limitation|however`
-    (i.e. no critique-shaped language at all): **8**, of which 6 are PR
-    evidence files and 2 are older `TASK-*` review files. Note the two sets do
-    not overlap, since "No findings" contains "finding".
-  - So condition (a) alone plausibly describes somewhere between 2 and ~8 of
-    82 — call it **2-10%**. Neither number is exact, because "did the reviewer
-    articulate a case against?" is a judgment, not a string match. That
-    imprecision is itself an argument for condition (b) carrying the load and
-    for detection staying a reading task rather than a grep (§5).
-  - Of the two literal "No findings" files, exactly one — **#134, flipping
-    portable-deployment D0 to `DONE`** — also flips a status row. Expected
-    firing rate for the conjunction: roughly **once per few dozen PRs**, which
-    is the right order of magnitude for a step this heavy.
+  - Files containing *none* of
+    `finding|\bgap|\bnit\b|caveat|concern|recommend|non-blocking|limitation|however`
+    (no critique-shaped language at all): **23**. The word-boundary anchors on
+    `gap` and `nit` matter — without them the same grep returns 8, but only
+    because `nit` matches `init`/`unit`/`Monitor`/`definition`/`sanity`, which
+    wrongly excludes files like `pr-117` whose summary reads "No bugs found …
+    Verdict: CLEAN, no changes required". 8 was not an upper bound; 23 is a
+    loose one.
+  - Condition (a) alone therefore describes somewhere between 2 and 23 of 82 —
+    roughly **2-28%**, i.e. common. Neither end is exact, because "did the
+    reviewer articulate a case against?" is a judgment, not a string match.
+    That is the whole reason condition (b) carries the load and detection stays
+    a reading task rather than a grep (§5).
+  - **The conjunction is what is rare.** Read semantically — the house forms
+    `APPROVE (CLEAN)` / `No bugs found` / `No findings`, 26 of the 69 PR files
+    — and intersected with merge commits adding a `DONE` line under
+    `work/roadmaps/`, it holds for **three**: **#105** (`39fa0ec`, which
+    created `CAPABILITY_CHECKLIST.md` with 35 `DONE` lines in a single commit),
+    **#111** (`f6a4e57`, S1 → `DONE`), and **#134** (`46d3c5d`,
+    portable-deployment D0 → `DONE`). Three in 69 is about **one per 23 PRs** —
+    inside the "roughly once per few dozen" band, and the right order of
+    magnitude for a step this heavy. **#105 is the sharpest motivating case**:
+    35 status rows created at once under a review that articulated nothing
+    against them.
 
 Why status flips specifically are the high-consequence class here (protocol
 Trigger C, reframed for a docs-and-code project): the checklist is what future
@@ -176,17 +192,18 @@ production wiring supports.
 Fires when a pass reports no substantive finding and the two preceding passes
 each found a real issue. This is the protocol's Trigger D (extreme confidence)
 *conjoined with documented recent evidence of the opposite* — which is what
-makes it a signal rather than noise. Passes #4 and #6 both found real defects;
-a sudden clean pass is more plausibly a shallower check than a suddenly perfect
-project, and that hypothesis deserves to be written down and tested rather than
-assumed away.
+makes it a signal rather than noise. A sudden clean pass is more plausibly a
+shallower check than a suddenly perfect project, and that hypothesis deserves
+to be written down and tested rather than assumed away.
 
 The source protocol's own §28 scoring makes the same argument from the other
 end: a consensus-reversal rate of zero is evidence the challenges are too weak,
 not that the decisions are perfect.
 
-This has **not yet fired** — passes #4, #6 and #7 all found things. It is a
-pre-registered tripwire, which is the honest time to write one.
+This has **not yet fired**, and the current state matters: passes #4 and #5
+found nothing, then **#6 and #7 each found real issues** — two consecutive
+non-empty passes. The tripwire is therefore genuinely armed right now for
+pass #8. Pre-registering it before it can fire is the honest time to write it.
 
 ### Explicitly rejected as triggers
 
@@ -338,6 +355,35 @@ first real firing than by more design.
    rather than open critique? Plausibly the highest-value single application,
    and the committee review's §8 backwards roadmap gives it a concrete
    consensus to challenge. Out of scope here; it is a task, not a convention.
+
+## 7a. Independent review findings, and how they were resolved
+
+Recorded here rather than only in `work/reviews/pr-169-review-evidence.md`,
+because three of the four were factual corrections to *this note* and a reader
+should not have to reconstruct which numbers moved.
+
+- **N1 — pass #4 found nothing.** Correct; both cited defects were pass #6's,
+  and pass #5 was also clean. Fixed in §2.3 and in the playbook. This *helps*
+  Trigger 2: #6 and #7 are consecutive non-empty passes, so the tripwire is
+  armed now, whereas the claimed non-consecutive #4/#6 pair would have armed
+  nothing.
+- **N2 — "at most about eight" was not an upper bound.** Correct; `nit` and
+  `gap` were unanchored and matched `init`/`unit`/`Monitor`/`definition`.
+  Word-anchored, the same grep returns 23, not 8. Re-run and confirmed
+  independently before accepting. Fixed; the band is now 2-28%.
+- **N3 — the conjunction fired three times, not once.** Correct; #105 and #111
+  also qualify on a semantic reading. Re-verified (69 PR evidence files,
+  `pr-105` reads `APPROVE (CLEAN)`). Fixed, and #105 promoted to the primary
+  motivating example — it is a stronger one than #134.
+- **N4 — §7's warning list had no assigned reader.** Fair, and the sharpest of
+  the four, since an unowned checkbox is the failure mode this design claims to
+  resist. Resolved by naming the next trajectory-check pass as the reader,
+  inside `TENTH_SEAT_REVIEW.md` §7 — an existing owner on an existing cadence,
+  with no new machinery, per §5.
+
+None were blocking and none changed the design's shape. Two of them were
+arithmetic offered as checkable that did not survive checking, which is the
+argument for this whole convention made against the note proposing it.
 
 ## 8. Boundaries respected by this PR
 
