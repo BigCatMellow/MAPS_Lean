@@ -1,4 +1,4 @@
-# Roadmap trajectory check #7 — arc: PRs #157-#161 (+#162 open)
+# Roadmap trajectory check #7 — arc: PRs #157-#162
 
 Seventh pass. Pass #6 (`work/notes/2026-08-24-roadmap-trajectory-check-6.md`,
 merged via #158) covered PRs #128-#156 (+#157 open) at `origin/main` HEAD
@@ -6,21 +6,31 @@ merged via #158) covered PRs #128-#156 (+#157 open) at `origin/main` HEAD
 exactly four commits/PRs: #157 (`Bind Git runs to worktree identity`, merged
 as `efe2c8b`/`c9c07fd`), #158 (pass #6's own note, `f3ebafe`), #160 (`RnS
 harness resume call site`, `4431b3a`), and #161 (`Design SEC3/6.4
-destructive-external-action Hook guard`, `52a3de1`). Plus PR #162 (`RnS
-production trigger loop design`), currently OPEN, design-only, not yet
-merged.
+destructive-external-action Hook guard`, `52a3de1`). PR #162 (`RnS
+production trigger loop design`) was still open/design-only when this
+note's analysis was first written; it merged as `ee5e364` while this PR
+was in independent review, so this branch has been rebased onto that head
+and this note updated in place — re-verified that #162's merge changed
+nothing substantive below (still design-only, still no scoreboard/tag
+impact; see the updated §0/§1 bullets).
 
 ## 0. Situational awareness
 
-- `gh pr list --state open`: exactly one open PR, #162, design-only note
+- At analysis time: `gh pr list --state open` showed exactly one open PR,
+  #162, design-only note
   (`work/notes/2026-08-24-rns-production-trigger-loop-design.md`), no
-  `runtime/`/`tests/` changes, has its own review-evidence file already
-  staged but not yet independently approved/merged per this task's dispatch
-  info. Left untouched — this check does not review or merge #162.
+  `runtime/`/`tests/` changes. **Update:** #162 has since merged to
+  `origin/main` as `ee5e364` (independent review approved, per its own
+  `work/reviews/pr-162-review-evidence.md`). Re-confirmed via `git show
+  ee5e364 --stat`: still exactly two files touched
+  (`work/notes/2026-08-24-rns-production-trigger-loop-design.md` +
+  `work/reviews/pr-162-review-evidence.md`), zero `runtime/`/`tests/`
+  changes, `CAPABILITY_CHECKLIST.md` untouched — the design-only
+  characterization below holds post-merge exactly as it did pre-merge.
 - No other in-flight worktrees observed with uncommitted newer-than-HEAD
   changes relevant to this arc.
 
-## 1. Re-verified against real `origin/main` (52a3de1)
+## 1. Re-verified against real `origin/main` (`ee5e364`, post-#162-merge; originally analyzed at `52a3de1`)
 
 - `python3 -m runtime.smoke` passes clean.
 - **PR #160 claim (RnS harness resume production call site) — confirmed
@@ -61,10 +71,13 @@ merged.
   `BEFORE_EXTERNAL_ACTION`/`BEFORE_DESTRUCTIVE_ACTION`). No roadmap item was
   marked `DONE` because of a design note — verified, not just asserted.
 - **PR #162 (RnS production trigger loop design) — same pattern, confirmed
-  design-only from its own diff** (`gh pr view 162 --json files`): exactly
+  design-only from its own diff, both before and after merge.** Originally
+  verified open via `gh pr view 162 --json files` (exactly
   `work/notes/2026-08-24-rns-production-trigger-loop-design.md` +
-  `work/reviews/pr-162-review-evidence.md`. Still open/unmerged; not counted
-  toward this pass's scoreboard.
+  `work/reviews/pr-162-review-evidence.md`); re-verified post-merge via
+  `git show ee5e364 --stat` — same two files, same zero `runtime/`/`tests/`
+  footprint. Not counted toward this pass's scoreboard either way, since a
+  design note never moves a status label.
 - **Master roadmap tag citations spot-checked directly** (not copied from
   pass #6's prose) for every item pass #6 cited in its horizon report: 6.4
   `P1`, 6.5 `P1`, 6.10 `P1/P2`, 6.16 `TRIGGERED`, 6.17 `TRIGGERED`, 6.19
@@ -86,11 +99,12 @@ Recounted directly from the current table (35 rows, 6.1-6.35):
 - **NOT STARTED (6, unchanged from pass #6):** 6.12, 6.17, 6.25, 6.31, 6.32,
   6.34.
 
-**No scoreboard delta this pass.** #160 deepened 6.5's evidence (real
-production call site now exists) without flipping its label — correctly,
-since the phase's exit gate is still unmet. #161/#162 are design notes and
-correctly do not move any label. This arc's real progress is evidence
-depth, not status-count movement.
+**No scoreboard delta this pass, including after #162's merge.** #160
+deepened 6.5's evidence (real production call site now exists) without
+flipping its label — correctly, since the phase's exit gate is still
+unmet. #161 and #162 are both design notes and correctly do not move any
+label (re-confirmed for #162 specifically after it merged as `ee5e364`).
+This arc's real progress is evidence depth, not status-count movement.
 
 ## 3. What changed the picture since pass #6
 
@@ -139,14 +153,15 @@ speculative capability surfaced. No pivot warranted.
 
 ### 5a. Immediately next
 
-1. **Merge PR #162** (RnS production trigger loop design) once its
-   independent review lands cleanly — it is design-only, already scoped
-   against the same non-daemon constraint the roadmap's §7.1/§7.9 requires
-   (reuses the existing `claim` CLI mutation as the trigger event, plus a
-   bounded new `recovery-tick` CLI subcommand for the all-silent-workers
-   case). Then dispatch its "bounded follow-up implementation" scope the
-   same way #154→#160 went, closing the "zero production invocation of
-   `tick()`" gap this pass re-confirmed is still real.
+1. **PR #162 (RnS production trigger loop design) merged** as `ee5e364`
+   during this pass's own review cycle — design-only, scoped against the
+   same non-daemon constraint the roadmap's §7.1/§7.9 requires (reuses the
+   existing `claim` CLI mutation as the trigger event, plus a bounded new
+   `recovery-tick` CLI subcommand for the all-silent-workers case). Next
+   step: dispatch its "bounded follow-up implementation" scope the same
+   way #154→#160 went, closing the "zero production invocation of
+   `tick()`" gap this pass re-confirmed is still real (re-checked again
+   after #162's merge — still zero production callers).
 2. **Validation-tier hook-in remains separately undesigned** (§3 above) —
    once #162's implementation lands, the harness will invoke `tick()` in
    production but still run no validation tier on resume. This is the
@@ -204,7 +219,7 @@ Unchanged from pass #6, re-spot-checked, no drift found:
 
 ## 6. Honesty check on drift
 
-Every PR this arc (#157, #160, #161, and #162 pending) traces to an item
+Every PR this arc (#157, #160, #161, and #162) traces to an item
 pass #6 itself explicitly ranked as next-to-dispatch. Nothing speculative
 was added; both implementation and design work followed the established
 design→bounded-implementation pattern with no scope creep (verified by
@@ -219,12 +234,11 @@ the checklist's own prose).
 ## Resume prompt
 
 If resuming mid-flight: PR #162 (`rns-trigger-loop-design`, "RnS production
-trigger loop design") is open, design-only, and needs its independent
-review to land cleanly before merge (never self-certify). Once merged,
-dispatch its named bounded implementation task (reuse the `claim` CLI
-mutation as trigger event + new `recovery-tick` CLI subcommand) to finally
-give `RecoverySupervisor.tick()` a real production caller — re-verified
-this pass that zero production caller currently exists
+trigger loop design") has already merged as `ee5e364`. Dispatch its named
+bounded implementation task (reuse the `claim` CLI mutation as trigger
+event + new `recovery-tick` CLI subcommand) to finally give
+`RecoverySupervisor.tick()` a real production caller — re-verified this
+pass, after #162's merge, that zero production caller currently exists
 (`grep -rn "RecoverySupervisor(\|\.tick(" runtime/` outside `tests/` is
 empty). After that lands, a short validation-tier-hook-in design is the
 remaining piece to actually close 6.5/H4/E4's exit gate — don't conflate
