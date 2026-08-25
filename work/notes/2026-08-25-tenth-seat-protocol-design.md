@@ -141,11 +141,25 @@ Why both conditions:
   nothing there worth steelmanning, and firing on it would be pure ceremony.
 - **(b) alone is already covered.** A status flip that drew reviewer findings
   has, by definition, had the other side articulated.
-- **Together they are rare and consequential.** Of 82 review-evidence files on
-  `main`, exactly two record "No findings" (PRs #134 and #135), and exactly one
-  of those — **#134, flipping portable-deployment D0 to `DONE`** — also flips
-  a status row. Expected firing rate: roughly once per few dozen PRs. That is
-  the right order of magnitude for a step this heavy.
+- **Together they are rare and consequential.** Measured over the 82 files in
+  `work/reviews/` on `main` @ `8923adb`, with the measurement method stated so
+  it can be checked rather than trusted:
+  - Files whose text literally records **"No findings"**: **2** — `pr-134` and
+    `pr-135`.
+  - A looser upper bound, files containing *none* of
+    `finding|gap|nit|caveat|concern|recommend|non-blocking|limitation|however`
+    (i.e. no critique-shaped language at all): **8**, of which 6 are PR
+    evidence files and 2 are older `TASK-*` review files. Note the two sets do
+    not overlap, since "No findings" contains "finding".
+  - So condition (a) alone plausibly describes somewhere between 2 and ~8 of
+    82 — call it **2-10%**. Neither number is exact, because "did the reviewer
+    articulate a case against?" is a judgment, not a string match. That
+    imprecision is itself an argument for condition (b) carrying the load and
+    for detection staying a reading task rather than a grep (§5).
+  - Of the two literal "No findings" files, exactly one — **#134, flipping
+    portable-deployment D0 to `DONE`** — also flips a status row. Expected
+    firing rate for the conjunction: roughly **once per few dozen PRs**, which
+    is the right order of magnitude for a step this heavy.
 
 Why status flips specifically are the high-consequence class here (protocol
 Trigger C, reframed for a docs-and-code project): the checklist is what future

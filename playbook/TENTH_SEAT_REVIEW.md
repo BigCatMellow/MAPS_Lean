@@ -72,10 +72,15 @@ a status flip that a reviewer pushed back on has already been tested by
 someone. It is the **conjunction** that matches Sanhedrin 17a: the claim with
 the longest downstream half-life is exactly the one nobody could argue against.
 
-Historically rare, by design. Across the 82 review-evidence files on `main` as
-of 2026-08-25, exactly two record "No findings", and exactly one of those
-(PR #134, flipping portable-deployment D0 to `DONE`) also flips a status row.
-Expect this to fire on the order of once per few dozen PRs.
+Historically rare, by design. Across the 82 files in `work/reviews/` as of
+2026-08-25, two literally record "No findings" and at most about eight contain
+no critique-shaped language at all; exactly one of the former (PR #134,
+flipping portable-deployment D0 to `DONE`) also flips a status row. Expect the
+conjunction to fire on the order of once per few dozen PRs.
+
+Condition 1 is a judgment, not a string match — a review with three cosmetic
+notes and no substantive challenge may well qualify. Read the review and decide.
+Do not try to make this mechanical; see §6 on why a CI gate here backfires.
 
 ### Trigger 2 — a trajectory-check pass that finds nothing, after passes that found something
 
