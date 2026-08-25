@@ -10,6 +10,11 @@ from runtime.context_builder import build_context_plan
 from runtime.evaluation import IncidentCategory, RegressionCaseError, freeze_regression_case
 from runtime.flow_review import flow_review_start
 from runtime.flow_start import flow_start_from_runtime_limit_args
+from runtime.recovery.production import (
+    DEFAULT_HCOM_DIR,
+    DEFAULT_HCOM_EXECUTABLE,
+    run_recovery_tick_isolated,
+)
 from runtime.run_record import RunRecordError, build_run_record
 from runtime.state import MutationResult, TaskStore, ValidationResult
 from runtime.status import build_status
@@ -43,6 +48,22 @@ def _emit(value: MutationResult | ValidationResult | dict | list) -> int:
         ok = value.get('ok', True) if isinstance(value, dict) else True
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0 if ok else 2
+
+
+def _parse_bindings(values: list[str]) -> dict[str, str]:
+    """Parse repeated ``--binding WORKER_ID=SESSION_NAME`` options.
+
+    No binding source is inferred: only what the caller states explicitly is
+    used. Raises ValueError on a malformed entry rather than silently dropping
+    a binding the caller believed was supplied.
+    """
+    bindings: dict[str, str] = {}
+    for value in values:
+        worker_id, separator, session_name = value.partition('=')
+        if not separator or not worker_id.strip() or not session_name.strip():
+            raise ValueError(f'--binding must be WORKER_ID=SESSION_NAME, got {value!r}')
+        bindings[worker_id.strip()] = session_name.strip()
+    return bindings
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -128,6 +149,24 @@ def build_parser() -> argparse.ArgumentParser:
     claim.add_argument('task_id')
     claim.add_argument('worker_id')
     claim.add_argument('--lease-seconds', type=int, default=900)
+
+    recovery_tick = sub.add_parser(
+        'recovery-tick',
+        help='run one bounded recover-and-resume pass over due incidents and exit',
+    )
+    recovery_tick.add_argument(
+        '--binding',
+        action='append',
+        default=[],
+        metavar='WORKER_ID=SESSION_NAME',
+        help=(
+            'explicit worker->session binding for silent-stop observation; '
+            'repeat for multiple bindings (default: none, which detects no '
+            'silent stops rather than guessing a binding)'
+        ),
+    )
+    recovery_tick.add_argument('--hcom-dir', default=DEFAULT_HCOM_DIR)
+    recovery_tick.add_argument('--hcom-executable', default=DEFAULT_HCOM_EXECUTABLE)
 
     heartbeat = sub.add_parser('heartbeat', help='renew the active claim lease')
     heartbeat.add_argument('task_id')
@@ -295,7 +334,29 @@ def main(argv: list[str] | None = None) -> int:
         except ValueError as exc:
             return _emit(MutationResult(False, 'INVALID_STATUS_OPTIONS', str(exc)))
     if args.command == 'claim':
-        return _emit(store.claim_task(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))
+        result = store.claim_task(args.task_id, args.worker_id, lease_seconds=args.lease_seconds)
+        # Bounded, one-shot, failure-isolated RnS trigger per
+        # work/notes/2026-08-24-rns-production-trigger-loop-design.md. Runs only
+        # after a successful claim (the moment new active work begins), is
+        # silent on stdout so `claim`'s existing machine-readable output and
+        # exit code are byte-for-byte unchanged, and can never fail the claim:
+        # any recovery error is contained and reported on stderr only.
+        if result.ok:
+            recovery = run_recovery_tick_isolated(store)
+            if not recovery['ok']:
+                print(f"recovery-tick failed (claim unaffected): {recovery['error']}", file=sys.stderr)
+        return _emit(result)
+    if args.command == 'recovery-tick':
+        try:
+            bindings = _parse_bindings(args.binding)
+        except ValueError as exc:
+            return _emit(MutationResult(False, 'INVALID_RECOVERY_BINDING', str(exc)))
+        return _emit(run_recovery_tick_isolated(
+            store,
+            bindings=bindings,
+            hcom_dir=args.hcom_dir,
+            hcom_executable=args.hcom_executable,
+        ))
     if args.command == 'heartbeat':
         return _emit(store.heartbeat(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))
     if args.command == 'submit':
