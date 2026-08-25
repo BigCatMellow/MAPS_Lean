@@ -1,14 +1,17 @@
 reviewer: agent-a182f8acc9f220bde (independent reviewer, did not author this PR)
-head_sha: fba8c4ff3113848ca1cbd765b0616896c466105d
+head_sha: f68ee879b205de4b35ca4ce380b257513f95abf8
 independent: true
-summary: APPROVED — PR #169 is a docs-only convention (three files, 612+ lines added, nothing under `runtime/`, `tests/`, or any roadmap/checklist file, verified by diff not by the note's own claim), and the two safety-relevant claims it makes about `scripts/check_review_evidence.py` are both true as read in the script: the checker resolves the literal path `work/reviews/pr-<N>-review-evidence.md` (line 97) and parses only that one file, so a sibling `pr-<N>-minority-report.md` can neither be mistaken for it nor inject a duplicate `head_sha`/`reviewer` line into the flat line-scan parser; and `_reviewed_code_head` walks back past any single-parent commit whose every changed path starts with `work/reviews/` (line 81), so a minority-report-only commit does not disturb the reviewed-code binding. Every non-goal is respected and every quoted source-document reference checks out verbatim (§24 "No Fake Dissent", §25 "The Tenth Seat Is Not a Professional Contrarian", Law 6, Law 7, Triggers C/D, §§10/15/18/28, and the literal "Fictional protocol inspired by real historical and institutional ideas." status line), as does master-roadmap §7.3's rejection of a fixed permanent agent roster, quoted word for word. Four non-blocking findings: the trajectory-check calibration cites pass #4 as having found a real defect when it found none (both cited defects are in pass #6 alone); the freshly-corrected "at most about eight" bound is not an upper bound because `nit` and `gap` are unanchored substrings that match `init`/`unittest`/`unit`/`Monitor`/`definition`/`sanity`, and a word-boundary rerun of the author's own grep returns 23, not 8; the Trigger 1 conjunction measured semantically rather than by literal string fires three times historically (#105, #111, #134) rather than once, which still leaves the "once per few dozen PRs" order of magnitude intact; and the §7 "signs this has gone wrong" list — the design's main answer to the source protocol's own §24 — has no assigned reader, after §6.3 dropped the source's §28 scoring as noise. None of the four changes the merge decision.
+rebase_note: Rebound from fba8c4ff3113848ca1cbd765b0616896c466105d (the head of the first review pass) to f68ee879b205de4b35ca4ce380b257513f95abf8 after the author acted on all four findings in a607217 and then merged origin/main (65e140b, PR #167) via 8f8f654, joining that line with my evidence commit 4dbcce5 at the merge f68ee87. This is a re-review, not a bare rebind: the reviewed docs genuinely changed, and §8 below records the re-verification of every changed number at its stated anchor. head_sha is the merge commit itself because `_reviewed_code_head` returns immediately on any commit with more than one parent (line 71-72), so the walk-back cannot reach past f68ee87; I confirmed `git rev-list --parents -n 1 HEAD` shows two parents. The origin/main merge changed none of the reviewed content: `git diff a607217 8f8f654 --stat` and `git diff a607217 HEAD --stat`, both restricted to the three PR files, are empty.
+summary: APPROVED — PR #169 is a docs-only convention (three files, 612+ lines added, nothing under `runtime/`, `tests/`, or any roadmap/checklist file, verified by diff not by the note's own claim), and the two safety-relevant claims it makes about `scripts/check_review_evidence.py` are both true as read in the script: the checker resolves the literal path `work/reviews/pr-<N>-review-evidence.md` (line 97) and parses only that one file, so a sibling `pr-<N>-minority-report.md` can neither be mistaken for it nor inject a duplicate `head_sha`/`reviewer` line into the flat line-scan parser; and `_reviewed_code_head` walks back past any single-parent commit whose every changed path starts with `work/reviews/` (line 81), so a minority-report-only commit does not disturb the reviewed-code binding. Every non-goal is respected and every quoted source-document reference checks out verbatim (§24 "No Fake Dissent", §25 "The Tenth Seat Is Not a Professional Contrarian", Law 6, Law 7, Triggers C/D, §§10/15/18/28, and the literal "Fictional protocol inspired by real historical and institutional ideas." status line), as does master-roadmap §7.3's rejection of a fixed permanent agent roster, quoted word for word. The first pass raised four non-blocking findings; the author acted on all four in `a607217` and I re-verified each at the new head (§8), reproducing every revised number exactly at its stated anchor of `main` @ `8923adb` — 82 files, 69 of them PR evidence, 23 under the word-anchored grep against 8 unanchored, 26 in the house clean-approval forms, and the three-PR conjunction. N1-N3 are fully resolved. N4 is resolved in substance but leaves one residual I am recording rather than waiving: the assigned reader now named in `TENTH_SEAT_REVIEW.md` §7 is the next trajectory-check pass, but `ROADMAP_TRAJECTORY_CHECK.md` contains no reference to `TENTH_SEAT_REVIEW.md` or to minority reports at all, so the assignment is visible only to someone already reading the document that contains it. That is non-blocking and the author's tight-output-boundary reasoning for not editing the other file is legitimate, but the completing step is a one-line cross-reference in that doc's existing §4 "Relationship to the other steering docs". The four original findings were: the trajectory-check calibration cites pass #4 as having found a real defect when it found none (both cited defects are in pass #6 alone); the freshly-corrected "at most about eight" bound is not an upper bound because `nit` and `gap` are unanchored substrings that match `init`/`unittest`/`unit`/`Monitor`/`definition`/`sanity`, and a word-boundary rerun of the author's own grep returns 23, not 8; the Trigger 1 conjunction measured semantically rather than by literal string fires three times historically (#105, #111, #134) rather than once, which still leaves the "once per few dozen PRs" order of magnitude intact; and the §7 "signs this has gone wrong" list — the design's main answer to the source protocol's own §24 — has no assigned reader, after §6.3 dropped the source's §28 scoring as noise. None of the four changes the merge decision.
 
 # Review: PR #169 — Tenth-Seat adversarial review convention
 
 - Reviewer: `agent-a182f8acc9f220bde`, freshly dispatched, no authorship of this PR.
 - Branch: `tenth-seat-protocol-design`. Base: `origin/main` @ `8923adb`.
-- Reviewed code head: `fba8c4ff3113848ca1cbd765b0616896c466105d`.
-- Verdict: `APPROVED`. Four non-blocking findings (N1-N4). No blocking finding.
+- Reviewed code head: `f68ee879b205de4b35ca4ce380b257513f95abf8` (merge commit;
+  first pass was at `fba8c4f`, see the rebind note in the header and §8).
+- Verdict: `APPROVED`. Four non-blocking findings (N1-N4), all acted on by the
+  author and re-verified; one named residual under N4. No blocking finding.
 - Worktree: reviewed in an isolated worktree at
   `/home/home/Projects/MAPS_Lean/.claude/worktrees/agent-a182f8acc9f220bde`;
   the shared clone was never touched.
@@ -311,4 +314,80 @@ plainly.
 - **N3's semantic count is a judgment, not a measurement.** I used `APPROVE (CLEAN)` / `No bugs found` / `No findings` as the operational reading of "zero findings" because it is this project's observed house style, and intersected with added `DONE` lines under `work/roadmaps/`. A different reasonable reading — for instance counting checkbox flips or "marks a design note implemented", which the trigger also admits — would give a different number. The note's own open question 3 already concedes that this property is not mechanically decidable, and I agree with it; my count should be read as "at least three", not "exactly three".
 - **Status-flip detection was scoped to added `DONE` lines and `[x]` checkboxes** under `work/roadmaps/`. PRs that flip a status by rewording a row's evidence column without introducing the literal token would not have been caught, so N3 is a floor.
 - **I did not review the PR's GitHub description or comments**, only the committed tree; a claim made only in the PR body is outside what I checked.
-- **Single reviewer, single pass** at `fba8c4f`. If the branch head moves again, this evidence is bound to `fba8c4ff3113848ca1cbd765b0616896c466105d` and the checker will correctly fail closed until it is rebound.
+- **Single reviewer.** Two passes (`fba8c4f`, then `f68ee87`), same reviewer both times. If the branch head moves again, this evidence is bound to `f68ee879b205de4b35ca4ce380b257513f95abf8` and the checker will correctly fail closed until it is rebound.
+
+## 8. Second pass — re-review at `f68ee87`
+
+The author acted on all four findings in `a607217` and asked for a re-review
+rather than a bare rebind. I re-read both changed documents in full and re-ran
+every count from scratch. I did not take the author's re-verification on trust,
+including where it agreed with my own first-pass numbers.
+
+**Anchor discipline.** The revised text measures over `main` @ `8923adb`, which
+is correct practice, but the working corpus has since grown to 84 files / 71 PR
+evidence files (PR #167's evidence and my own landed). So I re-ran the counts
+against the base tree rather than the checkout, via
+`git archive 8923adb work/reviews | tar -x` into a scratch directory. At the
+stated anchor: 82 total files, 69 `pr-*-review-evidence.md`, 23 under the
+word-anchored grep, 8 under the unanchored one, 26 in the
+`APPROVE (CLEAN)`/`No bugs found`/`No findings` house forms. Every number in
+the revised documents reproduces exactly. Worth noting the figure is stable
+rather than luckily-timed: re-running the anchored grep on the current 84-file
+tree also returns 23, because both newly added files contain critique-shaped
+language.
+
+**N1 — resolved.** §2.3 and the playbook Trigger 2 section now attribute both
+defects to pass #6, credit pass #7 separately, and state that #4 and #5
+recorded no finding. Both documents draw the consecutive-passes conclusion and
+say the tripwire is armed for pass #8. Matches what I read in the four
+trajectory notes.
+
+**N2 — resolved.** The grep in the note is now written with `\bgap` and
+`\bnit\b`, reports 23, and explains *why* the unanchored version returned 8
+(naming the `init`/`unit`/`Monitor`/`definition` collisions and the `pr-117`
+exclusion). The band is 2-28%. The note explicitly retracts "8 was not an upper
+bound; 23 is a loose one", which is the honest framing.
+
+**N3 — resolved.** Both documents name #105, #111 and #134 with their merge
+SHAs, give "three in 69 — about one per 23 PRs", and promote #105 to the
+primary motivating example. I re-confirmed `pr-105-review-evidence.md` does
+read `APPROVE (CLEAN)`, and that `39fa0ec` is the commit that created
+`CAPABILITY_CHECKLIST.md` with 35 `DONE` lines.
+
+**N4 — resolved in substance; one residual recorded.** §7 is retitled "Signs
+this has gone wrong — and who checks for them" and names an assigned reader:
+whoever runs the next `ROADMAP_TRAJECTORY_CHECK.md` pass, as one bullet inside
+that existing pass. That is the right owner, the right cadence, and no new
+machinery — it is what I recommended.
+
+The residual, which the author explicitly invited me to flag: the assignment
+lives only in `TENTH_SEAT_REVIEW.md`. I checked, and
+`playbook/ROADMAP_TRAJECTORY_CHECK.md` contains no occurrence of "tenth",
+"Tenth Seat", or "minority" anywhere in the file, and its four sections are
+"When to run this check", "The check", "What this is not", and "Relationship to
+the other steering docs". So a person or agent running a trajectory pass — the
+assigned reader — reads a document that never tells them they have been
+assigned anything, and would only discover the bullet by independently opening
+the file that assigns it. Trigger 2 does couple the two documents, but only
+when Trigger 2 fires, whereas the §7 read is meant to happen every pass.
+
+I am not escalating this, for two reasons. First, N4 has genuinely moved from
+"no owner exists" to "the right owner is named but not yet notified", which is
+most of the distance. Second, the author's reason for not editing
+`ROADMAP_TRAJECTORY_CHECK.md` — keeping this PR's output boundary at the three
+files it declared — is legitimate and is the same discipline the project's own
+rules ask for; I would rather see the boundary held than widened by a reviewer's
+request. The completing step is a single line in that document's existing §4
+"Relationship to the other steering docs", and it is properly a follow-up, not
+a merge condition. Recording it here so it is not lost, per the same logic the
+PR itself applies to preserved minority reports.
+
+**Scope re-verified at the new head.** `git diff --name-only origin/main...HEAD`
+returns exactly `playbook/INDEX.md`, `playbook/TENTH_SEAT_REVIEW.md`,
+`work/notes/2026-08-25-tenth-seat-protocol-design.md`, and this evidence file.
+Still nothing under `runtime/`, `tests/`, or `work/roadmaps/`. The new note
+§7a, which records the four findings and their resolution inside the note
+itself, is a reasonable addition and does not change the design's shape.
+
+**Verdict unchanged: `APPROVED`.** All four findings addressed, all revised
+arithmetic independently reproduced, one non-blocking residual named above.
