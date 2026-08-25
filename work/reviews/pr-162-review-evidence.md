@@ -1,6 +1,7 @@
 reviewer: /root/pr162_reviewer
-head_sha: ce2d5782f273bbcf723f48aef62c12228d645067
+head_sha: 0a687e2fa429ecf90e9679d5b49e12c217847318
 independent: true
+rebase_note: Reviewed content was at ce2d5782 (design note, single-file, 241 insertions, fully fact-checked below). A subsequent `git merge origin/main` (bringing the branch current past #161) produced merge commit 0a687e2, which the checker's walk-back cannot skip past (merge commits stop the walk). `git diff ce2d578 0a687e2 --stat -- work/notes/2026-08-24-rns-production-trigger-loop-design.md work/reviews/pr-162-review-evidence.md` is empty -- the reviewed design note and this evidence file are byte-identical before and after the merge. head_sha rebound per the same procedure `work/reviews/pr-160-review-evidence.md` documents; the reviewed content is unchanged.
 summary: APPROVED — the design note is factually accurate against current runtime/ code, respects §7.1/§7.9 non-goals (bounded one-shot CLI invocation, no daemon/cron/scheduler, no continuous discovery agent), is scoped design-only (single new file, no runtime/tests/roadmap changes, no DONE row claimed), and follows the PR154/PR160 pattern (finding, constraint, survey, single justified decision, call-site boundary, non-goals, open behavior questions, bounded follow-up scope).
 
 # Review: PR #162 RnS production trigger loop design
