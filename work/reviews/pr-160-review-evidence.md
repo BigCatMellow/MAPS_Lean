@@ -1,6 +1,7 @@
 reviewer: /root/pr160_reviewer
-head_sha: 988da5666cd5c3e8fc7a5b4a17db2c0b3eced082
+head_sha: da3455d479dee4604ea48c20cb5995643b86ffe1
 independent: true
+rebase_note: Reviewed content was at 988da566 (all acceptance criteria checked, non-tautology check performed, full suite 757 tests OK). A subsequent `git merge origin/main` (bringing the branch current) produced merge commit da3455d4, which the walk-back cannot skip past. `git diff 988da566 da3455d4 --stat -- runtime/recovery/supervisor.py tests/test_recovery_supervisor.py work/tasks/rns-harness-resume-callsite.md work/reviews/pr-160-review-evidence.md` is empty; `work/roadmaps/CAPABILITY_CHECKLIST.md` changed only in the unrelated E6/6.16 rows (from PR #157's merge into main), not this PR's reviewed H4/H5/E4/6.5 rows -- confirmed via direct diff inspection. head_sha rebound per `playbook/WORKTREE_ISOLATION.md`'s documented procedure; the reviewed code state is unchanged.
 summary: APPROVED — PR #160 makes RecoverySupervisor.tick() the first real production caller of HarnessService.resume()/HcomHarnessAdapter.resume(), fail-open to the pre-existing direct hcom resume in every case except an explicit installed-and-denying CANONICAL_RUN Hook, with no task-truth mutation and no validation-tier or trigger-loop scope creep.
 
 # Review: PR #160 RnS harness resume call site
