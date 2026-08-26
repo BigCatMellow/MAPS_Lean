@@ -2,7 +2,7 @@
 
 - From: repository archaeology / reconciliation pass
 - To: next MAPS_Lean worker
-- Task: `no separate task record — bounded reconciliation maintenance PR`
+- Task: [reconcile-project-truth-20260826](../tasks/reconcile-project-truth-20260826.md)
 - Status: `ACTIVE — reconciliation maintenance; architecture expansion frozen pending proof`
 - Related durable records:
   - [Current state](../../state/CURRENT.md)
@@ -123,6 +123,7 @@
 
 ## Evidence / paths
 
+- [Reconciliation maintenance task](../tasks/reconcile-project-truth-20260826.md)
 - [Agent operating contract](../../AGENTS.md)
 - [Active playbook index](../../playbook/INDEX.md)
 - [Information lifecycle](../../playbook/INFORMATION_LIFECYCLE.md)
