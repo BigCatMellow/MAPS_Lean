@@ -32,8 +32,12 @@ Implemented components:
 - `runtime/environment/` — EnvironmentSpec/EnvironmentFingerprint declaration
   and compatibility evaluation; advisory only, never task authority.
   `validation.py` executes a spec's declared quick/normal/full validation-tier
-  commands and exposes a Hook-callback factory so a `HookRegistry` can gate on
-  the result; no production call site invokes it yet.
+  commands and exposes a Hook-callback factory. PR #172 also made the RnS
+  resume path able to invoke an advisory run-bound quick-tier observation from
+  the explicitly-invoked `maps recovery-tick --repo-root <path>` production
+  composition. That path normally reports `no_spec_bound` and executes no
+  validation command because `run_environment_evidence` still has no production
+  writer; validation does not gate resume.
 - `runtime/operational_learning.py` — lesson record validation and
   guidance-only projection; `runtime/outcome_lesson_candidate.py` builds
   CANDIDATE snapshots from task outcomes. Promotion/retirement is
