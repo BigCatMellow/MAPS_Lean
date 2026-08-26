@@ -32,6 +32,13 @@ These are defaults, not invitations to add ceremony:
    when that is what the evidence supports.
 10. **Do not manufacture extra work after success.** Stop when acceptance
     criteria, required verification, and required review are complete.
+11. **Do not leave forward-relevant durable information isolated.** A durable
+    artifact must link to the task, decision, source, evidence, parent,
+    successor, implementation, or other durable context that gives it meaning.
+    Prefer links over copied explanation. When something is promoted,
+    implemented, rejected, superseded, or resolved, preserve that disposition
+    by linking to what happened next. Do not hand-maintain duplicate backlinks
+    when they can be derived.
 
 When uncertainty matters, use this order:
 
@@ -79,6 +86,9 @@ external behavior, or user-visible behavior.
 - Prefer the smallest change that satisfies the acceptance criteria.
 - Keep decisions in `work/decisions/` when another agent or later session needs
   them.
+- Keep durable information connected: use standard relative Markdown links to
+  authoritative/supporting artifacts where practical, and link forward when a
+  record's disposition changes instead of rewriting its historical observation.
 - Use native agent spawning when parallel work has clear, non-overlapping
   outputs. Do not spawn agents just to create process activity.
 - When another session must continue the work, write a compact handoff using
