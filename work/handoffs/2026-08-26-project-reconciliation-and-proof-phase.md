@@ -18,25 +18,34 @@
 
 ## What is true now
 
-- VERIFIED: baseline `main` before this reconciliation branch was
-  `d22036bcebca3d7eb729c2b9dd70e82c229ac60a`, merging PR #172.
-- VERIFIED: PR #171 is the one open implementation PR at this handoff. It is
-  Skill-lifecycle durable storage Half 1 only; its own contract leaves Half 2
-  authority wiring separate and does not mark SEC4/6.10 DONE.
+- VERIFIED: the original audit/reconciliation baseline was
+  `main@d22036bcebca3d7eb729c2b9dd70e82c229ac60a`, merging PR #172.
+- VERIFIED: live `main` later advanced to
+  `6c87d18d1d9980acac1b987cdee9e3aabc854260` through PR #175.
+- VERIFIED: PR #171 is now merged. It landed Skill-lifecycle durable storage
+  Half 1 only; Half 2 authority wiring remains separate and is not authorized by
+  that merge.
+- VERIFIED: PR #175 is now merged. Its independent review corrected material
+  enforcement overstatement before merge; E6/6.16 remain `IN PROGRESS` and no
+  runtime worktree enforcement was added.
 - VERIFIED: PR #172 made resume-path validation production-invokable but
   deliberately advisory/inert for ordinary real runs because no production
   writer currently supplies run-bound environment evidence.
+- VERIFIED: PR #173 is the open reconciliation/maintenance PR. Runtime-stack
+  tests passed at its prior head; `review-evidence` failed because no
+  `work/reviews/pr-173-review-evidence.md` exists yet. Independent review is the
+  outstanding gate, not a runtime-test failure.
+- VERIFIED: PR #174 is the bounded Spiderweb Audit stacked on #173. It remains a
+  separate follow-up and should be retargeted/synchronized after #173 lands.
 - VERIFIED: the Tenth-Seat protocol is an active playbook method. Trajectory
   checks #6 and #7 each found substantive issues, so a future clean check #8
-  must evaluate the protocol's Trigger 2 before treating the result as settled.
+  must evaluate Trigger 2 before treating the result as settled.
 - VERIFIED: repository archaeology found substantial information/status drift:
   old notes can look unfinished after later implementation, and accepted review
   findings can survive only inside review/PR prose unless dispositioned.
 - VERIFIED: the conversation-derived Proof Phase and archaeology findings are
-  now preserved under `work/audits/`, linked from this handoff and the roadmap
+  preserved under `work/audits/`, linked from this handoff and the roadmap
   index, and explicitly non-authoritative until shaped into work.
-- VERIFIED: no open GitHub issues currently serve as a secondary backlog for
-  these roadmap/reconciliation items.
 - ASSUMED / UNKNOWN: no claim is made here that every historical artifact has
   been fully reconciled. Live code, current checklist evidence, and GitHub state
   still win over historical prose.
@@ -66,17 +75,19 @@
   records and added them to the roadmap planning path so their unresolved
   findings are revisited during Proof Phase/D3 rather than floating outside the
   program.
+- Refreshed this handoff/current-state pair after PRs #171 and #175 merged so the
+  reconciliation branch does not preserve already-stale live-state claims.
 
 ## Work not completed
 
+- Independent review/review evidence for PR #173 has not been produced.
 - External Proof Phase / D3 real-project pilot has not been run.
-- PR #171 remains governed by its own review/merge process.
 - Skill lifecycle Half 2 is not authorized by this handoff.
 - Legacy deletion remains separately operator-gated.
 - A full historical backlink retrofit is intentionally not being attempted.
-- The large capability checklist still needs a deliberate whole-file
-  re-verification against current `main`; this pass does not reconstruct or
-  status-flip that scoreboard from partial reads.
+- The capability checklist still needs a deliberate whole-file re-verification
+  against current `main`; its header remains dated 2026-08-18 and some prose
+  lags later merged work.
 - Branch cleanup and hcom fork-pin removal require their own evidence checks;
   neither should be inferred from this handoff.
 - The audit records are not a task queue: individual findings still require
@@ -100,29 +111,33 @@
 
 ## Current blocker / risk
 
-- Main risk: navigation/status drift can cause a fresh worker either to miss a
-  good deferred idea or to rediscover an already-implemented old design as new
-  work.
+- PR #173 needs a genuinely independent reviewer. The author/reconciliation
+  session must not self-certify this substantive information-integrity change.
+- Main is moving quickly; before the review is bound/finalized, synchronize the
+  branch to current `main` and re-check any current-state claims rather than
+  repeatedly rebinding evidence after every unrelated merge.
 - External proof remains blocked until a real target repository/task and the
   necessary operator authority/access are explicitly selected.
 
 ## Working state
 
 - Reconciliation branch: `maintenance/reconcile-project-truth-20260826`
-- Baseline main: `d22036bcebca3d7eb729c2b9dd70e82c229ac60a`
-- Known active implementation PR at baseline: #171
-- Known last merged implementation PR at baseline: #172
+- Original audit baseline: `d22036bcebca3d7eb729c2b9dd70e82c229ac60a`
+- Live main at this refresh: `6c87d18d1d9980acac1b987cdee9e3aabc854260`
+- Latest merged PR at this refresh: #175
+- Open reconciliation PR: #173
+- Stacked Spiderweb follow-up: #174
 
 ## Next action
 
-1. Finish and independently review the reconciliation-only maintenance PR.
-2. Reconcile the capability checklist from a complete current view.
-3. Use the linked Proof Phase audit + archaeology audit as inputs to the
-   external Proof Phase/D3 pilot rather than opening another internal capability
-   wave.
-4. For each reached audit concern, record `OBSERVED / SUPPORTED INFERENCE /
-   HYPOTHESIS` and `PASS / FAIL / UNKNOWN / NOT RUN`; do not turn historical
-   concerns into implementation automatically.
+1. Synchronize PR #173 with current `main` at the point its independent review
+   begins, then obtain independent review/review evidence and normal checks.
+2. After #173 lands, synchronize/retarget #174 and run its normal review/checks.
+3. Run the first bounded Spiderweb scan and fresh-agent traversal test.
+4. Reconcile the capability checklist from a complete current view.
+5. Use the linked Proof Phase audit + archaeology audit as inputs to the
+   external Proof Phase/D3 pilot rather than opening another broad internal
+   capability wave.
 
 ## Do not redo / do not assume
 
