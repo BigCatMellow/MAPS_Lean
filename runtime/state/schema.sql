@@ -732,3 +732,109 @@ WHEN NEW.decision_kind = 'PROMOTE' AND EXISTS (
 BEGIN
     SELECT RAISE(ABORT, 'operational lesson is already promoted');
 END;
+
+-- Skill lifecycle subjects (SEC4 / roadmap 6.10, Half 1 -- durable storage
+-- only). One immutable identity row per content-addressed Skill revision.
+-- `catalog_key` is exactly SkillCatalogEntry.catalog_key
+-- ("<source_id>:<skill_id>@sha256:<content_sha256>"), so any edit to a
+-- Skill's contents yields a *different* catalog_key and therefore a new
+-- subject that starts over at VALIDATED/QUARANTINED -- re-approval is
+-- structural, not the product of any reconciliation job.
+--
+-- Deliberately absent: SKILL.md bodies, resource contents, procedure text.
+-- References and hashes only (roadmap 6.3). `gate_report` is the findings /
+-- verdict summary produced by SkillGateReport.to_dict(), not Skill content.
+--
+-- These tables live in the existing TaskStore database on purpose: this is
+-- not a second authority store (roadmap 7.2), it is the same canonical
+-- SQLite file that already holds operational_lessons, whose
+-- immutable-base-row + append-only-decisions + composed-state pattern this
+-- reuses verbatim.
+CREATE TABLE IF NOT EXISTS skill_lifecycle_subjects (
+    catalog_key TEXT PRIMARY KEY CHECK (length(trim(catalog_key)) BETWEEN 1 AND 512),
+    source_id TEXT NOT NULL CHECK (length(trim(source_id)) BETWEEN 1 AND 128),
+    source_kind TEXT NOT NULL CHECK (source_kind IN ('BUNDLED','LOCAL','THIRD_PARTY')),
+    source_ref TEXT,
+    declared_revision TEXT,
+    skill_id TEXT NOT NULL CHECK (length(trim(skill_id)) BETWEEN 1 AND 128),
+    skill_name TEXT NOT NULL CHECK (length(trim(skill_name)) BETWEEN 1 AND 256),
+    content_sha256 TEXT NOT NULL CHECK (length(content_sha256) = 64),
+    initial_state TEXT NOT NULL CHECK (initial_state IN ('VALIDATED','QUARANTINED')),
+    gate_disposition TEXT NOT NULL CHECK (
+        gate_disposition IN ('CLEAR','REVIEW_REQUIRED','QUARANTINE')
+    ),
+    gate_report TEXT NOT NULL CHECK (json_valid(gate_report)),
+    first_seen_at TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_skill_lifecycle_subjects_identity
+    ON skill_lifecycle_subjects(source_id, skill_id, first_seen_at);
+
+CREATE TRIGGER IF NOT EXISTS trg_skill_lifecycle_subjects_no_update
+BEFORE UPDATE ON skill_lifecycle_subjects
+BEGIN
+    SELECT RAISE(ABORT, 'skill lifecycle subjects are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_skill_lifecycle_subjects_no_delete
+BEFORE DELETE ON skill_lifecycle_subjects
+BEGIN
+    SELECT RAISE(ABORT, 'skill lifecycle subjects are immutable');
+END;
+
+-- Append-only Skill lifecycle decisions. One row per transition after the
+-- initial gate verdict recorded on the subject row. A Skill's effective
+-- lifecycle state is *composed* by replaying these rows through the pure
+-- validator in runtime/skills/lifecycle.py; it is never stored in a mutable
+-- column, so the transition history can never be lost and no write can land
+-- a Skill in APPROVED without a decision row behind it.
+--
+-- The actor CHECK below duplicates, at the schema level, the requirement the
+-- pure module already enforces for the two "-> APPROVED" edges. It is
+-- defense in depth against a direct-SQL write, not the primary check.
+CREATE TABLE IF NOT EXISTS skill_lifecycle_decisions (
+    decision_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    catalog_key TEXT NOT NULL REFERENCES skill_lifecycle_subjects(catalog_key),
+    from_state TEXT NOT NULL CHECK (
+        from_state IN (
+            'DISCOVERED','VALIDATED','QUARANTINED','APPROVED','ACTIVE',
+            'SUPERSEDED','RETIRED'
+        )
+    ),
+    to_state TEXT NOT NULL CHECK (
+        to_state IN (
+            'DISCOVERED','VALIDATED','QUARANTINED','APPROVED','ACTIVE',
+            'SUPERSEDED','RETIRED'
+        )
+    ),
+    decision_ref TEXT NOT NULL CHECK (length(trim(decision_ref)) BETWEEN 1 AND 512),
+    decided_by TEXT CHECK (decided_by IS NULL OR length(trim(decided_by)) BETWEEN 1 AND 128),
+    decided_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    CHECK (from_state <> to_state),
+    CHECK (NOT (to_state = 'APPROVED' AND (decided_by IS NULL OR length(trim(decided_by)) = 0)))
+);
+CREATE INDEX IF NOT EXISTS idx_skill_lifecycle_decisions_subject
+    ON skill_lifecycle_decisions(catalog_key, decision_id);
+
+CREATE TRIGGER IF NOT EXISTS trg_skill_lifecycle_decisions_no_update
+BEFORE UPDATE ON skill_lifecycle_decisions
+BEGIN
+    SELECT RAISE(ABORT, 'skill lifecycle decisions are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_skill_lifecycle_decisions_no_delete
+BEFORE DELETE ON skill_lifecycle_decisions
+BEGIN
+    SELECT RAISE(ABORT, 'skill lifecycle decisions are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_skill_lifecycle_decisions_no_post_terminal
+BEFORE INSERT ON skill_lifecycle_decisions
+WHEN EXISTS (
+    SELECT 1 FROM skill_lifecycle_decisions
+    WHERE catalog_key = NEW.catalog_key AND to_state IN ('SUPERSEDED','RETIRED')
+)
+BEGIN
+    SELECT RAISE(ABORT, 'skill lifecycle state is terminal; no further decisions');
+END;
