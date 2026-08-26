@@ -10,7 +10,7 @@ PR #109's four review-evidence cycles (documented in work/notes/2026-08-18-revie
 
 ## Source / context
 
-work/notes/2026-08-18-review-evidence-resync-classifier-friction.md (repair record on PR #109, 2026-08-18); playbook/MODEL_CAPABILITY_ROUTING.md effort-level routing section added in PR #103
+[Review-evidence resync/classifier friction](../notes/2026-08-18-review-evidence-resync-classifier-friction.md); [MODEL_CAPABILITY_ROUTING.md](../../playbook/MODEL_CAPABILITY_ROUTING.md) effort-level routing section added in PR #103.
 
 ## Potential value
 
@@ -22,4 +22,24 @@ Next time a PR needs a review-evidence rebind after a pure main-sync merge, try 
 
 ## Promotion
 
-Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+Not promoted at capture time. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+## Current disposition — 2026-08-26
+
+`TEST`
+
+The review-evidence rebinding/synchronization cost continued to recur in later
+work, so the underlying friction remains real. The principle has **not** been
+promoted to a standing tier because the cheaper procedure still needs evidence
+that it preserves the exact-subject review invariant.
+
+Revisit during the Proof Phase or the next proven zero-code-diff rebind. Measure:
+
+- full-review versus bounded re-attestation time/tool/token cost;
+- whether any full rerun after a proven zero-diff sync finds a new substantive
+  defect;
+- whether the abbreviated path can prove byte/diff equivalence and preserve the
+  exact reviewed-subject binding.
+
+Do not weaken review independence or SHA/subject binding to save time. If the
+bounded path cannot preserve those invariants, reject the idea.
