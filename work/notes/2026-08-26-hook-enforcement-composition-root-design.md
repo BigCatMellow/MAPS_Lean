@@ -19,16 +19,12 @@ merged) and the result is reproduced verbatim:
 
 ```
 $ grep -rn "HarnessService(\|HookRegistry(\|register_canonical_run_guards(" --include=*.py . \
-    | grep -v "^\./tests/"
+    | grep -v '/tests/'
 runtime/harness/service.py:27:        self.hooks = hooks or HookRegistry()
 runtime/policy/harness_guard.py:194:def register_canonical_run_guards(registry: HookRegistry, guard: CanonicalRunGuard, *, priority: int = 10) -> None:
 ```
 
-Two hits, 61 total. (The exclusion pattern is anchored on purpose: an unanchored
-`grep -v '/tests/'` filters nothing here, because `grep -rn ... .` emits paths as
-`./tests/...`. Stated because an unanchored version of this command appeared in
-an earlier draft of this note and would have printed all 61 lines while looking
-like it had filtered them.) The first is `HarnessService`'s own internal fallback
+Two hits, 61 total. The first is `HarnessService`'s own internal fallback
 default — it constructs an *empty* registry for itself, which is the opposite of
 composition. The second is the definition of the registration helper. **Every
 one of the other 59 hits is under `tests/`.**
