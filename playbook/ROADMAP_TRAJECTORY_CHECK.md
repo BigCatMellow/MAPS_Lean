@@ -50,14 +50,20 @@ Run it at natural arc boundaries, not after every single task:
    `EVIDENCE-GATED` tags in `00-MASTER-MAPS-CAPABILITY-ROADMAP.md`) and this
    arc's actual evidence, then act. Get a second agent's opinion first if
    genuinely torn between two directions; don't default to leaving it open.
-4. **Write it down.** Record the outcome as a short trajectory note under
+4. **Check the Tenth Seat triggers.** Before treating a trajectory result or a
+   consequential status claim as settled, evaluate the two narrow triggers in
+   [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md). If one fires, dispatch the
+   bounded fresh-agent challenge and preserve its minority report. The minority
+   report is evidence, not a veto or a second source of roadmap truth.
+5. **Write it down.** Record the outcome as a short trajectory note under
    `work/notes/` (e.g. `work/notes/<date>-roadmap-trajectory-check.md`):
-   what was re-verified, what changed the picture, and what was decided.
-   This is evidence for the *next* trajectory check, not a new authority
-   surface — it does not itself grant or change task/policy authority, and
-   it is not a second source of roadmap truth (`CAPABILITY_CHECKLIST.md`
-   remains that). If a pivot changes what the checklist should say, update
-   the checklist itself in the same or a following docs PR.
+   what was re-verified, what changed the picture, what the Tenth-Seat check
+   concluded if relevant, and what was decided. This is evidence for the *next*
+   trajectory check, not a new authority surface — it does not itself grant or
+   change task/policy authority, and it is not a second source of roadmap truth
+   (`CAPABILITY_CHECKLIST.md` remains that). If a pivot changes what the
+   checklist should say, update the checklist itself in the same or a following
+   docs PR.
 
 ## 3. What this is not
 
@@ -72,6 +78,8 @@ Run it at natural arc boundaries, not after every single task:
   pivot is acted on, not merely proposed — see `docs/CHECKS_AND_BALANCES.md`
   for what remains a genuine hard-wall escalation versus a decision this
   check is meant to resolve on its own.
+- Not a blanket adversarial-review step. Tenth-Seat review remains rare and
+  trigger-based; ordinary independent review already covers routine PRs.
 
 ## 4. Relationship to the other steering docs
 
@@ -80,4 +88,6 @@ AGI_STANDARD.md              → is this one task clear enough to execute?
 PROGRAM_STEERING.md          → is this the right task, right now?
 ROADMAP_TRAJECTORY_CHECK.md  → is the roadmap itself still pointing right,
                                 given everything learned so far?
+TENTH_SEAT_REVIEW.md         → when consensus is unusually clean, did anyone
+                                construct the strongest credible case against it?
 ```
