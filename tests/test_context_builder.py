@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from runtime.cli import main as cli_main
 from runtime.context_builder import build_context_plan
@@ -17,7 +18,7 @@ from runtime.skills import (
     build_skill_catalog,
 )
 from runtime.state import TaskStore
-from runtime.trust import MemoryTrustClass
+from runtime.trust import MemoryTrustClass, TrustClassError
 
 
 class ContextBuilderTests(unittest.TestCase):
@@ -199,7 +200,18 @@ class ContextBuilderTests(unittest.TestCase):
             self.assertEqual(item["trust_class"], MemoryTrustClass.REVIEWED_GUIDANCE.value)
         self.assertTrue(plan["coverage"]["memory_trust_classification_present"])
 
-    def test_matching_skill_budget_class_is_should_load(self):
+    def test_unassessed_skill_is_withheld_from_default_load_set(self):
+        """Roadmap 6.22: the trust gate demotes OBSERVATION Skills.
+
+        This replaces the previous assertion that every matched Skill is
+        SHOULD_LOAD. `UNASSESSED` provenance maps to `OBSERVATION`, which
+        #148's class/action table says must not influence loaded
+        instructions, so the gate withholds it. This strengthens the S6 exit
+        gate ("unrelated Skills demonstrably stay out of context") rather
+        than weakening it: unrelated Skills are still absent entirely, and
+        matched-but-unvetted Skills are now out of the default load set too.
+        """
+
         task_id = self.create_task()
         catalog = self._catalog_with_matching_and_unrelated_skill()
         plan = build_context_plan(
@@ -207,7 +219,50 @@ class ContextBuilderTests(unittest.TestCase):
         )
         self.assertTrue(plan["skills"])
         for item in plan["skills"]:
-            self.assertEqual(item["budget_class"], "SHOULD_LOAD")
+            self.assertEqual(item["trust_class"], MemoryTrustClass.OBSERVATION.value)
+            self.assertEqual(item["budget_class"], "ON_DEMAND")
+            self.assertEqual(item["withheld_reason"], "TRUST_CLASS_NOT_DEFAULT_LOADABLE")
+        # The gate made a real decision, not just an annotation.
+        coverage = plan["coverage"]
+        self.assertTrue(coverage["memory_trust_gate_applied"])
+        self.assertEqual(coverage["memory_trust_gate_admitted"], 0)
+        self.assertEqual(coverage["memory_trust_gate_withheld"], len(plan["skills"]))
+        self.assertEqual(coverage["memory_trust_gate_denied"], 0)
+
+    def test_no_default_loaded_plan_item_carries_a_non_loadable_trust_class(self):
+        """The invariant #148 asserts and nothing previously enforced."""
+
+        task_id = self.create_task()
+        self.assertTrue(
+            self.store.record_operational_lesson_candidate(
+                self._lesson("LESSON-ACTIVE"), created_by="observer-a"
+            ).ok
+        )
+        self.store.promote_operational_lesson(
+            "LESSON-ACTIVE",
+            decision_ref="decision:active",
+            promoted_by="operator-a",
+            starts_at="2026-08-17T19:00:00Z",
+            review_at="2099-08-20T19:00:00Z",
+        )
+        catalog = self._catalog_with_matching_and_unrelated_skill()
+        plan = build_context_plan(
+            self.store, task_id, repo_root=self.root, skill_catalog=catalog
+        )
+        loadable = {
+            MemoryTrustClass.CANONICAL_POLICY.value,
+            MemoryTrustClass.ACTIVE_INSTRUCTION.value,
+            MemoryTrustClass.APPROVED_SKILL.value,
+            MemoryTrustClass.REVIEWED_GUIDANCE.value,
+        }
+        default_loaded = [
+            item
+            for item in [*plan["guidance"], *plan["withheld_guidance"], *plan["skills"]]
+            if item["budget_class"] == "SHOULD_LOAD"
+        ]
+        self.assertTrue(default_loaded)
+        for item in default_loaded:
+            self.assertIn(item["trust_class"], loadable)
 
     def test_dependency_state_and_boundaries_are_projected(self):
         task_id = self.create_task()
@@ -362,6 +417,13 @@ class ContextBuilderTests(unittest.TestCase):
             trust.get("LESSON-OTHER-PROJECT"),
             MemoryTrustClass.REVIEWED_GUIDANCE.value,
         )
+        # The gate never promotes an already-withheld item, even though
+        # REVIEWED_GUIDANCE is a loadable class in the admission table.
+        item = plan["withheld_guidance"][0]
+        self.assertEqual(item["budget_class"], "ON_DEMAND")
+        self.assertEqual(item["withheld_reason"], "WITHHELD_UPSTREAM")
+        self.assertEqual(plan["coverage"]["memory_trust_gate_admitted"], 0)
+        self.assertEqual(plan["coverage"]["memory_trust_gate_withheld"], 1)
 
     def test_stale_lessons_stay_withheld_with_trust_metadata(self):
         task_id = self.create_task()
@@ -392,6 +454,10 @@ class ContextBuilderTests(unittest.TestCase):
         for item in withheld.values():
             self.assertEqual(item["trust_class"], MemoryTrustClass.REVIEWED_GUIDANCE.value)
             self.assertTrue(item["stale_trust_metadata"])
+            # stale_trust_metadata is now a gate input that demotes, not a
+            # decorative flag.
+            self.assertEqual(item["budget_class"], "ON_DEMAND")
+            self.assertEqual(item["withheld_reason"], "TRUST_METADATA_STALE")
         self.assertTrue(plan["coverage"]["memory_trust_classification_present"])
 
     def test_malformed_lesson_record_fails_closed_without_breaking_plan(self):
@@ -476,6 +542,57 @@ class ContextBuilderTests(unittest.TestCase):
             kind=SkillSourceKind.LOCAL,
         )
         return build_skill_catalog([source])
+
+    def _plan_with_skill_trust_class(self, replacement):
+        """Build a plan with `skill_trust_class` swapped for `replacement`.
+
+        `SkillTrustState` has only `UNASSESSED` today, so the LOAD and DENY
+        rows of the admission table are unreachable through real catalog
+        data. Substituting the mapping function is the only way to exercise
+        the gate's other outcomes at the real seam.
+        """
+
+        task_id = self.create_task()
+        catalog = self._catalog_with_matching_and_unrelated_skill()
+        with patch("runtime.context_builder.skill_trust_class", replacement):
+            return build_context_plan(
+                self.store, task_id, repo_root=self.root, skill_catalog=catalog
+            )
+
+    def test_quarantined_skill_is_denied_and_absent_from_the_plan(self):
+        plan = self._plan_with_skill_trust_class(
+            lambda state: MemoryTrustClass.QUARANTINED
+        )
+        self.assertEqual(plan["skills"], [])
+        coverage = plan["coverage"]
+        self.assertEqual(coverage["memory_trust_gate_denied"], 1)
+        self.assertEqual(coverage["memory_trust_gate_reasons"]["TRUST_CLASS_DENIED"], 1)
+        # Denied means absent, not merely demoted: no Skill text in the plan.
+        serialized = json.dumps(plan)
+        self.assertNotIn("context-plan-builder", serialized)
+
+    def test_unmappable_skill_trust_state_is_denied_not_silently_skipped(self):
+        def _raise(state):
+            raise TrustClassError("no mapping")
+
+        plan = self._plan_with_skill_trust_class(_raise)
+        self.assertEqual(plan["skills"], [])
+        coverage = plan["coverage"]
+        self.assertEqual(coverage["memory_trust_gate_denied"], 1)
+        self.assertEqual(
+            coverage["memory_trust_gate_reasons"]["TRUST_CLASS_UNRESOLVED"], 1
+        )
+
+    def test_approved_skill_is_admitted_to_the_default_load_set(self):
+        plan = self._plan_with_skill_trust_class(
+            lambda state: MemoryTrustClass.APPROVED_SKILL
+        )
+        self.assertEqual(len(plan["skills"]), 1)
+        entry = plan["skills"][0]
+        self.assertEqual(entry["budget_class"], "SHOULD_LOAD")
+        self.assertNotIn("withheld_reason", entry)
+        self.assertEqual(plan["coverage"]["memory_trust_gate_admitted"], 1)
+        self.assertEqual(plan["coverage"]["memory_trust_gate_denied"], 0)
 
     def test_skills_default_empty_without_catalog(self):
         task_id = self.create_task()
