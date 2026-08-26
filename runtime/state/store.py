@@ -15,12 +15,14 @@ from .review import ReviewMixin
 from .review_binding import ReviewBindingMixin
 from .run_lineage import RunSessionLineageMixin
 from .run_lineage_trace import RunSessionTraceMixin
+from .skill_lifecycle_storage import SkillLifecycleStorageMixin
 from .submission_lineage import SubmissionRunLineageMixin
 
 
 class TaskStore(
     RunSessionTraceMixin,
     ExecutionScopeHardeningMixin,
+    SkillLifecycleStorageMixin,
     OperationalLessonStorageMixin,
     HelperRecoveryLineageMixin,
     SubmissionRunLineageMixin,
