@@ -6,6 +6,9 @@
 - Status: `ACTIVE — reconciliation maintenance; architecture expansion frozen pending proof`
 - Related durable records:
   - [Current state](../../state/CURRENT.md)
+  - [Audit index](../audits/README.md)
+  - [Proof Phase Audit & External Test Plan](../audits/2026-08-26-maps-proof-phase-audit-and-test-plan.md)
+  - [Deep Project Archaeology Audit](../audits/2026-08-26-deep-project-archaeology-audit.md)
   - [Tenth-Seat review](../../playbook/TENTH_SEAT_REVIEW.md)
   - [Roadmap trajectory check](../../playbook/ROADMAP_TRAJECTORY_CHECK.md)
   - [Information lifecycle](../../playbook/INFORMATION_LIFECYCLE.md)
@@ -29,6 +32,9 @@
 - VERIFIED: repository archaeology found substantial information/status drift:
   old notes can look unfinished after later implementation, and accepted review
   findings can survive only inside review/PR prose unless dispositioned.
+- VERIFIED: the conversation-derived Proof Phase and archaeology findings are
+  now preserved under `work/audits/`, linked from this handoff and the roadmap
+  index, and explicitly non-authoritative until shaped into work.
 - VERIFIED: no open GitHub issues currently serve as a secondary backlog for
   these roadmap/reconciliation items.
 - ASSUMED / UNKNOWN: no claim is made here that every historical artifact has
@@ -56,6 +62,10 @@
   descriptions.
 - Reconciled DEC-001 with current implementation while deliberately leaving its
   formal `PROPOSED` authority status unchanged.
+- Preserved the Proof Phase and deep archaeology reports as linked durable audit
+  records and added them to the roadmap planning path so their unresolved
+  findings are revisited during Proof Phase/D3 rather than floating outside the
+  program.
 
 ## Work not completed
 
@@ -69,6 +79,8 @@
   status-flip that scoreboard from partial reads.
 - Branch cleanup and hcom fork-pin removal require their own evidence checks;
   neither should be inferred from this handoff.
+- The audit records are not a task queue: individual findings still require
+  explicit shaping/disposition before implementation.
 
 ## Decisions and constraints
 
@@ -82,6 +94,9 @@
   contrarian role.
 - Use the existing D3 external-pilot concept as the first real proof vehicle
   rather than inventing a duplicate pilot framework.
+- The audit files are evidence/roadmap inputs. When an audit finding is reached,
+  verify it against current `main` and shape only the smallest authorized work
+  that evidence still supports.
 
 ## Current blocker / risk
 
@@ -100,15 +115,19 @@
 
 ## Next action
 
-1. Finish and independently review the reconciliation-only maintenance PR; then
-   reconcile the capability checklist from a complete current view and start the
+1. Finish and independently review the reconciliation-only maintenance PR.
+2. Reconcile the capability checklist from a complete current view.
+3. Use the linked Proof Phase audit + archaeology audit as inputs to the
    external Proof Phase/D3 pilot rather than opening another internal capability
    wave.
+4. For each reached audit concern, record `OBSERVED / SUPPORTED INFERENCE /
+   HYPOTHESIS` and `PASS / FAIL / UNKNOWN / NOT RUN`; do not turn historical
+   concerns into implementation automatically.
 
 ## Do not redo / do not assume
 
 - Do not recreate an additional loose-ends database: MAPS already has future
-  ideas, E/I, decisions, trajectory checks, handoffs, and the capability
+  ideas, E/I, decisions, trajectory checks, handoffs, audits, and the capability
   checklist. Reconcile these before adding another layer.
 - Do not assume a dated `future task` note is still unfinished until checked
   against current code/checklist/merged PRs.
@@ -124,6 +143,9 @@
 ## Evidence / paths
 
 - [Reconciliation maintenance task](../tasks/reconcile-project-truth-20260826.md)
+- [Audit index](../audits/README.md)
+- [Proof Phase Audit & External Test Plan](../audits/2026-08-26-maps-proof-phase-audit-and-test-plan.md)
+- [Deep Project Archaeology Audit](../audits/2026-08-26-deep-project-archaeology-audit.md)
 - [Agent operating contract](../../AGENTS.md)
 - [Active playbook index](../../playbook/INDEX.md)
 - [Information lifecycle](../../playbook/INFORMATION_LIFECYCLE.md)
@@ -131,6 +153,7 @@
 - [Roadmap trajectory check](../../playbook/ROADMAP_TRAJECTORY_CHECK.md)
 - [E/I](../../playbook/EMERGENCE.md)
 - [Current state](../../state/CURRENT.md)
+- [Roadmap index](../roadmaps/README.md)
 - [Capability checklist](../roadmaps/CAPABILITY_CHECKLIST.md)
 - [PR #172 follow-up dispositions](../notes/2026-08-26-pr172-followup-dispositions.md)
 - [Future Ideas Backlog](../../migration/FUTURE_IDEAS_BACKLOG.md)
