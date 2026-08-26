@@ -29,6 +29,12 @@
     `HookEnforcement.CANONICAL_RUN` at `RUN_STARTING`, `BEFORE_SEND`,
     `BEFORE_RESUME`, and `SESSION_STOPPING`, and already fails closed on
     `check_run_stale()` with guard code `RUN_STALE`.
+  - VERIFIED: `register_canonical_run_guards()` and `HarnessService(...)` have
+    NO non-test callers; every registration/composition is in `tests/`. The
+    CANONICAL_RUN layer is mandatory-when-composed but library-only today.
+    Completing this task therefore closes the GUARD-LAYER gap only. It does
+    NOT close E6's "enforcement in a real dispatch flow" gap, and no roadmap
+    row may be marked `DONE` on that basis.
   - VERIFIED: `create_run_manifest()` leaves non-Git and
     placeholder-`base_revision` runs unbound; regression coverage is
     `test_non_git_placeholder_base_revision_remains_unbound`.
@@ -78,6 +84,8 @@
 - [ ] `SESSION_STOPPING` is not denied by this check.
 - [ ] No worktree creation, cleanup, destructive Git repair, changed-path
       enforcement, or authority behavior is added.
+- [ ] The roadmap update states that the composition-root gap remains open and
+      does not mark E6 or 6.16 `DONE`.
 
 ## Verification and evidence
 

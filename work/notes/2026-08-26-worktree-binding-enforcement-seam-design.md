@@ -41,20 +41,41 @@ advisory-on-request, not enforced. The distinction matters for E6, whose gap is
 precisely that a *concurrent* agent working in the wrong worktree is not
 detected unless someone remembers to ask.
 
-### Contrast: the sibling verifier is already enforced
+### Contrast: the sibling verifier reaches a guard; neither reaches a composed dispatch flow
 
-The comparable staleness verifier is wired:
+The comparable staleness verifier gets one layer further than worktree identity:
 
 - `runtime/state/integrity.py::TaskStore.check_run_stale()` is consumed by
   `runtime/policy/harness_guard.py::CanonicalRunGuard._require_current_run()`,
-  which returns a `DENY` with `guard_code` `RUN_STALE`.
+  which returns a `DENY` with `guard_code` `RUN_STALE`. `__call__` gates that
+  check behind `continuing`, so it applies to `start` / `send` / `resume` only,
+  not to `stop`.
 - `register_canonical_run_guards()` registers `CanonicalRunGuard` under
-  `HookEnforcement.CANONICAL_RUN` at `HookEvent.RUN_STARTING`,
-  `BEFORE_SEND`, `BEFORE_RESUME`, and `SESSION_STOPPING`.
+  `HookEnforcement.CANONICAL_RUN` at `HookEvent.RUN_STARTING`, `BEFORE_SEND`,
+  `BEFORE_RESUME`, and `SESSION_STOPPING`, and
+  `runtime/harness/service.py::_require_canonical_enforcement()` makes the
+  layer mandatory once a `HarnessService` is composed with it.
 
-`CanonicalRunGuard` therefore already proves the pattern: canonical run evidence
-is re-checked, fail closed, at consequential lifecycle points. Worktree identity
-is the one piece of run evidence PR #157 added that never reached this guard.
+VERIFIED, and important to state plainly so this note does not repeat the
+overstatement it exists to correct: `register_canonical_run_guards()` and
+`HarnessService(...)` have **no non-test callers** in the repo. Every
+registration and composition is in `tests/`. The CANONICAL_RUN layer is
+therefore library-only — mandatory-when-composed, but nothing in-repo composes
+it into a running dispatch flow.
+
+So E6's enforcement gap is two-layered, and this note addresses only the first:
+
+1. **Guard layer.** `check_run_stale()` is consulted by a fail-closed guard;
+   worktree identity is not consulted by anything but an on-request CLI. This
+   asymmetry is real and is what the follow-up task closes.
+2. **Composition-root layer.** No production code constructs a `HarnessService`
+   with these guards, so no lifecycle enforcement of *any* canonical run
+   evidence is live today. The follow-up task does **not** close this, and must
+   not claim to.
+
+Worktree identity is the one piece of run evidence PR #157 added that never
+reached the guard layer. Closing that is a real, bounded step; it is not the
+same as proving enforcement in a running dispatch flow.
 
 ## Why this was not wired directly in this pass
 
@@ -147,9 +168,14 @@ belongs on the continuing operations only.
 
 ### 5. Cost
 
-`collect_git_worktree_identity()` is a single `git rev-parse` invocation. That
-is materially cheaper than `verify_git_run()`'s diff plus `ls-files`, and is the
-reason the guard should call the helper rather than the full verifier.
+`collect_git_worktree_identity()` spawns five `git rev-parse` invocations
+(`--show-toplevel`, `--git-common-dir`, `--git-dir`, `--git-path .`, and
+`--verify HEAD^{commit}`). That is not free, but it is still materially cheaper
+than `verify_git_run()`, which adds `collect_git_changes()`'s `git diff` and
+`git ls-files --others` on top of those same five plus scope evaluation. The
+comparative argument for calling the helper rather than the full verifier holds;
+the absolute cost is higher than a naive reading suggests, so the implementer
+should not treat the guard check as free.
 
 ## Non-goals
 
