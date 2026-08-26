@@ -1,7 +1,18 @@
 reviewer: agent-ac105c6ef1fd943f3 (independent PR #166 reviewer; did not author the design note and made no change to it)
-head_sha: e193f72e03be7b6fe1406abf8692274d3bb16416
+head_sha: d5c3f5e224c1b9722225a21302d372abe0ceb650
+rebase_note: rebound from e193f72e03be7b6fe1406abf8692274d3bb16416 after the author
+  merged origin/main (d3942db) into the branch to satisfy branch protection's
+  strict up-to-date requirement; the new head d5c3f5e is that merge commit, and
+  check_review_evidence.py never walks past a merge commit. I re-verified the
+  rebind precondition myself rather than taking it on report: `git diff e193f72
+  d5c3f5e --stat -- work/notes/2026-08-25-memory-trust-enforcement-gate-design.md
+  runtime/ tests/ scripts/` returns no output, and the design note blob is
+  byte-identical at both heads (ca9af31551747c3cf8a476ad7903bb0e558e2129), as is
+  scripts/check_review_evidence.py (66ac40060a2134ef5046b6e7cf00dc97362d293c). The
+  merge brought in only unrelated docs from main. Verdict APPROVED is unchanged and
+  still covers the same code state. See section 13.
 independent: true
-summary: APPROVED (re-review at e193f72) — both blocking findings from the CHANGES_REQUESTED pass at f6ee2ed are correctly resolved. §1d and §2b now state plainly that project_applicable_lessons() routes RETIRED/CANDIDATE/SUPERSEDED to withheld upstream (operational_learning.py:381-386) before _lesson_guidance() sees anything, that projected items (413-422) carry no status/reason to re-derive from, and confine the guidance path to a structural-only change (bucket/budget-class now derive from one gate instead of being computed in parallel) while the skills path carries the one real allow/withhold behavior change (OBSERVATION Skills demoted from SHOULD_LOAD); new open question 4h correctly scopes the upstream projection-contract change as separate, non-assumed work. §4d is now RESOLVED citing operational_learning.py:410 (withheld lesson items carry no text) and new §2e correctly derives WITHHOLD-vs-DENY per producer from whether its withheld form carries content — lessons WITHHOLD (realigning with #148), skills DENY unless stripped (context_builder.py:258-259 does emit name/description inline, confirmed) — which is the honest resolution of the premise the earlier draft got backwards. Non-blocking notes from the prior pass were also addressed (explicit-dict-not-enum-ordering warning, ACTIVE_INSTRUCTION/CANONICAL_POLICY unreachability caveat, test citation at tests/test_context_builder.py:202). Diff from origin/main is still exactly one file under work/notes/ (plus this evidence file added by my prior pass); no runtime/ or tests/ touched. Full suite re-run at e193f72 as a blocking foreground call: 806 tests, OK (skipped=6), exit 0.
+summary: APPROVED (re-review at e193f72, head rebound to merge commit d5c3f5e — see rebase_note and section 13; reviewed code byte-identical at both heads) — both blocking findings from the CHANGES_REQUESTED pass at f6ee2ed are correctly resolved. §1d and §2b now state plainly that project_applicable_lessons() routes RETIRED/CANDIDATE/SUPERSEDED to withheld upstream (operational_learning.py:381-386) before _lesson_guidance() sees anything, that projected items (413-422) carry no status/reason to re-derive from, and confine the guidance path to a structural-only change (bucket/budget-class now derive from one gate instead of being computed in parallel) while the skills path carries the one real allow/withhold behavior change (OBSERVATION Skills demoted from SHOULD_LOAD); new open question 4h correctly scopes the upstream projection-contract change as separate, non-assumed work. §4d is now RESOLVED citing operational_learning.py:410 (withheld lesson items carry no text) and new §2e correctly derives WITHHOLD-vs-DENY per producer from whether its withheld form carries content — lessons WITHHOLD (realigning with #148), skills DENY unless stripped (context_builder.py:258-259 does emit name/description inline, confirmed) — which is the honest resolution of the premise the earlier draft got backwards. Non-blocking notes from the prior pass were also addressed (explicit-dict-not-enum-ordering warning, ACTIVE_INSTRUCTION/CANONICAL_POLICY unreachability caveat, test citation at tests/test_context_builder.py:202). Diff from origin/main is still exactly one file under work/notes/ (plus this evidence file added by my prior pass); no runtime/ or tests/ touched. Full suite re-run at e193f72 as a blocking foreground call: 806 tests, OK (skipped=6), exit 0.
 
 # Review: PR #166 — memory trust enforcement gate design note (roadmap 6.22)
 
@@ -193,4 +204,41 @@ OK (skipped=6)
 
 ### 12e. Verdict
 
-`APPROVED`. Both blocking findings from the first pass are correctly and honestly resolved — not by asserting the problem away, but by narrowing claims to what the code supports (Finding A) and by actually running the check the note deferred (Finding B), arriving at the answer implied by the note's own stated principle. The remaining stale `5f` reference (§12c) is a cosmetic defect, not a substantive one, and does not warrant another CHANGES_REQUESTED cycle.
+`APPROVED`. Both blocking findings from the first pass are correctly and honestly resolved — not by asserting the problem away, but by narrowing claims to what the code supports (Finding A) and by actually running the check the note deferred (Finding B), arriving at the answer implied by the note's own stated principle.
+
+## 13. `head_sha` rebind to merge commit `d5c3f5e` — no re-review of substance
+
+Branch protection on `main` is `strict: true`, so the author merged `origin/main` (`d3942db`) into the branch to bring it up to date. The new head is the merge commit `d5c3f5e224c1b9722225a21302d372abe0ceb650`. Because `check_review_evidence.py`'s walk-back never walks past a merge commit, the check now resolves the reviewed code state to `d5c3f5e`, so `head_sha` had to be rebound. This follows `playbook/WORKTREE_ISOLATION.md`'s documented procedure for exactly this case ("If the branch falls behind `main`, merge inside the worktree, diff the reviewed files across the merge, and rebind `head_sha` with a `rebase_note` if they're unchanged"), with precedent in `work/reviews/pr-113-review-evidence.md`.
+
+I re-ran the rebind precondition myself rather than accepting it on report. The reviewed code state is byte-identical across the merge:
+
+```
+$ git diff e193f72 d5c3f5e --stat -- \
+    work/notes/2026-08-25-memory-trust-enforcement-gate-design.md runtime/ tests/ scripts/
+(no output)
+
+$ git rev-parse e193f72:work/notes/2026-08-25-memory-trust-enforcement-gate-design.md \
+                d5c3f5e:work/notes/2026-08-25-memory-trust-enforcement-gate-design.md
+ca9af31551747c3cf8a476ad7903bb0e558e2129
+ca9af31551747c3cf8a476ad7903bb0e558e2129
+```
+
+The design note blob is the same object at both heads, and `scripts/check_review_evidence.py` is likewise unchanged (`66ac40060a2134ef5046b6e7cf00dc97362d293c` at both), so the checker grading this evidence is the same one I validated against. `git diff e193f72 d5c3f5e --stat` shows the merge brought in only unrelated material from main — `playbook/INDEX.md`, `playbook/TENTH_SEAT_REVIEW.md`, `work/notes/2026-08-25-rns-validation-tier-hookin-design.md`, `work/notes/2026-08-25-tenth-seat-protocol-design.md`, `work/reviews/pr-168-review-evidence.md`, `work/reviews/pr-169-review-evidence.md` — plus my own §12 update to this file from `c63b534`. Nothing in that set is code, and nothing in it is under review here.
+
+`git diff origin/main...HEAD --stat` at `d5c3f5e` still isolates this PR to exactly two files: the design note (421 lines) and this evidence file. No `runtime/`, no `tests/`, no roadmap or checklist file.
+
+Full suite re-run at the merge head as a blocking foreground call:
+
+```
+$ python3 -m unittest discover -s tests
+----------------------------------------------------------------------
+Ran 806 tests in 976.328s
+
+OK (skipped=6)
+```
+
+806 tests, `OK (skipped=6)`, exit code 0 — same result as at `e193f72`, as expected given the empty code diff.
+
+The verdict is unchanged: `APPROVED`. This section records a binding update, not a new review; the substance of sections 1-12 applies to `d5c3f5e` exactly as written, because it is the same code.
+
+One process note for the record: the author's session attempted this mechanical rebind itself and was correctly blocked by its own self-certification safeguard from running the evidence check against a file it had just edited. Routing it back to me is the right resolution rather than a bypass — the evidence file is mine as the independent reviewer, and I re-derived every claim above from the repository rather than from the author's report of it.
