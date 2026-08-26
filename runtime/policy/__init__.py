@@ -4,6 +4,12 @@ from .destructive_action_guard import (
 )
 from .evaluator import evaluate_assignment, evaluate_review, task_needs_operator_approval
 from .halt import HaltRecord, HaltStore, halt_block_reason
+from .memory_trust_gate import (
+    MemoryAdmission,
+    MemoryAdmissionDecision,
+    MemoryTrustGateError,
+    admit_memory_evidence,
+)
 from .harness_guard import (
     CanonicalRunGuard,
     CanonicalRunSource,
@@ -17,8 +23,12 @@ __all__ = [
     "DestructiveExternalActionGuard",
     "HaltRecord",
     "HaltStore",
+    "MemoryAdmission",
+    "MemoryAdmissionDecision",
+    "MemoryTrustGateError",
     "PolicyDecision",
     "WorkerProfile",
+    "admit_memory_evidence",
     "evaluate_assignment",
     "evaluate_review",
     "halt_block_reason",

@@ -9,6 +9,10 @@ from urllib.parse import urlparse
 
 from runtime.state import TaskStore
 from runtime.operational_learning import OperationalLearningError, project_applicable_lessons
+from runtime.policy.memory_trust_gate import (
+    MemoryAdmission,
+    admit_memory_evidence,
+)
 from runtime.skills.catalog import SkillCatalog
 from runtime.trust import (
     MemoryTrustClass,
@@ -122,9 +126,51 @@ def _describe_reference(root: Path, value: str, role: str) -> dict[str, Any]:
     }
 
 
+_BUDGET_MUST_LOAD = "MUST_LOAD"
+_BUDGET_SHOULD_LOAD = "SHOULD_LOAD"
+_BUDGET_ON_DEMAND = "ON_DEMAND"
+
+# Per-producer default for the unknown/malformed trust-class case, settled in
+# §2e of `work/notes/2026-08-25-memory-trust-enforcement-gate-design.md` by
+# whether that producer's withheld form carries content. Withheld lessons are
+# `{lesson_id, reason}` only (`runtime/operational_learning.py:410`) -- a
+# reference, no attack surface -- so they WITHHOLD, matching #148's stated
+# fail-closed rule. Skill entries emit `name`/`description` text inline, so a
+# withheld Skill entry in that shape *is* instruction-bearing text in the
+# plan; the unknown case there DENYs instead. Neither is ever LOAD.
+_UNKNOWN_LESSON_ADMISSION = MemoryAdmission.WITHHOLD
+_UNKNOWN_SKILL_ADMISSION = MemoryAdmission.DENY
+
+
+class _AdmissionTally:
+    """Counts of what the trust gate decided, surfaced under `coverage`."""
+
+    def __init__(self) -> None:
+        self.admitted = 0
+        self.withheld = 0
+        self.denied = 0
+        self.reasons: dict[str, int] = {}
+
+    def record(self, admission: MemoryAdmission, code: str) -> None:
+        if admission is MemoryAdmission.LOAD:
+            self.admitted += 1
+        elif admission is MemoryAdmission.WITHHOLD:
+            self.withheld += 1
+        else:
+            self.denied += 1
+        self.reasons[code] = self.reasons.get(code, 0) + 1
+
+    def merge(self, other: "_AdmissionTally") -> None:
+        self.admitted += other.admitted
+        self.withheld += other.withheld
+        self.denied += other.denied
+        for code, count in other.reasons.items():
+            self.reasons[code] = self.reasons.get(code, 0) + count
+
+
 def _lesson_guidance(
     store: TaskStore, task: dict[str, Any]
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], _AdmissionTally]:
     """Attributed GUIDANCE_ONLY evidence from operator-promoted ACTIVE lessons.
 
     Injection-0/1 (work/notes/2026-08-17-operational-learning-authority-design.md
@@ -132,11 +178,18 @@ def _lesson_guidance(
     `GUIDANCE_ONLY` label verbatim; never merged into instructions/boundaries.
     Fails closed (empty guidance) rather than breaking the rest of the plan
     if lesson storage or projection is unavailable/invalid.
+
+    Trust gate (roadmap 6.22): bucket membership and `budget_class` are now
+    *outputs of* `admit_memory_evidence()` and of nothing else, rather than
+    being assigned by the caller in parallel with the trust class. A withheld
+    lesson feeds the same gate and can only be demoted further, never
+    promoted to the default load set.
     """
+    tally = _AdmissionTally()
     try:
         lessons = store.list_active_operational_lessons()
     except Exception:
-        return [], []
+        return [], [], tally
     context = {
         "project_id": task["project_id"],
         "task_type": task["task_type"],
@@ -147,22 +200,63 @@ def _lesson_guidance(
     try:
         projection = project_applicable_lessons(lessons, context, at=at)
     except OperationalLearningError:
-        return [], []
+        return [], [], tally
     try:
-        guidance = [
+        projected = [
             dict(
                 item,
                 trust_class=operational_learning_trust_class("ACTIVE").value,
             )
             for item in projection["projected"]
         ]
-        withheld = [
+        already_withheld = [
             _withheld_lesson_with_trust_class(item)
             for item in projection["withheld"]
         ]
     except (TrustClassError, TypeError, KeyError):
-        return [], []
-    return guidance, withheld
+        return [], [], tally
+
+    guidance: list[dict[str, Any]] = []
+    withheld: list[dict[str, Any]] = []
+    for item in projected:
+        _route_lesson(item, guidance, withheld, tally, floor_withheld=False)
+    for item in already_withheld:
+        _route_lesson(item, guidance, withheld, tally, floor_withheld=True)
+    return guidance, withheld, tally
+
+
+def _route_lesson(
+    item: dict[str, Any],
+    guidance: list[dict[str, Any]],
+    withheld: list[dict[str, Any]],
+    tally: _AdmissionTally,
+    *,
+    floor_withheld: bool,
+) -> None:
+    """Route one lesson by the gate's decision; never promote a withheld item."""
+
+    decision = admit_memory_evidence(
+        item.get("trust_class"),
+        stale=bool(item.get("stale_trust_metadata", False)),
+        unknown_admission=_UNKNOWN_LESSON_ADMISSION,
+    )
+    admission = decision.admission
+    code = decision.code
+    if floor_withheld and admission is MemoryAdmission.LOAD:
+        admission = MemoryAdmission.WITHHOLD
+        code = _WITHHELD_UPSTREAM_CODE
+    tally.record(admission, code)
+    if admission is MemoryAdmission.DENY:
+        return
+    if admission is MemoryAdmission.LOAD:
+        guidance.append(dict(item, budget_class=_BUDGET_SHOULD_LOAD))
+        return
+    payload = dict(item, budget_class=_BUDGET_ON_DEMAND)
+    payload.setdefault("withheld_reason", code)
+    withheld.append(payload)
+
+
+_WITHHELD_UPSTREAM_CODE = "WITHHELD_UPSTREAM"
 
 
 def _withheld_lesson_with_trust_class(item: dict[str, Any]) -> dict[str, Any]:
@@ -215,7 +309,7 @@ def _skill_task_signal_tokens(task: dict[str, Any]) -> set[str]:
 
 def _select_skills(
     skill_catalog: SkillCatalog | None, task: dict[str, Any]
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], _AdmissionTally]:
     """Attributed, provenance-labeled Skill selection evidence.
 
     Fails closed: an absent/empty catalog, or any error while deriving task
@@ -230,16 +324,26 @@ def _select_skills(
     Skill's `trust_state` is always its real provenance value (`UNASSESSED`
     in all current cases) -- selection never implies vetting that hasn't
     happened.
+
+    Trust gate (roadmap 6.22): a matched Skill's `budget_class` is now the
+    output of `admit_memory_evidence()` rather than a hardcoded
+    `SHOULD_LOAD`. `UNASSESSED` provenance maps to `OBSERVATION`, which #148's
+    class/action table says must not influence loaded instructions, so a
+    matched-but-unassessed Skill is emitted as `ON_DEMAND` metadata with a
+    `withheld_reason` and is no longer part of the default load set. An
+    unmappable `trust_state` is a `DENY`: the entry is dropped and counted,
+    rather than silently skipped as before.
     """
 
+    tally = _AdmissionTally()
     if skill_catalog is None or not skill_catalog.entries:
-        return []
+        return [], tally
     try:
         signals = _skill_task_signal_tokens(task)
     except Exception:
-        return []
+        return [], tally
     if not signals:
-        return []
+        return [], tally
 
     selected: list[dict[str, Any]] = []
     for entry in skill_catalog.entries:
@@ -249,32 +353,40 @@ def _select_skills(
         if not matched:
             continue
         try:
-            trust_class = skill_trust_class(entry.provenance.trust_state).value
+            trust_class: str | None = skill_trust_class(entry.provenance.trust_state).value
         except TrustClassError:
-            continue
-        selected.append(
-            {
-                "skill_id": descriptor.skill_id,
-                "name": descriptor.name,
-                "description": descriptor.description,
-                "source_id": entry.provenance.source_id,
-                "trust_state": entry.provenance.trust_state.value,
-                "trust_class": trust_class,
-                "selection_reason": (
-                    "Matched task signal(s) "
-                    + ", ".join(matched)
-                    + " against Skill name/description"
-                ),
-                "catalog_key": entry.catalog_key,
-                "budget_class": "SHOULD_LOAD",
-            }
+            trust_class = None
+        decision = admit_memory_evidence(
+            trust_class,
+            stale=False,
+            unknown_admission=_UNKNOWN_SKILL_ADMISSION,
         )
-    return selected
-
-
-_BUDGET_MUST_LOAD = "MUST_LOAD"
-_BUDGET_SHOULD_LOAD = "SHOULD_LOAD"
-_BUDGET_ON_DEMAND = "ON_DEMAND"
+        tally.record(decision.admission, decision.code)
+        if decision.admission is MemoryAdmission.DENY:
+            continue
+        item: dict[str, Any] = {
+            "skill_id": descriptor.skill_id,
+            "name": descriptor.name,
+            "description": descriptor.description,
+            "source_id": entry.provenance.source_id,
+            "trust_state": entry.provenance.trust_state.value,
+            "trust_class": trust_class,
+            "selection_reason": (
+                "Matched task signal(s) "
+                + ", ".join(matched)
+                + " against Skill name/description"
+            ),
+            "catalog_key": entry.catalog_key,
+            "budget_class": (
+                _BUDGET_SHOULD_LOAD
+                if decision.admission is MemoryAdmission.LOAD
+                else _BUDGET_ON_DEMAND
+            ),
+        }
+        if decision.admission is MemoryAdmission.WITHHOLD:
+            item["withheld_reason"] = decision.code
+        selected.append(item)
+    return selected, tally
 
 
 def build_context_plan(
@@ -313,15 +425,18 @@ def build_context_plan(
       would carry no information beyond what this docstring already states.
     - `dependencies` -> SHOULD_LOAD. Matches the roadmap's own "direct
       dependencies" example exactly.
-    - `guidance` (GUIDANCE_ONLY lesson projections) -> SHOULD_LOAD
-      ("relevant decisions").
-    - `withheld_guidance` -> ON_DEMAND. These lessons were explicitly
-      withheld (not applicable / superseded / expired) rather than loaded;
-      ON_DEMAND ("old trajectories" / material only pulled in if
-      specifically pursued) is the closest fit -- they are not part of the
-      default load set.
-    - `skills` -> SHOULD_LOAD. Matches the roadmap's own "applicable Skill"
-      example exactly.
+    - `guidance` / `withheld_guidance` / `skills` -> decided by the memory
+      trust gate (roadmap 6.22), not tagged here. Each memory-like item is
+      routed by `admit_memory_evidence()`: `LOAD` keeps it in `guidance` /
+      `skills` at SHOULD_LOAD ("relevant decisions" / the roadmap's own
+      "applicable Skill" example), `WITHHOLD` puts it in `withheld_guidance`
+      (or leaves the Skill entry in `skills`) at ON_DEMAND with a
+      `withheld_reason` -- "old trajectories" / material only pulled in if
+      specifically pursued, not part of the default load set -- and `DENY`
+      drops it from the plan entirely with a counted reason under `coverage`.
+      Bucket membership and budget class are outputs of that one decision, so
+      no producer can hand itself a SHOULD_LOAD tag alongside a low trust
+      class.
     - `unresolved` items are *not* independently reclassified: this list is
       built by filtering `[*authority, *required]` by resolution `status`,
       so each entry is the same dict object as its `authority`/`required`
@@ -390,12 +505,9 @@ def build_context_plan(
         if item["status"] in {"missing", "outside_repo", "directory_not_expanded"}
     ]
 
-    guidance_raw, withheld_guidance_raw = _lesson_guidance(store, task)
-    guidance = [dict(item, budget_class=_BUDGET_SHOULD_LOAD) for item in guidance_raw]
-    withheld_guidance = [
-        dict(item, budget_class=_BUDGET_ON_DEMAND) for item in withheld_guidance_raw
-    ]
-    skills = _select_skills(skill_catalog, task)
+    guidance, withheld_guidance, memory_trust_tally = _lesson_guidance(store, task)
+    skills, skill_tally = _select_skills(skill_catalog, task)
+    memory_trust_tally.merge(skill_tally)
     memory_like = [*guidance, *withheld_guidance, *skills]
     memory_trust_classification_present = all(
         isinstance(item.get("trust_class"), str) and bool(item["trust_class"].strip())
@@ -435,11 +547,12 @@ def build_context_plan(
             ),
             "budget_classification_present": True,
             "budget_classification_note": (
-                "authority/required tagged MUST_LOAD, dependencies/guidance/"
-                "skills tagged SHOULD_LOAD, withheld_guidance tagged "
-                "ON_DEMAND; classification is advisory only and does not "
-                "change what is loaded or introduce any new retrieval "
-                "mechanism (roadmap 6.11 guardrail)"
+                "authority/required tagged MUST_LOAD, dependencies tagged "
+                "SHOULD_LOAD; memory-like guidance/withheld_guidance/skills "
+                "are tagged by the memory trust gate instead (roadmap 6.22), "
+                "so their budget class is a real admission decision rather "
+                "than advisory. No new retrieval mechanism is introduced "
+                "(roadmap 6.11 guardrail)"
             ),
             "memory_trust_classification_present": memory_trust_classification_present,
             "memory_trust_classification_note": (
@@ -447,6 +560,20 @@ def build_context_plan(
                 "MemoryTrustClass metadata when present; malformed optional "
                 "memory evidence fails closed without suppressing canonical "
                 "authority or required task context"
+            ),
+            "memory_trust_gate_applied": True,
+            "memory_trust_gate_admitted": memory_trust_tally.admitted,
+            "memory_trust_gate_withheld": memory_trust_tally.withheld,
+            "memory_trust_gate_denied": memory_trust_tally.denied,
+            "memory_trust_gate_reasons": dict(memory_trust_tally.reasons),
+            "memory_trust_gate_note": (
+                "every memory-like item passed admit_memory_evidence(); its "
+                "MemoryTrustClass alone decides bucket membership and "
+                "budget_class (LOAD/WITHHOLD/DENY). Unresolved trust metadata "
+                "never yields LOAD: lessons withhold (their withheld form "
+                "carries only lesson_id/reason), Skill entries deny (their "
+                "entry carries name/description text). Denied items are "
+                "dropped from the plan and counted here"
             ),
         },
     }
