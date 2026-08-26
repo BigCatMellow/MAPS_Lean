@@ -1,17 +1,17 @@
 reviewer: agent-ac105c6ef1fd943f3 (independent PR #166 reviewer; did not author the design note and made no change to it)
-head_sha: f6ee2edf478e6966c3d2488bc0ba577ffa0fa25b
+head_sha: e193f72e03be7b6fe1406abf8692274d3bb16416
 independent: true
-summary: CHANGES_REQUESTED — PR #166 is correctly docs-only (one added file, 340 lines, nothing under runtime/ or tests/), its §1 claims about `runtime/trust.py`, the module docstring quote, PR #148's selected seam, the absence of any Hook path or non-`context_builder` consumer of `trust_class`, and every cited line number all check out verbatim against the reviewed tree, the roadmap §7 non-goals are respected, and the note matches the SEC3 note's rigor shape (Finding / Decision / Non-goals / open behavior questions / roadmap impact / fail-closed posture); but the note's centerpiece behavior change — §2b.1's "the gate re-derives the class from the item's own status/reason field", the one claimed allow/deny difference — is not implementable against the actual data shape, because `project_applicable_lessons()` (runtime/operational_learning.py:413-422) builds each projected item as exactly `lesson_id`/`claim`/`source_kind`/`source_refs`/`promotion_decision_ref`/`authority` and carries no status or reason forward, and that same function already routes RETIRED/CANDIDATE/SUPERSEDED records into `withheld` at lines 381-386 before `_lesson_guidance()` ever sees them, so §1d's stated threat ("a hand-edited or poisoned lesson store") is already handled upstream and the residual case (a projection bug) is precisely the case the proposed gate cannot detect; relatedly §4d's open question is answerable from the same file the note claims to have verified against (withheld items are `{"lesson_id", "reason"}` only, with no lesson text at line 410), and that answer inverts §4a's own stated tie-break, which leans DENY on the premise that the withheld bucket carries lesson text — so the note's departure from #148's WITHHOLD default rests on a premise its own cited code contradicts.
+summary: APPROVED (re-review at e193f72) — both blocking findings from the CHANGES_REQUESTED pass at f6ee2ed are correctly resolved. §1d and §2b now state plainly that project_applicable_lessons() routes RETIRED/CANDIDATE/SUPERSEDED to withheld upstream (operational_learning.py:381-386) before _lesson_guidance() sees anything, that projected items (413-422) carry no status/reason to re-derive from, and confine the guidance path to a structural-only change (bucket/budget-class now derive from one gate instead of being computed in parallel) while the skills path carries the one real allow/withhold behavior change (OBSERVATION Skills demoted from SHOULD_LOAD); new open question 4h correctly scopes the upstream projection-contract change as separate, non-assumed work. §4d is now RESOLVED citing operational_learning.py:410 (withheld lesson items carry no text) and new §2e correctly derives WITHHOLD-vs-DENY per producer from whether its withheld form carries content — lessons WITHHOLD (realigning with #148), skills DENY unless stripped (context_builder.py:258-259 does emit name/description inline, confirmed) — which is the honest resolution of the premise the earlier draft got backwards. Non-blocking notes from the prior pass were also addressed (explicit-dict-not-enum-ordering warning, ACTIVE_INSTRUCTION/CANONICAL_POLICY unreachability caveat, test citation at tests/test_context_builder.py:202). Diff from origin/main is still exactly one file under work/notes/ (plus this evidence file added by my prior pass); no runtime/ or tests/ touched. Full suite re-run at e193f72 as a blocking foreground call: 806 tests, OK (skipped=6), exit 0.
 
 # Review: PR #166 — memory trust enforcement gate design note (roadmap 6.22)
 
-- Branch reviewed: `memory-trust-gate-design`, current head `f6ee2ed` ("Design memory trust enforcement gate on the Context Builder seam (roadmap 6.22)"), rebased onto `origin/main` at `65e140b`.
-- Reviewed in an isolated worktree; after `git fetch origin memory-trust-gate-design` and `git checkout -B memory-trust-gate-design origin/memory-trust-gate-design`, `git rev-parse HEAD` printed `f6ee2edf478e6966c3d2488bc0ba577ffa0fa25b`.
-- Artifact under review: `work/notes/2026-08-25-memory-trust-enforcement-gate-design.md`, read in full.
+- Branch reviewed: `memory-trust-gate-design`. First pass reviewed head `f6ee2ed` ("Design memory trust enforcement gate on the Context Builder seam (roadmap 6.22)"), rebased onto `origin/main` at `65e140b`. Re-review (§12 below) reviewed head `e193f72` ("Correct design note per PR #166 independent review (CHANGES_REQUESTED)"), the commit the author added on top of my own evidence commit `255c6f9` to apply both blocking corrections.
+- Reviewed in an isolated worktree both times; after `git fetch origin memory-trust-gate-design` and `git checkout -B memory-trust-gate-design origin/memory-trust-gate-design`, `git rev-parse HEAD` printed `f6ee2edf478e6966c3d2488bc0ba577ffa0fa25b` on the first pass and `e193f72e03be7b6fe1406abf8692274d3bb16416` on the re-review.
+- Artifact under review: `work/notes/2026-08-25-memory-trust-enforcement-gate-design.md`, read in full both times (421 lines at `e193f72`, up from 340 at `f6ee2ed`).
 - Prior decision treated as source of truth for the seam: `work/notes/2026-08-21-memory-trust-enforcement-design.md` (PR #148), read in full.
 - Rigor reference: `work/notes/2026-08-24-sec3-destructive-action-hook-guard-design.md`.
-- Verdict: `CHANGES_REQUESTED`
-- I did not author the note and did not modify it, `runtime/`, `tests/`, or any roadmap or checklist file. The only file this review adds is this one.
+- Verdict: `APPROVED` as of `e193f72` (superseding the `CHANGES_REQUESTED` verdict from `f6ee2ed`; sections 1-11 below document that first pass verbatim as the record of what was found and why, section 12 documents the re-review).
+- I did not author the note and did not modify it at any point, and did not touch `runtime/`, `tests/`, or any roadmap or checklist file. The only file either of my passes added or edited is this one.
 
 ## 1. Diff scope — PASS
 
@@ -148,3 +148,49 @@ Note that `python3 -m unittest discover -s tests -t .` fails at load with `Impor
 2. §4d closed with the answer already in the code (withheld items carry no lesson text), and §4a's default re-decided in light of it — which, on the note's own stated tie-break, points back to #148's `WITHHOLD`.
 
 Nothing else in the note needs to change for me to approve it. The diff scope, the §1 verification, the non-goals, and the roadmap posture are all sound.
+
+## 12. Re-review at `e193f72` — both blocking findings resolved, verdict APPROVED
+
+The author applied one correction commit (`e193f72`) on top of my evidence commit (`255c6f9`). `git diff 255c6f9..e193f72 --stat` shows exactly one file changed, the design note itself (156 insertions, 75 deletions); `git diff origin/main...HEAD --stat` at `e193f72` shows exactly the design note plus this evidence file — no `runtime/`, `tests/`, or roadmap/checklist file touched by either commit. Re-fetched and re-checked out clean (`git fetch origin memory-trust-gate-design && git checkout -B memory-trust-gate-design origin/memory-trust-gate-design`; `git rev-parse HEAD` = `e193f72e03be7b6fe1406abf8692274d3bb16416`).
+
+### 12a. Finding A — resolved
+
+§1d no longer claims a status field exists on projected items to re-derive from. §2b is restructured to three items, the first of which is now "`OBSERVATION` Skills stop being SHOULD_LOAD" (moved to first position and marked "the load-bearing behavior change of this design; the other two are structural"), followed by "Budget class is assigned *by* the class, not alongside it" (the duplicate-truth fix) and the quarantine/untrusted drop. §2b closes with an explicit honest-scope paragraph:
+
+> "on the guidance path specifically, this design changes no output for any input `project_applicable_lessons()` can produce today, because that function already routes retired/candidate/superseded lessons to `withheld` upstream (§1d) and hands `_lesson_guidance()` no `status` to re-check. ... the skills path gets the actual allow/withhold behavior change. The note claims nothing stronger."
+
+I checked this against the code again at `e193f72`: `runtime/operational_learning.py:381-386` (RETIRED/CANDIDATE/superseded routing) and `:413-422` (projected item shape, still six keys, no status) are unchanged from my first-pass read — the citations are accurate. §2c's `_lesson_guidance()` bullet now reads "keep the `operational_learning_trust_class("ACTIVE")` derivation ... there is no per-item status to re-derive from (§1d)", matching the code rather than contradicting it. New open question §4h names the upstream projection-contract change (`project_applicable_lessons()` carrying per-item status) as the thing that would make the guidance path's check real, and explicitly declines to assume it: "It must not be smuggled in as an incidental edit, and this note does not assume it." This is exactly the fix I asked for — narrow the claim to what's reachable, and surface the scope question rather than imply it's already handled.
+
+### 12b. Finding B — resolved
+
+§4d is now marked "RESOLVED — do not re-open" citing `runtime/operational_learning.py:410` for "withheld lesson items carry no text" — re-verified, still accurate (`{"lesson_id": ..., "reason": ...}`, two keys). New §2e makes the WITHHOLD-vs-DENY choice per-producer rather than blanket, on the same principle the note's own tie-break used: does the withheld form carry content.
+
+- Lessons: WITHHOLD, "which also keeps this note aligned with #148's stated fail-closed rule ... rather than departing from it." Correct, and correctly reverses the first draft's DENY default for lessons.
+- Skills: I checked the newly-cited line, `context_builder.py:258-259` — `_select_skills()`'s emitted dict does include `"name": descriptor.name` at line 258 and `"description": descriptor.description` at line 259, exactly as cited. So a withheld Skill entry in its current shape genuinely does carry instruction-bearing text, and DENY for the unknown/malformed case on that path is justified as written — with §2e correctly noting stripping to `skill_id`/`catalog_key`/reason would make WITHHOLD safe there too, left as new open question §4a rather than decided.
+
+§2a's table row for missing/unparseable was updated to match ("`WITHHOLD` if the withheld form carries no content, else `DENY` (see 2e)"), and §2d's fail-closed language was loosened from a blanket "is `DENY`, never `LOAD`" to "never yields `LOAD`. It yields `WITHHOLD` or `DENY` per §2e" — consistent with the per-producer resolution.
+
+### 12c. Non-blocking items — all addressed
+
+- §2a now states explicitly: "This is an explicit table, not a comparison against enum declaration order... Implement it as a literal dict keyed by class; do not implement it as `class >= threshold` over `Enum` ordering, which would admit all three [SUPERSEDED, RETIRED, QUARANTINED]." Matches my note precisely.
+- §2a adds the `ACTIVE_INSTRUCTION`/`CANONICAL_POLICY` caveat: both rows are unreachable at this seam today (verified again: `_select_skills()` only ever calls `skill_trust_class()`, never `skill_lifecycle_trust_class()`, and `SkillTrustState` has only `UNASSESSED`), and the note now warns the implementation must "keep it unreachable or carry #148's condition forward verbatim rather than silently widening it" instead of silently dropping #148's conditional as the first draft did.
+- §2b/§4c now cites `tests/test_context_builder.py:202` directly.
+- The author's summary of this correction commit said the stale `5f` cross-reference from the first draft was fixed. Verified directly: `grep -n "5f" work/notes/2026-08-25-memory-trust-enforcement-gate-design.md` at `e193f72` returns no match, and the module-placement open question is present and complete as `4f`. Confirmed fixed.
+
+### 12d. Test suite (re-run at `e193f72`)
+
+Blocking foreground run of the CI command:
+
+```
+$ python3 -m unittest discover -s tests
+----------------------------------------------------------------------
+Ran 806 tests in 985.738s
+
+OK (skipped=6)
+```
+
+806 tests, `OK (skipped=6)`, exit code 0 — unaffected, as expected for a docs-only PR. `scripts/check_review_evidence.py 166` was run against this file at `head_sha: e193f72e03be7b6fe1406abf8692274d3bb16416` and reported `review-evidence OK ... code head e193f72e03be7b6fe1406abf8692274d3bb16416`.
+
+### 12e. Verdict
+
+`APPROVED`. Both blocking findings from the first pass are correctly and honestly resolved — not by asserting the problem away, but by narrowing claims to what the code supports (Finding A) and by actually running the check the note deferred (Finding B), arriving at the answer implied by the note's own stated principle. The remaining stale `5f` reference (§12c) is a cosmetic defect, not a substantive one, and does not warrant another CHANGES_REQUESTED cycle.
