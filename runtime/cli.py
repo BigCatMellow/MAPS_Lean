@@ -175,6 +175,20 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_HCOM_TIMEOUT_SECONDS,
         help='per-hcom-call timeout for this deliberate, explicitly-invoked pass',
     )
+    # Deliberately unlike `context --repo-root` and `flow start --repo-root`,
+    # which both default to '.'. An ambient cwd default here would silently run
+    # declared validation commands in whatever directory the pass happened to be
+    # invoked from; validation must be opted into by explicitly naming a
+    # checkout. Absent, no validator is constructed and no command runs.
+    recovery_tick.add_argument(
+        '--repo-root',
+        default=None,
+        help=(
+            'opt in to advisory quick-tier validation of each about-to-be-resumed '
+            'incident, run in this checkout; no default, and validation is never '
+            'enabled on the claim-piggybacked pass'
+        ),
+    )
 
     heartbeat = sub.add_parser('heartbeat', help='renew the active claim lease')
     heartbeat.add_argument('task_id')
@@ -376,6 +390,7 @@ def main(argv: list[str] | None = None) -> int:
             hcom_dir=args.hcom_dir,
             hcom_executable=args.hcom_executable,
             hcom_timeout_seconds=args.hcom_timeout_seconds,
+            validation_repo_root=args.repo_root,
         ))
     if args.command == 'heartbeat':
         return _emit(store.heartbeat(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))

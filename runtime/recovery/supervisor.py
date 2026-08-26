@@ -53,6 +53,7 @@ class RecoverySupervisor:
         silent_stop_probe_delay_seconds: int = 900,
         environment_reader: Any | None = None,
         harness_service: Any | None = None,
+        resume_validator: Any | None = None,
     ):
         self.task_reader = task_reader
         self.hcom = hcom
@@ -72,6 +73,29 @@ class RecoverySupervisor:
         # when that lineage can't be resolved for a given incident, tick()
         # preserves the pre-existing direct-resume behavior unchanged.
         self.harness_service = harness_service
+        # Optional, advisory-only. When set, must expose
+        # validate_for_run(run_id) -> dict | None, returning either
+        # {"attempted": False, "reason": <closed-vocabulary reason>, ...} or
+        # {"attempted": True, "passed": bool, ...}. It is invoked exactly once
+        # per incident that is about to be resumed (see tick()), purely so its
+        # result can be recorded on that incident's action dict under the
+        # "resume_validation" key. No branch in tick() reads it: a failing or
+        # missing check never denies, delays, reschedules, suppresses or fails
+        # a resume, never changes the retry budget, and never implies
+        # environment incompatibility. When left None the "resume_validation"
+        # key is None on every action dict and behavior is byte-identical to
+        # having no validator at all.
+        #
+        # Deliberately specified by interface only. This module must stay free
+        # of the declared-environment type names that
+        # tests/test_recovery_supervisor.py::
+        # test_no_validation_tier_commands_or_task_mutation_in_source scans
+        # for -- that guard is a lowercased substring scan over this whole
+        # file's source text, comments and docstrings included, not an import
+        # check, so merely naming those types here (even in prose) would turn
+        # it red. Composition of a concrete validator, and every import it
+        # needs, belongs in runtime/recovery/production.py.
+        self.resume_validator = resume_validator
         if not backoff_seconds or any(value <= 0 for value in backoff_seconds):
             raise ValueError("backoff_seconds must contain positive values")
 
@@ -288,6 +312,10 @@ class RecoverySupervisor:
             # first); no lineage lookup or harness call happens for those
             # other outcomes.
             harness_resume: dict[str, Any] | None = None
+            # Same contract as harness_resume: stays None unless this incident
+            # actually reaches a resume attempt below, so suppressed/resolved/
+            # failed/not-yet-due incidents run no validation at all.
+            resume_validation: dict[str, Any] | None = None
 
             if session_name in state["terminal_sessions"]:
                 incident["state"] = "suppressed"
@@ -300,6 +328,7 @@ class RecoverySupervisor:
                         "reason": "terminal_session",
                         "environment_evidence": evidence,
                         "harness_resume": harness_resume,
+                        "resume_validation": resume_validation,
                     }
                 )
                 continue
@@ -324,6 +353,7 @@ class RecoverySupervisor:
                         "reason": reason,
                         "environment_evidence": evidence,
                         "harness_resume": harness_resume,
+                        "resume_validation": resume_validation,
                     }
                 )
                 continue
@@ -339,6 +369,7 @@ class RecoverySupervisor:
                         "reason": "session_live",
                         "environment_evidence": evidence,
                         "harness_resume": harness_resume,
+                        "resume_validation": resume_validation,
                     }
                 )
                 continue
@@ -361,9 +392,31 @@ class RecoverySupervisor:
                         "reason": "retry_budget_exhausted",
                         "environment_evidence": evidence,
                         "harness_resume": harness_resume,
+                        "resume_validation": resume_validation,
                     }
                 )
                 continue
+
+            # Advisory pre-resume observation. Placed here deliberately: this
+            # is the first point at which the incident is committed to a
+            # resume attempt (every earlier outcome -- suppress, resolve, fail,
+            # not-yet-due -- has already continue'd out), and it is still
+            # strictly *before* the resume, so the observation is not
+            # confounded by whatever the resumed session then does. The result
+            # is recorded on the action dict below and read by nothing.
+            if self.resume_validator is not None:
+                try:
+                    resume_validation = self.resume_validator.validate_for_run(
+                        incident.get("run_id")
+                    )
+                except Exception:  # noqa: BLE001 - advisory check must never break recovery
+                    # Deliberately carries no exception text: the validator is
+                    # a caller-supplied object whose messages have not passed
+                    # through any redaction boundary this module controls.
+                    resume_validation = {
+                        "attempted": False,
+                        "reason": "validation_error",
+                    }
 
             resolved = False
             if self.harness_service is not None:
@@ -444,6 +497,7 @@ class RecoverySupervisor:
                     "error": error,
                     "environment_evidence": evidence,
                     "harness_resume": harness_resume,
+                    "resume_validation": resume_validation,
                 }
             )
 

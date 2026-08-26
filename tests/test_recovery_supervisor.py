@@ -914,5 +914,253 @@ class RecoveryHarnessResumeCallSiteTests(unittest.TestCase):
             self.assertNotIn(forbidden, text)
 
 
+class RecordingValidator:
+    """Minimal `resume_validator` stand-in: records run_ids, returns a fixed dict."""
+
+    def __init__(self, result=None, *, error=None):
+        self.result = result
+        self.error = error
+        self.calls: list = []
+
+    def validate_for_run(self, run_id):
+        self.calls.append(run_id)
+        if self.error is not None:
+            raise self.error
+        return self.result
+
+
+FAILING_VALIDATION = {
+    "attempted": True,
+    "passed": False,
+    "tier": "quick",
+    "environment_spec_hash": "f" * 64,
+    "result": {
+        "tier": "quick",
+        "environment_spec_hash": "f" * 64,
+        "passed": False,
+        "ran": [
+            {
+                "command": "pytest -q",
+                "found": True,
+                "returncode": 1,
+                "output": "1 failed",
+                "passed": False,
+            }
+        ],
+        "skipped": [],
+    },
+}
+
+
+class ResumeValidationAdvisoryTests(unittest.TestCase):
+    """The `resume_validator` observation point is advisory and never gates a resume.
+
+    Per `work/notes/2026-08-25-rns-validation-tier-hookin-design.md` Q1/Q6/Q8.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.now = datetime(2026, 8, 25, 20, 0, tzinfo=timezone.utc)
+        self.counter = 0
+
+    def supervisor(self, *, sessions=None, tasks=None, **kwargs):
+        # A fresh store per supervisor so a control run and a validated run
+        # start from byte-identical incident state.
+        self.counter += 1
+        store = RecoveryStore(Path(self.td.name) / f"recovery-{self.counter}.json")
+        store.schedule(
+            task_id="TASK-1",
+            worker_id="worker-1",
+            session_name="session-1",
+            reason="scheduled",
+            resume_after=(self.now - timedelta(seconds=1)).isoformat(),
+            run_id="RUN-1",
+        )
+        hcom = FakeHcom(
+            sessions
+            if sessions is not None
+            else [{"name": "session-1", "status": "stopped"}]
+        )
+        sup = RecoverySupervisor(
+            task_reader=FakeTasks(tasks or [active_task()]),
+            hcom=hcom,
+            recovery_store=store,
+            backoff_seconds=(60, 120),
+            silent_stop_probe_delay_seconds=30,
+            **kwargs,
+        )
+        return sup, hcom, store
+
+    @staticmethod
+    def _bookkeeping(action, state):
+        incident = next(iter(state["incidents"].values()))
+        return (
+            action["action"],
+            action["attempt"],
+            action["error"],
+            incident["state"],
+            incident["last_error"],
+            incident["next_attempt_at"],
+            incident["attempt"],
+        )
+
+    def test_no_validator_configured_leaves_the_key_none_everywhere(self):
+        """Default (no validator): every action dict carries resume_validation=None."""
+        sup, hcom, _store = self.supervisor()
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertIsNone(actions[0]["resume_validation"])
+        self.assertEqual(len(hcom.resumes), 1)
+
+    def test_a_failing_validation_changes_nothing_about_the_resume(self):
+        """Q1: a failed quick tier is flagged, and the resume proceeds identically."""
+        control_sup, control_hcom, control_store = self.supervisor()
+        control_actions = control_sup.tick(now=self.now)
+        control = self._bookkeeping(control_actions[0], control_store.load())
+
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, hcom, store = self.supervisor(resume_validator=validator)
+        actions = sup.tick(now=self.now)
+
+        # The failure is genuinely observed...
+        self.assertEqual(validator.calls, ["RUN-1"])
+        self.assertEqual(actions[0]["resume_validation"], FAILING_VALIDATION)
+        self.assertIs(actions[0]["resume_validation"]["passed"], False)
+        # ...and changes nothing at all about the resume or the bookkeeping.
+        self.assertEqual(self._bookkeeping(actions[0], store.load()), control)
+        self.assertEqual(hcom.resumes, control_hcom.resumes)
+        self.assertEqual(len(hcom.resumes), 1)
+
+    def test_a_passing_validation_is_recorded_on_the_resume_action(self):
+        passing = {"attempted": True, "passed": True, "tier": "quick"}
+        validator = RecordingValidator(passing)
+        sup, hcom, _store = self.supervisor(resume_validator=validator)
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["resume_validation"], passing)
+        self.assertEqual(len(hcom.resumes), 1)
+
+    def test_a_skip_result_is_passed_through_verbatim(self):
+        """The common production case: no run-bound spec exists, so nothing ran."""
+        skip = {"attempted": False, "reason": "no_spec_bound"}
+        validator = RecordingValidator(skip)
+        sup, _hcom, _store = self.supervisor(resume_validator=validator)
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["resume_validation"], skip)
+        self.assertNotIn("passed", actions[0]["resume_validation"])
+
+    def test_an_exploding_validator_cannot_break_the_tick(self):
+        """Q6: contained, reported as validation_error, resume still happens."""
+        validator = RecordingValidator(
+            error=RuntimeError("token=sk-live-abcdef1234567890")
+        )
+        sup, hcom, _store = self.supervisor(resume_validator=validator)
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertEqual(
+            actions[0]["resume_validation"],
+            {"attempted": False, "reason": "validation_error"},
+        )
+        # Caller-supplied exception text is deliberately not propagated: it has
+        # not passed through any redaction boundary this module controls.
+        self.assertNotIn("sk-live", repr(actions[0]))
+        self.assertEqual(len(hcom.resumes), 1)
+
+    def test_a_hcom_resume_failure_still_records_the_validation(self):
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, hcom, _store = self.supervisor(resume_validator=validator)
+        hcom.fail = True
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "resume_failed")
+        self.assertEqual(actions[0]["resume_validation"], FAILING_VALIDATION)
+
+    def test_suppressed_incident_runs_no_validation(self):
+        """Q8: a suppressed incident carries resume_validation=None and calls nothing."""
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, _hcom, _store = self.supervisor(
+            tasks=[dict(active_task(), status="DONE")], resume_validator=validator
+        )
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "suppress")
+        self.assertIsNone(actions[0]["resume_validation"])
+        self.assertEqual(validator.calls, [])
+
+    def test_resolved_incident_runs_no_validation(self):
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, _hcom, _store = self.supervisor(
+            sessions=[{"name": "session-1", "status": "active", "process_bound": True}],
+            resume_validator=validator,
+        )
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "resolve")
+        self.assertIsNone(actions[0]["resume_validation"])
+        self.assertEqual(validator.calls, [])
+
+    def test_retry_budget_exhausted_incident_runs_no_validation(self):
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, _hcom, store = self.supervisor(resume_validator=validator)
+        state = store.load()
+        for incident in state["incidents"].values():
+            incident["attempt"] = 2
+        store.save(state)
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertIsNone(actions[0]["resume_validation"])
+        self.assertEqual(validator.calls, [])
+
+    def test_not_yet_due_incident_runs_no_validation(self):
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, _hcom, _store = self.supervisor(resume_validator=validator)
+        actions = sup.tick(now=self.now - timedelta(hours=1))
+        self.assertEqual(actions, [])
+        self.assertEqual(validator.calls, [])
+
+    def test_validator_receives_the_incidents_own_bound_run_id(self):
+        """No ambient run: the validator only ever sees the incident's own run_id."""
+        validator = RecordingValidator({"attempted": False, "reason": "no_spec_bound"})
+        sup, _hcom, store = self.supervisor(resume_validator=validator)
+        state = store.load()
+        for incident in state["incidents"].values():
+            incident["run_id"] = None
+        store.save(state)
+        sup.tick(now=self.now)
+        self.assertEqual(validator.calls, [None])
+
+
+class SupervisorSourceBoundaryTests(unittest.TestCase):
+    def test_supervisor_source_never_names_the_declared_environment_spec_type(self):
+        """`runtime/recovery/supervisor.py` must not contain the literal "EnvironmentSpec".
+
+        This is the honest description of what the #160 guard
+        (`test_no_validation_tier_commands_or_task_mutation_in_source`) checks:
+        a lowercased substring scan over the *entire* source text -- code,
+        comments and docstrings alike -- not an import check. Documenting the
+        new `resume_validator` input the way `environment_reader` is
+        documented, by naming the type it ultimately validates against, would
+        turn both tests red with no import present anywhere, which is exactly
+        why that input is specified by interface only. Stating the rule in the
+        terms the guard actually enforces means a future edit that reintroduces
+        the name in prose fails for a reason someone can read.
+        """
+        source = Path(__file__).parents[1] / "runtime" / "recovery" / "supervisor.py"
+        text = source.read_text(encoding="utf-8")
+        self.assertNotIn("EnvironmentSpec", text)
+        self.assertNotIn("environmentspec", text.lower())
+        # The composition root is allowed -- and required -- to name it, so the
+        # assertion above is a real boundary rather than vacuously true.
+        composition_root = (
+            Path(__file__).parents[1] / "runtime" / "recovery" / "production.py"
+        )
+        self.assertIn("EnvironmentSpec", composition_root.read_text(encoding="utf-8"))
+
+    def test_resume_validator_is_an_optional_keyword_only_input_defaulting_to_none(self):
+        import inspect
+
+        params = inspect.signature(RecoverySupervisor.__init__).parameters
+        self.assertIn("resume_validator", params)
+        self.assertEqual(params["resume_validator"].kind, inspect.Parameter.KEYWORD_ONLY)
+        self.assertIsNone(params["resume_validator"].default)
+
+
 if __name__ == "__main__":
     unittest.main()
