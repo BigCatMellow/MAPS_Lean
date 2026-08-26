@@ -1,11 +1,10 @@
 # Current State
 
 **This file is a durable orientation snapshot, not a live status board.** It was
-reconciled against `main` on 2026-08-26 at
-`d22036bcebca3d7eb729c2b9dd70e82c229ac60a` before the reconciliation
-maintenance branch began. Do not trust a PR number, CI result, or active-worker
-claim here without recovering live state through
-[`work/coordination/README.md`](../work/coordination/README.md).
+reconciled again on 2026-08-26 after `main` advanced to
+`6c87d18d1d9980acac1b987cdee9e3aabc854260` (through PR #175). Do not trust a
+PR number, CI result, or active-worker claim here without recovering live state
+through [`work/coordination/README.md`](../work/coordination/README.md).
 
 ## Latest coordination handoff
 
@@ -46,19 +45,32 @@ before acting.
 
 ## Current bounded work at this reconciliation point
 
-- PR #171 was the one open implementation PR at the 2026-08-26 baseline. It is
-  Skill-lifecycle durable storage Half 1; Half 2 authority wiring is separate
-  future work and is not authorized merely because Half 1 exists.
-- PR #172 is merged. It made resume-path validation production-invokable but
+- PR #171 is now merged. It landed Skill-lifecycle durable storage Half 1.
+  Half 2 authority wiring remains separate future work and is **not authorized
+  merely because Half 1 landed**.
+- PR #175 is now merged. It re-verified the worktree-binding enforcement gap,
+  added a bounded design/follow-up, and kept E6/6.16 `IN PROGRESS`; it did not
+  add runtime enforcement.
+- PR #173 is the reconciliation/maintenance PR carrying this current-orientation
+  update, the durable audits, the no-island information rule, and related
+  reconciliation fixes. It still requires independent review/review evidence.
+- PR #174 is the bounded Spiderweb Audit stacked on #173. It should remain
+  separate and follow #173 rather than being folded into this maintenance PR.
+- PR #172 remains the last merged recovery-validation implementation in this
+  audit lineage. It made resume-path validation production-invokable but
   intentionally advisory and normally inert because no production writer yet
   supplies run-bound environment evidence.
 - Review/deferred findings that are not blockers still require an explicit
   disposition so they do not survive only inside PR/review prose.
 
-## Remaining migration action
+## Remaining reconciliation work
 
-Top-level `legacy/` deletion remains separately operator-gated. Do not infer
-deletion authority from this status file, cleanup goals, or the Proof Phase.
+- `work/roadmaps/CAPABILITY_CHECKLIST.md` still advertises a 2026-08-18 whole-file
+  verification checkpoint and contains known rows whose prose lags later merged
+  work. Reconcile it deliberately from a complete current view rather than
+  patching it piecemeal from historical notes.
+- Top-level `legacy/` deletion remains separately operator-gated. Do not infer
+  deletion authority from this status file, cleanup goals, or the Proof Phase.
 
 ## What this file does not authorize
 
