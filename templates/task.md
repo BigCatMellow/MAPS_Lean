@@ -6,6 +6,7 @@
 - Owner: <agent or person>
 - Risk: `LOW | MEDIUM | HIGH`
 - Goal: <observable outcome>
+- Related durable records: <project/roadmap/decision/research/idea/experiment links or `none`>
 
 ## Inputs and source of truth
 
@@ -77,7 +78,7 @@ mandatory AGI requirement passes.
 
 ## Notes / decisions
 
-- <only forward-relevant information>
+- <only forward-relevant information; link to durable rationale instead of copying it>
 
 ## Completion / handoff
 
@@ -85,3 +86,4 @@ mandatory AGI requirement passes.
 - Not completed: <remaining work or `none`>
 - Current blocker: <none or exact blocker>
 - Next action if not DONE: <single concrete action>
+- Resulting/superseding records: <decision/review/repair/idea/handoff links or `none`>
