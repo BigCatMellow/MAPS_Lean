@@ -4,6 +4,7 @@
 - Checked by: <agent/person>
 - Date: <YYYY-MM-DD>
 - Artifact type: `TASK | PROJECT | RESEARCH | REVIEW | HANDOFF | TOOL | DECISION`
+- Related durable context: <task/project/decision/research/playbook links or `none`>
 
 ## Core task contract
 
@@ -37,7 +38,7 @@ does not apply.
 
 ## Seven tests
 
-- Fresh-Agent Test: `PASS | FAIL | N/A` — <why>
+- Fresh-Agent Test: `PASS | FAIL | N/A` — <can the agent follow the important durable links without the original chat?>
 - No-Guess Test: `PASS | FAIL | N/A` — <why>
 - Scope Test: `PASS | FAIL | N/A` — <why>
 - Authority Test: `PASS | FAIL | N/A` — <why>
