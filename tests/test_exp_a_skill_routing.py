@@ -117,7 +117,10 @@ class ExpASkillRoutingBenchmarkTests(unittest.TestCase):
                 "project_id": fixture["project_id"],
                 "output_paths": fixture["output_paths"],
             }
-            selected = _select_skills(catalog, task)
+            # `_select_skills` returns (items, trust-gate tally) since roadmap
+            # 6.22; routing/selection is unchanged, so the tally is ignored
+            # here.
+            selected, _ = _select_skills(catalog, task)
             selected_names = tuple(item["name"] for item in selected)
             if not selected_names:
                 outcome = SkillSelectionOutcome.ABSTAIN

@@ -28,10 +28,17 @@ storage. The mapping functions below are pure lookups -- they do not
 persist anything, do not change any subsystem's real behavior, and do not
 grant authority. In particular, this module does NOT modify
 `SkillTrustState`, `SkillLifecycleState`, or `operational_learning.py`'s
-real enum/status handling, and it is NOT wired into any decision-gating
-code path. Actually gating real behavior (e.g. "only ACTIVE_INSTRUCTION or
-CANONICAL_POLICY content may influence a tool call") on
-`MemoryTrustClass` is deliberately out of scope and left for a future task,
+real enum/status handling.
+
+This module itself still gates nothing: it defines vocabulary and lookups
+only. One consumer now makes a real decision from it --
+`runtime.policy.memory_trust_gate.admit_memory_evidence()`, the Context
+Builder admission gate designed in
+`work/notes/2026-08-25-memory-trust-enforcement-gate-design.md`, which
+decides LOAD / WITHHOLD / DENY for memory-like plan evidence
+(`guidance` / `withheld_guidance` / `skills`). Gating at the *action /
+tool-call* level (e.g. "only ACTIVE_INSTRUCTION or CANONICAL_POLICY content
+may influence a tool call") remains out of scope and left for a future task,
 exactly as SEC4 (`runtime/skills/lifecycle.py`) left persistence and
 authority wiring out of its own scope.
 """
