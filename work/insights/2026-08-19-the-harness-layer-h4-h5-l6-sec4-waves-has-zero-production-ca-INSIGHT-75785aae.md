@@ -22,4 +22,29 @@ Before adding more Harness surface area (a hypothetical H6/L7 wave), check wheth
 
 ## Promotion
 
-Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+Not promoted at capture time. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+## Current disposition — 2026-08-26
+
+`PARTIALLY RESOLVED / PRINCIPLE PRESERVED`
+
+Later RnS work introduced real HarnessService resume routing in
+`RecoverySupervisor.tick()` when an appropriate service/binding is supplied,
+and later production recovery composition made `tick()` explicitly invokable.
+The original claim that the Harness layer had *zero* production-facing seams is
+therefore historical.
+
+The remaining gap is narrower and still important: the default production
+recovery composition does not yet establish the full real HarnessService /
+worker-session evidence path needed to prove the abstraction end-to-end on an
+external workflow.
+
+Related current artifacts:
+
+- [Harness production-wiring gap analysis](../notes/2026-08-19-harness-production-wiring-gap.md)
+- [RnS production trigger-loop design](../notes/2026-08-24-rns-production-trigger-loop-design.md)
+- [current reconciliation handoff](../handoffs/2026-08-26-project-reconciliation-and-proof-phase.md)
+
+Preserve the original warning as a standing design principle: **do not add more
+Harness surface merely because the interface permits it; require a real caller
+or a concrete external test.**
