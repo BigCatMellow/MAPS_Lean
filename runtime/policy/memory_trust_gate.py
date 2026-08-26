@@ -82,9 +82,11 @@ ADMISSION_CODE_ACTIVE_SOURCE_UNPROVEN = "TRUST_CLASS_ACTIVE_SOURCE_UNPROVEN"
 class MemoryAdmissionDecision:
     """One admission outcome plus the fixed code explaining it.
 
-    Mirrors `DestructiveExternalActionGuard`'s `HookOutcome` + `guard_code`
-    shape: a directive and a stable machine-readable reason, no free-form
-    policy payload.
+    Mirrors the `HookOutcome` + `guard_code` shape used by the SEC3 guard in
+    `runtime/policy/destructive_action_guard.py`: a directive and a stable
+    machine-readable reason, no free-form policy payload. (Named by path, not
+    by class: that module's own tests assert its guard class name appears in
+    no other `runtime/` source, since it must stay unwired.)
     """
 
     admission: MemoryAdmission
