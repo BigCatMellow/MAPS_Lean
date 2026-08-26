@@ -1,16 +1,24 @@
 # Independent review evidence — PR #177
 
-Two review passes are recorded here. Pass 1 reviewed code commit `37fde1b` (the
-original design note) and returned APPROVED with six non-blocking findings.
-Pass 2 reviewed `076d59d`, the author's corrections commit made in response to
-those findings, and is the pass this file's fields are bound to. Read the
-"Re-review at 076d59d" section at the end first — it retracts one of pass 1's
-findings and is the reason the verdict changed.
+Three review passes are recorded here, in order.
+
+- **Pass 1** reviewed code commit `37fde1b`, the original design note, and
+  returned APPROVED with six non-blocking findings.
+- **Pass 2** reviewed `076d59d`, the author's corrections commit answering those
+  findings. It accepted five of the six, **retracted pass-1 Finding 1 as a false
+  positive of my own making**, and held at CHANGES_REQUESTED because the
+  correction made in response to that bad finding had introduced a false claim
+  into the note's §1.
+- **Pass 3** reviewed `e01bcf4`, which reverts that one passage. It is the final
+  pass and the one this file's fields are bound to.
+
+Read the two re-review sections at the end before the pass-1 body: pass 1's
+Finding 1 is withdrawn and must not be acted on.
 
 reviewer: independent-review-agent a951dc9e23a86177e (did not author PR #177)
-head_sha: 076d59dc22987b3a6115c9a6d9cd17bac00c0406
+head_sha: e01bcf40f44d44994a2b31054cb6c497b5166724
 independent: true
-summary: CHANGES_REQUESTED (narrow) — design and all three priority claims verified sound at source, and five of the six corrections at 076d59d are accurate; but my own original Finding 1 was a false positive caused by a shell grep wrapper, and the correction made in response introduced a factually false statement into S1 that must be reverted or reworded before merge.
+summary: APPROVED — design-only note; all three priority claims independently re-derived at source, the sole blocking defect (a false grep claim I had myself caused by a bad finding) is reverted at e01bcf4, corrections 2-6 verified intact, non-goals respected, full suite and smoke both green.
 
 ## Pass 1 — scope reviewed (at 37fde1b)
 
@@ -387,7 +395,7 @@ substantive verifications in the sections above were re-checked against
 `076d59d` and none of them changed — the corrections are confined to the note's
 prose and no cited source file moved.
 
-## Final verdict
+## Pass 2 verdict (at 076d59d)
 
 **CHANGES_REQUESTED**, narrowly, and only on the S1 parenthetical described
 under Correction 1. Everything else in this PR is sound: the design conclusion,
@@ -397,3 +405,80 @@ and I still agree with it — an explicit opt-in feature gate is required for
 first production exposure, and correction 5 makes that case stronger than the
 original note did. Once S1's grep justification is reverted or reworded to
 something true, this is an approve with no further conditions.
+
+---
+
+## Final pass at e01bcf4
+
+`e01bcf4` reverts the one passage pass 2 held on. It touches only
+`work/notes/2026-08-26-hook-enforcement-composition-root-design.md`
+(2 insertions, 6 deletions); the branch's full diff versus `origin/main` remains
+that note plus this evidence file. No `runtime/`, `tests/`, or
+`work/roadmaps/` path is touched at any point in the branch's history.
+
+**Item 1 — S1 is clean.** Verified two ways rather than by reading the revert
+message. First, `git diff 076d59d..e01bcf4` on the note contains exactly one
+hunk, and it is the S1 hunk: the anchored `grep -v "^\./tests/"` is replaced by
+the original `grep -v '/tests/'`, and the five-line parenthetical asserting that
+the unanchored form "filters nothing here" is deleted rather than reworded. The
+false claim is gone from the file. Second, `git diff 37fde1b..e01bcf4` on the
+note produces **no hunk anywhere before line 107**, which means S1 is now
+byte-identical to the originally-reviewed `37fde1b` text — there is no residue
+of the bad correction.
+
+The restored pipeline is the reproducible one. Re-confirmed through
+`/usr/bin/grep` (GNU grep 3.11), deliberately bypassing this harness's `grep`
+shell-function wrapper that caused my original error: the recursive grep emits
+61 lines with a `./` prefix, and piping it through `/usr/bin/grep -v '/tests/'`
+yields exactly the two lines S1 pastes — `./runtime/harness/service.py:27` and
+`./runtime/policy/harness_guard.py:194`. The note's claim of "Two hits, 61
+total" is correct, and the transcript is genuinely reproducible from the command
+printed above it. Taking the revert rather than a reworded anchor was the right
+call: with the premise false there was no distinction left to explain.
+
+**Item 2 — corrections 2-6 are intact.** Established mechanically rather than by
+re-reading prose: the diff from `076d59d` to `e01bcf4` on the note has that one
+S1 hunk and nothing else, so no correction region was touched by the revert. As
+a cross-check, the diff from `37fde1b` to `e01bcf4` on the note has exactly six
+hunks, at the six correction sites and nowhere else — S2's deny-code counts
+(@@ -107), the S2b revision rows (@@ -144), S3c's project-scoping rewrite
+(@@ -292), S3d's event-firing wording (@@ -311), S5 item 1 (@@ -360), and the
+Resume prompt (@@ -454). All six were verified against source during pass 2 and
+none has moved since.
+
+**Verification runs at e01bcf4.** Full suite, blocking, redirected to
+`/tmp/pr177-suite3.txt`, not piped: `Ran 898 tests in 1284.598s`,
+`OK (skipped=6)`, exit code 0. Smoke (`python3 -m runtime.smoke`) exit code 0.
+Third consecutive green pair across the three reviewed heads.
+
+## Final verdict
+
+**APPROVED.** No conditions outstanding.
+
+The design is sound and its three priority claims survive independent
+re-derivation at source: the zero-caller finding (61 hits, exactly two outside
+`tests/`), the `CanonicalRunGuard` fail-closed analysis (no `ALLOW` and no
+`REQUIRE_APPROVAL` constructed anywhere in the file; every failure path denies,
+the one success path annotates), and the traced RnS consequence chain through
+`HOOK_DENIED` to `resume_denied` and on to `retry_budget_exhausted`. Non-goals
+are respected mechanically — the branch never touches runtime, test, or roadmap
+files, and no checklist row is flipped. Corrections 2-6 improved the note's
+accuracy in five real places, S3c materially so.
+
+On the question this review was asked to rule on: **a feature gate is required
+for first production exposure.** Fail-closed in the authority sense — the guard
+can only narrow, is registered `READ_ONLY` + `FAIL_CLOSED`, and grants nothing —
+but strict in the availability sense, and on the RnS path a denial is terminal
+for that pass with no fallback, burns an attempt, and drives the incident toward
+`failed`. `LEASE_EXPIRED` is close to the expected case for the very population
+RnS serves. Correction 5 strengthens this: enforcement is not scoped by
+`--harness-project-id`, so out-of-project incidents are exposed too. Default-off
+with an explicit operator opt-in is correct.
+
+One process note worth carrying forward, since it cost a round trip: pass-1
+Finding 1 was wrong because I trusted the `grep` on my `PATH` without checking
+what it resolved to. In this harness `grep` is a shell function that rewrites
+output, and a claim about grep's output is exactly the kind of claim that needs
+`/usr/bin/grep`. The author was right to act on the finding as reported and
+right to revert once it was withdrawn; the failure was mine and is recorded here
+so the next reviewer of a grep-derived claim checks the tool before the claim.
