@@ -116,3 +116,27 @@ WezTerm an optional operator presentation layer rather than a prerequisite.
 Start Phase 0 by producing the active-runtime manifest and a read-only
 inventory of all WezTerm-coupled entrypoints.
 
+## Reconciliation note — 2026-08-26
+
+This record's historical checklist is **not** the current MAPS capability
+scoreboard. Much of the proposed target model has since been adopted in active
+Lean architecture: WezTerm/fixed-roster behavior is optional presentation,
+SQLite remains canonical task truth, hcom remains transport/session control,
+and RnS/Harness/Context work has advanced substantially.
+
+Formal `Status: PROPOSED` is intentionally left unchanged by the reconciliation
+maintenance pass because changing the decision's authority state should be an
+explicit operator/decision action, not inferred from implementation drift.
+Future workers should use the current capability checklist and current-state
+handoff for implementation status rather than reopening this plan's unchecked
+boxes as new work.
+
+## Connections
+
+- Current operating contract: [AGENTS.md](../../AGENTS.md)
+- Active playbook index: [playbook/INDEX.md](../../playbook/INDEX.md)
+- Current capability scoreboard: [CAPABILITY_CHECKLIST.md](../roadmaps/CAPABILITY_CHECKLIST.md)
+- Current handoff: [2026-08-26 project reconciliation and Proof Phase](../handoffs/2026-08-26-project-reconciliation-and-proof-phase.md)
+- Supersedes: `none recorded`
+- Superseded by: `none formally recorded`
+
