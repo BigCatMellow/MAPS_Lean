@@ -19,12 +19,16 @@ merged) and the result is reproduced verbatim:
 
 ```
 $ grep -rn "HarnessService(\|HookRegistry(\|register_canonical_run_guards(" --include=*.py . \
-    | grep -v '/tests/'
+    | grep -v "^\./tests/"
 runtime/harness/service.py:27:        self.hooks = hooks or HookRegistry()
 runtime/policy/harness_guard.py:194:def register_canonical_run_guards(registry: HookRegistry, guard: CanonicalRunGuard, *, priority: int = 10) -> None:
 ```
 
-Two hits, 61 total. The first is `HarnessService`'s own internal fallback
+Two hits, 61 total. (The exclusion pattern is anchored on purpose: an unanchored
+`grep -v '/tests/'` filters nothing here, because `grep -rn ... .` emits paths as
+`./tests/...`. Stated because an unanchored version of this command appeared in
+an earlier draft of this note and would have printed all 61 lines while looking
+like it had filtered them.) The first is `HarnessService`'s own internal fallback
 default — it constructs an *empty* registry for itself, which is the opposite of
 composition. The second is the definition of the registration helper. **Every
 one of the other 59 hits is under `tests/`.**
@@ -107,11 +111,12 @@ it never returns ALLOW at all.**
 `HookDirective.ALLOW` is never constructed anywhere in that file.
 `HookDirective.REQUIRE_APPROVAL` is never constructed there either. The guard is
 **fail-closed by construction**: absent evidence is a denial, and the best
-available outcome is a permitted annotation. There are 17 distinct deny codes,
-including `BINDING_REQUIRED`, `BINDING_INCOMPLETE`, `TASK_NOT_FOUND`,
-`RUN_NOT_FOUND`, `RUN_REVISION_MISMATCH`, `TASK_REVISION_STALE`,
-`TASK_NOT_ACTIVE`, `NOT_CLAIM_OWNER`, `LEASE_EXPIRED`, `RUN_STALE`, and six
-`SESSION_*` lineage denials.
+available outcome is a permitted annotation. There are 28 `_deny(...)` call sites
+carrying **23 distinct deny codes**, including `BINDING_REQUIRED`,
+`BINDING_INCOMPLETE`, `TASK_NOT_FOUND`, `RUN_NOT_FOUND`, `RUN_TASK_MISMATCH`,
+`RUN_WORKER_MISMATCH`, `RUN_REVISION_MISMATCH`, `TASK_REVISION_STALE`,
+`TASK_NOT_ACTIVE`, `NOT_CLAIM_OWNER`, `LEASE_EXPIRED`, `RUN_STALE`,
+`UNSUPPORTED_OPERATION`, and **nine** `SESSION_*` lineage denials.
 
 ### 2a. What this means, stated precisely
 
@@ -144,7 +149,21 @@ But the pre-filter deliberately does **not** check what
 | `task.claimed_by == worker_id` | `NOT_CLAIM_OWNER` | **No** |
 | `lease_expires_at > now` | `LEASE_EXPIRED` | **No** |
 | `check_run_stale(run_id)` false | `RUN_STALE` | **No** |
-| `compute_task_revision() == binding revision` | `TASK_REVISION_STALE` | **No** |
+| `manifest.task_revision == binding revision` | `RUN_REVISION_MISMATCH` | **No** |
+| `compute_task_revision() == binding revision` | `TASK_REVISION_STALE` | *Tautological here — see below* |
+
+One row in that table needs a caveat rather than a checkmark.
+`TASK_REVISION_STALE` cannot actually fire on this path: `_resolve_harness_binding`
+builds `binding.task_revision` *from* `self.task_reader.compute_task_revision(task_id)`
+(`supervisor.py:172-176`), and the guard's `require_current_revision` check calls
+the same method on the same source and compares the two
+(`harness_guard.py:73-76`). It is a comparison of a value against itself. The
+denial that actually catches task-definition drift on this path is
+`RUN_REVISION_MISMATCH` (`harness_guard.py:71-72`), which compares the *immutable
+run manifest's* recorded revision against the freshly-computed one — and that is
+genuinely unfiltered and genuinely reachable. Listing `TASK_REVISION_STALE` as a
+live first-exposure risk would overstate the case; `RUN_REVISION_MISMATCH` is the
+real one and was missing from an earlier draft of this table.
 
 These are precisely the conditions most likely to be violated for a recovery
 incident. RnS exists to resume a session that *stopped silently* — and a session
@@ -292,14 +311,33 @@ maps recovery-tick --enforce-canonical-run --harness-project-id PROJ --repo-root
   several projects. Deriving the project from the first incident would be a
   guess, and this project does not guess bindings (`cli.py:55-68`).
 
-  The multi-project consequence is benign and worth stating: an incident from a
-  different project produces `PROJECT_MISMATCH` from
-  `HcomHarnessAdapter._project_error` (`adapters/hcom.py:93-100`). That code is
-  **not** in `_CANONICAL_DENIAL_CODES`, so `tick()` falls through to the
-  pre-existing direct resume for that incident (`supervisor.py:461-466`
-  comment). Out-of-project incidents are therefore unaffected by enforcement —
-  which is correct, but it also means an operator must not read a clean
-  enforced pass as "every project was checked".
+  The multi-project consequence is **not** benign, and getting this backwards
+  understates the blast radius, so it is spelled out. An incident from a
+  different project does eventually produce `PROJECT_MISMATCH` from
+  `HcomHarnessAdapter._project_error` (`adapters/hcom.py:93-100`), and that code
+  is **not** in `_CANONICAL_DENIAL_CODES`, so `tick()` would fall through to the
+  pre-existing direct resume (`supervisor.py:459-465` comment). But it only ever
+  gets that far if it first survives the guard:
+
+  - `HarnessService.resume` runs `_require_canonical_enforcement` at
+    `service.py:294` and `self.hooks.run(BEFORE_RESUME, ...)` at `service.py:300`
+    — both **before** `adapter.resume(binding)` at `service.py:311`.
+  - The adapter's project check is reached only inside `_binding_session`
+    (`adapters/hcom.py:294-299`), i.e. after the guard has already returned.
+  - Neither earlier project comparison rejects an out-of-project incident:
+    `HarnessService._validate_binding_session` compares `binding.project_id`
+    against `session_ref.project_id`, and `CanonicalRunGuard._base_evidence`
+    compares the task's `project_id` against the binding's. In
+    `_resolve_harness_binding` all three are read from the *same* `task`
+    record (`supervisor.py:170-171, 199-207`), so all three are equal by
+    construction and none of them can fire.
+
+  So an out-of-project incident is **fully subject to canonical denial** and
+  reaches the benign `PROJECT_MISMATCH` fallback only if it passes every guard
+  check first. Enforcement is not scoped to `--harness-project-id`; only the
+  eventual adapter call is. This makes the §2c gate conclusion stronger, not
+  weaker, and it is the single most important thing for the implementer not to
+  assume away.
 
 ### 3d. Which guards are registered
 
@@ -311,8 +349,14 @@ left out of this slice**, and the reason is mechanical, not cautious:
 300, 333` — the only five `hooks.run(...)` call sites in `runtime/`).
 `register_destructive_external_action_guards` registers on
 `BEFORE_DESTRUCTIVE_ACTION` and `BEFORE_EXTERNAL_ACTION`
-(`destructive_action_guard.py:129`). A repo-wide grep finds **no code anywhere,
-tests included, that fires either event through a registry.**
+(`destructive_action_guard.py:129`). **Nothing in `runtime/` fires either event
+through a registry** — the only five `hooks.run(...)` call sites in `runtime/`
+are the `HarnessService` ones listed above, and neither destructive event is
+among them. (Two tests do fire them directly against a bare registry —
+`tests/test_harness_hooks.py:68` and
+`tests/test_destructive_external_action_guard.py:132` — which is how the guard
+is proven; an earlier draft of this note wrongly said "no code anywhere, tests
+included". The load-bearing half is the production half, and it holds.)
 
 So registering it here would be a guaranteed no-op — and a harmful one, because
 `HookRegistry.has_enforcement(…, DESTRUCTIVE_EXTERNAL_ACTION)` would start
@@ -360,7 +404,8 @@ Recorded as genuinely open, not as rhetorical questions with an implied answer.
 
 1. **Scope: minimum viable composition root vs. full guard rollout.**
    §3d recommends `CanonicalRunGuard` only, on the mechanical grounds that
-   `DestructiveExternalActionGuard`'s two events are fired by nothing. Should
+   `DestructiveExternalActionGuard`'s two events are fired by nothing in
+   `runtime/` (two tests fire them directly; no production path does). Should
    the implementation PR nonetheless register it to "establish the pattern"?
    *Recommendation: no* — a `has_enforcement` that reports True for a role
    nothing consults is worse than an honest gap. But this is a judgment about
@@ -454,8 +499,12 @@ byte-identical to today. Add `--enforce-canonical-run` and
 cwd) while leaving `--repo-root` alone still meaning advisory validation only.
 Register **`CanonicalRunGuard` only** — `DestructiveExternalActionGuard`'s two
 events (`BEFORE_DESTRUCTIVE_ACTION`, `BEFORE_EXTERNAL_ACTION`) are fired by
-nothing in the repo, so registering it would make `has_enforcement` report a role
-nothing consults; re-run that grep to confirm before relying on it. Enforcement
+nothing in `runtime/`, so registering it would make `has_enforcement` report a
+role nothing consults; re-run that grep to confirm before relying on it. Note
+also that enforcement is **not** scoped to `--harness-project-id`: the guard runs
+at `service.py:300`, before the adapter's `PROJECT_MISMATCH` check is ever
+reached, so out-of-project incidents are fully subject to denial (§3c).
+Enforcement
 **must default off**: `CanonicalRunGuard` never returns `ALLOW` and denies on
 absent evidence, so its first production exposure will convert currently-working
 resumes into `resume_denied` (most likely via `LEASE_EXPIRED`) and, on repeat,
