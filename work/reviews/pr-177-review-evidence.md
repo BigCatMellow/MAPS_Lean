@@ -1,14 +1,21 @@
 # Independent review evidence — PR #177
 
-reviewer: independent-review-agent a951dc9e23a86177e (did not author PR #177)
-head_sha: 37fde1b832917db561d027abc28e4f77d827e3a8
-independent: true
-summary: APPROVED — design-only note, all three priority claims re-derived and confirmed at source; six non-blocking accuracy findings, two of them substantive (S3d "tests included" is false, and S3c's "out-of-project incidents are unaffected by enforcement" is contradicted by the guard/adapter ordering).
+Two review passes are recorded here. Pass 1 reviewed code commit `37fde1b` (the
+original design note) and returned APPROVED with six non-blocking findings.
+Pass 2 reviewed `076d59d`, the author's corrections commit made in response to
+those findings, and is the pass this file's fields are bound to. Read the
+"Re-review at 076d59d" section at the end first — it retracts one of pass 1's
+findings and is the reason the verdict changed.
 
-## Scope reviewed
+reviewer: independent-review-agent a951dc9e23a86177e (did not author PR #177)
+head_sha: 076d59dc22987b3a6115c9a6d9cd17bac00c0406
+independent: true
+summary: CHANGES_REQUESTED (narrow) — design and all three priority claims verified sound at source, and five of the six corrections at 076d59d are accurate; but my own original Finding 1 was a false positive caused by a shell grep wrapper, and the correction made in response introduced a factually false statement into S1 that must be reverted or reworded before merge.
+
+## Pass 1 — scope reviewed (at 37fde1b)
 
 PR branch `hook-enforcement-composition-design`, reviewed at code head
-`37fde1b`. Diff versus `origin/main`:
+`37fde1b`. Diff versus `origin/main` at that point:
 
 ```
 $ git diff --stat origin/main...HEAD
@@ -21,7 +28,7 @@ No `runtime/`, no `tests/`, no `work/roadmaps/` path is touched. Non-goal 8
 ("no roadmap row flipped to DONE") is therefore satisfied mechanically, as are
 non-goals 1-7 (all of which constrain runtime code this PR does not contain).
 
-## Verification runs
+## Pass 1 verification runs
 
 - Full suite: `python3 -m unittest` over every `tests/test_*.py` module, blocking
   foreground run, output captured to `/tmp/pr177-suite.txt`. Exit code: 0.
@@ -48,6 +55,9 @@ returns **61** matches. Exactly **two** are outside `tests/`:
   `register_canonical_run_guards`, confirmed by reading the file.
 
 The other 59 are under `tests/`. The note's substantive claim is correct.
+
+FINDING 1 — **RETRACTED in pass 2; see the re-review section. It was a false
+positive and should not be acted on.** Original text follows for the record.
 
 FINDING 1 (minor, methodological). The command pasted in S1 and described as
 reproduced "verbatim" ends in `| grep -v '/tests/'`. Run from the repo root,
@@ -257,7 +267,7 @@ FINDING 6 (trivial). S3c cites the supervisor's fallback comment as
 `supervisor.py:461-466`; it actually spans 459-465. Off by two, points at the
 right block.
 
-## Verdict
+## Pass 1 verdict (at 37fde1b)
 
 **APPROVED.** The design is sound, the three priority claims survive independent
 re-derivation, the non-goals are respected mechanically, and both verification
@@ -268,3 +278,122 @@ current codebase and should be corrected when the implementation PR lands
 could act on it); Findings 1, 2, 3 and 6 are accuracy defects that do not
 propagate. Nothing here is blocking, and nothing was fixed by this reviewer —
 the note is unmodified.
+
+---
+
+## Re-review at 076d59d
+
+The author pushed `076d59d` on top of this evidence commit, acting on all six
+pass-1 findings. It touches only
+`work/notes/2026-08-26-hook-enforcement-composition-root-design.md`
+(70 insertions, 21 deletions); the branch's full diff versus `origin/main` is
+now that note plus this evidence file, and no `runtime/`, `tests/`, or
+`work/roadmaps/` path is touched. Non-goals still respected.
+
+Each correction was re-verified against source at `076d59d` rather than read
+from the author's summary.
+
+### Correction 1 — NOT ACCEPTED, and my original finding is retracted
+
+This is the one item blocking a clean approval, and the fault for it is mine.
+
+Pass 1 claimed that `grep -rn ... .` emits paths without a `./` prefix, so that
+S1's `| grep -v '/tests/'` filtered nothing. That claim was **wrong**. The
+`grep` I invoked resolves to a shell *function* wrapper in this harness
+environment (`command -v grep` -> `grep`, `declare -f grep` shows a function
+body), and that wrapper strips the leading `./`. Real GNU grep does not.
+Re-run through `/usr/bin/grep` (GNU grep 3.11), bypassing the wrapper:
+
+- `/usr/bin/grep -rn "HarnessService(\|HookRegistry(\|register_canonical_run_guards(" --include=*.py .`
+  emits `./tests/...`, `./runtime/...` — 61 lines.
+- piping that through `/usr/bin/grep -v '/tests/'` — the note's **original**,
+  unanchored form — yields exactly the two lines the note pasted:
+  `./runtime/harness/service.py:27` and `./runtime/policy/harness_guard.py:194`.
+- piping it through `/usr/bin/grep -v "^\./tests/"` — the new anchored form —
+  also yields exactly those two lines.
+
+So the original S1 command was correct and reproducible all along, and pass-1
+Finding 1 was a false positive. I retract it without reservation.
+
+The consequence for `076d59d` is that the correction made in good faith on the
+strength of that finding now states something false. The new parenthetical in
+S1 reads: "an unanchored `grep -v '/tests/'` filters nothing here, because
+`grep -rn ... .` emits paths as `./tests/...`". Those two clauses contradict
+each other — `./tests/foo.py` contains the substring `/tests/`, which is
+precisely why the unanchored filter *does* work. The anchored pattern itself is
+harmless and produces identical output, but the justification for it is wrong,
+and it is wrong in a note whose S1 exists specifically to demonstrate careful
+re-derivation.
+
+Requested change (author's call which way): either revert S1's grep pipeline and
+parenthetical to the pre-`076d59d` text, or keep the anchored pattern and
+replace the parenthetical with an accurate one — e.g. that the anchor is
+belt-and-braces against a path containing `/tests/` below the top level, and
+noting that the pasted output lines carry a `./` prefix under real GNU grep that
+the transcript omits. Not fixed here: reviewers do not edit the artifact under
+review.
+
+### Corrections 2-6 — all accepted, all verified at source
+
+**2 (S2 deny-code counts).** Now reads 28 `_deny(...)` call sites, 23 distinct
+codes, nine `SESSION_*`. Matches my independent count exactly. The three added
+codes are real and were genuinely missing: `RUN_TASK_MISMATCH`
+(`harness_guard.py:67-68`), `RUN_WORKER_MISMATCH` (`:69-70`),
+`UNSUPPORTED_OPERATION` (`:164-165`). Accurate.
+
+**3 (S2b revision rows).** Accurate, and the reasoning is now right rather than
+merely patched. `supervisor.py:172-176` is exactly where
+`_resolve_harness_binding` sets `task_revision` from
+`compute_task_revision(task_id)`; `harness_guard.py:73-76` is exactly the
+`require_current_revision` branch that recomputes and compares against it, so
+"a comparison of a value against itself" is a fair description of this path. The
+new `RUN_REVISION_MISMATCH` row cites `harness_guard.py:71-72`, which is exactly
+the manifest-versus-binding comparison, and it is genuinely unfiltered by
+`_resolve_harness_binding`. Both line ranges exact.
+
+**4 (S3d event firing).** Accurate. Nothing in `runtime/` fires either event: the
+only five `hooks.run(...)` sites in `runtime/` are `service.py:181, 197, 253,
+300, 333`, carrying `RUN_STARTING`, `RUN_STARTED`, `BEFORE_SEND`,
+`BEFORE_RESUME`, `SESSION_STOPPING`, and neither destructive event is among
+them. The two acknowledged test sites are real and correctly cited
+(`tests/test_harness_hooks.py:68`,
+`tests/test_destructive_external_action_guard.py:132`). The parallel fix in S5
+item 1 and in the Resume prompt is present and consistent.
+
+**5 (S3c project scoping).** Accurate, and this was the important one. Verified
+each link: `service.py:294` `_require_canonical_enforcement`, `service.py:300`
+`hooks.run(BEFORE_RESUME, ...)`, `service.py:311` `return adapter.resume(binding)`
+— guard strictly before adapter. `adapters/hcom.py:294-299` is exactly
+`_binding_session` calling `_project_error` first, so the adapter's project check
+really is downstream of the guard. `supervisor.py:170-171` is where `project_id`
+is read off the task record (the assignment itself is on 171), and
+`supervisor.py:199-207` covers both the `ExecutionBinding(project_id=project_id)`
+at 200 and the `SessionRef(project_id=project_id)` at 207 — so all three
+project_ids do come from one `task` record and neither
+`_validate_binding_session` nor `_base_evidence` can fire. The conclusion —
+enforcement is not scoped to `--harness-project-id`, out-of-project incidents are
+fully subject to canonical denial, and this strengthens the S2c gate argument —
+is correct as written. The pointer added to the Resume prompt is appropriate.
+
+**6 (line cite).** `supervisor.py:459-465` is exactly the seven-line
+"else: harness attempt failed for a non-canonical reason" comment block. Correct.
+
+### Re-verification runs at 076d59d
+
+Full suite re-run the same way (blocking, redirected to `/tmp/pr177-suite2.txt`,
+not piped): `Ran 898 tests in 1259.659s`, `OK (skipped=6)`, exit code 0. Smoke
+(`python3 -m runtime.smoke`) exit code 0 at this head as well. The pass-1
+substantive verifications in the sections above were re-checked against
+`076d59d` and none of them changed — the corrections are confined to the note's
+prose and no cited source file moved.
+
+## Final verdict
+
+**CHANGES_REQUESTED**, narrowly, and only on the S1 parenthetical described
+under Correction 1. Everything else in this PR is sound: the design conclusion,
+the three priority claims, the five accepted corrections, the non-goals, and
+both verification runs. The gate conclusion I was asked to rule on is unchanged
+and I still agree with it — an explicit opt-in feature gate is required for
+first production exposure, and correction 5 makes that case stronger than the
+original note did. Once S1's grep justification is reverted or reworded to
+something true, this is an approve with no further conditions.
