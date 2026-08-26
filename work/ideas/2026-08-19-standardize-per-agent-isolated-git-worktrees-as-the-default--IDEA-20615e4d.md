@@ -22,4 +22,23 @@ Check whether any repair record or incident note in work/notes/ already document
 
 ## Promotion
 
-Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+Not promoted at capture time. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+## Current disposition — 2026-08-26
+
+`PARTIALLY ADOPTED`
+
+The original observation is now reflected in active project practice rather than
+remaining only an unpromoted idea:
+
+- [WORKTREE_ISOLATION.md](../../playbook/WORKTREE_ISOLATION.md) documents the
+  isolated-worktree convention for dispatched writable work.
+- [worktree run-binding design](../notes/2026-08-24-worktree-run-binding-design.md)
+  extends the principle into run/verifier evidence.
+- The capability checklist keeps E6 `IN PROGRESS`, correctly distinguishing the
+  adopted isolation/evidence pieces from still-unbuilt automatic allocation and
+  cleanup.
+
+Do not interpret this disposition as authority to add automatic worktree
+allocation/cleanup merely to complete the original idea. Revisit that only if
+real coordination evidence shows manual isolation remains insufficient.
