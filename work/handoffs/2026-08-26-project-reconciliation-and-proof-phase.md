@@ -2,11 +2,13 @@
 
 - From: repository archaeology / reconciliation pass
 - To: next MAPS_Lean worker
-- Task: [reconciliation maintenance branch](../../state/CURRENT.md)
+- Task: `no separate task record — bounded reconciliation maintenance PR`
 - Status: `ACTIVE — reconciliation maintenance; architecture expansion frozen pending proof`
 - Related durable records:
+  - [Current state](../../state/CURRENT.md)
   - [Tenth-Seat review](../../playbook/TENTH_SEAT_REVIEW.md)
   - [Roadmap trajectory check](../../playbook/ROADMAP_TRAJECTORY_CHECK.md)
+  - [Information lifecycle](../../playbook/INFORMATION_LIFECYCLE.md)
   - [Future Ideas Backlog](../../migration/FUTURE_IDEAS_BACKLOG.md)
   - [Capability checklist](../roadmaps/CAPABILITY_CHECKLIST.md)
   - [Portable deployment roadmap](../roadmaps/agent-harness-capabilities/06-portable-deployment.md)
@@ -37,13 +39,23 @@
 
 - Added a repo-wide rule that forward-relevant durable information must connect
   to its source/parent/successor/evidence and should link instead of duplicate.
+- Extended the existing information-lifecycle playbook with explicit
+  capture→review→disposition→reconciliation guidance rather than creating a new
+  memory/loose-ends subsystem.
 - Connected `ROADMAP_TRAJECTORY_CHECK.md` back to the Tenth-Seat triggers.
 - Tightened E/I guidance so promoted/rejected/superseded ideas preserve their
   later disposition through links.
-- Updated core templates so decisions, AGI checks, and handoffs carry durable
-  relationship context.
-- Began current-state/documentation reconciliation without adding runtime
-  capabilities.
+- Updated core task, decision, AGI-check, and handoff templates with small
+  relationship fields.
+- Reconciled the current disposition of two ideas and two historical
+  zero-production-caller insights without rewriting their original observations.
+- Preserved PR #172 F3-F8 as explicit `TEST`/`WATCH`/`DEFERRED` dispositions
+  with revisit triggers rather than silently converting them into tasks.
+- Refreshed `state/CURRENT.md` and corrected clearly stale root/runtime README
+  claims, including operational-learning, branch-protection, and RnS validation
+  descriptions.
+- Reconciled DEC-001 with current implementation while deliberately leaving its
+  formal `PROPOSED` authority status unchanged.
 
 ## Work not completed
 
@@ -52,6 +64,9 @@
 - Skill lifecycle Half 2 is not authorized by this handoff.
 - Legacy deletion remains separately operator-gated.
 - A full historical backlink retrofit is intentionally not being attempted.
+- The large capability checklist still needs a deliberate whole-file
+  re-verification against current `main`; this pass does not reconstruct or
+  status-flip that scoreboard from partial reads.
 - Branch cleanup and hcom fork-pin removal require their own evidence checks;
   neither should be inferred from this handoff.
 
@@ -80,14 +95,15 @@
 
 - Reconciliation branch: `maintenance/reconcile-project-truth-20260826`
 - Baseline main: `d22036bcebca3d7eb729c2b9dd70e82c229ac60a`
-- Known active implementation PR: #171
+- Known active implementation PR at baseline: #171
 - Known last merged implementation PR at baseline: #172
 
 ## Next action
 
 1. Finish and independently review the reconciliation-only maintenance PR; then
-   start the external Proof Phase/D3 pilot rather than opening another internal
-   capability wave.
+   reconcile the capability checklist from a complete current view and start the
+   external Proof Phase/D3 pilot rather than opening another internal capability
+   wave.
 
 ## Do not redo / do not assume
 
@@ -101,16 +117,21 @@
   and external proof when that distinction matters.
 - Do not wire Skill Half 2, destructive-action enforcement, automatic recovery
   remediation, or other authority expansion merely to complete a roadmap shape.
+- Do not remove the hcom fork pin merely because `HcomAdapter.send()` currently
+  does not use `--json`; first prove no other live caller/contract still depends
+  on the fork-specific behavior.
 
 ## Evidence / paths
 
 - [Agent operating contract](../../AGENTS.md)
 - [Active playbook index](../../playbook/INDEX.md)
+- [Information lifecycle](../../playbook/INFORMATION_LIFECYCLE.md)
 - [Tenth-Seat protocol](../../playbook/TENTH_SEAT_REVIEW.md)
 - [Roadmap trajectory check](../../playbook/ROADMAP_TRAJECTORY_CHECK.md)
 - [E/I](../../playbook/EMERGENCE.md)
 - [Current state](../../state/CURRENT.md)
 - [Capability checklist](../roadmaps/CAPABILITY_CHECKLIST.md)
+- [PR #172 follow-up dispositions](../notes/2026-08-26-pr172-followup-dispositions.md)
 - [Future Ideas Backlog](../../migration/FUTURE_IDEAS_BACKLOG.md)
 
 ## Continuation link
