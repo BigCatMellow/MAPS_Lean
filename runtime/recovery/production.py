@@ -34,31 +34,49 @@ keeps passing unmodified.
 
 Authority note (why executing DB-sourced commands here is in-bounds). The tier
 commands are read from a `run_environment_evidence.spec_snapshot` row, not from
-an operator-authored file on disk, and they are executed unattended. That is a
-deliberate, bounded widening of the trust boundary
-`runtime/environment/validation.py` already relies on for
-`EnvironmentSpec.setup_commands`, and it holds because:
+an operator-authored file on disk, and they are executed unattended.
 
+State plainly what this is, because a future reader will inherit this reasoning
+the moment a production writer of `run_environment_evidence` exists. This is
+**not** a widening of an already-exercised trust boundary; it is a **new
+privilege**. Two things a careless version of this note would get wrong:
+
+- `EnvironmentSpec.setup_commands` is only ever declared, parsed and serialised
+  -- nothing in this codebase executes it -- and `run_validation_tier` had zero
+  production callers before this module. So there is no pre-existing production
+  execution of spec-declared shell commands for this to be "the same as". This
+  is the first one.
+- Write access to the task DB did not previously buy arbitrary local shell
+  execution on the recovery path. The only other subprocess that path reaches is
+  `HcomAdapter._run`, which builds a fixed argv and passes `shell=False`; the
+  single `shell=True` in the repository is
+  `runtime/environment/validation.py`'s executor. With `--repo-root` supplied,
+  that changes: a party who can insert evidence rows can cause shell commands to
+  run as the user running the pass. That is an escalation in kind, not degree.
+
+The new privilege is accepted here because it is opt-in and narrowly gated, not
+because it was already granted:
+
+- it is unreachable unless a caller explicitly passes `validation_repo_root`,
+  which in practice means a human or CI invoking
+  `maps recovery-tick --repo-root ...` and naming the checkout the commands may
+  run in; no validator is constructed on the `claim`-piggyback path at all;
 - rows can only be created by `record_run_environment_evidence`, which requires
-  an already-existing `run_manifests.run_id` and stamps a `recorded_by` actor,
-  so a row is authored inside the same task DB this recovery pass already trusts
-  for task truth, claims and lineage -- an attacker who can insert rows there can
-  already redirect the pass in worse ways;
+  an already-existing `run_manifests.run_id` and stamps a `recorded_by` actor;
 - the snapshot is the operator-authored spec verbatim, rows are insert-only
   (an `UPDATE` is refused by a database trigger: "run environment evidence is
-  immutable"), and the snapshot's `sha256` is re-derived and compared against the
-  row's `environment_spec_hash` column before anything runs -- so a snapshot that
-  disagrees with its own recorded hash is rejected as `spec_hash_mismatch` rather
-  than executed;
+  immutable"), and a snapshot that disagrees with its own recorded
+  `environment_spec_hash` is rejected as `spec_hash_mismatch` rather than
+  executed;
 - only the `quick` tier is ever reachable from here (`normal`/`full` are
-  review-time tiers and are not wired);
-- the blast radius is bounded by composition: no validator is constructed on the
-  `claim`-piggyback path at all, so this only ever runs inside an explicitly
-  invoked `maps recovery-tick --repo-root ...`, i.e. with a human or CI
-  deliberately naming the checkout the commands may run in.
+  review-time tiers and are not wired), under a bounded wall-clock budget;
+- the table has zero production writers today, so nothing executes at all.
 
-Executing a row's `validation.quick` is therefore treated as exactly the same
-authority as executing that spec's `setup_commands`, and nothing more.
+That last point is the reason this is acceptable now and the reason it must be
+re-decided later: **when a production writer of `run_environment_evidence` is
+introduced, the authority question above must be answered again on its own
+merits -- who may write those rows, and whether their `validation.quick` should
+run unattended -- and not inherited from this note.**
 """
 
 from __future__ import annotations
