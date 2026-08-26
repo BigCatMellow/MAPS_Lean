@@ -1,15 +1,19 @@
 reviewer: aac51c575c7af06ac (independent reviewer, did not author this PR)
-head_sha: 4a35ad2caaa369c6370ab881e727b99021989223
+head_sha: 63123448994b581a4d1e9039c6a9861140ad1e03
 independent: true
-summary: APPROVED — no blocking code defect. Every claim was re-derived from source at the reviewed head rather than taken from prose: the `supervisor.py` change is purely additive (one keyword-only `resume_validator=None`, one call at line 407 after the retry-budget `continue` at 384-397 and before `resolved = False` at 421, one `resume_validation` key on all five action dicts), the observation is genuinely advisory (every occurrence of `resume_validation` in `runtime/` is a write or a comment — no branch reads it), the only spec source is `run_environment_evidence` rows bound to the incident's own `run_id` reparsed with `parse_environment_spec` (`load_environment_spec`/`rev-parse`/`Path.cwd`/`os.getcwd` appear nowhere in `runtime/recovery/`), `--repo-root` defaults to `None` not `'.'`, the #160 source guard is byte-unmodified and passing, no roadmap/checklist row is touched (H4/E4/6.5 all still `IN PROGRESS`), and Q2 holds by construction — the `claim` branch at `cli.py:375-378` passes no `validation_repo_root`, so no validator is constructed and `CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS` is not reopened. Seven mutations were applied to the implementation and every one turned the corresponding test RED (gating the resume; ambient file-loaded spec fallback; `--repo-root` default `'.'`; deleting the per-tick count cap; deleting the spec-hash check; reintroducing the forbidden literal in `supervisor.py`; hoisting the validation call above the suppress/resolve/fail branches) — the load-bearing tests are non-tautological, and all mutations were reverted before this file was written. Eight non-blocking findings (F1-F8); F1 is administrative but must be fixed before merge — the GitHub PR description for #172 is verbatim the description of a *different* PR (SEC4 skill-lifecycle durable storage) and describes none of the files in this diff. F2 records that the N4 authority argument, while present and largely sound, overreaches in two places: `HcomAdapter` runs `shell=False` with a fixed argv, so a party with write access to `maps.db` could not previously cause the recovery pass to execute an arbitrary shell command, and `EnvironmentSpec.setup_commands` is executed nowhere in the codebase — this PR creates the *first* production execution of spec-declared shell commands rather than widening an already-exercised boundary. Both are gated behind an explicit `--repo-root` and a table with zero production writers, so the risk is not live today, but the argument should be corrected before a production writer of `run_environment_evidence` lands.
+rebase_note: Rebound by the reviewer from 4a35ad2caaa369c6370ab881e727b99021989223 (the commit originally reviewed) to 6312344 after the author landed the F2 correction on top of this evidence commit. 6312344 is a MODULE-DOCSTRING-ONLY change to runtime/recovery/production.py, verified mechanically rather than by inspection: parsing both revisions with `ast`, removing the module docstring and comparing `ast.dump` gives an identical digest (bdac3552967acf02 both sides), and slicing both files at the closing `"""` of the module docstring leaves byte-identical remainders (16137 bytes, sha c6d187322c59bbe6 both sides) — so no code, no comment, no other docstring, and no test changed. `git diff 4a35ad2 6312344 --name-only` lists only runtime/recovery/production.py and this evidence file. I did NOT re-run the full 844-test suite for this rebind and am not implying otherwise; a docstring change cannot alter behavior. I DID re-run the two touched modules (`Ran 93 tests in 292.336s / OK`) because several tests scan production.py's source text — the tokenized guard (`code_text` strips comments and string literals, so the new docstring's use of the word "subprocess" is invisible to it), the raw-text scan for load_environment_spec/rev-parse/Path.cwd/os.getcwd (still zero hits), and the non-vacuity anchor asserting `EnvironmentSpec` still appears in production.py (it does). All pass.
+summary: APPROVED — no blocking code defect. Every claim was re-derived from source at the reviewed head rather than taken from prose: the `supervisor.py` change is purely additive (one keyword-only `resume_validator=None`, one call at line 407 after the retry-budget `continue` at 384-397 and before `resolved = False` at 421, one `resume_validation` key on all five action dicts), the observation is genuinely advisory (every occurrence of `resume_validation` in `runtime/` is a write or a comment — no branch reads it), the only spec source is `run_environment_evidence` rows bound to the incident's own `run_id` reparsed with `parse_environment_spec` (`load_environment_spec`/`rev-parse`/`Path.cwd`/`os.getcwd` appear nowhere in `runtime/recovery/`), `--repo-root` defaults to `None` not `'.'`, the #160 source guard is byte-unmodified and passing, no roadmap/checklist row is touched (H4/E4/6.5 all still `IN PROGRESS`), and Q2 holds by construction — the `claim` branch at `cli.py:375-378` passes no `validation_repo_root`, so no validator is constructed and `CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS` is not reopened. Seven mutations were applied to the implementation and every one turned the corresponding test RED (gating the resume; ambient file-loaded spec fallback; `--repo-root` default `'.'`; deleting the per-tick count cap; deleting the spec-hash check; reintroducing the forbidden literal in `supervisor.py`; hoisting the validation call above the suppress/resolve/fail branches) — the load-bearing tests are non-tautological, and all mutations were reverted before this file was written. Nine non-blocking findings (F1-F8 plus F2a). F1 (the GitHub PR description for #172 was verbatim the description of a *different* PR, SEC4 skill-lifecycle durable storage, describing none of the files in this diff) and F2 (the N4 authority argument overreached: `HcomAdapter` runs `shell=False` with a fixed argv, so DB write access did not previously buy shell execution on the recovery path, and `EnvironmentSpec.setup_commands` is executed nowhere — this PR creates the *first* production execution of spec-declared shell commands rather than widening an exercised boundary) are both now DISCHARGED: F1 outside git, F2 in commit 6312344, which I verified is module-docstring-only by AST digest and by byte-comparing the source after the docstring, and which now states both points correctly and requires the authority question to be re-decided when a production writer of `run_environment_evidence` lands. This evidence is rebound to 6312344 accordingly; see `rebase_note:` and §9. F2a is a new cosmetic over-scope in the corrected note ("the single `shell=True` in the repository" — true of the active runtime tree, but `legacy/` and `migration/` each carry one). F3-F8 are deliberately carried forward rather than patched post-approval, a disposition I agree with and record in §9. Verdict unchanged.
 
 # Review: PR #172 — Add advisory resume-path validation-tier hook-in (RnS)
 
 - Branch: `rns-validation-tier-impl`
-- Reviewed head: `4a35ad2caaa369c6370ab881e727b99021989223` ("Add advisory resume-path validation-tier hook-in (RnS)")
-- Base: `origin/main` (`d52885c`, the branch's first parent)
+- Reviewed head: `63123448994b581a4d1e9039c6a9861140ad1e03` — the code was reviewed at
+  `4a35ad2` and rebound after the docstring-only F2 correction; see `rebase_note:`
+  above and §9
+- Base: `origin/main` (`d52885c`, the branch's first parent of `4a35ad2`)
 - Reviewer: `aac51c575c7af06ac` — did not author this PR, #168, #165 or #160
-- Verdict: `APPROVED` — no blocking code defect; eight non-blocking findings (F1-F8)
+- Verdict: `APPROVED` — no blocking code defect; nine non-blocking findings
+  (F1-F8 plus F2a), of which F1 and F2 are discharged (§9)
 
 ## 0. Method
 
@@ -395,7 +399,16 @@ warning filter; the CI-parity check covers the two modules this PR changes.)
 
 **No blocking code defect.**
 
-### F1 — non-blocking on the code, but must be fixed before merge: the PR description belongs to a different PR
+### F1 — DISCHARGED (see §9). Original finding follows.
+
+*Status: fixed by the author outside git; the GitHub description for #172 now
+describes this PR. Root cause recorded: the draft body file in a shared
+scratchpad directory was overwritten by a concurrent session between being
+written and being read by `gh pr create`. No repo content was involved, so
+there is nothing in-tree for me to re-verify — I confirmed only that the
+description now matches the diff.*
+
+**Original finding — non-blocking on the code, but must be fixed before merge: the PR description belongs to a different PR**
 
 The GitHub description of #172 is verbatim the description of the SEC4
 skill-lifecycle durable-storage PR. It describes
@@ -422,7 +435,13 @@ changes no tracked file and requires no re-review of the implementation. It
 should nonetheless be corrected before merge, because the PR body is the
 durable record future archaeology reads first.
 
-### F2 — non-blocking: the N4 authority argument overreaches in two places
+### F2 — DISCHARGED in commit 6312344 (see §9). Original finding follows.
+
+*Status: the authority note was rewritten and I judge the finding discharged.
+Both overreaching sentences are gone, and the replacement states what I found to
+be true. One residual prose nit is recorded as F2a.*
+
+**Original finding — non-blocking: the N4 authority argument overreaches in two places**
 
 The argument (`production.py:35-61`) is present, structured and mostly sound
 (Claim 9). Two of its load-bearing sentences do not survive checking:
@@ -458,6 +477,21 @@ accepted because it is opt-in and explicitly invoked — and that the authority
 question be re-decided, not inherited, at the moment a production writer of
 `run_environment_evidence` is introduced.
 
+### F2a — new, non-blocking, cosmetic: one claim in the F2 rewrite is slightly over-scoped
+
+`production.py:52` now says "the single `shell=True` in the repository is
+`runtime/environment/validation.py`'s executor". Repo-wide that is not quite
+right — `grep -rn "shell=True" --include=*.py .` also hits
+`legacy/MAP-System/MAP_System/scripts/agent_loop.py:201` and
+`migration/legacy-runtime-source/scripts/agent_loop.py:201` (plus an assertion
+string in `tests/test_hcom_adapter.py:150`). Those are dead trees — CI gates on
+`scripts/check_legacy_removal_readiness.py` — and neither is on the recovery
+path, so the *argument* is unaffected. But since F2 was itself a finding about
+prose precision, I am holding the correction to the same standard: "the only
+`shell=True` in the active runtime tree" would be exact. Within `runtime/`, the
+only executing occurrence is `validation.py:54` (line 48 is a comment and line
+52 is this docstring), so the claim is true of the tree that matters.
+
 ### F3 — non-blocking: the spec-hash check is conditional, which the authority note does not mention
 
 `production.py:271-276` reads `if stored_hash and spec.sha256 != stored_hash:`.
@@ -470,6 +504,13 @@ column before anything runs"). Unreachable via `record_run_environment_evidence`
 (which always writes `spec.sha256`), so this is a documentation/robustness nit,
 not a live hole. Making the check unconditional — treat a missing hash as
 `spec_hash_mismatch` — would cost one word and make the sentence true.
+
+*Update at 6312344:* the sentence was reworded to "a snapshot that disagrees
+with its own recorded `environment_spec_hash` is rejected as
+`spec_hash_mismatch` rather than executed", which drops the "before anything
+runs" claim. The finding still stands — with an empty stored hash no
+disagreement is detected at all — and the author has deliberately deferred it as
+a behavior edit needing re-review. I agree with that disposition.
 
 ### F4 — non-blocking: the documented validator interface still admits the N2 ambiguity
 
@@ -565,3 +606,69 @@ may not touch. Recording it so it is a known choice rather than an accident.
 - `main` did not move during this review, so no rebase or `head_sha` rebind was
   required; the reviewed head `4a35ad2` is the branch tip and its first parent
   is `origin/main`.
+
+## 9. Post-review changes and head_sha rebind
+
+After this evidence was first committed at `a34bebc` (reviewing `4a35ad2`), the
+author landed `6312344` on top of it, correcting F2. That commit changes
+`runtime/`, so `check_review_evidence.py`'s walk-back — which only skips
+trailing commits confined to `work/reviews/` — no longer resolves to `4a35ad2`,
+and the `review-evidence` CI job failed. The rebind above is therefore required,
+not optional.
+
+**I verified the docstring-only claim myself rather than accepting it.** Two
+independent mechanical checks, both stronger than reading the diff:
+
+1. Parse both revisions with `ast`, drop the module docstring, compare
+   `ast.dump(...)`: identical, digest `bdac3552967acf02` on both sides. No
+   executable structure changed.
+2. Slice both files at the closing `"""` of the module docstring and compare the
+   remainders byte-for-byte: identical, 16137 bytes, sha `c6d187322c59bbe6` on
+   both sides. Since `ast` discards comments, this second check is what rules out
+   a comment edit riding along.
+
+`git diff 4a35ad2 6312344 --name-only` lists exactly `runtime/recovery/production.py`
+and `work/reviews/pr-172-review-evidence.md`. No test file changed.
+
+**I did not re-run the full suite, and am not implying I did.** A change that
+provably alters only a module docstring cannot alter behavior. I did re-run the
+two touched modules — `Ran 93 tests in 292.336s / OK` — for one specific reason:
+several tests in this PR scan `production.py`'s *source text*, so a docstring
+edit is not automatically inert with respect to them. Specifically I confirmed
+the new docstring's use of the word "subprocess" (line 50) does not trip the
+`#165` import guard, because that guard runs on `code_text()`, which strips
+comments and string literals; that the raw-text scan for `load_environment_spec`
+/ `rev-parse` / `Path.cwd` / `os.getcwd` still finds zero hits; and that
+`EnvironmentSpec` still appears in `production.py`, keeping the
+`SupervisorSourceBoundaryTests` non-vacuity anchor honest.
+
+**Is F2 discharged? Yes.** The two sentences I objected to are gone. The
+replacement (`production.py:39-79`) now says, correctly, that this is "**not** a
+widening of an already-exercised trust boundary; it is a **new privilege**";
+that `setup_commands` is never executed and `run_validation_tier` had zero
+production callers, so "this is the first one"; and that `HcomAdapter._run`
+passes `shell=False` with a fixed argv, making this "an escalation in kind, not
+degree". It justifies the privilege on its real grounds (opt-in `--repo-root`,
+off the `claim` path, `quick` only, bounded budget, zero writers today) and
+closes with the requirement I asked for — that the authority question "must be
+answered again on its own merits ... and not inherited from this note" when a
+production writer of `run_environment_evidence` lands. That is a better note
+than the one I asked for. One cosmetic over-scope remains, recorded as F2a.
+
+**F1** is fixed outside git and is not re-verifiable in-tree; I confirmed only
+that the PR description now matches the diff.
+
+**Disposition of F3-F8: I agree with carrying them forward.** F3 and F4 are
+contract/behavior edits that would invalidate this approval and require
+re-review — correctly excluded from a post-approval commit. F8 touches
+`runtime/environment/`, outside this PR's boundary. F5/F6/F7 are test and tooling
+improvements with no bearing on whether the shipped behavior is correct. Landing
+any of them here would have been scope creep after sign-off, which is the
+failure mode worth avoiding; recording them in the PR description as carried
+forward is the right call. F4 is the one that *could* have ridden along as a
+docstring-only edit, since it is a comment in `supervisor.py`, but treating a
+documented interface contract as a behavior statement needing re-review is a
+defensible and conservative reading, and I do not object.
+
+**The verdict is unchanged: APPROVED.** The rebind covers a prose improvement to
+a finding I raised; no code I reviewed has changed.
