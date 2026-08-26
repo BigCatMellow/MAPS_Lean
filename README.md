@@ -43,8 +43,8 @@ ground truth):
   capability profiles and policy gates; checkpoint DB is separate from task truth.
 - **hcom adapter** — project-isolated messaging/session transport; no task authority.
 - **RnS recovery** — deterministic recovery of already-active, explicitly bound
-  sessions with bounded retries, `run_id` binding, and advisory (non-gating)
-  environment-equivalence evidence surfacing; no WezTerm requirement.
+  sessions with bounded retries, `run_id` binding, advisory environment evidence,
+  and an explicitly invoked production recovery-tick path; no WezTerm requirement.
 - **Bounded local helpers** — Ollama text/draft work and scoped Aider editing;
   helpers cannot approve or complete parent tasks.
 - **Fresh-clone setup/smoke** — preview-first installer and disposable end-to-end
@@ -52,16 +52,17 @@ ground truth):
 - **Execution integrity** — immutable run/context binding, task/context staleness,
   writable/forbidden Git scope proof, run-budget checks, continuity-aware review,
   and optional criterion-level evidence.
-- **Operational learning (Storage-0)** — append-only, CANDIDATE-only lesson
-  persistence; promotion/retirement authority is operator-only and not yet
-  mechanically implemented (design record: `work/notes/2026-08-17-operational-learning-authority-design.md`).
-- **Context Builder Stage 2 retrieval** — evaluated candidates including a
-  local `fastembed` embedding-based retriever, excluded from core CI (see
-  `runtime/requirements.txt` and the review finding on a missing semantic-eval
-  CI lane).
-- **Branch protection on `main`** — PR-only, required Runtime CI status check,
-  no force-push/delete. Independent-review enforcement beyond CI is not yet
-  mechanically enforced; see issue #61.
+- **Operational learning** — candidate lesson persistence plus operator-only
+  promotion/retirement decision history and guidance-only projection. Candidate
+  observations cannot silently promote themselves into active guidance.
+- **Context Builder Stage 2 retrieval evaluation** — evaluated candidates include
+  a local `fastembed` embedding-based retriever, but semantic retrieval remains
+  evaluation-only rather than a production context path. A dedicated semantic
+  eval workflow exists separately from the core runtime checks.
+- **Branch protection on `main`** — PR-only with required `test` and
+  `review-evidence` status checks; no force-push/delete. Review evidence is
+  additionally bound to the reviewed code head by the repository's review
+  evidence checker.
 
 The original integration review is recorded in
 [`work/reviews/RUNTIME_INTEGRATION_REVIEW.md`](work/reviews/RUNTIME_INTEGRATION_REVIEW.md).
