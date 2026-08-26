@@ -22,4 +22,24 @@ At the next trajectory check, decide whether RnS's invocation gap needs its own 
 
 ## Promotion
 
-Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+Not promoted at capture time. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+## Current disposition — 2026-08-26
+
+`PARTIALLY RESOLVED / HISTORICAL OBSERVATION`
+
+The original zero-production-invocation claim was true when recorded but is no
+longer current. Later work added an explicit production composition and CLI
+invocation path for one-shot recovery ticks, including the advisory resume-path
+validation integration merged in PR #172.
+
+Related current artifacts:
+
+- [RnS production trigger-loop design](../notes/2026-08-24-rns-production-trigger-loop-design.md)
+- [RnS validation-tier hook-in design](../notes/2026-08-25-rns-validation-tier-hookin-design.md)
+- [current reconciliation handoff](../handoffs/2026-08-26-project-reconciliation-and-proof-phase.md)
+
+The remaining question is narrower: whether real production worker/session
+bindings and evidence sources are sufficient for useful recovery behavior, and
+whether any always-on trigger is actually needed. Do not rediscover this old
+"zero callers" statement as a reason to build a daemon.
