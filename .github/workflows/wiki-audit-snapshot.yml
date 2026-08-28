@@ -1,0 +1,30 @@
+name: Wiki audit snapshot
+
+on:
+  push:
+    branches:
+      - audit/wiki-agent-onboarding
+    paths:
+      - .github/workflows/wiki-audit-snapshot.yml
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone live wiki
+        run: git clone "https://github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+
+      - name: Build audit snapshot
+        run: |
+          find wiki -maxdepth 1 -type f -name '*.md' -printf '%f\n' | sort > wiki/PAGE_INVENTORY.txt
+          tar --exclude='.git' -czf wiki-snapshot.tar.gz -C wiki .
+
+      - name: Upload snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: wiki-snapshot
+          path: wiki-snapshot.tar.gz
+          if-no-files-found: error
