@@ -67,6 +67,12 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("single repository-wide operating contract", first_run)
         self.assertIn("navigation, not a second operating contract", index)
 
+    def test_operating_contract_is_hard_invariants_not_soft_defaults(self):
+        agents = AGENTS.read_text(encoding="utf-8")
+        self.assertIn("## Hard operating invariants", agents)
+        self.assertNotIn("Negative operating contract", agents)
+        self.assertNotIn("## Negative operating contract", agents)
+
     def test_agents_owns_anti_sprawl_rule(self):
         agents = AGENTS.read_text(encoding="utf-8")
         self.assertIn("## Authority, precedence, and anti-sprawl", agents)
