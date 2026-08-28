@@ -1,6 +1,6 @@
 # Task: Wiki agent onboarding audit
 
-- Status: `READY`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `REPAIR`
 - Owner: orchestration operator
@@ -13,8 +13,8 @@
 
 - Inputs: live GitHub wiki, `AGENTS.md`, `docs/FIRST_RUN.md`, `README.md`, `playbook/INDEX.md`, active runtime/control-plane documentation, current tests/CI.
 - Authoritative sources: `AGENTS.md` first, then approved scope/task, canonical runtime state, then subordinate playbook/docs. Wiki is onboarding/navigation only.
-- Evidence labels: wiki content must be inspected from the live wiki repository; current repo files are VERIFIED from the active branch.
-- Dependencies / preconditions: obtain a readable snapshot of the separate GitHub wiki repository.
+- Evidence labels: live wiki snapshot was VERIFIED through GitHub Actions; current repo files are VERIFIED from the active branch.
+- Dependencies / preconditions: none remaining for implementation; independent review remains before merge.
 
 ## Change boundary
 
@@ -32,31 +32,34 @@
 
 ## Acceptance criteria
 
-- [ ] Live wiki content is inventoried and compared against the current canonical repo contract.
-- [ ] Wiki has one obvious agent entry path that tells a fresh agent exactly what to read/do first.
-- [ ] Wiki explicitly states it is orientation/navigation, not a competing authority source; `AGENTS.md` is canonical.
-- [ ] Wiki explains the orchestration operator role, subordinate agent-slot relationship, autonomous continuation, and true human reauthorization boundary accurately.
-- [ ] Wiki gives a practical task flow from request → inspect → shape/AGI → route/delegate → execute → verify/review → reconcile → continue/complete.
-- [ ] Wiki distinguishes core MAPS_L concepts from optional/specialized mechanisms and avoids requiring broad chain-reading.
-- [ ] Stale or duplicate normative wiki material is consolidated, redirected, or removed.
-- [ ] A fresh-agent smoke check can answer: what MAPS_L is, what authority applies, what to read, how to start, how to delegate, how to know DONE, and what to do next.
-- [ ] Changes pass relevant repo CI/review requirements.
+- [x] Live wiki content is inventoried and compared against the current canonical repo contract.
+- [x] Wiki has one obvious agent entry path that tells a fresh agent exactly what to read/do first.
+- [x] Wiki explicitly states it is orientation/navigation, not a competing authority source; `AGENTS.md` is canonical for MAPS_Lean repository work.
+- [x] Wiki explains the orchestration operator role, subordinate agent-slot relationship, autonomous continuation, and true human reauthorization boundary accurately.
+- [x] Wiki gives a practical task flow from request → inspect → shape/AGI → route/delegate → execute → verify/review → reconcile → continue/complete.
+- [x] Wiki distinguishes core MAPS_L concepts from optional/specialized mechanisms and avoids requiring broad chain-reading.
+- [x] Stale or duplicate normative wiki material is consolidated, redirected, or removed.
+- [x] Fresh-agent regression checks cover what MAPS_L is, authority, entry route, delegation/parent ownership, continuation, capability verification, and escalation.
+- [ ] Repository-side canonical source/sync change receives required independent review and passes merge gates.
 
 ## Verification and evidence
 
-- Verification: snapshot live wiki; compare page-by-page against canonical files; run documentation regression tests; inspect final rendered/wiki source structure; independent review of agent-onboarding usability.
-- Evidence to preserve: wiki inventory/audit findings, diff, test results, review evidence.
-- Review required: `INDEPENDENT_REVIEW`
+- Live wiki snapshot workflow run: `33170349867` — SUCCESS.
+- Final audited publish workflow run: `33171005727` — SUCCESS.
+- Documentation guard result: 10/10 tests PASS before publication.
+- Live wiki publication: wiki commit `79081be` (`68b640e..79081be`, 4 files changed, 534 insertions, 440 deletions).
+- Temporary inspection/publish workflow removed after successful publication.
+- Review required: `INDEPENDENT_REVIEW` before repository-side merge.
 
 ## Conditional execution rules
 
 - Environment / target: public GitHub wiki for `BigCatMellow/MAPS_Lean` plus this repository.
-- Ordered procedure: snapshot → audit → repair → smoke-test → independent review → publish/sync → verify.
-- Failure branches: if direct wiki access is unavailable to the current connector, use a bounded GitHub Actions snapshot/publish path and remove temporary inspection-only machinery afterward.
-- Rollback / recovery: wiki content remains in git history; repo-side changes via branch/PR.
-- Security / privacy controls: no secrets; use `GITHUB_TOKEN` only inside Actions if wiki git access is required.
-- External side effects: publishing wiki documentation; no external product deployment.
-- Effort limit: consolidate rather than proliferate pages; do not create a parallel wiki constitution.
+- Ordered procedure: snapshot → audit → repair → smoke-test → publish → remove temporary machinery → independent review → merge canonical source/sync.
+- Failure branches: direct wiki API access was unavailable; a bounded GitHub Actions snapshot/publish path was used successfully and then removed.
+- Rollback / recovery: wiki content remains in wiki git history; repo-side changes remain isolated on `audit/wiki-agent-onboarding` pending review.
+- Security / privacy controls: no secrets exposed; `GITHUB_TOKEN` used only inside Actions for wiki git access.
+- External side effects: audited wiki documentation published; no product/runtime deployment.
+- Effort limit: consolidated the existing four-page wiki rather than adding a larger parallel documentation system.
 - Approved reference: current `AGENTS.md` and canonical first-run/playbook docs.
 
 ## AGI readiness
@@ -71,12 +74,15 @@
 
 ## Notes / decisions
 
-- The wiki should teach agents how to enter and use MAPS_L, while linking to canonical repo sources for normative detail.
+- The wiki is an onboarding projection, not normative authority.
+- `docs/wiki/` is the reviewed source for the projection; `.github/workflows/sync-wiki.yml` publishes it after changes land on `main`.
+- Capability status in the wiki points agents to live code/tests/checklist rather than freezing dated counts and audit snapshots.
+- MAPS_L use is presented at three depths: method-only, orchestrated, runtime-backed. Agents should use the smallest depth that solves the coordination problem.
 
 ## Completion / handoff
 
-- Completed: none yet
-- Not completed: live wiki snapshot, audit, repair, review, publication
-- Current blocker: none; live wiki can be inspected through a bounded Actions snapshot if direct API access is unavailable
-- Next eligible roadmap task: live wiki inventory
-- Human action required: none
+- Completed: live wiki audit, rewrite, fresh-agent regression checks, live publication, durable repo-side source/sync implementation, temporary audit machinery cleanup.
+- Not completed: independent review and merge of repository-side source/sync branch.
+- Current blocker: required independent review for this MEDIUM-risk change.
+- Next eligible roadmap task: independent review of `audit/wiki-agent-onboarding`, then merge if approved.
+- Human action required: none unless a reviewer raises a true authority/scope question.
