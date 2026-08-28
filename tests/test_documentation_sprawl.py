@@ -97,7 +97,7 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
 
         self.assertIn("thin invocation adapter", lower)
         self.assertIn("does not define a second maps_l operating contract", lower)
-        self.assertIn("target project's own instructions", lower)
+        self.assertIn("own instructions and approved scope govern its authority", lower)
         self.assertIn("playbook/index.md", lower)
         self.assertIn("method-only", lower)
         self.assertIn("orchestrated", lower)
