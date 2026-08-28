@@ -1,458 +1,266 @@
 # MAPS Agent-Grade Instructions Standard
 
-**AGI** means **Agent-Grade Instructions**.
+**AGI** means **Agent-Grade Instructions**: instructions clear enough for a
+competent fresh agent to execute without consequential guessing and with
+observable proof of success.
 
-This file is the normative MAPS standard for deciding whether instructions are
-ready to hand to an agent. Guidance and examples live in
+This is the normative standard. Guidance/examples live in
 [AGENT_GRADE_INSTRUCTIONS.md](AGENT_GRADE_INSTRUCTIONS.md).
 
-## 1. Definition
+## 1. Normative language
 
-An instruction is **AGI-ready** when a newly assigned competent agent can:
-
-1. execute it without access to the original conversation;
-2. avoid consequential guessing about intent, authority, scope, or success; and
-3. prove whether the requested result was achieved.
-
-A strong model compensating for weak instructions does **not** make the
-instructions AGI-ready. Worker capability is handled separately by
-[HPOM](HPOM_ROUTING.md) and [model capability routing](MODEL_CAPABILITY_ROUTING.md).
-
-## 2. Normative language
-
-MAPS uses these words deliberately:
-
-- **MUST** — required for compliance.
+- **MUST** — required.
 - **MUST NOT** — prohibited.
-- **SHOULD** — expected default; deviation needs a recorded reason when material.
-- **MAY** — permitted but optional.
+- **SHOULD** — default; material deviation needs a reason.
+- **MAY** — permitted.
 
-Avoid vague commands such as `handle appropriately`, `fix as needed`, `make it
-robust`, or `use best practices` unless the instruction also defines the
-observable result or decision boundary that makes the phrase testable.
+AGI specifies a decision envelope, not click-by-click micromanagement.
 
-## 3. AGI Core
+## 2. AGI Core
 
-A consequential executable task MUST provide the following information. The
-fields do not need to use these exact headings, but the information MUST be
-unambiguous and available to the worker.
+A consequential executable task MUST make these unambiguous.
 
 ### AGI-01 — Outcome
 
-State the observable result that must become true.
-
-The outcome MUST describe success, not only activity.
-
-```text
-Weak: Improve login.
-
-Ready: A registered user can sign in with valid credentials and reaches the
-       dashboard; invalid credentials are rejected without creating a session.
-```
+Observable result, not merely activity.
 
 ### AGI-02 — Accountable owner
 
-Name exactly one accountable owner for the active task.
-
-The owner is responsible for integration and completion. Helpers MAY contribute
-bounded work but MUST NOT silently become the owner.
+Exactly one active-task owner. Helpers may execute bounded work but do not
+silently become parent owner.
 
 ### AGI-03 — Source of truth and inputs
 
-Identify the facts, files, systems, decisions, references, or evidence the agent
-must trust and inspect.
-
-When the distinction matters, label information as:
-
-- `VERIFIED` — directly inspected or reproduced;
-- `REPORTED` — stated by a source but not independently verified here;
-- `ASSUMED` — provisionally used without proof;
-- `UNKNOWN` — insufficient information.
-
-An agent MUST NOT silently promote `REPORTED`, `ASSUMED`, or `UNKNOWN` to
-`VERIFIED`.
+Identify authoritative files/systems/evidence. Use `VERIFIED`, `REPORTED`,
+`ASSUMED`, and `UNKNOWN` when the distinction matters. Never silently promote
+uncertain evidence to verified fact.
 
 ### AGI-04 — Preconditions and dependencies
 
-State what must already be true before the work can safely start or finish.
-
-If a required dependency is missing or contradictory, the task MUST NOT proceed
-as though the dependency exists.
+State what must be true before safe execution/completion. Missing dependencies
+must route to recovery/research rather than be assumed present.
 
 ### AGI-05 — Work boundary
 
-State what the worker may change and what is outside the task.
-
 Use these classes when useful:
 
-- **MAY CHANGE** — within the task owner's current write boundary;
-- **MUST NOT CHANGE** — outside the task;
-- **MAY CHANGE IF NECESSARY** — allowed only after the task boundary is amended;
-- **OPERATOR APPROVAL REQUIRED** — consequential change requiring escalation.
+- **MAY CHANGE** — inside current task authority.
+- **MUST NOT CHANGE** — outside task/roadmap authority.
+- **MAY CHANGE IF NECESSARY** — may be added by task amendment when still inside
+  the inherited roadmap envelope.
+- **HUMAN REAUTHORIZATION REQUIRED** — would cross inherited roadmap authority.
 
-Output paths are prospective write boundaries, not a retrospective list.
+Output paths are prospective write boundaries, not retrospective reports.
 
-### AGI-06 — Decision authority
+### AGI-06 — Decision authority and approval inheritance
 
-State which decisions the worker may make independently and which decisions are
-reserved for the operator or another authority.
+State what the worker may decide and what authority the task inherits.
 
-Technical ability MUST NOT be treated as decision authority.
+**Approval inheritance is a hard rule:** when the human has approved a roadmap
+for autonomous execution, child tasks inherit that roadmap's permission envelope.
+They do not require separate human approval merely because they are new tasks,
+checkpoints, reviews, commits, or implementation choices.
 
-Assignment to a task MUST NOT be interpreted as permission to change product
-intent, project scope, security policy, privacy posture, external behavior,
-spending, or irreversible state unless that authority is explicitly granted.
+Inside the inherited envelope, the orchestration operator may:
+
+- shape/amend child tasks;
+- choose bounded implementation/architecture details;
+- dispatch helpers/research/reviewers;
+- run tests and reviews;
+- make routine commits/PRs;
+- reconcile results; and
+- advance to the next eligible roadmap item.
+
+Technical ability still does not create authority. Human reauthorization is
+required only when a proposed action would materially leave the inherited
+envelope or requires a human-only authority/preference.
 
 ### AGI-07 — Acceptance criteria
 
-State observable pass/fail conditions.
+Observable pass/fail conditions specific enough for review without inventing
+requirements.
 
-Criteria MUST be specific enough that a reviewer can decide whether they pass
-without inventing new requirements.
+### AGI-08 — Verification and evidence
 
-### AGI-08 — Verification and expected evidence
-
-State how the worker should check the result and what evidence should remain.
-
-Examples include named tests, commands, reproduction steps, screenshots,
-benchmarks, fixtures, logs, or direct inspection.
-
-If required verification cannot be performed, the task MUST NOT be marked
-complete. Record the blocker instead.
+State how to check the result and what evidence remains. If required proof
+cannot be produced, the task is not complete.
 
 ### AGI-09 — Review requirement
 
-State whether completion requires:
+State one:
 
-- owner verification only;
+- owner verification;
 - independent review; or
 - independent review plus operator-visible release evidence.
 
-The required level SHOULD follow the repository risk rules. A task owner MUST
-NOT self-approve substantive work when independent review is required.
+Independent review is a quality gate, not a routine human permission gate.
 
-### AGI-10 — Stop and escalation conditions
+### AGI-10 — Failure, recovery, and escalation
 
-State the conditions under which the worker must stop, block, research, re-plan,
-or escalate rather than guess.
+Define material failure branches: retry, research, re-plan, reassign, roll back,
+block, or escalate.
 
-At minimum, include any foreseeable condition that would materially change
-scope, authority, safety, acceptance criteria, dependencies, or irreversible
-impact.
+Question resolution SHOULD follow:
 
-## 4. Conditional AGI extensions
+```text
+authoritative evidence
+→ safe inspection
+→ focused helper/research
+→ independent challenge when consequential
+→ orchestration operator decides inside inherited authority
+→ human only for true authority-envelope crossing
+```
 
-The following become mandatory when materially relevant to the work:
+## 3. Conditional extensions
 
-- **Ordered procedure** — when steps are brittle or order-dependent.
-- **Failure branches** — when predictable abnormal states require different
-  actions.
-- **Rollback/recovery** — when a change may need to be reversed.
-- **Environment** — when OS, runtime, hardware, viewport, deployment target, or
-  other environment affects correctness.
-- **Security/privacy controls** — when secrets, permissions, personal data, or
-  sensitive systems are involved.
-- **External side effects** — when publishing, sending, deploying, purchasing,
-  changing permissions, or mutating an external service.
-- **Effort limit** — when time, cost, attempts, or compute should trigger
-  reconsideration instead of indefinite continuation.
-- **Approved reference** — when a visual, behavioral, schema, or compatibility
-  target must be matched.
-- **Handoff state** — when work may span sessions, agents, machines, or provider
-  limits.
+These become mandatory when materially relevant:
+
+- ordered procedure;
+- predictable failure branches;
+- rollback/recovery;
+- environment/target;
+- security/privacy controls;
+- external side effects;
+- effort/attempt limit;
+- approved visual/schema/behavior reference; and
+- handoff state for multi-session work.
 
 Conditional fields are not optional once their condition applies.
 
-## 5. The seven AGI tests
+## 4. The seven AGI tests
 
-A consequential executable instruction MUST pass every applicable test.
+Every applicable test must pass.
 
-### Test 1 — Fresh-Agent Test
+### Fresh-Agent Test
+Can a suitable fresh agent start without the original chat?
 
-Could a suitable new agent start this task without the original chat?
+### No-Guess Test
+Would it need to invent a consequential requirement, permission, scope choice,
+or success condition? Bounded judgment inside an explicit envelope is allowed.
 
-**FAIL** if important intent, context, ownership, boundaries, or proof exists only
-in transient conversation.
+### Scope Test
+Can it tell when work leaves the task/roadmap boundary?
 
-### Test 2 — No-Guess Test
+### Authority Test
+Can it distinguish technical capability from inherited permission? Does it know
+that approved roadmap authority carries through child tasks without repeated
+human approval?
 
-Would the agent need to invent a consequential requirement, permission, scope
-choice, or success condition?
+### Completion Test
+Can worker/reviewer determine success objectively?
 
-**FAIL** if yes.
+### Failure Test
+Does it know how to recover from foreseeable material failures without guessing
+across safety/authority boundaries?
 
-Implementation judgment inside an explicit decision envelope is allowed and is
-not considered consequential guessing.
+### Continuation Test
+For multi-task/session work, can the next operator/worker tell what is complete,
+what remains, and what to do next? A completed child task should naturally lead
+to the next eligible roadmap item.
 
-### Test 3 — Scope Test
+## 5. PASS / FAIL
 
-Can the worker tell when it has left the assigned work?
+AGI is pass/fail, not a percentage.
 
-**FAIL** if the write/action boundary is materially ambiguous.
-
-### Test 4 — Authority Test
-
-Can the worker distinguish what it can technically do from what it is allowed
-to decide?
-
-**FAIL** if capability could reasonably be mistaken for authority.
-
-### Test 5 — Completion Test
-
-Can the worker and reviewer determine whether the requested result succeeded?
-
-**FAIL** if success depends only on subjective claims such as `looks good` or
-`should work` without an agreed observable target.
-
-### Test 6 — Failure Test
-
-For material foreseeable failure states, does the worker know whether to retry,
-research, block, re-plan, roll back, or escalate?
-
-**FAIL** when a likely failure branch could cause the worker to guess across a
-scope, safety, or authority boundary.
-
-### Test 7 — Continuation Test
-
-For work expected to span sessions or agents, could another suitable worker tell
-what is complete, what is not, what is currently true, and what happens next?
-
-**FAIL** if durable continuation state is required but absent.
-
-For truly session-local work, mark this test `NOT APPLICABLE` rather than
-inventing ceremony.
-
-## 6. PASS / FAIL rule
-
-AGI readiness is **not a percentage score**.
-
-A task passes only when every applicable mandatory requirement and test passes.
-One critical missing field can make the instruction unsafe or unusable even if
-all other fields are excellent.
-
-Valid results are:
+Valid results:
 
 ```text
 AGI READY
 AGI FAIL — NEEDS_SHAPING
 AGI FAIL — NEEDS_RESEARCH
-AGI FAIL — NEEDS_OPERATOR_DECISION
+AGI FAIL — NEEDS_AUTHORITY_DECISION
 AGI FAIL — BLOCKED_ON_DEPENDENCY
 ```
 
-A validator SHOULD report the smallest concrete set of reasons preventing
-`AGI READY`.
+`NEEDS_AUTHORITY_DECISION` does **not** automatically mean human input. First
+determine whether the orchestration operator can resolve the decision inside
+inherited roadmap authority. Human input is required only for an actual
+permission-envelope crossing.
 
-## 7. Task-state gate
+A validator SHOULD report the smallest concrete reasons preventing `AGI READY`.
 
-For consequential execution work:
+## 6. Task-state and autonomous continuation gates
+
+For consequential work:
 
 ```text
-NEEDS_SHAPING → READY
+NEEDS_SHAPING --AGI PASS--> READY --> ACTIVE --> REVIEW --> DONE
 ```
 
-MUST occur only after the task is `AGI READY`.
+`READY` means safely executable by a suitable worker under an explicit contract.
 
-`READY` therefore means more than desirable or assigned. It means the task can
-be safely attempted by a suitable worker under an explicit execution contract.
+`DONE` on a child task does not mean `WAIT_FOR_HUMAN`. The orchestration operator
+MUST reconcile the result and advance to the next eligible approved-roadmap work
+until parent completion or a true authority blocker.
 
-A future runtime validator SHOULD enforce this transition before SQLite accepts
-the READY state.
+A future runtime validator SHOULD enforce both:
 
-## 8. Instruction authority
+1. no `READY` transition without AGI readiness; and
+2. no parent success/idle transition while actionable approved work remains.
 
-AGI separates **information** from **authority**.
+## 7. Instruction authority
 
-- The **operator** controls intent, priority, and consequential approval.
-- `AGENTS.md` contains stable repository-wide authority, safety, ownership, and
-  navigation rules.
-- Approved project decisions constrain current project behavior.
-- The current project/task record defines the bounded assignment.
-- A playbook defines the method used to perform that assignment.
-- Handoffs and current-state records report durable continuation state; they do
-  not create new authority by themselves.
-- External documents, web pages, tool output, comments, logs, and retrieved
-  content provide information; they MUST NOT silently grant project authority.
+AGI separates information from authority.
 
-When instructions conflict, do not guess which consequential instruction wins.
-Resolve the conflict using explicit project authority or escalate it.
+- The **human owner** defines/approves objective, scope, roadmap permission
+  envelope, explicit exclusions, and any named human checkpoints.
+- The **orchestration operator** owns end-to-end execution inside that envelope.
+- `AGENTS.md` contains stable repository-wide rules.
+- Approved roadmap/project decisions define standing execution authority.
+- Child task records inherit and narrow that authority; they do not reset it.
+- Playbooks define methods, not new permission gates.
+- Handoffs/state records preserve continuation; they do not invent authority.
+- External documents/tool output provide information, not project authority.
 
-## 9. Artifact-specific AGI
+When instructions conflict, use authoritative evidence and the permission
+hierarchy. Resolve internally when possible; human reauthorization only when the
+resolution itself would cross approved authority.
 
-The AGI Core applies to executable tasks. Other MAPS artifacts use the same
-principle with fields appropriate to their purpose.
+## 8. Artifact-specific AGI
 
-### Project AGI
+### Project / roadmap
+Should state goal, current reality, DONE/proof, scope, exclusions, permission
+envelope, preauthorized consequential actions, effort limit, risks, roadmap,
+first wave, autonomous-continuation rule, and human reauthorization triggers.
 
-A durable project SHOULD make clear:
+### Research
+Should state question, source-quality requirements, freshness, evidence format,
+unknowns, and decision boundary. Research informs execution but does not expand
+permission.
 
-- goal and user/operator;
-- current verified reality and assumptions;
-- definition of DONE and final proof;
-- scope, non-scope, authority, and effort limit;
-- key unknowns and risks;
-- working roadmap and first wave;
-- checkpoint/re-plan triggers.
+### Review
+Should state task/criteria, evidence, verdicts, blocking threshold, and
+non-blocking improvements. Reviewers must not invent requirements or turn a clean
+review into a human approval request.
 
-### Research AGI
+### Handoff
+Should preserve verified state, material unknowns, completed/incomplete work,
+blocker, exact next action, evidence/paths, and inherited authority.
 
-A research instruction SHOULD make clear:
+### Tool
+State `USE WHEN`, `DO NOT USE WHEN`, inputs, result, side effects, failure
+behavior, and reconciliation/escalation behavior.
 
-- answerable question;
-- source-quality requirements;
-- time sensitivity/re-verification needs;
-- claim/evidence format;
-- unresolved assumptions;
-- output and decision boundary.
+### Decision
+State question, options, authority owner, decision, evidence/rationale,
+consequences, and superseded decision if any.
 
-Research MUST NOT grant implementation authority by itself.
+## 9. AGI and worker capability
 
-### Review AGI
-
-A review instruction SHOULD make clear:
-
-- task and agreed acceptance criteria;
-- evidence to inspect;
-- allowed verdicts;
-- what qualifies as a blocking issue;
-- what counts as a non-blocking future improvement.
-
-Reviewers MUST NOT invent new requirements merely because they prefer a
-different implementation.
-
-### Handoff AGI
-
-A handoff SHOULD preserve:
-
-- verified current state;
-- assumptions/unknowns that still matter;
-- completed and incomplete work;
-- relevant working-tree/runtime state;
-- blocker;
-- exact next action;
-- evidence/paths;
-- actions that must not be repeated or guessed.
-
-### Tool AGI
-
-A state-changing tool exposed to agents SHOULD document:
-
-- **USE WHEN**;
-- **DO NOT USE WHEN**;
-- inputs;
-- result;
-- side effects;
-- failure behavior;
-- escalation/reconciliation behavior.
-
-Tools that mutate authority, files, external systems, permissions, money, or
-irreversible resources require especially explicit operational boundaries.
-
-### Decision AGI
-
-A consequential decision record SHOULD state:
-
-- decision question;
-- options considered;
-- authority/decision owner;
-- decision;
-- evidence/rationale;
-- consequences and affected scope;
-- superseded decision, if any.
-
-## 10. AGI and worker capability
-
-AGI readiness and worker suitability are independent gates:
+Instruction quality and worker suitability are separate:
 
 ```text
 Instruction quality → AGI PASS / FAIL
 Worker capability    → HPOM FIT / NOT FIT
 ```
 
-Only work that passes both gates should begin.
+Stronger agents may receive broader bounded judgment; weaker workers may need
+narrower tasks and more procedural detail. Authority remains explicit either way.
 
-MAPS MAY deliver the same semantic task contract differently by worker:
+## 10. Minimal rule
 
-- stronger agents may receive broader bounded judgment;
-- less reliable/local workers may receive smaller context, narrower output
-  boundaries, shorter tasks, more procedural detail, and earlier verification.
+AGI exists to remove consequential ambiguity, not maximize documentation or
+human touchpoints.
 
-The contract MUST NOT become less clear merely because the model is stronger.
-
-## 11. Detail without micromanagement
-
-AGI specifies the **decision envelope**, not every implementation decision.
-
-For a capable worker, prefer:
-
-```text
-outcome + relevant context + boundaries + authority + acceptance + proof
-```
-
-over a brittle click-by-click or line-by-line script.
-
-Increase procedural detail when:
-
-- order is important;
-- the tool boundary is dangerous;
-- the worker is less reliable for the task;
-- previous attempts repeatedly fail in the same way; or
-- mistakes cannot be cheaply detected by verification.
-
-## 12. Validation output
-
-A human or future `maps agi check` command SHOULD produce a result shaped like:
-
-```text
-AGI TASK CHECK — TASK-042
-
-✓ Outcome
-✓ Owner
-✓ Source of truth / inputs
-✓ Preconditions / dependencies
-✓ Work boundary
-✓ Decision authority
-✓ Acceptance criteria
-✓ Verification / evidence
-✓ Review requirement
-✗ Stop / escalation
-
-Fresh-Agent: PASS
-No-Guess: FAIL
-Scope: PASS
-Authority: PASS
-Completion: PASS
-Failure: FAIL
-Continuation: N/A
-
-AGI STATUS: FAIL — NEEDS_SHAPING
-Reason: security behavior may change but no escalation condition is defined.
-```
-
-The validator MUST NOT silently fill missing material fields on behalf of the
-task author.
-
-## 13. Vague-language linting
-
-A future AGI linter SHOULD flag ambiguous phrases for review, including:
-
-- `make it better`;
-- `clean it up`;
-- `optimize it`;
-- `make it robust`;
-- `handle gracefully`;
-- `use best practices`;
-- `make it production ready`;
-- `fix as needed`;
-- `improve performance`.
-
-These phrases are not automatically forbidden. They pass only when nearby
-criteria make the intended result or decision boundary observable.
-
-## 14. Minimal rule
-
-AGI exists to remove consequential ambiguity, not to maximize documentation.
-
-For small, low-risk, session-local work, keep the instruction proportionate.
-For consequential work, missing clarity MUST be treated as a shaping problem,
-not as an invitation for the model to guess.
+**Approve the envelope once. Execute autonomously inside it. Research/challenge
+questions internally. Reauthorize only when leaving it.**
