@@ -1,285 +1,205 @@
 # Agent-Grade Instructions (AGI)
 
-AGI means **Agent-Grade Instructions**: instructions clear enough for a capable
-agent to act without guessing the project's intent, authority, boundaries, or
-proof of success.
+AGI means instructions clear enough for a capable agent to act without guessing
+intent, authority, boundaries, or proof of success.
 
-AGI is not a larger prompt. It is a quality standard for the instructions MAPS
-already uses.
+AGI is a quality standard, not a larger prompt or a reason to ask the human more
+questions.
 
 ## Core rule
 
-An executable instruction should make the following explicit whenever they
-materially affect the work:
+When material, an executable instruction makes clear:
 
-1. **Goal** — the observable result to produce.
-2. **Source of truth** — which files, systems, decisions, or evidence are
-   authoritative.
-3. **Inputs** — what the agent should inspect or use.
-4. **Outputs** — what must be produced, changed, or reported.
-5. **Owner** — who is accountable for the result.
-6. **Authority** — which decisions the agent may make itself.
-7. **Boundaries** — what may be changed, what must not be changed, and what
-   requires escalation.
-8. **Procedure** — ordered steps only where order matters.
+1. **Goal** — observable result.
+2. **Source of truth** — authoritative files/systems/evidence.
+3. **Inputs** — what to inspect/use.
+4. **Outputs** — what may be produced/changed.
+5. **Owner** — one accountable owner.
+6. **Inherited authority** — approved roadmap/task permission envelope.
+7. **Boundaries** — what may change, must not change, or requires human
+   reauthorization.
+8. **Procedure** — only where order matters.
 9. **Pass/fail** — observable acceptance criteria.
-10. **Verification** — tests, screenshots, commands, reproduction steps, or
-    other evidence the agent can use to check itself.
-11. **Edge cases** — expected failure branches that should not be improvised.
-12. **Stop/escalate** — conditions that require research, clarification,
-    re-planning, or operator approval instead of guessing.
-13. **Handoff** — the durable state another agent needs if work stops.
+10. **Verification** — proof.
+11. **Failure branches** — retry/research/re-plan/reassign/rollback behavior.
+12. **Escalation** — true authority-boundary triggers.
+13. **Handoff/continuation** — durable state when work spans sessions/tasks.
 
-Not every small task needs thirteen headings. The information must simply be
-available at the level where it matters.
+Not every small task needs thirteen headings.
 
-## Instruction layers
-
-Do not put every rule into one giant file. Use progressive disclosure:
+## Instruction layers and approval inheritance
 
 ```text
 AGENTS.md
-  stable authority, safety, ownership, and navigation rules
+  stable rules + autonomous orchestration invariant
+      ↓
+approved roadmap/project
+  objective + permission envelope + human reauthorization triggers
       ↓
 playbook/*.md
-  method-specific instructions
-      ↓
-project / roadmap
-  project intent, constraints, decisions, and current plan
+  methods inside that authority
       ↓
 task record
-  exact execution contract for the current work
+  exact child contract; inherits and may narrow roadmap authority
       ↓
 handoff / evidence
   continuation state and proof
 ```
 
-The agent should read the smallest sufficient set of instructions for the task.
-Large instruction dumps consume context and make important rules harder to
-identify.
+A child task does **not** reset authority. If the roadmap already authorized the
+work, starting the child task, reaching a checkpoint, completing review, or
+moving to the next task does not require another human approval.
 
 ## Facts, assumptions, and unknowns
 
-Use explicit epistemic labels when a distinction matters:
+Use `VERIFIED`, `REPORTED`, `ASSUMED`, and `UNKNOWN` when relevant. Never silently
+promote uncertainty to verified fact.
 
-- **VERIFIED** — directly inspected or reproduced.
-- **REPORTED** — stated by a source but not independently verified here.
-- **ASSUMED** — being used provisionally without proof.
-- **UNKNOWN** — insufficient information to make the claim.
+For consequential uncertainty:
 
-Never silently promote `ASSUMED`, `REPORTED`, or `UNKNOWN` to `VERIFIED`.
+```text
+authoritative evidence
+→ safe inspection
+→ focused helper/research
+→ independent challenge when useful
+→ orchestration operator decides inside inherited authority
+→ human only for permission-envelope crossing
+```
 
 ## Outcome instructions beat activity instructions
 
-Prefer a result the agent can observe:
+Prefer observable results:
 
 ```text
-Weak:
-Build authentication.
-
-Better:
-A new user can create an account, sign in, sign out, restart the application,
-and sign in again with the same account.
+Weak: Improve login.
+Better: Valid credentials create a session and reach the dashboard; invalid
+        credentials do not create a session.
 ```
-
-Tasks may describe implementation work, but project goals and acceptance
-criteria should describe the state that must become true.
 
 ## Boundaries should be explicit
 
-When useful, classify change authority as:
+Useful classes:
 
-- **MAY CHANGE** — within the task owner's authority.
-- **MUST NOT CHANGE** — outside the task boundary.
-- **MAY CHANGE IF NECESSARY** — allowed only if the task record is amended
-  before editing.
-- **OPERATOR APPROVAL REQUIRED** — consequential choice that must be escalated.
+- **MAY CHANGE** — inside current authority.
+- **MUST NOT CHANGE** — outside task/roadmap boundary.
+- **MAY CHANGE IF NECESSARY** — may be added by task amendment when still inside
+  inherited roadmap authority.
+- **HUMAN REAUTHORIZATION REQUIRED** — would materially leave inherited
+  authority.
 
-Being assigned a task does not grant authority to change product intent, scope,
-security policy, external behavior, cost, or irreversible state.
-
-## Plan conditions before tasks
-
-Backward planning should first describe conditions, not implementation guesses.
-
-```text
-Weak backward step:
-Write the save system.
-
-Better backward condition:
-Saved game state survives a process restart and reloads without corruption.
-```
-
-After the required conditions are clear, shape the work needed to create them.
+Human reauthorization is not synonymous with “consequential.” A consequential
+choice that the approved roadmap explicitly authorized remains executable after
+its required checks/review.
 
 ## Verification is part of the instruction
-
-Give an agent something objective to compare its work against whenever
-practical:
 
 ```text
 ACT → OBSERVE → COMPARE → CORRECT → REPEAT
 ```
 
-Examples:
+Examples: named tests, bug reproduction, screenshots against reference,
+benchmarks against threshold, migration dry runs, acquisition/install/launch
+walkthroughs.
 
-- code change → run named test → inspect result;
-- bug fix → reproduce bug → apply fix → repeat reproduction;
-- UI change → render target viewport → screenshot → compare to reference;
-- performance work → run named benchmark → compare to threshold;
-- migration → execute dry run or fixture → verify resulting state.
+If required proof cannot be produced, the task is not complete. Recover or
+record the blocker.
 
-If the required proof cannot be produced, the task is not complete. Record the
-blocker rather than claiming success.
+## Failure branches
 
-## Define failure branches
-
-For important workflows, state what happens when normal assumptions fail.
 Examples:
 
 ```text
 IF a required test cannot run
-THEN mark BLOCKED and record why.
+THEN diagnose/recover; mark BLOCKED only if still unresolved.
 
-IF a new output path becomes necessary
-THEN amend the task boundary before editing it.
+IF a new in-scope output path becomes necessary
+THEN amend the task, re-check readiness, continue.
 
 IF a key assumption is false
-THEN stop implementation and re-plan.
+THEN research/re-plan inside the approved envelope.
 
-IF an irreversible action becomes necessary
-THEN obtain operator approval first.
+IF an important in-scope choice remains uncertain
+THEN use helper/research + independent challenge; orchestration operator decides.
 
-IF an unrelated problem is discovered
-THEN record it separately; do not silently expand scope.
+IF an irreversible action is explicitly preauthorized with bounded target,
+impact, recovery, and verification
+THEN execute after required checks without asking again.
+
+IF an irreversible action is not preauthorized
+THEN obtain human reauthorization for the resolved action.
+
+IF unrelated work is discovered
+THEN record it; do not silently expand the approved roadmap.
 ```
-
-These branches are more useful than telling an agent to "be careful."
 
 ## Agent-ready task gate
 
-A consequential execution task is `READY` only when the agent can answer:
+A consequential task is `READY` when a suitable worker can answer:
 
 ```text
 What result am I producing?
-What should I trust and inspect?
-What may I change?
-What must I not change?
-What depends on this or blocks it?
-How is success judged?
-How do I verify it?
+What should I trust?
+What authority do I inherit?
+What may/must I not change?
+How is success judged and verified?
 What review is required?
-When must I stop or escalate?
+How do I recover from likely failures?
+When is human reauthorization genuinely required?
+What happens after this task is done?
 ```
 
-If a material answer is missing, shape, research, or escalate before execution.
+If a material answer is missing, shape/research internally first.
 
-## Mission-meeting critique contract
+## Mission-meeting critique
 
-Do not give meeting participants pretend personalities. Give them bounded
-questions.
+Participants check for missing dependency, unsupported assumption, likely
+failure, weak verification, unnecessary scope, unsafe/useful parallelism, and
+hidden authority crossings.
 
-Each relevant participant checks for:
-
-- missing dependency;
-- unsupported assumption;
-- likely failure mode;
-- weak or impossible verification;
-- unnecessary scope;
-- unsafe parallel work;
-- useful parallel work;
-- operator decision that has been hidden inside an implementation choice.
-
-A useful finding should be recorded as:
+A useful finding:
 
 ```text
 Concern: <specific issue>
-Evidence: <why we believe it>
-Effect: <what fails or becomes risky>
+Evidence: <why>
+Effect: <risk/failure>
 Proposed change: <concrete adjustment>
+Authority: <inside approved envelope | needs human reauthorization>
 ```
 
-If no material issue is found, record `NO ISSUE FOUND`. Do not invent objections
-merely to participate.
+Do not invent objections merely to participate.
 
 ## Review contract
 
-Review against the agreed task and acceptance criteria.
-
-A reviewer should not invent new requirements during review. A new improvement
-idea becomes a future task unless it reveals a real correctness, safety,
-security, scope, or acceptance-criteria failure.
-
-For requested changes, state:
+Review against agreed task/criteria. Do not invent requirements.
 
 ```text
 Failed criterion: <criterion>
-Evidence: <observable proof>
-Required correction: <what must change>
-Do not change: <unaffected work that should remain intact>
+Evidence: <proof>
+Required correction: <change>
+Do not change: <unaffected work>
 ```
 
-## Tool descriptions should also be agent-grade
+`APPROVED` returns control to the orchestration operator to close/reconcile and
+continue the roadmap. Review is not a request for human permission.
 
-A tool exposed to an agent should explain its operational boundary, not only
-its function signature.
+## Tool descriptions should be agent-grade
 
-Recommended shape:
+A state-changing tool should document `USE WHEN`, `DO NOT USE WHEN`, inputs,
+result, side effects, failure/recovery, and authority boundary.
 
-```text
-Tool: maps.claim_task
-
-USE WHEN:
-Claiming a READY task that has no valid owner.
-
-DO NOT USE WHEN:
-Another valid owner already holds the task.
-
-INPUT:
-task_id, agent_id
-
-RESULT:
-claim accepted or rejected
-
-SIDE EFFECT:
-Changes canonical task ownership.
-
-FAILURE / ESCALATION:
-If state is ambiguous or stale, do not force ownership; reconcile state first.
-```
-
-This is especially important for tools that mutate task state, files, external
-systems, permissions, or irreversible resources.
+Tools mutate state; they do not invent authority beyond the approved envelope.
 
 ## Detail without micromanagement
 
-Clear instructions do not require prescribing every implementation choice.
-For a capable worker, specify the result, constraints, evidence, and decision
-boundary; allow bounded implementation judgment inside that envelope.
+Specify result, context, constraints, authority, acceptance, and proof. Allow
+bounded implementation judgment.
 
-Increase procedural detail when:
+Increase procedural detail only when order is important, the tool boundary is
+dangerous, the worker is unreliable for the task, prior attempts repeatedly
+fail, or mistakes are hard to detect afterward.
 
-- the worker is less capable or less reliable for the task;
-- the tool boundary is dangerous;
-- the workflow is brittle or order-dependent;
-- prior runs repeatedly fail in the same way; or
-- verification cannot cheaply catch a mistake afterward.
+## Core MAPS rule
 
-Do not add instructions merely because a failure is imaginable. Add or tighten
-rules when evidence shows ambiguity, context, tooling, routing, or safety needs
-improvement.
-
-## Sources and design basis
-
-Vendor guidance changes over time. These were checked on 2026-08-14:
-
-- OpenAI, Codex and repository harness guidance:
-  - https://openai.com/business/guides-and-resources/how-openai-uses-codex/
-  - https://openai.com/index/harness-engineering/
-  - https://openai.com/index/introducing-codex/
-- Anthropic, Claude Code best practices and agent loop:
-  - https://code.claude.com/docs/en/best-practices
-  - https://code.claude.com/docs/en/how-claude-code-works
-
-The MAPS rule is provider-neutral: **clear outcome, relevant context, bounded
-authority, observable proof, defined failure behavior, durable continuation.**
+**Clear outcome. Relevant evidence. Approved permission envelope. Autonomous
+execution inside it. Internal challenge before human escalation. Observable
+proof. Durable continuation.**
