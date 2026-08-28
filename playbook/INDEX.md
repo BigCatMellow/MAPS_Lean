@@ -45,8 +45,8 @@ These own the common project lifecycle. Prefer these before specialized methods.
 | Need | Primary owner | Boundary |
 | --- | --- | --- |
 | Start a durable project | [PROJECT_BOOTSTRAP.md](PROJECT_BOOTSTRAP.md) | Project framing and initial roadmap; not task execution policy. |
-| Turn a concise request into a bounded contract | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) | Compiles intent; does not invent permission. |
-| Decide whether a consequential task is agent-ready | [AGI_STANDARD.md](AGI_STANDARD.md) | Normative task-readiness standard; [AGENT_GRADE_INSTRUCTIONS.md](AGENT_GRADE_INSTRUCTIONS.md) is guidance/examples, not a second standard. |
+| Turn a concise request into a bounded contract | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) | Compiles intent and inherited authority; cannot silently expand it. |
+| Decide whether a consequential task is agent-ready | [AGI_STANDARD.md](AGI_STANDARD.md) | Single task-readiness standard, including practical shaping guidance. |
 | Check whether self-selected work is the right next work | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Per-task program steering; not roadmap redesign. |
 | Check whether the roadmap itself is still on trajectory | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) | Work-arc/roadmap correction; not routine per-task steering. |
 | Shape, assign, execute, review, and finish a task | [TASK_LIFECYCLE.md](TASK_LIFECYCLE.md) | Task lifecycle procedure under inherited roadmap authority. |
@@ -63,8 +63,7 @@ Use these only when their specific concern is active.
 | Understand retained runtime controls | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Runtime responsibility map; terminals/windows are not authority. |
 | Install/verify SQLite, LangGraph, and hcom on a fresh clone | [Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md) | Setup/migration only; keep databases and authority roles separate. |
 | Plan portable control-plane deployment into another repo | [Portable Deployment roadmap](../work/roadmaps/agent-harness-capabilities/06-portable-deployment.md) | Current deployment roadmap, not a general operating rule. |
-| Route by demonstrated model/harness capability | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Full capability-evidence method. |
-| Use a lightweight manual worker-routing heuristic | [HPOM_ROUTING.md](HPOM_ROUTING.md) | Lightweight companion to Model Capability Routing, not a separate authority model. |
+| Route by demonstrated model/harness capability and cost | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Single worker-capability/routing method; includes the retained HPOM heuristic. |
 | Apply provider/tool-specific operating guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Provider adaptation only; cannot redefine MAPS authority. |
 | Test a consequential approved claim with a formal dissent mechanism | [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md) | Formal narrow protocol; ordinary helper challenge does not require this artifact. |
 | Isolate writable dispatched work or recover worktree-specific failures | [WORKTREE_ISOLATION.md](WORKTREE_ISOLATION.md) | Git isolation mechanics; no merge/permission authority. |
