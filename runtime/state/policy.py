@@ -14,13 +14,9 @@ POLICY_FLAGS = (
     "broad_architecture",
     "paid_execution",
 )
-APPROVAL_TRIGGER_FLAGS = (
-    "requires_operator_approval",
-    "destructive_action",
-    "external_side_effect",
-    "security_sensitive",
-    "broad_architecture",
-)
+# Backward-compatible storage name: this flag now means a true human
+# reauthorization boundary, not "important work needs another approval".
+APPROVAL_TRIGGER_FLAGS = ("requires_operator_approval",)
 
 
 class PolicyStateMixin:
@@ -53,9 +49,6 @@ class PolicyStateMixin:
         validation = self._validate_policy_contract(contract)
         if validation is not None:
             return validation
-        # BaseStore owns the write transaction. It calls
-        # _apply_policy_contract_conn() before commit so task fields, list fields,
-        # policy flags, AGI reset, and approval invalidation are one atomic shape.
         return super().update_contract(task_id, contract)
 
     def _contract_shaping_hooks(self):
@@ -80,9 +73,9 @@ class PolicyStateMixin:
                     (*[1 if policy[field] else 0 for field in fields], task_id),
                 )
 
-        # Any shaped-contract change invalidates a prior approval. This happens
-        # in the same transaction as the contract mutation so no reader can see
-        # a new contract carrying approval for the previous contract.
+        # A recorded human reauthorization is for the exact resolved contract.
+        # Shaping changes invalidate that exception. Ordinary in-envelope tasks
+        # need no recorded approval, so this does not create per-task prompts.
         conn.execute(
             """
             UPDATE task_policy
@@ -96,7 +89,7 @@ class PolicyStateMixin:
             task_id,
             "TASK_POLICY_UPDATED",
             None,
-            "Policy contract updated; operator approval reset",
+            "Policy contract updated; any recorded human reauthorization reset",
         )
 
     def get_task(self, task_id: str) -> dict | None:
@@ -174,6 +167,11 @@ class PolicyStateMixin:
         approved_by: str,
         note: str,
     ) -> MutationResult:
+        """Record the human exception for an explicit authority-boundary task.
+
+        The method name is retained for API compatibility. Normal consequential
+        tasks do not call this; only ``requires_operator_approval`` tasks do.
+        """
         if not approved_by.strip():
             return MutationResult(False, "INVALID_APPROVAL", "approved_by is required")
         if not note.strip():
@@ -195,7 +193,7 @@ class PolicyStateMixin:
                 return MutationResult(
                     False,
                     "NO_APPROVAL_REQUIRED",
-                    f"{task_id} has no operator-gated policy flags",
+                    f"{task_id} is inside its existing permission envelope",
                 )
             now = iso_z(utc_now())
             conn.execute(
@@ -209,7 +207,7 @@ class PolicyStateMixin:
             self._append_event(
                 conn,
                 task_id,
-                "OPERATOR_APPROVAL_RECORDED",
+                "HUMAN_REAUTHORIZATION_RECORDED",
                 approved_by.strip(),
                 note.strip(),
             )
@@ -217,7 +215,7 @@ class PolicyStateMixin:
         return MutationResult(
             True,
             "APPROVED",
-            f"operator approval recorded for {task_id}",
+            f"human reauthorization recorded for {task_id}",
             self.get_task(task_id),
         )
 
@@ -242,12 +240,12 @@ class PolicyStateMixin:
                 (task_id,),
             )
             self._append_event(
-                conn, task_id, "OPERATOR_APPROVAL_CLEARED", actor, reason
+                conn, task_id, "HUMAN_REAUTHORIZATION_CLEARED", actor, reason
             )
             conn.commit()
         return MutationResult(
             True,
             "APPROVAL_CLEARED",
-            f"approval cleared for {task_id}",
+            f"human reauthorization cleared for {task_id}",
             self.get_task(task_id),
         )
