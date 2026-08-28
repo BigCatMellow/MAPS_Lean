@@ -213,9 +213,27 @@ class WaitProjectionTests(unittest.TestCase):
         self.assertEqual(report["summary_state"], "UNKNOWN")
         self.assertEqual(codes(report), ["REVIEW_GATE_EVIDENCE_INCOMPLETE"])
 
-    def test_operator_approval_wait_uses_existing_policy_trigger_logic(self):
+    def test_consequential_flags_do_not_create_operator_approval_wait(self):
         policy = {
             "requires_operator_approval": False,
+            "destructive_action": False,
+            "external_side_effect": True,
+            "security_sensitive": True,
+            "broad_architecture": False,
+            "paid_execution": False,
+            "approved_by": None,
+            "approved_at": None,
+        }
+        source = FakeSource({"TASK-1": task(policy=policy)})
+
+        report = project_task_waits(source, "TASK-1")
+
+        self.assertEqual(report["summary_state"], "NO_VERIFIED_WAIT")
+        self.assertNotIn("WAIT_OPERATOR_APPROVAL", codes(report))
+
+    def test_explicit_reauthorization_boundary_creates_operator_approval_wait(self):
+        policy = {
+            "requires_operator_approval": True,
             "destructive_action": False,
             "external_side_effect": True,
             "security_sensitive": True,
@@ -232,7 +250,7 @@ class WaitProjectionTests(unittest.TestCase):
         self.assertEqual(codes(report), ["WAIT_OPERATOR_APPROVAL"])
         self.assertEqual(
             report["reasons"][0]["details"]["approval_triggers"],
-            ["external_side_effect", "security_sensitive"],
+            ["operator_approval_required"],
         )
 
     def test_recorded_operator_approval_removes_wait(self):
