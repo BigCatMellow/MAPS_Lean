@@ -1,83 +1,78 @@
 # Roadmap Trajectory Check: Are We Still On Track
 
-[PROGRAM_STEERING.md](PROGRAM_STEERING.md) answers "is this one candidate task
-the right work" before shaping it. This file answers a different, larger
-question that per-task steering does not cover: **stepping back across a
-multi-task work arc, is the roadmap itself still pointing the right
-direction, or has evidence accumulated that the plan should change.**
+[PROGRAM_STEERING.md](PROGRAM_STEERING.md) asks whether one candidate task is the
+right work now. This method asks the larger question: **given what the project has
+learned, is the roadmap itself still pointing toward DONE?**
 
-A session can pass every per-task PROGRAM_STEERING check and still drift at
-the arc level — each individual task traces cleanly back to the checklist,
-yet nobody has stopped to ask whether the checklist's own priority ordering,
-scope boundaries, or blocked items still make sense given what was actually
-learned while doing the work.
+This is roadmap maintenance under [`AGENTS.md`](../AGENTS.md), not a second
+approval layer or authority store.
 
-## 1. When to run this check
+## When to run it
 
-Run it at natural arc boundaries, not after every single task:
+Run at natural work-arc boundaries, not after every task:
 
-- After a meaningful batch of merged PRs (roughly every 3-6, or whenever the
-  session notices the easily-startable backlog has thinned).
-- Whenever a task's own findings surface something the roadmap didn't
-  anticipate — a root cause that explains several stalled phases at once, an
-  experiment result that contradicts an assumption, a discovered blocker.
-- Before picking the next self-selected task once `work/roadmaps/
-  CAPABILITY_CHECKLIST.md`'s remaining `NOT STARTED` rows are all
-  `TRIGGERED`/conditional or depend on unmerged prerequisites — that state is
-  itself a signal worth naming, not silently working around.
+- after a meaningful batch/phase;
+- when evidence contradicts a roadmap assumption;
+- when a discovered blocker changes several planned items;
+- when the remaining checklist is mostly conditional/blocked; or
+- when repeated task-level steering suggests the priority model itself is stale.
 
-## 2. The check
+## The check
 
-1. **Re-verify, don't re-read.** Spot-check a sample of `CAPABILITY_CHECKLIST.md`
-   rows (favor ones marked `DONE` and any marked `IN PROGRESS` for a while)
-   against actual current `main` — merged PRs, `git log`, running tests —
-   the same way the checklist itself was originally built. A stale label is
-   not evidence the underlying work state matches it.
-2. **Name what changed the picture.** List anything learned this arc that the
-   checklist didn't already say: a phase turning out to depend on something
-   bigger than scoped (e.g. discovering zero production callers of a whole
-   subsystem), an experiment's real numbers, a design note's conclusion, a
-   repeated friction pattern. Evidence like this is exactly what should
-   update the plan — plans are allowed to change when reality disagrees with
-   the roadmap's original assumptions.
-3. **Ask directly: pivot or continue?** For each named change, decide out
-   loud (in the trajectory note, see §3) whether it means: continue as
-   planned (the finding doesn't change priority), reprioritize (something
-   else is now more valuable to do next), or open a new roadmap item (the
-   finding revealed real unscoped work the checklist doesn't cover at all).
-   Decide this the same way any other design question gets decided —
-   reason it through using the roadmap's own stated priorities (`P1`/`P2`/`TRIGGERED`/
-   `EVIDENCE-GATED` tags in `00-MASTER-MAPS-CAPABILITY-ROADMAP.md`) and this
-   arc's actual evidence, then act. Get a second agent's opinion first if
-   genuinely torn between two directions; don't default to leaving it open.
-4. **Write it down.** Record the outcome as a short trajectory note under
-   `work/notes/` (e.g. `work/notes/<date>-roadmap-trajectory-check.md`):
-   what was re-verified, what changed the picture, and what was decided.
-   This is evidence for the *next* trajectory check, not a new authority
-   surface — it does not itself grant or change task/policy authority, and
-   it is not a second source of roadmap truth (`CAPABILITY_CHECKLIST.md`
-   remains that). If a pivot changes what the checklist should say, update
-   the checklist itself in the same or a following docs PR.
+1. **Re-verify reality.** Spot-check current roadmap/checklist claims against the
+   actual merged code, tests, PRs, artifacts, or other authoritative evidence.
+2. **Name what changed.** Record new evidence that materially changes assumptions,
+   dependencies, risk, priority, scope, or the route to DONE.
+3. **Choose a trajectory action.** `CONTINUE`, `REPRIORITIZE`, `RESEARCH`,
+   `CUT SCOPE`, `ADD IN-SCOPE WORK`, or `STOP`. Use a challenger/helper when a
+   consequential choice is genuinely uncertain.
+4. **Apply the decision.** The orchestration operator updates the roadmap/status
+   truth and continues when the change remains inside the approved envelope.
+   Human reauthorization is required only when the proposed trajectory materially
+   changes the approved objective/scope/permission envelope or requires a
+   human-only preference/authority decision.
+5. **Leave compact evidence.** A short trajectory note may record what was checked,
+   what changed, and why. The note is evidence; update the canonical roadmap or
+   checklist itself when the plan/status changes.
 
-## 3. What this is not
+## Roadmap/status truth rule
 
-- Not a replacement for `CAPABILITY_CHECKLIST.md` — that file stays the one
-  place cross-roadmap status lives. This check *maintains* trust in that
-  file; it does not duplicate it.
-- Not a new mutable task/authority store. A trajectory note is a durable
-  human-readable record like a repair note or design note, not a database.
-- Not permission to abandon `PROGRAM_STEERING.md`'s per-task check — the two
-  operate at different altitudes and both apply.
-- Not a reason to pause and wait for approval before continuing. A named
-  pivot is acted on, not merely proposed — see `docs/CHECKS_AND_BALANCES.md`
-  for what remains a genuine hard-wall escalation versus a decision this
-  check is meant to resolve on its own.
+Keep **one canonical live status view per program**. Do not accumulate parallel
+per-session or per-sub-roadmap status trackers.
 
-## 4. Relationship to the other steering docs
+A status claim such as `DONE`, `IN PROGRESS`, or `BLOCKED` is a consequential
+fact when future orchestration will rely on it. Therefore:
+
+- support material status changes with a short evidence pointer (PR, path, test,
+  artifact, or equivalent);
+- update the canonical status view in the same work arc as the change it reports;
+- do not mark work `DONE` from formatting/prose review alone;
+- for consequential/broad status updates, use an independent spot-check of sample
+  claims against real evidence; and
+- do not let the session that changed implementation silently turn its own
+  unsupported summary into program truth.
+
+This rule belongs here because it protects roadmap trust. Worker selection for
+the check itself belongs in
+[MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md).
+
+## What this is not
+
+- Not a replacement for the program's canonical roadmap/checklist.
+- Not another mutable task or authority store.
+- Not a reason to pause for human approval before continuing.
+- Not permission to create unrelated new scope because it looks valuable.
+- Not a requirement to write a trajectory note after every task.
+
+A trajectory note preserves reasoning/evidence. The canonical roadmap/checklist
+owns the actual plan/status.
+
+## Relationship to task-level steering
 
 ```text
-AGI_STANDARD.md              → is this one task clear enough to execute?
-PROGRAM_STEERING.md          → is this the right task, right now?
-ROADMAP_TRAJECTORY_CHECK.md  → is the roadmap itself still pointing right,
-                                given everything learned so far?
+AGI_STANDARD.md              → is this task clear enough to execute?
+PROGRAM_STEERING.md          → is this the right task now?
+ROADMAP_TRAJECTORY_CHECK.md  → is the roadmap still right given current evidence?
 ```
+
+All three are orchestration methods. None is a routine human approval gate.
