@@ -46,4 +46,4 @@ jobs:
           git commit -m "Rewrite wiki for fresh-agent MAPS_L onboarding"
           git push origin HEAD
 
-# One-shot audit publisher. Delete this workflow after the audited live wiki is verified.
+# Final one-shot audit publisher. Delete after successful live verification.
