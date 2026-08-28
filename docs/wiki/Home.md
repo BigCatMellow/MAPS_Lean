@@ -34,6 +34,23 @@ target authority + approved roadmap/task + one relevant MAPS_L method
 
 Do not read the whole wiki/playbook as a prerequisite ritual.
 
+### Shortcut: `/pilot`
+
+MAPS_L also ships a thin Agent Skill at
+[`.claude/skills/pilot/SKILL.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/.claude/skills/pilot/SKILL.md).
+When installed/discovered by the client, it provides a natural executable front
+door such as:
+
+```text
+/pilot the Pokemon project
+```
+
+`pilot` invokes the operating method described here; it is **not** another copy
+of MAPS_L's authority or playbook. The skill recovers the target project's live
+authority/state, selects only the MAPS_L depth needed, and drives the authorized
+parent outcome through verification. Its own file contains portability guidance
+for making `/pilot` available outside this repository.
+
 ---
 
 ## What MAPS_L is
