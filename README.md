@@ -7,9 +7,10 @@ requirement for WezTerm as the agent-window cockpit.
 ## Start here
 
 For your first task, [follow the canonical first-run route](docs/FIRST_RUN.md).
-It starts with [AGENTS.md](AGENTS.md) and tells you exactly when to read current
-state, the control plane, and a playbook method. Do not construct a second
-orientation sequence from this README.
+It starts with [AGENTS.md](AGENTS.md), the **single repository-wide operating
+contract**, and tells you exactly when to read current state, the control plane,
+and one relevant playbook method. Do not construct a second orientation sequence
+from this README.
 
 Resuming after a session break? Read [Current State](state/CURRENT.md) first.
 
@@ -26,6 +27,25 @@ handoffs in `work/` using the templates.
 For a fresh runtime setup, start with [Fresh Clone Setup](docs/FRESH_INSTALL.md).
 For component-level installation and migration details, use
 [Control-Plane Setup](docs/CONTROL_PLANE_SETUP.md).
+
+### Documentation model
+
+MAPS_L deliberately avoids a stack of peer instruction files:
+
+```text
+AGENTS.md              = global operating contract
+approved roadmap/task  = scoped authority and exact work
+runtime state          = live task/execution truth
+playbook/docs          = subordinate methods and guidance
+work/state records     = evidence and continuation
+migration/legacy       = reference/history
+```
+
+Playbook files may be strict about the method they own, but they do not create
+new repository-wide permission or orchestration rules. Normal work should need
+`AGENTS.md + approved roadmap/task + one relevant method` in the common case.
+Repeatedly needing several overlapping methods is treated as a consolidation
+problem, not as normal process.
 
 ## Active runtime
 
@@ -91,7 +111,7 @@ task truth.
 
 - A named owner, scope, output paths, and observable acceptance criteria.
 - Independent review where the active task/risk policy requires it.
-- Risk-proportionate evidence and operator gates.
+- Risk-proportionate evidence and explicit authority-boundary gates.
 - Compact handoffs and durable decisions when work spans sessions or tools.
 
 ## What is deliberately removed from the active default
@@ -106,14 +126,14 @@ task truth.
 
 | Path | Purpose |
 | --- | --- |
-| [AGENTS.md](AGENTS.md) | Active operating contract. |
+| [AGENTS.md](AGENTS.md) | Sole repository-wide operating contract. |
 | `runtime/` | Provider-neutral active runtime implementation. |
 | `tests/` | Active runtime regression tests. |
-| `docs/` | Workflow, setup, and quality guidance. |
-| `playbook/` | Reusable methods: planning, task lifecycle, research, risk, routing, repair. |
-| `templates/` | Task, review, handoff, decision, context, worker/task examples. |
+| `docs/` | Subordinate workflow, setup, and quality guidance. |
+| `playbook/` | Subordinate reusable methods: planning, task lifecycle, research, risk, routing, repair. |
+| `templates/` | Task, review, handoff, decision, context, worker/task examples; structure, not authority. |
 | [state/CURRENT.md](state/CURRENT.md) | Compact shared continuation state. |
-| `work/` | Task records and durable outputs. |
+| `work/` | Task records, decisions, reviews, evidence, and durable outputs. |
 | `migration/` | Curated source/evidence retained during promotion and removal proof. |
 | `legacy/` | Historical original source; no longer an active execution dependency. |
 
