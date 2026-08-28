@@ -1,115 +1,81 @@
 # Program Steering: Is This the Right Task at All
 
-[AGI_STANDARD.md](AGI_STANDARD.md) answers "is this one task clear enough to
-execute." This file answers a different question that AGI readiness does not
-cover: **is this the task the program actually needs right now**, or is a
-session about to spend a clear, well-specified contract on the wrong work.
+[AGI_STANDARD.md](AGI_STANDARD.md) asks whether one task is clear enough to
+execute. This file asks whether it is the right work now.
 
-A task can pass every AGI test and still be program-level drift: real effort
-spent on low-value busywork while genuine unstarted capability work sits
-untouched. AGI_STANDARD cannot catch this — it only inspects the instruction
-in front of the worker, not what else exists in the program.
+A task can be AGI-ready and still be low-value drift.
 
 ## 1. When to run the check
 
-A session MUST run the check in this file before starting any **self-selected**
-work — work that is not explicitly directed by the operator and is not an
-already-scoped, open task doc it has been assigned or has claimed.
+Run this check before self-selected work that is not already an assigned/scoped
+approved-roadmap task.
 
-The check MUST run, at minimum, immediately after `gh issue list --state
-open` (or an equivalent query of the tracker) returns empty and the session
-is about to decide what to do next. An empty issue queue is the single most
-common moment a session picks up filler work instead of consulting the actual
-roadmap.
+Run it especially when the issue/task queue is empty. An empty queue does not
+mean the roadmap is done.
 
-The check MAY be skipped when the work is explicitly operator-directed, or
-when it is execution of an already-`READY` task doc shaped and assigned
-through [TASK_LIFECYCLE.md](TASK_LIFECYCLE.md) — those cases already carry
-traced authority and do not need re-deriving.
+Skip the check for explicitly directed work or an already-`READY` task with
+traceable approved-roadmap authority.
 
-## 2. The check
+## 2. Select the next task autonomously
 
-Before writing a task doc for self-selected work, a session MUST answer:
+Before creating self-selected work, answer:
 
-1. **Does this trace back?** Does the candidate task correspond to an entry
-   marked `NOT STARTED` or `IN PROGRESS` in
-   [`work/roadmaps/CAPABILITY_CHECKLIST.md`](../work/roadmaps/CAPABILITY_CHECKLIST.md)
-   (the consolidated capability status tracker), or to an explicit operator
-   request?
-   - If neither, that is a flag, not an automatic stop. The gap MUST be
-     named explicitly in the new task doc's own inputs/reasoning section
-     (for example, under `Inputs and source of truth`) — never silently
-     assumed reasonable and left unstated.
-2. **Is this "document what already works"?** Is the task closing an
-   issue/ticket primarily by describing or documenting behavior that is
-   already shipped, rather than building something new?
-   - This is sometimes legitimate — a genuine documentation gap is real
-     work. It MUST be named as exactly that ("this closes the issue via a
-     documentation fix for already-shipped behavior, not new capability
-     work") in the task doc, not disguised as capability progress.
-3. **Is the checklist itself trustworthy right now?** Has
-   `work/roadmaps/CAPABILITY_CHECKLIST.md` been cross-checked against real
-   merged state recently — within the current multi-session work arc — or is
-   it plausibly stale?
-   - If plausibly stale, the session MUST re-verify the specific item it is
-     about to pick up against actual code/tests before trusting the
-     checklist's status label. A stale `NOT STARTED` label is not
-     verification that the work is actually unstarted.
+1. **Does it trace back?** Prefer a `NOT STARTED`/`IN PROGRESS` item in
+   [`work/roadmaps/CAPABILITY_CHECKLIST.md`](../work/roadmaps/CAPABILITY_CHECKLIST.md),
+   another approved roadmap item, or an explicit human request.
+2. **Is this documentation for behavior that already exists?** If yes, name it
+   honestly as documentation work rather than capability progress.
+3. **Is the roadmap/checklist trustworthy?** If plausibly stale, verify the
+   candidate item against real code/tests before acting.
+4. **What is the highest-value eligible item?** Choose based on dependencies,
+   roadmap priority, unblock value, risk reduction, and progress toward DONE —
+   not merely what is easiest.
 
-A session MAY proceed once these three questions are answered and, where a
-flag was raised, the flag is written into the task doc rather than resolved
-by silent assumption.
+If a traceable eligible item exists inside approved authority, the orchestration
+operator selects it, shapes it, and continues. **Do not ask the human what to do
+next merely because the queue is empty.**
 
-## 3. Drift smell list
+If no traceable item exists, first determine whether useful work can be derived
+without expanding the approved objective: reconciliation, verification, fixing a
+known blocker, completing an incomplete criterion, or correcting stale roadmap
+state. If yes, shape that bounded work and continue.
 
-These are recognizable patterns of program-level drift — a session doing
-technically-clean work that is nonetheless the wrong work. Any of these
-appearing MUST trigger re-reading this file before continuing:
+Human reauthorization is required only when the proposed next work would create
+a materially new objective/scope outside the approved roadmap.
 
-- **Easiest over most valuable.** Picking the smaller, simpler, or more
-  comfortable available task when a more valuable one is also available and
-  traceable.
-- **Empty queue treated as empty backlog.** Reading "0 open GitHub issues" as
-  "nothing to do" instead of consulting
-  `work/roadmaps/CAPABILITY_CHECKLIST.md` for unstarted or in-progress
-  capability work.
-- **Documentation instead of implementation.** Writing docs about behavior
-  that already works instead of building behavior that does not exist yet,
-  when the latter is what the program actually needs.
-- **Re-deriving "what's next" from scratch.** Reasoning about program
-  priority each session as if no roadmap existed, instead of consulting the
-  existing checklist.
-- **Scope creep.** A task quietly growing beyond its own task doc's `Change
-  boundary` — touching files, decisions, or outcomes the task record never
-  named.
+## 3. Drift smells
+
+- **Easiest over most valuable.** Comfortable work over higher-value eligible
+  roadmap work.
+- **Empty queue = empty backlog.** Ignoring roadmap/checklist because tracker has
+  zero open issues.
+- **Documentation instead of implementation.** Describing shipped behavior while
+  required capability remains unbuilt.
+- **Re-deriving what's next from scratch.** Ignoring existing roadmap priority.
+- **Scope creep.** Work no longer traces to the approved objective/envelope.
+- **Human dependency by habit.** Asking the human to pick/approve the next
+  already-authorized task instead of steering the program.
 
 ## 4. When drift is caught
 
-Whether drift is caught by the session itself or by the operator, the
-response is corrective, not punitive:
+1. Name the drift briefly in the task/handoff when it matters to continuation.
+2. Redirect to the highest-value traceable approved-roadmap item.
+3. If no traceable in-envelope work exists, distinguish `roadmap complete` from
+   `new scope needed`.
+4. Only `new scope needed` requires a human scope decision.
+5. Repeated drift may warrant a repair record under
+   [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md).
 
-1. Name the drift plainly, in the current handoff or task doc — state which
-   smell from §3 applies and what was actually happening.
-2. Redirect to the item the work should have traced back to under §2, or
-   obtain an explicit operator decision if no traceable item exists.
-3. If the same drift pattern seems likely to recur (not a one-off slip),
-   consider whether it rises to Drift or worse under
-   [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md)'s severity table, and
-   file a repair record there if so. This file does not define its own
-   severity tiers or repair-note format — use REPAIR_AND_LEARNING.md's.
-
-## 5. Relationship to AGI_STANDARD.md
-
-[AGI_STANDARD.md](AGI_STANDARD.md) and this file are complementary gates, not
-substitutes for each other:
+## 5. Relationship to AGI
 
 ```text
-PROGRAM_STEERING.md → is this the right task at all?
-AGI_STANDARD.md      → is this one task clear enough to execute?
+PROGRAM_STEERING.md → is this the right task now?
+AGI_STANDARD.md      → is this task clear enough to execute?
 ```
 
-A task can be AGI READY and still be program-level drift (clear instructions
-for the wrong work). A task can trace correctly to real roadmap need and
-still fail AGI readiness (right work, badly specified). Self-selected work
-SHOULD pass the check in this file before being shaped into an AGI-ready task
-doc, not after.
+Both are orchestration gates. Neither is a routine human approval gate.
+
+## Core rule
+
+**When approved roadmap work exists, select and execute the next useful item.
+Do not idle and do not ask permission to continue.**
