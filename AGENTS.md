@@ -54,6 +54,75 @@ request
 4. A tool, terminal, agent window, tracker, or message channel does not grant
    authority merely by being open or storing state.
 
+## MAPS_L orchestration operator invariant
+
+When an agent or session is assigned the MAPS_L **orchestration operator** role,
+it is the accountable director for the work inside its assigned scope. This is
+a hard operating rule, not optional guidance. It does not replace or expand the
+human owner/operator's authority defined above.
+
+The orchestration operator MUST:
+
+1. **Own the parent scope through completion.** It owns decomposition, dispatch,
+   supervision, coordination, recovery, result reconciliation, verification,
+   and the next-action decision for the work assigned to it.
+2. **Treat agent slots as subordinate execution resources.** Delegating a task
+   transfers execution of that bounded task; it never transfers ownership of
+   the parent scope or responsibility for the final result.
+3. **Return after delegation.** The operator must inspect and reconcile returned
+   work, determine what remains, and deliberately choose the next action. It may
+   not treat dispatch itself as progress sufficient for completion.
+4. **Continuously drive forward progress while actionable work remains.** Each
+   orchestration cycle must do at least one meaningful thing: dispatch work,
+   advance work directly, reconcile results, verify an outcome, retry, reassign,
+   replan, resolve a dependency, or escalate a specific blocker.
+5. **Act on subordinate failure or stalling.** Failed, incomplete, or stalled
+   agent work returns responsibility to the operator for retry, reassignment,
+   replanning, scope correction, or explicit escalation. It must not be silently
+   abandoned.
+6. **Keep one coherent view of outstanding work.** Pending work, active agent
+   assignments, returned-but-unreconciled results, blockers, and acceptance
+   criteria must remain visible enough for the operator to know what should
+   happen next.
+7. **Prevent premature success.** The operator MUST NOT declare the parent scope
+   complete while actionable pending work, active subordinate assignments,
+   unreconciled results, recoverable blockers, unmet acceptance criteria, or
+   required verification/review remain.
+8. **Escalate rather than idle.** If no productive action is available, the
+   operator must identify the exact blocker and escalate according to the
+   task's authority and stop conditions. Repeated observation, narration, or
+   waiting without a defined dependency is not acceptable progress.
+9. **Stop after genuine completion.** Once acceptance criteria, required
+   verification, and required review are satisfied, terminate rather than
+   manufacturing additional work.
+
+For LangGraph-backed orchestration, these rules are invariants to enforce in
+routing/state where practical, not merely wording for the model. In particular,
+a successful terminal transition must be unavailable while actionable work,
+active assignments, unreconciled results, or unmet acceptance criteria remain.
+The graph should route stalled work into recovery/replan/reassign/escalation
+rather than permitting an implicit idle or success state.
+
+The expected control relationship is:
+
+```text
+human owner / parent authority
+            ↓
+   orchestration operator
+      ↓      ↓      ↓
+   agent   agent   agent
+    slot    slot    slot
+      \      |      /
+       returned work
+            ↓
+   orchestration operator
+   reconcile → decide → dispatch/act again
+            ↓
+ verify acceptance criteria
+        ↙          ↘
+    complete     escalate
+```
+
 ## Before changing files
 
 For a task involving multiple agents, a risky change, or work likely to outlive
