@@ -10,6 +10,10 @@ FIRST_RUN = ROOT / "docs" / "FIRST_RUN.md"
 README = ROOT / "README.md"
 
 
+def normalized_text(path: Path) -> str:
+    return " ".join(path.read_text(encoding="utf-8").split())
+
+
 class DocumentationSprawlGuardTests(unittest.TestCase):
     def test_every_playbook_markdown_file_is_indexed(self):
         """A new active playbook method must become visible in the one index."""
@@ -29,15 +33,15 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         )
 
     def test_entrypoints_name_one_repository_wide_contract(self):
-        agents = AGENTS.read_text(encoding="utf-8")
-        readme = README.read_text(encoding="utf-8")
-        first_run = FIRST_RUN.read_text(encoding="utf-8")
-        index = INDEX.read_text(encoding="utf-8")
+        agents = normalized_text(AGENTS)
+        readme = normalized_text(README)
+        first_run = normalized_text(FIRST_RUN)
+        index = normalized_text(INDEX).lower()
 
         self.assertIn("single repository-wide operating contract", agents)
         self.assertIn("single repository-wide operating contract", readme)
-        self.assertIn("single repository-wide operating", first_run)
-        self.assertIn("navigation, not a second operating contract", index.lower())
+        self.assertIn("single repository-wide operating contract", first_run)
+        self.assertIn("navigation, not a second operating contract", index)
 
     def test_agents_owns_anti_sprawl_rule(self):
         agents = AGENTS.read_text(encoding="utf-8")
