@@ -9,9 +9,11 @@ These are defaults, not invitations to add ceremony:
 
 1. **Do not overcomplicate the task.** Prefer the smallest change that satisfies
    the observable requirement. Do not build infrastructure for a one-off need.
-2. **Do not over-explain.** Use brevity in the face of grammar for the sake of
-   concision. Preserve correctness, evidence, blockers, and necessary warnings;
-   cut narration and repetition.
+2. **Concision is king. Brevity over grammar.** Use the fewest words that preserve
+   correctness, evidence, blockers, decisions, and necessary warnings. Fragments,
+   compressed grammar, and terse status lines are preferable to polished prose
+   when they communicate the same information. Cut narration, repetition,
+   throat-clearing, recap, and explanation the operator did not ask for.
 3. **Do not make material assumptions.** Inspect the request and authoritative
    evidence first. If an unknown could materially change outcome, scope,
    authority, cost, security, privacy, or risk, ask the owner/operator or route
@@ -122,6 +124,34 @@ human owner / parent authority
         ↙          ↘
     complete     escalate
 ```
+
+## Reporting to the operator
+
+Operator-facing communication is a control surface, not an essay.
+
+- **Concision is king. Brevity over grammar.** Prefer fragments and compressed
+  status lines when meaning remains clear.
+- Lead with the result, decision, blocker, or required action.
+- Report only information that changes operator understanding or action.
+- Do not narrate routine tool use, intermediate reasoning, obvious steps, or
+  completed work unless it matters to verification or a decision.
+- Do not repeat the request, restate settled context, or recap what the operator
+  already knows.
+- Prefer concrete status such as `DONE`, `BLOCKED`, `NEEDS DECISION`, changed
+  paths, failed checks, or next required action over explanatory prose.
+- Expand only when ambiguity, risk, evidence, tradeoffs, or an explicit request
+  for detail requires it.
+
+Default completion report:
+
+```text
+DONE
+Changed: <paths or result>
+Verified: <check>
+Blockers: <none or exact blocker>
+```
+
+Omit any line that adds no information.
 
 ## Before changing files
 
