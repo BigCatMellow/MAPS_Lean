@@ -4,6 +4,9 @@ Every consequential task should be executable by a future agent without the
 original chat. Every approved roadmap should be executable without routine
 human nudges between its child tasks.
 
+This is the task lifecycle method under [`AGENTS.md`](../AGENTS.md); it does not
+create a separate authority model.
+
 ## Shape before claiming
 
 Shape work when intent, output paths, criteria, dependencies, authority, or
@@ -37,9 +40,9 @@ A consequential task may enter `READY` only when `AGI READY` under
 and can prove success. Missing information may route to shaping/research/internal
 authority resolution; it does not automatically route to the human.
 
-Worker suitability is separate. After AGI passes, use
-[HPOM routing](HPOM_ROUTING.md) and
-[model capability routing](MODEL_CAPABILITY_ROUTING.md).
+Worker suitability is a separate question. After AGI passes, use the single
+[model capability routing](MODEL_CAPABILITY_ROUTING.md) method to choose the
+cheapest worker proven competent for the whole execution envelope.
 
 ## Ownership rules
 
