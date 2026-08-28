@@ -10,6 +10,7 @@ FIRST_RUN = ROOT / "docs" / "FIRST_RUN.md"
 README = ROOT / "README.md"
 WIKI_SOURCE = ROOT / "docs" / "wiki"
 WIKI_SYNC = ROOT / ".github" / "workflows" / "sync-wiki.yml"
+PILOT_SKILL = ROOT / "skills" / "pilot" / "SKILL.md"
 
 # This is a conscious-friction guard, not a claim that 23 is a magic number.
 # A genuinely new distinct method may raise the budget, but doing so requires an
@@ -80,6 +81,34 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("## Authority, precedence, and anti-sprawl", agents)
         self.assertIn("### Documentation sprawl invariant", agents)
         self.assertIn("One concept, one owner document", agents)
+
+    def test_pilot_skill_is_open_format_and_named_for_direct_invocation(self):
+        skill = PILOT_SKILL.read_text(encoding="utf-8")
+        lower = skill.lower()
+
+        self.assertTrue(skill.startswith("---\nname: pilot\n"))
+        self.assertIn("description:", skill)
+        self.assertIn("/pilot the Pokemon project", skill)
+        self.assertIn("pilot, map, roadmap, drive, orchestrate", lower)
+
+    def test_pilot_skill_remains_a_thin_adapter_not_parallel_contract(self):
+        skill = normalized_text(PILOT_SKILL)
+        lower = skill.lower()
+
+        self.assertIn("thin invocation adapter", lower)
+        self.assertIn("does not define a second maps_l operating contract", lower)
+        self.assertIn("target project's own instructions", lower)
+        self.assertIn("playbook/index.md", lower)
+        self.assertIn("method-only", lower)
+        self.assertIn("orchestrated", lower)
+        self.assertIn("runtime-backed", lower)
+        self.assertIn("advance automatically while authorized parent work remains", lower)
+        self.assertIn("human only for a true boundary crossing", lower)
+
+        # The skill routes to canonical owners instead of copying AGENTS.md wholesale.
+        self.assertNotIn("## Hard operating invariants", PILOT_SKILL.read_text(encoding="utf-8"))
+        self.assertNotIn("## Scope-level authorization", PILOT_SKILL.read_text(encoding="utf-8"))
+        self.assertNotIn("## MAPS_L orchestration operator invariant", PILOT_SKILL.read_text(encoding="utf-8"))
 
     def test_wiki_home_is_agent_onboarding_not_parallel_authority(self):
         home = normalized_text(WIKI_SOURCE / "Home.md")
