@@ -74,18 +74,38 @@ class PolicyRoutingTests(unittest.TestCase):
         )
         self.assertEqual(result.route, "propose_helper")
 
-    def test_operator_policy_flag_routes_to_gate(self):
+    def test_explicit_reauthorization_boundary_routes_to_gate(self):
         core = WorkerProfile("core", "core", can_review=True)
-        gated = task(policy={**task()["policy"], "destructive_action": True})
+        gated = task(
+            policy={
+                **task()["policy"],
+                "requires_operator_approval": True,
+                "destructive_action": True,
+            }
+        )
         result = recommend_route([gated], [core])
         self.assertEqual(result.route, "policy_gate")
-        self.assertIn("destructive_action", result.reasons)
+        self.assertEqual(result.reasons, ("human_reauthorization_required",))
 
-    def test_recorded_approval_allows_route(self):
+    def test_consequential_flags_do_not_create_routine_human_gate(self):
+        core = WorkerProfile("core", "core")
+        for flag in (
+            "destructive_action",
+            "external_side_effect",
+            "security_sensitive",
+            "broad_architecture",
+        ):
+            with self.subTest(flag=flag):
+                flagged = task(policy={**task()["policy"], flag: True})
+                result = recommend_route([flagged], [core])
+                self.assertEqual(result.route, "claim_or_assign")
+
+    def test_recorded_reauthorization_allows_route(self):
         core = WorkerProfile("core", "core")
         gated = task(
             policy={
                 **task()["policy"],
+                "requires_operator_approval": True,
                 "destructive_action": True,
                 "approved_by": "operator",
                 "approved_at": "2026-08-14T20:00:00Z",
