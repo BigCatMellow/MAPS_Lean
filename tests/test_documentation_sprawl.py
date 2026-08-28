@@ -103,7 +103,8 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("orchestration operator keeps parent ownership", lower)
         self.assertIn("genuinely complete or a true authority boundary", lower)
         self.assertIn("not a request for permission to continue inside approved scope", lower)
-        self.assertIn("not the default response to ordinary uncertainty", lower)
+        self.assertIn("default response to ordinary uncertainty", lower)
+        self.assertIn("decide inside authority first", lower)
 
     def test_wiki_capability_page_requires_live_verification(self):
         capability = normalized_text(WIKI_SOURCE / "Capability-Status.md")
