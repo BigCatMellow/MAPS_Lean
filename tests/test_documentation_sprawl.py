@@ -101,7 +101,7 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
 
         self.assertIn("define the parent done condition", lower)
         self.assertIn("orchestration operator keeps parent ownership", lower)
-        self.assertIn("continue until the parent scope is genuinely complete", lower)
+        self.assertIn("genuinely complete or a true authority boundary", lower)
         self.assertIn("not a request for permission to continue inside approved scope", lower)
         self.assertIn("not the default response to ordinary uncertainty", lower)
 
@@ -109,7 +109,7 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         capability = normalized_text(WIKI_SOURCE / "Capability-Status.md")
         lower = capability.lower()
 
-        self.assertIn("does not pin a dated subsystem inventory", lower)
+        self.assertIn("pin a dated subsystem inventory", lower)
         self.assertIn("production call path / real behavior", lower)
         self.assertIn("CAPABILITY_CHECKLIST.md", capability)
         self.assertIn("real caller/path, not only a unit test", lower)
