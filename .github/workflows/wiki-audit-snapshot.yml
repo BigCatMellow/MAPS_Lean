@@ -1,4 +1,4 @@
-name: Wiki audit snapshot
+name: Wiki audit publish
 
 on:
   push:
@@ -8,23 +8,40 @@ on:
       - .github/workflows/wiki-audit-snapshot.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  snapshot:
+  publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone live wiki
-        run: git clone "https://github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+      - name: Check out audited source
+        uses: actions/checkout@v4
 
-      - name: Build audit snapshot
+      - name: Run documentation guards
+        run: python -m unittest tests.test_documentation_sprawl -v
+
+      - name: Clone live GitHub wiki
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          find wiki -maxdepth 1 -type f -name '*.md' -printf '%f\n' | sort > wiki/PAGE_INVENTORY.txt
-          tar --exclude='.git' -czf wiki-snapshot.tar.gz -C wiki .
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki-out
 
-      - name: Upload snapshot
-        uses: actions/upload-artifact@v4
-        with:
-          name: wiki-snapshot
-          path: wiki-snapshot.tar.gz
-          if-no-files-found: error
+      - name: Replace live wiki from audited source
+        run: |
+          find wiki-out -maxdepth 1 -type f -name '*.md' -delete
+          cp docs/wiki/*.md wiki-out/
+
+      - name: Publish audited wiki
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd wiki-out
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          if git diff --cached --quiet; then
+            echo "Wiki already matches audited source."
+            exit 0
+          fi
+          git commit -m "Rewrite wiki for fresh-agent MAPS_L onboarding"
+          git push origin HEAD
