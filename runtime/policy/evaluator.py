@@ -21,21 +21,27 @@ def _approved(task: Mapping[str, Any]) -> bool:
     return bool(policy.get("approved_by") and policy.get("approved_at"))
 
 
+def task_needs_human_reauthorization(
+    task: Mapping[str, Any],
+) -> tuple[bool, tuple[str, ...]]:
+    """Return whether this task explicitly crosses its inherited authority.
+
+    Consequential-policy flags describe risk/review needs; they do not by
+    themselves create another human approval gate. The task shaper sets
+    ``requires_operator_approval`` only when the resolved action is outside the
+    already-approved roadmap/task permission envelope.
+    """
+    policy = _policy(task)
+    if bool(policy.get("requires_operator_approval")):
+        return True, ("human_reauthorization_required",)
+    return False, ()
+
+
 def task_needs_operator_approval(
     task: Mapping[str, Any],
 ) -> tuple[bool, tuple[str, ...]]:
-    policy = _policy(task)
-    reasons: list[str] = []
-    for field, reason in (
-        ("requires_operator_approval", "operator_approval_required"),
-        ("destructive_action", "destructive_action"),
-        ("external_side_effect", "external_side_effect"),
-        ("security_sensitive", "security_sensitive"),
-        ("broad_architecture", "broad_architecture"),
-    ):
-        if bool(policy.get(field)):
-            reasons.append(reason)
-    return bool(reasons), tuple(reasons)
+    """Backward-compatible alias for the old policy API name."""
+    return task_needs_human_reauthorization(task)
 
 
 def evaluate_assignment(
@@ -44,23 +50,17 @@ def evaluate_assignment(
     *,
     environment_report: CompatibilityReport | None = None,
 ) -> PolicyDecision:
-    """Evaluate whether `worker` may be assigned `task`.
+    """Evaluate whether ``worker`` may be assigned ``task``.
 
-    `environment_report`, when supplied, is the environment-availability
-    dimension of the least-privilege intersection (worker capability x task
-    scope x policy/approval x environment availability). It is optional and
-    defaults to `None`, which preserves prior behavior exactly for callers
-    that do not yet source environment evidence.
+    ``environment_report``, when supplied, is the environment-availability
+    dimension of the least-privilege intersection. Approval is inherited from
+    the approved roadmap/task envelope; a fresh human gate exists only when the
+    task explicitly marks a boundary crossing.
     """
     reasons: list[str] = []
     if not worker.available:
         return PolicyDecision("reject", ("worker_unavailable",))
 
-    # Only a proven INCOMPATIBLE result blocks assignment; DRIFTED/UNKNOWN are
-    # merely not-proven-compatible and must not cause false-positive rejections.
-    # Imported locally (not at module scope) to avoid a policy<->environment<->
-    # state import cycle: runtime.environment's package __init__ transitively
-    # imports runtime.state, which imports runtime.policy's package.
     if environment_report is not None:
         from ..environment.fingerprint import CompatibilityState
 
@@ -88,9 +88,9 @@ def evaluate_assignment(
         if task_type in HIGH_AUTHORITY_TYPES:
             reasons.append("narrow_worker_authority_task")
 
-    needs_approval, approval_reasons = task_needs_operator_approval(task)
-    if needs_approval and not _approved(task):
-        return PolicyDecision("require_approval", approval_reasons)
+    needs_reauthorization, reauthorization_reasons = task_needs_human_reauthorization(task)
+    if needs_reauthorization and not _approved(task):
+        return PolicyDecision("require_approval", reauthorization_reasons)
     if reasons:
         return PolicyDecision("reject", tuple(reasons))
     return PolicyDecision("allow", ())
@@ -108,8 +108,6 @@ def evaluate_review(task: Mapping[str, Any], worker: WorkerProfile) -> PolicyDec
     if isinstance(disqualified, (list, tuple, set)) and worker.worker_id in disqualified:
         return PolicyDecision("reject", ("continuity_review_forbidden",))
 
-    # Fallback for task snapshots produced by older callers that do not yet
-    # include continuity-expanded review_disqualified_ids.
     submission = task.get("submission", {})
     author = submission.get("author_id") if isinstance(submission, Mapping) else None
     if author and worker.worker_id == author:
