@@ -250,7 +250,7 @@ class WaitProjectionTests(unittest.TestCase):
         self.assertEqual(codes(report), ["WAIT_OPERATOR_APPROVAL"])
         self.assertEqual(
             report["reasons"][0]["details"]["approval_triggers"],
-            ["operator_approval_required"],
+            ["human_reauthorization_required"],
         )
 
     def test_recorded_operator_approval_removes_wait(self):
