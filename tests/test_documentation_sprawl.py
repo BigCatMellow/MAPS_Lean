@@ -10,7 +10,7 @@ FIRST_RUN = ROOT / "docs" / "FIRST_RUN.md"
 README = ROOT / "README.md"
 WIKI_SOURCE = ROOT / "docs" / "wiki"
 WIKI_SYNC = ROOT / ".github" / "workflows" / "sync-wiki.yml"
-PILOT_SKILL = ROOT / "skills" / "pilot" / "SKILL.md"
+PILOT_SKILL = ROOT / ".claude" / "skills" / "pilot" / "SKILL.md"
 
 # This is a conscious-friction guard, not a claim that 23 is a magic number.
 # A genuinely new distinct method may raise the budget, but doing so requires an
@@ -88,8 +88,11 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
 
         self.assertTrue(skill.startswith("---\nname: pilot\n"))
         self.assertIn("description:", skill)
+        self.assertIn("explicitly invokes Pilot/MAPS_L", skill)
         self.assertIn("/pilot the Pokemon project", skill)
-        self.assertIn("pilot, map, roadmap, drive, orchestrate", lower)
+        self.assertIn("$ARGUMENTS", skill)
+        self.assertIn("~/.claude/skills/pilot/", skill)
+        self.assertFalse((ROOT / "skills" / "pilot" / "SKILL.md").exists())
 
     def test_pilot_skill_remains_a_thin_adapter_not_parallel_contract(self):
         skill = normalized_text(PILOT_SKILL)
