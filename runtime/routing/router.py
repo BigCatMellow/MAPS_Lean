@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Iterable, Mapping
 from runtime.policy.evaluator import (
     evaluate_assignment,
     evaluate_review,
-    task_needs_operator_approval,
+    task_needs_human_reauthorization,
 )
 from runtime.policy.halt import HaltRecord, halt_block_reason
 from runtime.policy.models import WorkerProfile
@@ -41,10 +41,10 @@ def recommend_route(
 ) -> RouteRecommendation:
     """Return a deterministic recommendation from supplied task evidence.
 
-    `environment_reports` is an optional, caller-owned mapping keyed by task
-    ID. The router does not inspect an environment, select an EnvironmentSpec,
-    or infer report freshness. A missing mapping or task ID preserves prior
-    routing behavior.
+    Consequential task flags affect risk/review policy but do not create a
+    routine human gate. ``requires_operator_approval`` now means the task has
+    explicitly crossed its inherited permission envelope and needs human
+    reauthorization.
     """
     task_list = sorted(
         (dict(task) for task in tasks), key=lambda item: str(item.get("task_id", ""))
@@ -103,15 +103,15 @@ def recommend_route(
             )
             continue
 
-        needs_approval, approval_reasons = task_needs_operator_approval(task)
+        needs_reauthorization, reauthorization_reasons = task_needs_human_reauthorization(task)
         policy = task.get("policy", {})
-        approved = isinstance(policy, Mapping) and bool(
+        reauthorized = isinstance(policy, Mapping) and bool(
             policy.get("approved_by") and policy.get("approved_at")
         )
-        if needs_approval and not approved:
+        if needs_reauthorization and not reauthorized:
             blocked_fallbacks.append(
                 RouteRecommendation(
-                    "policy_gate", task_id, reasons=approval_reasons
+                    "policy_gate", task_id, reasons=reauthorization_reasons
                 )
             )
             continue
@@ -133,7 +133,7 @@ def recommend_route(
                 continue
 
         allowed: list[WorkerProfile] = []
-        approval_required: set[str] = set()
+        reauthorization_required: set[str] = set()
         for worker in worker_list:
             decision = evaluate_assignment(
                 task, worker, environment_report=environment_report
@@ -141,7 +141,7 @@ def recommend_route(
             if decision.allowed:
                 allowed.append(worker)
             elif decision.requires_approval:
-                approval_required.update(decision.reasons)
+                reauthorization_required.update(decision.reasons)
 
         if allowed:
             selected = allowed[0]
@@ -151,12 +151,12 @@ def recommend_route(
                 else "claim_or_assign"
             )
             return RouteRecommendation(route, task_id, selected.worker_id)
-        if approval_required:
+        if reauthorization_required:
             blocked_fallbacks.append(
                 RouteRecommendation(
                     "policy_gate",
                     task_id,
-                    reasons=tuple(sorted(approval_required)),
+                    reasons=tuple(sorted(reauthorization_required)),
                 )
             )
             continue
