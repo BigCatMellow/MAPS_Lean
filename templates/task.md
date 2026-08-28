@@ -1,11 +1,13 @@
 # Task: <short name>
 
 - Status: `NEEDS_SHAPING | READY | ACTIVE | READY_FOR_REVIEW | CHANGES_REQUESTED | DONE | BLOCKED`
-- AGI status: `UNCHECKED | AGI READY | AGI FAIL — NEEDS_SHAPING | AGI FAIL — NEEDS_RESEARCH | AGI FAIL — NEEDS_OPERATOR_DECISION | AGI FAIL — BLOCKED_ON_DEPENDENCY`
+- AGI status: `UNCHECKED | AGI READY | AGI FAIL — NEEDS_SHAPING | AGI FAIL — NEEDS_RESEARCH | AGI FAIL — NEEDS_AUTHORITY_DECISION | AGI FAIL — BLOCKED_ON_DEPENDENCY`
 - Type: `IMPLEMENTATION | REVIEW | ARCHITECTURE | PLANNING | RESEARCH | MAINTENANCE | REPAIR`
 - Owner: <agent or person>
 - Risk: `LOW | MEDIUM | HIGH`
 - Goal: <observable outcome>
+- Parent roadmap: <path + authorization revision, or `none`>
+- Autonomous continuation: `YES | NO`
 
 ## Inputs and source of truth
 
@@ -18,13 +20,19 @@
 
 - MAY CHANGE: <every path/action this task may edit/create/perform>
 - MUST NOT CHANGE: <paths, behavior, scope, or decisions outside this task>
-- MAY CHANGE IF NECESSARY: <none or items that require task amendment first>
-- OPERATOR APPROVAL REQUIRED: <none or named consequential choices>
+- MAY CHANGE IF NECESSARY: <in-scope additions allowed after task amendment>
+- HUMAN REAUTHORIZATION REQUIRED: <only actions that would cross inherited roadmap authority, or `none`>
 
 ## Decision authority
 
-- Owner may decide: <bounded implementation choices>
-- Owner must escalate: <scope, product intent, security, privacy, cost, external behavior, destructive/irreversible choices, or named project-specific decisions>
+- Inherited roadmap authority: <permission envelope this task inherits>
+- Owner may decide: <bounded implementation/task-shaping choices inside that envelope>
+- Resolve internally first: <evidence/research/helper/tenth-seat questions that do not need human input>
+- Human escalation only if: <true permission-envelope crossing or human-only authority/preference>
+
+A child task does not require separate human approval merely because it is the
+next roadmap item. If its work is inside the approved roadmap envelope, the
+orchestration operator may shape, assign, execute, review, and close it.
 
 ## Acceptance criteria
 
@@ -50,13 +58,33 @@ Include only what materially applies; use `N/A` explicitly when useful.
 - Effort limit: <time/cost/attempt threshold or N/A>
 - Approved reference: <mockup/spec/schema/behavior reference or N/A>
 
+## Question-resolution ladder
+
+For material uncertainty:
+
+```text
+authoritative evidence
+→ safe inspection
+→ focused helper/research
+→ independent challenge when consequential
+→ orchestration operator decides inside inherited authority
+→ human only if the decision would cross that authority
+```
+
+A status update, review result, or completed child task is not a request for
+permission to continue.
+
 ## Stop / escalate
 
-Stop rather than guess if:
+Stop only the affected branch rather than guessing if a material authority,
+safety, verification, or dependency boundary is reached.
 
-- <important unknown, changed dependency, new output path, failed assumption, authority boundary, safety issue, or verification conflict>
-
-Escalate to: <owner/operator/research task as appropriate>
+- If the issue is inside inherited roadmap authority: research, consult helpers,
+  amend/re-shape the task, re-run AGI, and continue.
+- If it would leave inherited authority: record the exact proposed boundary
+  crossing and seek human reauthorization.
+- Continue independent in-scope work when safe rather than idling the whole
+  roadmap.
 
 ## AGI readiness
 
@@ -84,4 +112,5 @@ mandatory AGI requirement passes.
 - Completed: <what is verified true now>
 - Not completed: <remaining work or `none`>
 - Current blocker: <none or exact blocker>
-- Next action if not DONE: <single concrete action>
+- Next eligible roadmap task: <task ID/path or `roadmap complete`>
+- Human action required: <none or exact boundary decision>
