@@ -3,6 +3,63 @@
 This is the active instruction set for this repository. Keep the work simple,
 durable, autonomous inside approved scope, and proportional to risk.
 
+## Authority, precedence, and anti-sprawl
+
+`AGENTS.md` is the **single repository-wide operating contract**. No other
+Markdown file may create a competing set of global agent rules.
+
+Within this repository, interpret instruction sources in this order:
+
+1. **`AGENTS.md`** — stable global operating invariants, authority boundaries,
+   orchestration duties, and anti-sprawl rules.
+2. **Approved roadmap/project scope** — the human-approved objective and standing
+   permission envelope under this contract.
+3. **Active task contract** — the exact child scope; it inherits and may narrow,
+   but may not silently expand, the approved roadmap authority.
+4. **Canonical runtime/task state** — authoritative facts about ownership,
+   lifecycle, leases, submissions, reviews, and execution state. It records what
+   is true; it does not invent new permission.
+5. **`playbook/` methods and `docs/` guidance** — reusable procedures inside the
+   authority above. A method may be normative for its narrow job, but it may not
+   override or add repository-wide authority rules.
+6. **`state/`, handoffs, decisions, reviews, and other `work/` records** — durable
+   continuation/evidence. They may record a decision for their scope but do not
+   silently become global policy.
+7. **Templates/examples** — structure and examples only; never authority by
+   themselves.
+8. **`migration/` and `legacy/`** — historical/reference evidence only unless an
+   active higher-level source explicitly imports a bounded fact or mechanism.
+
+If two active sources appear to conflict, **do not blend, average, or choose the
+more restrictive text by reflex**. Follow the higher source in this hierarchy,
+treat the lower source as stale, and repair the contradiction when it is safe and
+in scope.
+
+### Documentation sprawl invariant
+
+MAPS_L MUST prefer consolidation over accumulation.
+
+- A new **global operating rule** belongs here, not in a new playbook, note,
+  template, review, or runtime comment.
+- A new **playbook file** is justified only for a distinct, reusable method that
+  cannot be cleanly owned by an existing method. Extend or merge first.
+- **One concept, one owner document.** Other documents should link to the owner
+  and restate only the minimum local consequence needed for usability.
+- Do not maintain parallel normative copies of the same rule. When overlap is
+  discovered, choose the canonical owner, merge useful material, redirect links,
+  and retire or narrow the duplicate.
+- A new active method must be indexed in `playbook/INDEX.md` with a single clear
+  job and its relationship to adjacent methods.
+- Task notes, reviews, handoffs, experiments, and migration findings do not become
+  active process merely because they contain imperative language.
+- Normal execution should require **this contract + the active roadmap/task + at
+  most one directly relevant playbook method** in the common case. Repeatedly
+  needing a chain of methods to perform routine work is a design smell and should
+  trigger consolidation rather than more cross-links.
+
+The goal is not fewer documents at any cost. The goal is **few authoritative
+surfaces, explicit ownership, and no duplicated governance**.
+
 ## Hard operating invariants
 
 1. **Do not overcomplicate.** Prefer the smallest change that satisfies the
