@@ -5,13 +5,16 @@ Guidelines, ProjectUpdater documentation, emergence materials, and proven
 artifacts were inventoried on 2026-08-13. This catalog makes the selection
 traceable rather than claiming the active playbook is the whole source tree.
 
+This is migration provenance, not an operating contract. Active method ownership
+is defined by [the playbook index](INDEX.md), under [`AGENTS.md`](../AGENTS.md).
+
 ## Promoted as active, condensed practice
 
 | Original source | Active destination | Portable value |
 | --- | --- | --- |
-| `shared/hpom.md`, `AGENT_PERMISSION_LEVELS.md` | `HPOM_ROUTING.md`, `DECISIONS_AND_SAFETY.md` | Model/cost routing separated from authority. |
+| `shared/hpom.md`, `AGENT_PERMISSION_LEVELS.md` | `MODEL_CAPABILITY_ROUTING.md`, `DECISIONS_AND_SAFETY.md` | Capability/cost routing separated from authority; the former standalone HPOM method is consolidated into Model Capability Routing. |
 | `PROJECT_BOOTSTRAPPING_SYSTEM.md`, `NEW_PROJECT_WIZARD.md`, `notes/brain-organization-guide.md` | `PROJECT_BOOTSTRAP.md` | Build intent, standards, assumptions, risks, decision paths, and discovery capacity before tasks. |
-| `notes/task-authoring-guide.md`, `notes/architect-agent-guide.md`, `notes/state-machine-guardrails.md` | `TASK_LIFECYCLE.md`, `templates/task.md` | Shape task records, write ownership boundaries, READY gate, testable completion. |
+| `notes/task-authoring-guide.md`, `notes/architect-agent-guide.md`, `notes/state-machine-guardrails.md` | `AGI_STANDARD.md`, `TASK_LIFECYCLE.md`, `templates/task.md` | Shape task records, write ownership boundaries, READY gate, testable completion; AGI guidance is consolidated into one readiness standard. |
 | `notes/helper-agent-guide.md`, `notes/communication-guide.md`, `notes/communication-architecture.md`, `notes/role-contracts.md` | `HELPERS_AND_COMMUNICATION.md` | Bounded helpers, accountable ownership, direct-but-recorded communication. |
 | `notes/review-guide.md`, `templates/review*.md`, `notes/release-path-checklist.md` | `docs/CHECKS_AND_BALANCES.md`, `TASK_LIFECYCLE.md`, `templates/review.md` | Independent, risk-tiered evidence; visual and release-path checks. |
 | `RESEARCH_SYSTEM.md`, `templates/research/*` | `RESEARCH.md` | Evidence-led claims, source quality, assumptions, time sensitivity. |
