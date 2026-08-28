@@ -9,27 +9,51 @@ AGENTS = ROOT / "AGENTS.md"
 FIRST_RUN = ROOT / "docs" / "FIRST_RUN.md"
 README = ROOT / "README.md"
 
+# This is a conscious-friction guard, not a claim that 23 is a magic number.
+# A genuinely new distinct method may raise the budget, but doing so requires an
+# explicit code-review-visible change instead of allowing quiet file growth.
+PLAYBOOK_SURFACE_BUDGET = 23
+
 
 def normalized_text(path: Path) -> str:
     return " ".join(path.read_text(encoding="utf-8").split())
 
 
+def active_playbook_files() -> list[Path]:
+    return [
+        path
+        for path in sorted(PLAYBOOK.glob("*.md"))
+        if path.name != "INDEX.md"
+    ]
+
+
 class DocumentationSprawlGuardTests(unittest.TestCase):
     def test_every_playbook_markdown_file_is_indexed(self):
-        """A new active playbook method must become visible in the one index."""
+        """A new active playbook surface must become visible in the one index."""
 
         index = INDEX.read_text(encoding="utf-8")
-        missing = []
-        for path in sorted(PLAYBOOK.glob("*.md")):
-            if path.name == "INDEX.md":
-                continue
-            if path.name not in index:
-                missing.append(path.name)
+        missing = [
+            path.name
+            for path in active_playbook_files()
+            if path.name not in index
+        ]
         self.assertEqual(
             missing,
             [],
             "Unindexed playbook files create silent process sprawl. "
-            f"Index, merge, narrow, or retire: {missing}",
+            f"Index, merge, narrow, move to the correct non-playbook area, or retire: {missing}",
+        )
+
+    def test_playbook_surface_does_not_grow_silently(self):
+        files = active_playbook_files()
+        self.assertLessEqual(
+            len(files),
+            PLAYBOOK_SURFACE_BUDGET,
+            "Active playbook surface exceeded its explicit budget. Prefer merging "
+            "with the existing concept owner or moving non-method material to its "
+            "proper area. If a genuinely distinct reusable method is necessary, "
+            "raise PLAYBOOK_SURFACE_BUDGET deliberately in the same reviewed change. "
+            f"Current files ({len(files)}): {[path.name for path in files]}",
         )
 
     def test_entrypoints_name_one_repository_wide_contract(self):
