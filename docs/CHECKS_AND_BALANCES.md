@@ -1,109 +1,118 @@
 # Checks and Balances
 
-The point is trustworthy work, not a larger process.
+The point is trustworthy autonomous work, not a larger approval process.
 
 | Risk | Typical examples | Minimum check |
 | --- | --- | --- |
-| Low | Documentation, formatting, isolated mechanical move | Owner checks the result. |
-| Medium | Multi-file refactor, UI behavior, meaningful configuration | Relevant tests or reproduction plus independent review. |
-| High | Security, data loss, persistence, payments, release packaging, external side effects | Explicit task, reproduced evidence, independent review, and operator-visible completion/release summary. |
+| Low | Documentation, formatting, isolated mechanical move | Owner checks result. |
+| Medium | Multi-file refactor, UI behavior, meaningful configuration | Relevant tests/reproduction plus independent review. |
+| High | Security, data loss, persistence, payments, release packaging, external side effects | Explicit task, reproduced evidence, independent review, operator-visible completion/release summary. |
 
 ## Non-negotiable controls
 
-1. Name one owner for each active task.
-2. State observable acceptance criteria before consequential implementation.
-3. Do not self-approve substantive work.
-4. Preserve evidence sufficient for another person to verify the claim.
-5. Escalate scope, privacy, security, destructive, and irreversible decisions.
+1. One accountable owner per active task.
+2. Observable acceptance criteria before consequential implementation.
+3. No self-approval where independent review is required.
+4. Preserve enough evidence for another reviewer to verify the claim.
+5. Stay inside the approved roadmap/task permission envelope.
+6. Escalate to the human only for a true permission-envelope crossing; do not
+   turn review/checkpoints into routine human approval gates.
 
 ## Review
 
-An independent reviewer reads the task first, then the changed paths and
-evidence. Their verdict is one of:
+An independent reviewer reads the task, changed paths, and evidence. Verdict:
 
-- `APPROVED` — acceptance criteria are met.
-- `CHANGES_REQUESTED` — a concrete required issue remains.
-- `BLOCKED` — required context or evidence is missing.
+- `APPROVED` — acceptance criteria met.
+- `CHANGES_REQUESTED` — concrete required issue remains.
+- `BLOCKED` — required context/evidence missing.
 
-Only concrete safety, correctness, or acceptance-criteria failures block
-approval. Use [the review template](../templates/review.md) for medium and high
+The verdict routes back to the orchestration operator. It does not pause for the
+human merely because review finished.
+
+- `APPROVED` → reconcile, close task when complete, continue roadmap.
+- `CHANGES_REQUESTED` → route correction, re-review as required.
+- `BLOCKED` → research/recover/reassign; human only if resolving the blocker
+  would cross approved authority.
+
+Only concrete safety, correctness, authority, or acceptance-criteria failures
+block approval. Use [the review template](../templates/review.md) for medium/high
 risk work.
 
 ### Applicable review lenses
 
-Use only the lenses the task actually triggers. One independent reviewer may
-cover multiple lenses; do not add reviewers merely to satisfy a checklist.
+Use only lenses the task triggers. One independent reviewer may cover several.
 
-- **Functional / acceptance** — does the requested behavior work and do the
-  stated criteria pass?
-- **Security / trust boundary** — can inputs, identities, permissions, secrets,
-  or privileged actions cross a boundary they should not?
-- **Privacy** — is sensitive or personal data collected, exposed, persisted, or
-  transmitted beyond the declared need?
-- **Destructive / data-loss** — can the change delete, overwrite, corrupt, or
-  irreversibly mutate state?
-- **Release / acquisition path** — does the actual package, generated artifact,
-  install/download path, or deployment behave like the reviewed source?
-- **Authority** — does the implementation execute only actions that the task,
-  policy, and operator actually authorized?
+- **Functional / acceptance** — requested behavior and criteria.
+- **Security / trust boundary** — inputs, identities, permissions, secrets,
+  privileged actions.
+- **Privacy** — sensitive/personal data collection, exposure, persistence,
+  transmission.
+- **Destructive / data-loss** — deletion, overwrite, corruption, irreversible
+  mutation.
+- **Release / acquisition** — real package/artifact/install/deploy path.
+- **Authority** — executed actions remain inside inherited permission envelope.
 
-For security and authority properties, prefer tests of executed behavior over
-tests that merely match exact source text. For consequential evidence, verify
-the state/revision actually being approved rather than assuming an older
-submission snapshot is still current.
+Prefer tests of executed behavior over source-text matching. Verify the exact
+state/revision being approved.
+
+## Preauthorization and high-risk actions
+
+High risk does not automatically mean repeated human approval.
+
+If the approved roadmap explicitly preauthorizes a destructive, external,
+security/privacy-sensitive, or other consequential action with a bounded target
+or class, limits/impact, and required recovery/verification, the orchestration
+operator may execute it after its required checks without asking again.
+
+If the action is not covered by the approved envelope, the human must authorize
+that resolved action before execution.
+
+A review can reject an unsafe implementation even when the action itself is
+preauthorized. Preauthorization removes redundant permission prompts; it does
+not remove verification, review, least privilege, or acceptance criteria.
 
 ## Enforced `main` merge gate
 
-`main` is protected by a GitHub branch protection rule (configurable via
-`repos/BigCatMellow/MAPS_Lean/branches/main/protection`), not by agent
-discipline alone (issue #61):
+`main` is protected by GitHub branch protection (issue #61):
 
-- pull requests only — direct pushes to `main` are rejected;
-- two required status checks must pass on an up-to-date head before merge:
-  - `test` — the Runtime stack CI job;
-  - `review-evidence` — `scripts/check_review_evidence.py`, which requires a
-    committed `work/reviews/pr-<N>-review-evidence.md` bound to the PR's
-    exact reviewed code head (see the script's module docstring for how it
-    walks past evidence-only trailing commits to find that head);
-- force-push and branch deletion are disabled on `main`.
+- pull requests only; direct pushes rejected;
+- required up-to-date checks:
+  - `test` — Runtime stack CI;
+  - `review-evidence` — `scripts/check_review_evidence.py`, requiring committed
+    `work/reviews/pr-<N>-review-evidence.md` bound to the reviewed code head;
+- force-push and branch deletion disabled.
 
-**What this does not solve.** The connected GitHub identity used by MAPS
-agents is also the repository/PR author identity, so GitHub cannot enforce a
-native "required approving review" from a genuinely distinct identity, and
-`required_approving_review_count` is deliberately left at `0` rather than
-faked. The `review-evidence` check mechanically guarantees a review-shaped
-artifact exists and is bound to the exact reviewed commit — it does **not**
-prove the reviewer was a distinct identity from the author. Reviewer
-distinctness is still a process discipline (dispatch a fresh agent for
-review; never self-certify), not a mechanically enforced property.
+The connected GitHub identity may also be the repository/PR author identity, so
+GitHub cannot prove reviewer independence through identity alone.
+`review-evidence` proves the review artifact is bound to the reviewed commit; it
+does not prove a distinct reviewer. Dispatch a fresh independent reviewer and
+do not self-certify.
 
-**Emergency bypass.** `enforce_admins` is `false`: the repository owner can
-merge around the required checks as a genuine recovery action (e.g. CI
-infrastructure outage blocking all merges). This is not the normal path —
-routine PRs merge through the standard gate above — and any admin-bypass
-merge should be called out explicitly in the merge/handoff record so it
-isn't mistaken for a reviewed, gate-passing change.
+`enforce_admins=false` permits owner emergency bypass for genuine recovery such
+as CI infrastructure failure. Routine work uses the standard gate. Record any
+bypass so it is not mistaken for a normal reviewed merge.
+
+Passing automated/independent review gates is authorization to continue the
+already approved roadmap; it is not a reason to ask the human whether to merge
+or start the next task unless the roadmap explicitly names a human checkpoint.
 
 ## High-risk completion summary
 
-`OPERATOR_VISIBLE_RELEASE_CHECK` does **not** create another task status or a
-second release subsystem.
+`OPERATOR_VISIBLE_RELEASE_CHECK` is visibility, not another state or approval
+subsystem.
 
-For high-risk work, the final approved review/completion summary is the durable
-operator-facing release summary. It should state, compactly:
+The compact summary states:
 
-- what changed / what became true;
-- the verification actually reproduced;
+- what changed / became true;
+- verification reproduced;
 - material residual risk or `none`;
-- any external/destructive action still requiring operator approval; and
-- the exact artifact/PR/revision being released when that distinction matters.
+- any action still outside the approved permission envelope; and
+- exact artifact/PR/revision when relevant.
 
-The task may become `DONE` after its required independent review and evidence
-are complete. This summary is visibility, not a substitute for explicit
-operator approval of a destructive, external, security-sensitive, or otherwise
-operator-gated action.
+The task may become `DONE` after required review/evidence. The orchestration
+operator then continues the approved roadmap automatically.
 
-Do not recreate a separate `APPROVED → RELEASED` lifecycle merely to duplicate
-already-canonical task/review evidence. If a specific product needs a real
-deploy/release operation, model that operation as its own task or explicit
-policy-gated action with its own verification.
+Do not recreate an `APPROVED → RELEASED` lifecycle merely to duplicate canonical
+task/review evidence. A substantive deploy/release may be its own task, but if
+that task is already inside the approved roadmap it does not require another
+human permission step.
