@@ -1,92 +1,55 @@
-# Task Lifecycle: Shape, Own, Verify, Close
+# Task Lifecycle: Shape, Own, Verify, Continue
 
-Every consequential task should be executable by a future agent with no access
-to the original chat.
+Every consequential task should be executable by a future agent without the
+original chat. Every approved roadmap should be executable without routine
+human nudges between its child tasks.
 
 ## Shape before claiming
 
-Use a shaper (the owner or a separate planning agent) when intent is vague,
-output paths are unknown, criteria are missing, dependencies are unclear, or a
-task exists only in chat. Do not start implementation merely to discover what
-the task should have said.
+Shape work when intent, output paths, criteria, dependencies, authority, or
+proof are materially unclear. Use
+[Operator Request Compilation](REQUEST_COMPILATION.md) for concise live requests.
 
-When the starting point is concise conversational operator intent such as
-"continue", "fix the next blocker", or "get these PRs under control", use
-[Operator Request Compilation](REQUEST_COMPILATION.md) to resolve live referents
-and turn the request into the existing task/AGI contract without inventing new
-authority.
+A task record states:
 
-The task record must state:
-
-- an action-oriented title and concise observable outcome;
-- type: implementation, review, architecture, planning, research, maintenance,
-  or repair;
+- observable outcome;
 - one accountable owner and risk tier;
-- relevant inputs and authoritative sources;
-- dependencies and preconditions;
-- every allowed output path and explicit non-goals/boundaries;
-- the owner's bounded decision authority and escalation boundary;
-- observable, pass/fail acceptance criteria;
-- verification and evidence expected;
-- review required for that risk tier; and
-- stop/escalation conditions for material unknowns or changed assumptions.
+- authoritative inputs/evidence;
+- dependencies/preconditions;
+- allowed outputs and non-goals;
+- inherited roadmap permission envelope;
+- bounded decision authority and true human reauthorization boundary;
+- pass/fail acceptance criteria;
+- verification/evidence;
+- required review; and
+- failure/recovery/escalation conditions.
 
-If these cannot be written without guessing, record the missing decision and
-shape, research, or escalate before execution. Split work when ownership or
-output paths overlap.
-
-For the formal readiness requirements, use
-[AGI_STANDARD.md](AGI_STANDARD.md). Use
-[the AGI check template](../templates/agi-check.md) when a durable validation
-record is useful.
+If information is missing, resolve it through evidence, research, helpers, or
+orchestration judgment when inside approved authority. Human escalation is for
+permission-envelope crossings, not ordinary shaping.
 
 ## AGI gate
 
-A consequential task may enter `READY` only when it is `AGI READY` under the
-MAPS Agent-Grade Instructions standard.
+A consequential task may enter `READY` only when `AGI READY` under
+[AGI_STANDARD.md](AGI_STANDARD.md).
 
-`READY` therefore means:
+`READY` means a suitable fresh worker can execute without consequential guessing
+and can prove success. Missing information may route to shaping/research/internal
+authority resolution; it does not automatically route to the human.
 
-- the execution contract is sufficiently specified;
-- a suitable fresh agent can act without the original chat;
-- consequential intent, scope, permission, and success do not require guessing;
-- verification and review are defined; and
-- applicable failure/continuation behavior is defined.
-
-AGI readiness is pass/fail, not a percentage score. One missing material
-requirement keeps the task in `NEEDS_SHAPING`, `BLOCKED`, or the appropriate
-research/operator-decision state.
-
-Worker suitability is a separate gate. After AGI passes, use
+Worker suitability is separate. After AGI passes, use
 [HPOM routing](HPOM_ROUTING.md) and
-[model capability routing](MODEL_CAPABILITY_ROUTING.md) to select a worker that
-can reliably execute the contract.
+[model capability routing](MODEL_CAPABILITY_ROUTING.md).
 
 ## Ownership rules
 
-Output paths are a write boundary, not a retrospective report. Register every
-file that will be edited—including a small backlink or one-line configuration
-change—before touching it. If new files become necessary, amend the task or
-handoff the addition before editing.
+Output paths are prospective write boundaries. Register them before editing.
+Inside an approved roadmap, if a new in-scope file/path becomes necessary, the
+orchestration operator may amend the task, re-check readiness, and continue
+without human approval.
 
-Only one active owner edits a given output path. Parallel agents may research,
-review, or prepare non-overlapping artifacts; name one integration owner.
-
-## Execution integrity for consequential runs
-
-Use [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) when drift, recovery,
-reviewer independence, or exact context/scope matters.
-
-- Select context deliberately: required, optional-with-trigger, and excluded
-  material when the distinction is material. Use the
-  [context-packet template](../templates/context-packet.md) only when this is
-  clearer than keeping the fields in the task.
-- For long, high-risk, resumable, or heavily parallel work, freeze a run
-  binding when task/context/repository drift would otherwise be hard to
-  diagnose. A run binding freezes the approved contract; it does not grant
-  new authority.
-- State-changing APIs should return explicit failure reasons rather than one
-  ambiguous Boolean when the caller needs different recovery behavior.
+Only one active owner edits a given output path. Parallel helpers may research,
+review, or prepare non-overlapping work; name one integration owner.
 
 ## State model
 
@@ -100,81 +63,98 @@ NEEDS_SHAPING --AGI PASS--> READY --> ACTIVE --> READY_FOR_REVIEW --> DONE
                                 CHANGES_REQUESTED <--------
 ```
 
-`READY` means `AGI READY`, not merely desirable or assigned.
+`DONE` means acceptance criteria, required verification, and proportional review
+are complete.
 
-`ACTIVE` means a suitable worker has legitimately claimed/received the task and
-may act within its contract.
+## Autonomous roadmap continuation
 
-`READY_FOR_REVIEW` means implementation work is complete enough for the
-specified review and required evidence is available.
+`DONE` is a child-task terminal state, not a default pause for the human.
 
-`DONE` means the acceptance criteria, required verification, and proportional
-review are complete. Do not report a task done because time ended or the first
-implementation attempt looks plausible.
+After a task becomes `DONE`, the orchestration operator MUST:
 
-### High-risk release visibility
+1. reconcile its result into parent state;
+2. identify newly unblocked/eligible roadmap work;
+3. select the next useful item;
+4. shape/check it to `AGI READY`;
+5. dispatch/execute it; and
+6. continue until the parent roadmap is genuinely complete or a true authority
+   boundary blocks further progress.
 
-MAPS Lean does not add a universal `RELEASED` state after `DONE`.
+Do not ask `continue?`, `approve next task?`, or equivalent when the next task is
+already inside an approved roadmap.
 
-When `review_required` is `OPERATOR_VISIBLE_RELEASE_CHECK`, the final approved
-review/completion record must include the compact operator-visible release
-summary defined in [Checks and Balances](../docs/CHECKS_AND_BALANCES.md): what
-became true, verification reproduced, residual risk, any still-pending
-operator-gated action, and the exact artifact/revision when relevant.
+A normal status report, review verdict, checkpoint, commit, or PR is visibility,
+not a permission gate.
 
-That summary is visibility, not permission. A destructive, external,
-security-sensitive, or otherwise operator-gated action still requires explicit
-operator approval. If deployment/release itself is substantive work, model it
-as its own task or policy-gated action instead of adding a second universal
-lifecycle.
+## High-risk release visibility
 
-## Conflicts
+`OPERATOR_VISIBLE_RELEASE_CHECK` adds visibility, not routine human approval.
+The completion summary states what became true, reproduced verification,
+residual risk, exact artifact/revision, and any genuinely non-preauthorized
+boundary action still pending.
 
-When current authoritative sources materially disagree about scope, ownership,
-lifecycle state, an approved decision, or a load-bearing fact:
+If a destructive/external/security-sensitive action was explicitly
+preauthorized in the approved permission envelope, required review/checks may
+complete and execution may continue without asking again. If it was not
+preauthorized, obtain human reauthorization before that action.
 
-1. stop only the affected work;
-2. record the conflicting claims/sources and affected scope;
-3. identify the authority or evidence that can resolve the conflict; and
-4. resume only after the conflict is explicitly resolved.
+## Conflicts and questions
 
-Do not silently choose whichever source appears more plausible. A conflict
-record reports the problem; it does not grant authority to resolve it.
+When authoritative sources materially disagree:
+
+1. stop only affected work;
+2. record the conflicting claims/sources;
+3. inspect evidence/research;
+4. use a focused helper and, when consequential, an independent challenger;
+5. let the orchestration operator resolve the conflict when resolution remains
+   inside approved authority; or
+6. escalate to the human only when resolution would require changing that
+   authority/objective or a human-only preference.
+
+Do not silently choose a convenient source. Do not freeze unrelated work when it
+can safely proceed.
 
 ## Review independence and evidence
 
-When independent review is required, a different session name is not enough.
-The reviewer must not be the submission author or a direct continuation of the
-author for the reviewed work, such as a rotation successor that inherited the
-same in-flight claims/context.
+When independent review is required, the reviewer must be meaningfully
+independent of the implementer. Review routes one of:
 
-For higher-risk work, keep the implementer's criterion/evidence claim separate
-from the reviewer's verdict. Review may confirm or reject the claim; it should
-not rewrite the original claim as if the reviewer made it.
+- `APPROVED` → orchestration operator reconciles and continues;
+- `CHANGES_REQUESTED` → orchestration operator routes corrections;
+- `BLOCKED` → orchestration operator resolves evidence/dependency or escalates a
+  true boundary blocker.
 
-Functional review and security review answer different questions. Work that
-creates or changes network-facing/write-capable surfaces, permissions, secret
-handling, or other trust boundaries should receive a security-focused check
-proportional to the risk.
+Review is not a routine human approval step.
+
+Functional, security, privacy, destructive/data-loss, release-path, and
+authority review lenses are applied only when triggered by the task.
 
 ## When the contract changes during execution
 
 If execution discovers a material new requirement, output path, dependency,
 authority question, safety issue, or failed assumption:
 
-1. stop the affected work before crossing the existing boundary;
-2. record the new fact as `VERIFIED`, `REPORTED`, `ASSUMED`, or `UNKNOWN` as
-   appropriate;
-3. amend/re-shape the task or create the required research/decision record;
-4. re-run the applicable AGI readiness check; and
-5. resume only when the task is again ready.
+1. stop the affected branch before crossing its current boundary;
+2. label the new fact `VERIFIED`, `REPORTED`, `ASSUMED`, or `UNKNOWN`;
+3. determine whether the change fits the parent roadmap permission envelope;
+4. if **inside**, amend/re-shape the task, run helper/research/challenge as useful,
+   re-run AGI, and continue;
+5. if **outside**, record the exact boundary crossing and seek human
+   reauthorization; and
+6. continue independent authorized work when safe.
 
-Do not preserve `READY` by silently widening the contract after work starts.
+Do not preserve `READY` by silently widening a task. Do not require human
+approval merely to amend a child task inside already approved scope.
+
+## Execution integrity
+
+Use [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) when drift, recovery,
+reviewer independence, or exact run binding matters. Run binding freezes the
+current contract; it does not revoke inherited roadmap authority or create a
+human gate.
 
 ## Special acceptance checks
 
-- For visual work, freeze the approved reference, compare a screenshot of the
-  real build at the target viewport, and name the integration/rollout path.
-- For a design port, inspect live data/API fields before inventing new ones.
-- For user-acquired releases, walk the full acquisition/install/launch path,
-  not only the development entrypoint.
+- Visual work: freeze reference, render real target viewport, compare evidence.
+- Design port: inspect live data/API fields before inventing new ones.
+- User-acquired release: test acquisition/install/launch path, not only dev entry.
