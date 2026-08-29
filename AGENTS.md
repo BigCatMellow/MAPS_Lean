@@ -36,6 +36,8 @@ MAPS_L MUST prefer consolidation over accumulation.
 - Optimize for **shortest useful route**, not graph density. Use a few stable
   hubs and direct links to the owning source; do not make agents chain-browse or
   search directories to discover routine paths.
+- When routine documentation retrieval starts requiring search/chain reads or
+  entry/hub budgets grow, run the [information-routing maintenance pass](playbook/INFORMATION_LIFECYCLE.md#information-routing-maintenance-pass).
 - New methods must be indexed in [`playbook/INDEX.md`](playbook/INDEX.md).
 - Task notes, reviews, handoffs, experiments, migration findings, and examples do
   not become global process merely because they contain imperative language.
