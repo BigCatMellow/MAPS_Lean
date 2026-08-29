@@ -1,6 +1,6 @@
 # Task: Pilot information-routing housekeeping
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `MAINTENANCE`
 - Owner: orchestration operator
@@ -13,7 +13,7 @@
 
 - Inputs: `AGENTS.md`, `docs/FIRST_RUN.md`, `README.md`, `playbook/INDEX.md`, `playbook/INFORMATION_LIFECYCLE.md`, `tools/digital_fungus.py`, `obsidian/README.md`, `work/roadmaps/README.md`, key templates, live open PRs #173/#174/#178 as non-authoritative evidence.
 - Authoritative sources: current accepted `main` + this task + direct operator instruction; live GitHub wins for current PR/branch facts.
-- Evidence labels: current files/SHAs and PR state are `VERIFIED`; route-cost improvements remain `ASSUMED` until mechanically checked.
+- Evidence labels: current files/SHAs, route-cost checks, and CI results are `VERIFIED`.
 - Dependencies / preconditions: avoid runtime/feature paths owned by other active agents.
 
 ## Change boundary
@@ -32,21 +32,29 @@
 
 ## Acceptance criteria
 
-- [ ] Common entry path stays small: `AGENTS.md + approved roadmap/task + one relevant method`, with explicit direct routes rather than directory search.
-- [ ] The always-read operating contract is materially smaller without losing authority, autonomy, review, safety, or anti-sprawl semantics.
-- [ ] `work/` has one compact routing index explaining where each durable record class lives and when to read it.
-- [ ] High-cost roadmap surfaces tell agents what question they answer and where to go instead when they are not the right source.
-- [ ] Forward-relevant durable records have an explicit link-over-duplication / no-island convention owned by `INFORMATION_LIFECYCLE.md` and reflected minimally in templates.
-- [ ] Navigation tooling/tests measure or guard route quality/token proxy instead of link count alone.
-- [ ] No broad automatic semantic linking, graph database, duplicate mutable index, or runtime authority change is introduced.
-- [ ] Required CI and independent review pass before merge.
+- [x] Common entry path stays small: `AGENTS.md + approved roadmap/task + one relevant method`, with explicit direct routes rather than directory search.
+- [x] The always-read operating contract is materially smaller without losing authority, autonomy, review, safety, or anti-sprawl semantics.
+- [x] `work/` has one compact routing index explaining where each durable record class lives and when to read it.
+- [x] High-cost roadmap surfaces tell agents what question they answer and where to go instead when they are not the right source.
+- [x] Forward-relevant durable records have an explicit link-over-duplication / no-island convention owned by `INFORMATION_LIFECYCLE.md` and reflected minimally in templates.
+- [x] Navigation tooling/tests measure and guard route quality/token proxy instead of link count alone.
+- [x] No broad automatic semantic linking, graph database, duplicate mutable index, or runtime authority change is introduced.
+- [x] Required implementation CI passes.
+- [ ] Independent review passes before merge.
 
 ## Verification and evidence
 
-- Verification: documentation-sprawl tests; focused link/route tests; Digital Fungus analysis; inspect size/route deltas; normal repository CI.
-- Evidence to preserve: PR description + exact before/after byte/route metrics.
-- Review required: `INDEPENDENT_REVIEW`
+- `AGENTS.md`: 13,554 → 9,410 bytes (~31% smaller).
+- Root `README.md`: 7,151 → 3,511 bytes (~51% smaller).
+- `docs/FIRST_RUN.md`: 2,267 bytes with direct routes to all five stable navigation hubs.
+- Route guards verify all five common hubs are exactly one hop from `FIRST_RUN` and stay below a 2,200-token planning proxy.
+- `work/README.md` routes every top-level durable record class without requiring directory search.
+- Large roadmap/checklist surfaces (~58 KB / ~36 KB) are now behind a question router rather than normal orientation.
+- Redundant `docs/WORKFLOW.md` and `docs/CONTEXT.md` were retired instead of preserving duplicate islands.
+- Digital Fungus now distinguishes note edges, valid directory destinations, real broken links, and least-read-cost routes.
+- Runtime stack tests run `33246742451` / run 968 passed on implementation head `0bfefc37604069e0c566cdf77245e19235663a17`, including full active tests, LangGraph smoke, lint, security, dependency consistency, and installer preview.
+- Independent `review-evidence` remains intentionally pending/failing until a separate reviewer supplies evidence.
 
 ## Stop / escalate
 
-Continue through the bounded housekeeping and verification pass. Do not merge or self-certify independent review. Stop if a proposed change begins altering runtime behavior or substantive capability/authority semantics.
+Implementation housekeeping is complete. No further change churn unless CI or independent review identifies a concrete defect. Do not merge or self-certify independent review.
