@@ -56,6 +56,78 @@ over copying the decision rationale into another file.
 
 The goal is shortest reliable retrieval, not a visually dense graph.
 
+## Information-routing maintenance pass
+
+Run this procedure when navigation cost has plausibly degraded, not merely because
+time passed. Useful triggers include:
+
+- meaningful documentation/roadmap growth or restructuring;
+- an entry surface or routing hub approaching its explicit size budget;
+- agents repeatedly searching, chain-reading, or opening the wrong large document
+  to answer a routine question;
+- Digital Fungus reporting new broken routes, orphan candidates, or increased
+  route/read cost; or
+- duplicated/stale prose becoming a competing source of truth.
+
+Do not create a recurring cleanup ritual when none of those conditions exists.
+
+### Procedure
+
+1. **Baseline.** Run:
+
+   ```bash
+   python3 tools/digital_fungus.py --root .
+   ```
+
+   Record the relevant entry/hub sizes, common-route hops and token proxy, broken
+   routes/orphan candidates, and the current canonical owner(s). Use the analyzer's
+   token count only as a comparative planning proxy, never billing data.
+
+2. **Route by intent.** For each common question, identify the smallest owning
+   source. Prefer direct links from stable hubs; keep large specialist/history
+   surfaces behind a question router instead of the normal orientation path.
+
+3. **Consolidate before adding.** When two files explain the same rule/fact,
+   preserve one owner, keep only the local implication elsewhere, and link to the
+   owner. Remove stale status snapshots, repeated rule prose, activity narration,
+   and instructions whose only purpose is finding other instructions.
+
+4. **Connect or retire islands.** Give forward-relevant durable records a meaningful
+   parent/source/decision/evidence/review/successor relationship. If a file has no
+   unique forward value, retire/archive/remove it rather than inventing links to
+   justify its existence.
+
+5. **Compact without semantic loss.** Preserve authority, decisions, constraints,
+   unresolved work, acceptance criteria, risks, evidence/provenance, and current
+   relationships. Never trade correctness or recoverability merely for a smaller
+   byte count.
+
+6. **Remeasure.** Run Digital Fungus and the documentation/routing tests again.
+   Keep the maintenance change only when it produces a real routing benefit such
+   as lower common-path read cost, fewer hops/searches, a repaired route, a retired
+   duplicate/orphan, or clearer ownership without increasing common-path cost.
+   If the only result is more links/files/process, do not keep the churn.
+
+7. **Verify and review proportionally.** Normal documentation-only changes need
+   relevant tests. Changes to always-read contracts, authority wording, or other
+   medium/high-risk surfaces require the repository's normal independent-review gate.
+
+### Maintenance result
+
+Report only the useful delta:
+
+```text
+before → after
+entry/hub size: ...
+route hops/read proxy: ...
+fixed/retired: ...
+verification: ...
+```
+
+Do not create a second graph registry, maintenance ledger, or copied navigation
+truth just to record the pass. The repository links and canonical files remain
+the source; preserve a report only when future work needs the evidence.
+
 ## Compaction
 
 When active context becomes hard to navigate, retain decisions, constraints,
