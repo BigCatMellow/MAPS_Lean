@@ -1,6 +1,6 @@
 # Task: Pilot information-routing housekeeping
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `MAINTENANCE`
 - Owner: orchestration operator
@@ -13,7 +13,7 @@
 
 - Inputs: `AGENTS.md`, `docs/FIRST_RUN.md`, `README.md`, `playbook/INDEX.md`, `playbook/INFORMATION_LIFECYCLE.md`, `tools/digital_fungus.py`, `obsidian/README.md`, `work/roadmaps/README.md`, key templates, live open PRs #173/#174/#178 as non-authoritative evidence.
 - Authoritative sources: current accepted `main` + this task + direct operator instruction; live GitHub wins for current PR/branch facts.
-- Evidence labels: current files/SHAs, route-cost checks, and prior CI results are `VERIFIED`; the repeatable maintenance procedure is pending exact-head verification.
+- Evidence labels: current files/SHAs, route-cost checks, and CI results are `VERIFIED`.
 - Dependencies / preconditions: avoid runtime/feature paths owned by other active agents.
 
 ## Change boundary
@@ -38,25 +38,27 @@
 - [x] High-cost roadmap surfaces tell agents what question they answer and where to go instead when they are not the right source.
 - [x] Forward-relevant durable records have an explicit link-over-duplication / no-island convention owned by `INFORMATION_LIFECYCLE.md` and reflected minimally in templates.
 - [x] Navigation tooling/tests measure and guard route quality/token proxy instead of link count alone.
-- [ ] `INFORMATION_LIFECYCLE.md` owns a repeatable, trigger-based information-routing maintenance pass with baseline, consolidation/link/retirement, remeasurement, and stop criteria.
-- [ ] `AGENTS.md` points documentation-cost degradation to that procedure without duplicating it.
+- [x] `INFORMATION_LIFECYCLE.md` owns a repeatable, trigger-based information-routing maintenance pass with baseline, consolidation/link/retirement, remeasurement, and stop criteria.
+- [x] `AGENTS.md` points documentation-cost degradation to that procedure without duplicating it.
+- [x] The maintenance procedure is discoverable from `playbook/INDEX.md` and does not preserve links to retired duplicate docs.
 - [x] No broad automatic semantic linking, graph database, duplicate mutable index, or runtime authority change is introduced.
-- [ ] Required exact-head CI passes.
+- [x] Required implementation CI passes.
 - [ ] Independent review passes before merge.
 
 ## Verification and evidence
 
-- `AGENTS.md`: 13,554 → 9,410 bytes (~31% smaller before the maintenance-procedure addition).
+- `AGENTS.md`: 13,554 → 9,634 bytes (~29% smaller) after adding the maintenance trigger/routing link; still below its 10,000-byte guard.
 - Root `README.md`: 7,151 → 3,511 bytes (~51% smaller).
 - `docs/FIRST_RUN.md`: 2,267 bytes with direct routes to all five stable navigation hubs.
+- `playbook/INDEX.md`: 8,516 → 6,759 bytes (~21% smaller) after the maintenance pass caught the hub approaching its route-cost budget.
 - Route guards verify all five common hubs are exactly one hop from `FIRST_RUN` and stay below a 2,200-token planning proxy.
 - `work/README.md` routes every top-level durable record class without requiring directory search.
-- Large roadmap/checklist surfaces (~58 KB / ~36 KB) are now behind a question router rather than normal orientation.
-- Redundant `docs/WORKFLOW.md` and `docs/CONTEXT.md` were retired instead of preserving duplicate islands.
+- Large roadmap/checklist surfaces (~58 KB / ~36 KB) are behind a question router rather than normal orientation.
+- Redundant `docs/WORKFLOW.md` and `docs/CONTEXT.md` were retired instead of preserving duplicate islands; the stale playbook-index reference to `docs/CONTEXT.md` was subsequently repaired by the maintenance pass.
 - Digital Fungus distinguishes note edges, valid directory destinations, real broken links, and least-read-cost routes.
-- Prior exact-head CI passed before this requested procedure addition; rerun required after the new change.
-- Independent `review-evidence` remains intentionally pending/failing until a separate reviewer supplies evidence.
+- Runtime stack tests run `33249143388` / run 976 passed on implementation head `830875f2d3c410a9882d8b063c94568b8522a34a`, including full active tests, LangGraph smoke, lint, security analysis, dependency consistency, and installer preview.
+- Final task-status-only commit will receive the normal CI rerun; independent `review-evidence` remains intentionally pending/failing until a separate reviewer supplies evidence.
 
 ## Stop / escalate
 
-Complete the maintenance procedure + guards, rerun exact-head CI, then return to `READY_FOR_REVIEW`. Do not merge or self-certify independent review.
+Implementation housekeeping and its repeatable maintenance procedure are complete. No further change churn unless CI or independent review identifies a concrete defect. Do not merge or self-certify independent review.
