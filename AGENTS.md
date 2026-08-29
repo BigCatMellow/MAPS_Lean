@@ -72,6 +72,8 @@ actually requires it. If routine work needs several overlapping methods, consoli
    re-plan, reassign, research, or escalate a concrete blocker.
 10. **Do not manufacture work after success.** Stop when the parent acceptance
     criteria, required verification, and required review are complete.
+11. **Leave repeatable work independently operable.** Before parent success,
+    complete the [Operational independence gate](playbook/TASK_LIFECYCLE.md#operational-independence-gate) when triggered.
 
 ## Scope-level authorization
 
