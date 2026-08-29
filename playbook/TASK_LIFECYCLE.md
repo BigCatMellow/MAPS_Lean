@@ -66,8 +66,55 @@ NEEDS_SHAPING --AGI PASS--> READY --> ACTIVE --> READY_FOR_REVIEW --> DONE
                                 CHANGES_REQUESTED <--------
 ```
 
-`DONE` means acceptance criteria, required verification, and proportional review
-are complete.
+`DONE` means acceptance criteria, required verification, proportional review,
+and any triggered operational-independence requirement are complete.
+
+## Operational independence gate
+
+A repeatable result should not depend on the original AI/session remembering how
+it was produced.
+
+This gate is **REQUIRED** when the work creates or discovers a process that a
+person may reasonably need to run, rebuild, refresh, migrate, troubleshoot, or
+repeat later. Typical triggers include spreadsheet/sheet generation,
+transformations/imports, reports, recurring administration, data cleanup,
+deployments/setup, generated configurations, and software/program workflows.
+
+Do the real project first when discovery is necessary. Once the successful path
+is known, look back at the work and convert that path into the smallest durable
+reproduction package. Do not prematurely automate an unknown process if doing so
+would slow or distort solving the actual problem.
+
+Before parent success, a triggered reproduction package MUST contain:
+
+1. **First-time-user instructions.** Assume the reader has never seen the project.
+   State purpose, prerequisites/access, inputs, exact ordered steps, expected
+   outputs, verification, routine operation, common failure/recovery, and how to
+   make the most likely future changes. Use concrete names/locations; do not rely
+   on unexplained chat history.
+2. **Reproducible implementation.** Preserve the code/script/formulas/query/config/
+   template that can recreate or rerun the process when technically feasible.
+   For example, a Google Sheets workflow should normally leave Apps Script,
+   formulas, queries, or equivalent automation rather than only a finished sheet.
+3. **Portable configuration.** Separate credentials/secrets and volatile IDs from
+   logic. Use documented placeholders/configuration and never embed secrets merely
+   to make reproduction easier.
+4. **Provenance.** State which source inputs and assumptions the automation uses,
+   and which output it is expected to recreate. The goal is enough traceability to
+   rebuild without reconstructing the original conversation.
+5. **Reproduction proof.** When safe and feasible, run the automation against a
+   clean/disposable/sample target and verify the produced result, not only the
+   already-finished artifact. Prefer rerunnable/idempotent behavior where practical.
+
+The instructions may live in the target project's normal README/instructions
+surface; the automation belongs with the project/source it operates. Do not
+create a second documentation system just for this gate.
+
+Mark the gate `N/A` only when there is genuinely no repeatable operational
+process, automation is technically unavailable/disproportionate, or the output
+is inherently one-off/creative. Record the reason. When automation is not
+feasible, preserve the clearest manual reproduction procedure and source
+materials available rather than leaving an AI-only dependency.
 
 ## Autonomous roadmap continuation
 
@@ -158,6 +205,7 @@ human gate.
 
 ## Special acceptance checks
 
+- Repeatable operational work: complete the Operational independence gate above.
 - Visual work: freeze reference, render real target viewport, compare evidence.
 - Design port: inspect live data/API fields before inventing new ones.
 - User-acquired release: test acquisition/install/launch path, not only dev entry.
