@@ -74,8 +74,8 @@ Use these only when their specific concern is active.
 | Capture a worthwhile discovery without expanding current scope | [EMERGENCE.md](EMERGENCE.md) | Discovery capture only. |
 | Repair drift and learn from repeated failures | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | Repair/learning loop; findings do not silently become global policy. |
 | Classify information as authority, task context, fact, Skill, flow, tool, or example | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Information type, not lifecycle status or authority creation. |
-| Keep project information trustworthy over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Active/retired/archive lifecycle; not information classification. |
-| Continue across sessions | [Context](../docs/CONTEXT.md) and [handoff template](../templates/handoff.md) | Continuation state/evidence only; does not expand task authority. |
+| Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Active/retired/archive lifecycle plus routing maintenance; not information classification. |
+| Continue across sessions | [Current state](../state/CURRENT.md) and [handoff template](../templates/handoff.md) | Continuation state/evidence only; does not expand task authority. |
 
 ## Adding or changing a method
 
