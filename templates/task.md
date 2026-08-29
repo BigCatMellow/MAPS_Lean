@@ -6,7 +6,8 @@
 - Owner: <agent or person>
 - Risk: `LOW | MEDIUM | HIGH`
 - Goal: <observable outcome>
-- Parent roadmap: <path + authorization revision, or `none`>
+- Parent roadmap: <direct path/link + authorization revision, or `none`>
+- Related records: <only directly useful decision/evidence/handoff/review links, or `none`>
 - Autonomous continuation: `YES | NO`
 
 ## Inputs and source of truth
@@ -105,7 +106,7 @@ mandatory AGI requirement passes.
 
 ## Notes / decisions
 
-- <only forward-relevant information>
+- <only forward-relevant information; link detailed owner records instead of copying them>
 
 ## Completion / handoff
 
