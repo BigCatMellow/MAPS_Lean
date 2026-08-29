@@ -1,6 +1,6 @@
 # Task: Pilot system housekeeping
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `MAINTENANCE`
 - Owner: orchestration operator
@@ -13,7 +13,7 @@
 
 - Inputs: `AGENTS.md`, `docs/FIRST_RUN.md`, `README.md`, `playbook/INDEX.md`, `playbook/INFORMATION_LIFECYCLE.md`, `playbook/TASK_LIFECYCLE.md`, `tools/digital_fungus.py`, `obsidian/README.md`, `work/roadmaps/README.md`, key templates, and live GitHub state.
 - Authoritative sources: current accepted `main` + this task + direct operator instruction; live GitHub wins for current PR/branch facts.
-- Evidence labels: current files/SHAs and prior route-cost/CI evidence are `VERIFIED`; the new operational-independence rule awaits exact-head CI.
+- Evidence labels: current files/SHAs, route-cost checks, completion-rule tests, and implementation CI are `VERIFIED`.
 - Dependencies / preconditions: avoid runtime/feature paths owned by other active agents.
 
 ## Change boundary
@@ -48,7 +48,7 @@
 - [x] `templates/task.md` records `Operational independence: REQUIRED | N/A — reason` and the reproduction-package path/proof.
 - [x] Regression tests guard the global completion rule, procedure, and task-template fields.
 - [x] No broad automatic semantic linking, graph database, duplicate mutable index, or runtime authority change is introduced.
-- [ ] Exact-head implementation CI passes.
+- [x] Exact-head implementation CI passes.
 - [ ] Independent review passes before merge.
 
 ## Verification and evidence
@@ -63,9 +63,10 @@
 - Redundant `docs/WORKFLOW.md` and `docs/CONTEXT.md` were retired; the stale playbook-index reference was repaired.
 - Digital Fungus distinguishes note edges, valid directory destinations, real broken links, and least-read-cost routes.
 - Operational independence owner: `playbook/TASK_LIFECYCLE.md#operational-independence-gate`; global route: `AGENTS.md`; task capture: `templates/task.md`.
-- Prior runtime-stack CI passed on the routing-maintenance implementation. New exact-head CI must cover the added completion rule/tests.
+- Runtime stack run `33250738694` / run 986 passed on implementation head `4d449325246721718a22dc2f0d6b32dfd9cb54c7`, including full active tests, LangGraph smoke, lint, security analysis, dependency consistency, and installer preview.
+- Final head changes only this task record to `READY_FOR_REVIEW`; normal CI reruns on it.
 - Independent `review-evidence` remains intentionally pending/failing until a separate reviewer supplies evidence.
 
 ## Stop / escalate
 
-Continue through exact-head verification for the added operational-independence completion rule. Then return to `READY_FOR_REVIEW`. Do not merge or self-certify independent review.
+Implementation housekeeping is complete and ready for independent review. No further change churn unless CI or independent review identifies a concrete defect. Do not merge or self-certify independent review.
