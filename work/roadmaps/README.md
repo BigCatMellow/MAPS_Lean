@@ -2,34 +2,48 @@
 
 Status: `PLANNING INDEX — NOT ACTIVE AUTHORITY`
 
-Start here:
+Use this page as the **roadmap router**. Do not open every roadmap to discover
+which one matters.
 
-## [MASTER MAPS capability roadmap](00-MASTER-MAPS-CAPABILITY-ROADMAP.md)
+## Route by question
 
-This is the top-level planning orientation for the MAPS capability program. It owns the overall capability inventory, dependency graph, implementation waves, promotion gates, program-level definitions of done, and links to detailed roadmaps.
+| Question | Open | Do not use it for |
+| --- | --- | --- |
+| How do capability areas fit/depend on each other? | [MASTER capability roadmap](00-MASTER-MAPS-CAPABILITY-ROADMAP.md) | live PR/task state |
+| What capability evidence/status was last reconciled? | [Capability checklist](CAPABILITY_CHECKLIST.md) | permission or live truth; re-verify current code/tests/CI |
+| What did Prime-derived lifecycle/harness work contribute? | [Prime Agent roadmap](prime-agent-capability-roadmap.md) | current queue/status |
+| How should operator requests compile into bounded work? | [Operator Intent Compiler](operator-intent-compiler.md) | global authority |
+| What is the detailed harness/security/environment/learning plan? | [Agent-harness roadmap set](agent-harness-capabilities/README.md) | current implementation status without verification |
+| What PR/CI/review work is live now? | [Coordination entry](../coordination/README.md) → live GitHub | any roadmap snapshot |
 
-## [Current capability reconciliation — 2026-08-16](current-capability-reconciliation-2026-08-16.md)
+These are large planning artifacts. Once you know the relevant question, read the
+matching section/file only. Do not absorb the full roadmap corpus as context.
 
-Read this **after the master roadmap and before acting on historical “current baseline” or phase-status prose**. It is a dated planning-status overlay that reconciles the long-form design with accepted `main`, open capability stacks, real dependency constraints, and recovered legacy candidates.
+## Planning hierarchy
 
-The reconciliation is not canonical state. Live GitHub, accepted MAPS state, and current coordination evidence must still be re-checked before taking work. If the reconciliation and live state disagree, live state wins.
+```text
+this router
+  ↓
+MASTER roadmap                = cross-capability architecture/dependencies
+  ↓
+detailed capability roadmaps = subsystem design
 
-Detailed roadmaps:
+CAPABILITY_CHECKLIST          = dated evidence/status overlay
+live GitHub + code/tests      = current facts
+```
 
-- [Prime Agent capability adoption roadmap](prime-agent-capability-roadmap.md) — detailed Prime-derived lifecycle/harness concepts and their Lean translation. Its architecture remains useful, but historical phase/baseline text may predate the current reconciliation.
-- [Operator Intent Compiler / Request Normalizer](operator-intent-compiler.md) — operator-facing intake layer that turns concise natural-language requests into proposed AGI-ready task contracts before Context Builder, without creating new authority.
-- [Agent-harness capability roadmap set](agent-harness-capabilities/README.md) — five coordinated detailed roadmaps:
-  1. Harness Mechanics
-  2. Procedural Knowledge & Skills
-  3. Environment & Reproducibility
-  4. Agentic Security
-  5. Learning & Evaluation
+Roadmaps plan work; they do not create authority. [`AGENTS.md`](../../AGENTS.md),
+the approved project/task permission envelope, canonical runtime/task state,
+merged code/tests, and explicit operator decisions remain stronger.
 
-Supporting research/context:
+## Supporting evidence
 
-- `work/research/agent-harness-patterns-scan-2026-08.md`
-- `work/context/README.md`
-- `migration/LEGACY_IDEA_RECOVERY_AUDIT.md`
-- `migration/FUTURE_IDEAS_BACKLOG.md`
+Open only when a roadmap/task links them for a concrete reason:
 
-Authority reminder: roadmaps are planning artifacts. `AGENTS.md`, canonical task/policy/review state, accepted task requirements, merged code/tests, and explicit operator decisions remain authoritative.
+- [`work/research/`](../research/)
+- [`work/context/`](../context/)
+- [`migration/LEGACY_IDEA_RECOVERY_AUDIT.md`](../../migration/LEGACY_IDEA_RECOVERY_AUDIT.md)
+- [`migration/FUTURE_IDEAS_BACKLOG.md`](../../migration/FUTURE_IDEAS_BACKLOG.md)
+
+Historical dated reconciliation/dispatch files in this directory are evidence,
+not a required onboarding sequence. Live state wins when they disagree.
