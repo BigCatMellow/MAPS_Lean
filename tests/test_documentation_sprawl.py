@@ -87,6 +87,8 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("### Documentation sprawl invariant", agents)
         self.assertIn("One concept, one owner document", agents)
         self.assertIn("shortest useful route", agents)
+        self.assertIn("information-routing maintenance pass", agents)
+        self.assertIn("playbook/INFORMATION_LIFECYCLE.md#information-routing-maintenance-pass", agents)
 
     def test_always_read_entry_surfaces_have_explicit_size_budgets(self):
         budgets = {
@@ -149,6 +151,18 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("Related task/roadmap:", decision)
         self.assertIn("Source/evidence:", decision)
         self.assertIn("Supersedes / superseded by:", decision)
+
+    def test_information_lifecycle_owns_repeatable_route_maintenance(self):
+        lifecycle = normalized_text(INFORMATION_LIFECYCLE).lower()
+        self.assertIn("information-routing maintenance pass", lifecycle)
+        self.assertIn("when navigation cost has plausibly degraded", lifecycle)
+        self.assertIn("python3 tools/digital_fungus.py --root .", lifecycle)
+        self.assertIn("consolidate before adding", lifecycle)
+        self.assertIn("connect or retire islands", lifecycle)
+        self.assertIn("compact without semantic loss", lifecycle)
+        self.assertIn("remeasure", lifecycle)
+        self.assertIn("keep the maintenance change only when it produces a real routing benefit", lifecycle)
+        self.assertIn("do not create a second graph registry", lifecycle)
 
 
 if __name__ == "__main__":
