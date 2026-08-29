@@ -13,7 +13,7 @@ import heapq
 import json
 import posixpath
 import re
-from collections import Counter, defaultdict, deque
+from collections import Counter, deque
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import unquote
@@ -24,8 +24,6 @@ WIKILINK = re.compile(r"(?<!!)\[\[([^\]]+)\]\]")
 INLINE_FILE_REFERENCE = re.compile(r"`([^`\n]+\.md(?:#[^`]*)?)`")
 SKIP_PARTS = {".git", ".obsidian", "__pycache__", ".venv"}
 FIRST_RUN = "docs/FIRST_RUN.md"
-# Four chars/token is intentionally only a stable cross-model planning proxy.
-# It should not be used for billing or exact context-window calculations.
 TOKEN_PROXY_CHARS = 4
 ROUTE_TARGETS = (
     "playbook/INDEX.md",
@@ -77,12 +75,11 @@ def classify(path: str) -> str:
 
 
 def estimated_tokens(text: str) -> int:
-    """Return a stable rough token proxy for route-comparison purposes only."""
-
+    """Stable rough token proxy for route comparison, not billing."""
     return max(1, (len(text) + TOKEN_PROXY_CHARS - 1) // TOKEN_PROXY_CHARS)
 
 
-def normalize_target(raw: str, source: str, root: Path, files: set[str]) -> str | None:
+def _local_candidate(raw: str, source: str) -> str | None:
     target = unquote(raw.strip().strip("<>")).split("#", 1)[0].strip()
     if not target or target.startswith(("http://", "https://", "mailto:", "file:")):
         return None
@@ -90,9 +87,14 @@ def normalize_target(raw: str, source: str, root: Path, files: set[str]) -> str 
         candidate = target.lstrip("/")
     else:
         candidate = (Path(source).parent / target).as_posix()
-    candidate = posixpath.normpath(candidate)
-    # Obsidian resolves a bare title by vault-wide filename. Resolve only when
-    # unique, otherwise leave it unresolved instead of silently guessing.
+    return posixpath.normpath(candidate)
+
+
+def normalize_target(raw: str, source: str, root: Path, files: set[str]) -> str | None:
+    candidate = _local_candidate(raw, source)
+    if candidate is None:
+        return None
+    target = unquote(raw.strip().strip("<>")).split("#", 1)[0].strip()
     if candidate in files:
         return candidate
     if not candidate.endswith(".md") and f"{candidate}.md" in files:
@@ -104,11 +106,20 @@ def normalize_target(raw: str, source: str, root: Path, files: set[str]) -> str 
     return None
 
 
+def valid_directory_target(raw: str, source: str, root: Path) -> str | None:
+    """Resolve a valid local directory route without making it a graph-note node."""
+    candidate = _local_candidate(raw, source)
+    if candidate is None:
+        return None
+    path = root / candidate
+    if path.is_dir():
+        return candidate.rstrip("/") + "/"
+    return None
+
+
 def extract_links(path: Path, root: Path, files: set[str]) -> list[Link]:
     source = path.relative_to(root).as_posix()
     text = path.read_text(encoding="utf-8", errors="replace")
-    # Link-looking examples in code blocks are teaching material, not graph
-    # edges. Inline-code examples such as `[[wikilinks]]` are excluded too.
     text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
     text = re.sub(r"`[^`]*`", "", text)
     links: list[Link] = []
@@ -123,7 +134,6 @@ def extract_links(path: Path, root: Path, files: set[str]) -> list[Link]:
 
 def resolve_plain_reference(raw: str, source: str, root: Path, files: set[str]) -> str | None:
     """Resolve a code-styled file mention without treating it as a graph edge."""
-
     for candidate_raw in (raw, (Path(source).parent / raw).as_posix()):
         candidate = unquote(candidate_raw.split("#", 1)[0]).lstrip("./")
         if candidate in files:
@@ -164,10 +174,9 @@ def least_read_cost_route(
 ) -> dict | None:
     """Find the linked route with the lowest added read-cost proxy.
 
-    The starting document is assumed to be open already, so its token estimate is
-    excluded. Each subsequently opened note contributes its estimated token cost.
+    The start document is assumed open already; each later note contributes its
+    rough token estimate.
     """
-
     if start not in adjacency or target not in adjacency:
         return None
     if start == target:
@@ -206,8 +215,16 @@ def analyze(root: Path) -> dict:
     adjacency: dict[str, set[str]] = {path: set() for path in files}
     incoming: dict[str, set[str]] = {path: set() for path in files}
     broken = []
+    directory_routes = []
+
     for link in links:
         if link.target is None:
+            directory = valid_directory_target(link.raw_target, link.source, root)
+            if directory:
+                directory_routes.append(
+                    {"source": link.source, "target": directory, "kind": link.kind}
+                )
+                continue
             raw = link.raw_target.split("#", 1)[0]
             if raw and not raw.startswith(("http://", "https://", "mailto:", "file:")):
                 broken.append({"source": link.source, "target": link.raw_target, "kind": link.kind})
@@ -215,8 +232,6 @@ def analyze(root: Path) -> dict:
         adjacency[link.source].add(link.target)
         incoming[link.target].add(link.source)
 
-    # These references are deliberately not edges: they are useful evidence of
-    # navigation prose that Obsidian's graph cannot show yet.
     actual_edges = {(source, target) for source, targets in adjacency.items() for target in targets}
     unlinked_mentions = sorted(
         {pair for pair in plain_mentions if pair not in actual_edges},
@@ -242,8 +257,7 @@ def analyze(root: Path) -> dict:
     first_run_reach = reachable(FIRST_RUN, adjacency)
     active_reach = sorted(path for path in first_run_reach if path in active)
     resilience = []
-    baseline = len(active_reach)
-    if baseline:
+    if active_reach:
         for candidate in active_reach:
             if candidate == FIRST_RUN:
                 continue
@@ -255,21 +269,21 @@ def analyze(root: Path) -> dict:
                 )
     resilience.sort(key=lambda row: (row["loss_count"], row["removed"]), reverse=True)
 
-    navigation_routes = {}
-    for target in ROUTE_TARGETS:
-        if target not in files:
-            navigation_routes[target] = None
-        else:
-            navigation_routes[target] = least_read_cost_route(
-                FIRST_RUN, target, adjacency, token_costs
-            )
+    navigation_routes = {
+        target: (
+            least_read_cost_route(FIRST_RUN, target, adjacency, token_costs)
+            if target in files
+            else None
+        )
+        for target in ROUTE_TARGETS
+    }
     reachable_routes = [route for route in navigation_routes.values() if route is not None]
     max_route_tokens = max(
         (route["added_estimated_tokens"] for route in reachable_routes), default=0
     )
     max_route_hops = max((route["hops"] for route in reachable_routes), default=0)
-
     kind_counts = Counter(classify(path) for path in files)
+
     return {
         "root": str(root),
         "method": {
@@ -282,6 +296,7 @@ def analyze(root: Path) -> dict:
                 "Link topology is not semantic relevance or truth.",
                 "Estimated tokens are a rough cross-model planning proxy, not billing data.",
                 "A cheapest linked path is not proof that the destination is the correct authority.",
+                "Directory links are valid navigation but are not note-graph edges.",
                 "Bare wikilinks resolve only when the filename is unique.",
                 "External URLs are ignored as graph edges.",
                 "No proposed link is applied automatically.",
@@ -292,6 +307,7 @@ def analyze(root: Path) -> dict:
             "active_notes": len(active),
             "links": len(links),
             "resolved_edges": sum(len(value) for value in adjacency.values()),
+            "directory_routes": len(directory_routes),
             "broken_links": len(broken),
             "active_broken_links": sum(not row["source"].startswith("legacy/") for row in broken),
             "unlinked_file_mentions": len(unlinked_mentions),
@@ -308,10 +324,8 @@ def analyze(root: Path) -> dict:
             "kinds": dict(sorted(kind_counts.items())),
         },
         "note_estimated_tokens": dict(sorted(token_costs.items())),
-        "navigation_routes": {
-            "start": FIRST_RUN,
-            "targets": navigation_routes,
-        },
+        "navigation_routes": {"start": FIRST_RUN, "targets": navigation_routes},
+        "directory_routes": directory_routes,
         "broken_links": broken,
         "unlinked_file_mentions": [
             {"source": source, "target": target, "source_kind": classify(source)}
@@ -340,6 +354,7 @@ def markdown_report(data: dict) -> str:
         "",
         f"- Notes scanned: {summary['notes']} ({summary['active_notes']} active)",
         f"- Resolved internal edges: {summary['resolved_edges']}",
+        f"- Valid directory routes: {summary['directory_routes']}",
         f"- Unresolved internal links: {summary['broken_links']} ({summary['active_broken_links']} active)",
         f"- Unlinked file mentions: {summary['unlinked_file_mentions']} ({summary['active_unlinked_file_mentions']} active)",
         f"- Active orphans: {summary['active_orphans']}",
@@ -351,7 +366,7 @@ def markdown_report(data: dict) -> str:
         "",
         "## Navigation routes",
         "",
-        "Token values below estimate the additional notes opened after FIRST_RUN using",
+        "Token values below estimate additional notes opened after FIRST_RUN using",
         f"`ceil(characters/{TOKEN_PROXY_CHARS})`; they are comparative, not billing values.",
         "",
         "| Target | Hops | Added token proxy | Cheapest linked route |",
@@ -367,9 +382,7 @@ def markdown_report(data: dict) -> str:
             )
 
     lines += ["", "## Findings", ""]
-    active_broken = [
-        row for row in data["broken_links"] if not row["source"].startswith("legacy/")
-    ]
+    active_broken = [row for row in data["broken_links"] if not row["source"].startswith("legacy/")]
     legacy_broken = len(data["broken_links"]) - len(active_broken)
     if active_broken:
         lines += ["### Unresolved internal links", ""]
@@ -443,9 +456,10 @@ def markdown_report(data: dict) -> str:
         "",
         "- A link is a navigational claim, not proof that a note is current or authoritative.",
         "- Prefer direct low-cost routes to canonical owners over additional graph density.",
-        "- Prioritize broken links and onboarding-path gaps before adding topical links.",
+        "- Valid directory links are navigation endpoints, not broken note links.",
+        "- Prioritize broken links and onboarding gaps before adding topical links.",
         "- Review orphan notes before linking them: some are intentionally isolated records/templates.",
-        "- Standard Markdown links and wikilinks are both parsed and visible to this analysis.",
+        "- Standard Markdown links and wikilinks are both parsed.",
         "",
         "## Limitations",
         "",
