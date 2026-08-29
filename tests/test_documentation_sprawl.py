@@ -109,7 +109,7 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         missing = [
             path.name
             for path in sorted(WORK.iterdir())
-            if path.is_dir() and f"({path.name}/)" not in index
+            if path.is_dir() and f"({path.name}/" not in index
         ]
         self.assertEqual(
             missing,
