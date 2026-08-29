@@ -12,6 +12,7 @@ WORK = ROOT / "work"
 WORK_INDEX = WORK / "README.md"
 ROADMAP_INDEX = WORK / "roadmaps" / "README.md"
 INFORMATION_LIFECYCLE = PLAYBOOK / "INFORMATION_LIFECYCLE.md"
+TASK_LIFECYCLE = PLAYBOOK / "TASK_LIFECYCLE.md"
 TASK_TEMPLATE = ROOT / "templates" / "task.md"
 DECISION_TEMPLATE = ROOT / "templates" / "decision.md"
 
@@ -170,6 +171,24 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("[INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md)", index)
         self.assertIn("[Current state](../state/CURRENT.md)", index)
         self.assertNotIn("../docs/CONTEXT.md", index)
+
+    def test_repeatable_work_requires_operational_independence(self):
+        agents = normalized_text(AGENTS).lower()
+        lifecycle = normalized_text(TASK_LIFECYCLE).lower()
+        task = TASK_TEMPLATE.read_text(encoding="utf-8")
+
+        self.assertIn("leave repeatable work independently operable", agents)
+        self.assertIn("operational independence gate", agents)
+        self.assertIn("operational independence gate", lifecycle)
+        self.assertIn("do the real project first", lifecycle)
+        self.assertIn("first-time-user instructions", lifecycle)
+        self.assertIn("reproducible implementation", lifecycle)
+        self.assertIn("google sheets workflow", lifecycle)
+        self.assertIn("reproduction proof", lifecycle)
+        self.assertIn("original ai/session", lifecycle)
+        self.assertIn("Operational independence:", task)
+        self.assertIn("Reproduction package:", task)
+        self.assertIn("TASK_LIFECYCLE.md#operational-independence-gate", task)
 
 
 if __name__ == "__main__":
