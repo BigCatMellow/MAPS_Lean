@@ -14,6 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DigitalFungusRouteCostTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.report = analyze(ROOT)
+
     def test_token_proxy_is_stable_and_explicitly_rough(self):
         self.assertEqual(estimated_tokens("a"), 1)
         self.assertEqual(estimated_tokens("a" * 4), 1)
@@ -43,8 +47,7 @@ class DigitalFungusRouteCostTests(unittest.TestCase):
         self.assertEqual(route["added_estimated_tokens"], 3)
 
     def test_first_run_has_direct_routes_to_navigation_hubs(self):
-        report = analyze(ROOT)
-        routes = report["navigation_routes"]
+        routes = self.report["navigation_routes"]
 
         self.assertEqual(routes["start"], FIRST_RUN)
         self.assertEqual(set(routes["targets"]), set(ROUTE_TARGETS))
@@ -57,8 +60,24 @@ class DigitalFungusRouteCostTests(unittest.TestCase):
             )
             self.assertEqual(route["path"], [FIRST_RUN, target])
 
-        self.assertEqual(report["summary"]["navigation_targets_reachable"], len(ROUTE_TARGETS))
-        self.assertEqual(report["summary"]["max_navigation_route_hops"], 1)
+        self.assertEqual(
+            self.report["summary"]["navigation_targets_reachable"], len(ROUTE_TARGETS)
+        )
+        self.assertEqual(self.report["summary"]["max_navigation_route_hops"], 1)
+
+    def test_valid_work_directory_links_are_not_reported_broken(self):
+        directory_routes = {
+            (row["source"], row["target"]) for row in self.report["directory_routes"]
+        }
+        self.assertIn(("work/README.md", "work/tasks/"), directory_routes)
+        self.assertIn(("work/README.md", "work/research/"), directory_routes)
+
+        false_broken = [
+            row
+            for row in self.report["broken_links"]
+            if row["source"] == "work/README.md" and row["target"].endswith("/")
+        ]
+        self.assertEqual(false_broken, [])
 
 
 if __name__ == "__main__":
