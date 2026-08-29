@@ -58,6 +58,13 @@ Include only what materially applies; use `N/A` explicitly when useful.
 - External side effects: <publication/deployment/API/data mutation or N/A>
 - Effort limit: <time/cost/attempt threshold or N/A>
 - Approved reference: <mockup/spec/schema/behavior reference or N/A>
+- Operational independence: `REQUIRED | N/A — <reason>`
+- Reproduction package: <first-time-user instructions + code/script/formulas/query/config/template + reproduction proof, or N/A>
+
+For repeatable operational work, follow the
+[Operational independence gate](../playbook/TASK_LIFECYCLE.md#operational-independence-gate).
+Solve/discover the real process first when needed, then codify the successful
+path so future operation does not depend on the original AI/session.
 
 ## Question-resolution ladder
 
@@ -112,6 +119,7 @@ mandatory AGI requirement passes.
 
 - Completed: <what is verified true now>
 - Not completed: <remaining work or `none`>
+- Reproduction package: <instructions/code/proof path or `N/A — reason`>
 - Current blocker: <none or exact blocker>
 - Next eligible roadmap task: <task ID/path or `roadmap complete`>
 - Human action required: <none or exact boundary decision>
