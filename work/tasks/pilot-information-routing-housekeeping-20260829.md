@@ -13,7 +13,7 @@
 
 - Inputs: `AGENTS.md`, `docs/FIRST_RUN.md`, `README.md`, `playbook/INDEX.md`, `playbook/INFORMATION_LIFECYCLE.md`, `tools/digital_fungus.py`, `obsidian/README.md`, `work/roadmaps/README.md`, key templates, live open PRs #173/#174/#178 as non-authoritative evidence.
 - Authoritative sources: current accepted `main` + this task + direct operator instruction; live GitHub wins for current PR/branch facts.
-- Evidence labels: current files/SHAs, route-cost checks, and CI results are `VERIFIED`.
+- Evidence labels: current files/SHAs, route-cost checks, and implementation CI results are `VERIFIED`; final task-status-only head awaits its normal CI rerun.
 - Dependencies / preconditions: avoid runtime/feature paths owned by other active agents.
 
 ## Change boundary
@@ -57,7 +57,7 @@
 - Redundant `docs/WORKFLOW.md` and `docs/CONTEXT.md` were retired instead of preserving duplicate islands; the stale playbook-index reference to `docs/CONTEXT.md` was subsequently repaired by the maintenance pass.
 - Digital Fungus distinguishes note edges, valid directory destinations, real broken links, and least-read-cost routes.
 - Runtime stack tests run `33249143388` / run 976 passed on implementation head `830875f2d3c410a9882d8b063c94568b8522a34a`, including full active tests, LangGraph smoke, lint, security analysis, dependency consistency, and installer preview.
-- Final task-status-only commit will receive the normal CI rerun; independent `review-evidence` remains intentionally pending/failing until a separate reviewer supplies evidence.
+- Final head differs only by task-record status/evidence text and will receive the normal CI rerun; independent `review-evidence` remains intentionally pending/failing until a separate reviewer supplies evidence.
 
 ## Stop / escalate
 
