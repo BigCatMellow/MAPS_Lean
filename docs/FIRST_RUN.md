@@ -1,29 +1,20 @@
 # First Run
 
-Use this route when joining the repository for the first time. Read only what
-your work needs; orientation should not require absorbing the whole MAPS corpus.
+Use this route when joining the repository. Orientation should end as soon as you
+can name the owner, allowed scope, next action, verification, and escalation
+boundary.
 
-1. Read [AGENTS.md](../AGENTS.md). It is the single repository-wide operating
-   contract and defines precedence when documents disagree.
-2. Read the approved roadmap/project scope and your assigned task. If no child
-   task exists but the approved roadmap contains actionable work, the
-   orchestration operator should select/shape the next in-scope task and continue.
-   Ask the human for scope only when no authorized objective/envelope exists or
-   the proposed work would leave it.
-3. Read [current state](../state/CURRENT.md) only when resuming cross-session work
-   or when active constraints/coordination matter. If its goal is unrelated to
-   your task, do not take it over or edit it. When resuming prior work, follow its
-   **Latest coordination handoff** link before deciding what may safely continue.
-4. Read [Control Plane](../playbook/CONTROL_PLANE.md) only if task state, routing,
-   recovery, hcom, or retained runtime boundaries matter to the work.
-5. Select **one** relevant method from the
-   [playbook index](../playbook/INDEX.md). Read another method only when the first
-   explicitly delegates a distinct concern to it. Do not browse the playbook as
-   a prerequisite ritual.
-6. Before editing, confirm the active contract has an owner, allowed outputs,
-   observable acceptance criteria, verification, and escalation boundary. Shape
-   missing detail inside inherited authority; escalate only a true authority
-   crossing.
+## Minimum route
+
+1. Read [`AGENTS.md`](../AGENTS.md), the **single repository-wide operating contract**.
+2. Read the approved roadmap/project scope and active task. If authorized roadmap
+   work exists but no child task does, the orchestration operator shapes/selects
+   the next in-scope task and continues.
+3. Select **one** relevant method from the [playbook index](../playbook/INDEX.md).
+   Read a second only when a distinct concern actually requires it.
+4. Confirm owner, outputs/actions, acceptance criteria, verification/review, and
+   the true authority boundary. Shape missing detail inside inherited authority;
+   escalate only a real boundary crossing.
 
 Common-case reading budget:
 
@@ -31,10 +22,25 @@ Common-case reading budget:
 AGENTS.md + approved roadmap/task + one relevant playbook method
 ```
 
-Add current state/handoff only when continuation requires it. If routine work
-requires stitching several overlapping playbooks together, treat that as a
-consolidation problem rather than normal onboarding.
+## Route by need
 
-Stop orientation once you can name the task’s owner, allowed outputs, next
-action, verification, and escalation boundary. Do not read `legacy/` unless an
-active higher-level source links a specific source for a specific reason.
+Do not browse directories to discover these paths:
+
+| Need | Route |
+| --- | --- |
+| Role-bound browser session / PR coordination | [`work/coordination/README.md`](../work/coordination/README.md) → required coordination route → live GitHub |
+| Resume prior cross-session work | [`state/CURRENT.md`](../state/CURRENT.md) → linked handoff → live GitHub |
+| Find a `work/` record class | [`work/README.md`](../work/README.md) |
+| Capability/roadmap question | [`work/roadmaps/README.md`](../work/roadmaps/README.md) before opening a large roadmap/checklist |
+| Runtime/control-plane concern | [`playbook/CONTROL_PLANE.md`](../playbook/CONTROL_PLANE.md) |
+| Fresh runtime installation | [`docs/FRESH_INSTALL.md`](FRESH_INSTALL.md) |
+| Verification/review level | [`docs/CHECKS_AND_BALANCES.md`](CHECKS_AND_BALANCES.md) |
+
+Read current state only for continuation/coordination. Read control-plane material
+only when runtime state/routing/recovery/transport matters. Read `legacy/` only
+when an active higher-level source links a specific legacy source for a specific
+reason.
+
+Do not read the whole wiki, `work/`, roadmap corpus, or playbook as a prerequisite
+ritual. If routine work requires stitching several overlapping documents together,
+treat that as a routing/consolidation problem.
