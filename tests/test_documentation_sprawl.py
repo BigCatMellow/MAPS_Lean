@@ -164,6 +164,13 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("keep the maintenance change only when it produces a real routing benefit", lifecycle)
         self.assertIn("do not create a second graph registry", lifecycle)
 
+    def test_playbook_index_routes_maintenance_without_retired_context_doc(self):
+        index = INDEX.read_text(encoding="utf-8")
+        self.assertIn("Keep project information trustworthy and cheap to retrieve over time", index)
+        self.assertIn("[INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md)", index)
+        self.assertIn("[Current state](../state/CURRENT.md)", index)
+        self.assertNotIn("../docs/CONTEXT.md", index)
+
 
 if __name__ == "__main__":
     unittest.main()
