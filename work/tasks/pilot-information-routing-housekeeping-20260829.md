@@ -1,34 +1,34 @@
-# Task: Pilot information-routing housekeeping
+# Task: Pilot system housekeeping
 
-- Status: `READY_FOR_REVIEW`
+- Status: `ACTIVE`
 - AGI status: `AGI READY`
 - Type: `MAINTENANCE`
 - Owner: orchestration operator
 - Risk: `MEDIUM`
-- Goal: Reduce MAPS_L/Pilot navigation token cost by making the active documentation graph route a fresh or returning agent to the smallest relevant authority/method/evidence set without broad directory search or duplicated prose, and leave a repeatable maintenance procedure that preserves those gains.
+- Goal: Keep Pilot/MAPS_L cheap to navigate and independently operable: minimize documentation retrieval cost, preserve a repeatable routing-maintenance procedure, and prevent repeatable project outcomes from depending on the original AI/session for future operation or reconstruction.
 - Parent roadmap: operator-authorized housekeeping assignment in current conversation
 - Autonomous continuation: `YES`
 
 ## Inputs and source of truth
 
-- Inputs: `AGENTS.md`, `docs/FIRST_RUN.md`, `README.md`, `playbook/INDEX.md`, `playbook/INFORMATION_LIFECYCLE.md`, `tools/digital_fungus.py`, `obsidian/README.md`, `work/roadmaps/README.md`, key templates, live open PRs #173/#174/#178 as non-authoritative evidence.
+- Inputs: `AGENTS.md`, `docs/FIRST_RUN.md`, `README.md`, `playbook/INDEX.md`, `playbook/INFORMATION_LIFECYCLE.md`, `playbook/TASK_LIFECYCLE.md`, `tools/digital_fungus.py`, `obsidian/README.md`, `work/roadmaps/README.md`, key templates, and live GitHub state.
 - Authoritative sources: current accepted `main` + this task + direct operator instruction; live GitHub wins for current PR/branch facts.
-- Evidence labels: current files/SHAs, route-cost checks, and implementation CI results are `VERIFIED`; final task-status-only head awaits its normal CI rerun.
+- Evidence labels: current files/SHAs and prior route-cost/CI evidence are `VERIFIED`; the new operational-independence rule awaits exact-head CI.
 - Dependencies / preconditions: avoid runtime/feature paths owned by other active agents.
 
 ## Change boundary
 
-- MAY CHANGE: documentation/navigation files, templates, documentation regression tests, read-only documentation-analysis tooling, this task record, and the housekeeping PR.
+- MAY CHANGE: documentation/navigation files, task/completion procedures, templates, documentation regression tests, read-only documentation-analysis tooling, this task record, and the housekeeping PR.
 - MUST NOT CHANGE: runtime behavior, task-state schema, orchestration implementation, provider adapters, feature roadmaps' substantive capability claims, or another agent's branch.
 - MAY CHANGE IF NECESSARY: small path/index files whose only job is routing existing content.
 - HUMAN REAUTHORIZATION REQUIRED: none for this bounded housekeeping pass.
 
 ## Decision authority
 
-- Inherited roadmap authority: reorganize/link/compact active documentation for token-efficient routing without changing project behavior or authority.
-- Owner may decide: exact routing hubs, link shape, compact wording, route-cost metrics, relationship fields, and the trigger/checklist for future routing maintenance.
-- Resolve internally first: whether to add a link/index versus consolidate; whether a relationship is navigationally useful or merely graph density; whether maintenance produces measurable routing benefit before retaining churn.
-- Human escalation only if: the change would alter runtime capability, approved project authority, or substantive roadmap intent.
+- Inherited roadmap authority: reorganize/link/compact active documentation and improve completion hygiene without changing project behavior or authority.
+- Owner may decide: routing hubs, compact wording, route-cost metrics, relationship fields, maintenance triggers, and the exact reproducibility/first-time-user completion checks for repeatable work.
+- Resolve internally first: add/link/consolidate/retire decisions; whether a process is genuinely repeatable; whether automation is technically feasible/proportionate; whether maintenance produces measurable benefit before retaining churn.
+- Human escalation only if: the change would alter runtime capability, approved project authority, substantive roadmap intent, or require a human-only product preference.
 
 ## Acceptance criteria
 
@@ -41,24 +41,31 @@
 - [x] `INFORMATION_LIFECYCLE.md` owns a repeatable, trigger-based information-routing maintenance pass with baseline, consolidation/link/retirement, remeasurement, and stop criteria.
 - [x] `AGENTS.md` points documentation-cost degradation to that procedure without duplicating it.
 - [x] The maintenance procedure is discoverable from `playbook/INDEX.md` and does not preserve links to retired duplicate docs.
+- [x] Repeatable operational work cannot reach parent success while the triggered Operational independence gate is unresolved.
+- [x] `TASK_LIFECYCLE.md` requires solve/discover first when useful, then first-time-user instructions, reproducible code/script/formulas/query/config/template, portable configuration, provenance, and reproduction proof.
+- [x] The reproducibility rule explicitly covers spreadsheet/Google Sheets-style workflows and avoids embedding secrets.
+- [x] A justified `N/A` exists for genuinely one-off/creative work or technically unavailable/disproportionate automation; best-available manual reproduction remains required when useful.
+- [x] `templates/task.md` records `Operational independence: REQUIRED | N/A — reason` and the reproduction-package path/proof.
+- [x] Regression tests guard the global completion rule, procedure, and task-template fields.
 - [x] No broad automatic semantic linking, graph database, duplicate mutable index, or runtime authority change is introduced.
-- [x] Required implementation CI passes.
+- [ ] Exact-head implementation CI passes.
 - [ ] Independent review passes before merge.
 
 ## Verification and evidence
 
-- `AGENTS.md`: 13,554 → 9,634 bytes (~29% smaller) after adding the maintenance trigger/routing link; still below its 10,000-byte guard.
+- `AGENTS.md`: original 13,554 bytes; compacted surface remains under its 10,000-byte guard after adding the completion-gate route.
 - Root `README.md`: 7,151 → 3,511 bytes (~51% smaller).
 - `docs/FIRST_RUN.md`: 2,267 bytes with direct routes to all five stable navigation hubs.
 - `playbook/INDEX.md`: 8,516 → 6,759 bytes (~21% smaller) after the maintenance pass caught the hub approaching its route-cost budget.
 - Route guards verify all five common hubs are exactly one hop from `FIRST_RUN` and stay below a 2,200-token planning proxy.
 - `work/README.md` routes every top-level durable record class without requiring directory search.
 - Large roadmap/checklist surfaces (~58 KB / ~36 KB) are behind a question router rather than normal orientation.
-- Redundant `docs/WORKFLOW.md` and `docs/CONTEXT.md` were retired instead of preserving duplicate islands; the stale playbook-index reference to `docs/CONTEXT.md` was subsequently repaired by the maintenance pass.
+- Redundant `docs/WORKFLOW.md` and `docs/CONTEXT.md` were retired; the stale playbook-index reference was repaired.
 - Digital Fungus distinguishes note edges, valid directory destinations, real broken links, and least-read-cost routes.
-- Runtime stack tests run `33249143388` / run 976 passed on implementation head `830875f2d3c410a9882d8b063c94568b8522a34a`, including full active tests, LangGraph smoke, lint, security analysis, dependency consistency, and installer preview.
-- Final head differs only by task-record status/evidence text and will receive the normal CI rerun; independent `review-evidence` remains intentionally pending/failing until a separate reviewer supplies evidence.
+- Operational independence owner: `playbook/TASK_LIFECYCLE.md#operational-independence-gate`; global route: `AGENTS.md`; task capture: `templates/task.md`.
+- Prior runtime-stack CI passed on the routing-maintenance implementation. New exact-head CI must cover the added completion rule/tests.
+- Independent `review-evidence` remains intentionally pending/failing until a separate reviewer supplies evidence.
 
 ## Stop / escalate
 
-Implementation housekeeping and its repeatable maintenance procedure are complete. No further change churn unless CI or independent review identifies a concrete defect. Do not merge or self-certify independent review.
+Continue through exact-head verification for the added operational-independence completion rule. Then return to `READY_FOR_REVIEW`. Do not merge or self-certify independent review.
