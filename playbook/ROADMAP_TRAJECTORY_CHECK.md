@@ -35,6 +35,25 @@ Run at natural work-arc boundaries, not after every task:
    what changed, and why. The note is evidence; update the canonical roadmap or
    checklist itself when the plan/status changes.
 
+## Friction-log consumption (every pass)
+
+Every trajectory-check pass must skim
+[`work/coordination/FRICTION_LOG.md`](../work/coordination/FRICTION_LOG.md) for
+entries with `verified: UNVERIFIED` or `countermeasure: none yet`. For each such
+entry, do one of:
+
+- **close it** — confirm the countermeasure is live and append a dated
+  `follow-up` line saying how it was verified;
+- **verify it against real system state** — check the named file/mechanism
+  actually exists and behaves as claimed, then record the result; or
+- **escalate it** — surface it as in-scope trajectory work or an operator
+  decision.
+
+Record in the trajectory note that the log was reviewed and what was found
+(even "nothing open"). This is the consumption half of the continuous-improvement
+("triage") loop; capture is owned by
+[`REPAIR_AND_LEARNING.md`](REPAIR_AND_LEARNING.md).
+
 ## Roadmap/status truth rule
 
 Keep **one canonical live status view per program**. Do not accumulate parallel
@@ -76,3 +95,8 @@ ROADMAP_TRAJECTORY_CHECK.md  → is the roadmap still right given current eviden
 ```
 
 All three are orchestration methods. None is a routine human approval gate.
+
+When a pass finds nothing substantive after passes that found something,
+[`TENTH_SEAT_REVIEW.md`](TENTH_SEAT_REVIEW.md) Trigger 2 activates and its §7
+"signs this has gone wrong" duty falls to whoever runs the next pass — read it
+before recording a clean result.

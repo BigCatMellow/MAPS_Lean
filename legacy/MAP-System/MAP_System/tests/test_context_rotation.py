@@ -132,12 +132,12 @@ def expect_rotation_error(callable_) -> str:
 
 
 def test_threshold_boundaries_and_proportional_guard() -> None:
-    assert rotation_advice(119999)["state"] == "below_threshold"
-    assert rotation_advice(120000)["state"] == "checkpoint_due"
-    assert rotation_advice(150000)["state"] == "rotation_due"
-    small = rotation_advice(75000, context_window=100000)
+    assert rotation_advice(147999)["state"] == "below_threshold"
+    assert rotation_advice(148000)["state"] == "checkpoint_due"
+    assert rotation_advice(185000)["state"] == "rotation_due"
+    small = rotation_advice(95000, context_window=100000)
     assert small["state"] == "rotation_due"
-    assert small["soft_at"] == 60000 and small["rotate_at"] == 75000
+    assert small["soft_at"] == 78000 and small["rotate_at"] == 90000
     assert rotation_advice(None)["state"] == "unknown"
 
 

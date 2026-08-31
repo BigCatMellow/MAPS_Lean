@@ -46,5 +46,12 @@ Separate evidence from assumptions.
 
 - <relevant path, command, screenshot, log, decision, or artifact>
 
+## Before finalizing / self-clearing
+
+- Append this session's friction/request items (errors, stalls, tool-gaps,
+  operator asks) to
+  [`work/coordination/FRICTION_LOG.md`](../work/coordination/FRICTION_LOG.md) —
+  one entry each, with a `countermeasure` and a `verified:` field.
+
 If responsibility is actually transferring, ensure the receiving worker has a
 valid task/ownership record; a handoff note alone does not grant authority.
