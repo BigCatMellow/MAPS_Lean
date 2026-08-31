@@ -9,6 +9,10 @@ from .evaluator import (
     task_needs_operator_approval,
 )
 from .halt import HaltRecord, HaltStore, halt_block_reason
+from .memory_provenance_guard import (
+    MemoryProvenanceGuard,
+    register_memory_provenance_guards,
+)
 from .memory_trust_gate import (
     MemoryAdmission,
     MemoryAdmissionDecision,
@@ -30,6 +34,7 @@ __all__ = [
     "HaltStore",
     "MemoryAdmission",
     "MemoryAdmissionDecision",
+    "MemoryProvenanceGuard",
     "MemoryTrustGateError",
     "PolicyDecision",
     "WorkerProfile",
@@ -39,6 +44,7 @@ __all__ = [
     "halt_block_reason",
     "register_canonical_run_guards",
     "register_destructive_external_action_guards",
+    "register_memory_provenance_guards",
     "task_needs_human_reauthorization",
     "task_needs_operator_approval",
 ]

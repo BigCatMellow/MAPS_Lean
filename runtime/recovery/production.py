@@ -118,6 +118,10 @@ from runtime.policy.destructive_action_guard import (
     register_destructive_external_action_guards,
 )
 from runtime.policy.harness_guard import CanonicalRunGuard, register_canonical_run_guards
+from runtime.policy.memory_provenance_guard import (
+    MemoryProvenanceGuard,
+    register_memory_provenance_guards,
+)
 from runtime.recovery.store import RecoveryStore
 from runtime.recovery.supervisor import RecoverySupervisor
 
@@ -396,6 +400,11 @@ def build_canonical_harness_service(
     register_destructive_external_action_guards(
         registry, DestructiveExternalActionGuard(task_reader)
     )
+    # 6.22 slice 1: fail-closed guard over the memory provenance of a `send()`
+    # payload, on the already-fired `BEFORE_SEND`. Needs no store -- it reads
+    # only the payload annotation and the pure `admit_memory_evidence()`. No
+    # production `send()` caller exists yet, so this changes no live behavior.
+    register_memory_provenance_guards(registry, MemoryProvenanceGuard())
     return HarnessService([adapter], hooks=registry)
 
 
