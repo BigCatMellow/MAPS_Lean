@@ -10,6 +10,7 @@ from .format import SkillDescriptor, SkillDocument, discover_skills, load_skill
 from .lifecycle import SkillLifecycleState
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
+    from runtime.state.common import MutationResult
     from runtime.state.skill_lifecycle_storage import SkillLifecycleStorageMixin
 
 
@@ -35,6 +36,19 @@ def _required_text(value: str, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{field_name} must be non-empty text")
     return value.strip()
+
+
+def _catalog_key(source_id: str, descriptor: SkillDescriptor) -> str:
+    """The one content-addressed catalog-key formula.
+
+    Used by both `SkillCatalogEntry.catalog_key` and `build_skill_catalog`'s
+    pre-entry lifecycle-state lookup so the two can never drift.
+    """
+
+    return (
+        f"{source_id}:{descriptor.skill_id}"
+        f"@sha256:{descriptor.content_sha256}"
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,10 +99,7 @@ class SkillCatalogEntry:
 
     @property
     def catalog_key(self) -> str:
-        return (
-            f"{self.provenance.source_id}:{self.descriptor.skill_id}"
-            f"@sha256:{self.descriptor.content_sha256}"
-        )
+        return _catalog_key(self.provenance.source_id, self.descriptor)
 
 
 @dataclass(frozen=True, slots=True)
@@ -193,10 +204,7 @@ def build_skill_catalog(
     for source in sorted(selected, key=lambda item: item.source_id):
         source_ref = source.source_ref or str(source.root.resolve())
         for descriptor in discover_skills(source.root):
-            catalog_key = (
-                f"{source.source_id}:{descriptor.skill_id}"
-                f"@sha256:{descriptor.content_sha256}"
-            )
+            catalog_key = _catalog_key(source.source_id, descriptor)
             lifecycle_state = (
                 store.get_skill_lifecycle_state(catalog_key)
                 if store is not None
@@ -223,7 +231,7 @@ def register_skill_catalog(
     store: "SkillLifecycleStorageMixin",
     *,
     now=None,
-) -> list:
+) -> "list[MutationResult]":
     """Record a durable lifecycle subject for every catalog entry that lacks one.
 
     This is the production caller of `record_skill_lifecycle_subject()`

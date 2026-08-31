@@ -4,20 +4,23 @@ This module is a validated in-memory state machine over
 `SkillLifecycleState`. It owns no persistence, no task/session authority, and
 no canonical storage -- exactly parallel in spirit to how
 `runtime.harness.hooks`'s `HookDirective`/`HookOutcome` are pure logic with no
-storage. Actually recording a Skill's current lifecycle state durably, and
-wiring operator approval through a real authority path, is out of scope here
-and left for a future task (see `work/tasks/skill-trust-lifecycle-wave11.md`).
+storage. Durable recording of a Skill's current lifecycle state now lives in
+`runtime.state.skill_lifecycle_storage` (SEC4 Half 1, PR #171): an append-only
+subject/decision store whose effective state is replayed through *this*
+module's pure validator. Wiring operator approval through a real
+operator-identity authority path is still out of scope here and deferred as
+SEC4 Half 3 (see `work/notes/2026-08-31-sec4-half2-authority-wiring-design.md`).
 
-`runtime.skills.catalog.SkillTrustState` currently has exactly one member,
-`UNASSESSED`, because catalog discovery itself can only ever say
-"unassessed" -- it has no gate evidence and no operator decision to draw on.
-This module is the "future reviewed trust lifecycle" that comment predicted:
-a 7-state sequence (`DISCOVERED` -> `VALIDATED`/`QUARANTINED` ->
-`APPROVED` -> `ACTIVE` -> `SUPERSEDED`/`RETIRED`) with a pure, statically
-checkable transition graph. It is deliberately *not* wired into
-`SkillCatalog`/`SkillTrustState` in this task -- that wiring implies a
-persistence decision (where does the current state of a given Skill live
-across process restarts?) that is explicitly deferred.
+`SkillLifecycleState` is the single system of record for "where is this Skill
+in its trust lifecycle": a 7-state sequence (`DISCOVERED` ->
+`VALIDATED`/`QUARANTINED` -> `APPROVED` -> `ACTIVE` ->
+`SUPERSEDED`/`RETIRED`) with a pure, statically checkable transition graph.
+The former `runtime.skills.catalog.SkillTrustState` enum (one member,
+`UNASSESSED`) was collapsed into this vocabulary by SEC4 Half 2 (PR #192):
+`SkillProvenance.lifecycle_state: SkillLifecycleState | None` now carries a
+one-directional read of the durable store (`None` == "no subject row", the
+old `UNASSESSED`), and `runtime.trust.skill_lifecycle_trust_class` is the sole
+projection onward to `MemoryTrustClass`.
 
 Design notes on the transition graph:
 
