@@ -51,6 +51,26 @@ When a recurring lesson becomes startup/task guidance, keep it scoped and point
 back to the evidence that justified it. Do not load the full incident archive
 into every future agent session.
 
+## Operator-friction and request capture
+
+Friction signals that are **not drift** — operator requests, recurring stalls,
+tool-gaps, clunky workflows — do not fit the repair-note severity table above.
+Capture them instead in
+[`work/coordination/FRICTION_LOG.md`](../work/coordination/FRICTION_LOG.md):
+
+- one append-only entry each, with a concrete `signal`, the durable
+  `countermeasure` (or `none yet`), and a `verified:` field recording whether
+  the countermeasure is confirmed live in the system or still `UNVERIFIED`;
+- every session appends its friction/request items to that log before
+  self-clearing or handing off (also part of the handoff checklist);
+- [`ROADMAP_TRAJECTORY_CHECK.md`](ROADMAP_TRAJECTORY_CHECK.md) consumes the log
+  every pass — it skims for `UNVERIFIED` / `none yet` entries and closes,
+  verifies, or escalates each one.
+
+This is the capture half of the continuous-improvement ("triage") loop; the
+trajectory check is the consumption half. A signal severe enough for a
+permanent test still becomes a frozen regression case as above.
+
 ## Freezing a real incident as a regression case
 
 When a real incident is severe enough, or has already repeated, to warrant a

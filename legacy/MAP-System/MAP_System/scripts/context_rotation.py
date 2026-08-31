@@ -62,9 +62,16 @@ if str(REPO) not in sys.path:
 DEFAULT_DB = ROOT / "map.db"
 DEFAULT_MASTER = ROOT / "shared" / "context-continuity.md"
 DEFAULT_LOCK = ROOT / ".locks" / "context-rotation.lock"
-DEFAULT_THRESHOLD_TOKENS = 150_000
-SOFT_FRACTION = 0.60
-HARD_FRACTION = 0.75
+# Coordinator-tuned defaults. A session holding several in-flight helper lanes
+# plus roadmap state across round-trips needs more headroom than a single-task
+# implementer; a mid-arc rotation there disrupts more than it helps. With
+# lossless SessionStart handoff injection a rotation costs ~5k re-orientation,
+# not ~40k, so the higher marks are safe.
+#   flat default:  soft checkpoint at 0.80 * 185k = 148k, rotate at 185k
+#   known window:  soft at min(148k, window * 0.78), rotate at min(185k, window * 0.90)
+DEFAULT_THRESHOLD_TOKENS = 185_000
+SOFT_FRACTION = 0.78
+HARD_FRACTION = 0.90
 MASTER_PREFIX = "<!-- context-rotation-state\n"
 MASTER_SUFFIX = "\n-->"
 SAFE_ID = re.compile(r"[^A-Za-z0-9_.-]+")
