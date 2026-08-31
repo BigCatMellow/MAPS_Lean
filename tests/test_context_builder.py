@@ -544,17 +544,18 @@ class ContextBuilderTests(unittest.TestCase):
         return build_skill_catalog([source])
 
     def _plan_with_skill_trust_class(self, replacement):
-        """Build a plan with `skill_trust_class` swapped for `replacement`.
+        """Build a plan with `_skill_trust_class` swapped for `replacement`.
 
-        `SkillTrustState` has only `UNASSESSED` today, so the LOAD and DENY
-        rows of the admission table are unreachable through real catalog
-        data. Substituting the mapping function is the only way to exercise
-        the gate's other outcomes at the real seam.
+        Every catalog entry's `lifecycle_state` is `None` until a store is
+        wired into `build_skill_catalog`, so the LOAD and DENY rows of the
+        admission table are unreachable through real catalog data.
+        Substituting the projection helper is the only way to exercise the
+        gate's other outcomes at the real seam.
         """
 
         task_id = self.create_task()
         catalog = self._catalog_with_matching_and_unrelated_skill()
-        with patch("runtime.context_builder.skill_trust_class", replacement):
+        with patch("runtime.context_builder._skill_trust_class", replacement):
             return build_context_plan(
                 self.store, task_id, repo_root=self.root, skill_catalog=catalog
             )
@@ -635,7 +636,7 @@ class ContextBuilderTests(unittest.TestCase):
         entry = plan["skills"][0]
         self.assertEqual(entry["name"], "context-plan-builder")
         self.assertEqual(entry["source_id"], "local")
-        self.assertEqual(entry["trust_state"], "UNASSESSED")
+        self.assertIsNone(entry["lifecycle_state"])
         self.assertEqual(entry["trust_class"], MemoryTrustClass.OBSERVATION.value)
         self.assertIn("context", entry["selection_reason"])
         self.assertTrue(entry["catalog_key"])

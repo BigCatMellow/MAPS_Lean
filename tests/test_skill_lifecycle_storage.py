@@ -683,33 +683,42 @@ class SkillLifecycleSourceGuardTests(unittest.TestCase):
                 f"{path.name} must not open its own connection; BaseStore owns that",
             )
 
-    def test_half_1_wires_no_production_consumer(self):
-        """Half 2 (authority wiring) is a separate task and has not landed."""
-        api_names = (
+    def test_half_2_read_side_consumers_only_no_operator_transition_caller(self):
+        """Half 2 wires the read side (catalog build + refusal); it does not
+        add a production caller for `record_skill_lifecycle_transition`
+        (operator-driven transitions are a later task)."""
+        read_side = (
             "record_skill_lifecycle_subject",
-            "record_skill_lifecycle_transition",
             "get_skill_lifecycle_state",
             "get_skill_lifecycle_subject",
-            "list_skill_lifecycle_decisions",
-            "list_skill_lifecycle_subjects",
         )
         allowed = {
             REPO_ROOT / "runtime" / "state" / "skill_lifecycle_storage.py",
+            REPO_ROOT / "runtime" / "skills" / "catalog.py",
         }
         for path in (REPO_ROOT / "runtime").rglob("*.py"):
+            text = path.read_text(encoding="utf-8")
+            if "record_skill_lifecycle_transition" in text:
+                self.assertEqual(
+                    path,
+                    REPO_ROOT / "runtime" / "state" / "skill_lifecycle_storage.py",
+                    f"{path.relative_to(REPO_ROOT)} calls the operator-transition "
+                    "API; that has no production caller yet",
+                )
             if path in allowed:
                 continue
-            text = path.read_text(encoding="utf-8")
-            for name in api_names:
+            for name in read_side:
                 self.assertNotIn(
                     name,
                     text,
-                    f"{path.relative_to(REPO_ROOT)} calls {name}; authority wiring is Half 2",
+                    f"{path.relative_to(REPO_ROOT)} uses {name}; the only Half-2 "
+                    "consumer is runtime/skills/catalog.py",
                 )
-        # SkillTrustState is untouched by Half 1 (design-note question 6).
+        # Half 2 collapsed SkillTrustState into SkillLifecycleState
+        # (design-note question 6).
         catalog = (REPO_ROOT / "runtime" / "skills" / "catalog.py").read_text(encoding="utf-8")
-        self.assertIn('UNASSESSED = "UNASSESSED"', catalog)
-        self.assertNotIn("skill_lifecycle", catalog)
+        self.assertNotIn("SkillTrustState", catalog)
+        self.assertIn("lifecycle_state", catalog)
 
     def test_store_registers_the_mixin_exactly_once(self):
         from runtime.state.skill_lifecycle_storage import SkillLifecycleStorageMixin

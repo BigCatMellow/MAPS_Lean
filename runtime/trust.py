@@ -11,7 +11,6 @@ names, defined here as a single real enum for the first time. Before this
 module, trust-adjacent vocabulary existed only per-subsystem and did not
 overlap cleanly:
 
-- `runtime.skills.catalog.SkillTrustState` -- one member, `UNASSESSED`.
 - `runtime.skills.lifecycle.SkillLifecycleState` -- seven members
   (`DISCOVERED`, `VALIDATED`, `QUARANTINED`, `APPROVED`, `ACTIVE`,
   `SUPERSEDED`, `RETIRED`), which already overlaps heavily with the
@@ -20,15 +19,15 @@ overlap cleanly:
   `RETIRED`) plus the `GUIDANCE_ONLY` authority label used in
   `runtime.context_builder`'s `_lesson_guidance`.
 
-This module defines the unified vocabulary and three READ-ONLY
-correspondence mappings from each existing subsystem vocabulary onto it.
+This module defines the unified vocabulary and two READ-ONLY correspondence
+mappings from each surviving subsystem vocabulary onto it.
 Exactly like `runtime.skills.lifecycle`'s own docstring says of itself: this
 module owns NO persistence, NO task/session authority, and NO canonical
 storage. The mapping functions below are pure lookups -- they do not
 persist anything, do not change any subsystem's real behavior, and do not
 grant authority. In particular, this module does NOT modify
-`SkillTrustState`, `SkillLifecycleState`, or `operational_learning.py`'s
-real enum/status handling.
+`SkillLifecycleState` or `operational_learning.py`'s real enum/status
+handling.
 
 This module itself still gates nothing: it defines vocabulary and lookups
 only. One consumer now makes a real decision from it --
@@ -47,7 +46,6 @@ from __future__ import annotations
 
 from enum import Enum
 
-from .skills.catalog import SkillTrustState
 from .skills.lifecycle import SkillLifecycleState
 
 
@@ -71,32 +69,15 @@ class TrustClassError(ValueError):
     """Raised when a raw status string has no known trust-class mapping."""
 
 
-# --- runtime.skills.catalog.SkillTrustState ---------------------------------
-#
-# `SkillTrustState` currently has exactly one member, `UNASSESSED`, because
-# catalog discovery itself can only ever say "unassessed" -- it has no gate
-# evidence and no operator decision to draw on (see the comment on
-# `SkillTrustState` itself). The most honest `MemoryTrustClass` mapping for
-# that is `OBSERVATION`: an unassessed catalog entry is an observed fact
-# ("a Skill exists on disk with this provenance"), not yet a `CLAIM` (no
-# assessment has been made about it), and certainly not `CANDIDATE_LESSON`,
-# `REVIEWED_GUIDANCE`, or anything further along the trust ladder.
-_SKILL_TRUST_STATE_TO_MEMORY_TRUST_CLASS: dict[SkillTrustState, MemoryTrustClass] = {
-    SkillTrustState.UNASSESSED: MemoryTrustClass.OBSERVATION,
-}
-
-
-def skill_trust_class(state: SkillTrustState) -> MemoryTrustClass:
-    """Map a `runtime.skills.catalog.SkillTrustState` to its corresponding
-    `MemoryTrustClass`. Read-only lookup; grants no authority.
-    """
-
-    if not isinstance(state, SkillTrustState):
-        raise TrustClassError(f"not a SkillTrustState: {state!r}")
-    return _SKILL_TRUST_STATE_TO_MEMORY_TRUST_CLASS[state]
-
-
 # --- runtime.skills.lifecycle.SkillLifecycleState ---------------------------
+#
+# SEC4 Half 2 collapsed the former `SkillTrustState` enum (one member,
+# `UNASSESSED`) into `SkillLifecycleState`: `SkillProvenance` now carries a
+# `lifecycle_state: SkillLifecycleState | None` read one-directionally from
+# the durable store, and the "not yet assessed" case that `UNASSESSED` stood
+# for is represented by `None` -- mapped to `OBSERVATION` at the one call
+# site (`runtime.context_builder._skill_trust_class`), not here. This mapping
+# below is therefore the single Skill -> `MemoryTrustClass` projection.
 #
 # This is close to 1:1 given the overlap already noted in the roadmap
 # checklist and in `lifecycle.py`'s own docstring:

@@ -43,10 +43,12 @@ class MemoryTrustGateError(ValueError):
 # new semantics, and deliberately an explicit dict rather than a threshold
 # comparison over `MemoryTrustClass` declaration order.
 #
-# `ACTIVE_INSTRUCTION` and `CANONICAL_POLICY` are unreachable at this seam
-# today: `_select_skills()` only ever calls `skill_trust_class()` (whose sole
-# mapping target is `OBSERVATION`), never `skill_lifecycle_trust_class()`,
-# and no memory-like producer emits `CANONICAL_POLICY` at all. #148 conditions
+# `ACTIVE_INSTRUCTION` and `CANONICAL_POLICY` are effectively unreachable at
+# this seam today: `_select_skills()` projects a Skill's lifecycle state via
+# `skill_lifecycle_trust_class()`, but every entry's `lifecycle_state` is
+# `None` (mapped to `OBSERVATION`) until a durable store is wired into
+# `build_skill_catalog()`, and no memory-like producer emits
+# `CANONICAL_POLICY` at all. #148 conditions
 # `ACTIVE_INSTRUCTION`'s load on "a separate Skill loader task proves the
 # source active"; that condition is carried forward as
 # `_LOAD_REQUIRES_PROVEN_ACTIVE_SOURCE` below rather than silently widened.

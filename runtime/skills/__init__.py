@@ -10,9 +10,9 @@ from .catalog import (
     SkillNotFoundError,
     SkillProvenance,
     SkillSourceKind,
-    SkillTrustState,
     build_skill_catalog,
     load_catalog_skill,
+    register_skill_catalog,
 )
 from .evaluation import (
     SkillEvalCandidate,
@@ -78,7 +78,6 @@ __all__ = [
     "SkillSelectionOutcome",
     "SkillSelectionPrediction",
     "SkillSourceKind",
-    "SkillTrustState",
     "assess_skill",
     "build_skill_catalog",
     "discover_skills",
@@ -87,5 +86,6 @@ __all__ = [
     "load_catalog_skill",
     "load_skill",
     "load_skill_selection_corpus",
+    "register_skill_catalog",
     "transition",
 ]
