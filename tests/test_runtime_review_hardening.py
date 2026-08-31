@@ -312,6 +312,38 @@ class RuntimeReviewHardeningTests(unittest.TestCase):
         self.assertIn("secret/a.txt", result["forbidden_changes"])
         self.assertIn("src/a.txt", result["changed_paths"])
 
+    def test_verify_git_run_worktree_mismatch_payload_is_stable_after_refactor(self):
+        base = self.init_git()
+        tid = self.active(outputs=["src"])
+        manifest = self.make_run(tid, writable_paths=["src"], base_revision=base)
+        clone = self.root / "clone"
+        subprocess.run(
+            ["git", "clone", str(self.repo), str(clone)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        result = verify_git_run(self.store, manifest["run_id"], repo_root=clone)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["reason"], "worktree_mismatch")
+        self.assertEqual(result["worktree_binding"], "mismatch")
+        mismatch = result["worktree_mismatch"]
+        self.assertEqual(mismatch["expected_repo_root"], str(self.repo.resolve()))
+        self.assertEqual(mismatch["actual_repo_root"], str(clone.resolve()))
+        self.assertEqual(
+            set(mismatch),
+            {
+                f"{side}_{field}"
+                for side in ("expected", "actual")
+                for field in (
+                    "repo_root",
+                    "git_common_dir",
+                    "git_dir",
+                    "worktree_private_dir",
+                )
+            },
+        )
+
     def test_run_budget_exhausts_at_declared_limit_and_can_write_evidence(self):
         tid = self.active(outputs=["src"])
         manifest = self.make_run(

@@ -13,7 +13,14 @@ from runtime.harness import (
     HookSpec,
 )
 from runtime.harness.hooks import HookEnforcement
+from runtime.integrity.git_scope import (
+    collect_git_worktree_identity,
+    compare_worktree_identity,
+)
 from runtime.state.common import parse_time, utc_now
+
+
+WorktreeIdentitySource = Callable[[str], Mapping[str, Any]]
 
 
 class CanonicalRunSource(Protocol):
@@ -27,10 +34,18 @@ class CanonicalRunSource(Protocol):
 class CanonicalRunGuard:
     """Read-only Hook guard over canonical task/run evidence."""
 
-    def __init__(self, source: CanonicalRunSource, *, repo_root: str | Path, now: Callable[[], datetime] = utc_now) -> None:
+    def __init__(
+        self,
+        source: CanonicalRunSource,
+        *,
+        repo_root: str | Path,
+        now: Callable[[], datetime] = utc_now,
+        worktree_identity: WorktreeIdentitySource = collect_git_worktree_identity,
+    ) -> None:
         self.source = source
         self.repo_root = Path(repo_root).resolve()
         self.now = now
+        self.worktree_identity = worktree_identity
 
     @staticmethod
     def _deny(code: str, reason: str) -> HookOutcome:
@@ -90,6 +105,31 @@ class CanonicalRunGuard:
         state = self.source.check_run_stale(run_id, repo_root=self.repo_root)
         if bool(state.get("stale", True)):
             return self._deny("RUN_STALE", "Run context or task definition is stale.")
+        return None
+
+    def _require_bound_worktree(self, manifest: Mapping[str, Any]) -> HookOutcome | None:
+        """Fail closed only for runs bound to a specific Git worktree.
+
+        Unbound runs (non-Git, placeholder ``base_revision``) carry no
+        ``worktree`` mapping and are always allowed -- absence of a binding is a
+        coverage gap, not a failure. When identity cannot be read for a bound
+        run we deny rather than fall back to the process current directory.
+        """
+        expected = manifest.get("worktree")
+        if not isinstance(expected, Mapping):
+            return None
+        try:
+            actual = self.worktree_identity(str(self.repo_root))
+        except RuntimeError:
+            return self._deny(
+                "RUN_WORKTREE_UNAVAILABLE",
+                "Current Git worktree identity could not be read for a worktree-bound run.",
+            )
+        if compare_worktree_identity(dict(expected), dict(actual))["status"] == "mismatch":
+            return self._deny(
+                "RUN_WORKTREE_MISMATCH",
+                "Run is bound to a different Git worktree than the one continuing it.",
+            )
         return None
 
     def _require_durable_session(
@@ -177,6 +217,9 @@ class CanonicalRunGuard:
             if error is not None:
                 return error
             error = self._require_current_run(run_id)
+            if error is not None:
+                return error
+            error = self._require_bound_worktree(manifest)
             if error is not None:
                 return error
         if session_bound:
