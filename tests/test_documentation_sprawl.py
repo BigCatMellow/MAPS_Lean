@@ -173,22 +173,68 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertNotIn("../docs/CONTEXT.md", index)
 
     def test_repeatable_work_requires_operational_independence(self):
-        agents = normalized_text(AGENTS).lower()
-        lifecycle = normalized_text(TASK_LIFECYCLE).lower()
+        """Anchor on structural markers and rule IDs, not exact prose.
+
+        Guards the actual completion-semantic invariant: a triggered gate is
+        part of DONE/parent success, whole-gate ``N/A`` cannot cover a
+        repeatable process merely because automation is infeasible, and the
+        task template still demands a reproduction package / manual fallback.
+        """
+
+        agents_raw = AGENTS.read_text(encoding="utf-8")
+        lifecycle_raw = TASK_LIFECYCLE.read_text(encoding="utf-8")
         task = TASK_TEMPLATE.read_text(encoding="utf-8")
 
-        self.assertIn("leave repeatable work independently operable", agents)
-        self.assertIn("operational independence gate", agents)
-        self.assertIn("operational independence gate", lifecycle)
-        self.assertIn("do the real project first", lifecycle)
-        self.assertIn("first-time-user instructions", lifecycle)
-        self.assertIn("reproducible implementation", lifecycle)
-        self.assertIn("google sheets workflow", lifecycle)
-        self.assertIn("reproduction proof", lifecycle)
-        self.assertIn("original ai/session", lifecycle)
-        self.assertIn("Operational independence:", task)
-        self.assertIn("Reproduction package:", task)
+        # AGENTS.md routes to the owning gate from a hard invariant.
+        self.assertIn("## Hard operating invariants", agents_raw)
+        self.assertIn(
+            "playbook/TASK_LIFECYCLE.md#operational-independence-gate", agents_raw
+        )
+
+        # TASK_LIFECYCLE.md owns the gate with stable headings + rule IDs.
+        self.assertIn("## Operational independence gate", lifecycle_raw)
+        self.assertIn("### Gate rules", lifecycle_raw)
+        for rule_id in ("OIG-DONE", "OIG-NA-WHOLE", "OIG-NA-AUTO"):
+            self.assertIn(rule_id, lifecycle_raw)
+        # Gate stays REQUIRED as a marked term, and DONE cites OIG-DONE.
+        self.assertIn("**REQUIRED**", lifecycle_raw)
+        self.assertIn(
+            "operational-independence requirement (`OIG-DONE`)",
+            " ".join(lifecycle_raw.split()),
+        )
+
+        # Task template keeps the structured fields and the tightened N/A rules.
+        self.assertIn("- Operational independence:", task)
+        self.assertIn("- Reproduction package:", task)
         self.assertIn("TASK_LIFECYCLE.md#operational-independence-gate", task)
+        self.assertIn("OIG-NA-WHOLE", task)
+        self.assertIn("OIG-NA-AUTO", task)
+
+    def test_na_escape_hatch_cannot_silently_become_permissive(self):
+        """OIG-NA-AUTO must keep a mandatory manual fallback when automation is N/A."""
+
+        lifecycle = normalized_text(TASK_LIFECYCLE)
+        # The narrow automation-only N/A clause must still force a manual package.
+        auto_rule = next(
+            block for block in lifecycle.split("`OIG-")
+            if block.startswith("NA-AUTO`")
+        )
+        self.assertIn("MUST still carry", auto_rule)
+        self.assertIn("manual reproduction instructions", auto_rule)
+        # Whole-gate N/A must explicitly exclude "automation infeasible".
+        whole_rule = next(
+            block for block in lifecycle.split("`OIG-")
+            if block.startswith("NA-WHOLE`")
+        )
+        self.assertIn("not", whole_rule.lower())
+        self.assertIn("whole-gate", whole_rule.lower())
+
+    def test_agents_keeps_single_owner_independent_review_invariant(self):
+        """Global task-owner invariant (CLAUDE.md rule 17) survives compaction."""
+
+        agents = normalized_text(AGENTS).lower()
+        self.assertIn("one accountable", agents)
+        self.assertIn("no owner approves their own substantive work", agents)
 
 
 if __name__ == "__main__":

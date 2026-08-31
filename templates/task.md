@@ -58,8 +58,8 @@ Include only what materially applies; use `N/A` explicitly when useful.
 - External side effects: <publication/deployment/API/data mutation or N/A>
 - Effort limit: <time/cost/attempt threshold or N/A>
 - Approved reference: <mockup/spec/schema/behavior reference or N/A>
-- Operational independence: `REQUIRED | N/A — <reason>`
-- Reproduction package: <first-time-user instructions + code/script/formulas/query/config/template + reproduction proof, or N/A>
+- Operational independence: `REQUIRED | N/A — <reason>` (whole-gate `N/A` only for genuinely non-repeatable/one-off work per `OIG-NA-WHOLE`; repeatable work stays `REQUIRED`)
+- Reproduction package: <first-time-user/manual reproduction instructions + source inputs/provenance + verification, plus automation (code/script/formulas/query/config/template) unless that component is `N/A — <reason>` per `OIG-NA-AUTO`>
 
 For repeatable operational work, follow the
 [Operational independence gate](../playbook/TASK_LIFECYCLE.md#operational-independence-gate).
@@ -119,7 +119,7 @@ mandatory AGI requirement passes.
 
 - Completed: <what is verified true now>
 - Not completed: <remaining work or `none`>
-- Reproduction package: <instructions/code/proof path or `N/A — reason`>
+- Reproduction package: <manual instructions + source inputs + verification path, plus automation unless `automation N/A — reason`; whole-gate `N/A — reason` only for genuinely one-off work>
 - Current blocker: <none or exact blocker>
 - Next eligible roadmap task: <task ID/path or `roadmap complete`>
 - Human action required: <none or exact boundary decision>

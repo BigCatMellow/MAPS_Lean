@@ -67,7 +67,7 @@ NEEDS_SHAPING --AGI PASS--> READY --> ACTIVE --> READY_FOR_REVIEW --> DONE
 ```
 
 `DONE` means acceptance criteria, required verification, proportional review,
-and any triggered operational-independence requirement are complete.
+and any triggered operational-independence requirement (`OIG-DONE`) are complete.
 
 ## Operational independence gate
 
@@ -110,11 +110,27 @@ The instructions may live in the target project's normal README/instructions
 surface; the automation belongs with the project/source it operates. Do not
 create a second documentation system just for this gate.
 
-Mark the gate `N/A` only when there is genuinely no repeatable operational
-process, automation is technically unavailable/disproportionate, or the output
-is inherently one-off/creative. Record the reason. When automation is not
-feasible, preserve the clearest manual reproduction procedure and source
-materials available rather than leaving an AI-only dependency.
+### Gate rules
+
+Stable rule IDs; regression protection keys on these, not on surrounding prose.
+
+- `OIG-DONE` — When triggered, this gate is part of `DONE` and of parent
+  success. Acceptance/verification/review completing does not close the task
+  while the triggered gate is unresolved.
+- `OIG-NA-WHOLE` — A whole-gate `N/A — <reason>` is reserved for work that is
+  genuinely non-repeatable or inherently one-off/creative: there is no process a
+  person could reasonably need to rerun, rebuild, refresh, or troubleshoot.
+  Automation being infeasible or disproportionate is **not** a valid whole-gate
+  `N/A` reason for otherwise-repeatable work.
+- `OIG-NA-AUTO` — For repeatable work where building the automation (item 2) is
+  technically infeasible or disproportionate to its value, keep the gate
+  `REQUIRED` and mark only that component `N/A — <reason>`. The reproduction
+  package MUST still carry the best available manual reproduction instructions
+  (item 1), the source inputs/materials and provenance (items 3–4), and
+  proportional verification (item 5). `N/A` never licenses leaving nothing
+  behind or an AI-/session-only dependency.
+
+Record the reason for any `N/A` in the task record.
 
 ## Autonomous roadmap continuation
 

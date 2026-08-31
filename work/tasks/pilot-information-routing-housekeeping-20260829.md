@@ -58,6 +58,33 @@
 - `docs/FIRST_RUN.md`: 2,267 bytes with direct routes to all five stable navigation hubs.
 - `playbook/INDEX.md`: 8,516 → 6,759 bytes (~21% smaller) after the maintenance pass caught the hub approaching its route-cost budget.
 - Route guards verify all five common hubs are exactly one hop from `FIRST_RUN` and stay below a 2,200-token planning proxy.
+- Before -> after common-route / read-cost (single `tools/digital_fungus.py` analyzer run against the pre-change `origin/main` tree at `6462095` and the post-change branch tree):
+
+  ```text
+  metric                                          before (main)   after (branch)
+  navigation targets reachable from FIRST_RUN      2 / 5           5 / 5
+  max navigation route hops                        1               1
+  max navigation route added token proxy           2112            1688   (-20%)
+  active notes reachable from FIRST_RUN            56              67
+
+  per-target route (hops, added token proxy):
+    playbook/INDEX.md            1 hop, +2112    1 hop, +1688
+    work/README.md              UNREACHABLE      1 hop, +871
+    work/roadmaps/README.md     UNREACHABLE      1 hop, +579
+    work/coordination/README.md UNREACHABLE      1 hop, +1530
+    state/CURRENT.md             1 hop, +714     1 hop, +714
+  ```
+
+  Two roadmap/hub targets that a routine agent previously could not reach by
+  link from the entry surface are now one direct hop; the most expensive common
+  route (`playbook/INDEX.md`) dropped ~20% on the read-cost proxy after the INDEX
+  compaction. Retiring `docs/CONTEXT.md` left two dangling references, both
+  repaired without reopening the retirement: `playbook/SIMULATION_DESIGN.md` is
+  repointed to `INFORMATION_LIFECYCLE.md`; the historical navigation trace in
+  `work/reviews/TASK-005-linked-route-selection-report.md` is de-linked to plain
+  text that still records what the index linked at the time. Post-change active
+  broken-link count is 2, unchanged from `main` (both pre-existing and unrelated
+  to this pass).
 - `work/README.md` routes every top-level durable record class without requiring directory search.
 - Large roadmap/checklist surfaces (~58 KB / ~36 KB) are behind a question router rather than normal orientation.
 - Redundant `docs/WORKFLOW.md` and `docs/CONTEXT.md` were retired; the stale playbook-index reference was repaired.

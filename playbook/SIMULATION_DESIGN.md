@@ -56,5 +56,5 @@ falsify it. Run durable workflows in two modes where useful:
    task, current state, and a compact prior handoff.
 
 Use [Task Lifecycle](TASK_LIFECYCLE.md), [Helpers and Communication](HELPERS_AND_COMMUNICATION.md),
-[Context](../docs/CONTEXT.md), and [the review template](../templates/review.md)
+[Information Lifecycle](INFORMATION_LIFECYCLE.md), and [the review template](../templates/review.md)
 to shape and evaluate the simulation.

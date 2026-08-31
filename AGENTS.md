@@ -19,9 +19,8 @@ Within the repository, use this precedence:
 7. **Templates/examples** — structure only.
 8. **`migration/` and `legacy/`** — historical/reference evidence unless explicitly imported by a stronger source.
 
-When active sources conflict, follow the higher source. Do not blend them or
-choose the more restrictive text by reflex; repair the stale lower source when
-safe and in scope.
+When active sources conflict, follow the higher one; do not blend them or default
+to the most restrictive text. Repair a stale lower source when safe and in scope.
 
 ### Documentation sprawl invariant
 
@@ -48,8 +47,8 @@ Common-case reading budget:
 AGENTS.md + approved roadmap/task + one relevant playbook method
 ```
 
-Add current state, coordination, evidence, or another method only when the work
-actually requires it. If routine work needs several overlapping methods, consolidate.
+Add state, coordination, evidence, or another method only when the work requires
+it. If routine work needs several overlapping methods, consolidate.
 
 ## Hard operating invariants
 
@@ -74,6 +73,8 @@ actually requires it. If routine work needs several overlapping methods, consoli
     criteria, required verification, and required review are complete.
 11. **Leave repeatable work independently operable.** Before parent success,
     complete the [Operational independence gate](playbook/TASK_LIFECYCLE.md#operational-independence-gate) when triggered.
+12. **One owner, independent review.** Each active task has one accountable
+    owner; no owner approves their own substantive work.
 
 ## Scope-level authorization
 
