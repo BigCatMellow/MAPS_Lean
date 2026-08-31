@@ -32,6 +32,13 @@ class RecoveryIncident:
     next_attempt_at: str | None = None
     last_attempt_at: str | None = None
     last_error: str = ""
+    # Count of consecutive canonical-run denials (HOOK_DENIED / APPROVAL_REQUIRED)
+    # on the harness resume path with no intervening non-denied outcome. Distinct
+    # from `attempt`: a canonical denial is deterministic w.r.t. an identical
+    # re-run and must not consume a transient retry attempt. Reset to 0 by any
+    # non-denied tick outcome. See RecoverySupervisor.tick() and
+    # work/notes/2026-08-31-canonical-enforcement-first-exposure-design.md §2b.
+    canonical_denials: int = 0
     created_at: str = ""
     updated_at: str = ""
     # Optional binding to the immutable MAPS run this incident concerns. Never

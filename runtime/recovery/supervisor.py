@@ -23,6 +23,17 @@ DEFAULT_BACKOFF_SECONDS = (300, 900, 1800, 3600, 7200)
 # the pre-existing direct-resume call instead (see tick()).
 _CANONICAL_DENIAL_CODES = {"HOOK_DENIED", "APPROVAL_REQUIRED"}
 
+# A canonical-run denial is deterministic w.r.t. an identical re-run, so it must
+# not consume a transient `backoff_seconds` retry attempt (that would launder the
+# real cause through `retry_budget_exhausted`). Instead the incident is parked in
+# a distinct `denied` state, rescheduled on a flat interval, and given its own
+# small ceiling: this many consecutive denials with no intervening non-denied
+# outcome promotes the incident to `failed` / `canonical_denial_persistent`, so a
+# genuinely un-remediable run does not probe forever. Independent of the
+# transient retry budget. See
+# work/notes/2026-08-31-canonical-enforcement-first-exposure-design.md §2b.
+_MAX_CONSECUTIVE_CANONICAL_DENIALS = 3
+
 
 def session_is_live(session: Mapping[str, Any], *, stale_after_seconds: int = 1800) -> bool:
     if str(session.get("status", "")).lower() not in LIVE_STATUSES:
@@ -299,7 +310,7 @@ class RecoverySupervisor:
         actions: list[dict[str, Any]] = []
 
         for incident_id, incident in sorted(state["incidents"].items()):
-            if incident.get("state") not in {"scheduled", "probing"}:
+            if incident.get("state") not in {"scheduled", "probing", "denied"}:
                 continue
             session_name = str(incident["session_name"])
             task_id = str(incident["task_id"])
@@ -419,6 +430,7 @@ class RecoverySupervisor:
                     }
 
             resolved = False
+            canonically_denied = False
             if self.harness_service is not None:
                 binding, session_ref, binding_reason = self._resolve_harness_binding(
                     incident, session_name
@@ -456,6 +468,7 @@ class RecoverySupervisor:
                             error = str(result.summary)
                             action = "resume_denied"
                             resolved = True
+                            canonically_denied = True
                         # else: harness attempt failed for a non-canonical
                         # reason (e.g. no CANONICAL_RUN Hook installed at
                         # all, an adapter/provider failure) -- fall through
@@ -465,6 +478,53 @@ class RecoverySupervisor:
                         # canonical-run denial.
                 else:
                     harness_resume = {"attempted": False, "reason": binding_reason}
+
+            if canonically_denied:
+                # A canonical-run Hook denied this resume. The denial is
+                # deterministic w.r.t. an identical re-run, so it does NOT
+                # consume a transient retry `attempt` and is NOT laundered
+                # through `retry_budget_exhausted`. Park the incident in a
+                # distinct `denied` state carrying the deny code, reschedule on
+                # a flat interval, and only give up after its own separate
+                # consecutive-denial ceiling. `attempt` is left untouched.
+                denials = int(incident.get("canonical_denials", 0)) + 1
+                incident["canonical_denials"] = denials
+                incident["last_attempt_at"] = _time_z(now)
+                incident["last_error"] = error
+                incident["updated_at"] = _time_z(now)
+                if denials >= _MAX_CONSECUTIVE_CANONICAL_DENIALS:
+                    incident["state"] = "failed"
+                    incident["last_error"] = "canonical_denial_persistent"
+                    actions.append(
+                        {
+                            "incident_id": incident_id,
+                            "action": "fail",
+                            "reason": "canonical_denial_persistent",
+                            "attempt": attempt,
+                            "error": "canonical_denial_persistent",
+                            "environment_evidence": evidence,
+                            "harness_resume": harness_resume,
+                            "resume_validation": resume_validation,
+                        }
+                    )
+                else:
+                    incident["state"] = "denied"
+                    incident["next_attempt_at"] = _time_z(
+                        now
+                        + timedelta(seconds=self.silent_stop_probe_delay_seconds)
+                    )
+                    actions.append(
+                        {
+                            "incident_id": incident_id,
+                            "action": "resume_denied",
+                            "attempt": attempt,
+                            "error": error,
+                            "environment_evidence": evidence,
+                            "harness_resume": harness_resume,
+                            "resume_validation": resume_validation,
+                        }
+                    )
+                continue
 
             if not resolved:
                 try:
@@ -477,6 +537,8 @@ class RecoverySupervisor:
 
             attempt += 1
             incident["attempt"] = attempt
+            # Any non-denied outcome breaks a canonical-denial streak.
+            incident["canonical_denials"] = 0
             incident["state"] = "probing"
             incident["last_attempt_at"] = _time_z(now)
             incident["last_error"] = error
