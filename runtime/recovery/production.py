@@ -361,10 +361,11 @@ def build_canonical_harness_service(
     typing; **no second store is opened and no new persistence appears** (design
     §4.5).
 
-    Only `CanonicalRunGuard` is registered. `DestructiveExternalActionGuard`'s
-    two events (`BEFORE_DESTRUCTIVE_ACTION`, `BEFORE_EXTERNAL_ACTION`) are fired
-    by nothing in `runtime/`, so registering it would make `has_enforcement`
-    report a role nothing consults (design §3d).
+    Only `CanonicalRunGuard` is registered. The destructive-external-action
+    guard is intentionally not composed here: the two Hook events it would
+    subscribe to are fired by nothing in `runtime/`, so wiring it would make the
+    registry advertise an enforcement role that no operation consults
+    (design §3d).
 
     This guard never returns `ALLOW` and denies on absent evidence, so callers
     must treat composing it as opt-in / default-off (design §2c): its first
