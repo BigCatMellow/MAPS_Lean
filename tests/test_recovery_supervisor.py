@@ -14,6 +14,7 @@ from runtime.harness.adapters import HcomHarnessAdapter
 from runtime.harness.service import HarnessService
 from runtime.policy.harness_guard import CanonicalRunGuard, register_canonical_run_guards
 from runtime.recovery import RecoveryStore, RecoverySupervisor, session_is_live
+from runtime.recovery.store import parse_time
 from runtime.state import TaskStore
 
 
@@ -824,8 +825,110 @@ class RecoveryHarnessResumeCallSiteTests(unittest.TestCase):
         self.assertEqual(self.hcom.resumes, [])
         incident_id = actions[0]["incident_id"]
         stored = self.recovery_store.load()["incidents"][incident_id]
-        self.assertEqual(stored["state"], "probing")
+        # A canonical denial parks the incident in a distinct `denied` state
+        # carrying the deny code -- NOT `probing` laundered through the
+        # transient retry ladder.
+        self.assertEqual(stored["state"], "denied")
         self.assertEqual(stored["last_error"], "Deterministic Hook denied the operation.")
+        # The transient retry attempt counter is UNTOUCHED; the denial is
+        # tracked on its own separate counter instead.
+        self.assertEqual(stored["attempt"], 0)
+        self.assertEqual(actions[0]["attempt"], 0)
+        self.assertEqual(stored["canonical_denials"], 1)
+        # Rescheduled on the flat silent-stop probe interval (30s in this
+        # fixture), not the escalating backoff ladder (60s, 120s).
+        self.assertEqual(
+            parse_time(stored["next_attempt_at"]),
+            self.now + timedelta(seconds=30),
+        )
+
+    def test_canonical_denial_does_not_consume_transient_retry_budget(self):
+        """Repeated canonical denials never reach `retry_budget_exhausted`; they
+        hit their own separate `canonical_denial_persistent` ceiling instead,
+        and the transient `attempt` counter stays at 0 throughout."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        denial = OperationResult.failure("HOOK_DENIED", "LEASE_EXPIRED: claim lease has expired")
+        harness = FakeHarnessServiceResume(result=denial)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+        )
+        incident_id = None
+        # backoff_seconds=(60, 120) -> transient budget is 2. The ceiling for
+        # consecutive canonical denials is _MAX_CONSECUTIVE_CANONICAL_DENIALS
+        # (3), which is deliberately independent of that budget.
+        for i in range(2):
+            actions = sup.tick(now=self.now + timedelta(seconds=60 * i))
+            incident_id = actions[0]["incident_id"]
+            self.assertEqual(actions[0]["action"], "resume_denied")
+            stored = self.recovery_store.load()["incidents"][incident_id]
+            self.assertEqual(stored["state"], "denied")
+            self.assertEqual(stored["attempt"], 0)
+            self.assertEqual(stored["canonical_denials"], i + 1)
+
+        # Third consecutive denial hits the canonical ceiling -> a distinct
+        # terminal code, NOT retry_budget_exhausted.
+        actions = sup.tick(now=self.now + timedelta(seconds=600))
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(actions[0]["reason"], "canonical_denial_persistent")
+        stored = self.recovery_store.load()["incidents"][incident_id]
+        self.assertEqual(stored["state"], "failed")
+        self.assertEqual(stored["last_error"], "canonical_denial_persistent")
+        self.assertEqual(stored["attempt"], 0)
+        self.assertEqual(self.hcom.resumes, [])
+
+    def test_canonical_denial_streak_resets_on_a_non_denied_outcome(self):
+        """A `denied` incident that later resumes cleanly clears its denial
+        streak and returns to normal `probing`/`resolved` handling."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        harness = FakeHarnessServiceResume(
+            result=OperationResult.failure("HOOK_DENIED", "denied once")
+        )
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+        )
+        actions = sup.tick(now=self.now)
+        incident_id = actions[0]["incident_id"]
+        self.assertEqual(self.recovery_store.load()["incidents"][incident_id]["canonical_denials"], 1)
+
+        # Next tick: the guard now allows the resume.
+        harness.result = OperationResult.success(
+            "SESSION_RESUMED", "hcom resume request completed.", mutated=True
+        )
+        actions = sup.tick(now=self.now + timedelta(seconds=60))
+        self.assertEqual(actions[0]["action"], "resume")
+        stored = self.recovery_store.load()["incidents"][incident_id]
+        self.assertEqual(stored["canonical_denials"], 0)
+        self.assertEqual(stored["state"], "probing")
+        self.assertEqual(stored["attempt"], 1)
+
+    def test_non_canonical_retry_budget_exhausted_still_fires(self):
+        """A genuine transient failure (not a canonical denial) still consumes
+        the transient budget and terminates as retry_budget_exhausted."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        # No harness_service -> the direct hcom path; make it fail every time.
+        self.hcom = FakeHcom([{"name": "session-1", "status": "stopped"}])
+        self.hcom.fail = True
+        sup = RecoverySupervisor(
+            task_reader=self.task_store,
+            hcom=self.hcom,
+            recovery_store=self.recovery_store,
+            backoff_seconds=(60, 120),
+            silent_stop_probe_delay_seconds=30,
+        )
+        a1 = sup.tick(now=self.now)
+        self.assertEqual(a1[0]["action"], "resume_failed")
+        a2 = sup.tick(now=self.now + timedelta(seconds=120))
+        self.assertEqual(a2[0]["action"], "resume_failed")
+        a3 = sup.tick(now=self.now + timedelta(seconds=600))
+        self.assertEqual(a3[0]["action"], "fail")
+        self.assertEqual(a3[0]["reason"], "retry_budget_exhausted")
+        stored = self.recovery_store.load()["incidents"][a3[0]["incident_id"]]
+        self.assertEqual(stored["last_error"], "retry_budget_exhausted")
 
     def test_missing_canonical_guard_falls_back_to_direct_resume(self):
         """CANONICAL_GUARD_REQUIRED (no CANONICAL_RUN Hook installed) is not a concrete

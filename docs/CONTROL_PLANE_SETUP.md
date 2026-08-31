@@ -455,6 +455,50 @@ session identified
 
 WezTerm is presentation, not recovery authority.
 
+### Canonical enforcement: remediating a denied resume
+
+Once `maps recovery-tick --enforce-canonical-run --harness-project-id <P>
+--repo-root <PATH>` is opted into, a `CANONICAL_RUN` Hook can deny a resume
+outright. `tick()` then parks the incident in a distinct `denied` state (it
+does **not** consume a transient retry attempt, and it does **not** terminate
+as `retry_budget_exhausted`); `last_error` carries the deny reason and the
+incident stays resumable on a flat probe interval until it either clears or
+hits its own consecutive-denial ceiling (`failed` /
+`canonical_denial_persistent`).
+
+The dominant first-exposure denial is `LEASE_EXPIRED`: a silently-stopped
+session's claim lease has usually already lapsed.
+
+**`maps heartbeat` cannot fix this.** `heartbeat` itself refuses an
+already-expired lease (`LEASE_EXPIRED`) and requires the caller to still be the
+live claimant — neither holds for the recovery case.
+
+The workflow that works is claim-recovery of the expired `ACTIVE` claim, under
+the run manifest's **original** worker id:
+
+```text
+maps claim <task-id> --worker-id <ORIGINAL worker id> --lease-seconds <N>
+maps recovery-tick --enforce-canonical-run --harness-project-id <P> --repo-root <PATH>
+```
+
+- The `--worker-id` **must** be the manifest's recorded worker.
+  `CanonicalRunGuard` checks `task.claimed_by == worker_id` and the run-lineage
+  checks compare the session's recorded worker against the current claimant —
+  recovering under a *different* worker clears `LEASE_EXPIRED` only to trip
+  `NOT_CLAIM_OWNER` / `RUN_WORKER_MISMATCH` on the same pass.
+- `claim_task`'s recovery path bumps the task-truth `attempt` (counted against
+  `max_attempts`), which is distinct from the recovery incident's retry
+  counter. A task already at `attempt >= max_attempts` returns `ATTEMPT_LIMIT`
+  and cannot be recovered this way — that incident is genuinely done and should
+  be closed, not resumed.
+- Claim-recovery does **not** change the run manifest's `task_revision`:
+  `compute_task_revision()`'s input set (`runtime/state/integrity.py`
+  `_task_definition_conn`) is the `tasks` row's definition columns plus the
+  task child tables, policy, and environment — none of `status`, `claimed_by`,
+  `lease_expires_at`, `heartbeat_at`, `attempt`, `updated_at` that recovery
+  mutates. So `recover + re-tick` is a complete workflow; no "start a fresh
+  run" step is required for a revision-stable task.
+
 ## 6. Local model / Aider helpers
 
 Legacy already contains useful bounded helper wrappers:
