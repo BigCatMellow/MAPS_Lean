@@ -1,12 +1,16 @@
-"""Durable storage for Skill trust-lifecycle state (SEC4 / roadmap 6.10, Half 1).
+"""Durable storage for Skill trust-lifecycle state (SEC4 / roadmap 6.10).
 
-Half 1 of `work/notes/2026-08-25-sec4-skill-lifecycle-persistence-design.md`:
-durable storage only. The second half -- real authority wiring (populating
-`SkillProvenance.trust_state` from this store, and a first real refusal at
-`load_catalog_skill()`) -- is deliberately NOT in this module and has no
-caller here. Nothing in `runtime/` outside `runtime/state/store.py` (which
-only registers the mixin) calls these methods yet; that call-site question is
-answered by the Half-2 task, not by this one.
+Half 1 (`work/notes/2026-08-25-sec4-skill-lifecycle-persistence-design.md`)
+added this durable storage. Half 2
+(`work/notes/2026-08-31-sec4-half2-authority-wiring-design.md`) wired it into
+real behavior: `runtime.skills.catalog.register_skill_catalog()` is the
+production caller of `record_skill_lifecycle_subject()` (at catalog-build
+time), `build_skill_catalog(..., store=...)` populates
+`SkillProvenance.lifecycle_state` from `get_skill_lifecycle_state()`, and
+`load_catalog_skill(entry, store)` refuses activation of a Skill whose
+composed state is `QUARANTINED`/`RETIRED`/`SUPERSEDED` -- the first real
+refusal. `record_skill_lifecycle_transition()` still has no production
+caller; operator-driven transitions are a later task.
 
 What this layer does and does not adjudicate:
 
@@ -47,7 +51,12 @@ Behavior questions from the design note, as resolved by this implementation:
    created once a gate report exists, so "discovered but not yet assessed"
    is represented by the *absence* of a row. `get_skill_lifecycle_state()`
    returning `None` means exactly that.
-4. **No production caller exists in Half 1**, by design (see above).
+4. **`register_skill_catalog()` is the production caller** (Half 2), invoked
+   at catalog-build time; subject creation is gate-driven, not tied to
+   activation or an operator command.
+5. **The actor requirement stays structural** (non-empty text). Half 2 adds
+   no operator-identity registry; enforcement that persisted state actually
+   gates something lives on the read side (`load_catalog_skill`).
 8. **`SUPERSEDED` records no successor pointer.** There is no
    `superseded_by` column and no cross-Skill link; a successor, if any, is
    named in the decision's free-text `decision_ref`. Building a supersession

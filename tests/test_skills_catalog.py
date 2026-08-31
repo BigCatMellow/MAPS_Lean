@@ -9,10 +9,13 @@ from runtime.skills import (
     SkillCatalogSource,
     SkillNotFoundError,
     SkillSourceKind,
-    SkillTrustState,
     build_skill_catalog,
     load_catalog_skill,
+    register_skill_catalog,
 )
+from runtime.skills.gate import SkillGateDisposition
+from runtime.skills.lifecycle import SkillLifecycleState
+from runtime.state import TaskStore
 
 
 SKILL = """---
@@ -51,7 +54,7 @@ class SkillCatalogTests(unittest.TestCase):
         )
         return skill
 
-    def test_catalog_preserves_explicit_provenance_and_unassessed_trust(self):
+    def test_catalog_preserves_explicit_provenance_and_unassessed_lifecycle(self):
         bundled = self.source(
             "bundled",
             SkillSourceKind.BUNDLED,
@@ -67,7 +70,7 @@ class SkillCatalogTests(unittest.TestCase):
         self.assertEqual(entry.provenance.source_kind, SkillSourceKind.BUNDLED)
         self.assertEqual(entry.provenance.source_ref, "repo://skills/bundled")
         self.assertEqual(entry.provenance.declared_revision, "commit-123")
-        self.assertEqual(entry.provenance.trust_state, SkillTrustState.UNASSESSED)
+        self.assertIsNone(entry.provenance.lifecycle_state)
         self.assertIn(entry.descriptor.content_sha256, entry.catalog_key)
 
     def test_catalog_build_does_not_load_skill_bodies(self):
@@ -163,13 +166,112 @@ class SkillCatalogTests(unittest.TestCase):
 
         self.assertEqual(entry.provenance.source_ref, str(source.root.resolve()))
 
-    def test_catalog_has_no_way_to_mark_discovery_as_approved(self):
+    def test_catalog_build_without_store_leaves_lifecycle_state_none(self):
         source = self.source("local")
         self.add_skill(source, "one", "one")
         entry = build_skill_catalog([source]).require_unique("one")
 
-        self.assertEqual(tuple(SkillTrustState), (SkillTrustState.UNASSESSED,))
-        self.assertEqual(entry.provenance.trust_state, SkillTrustState.UNASSESSED)
+        # No store supplied -> no durable read -> "not yet assessed".
+        self.assertIsNone(entry.provenance.lifecycle_state)
+
+    def test_fingerprint_is_content_only_not_lifecycle_sensitive(self):
+        # Two catalogs over the same content: one built with a store that has
+        # recorded (and would report) a lifecycle state, one without. The
+        # fingerprint must be identical -- approval state is not part of the
+        # catalog's identity (design note 2026-08-31 Q7).
+        source = self.source("local")
+        self.add_skill(source, "one", "one")
+        plain = build_skill_catalog([source])
+
+        store = _temp_store(self)
+        entry = plain.require_unique("one")
+        assessed = build_skill_catalog(
+            [SkillCatalogSource(source_id="local", root=source.root, kind=SkillSourceKind.LOCAL)],
+            store=store,
+        )
+        register_skill_catalog(assessed, store)
+        rebuilt = build_skill_catalog(
+            [SkillCatalogSource(source_id="local", root=source.root, kind=SkillSourceKind.LOCAL)],
+            store=store,
+        )
+        self.assertIsNotNone(rebuilt.require_unique("one").provenance.lifecycle_state)
+        self.assertEqual(plain.fingerprint, rebuilt.fingerprint)
+
+    def test_register_skill_catalog_records_subjects_and_is_idempotent(self):
+        source = self.source("local")
+        self.add_skill(source, "one", "one")
+        store = _temp_store(self)
+        catalog = build_skill_catalog([source])
+        entry = catalog.require_unique("one")
+
+        first = register_skill_catalog(catalog, store)
+        self.assertEqual(len(first), 1)
+        self.assertTrue(first[0].ok)
+        state = store.get_skill_lifecycle_state(entry.catalog_key)
+        self.assertIn(
+            state, (SkillLifecycleState.VALIDATED, SkillLifecycleState.QUARANTINED)
+        )
+
+        second = register_skill_catalog(catalog, store)
+        self.assertEqual(second, [])
+        self.assertEqual(
+            len(store.list_skill_lifecycle_subjects()), 1
+        )
+
+    def test_load_catalog_skill_refuses_non_activatable_state(self):
+        source = self.source("local")
+        self.add_skill(source, "one", "one")
+        store = _temp_store(self)
+        catalog = build_skill_catalog([source])
+        entry = catalog.require_unique("one")
+        register_skill_catalog(catalog, store)
+
+        # VALIDATED (or QUARANTINED) is the gate-derived start. Drive it to
+        # RETIRED via a QUARANTINED subject, or straight to a refused state.
+        state = store.get_skill_lifecycle_state(entry.catalog_key)
+        if state is SkillLifecycleState.VALIDATED:
+            store.record_skill_lifecycle_transition(
+                entry.catalog_key,
+                SkillLifecycleState.APPROVED,
+                decision_ref="test",
+                decided_by="operator",
+            )
+            store.record_skill_lifecycle_transition(
+                entry.catalog_key, SkillLifecycleState.ACTIVE, decision_ref="test"
+            )
+            store.record_skill_lifecycle_transition(
+                entry.catalog_key, SkillLifecycleState.RETIRED, decision_ref="test"
+            )
+        else:
+            store.record_skill_lifecycle_transition(
+                entry.catalog_key, SkillLifecycleState.RETIRED, decision_ref="test"
+            )
+
+        with self.assertRaises(SkillCatalogError):
+            load_catalog_skill(entry, store)
+
+        # Without the store, activation is not gated on lifecycle state.
+        self.assertIsNotNone(load_catalog_skill(entry))
+
+    def test_load_catalog_skill_allows_activatable_and_unassessed(self):
+        source = self.source("local")
+        self.add_skill(source, "one", "one")
+        store = _temp_store(self)
+        catalog = build_skill_catalog([source])
+        entry = catalog.require_unique("one")
+
+        # No subject row yet -> None -> allowed.
+        self.assertIsNotNone(load_catalog_skill(entry, store))
+
+        register_skill_catalog(catalog, store)
+        if store.get_skill_lifecycle_state(entry.catalog_key) is SkillLifecycleState.VALIDATED:
+            self.assertIsNotNone(load_catalog_skill(entry, store))
+
+
+def _temp_store(test_case):
+    td = tempfile.TemporaryDirectory()
+    test_case.addCleanup(td.cleanup)
+    return TaskStore(Path(td.name) / "state.db")
 
 
 if __name__ == "__main__":

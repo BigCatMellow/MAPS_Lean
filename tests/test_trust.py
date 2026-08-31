@@ -1,13 +1,11 @@
 import unittest
 
-from runtime.skills.catalog import SkillTrustState
 from runtime.skills.lifecycle import SkillLifecycleState
 from runtime.trust import (
     MemoryTrustClass,
     TrustClassError,
     operational_learning_trust_class,
     skill_lifecycle_trust_class,
-    skill_trust_class,
 )
 
 ROADMAP_CLASSES = [
@@ -37,22 +35,6 @@ class MemoryTrustClassVocabularyTests(unittest.TestCase):
     def test_member_values_match_names(self) -> None:
         for member in MemoryTrustClass:
             self.assertEqual(member.value, member.name)
-
-
-class SkillTrustStateMappingTests(unittest.TestCase):
-    def test_every_skill_trust_state_maps_to_a_memory_trust_class(self) -> None:
-        for state in SkillTrustState:
-            result = skill_trust_class(state)
-            self.assertIsInstance(result, MemoryTrustClass)
-
-    def test_unassessed_maps_to_observation(self) -> None:
-        self.assertEqual(
-            skill_trust_class(SkillTrustState.UNASSESSED), MemoryTrustClass.OBSERVATION
-        )
-
-    def test_rejects_non_skill_trust_state(self) -> None:
-        with self.assertRaises(TrustClassError):
-            skill_trust_class("UNASSESSED")  # type: ignore[arg-type]
 
 
 class SkillLifecycleStateMappingTests(unittest.TestCase):

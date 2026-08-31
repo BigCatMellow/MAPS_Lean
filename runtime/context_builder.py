@@ -14,12 +14,30 @@ from runtime.policy.memory_trust_gate import (
     admit_memory_evidence,
 )
 from runtime.skills.catalog import SkillCatalog
+from runtime.skills.lifecycle import SkillLifecycleState
 from runtime.trust import (
     MemoryTrustClass,
     TrustClassError,
     operational_learning_trust_class,
-    skill_trust_class,
+    skill_lifecycle_trust_class,
 )
+
+
+def _skill_trust_class(
+    lifecycle_state: SkillLifecycleState | None,
+) -> MemoryTrustClass:
+    """Project a Skill's composed lifecycle state onto `MemoryTrustClass`.
+
+    `None` (no durable subject row -- discovered but not yet gate-assessed)
+    maps to `OBSERVATION`, exactly as the former `SkillTrustState.UNASSESSED`
+    did. Any real `SkillLifecycleState` delegates to the single canonical
+    projection in `runtime.trust`. `TrustClassError` from a malformed value
+    is left to propagate to the caller's guard.
+    """
+
+    if lifecycle_state is None:
+        return MemoryTrustClass.OBSERVATION
+    return skill_lifecycle_trust_class(lifecycle_state)
 
 _PATH_SUFFIXES = {
     ".cfg",
@@ -321,18 +339,21 @@ def _select_skills(
     against task signal tokens (task_type, project_id, output-path
     segments); an unmatched Skill is simply omitted, satisfying the S6 exit
     gate that unrelated Skills demonstrably stay out of context. A matched
-    Skill's `trust_state` is always its real provenance value (`UNASSESSED`
-    in all current cases) -- selection never implies vetting that hasn't
-    happened.
+    Skill's `lifecycle_state` is always its real composed provenance value
+    (or `None` when no durable subject row exists, the case for every Skill
+    until a store is wired in) -- selection never implies vetting that
+    hasn't happened.
 
     Trust gate (roadmap 6.22): a matched Skill's `budget_class` is now the
     output of `admit_memory_evidence()` rather than a hardcoded
-    `SHOULD_LOAD`. `UNASSESSED` provenance maps to `OBSERVATION`, which #148's
+    `SHOULD_LOAD`. A `None` lifecycle state maps to `OBSERVATION`, which #148's
     class/action table says must not influence loaded instructions, so a
     matched-but-unassessed Skill is emitted as `ON_DEMAND` metadata with a
     `withheld_reason` and is no longer part of the default load set. An
-    unmappable `trust_state` is a `DENY`: the entry is dropped and counted,
-    rather than silently skipped as before.
+    unmappable lifecycle state is a `DENY`: the entry is dropped and counted,
+    rather than silently skipped as before. That branch is defense in depth
+    -- `lifecycle_state` is a real `SkillLifecycleState` or `None`, both of
+    which project cleanly -- kept so a future malformed value fails closed.
     """
 
     tally = _AdmissionTally()
@@ -352,8 +373,9 @@ def _select_skills(
         matched = sorted(signals & skill_tokens)
         if not matched:
             continue
+        lifecycle_state = entry.provenance.lifecycle_state
         try:
-            trust_class: str | None = skill_trust_class(entry.provenance.trust_state).value
+            trust_class: str | None = _skill_trust_class(lifecycle_state).value
         except TrustClassError:
             trust_class = None
         decision = admit_memory_evidence(
@@ -369,7 +391,9 @@ def _select_skills(
             "name": descriptor.name,
             "description": descriptor.description,
             "source_id": entry.provenance.source_id,
-            "trust_state": entry.provenance.trust_state.value,
+            "lifecycle_state": (
+                lifecycle_state.value if lifecycle_state is not None else None
+            ),
             "trust_class": trust_class,
             "selection_reason": (
                 "Matched task signal(s) "
