@@ -8,6 +8,9 @@ INDEX = PLAYBOOK / "INDEX.md"
 AGENTS = ROOT / "AGENTS.md"
 FIRST_RUN = ROOT / "docs" / "FIRST_RUN.md"
 README = ROOT / "README.md"
+WIKI_SOURCE = ROOT / "docs" / "wiki"
+WIKI_SYNC = ROOT / ".github" / "workflows" / "sync-wiki.yml"
+PILOT_SKILL = ROOT / ".claude" / "skills" / "pilot" / "SKILL.md"
 
 # This is a conscious-friction guard, not a claim that 23 is a magic number.
 # A genuinely new distinct method may raise the budget, but doing so requires an
@@ -78,6 +81,94 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("## Authority, precedence, and anti-sprawl", agents)
         self.assertIn("### Documentation sprawl invariant", agents)
         self.assertIn("One concept, one owner document", agents)
+
+    def test_pilot_skill_is_open_format_and_named_for_direct_invocation(self):
+        skill = PILOT_SKILL.read_text(encoding="utf-8")
+        lower = skill.lower()
+
+        self.assertTrue(skill.startswith("---\nname: pilot\n"))
+        self.assertIn("description:", skill)
+        self.assertIn("explicitly invokes Pilot/MAPS_L", skill)
+        self.assertIn("/pilot the Pokemon project", skill)
+        self.assertIn("$ARGUMENTS", skill)
+        self.assertIn("~/.claude/skills/pilot/", skill)
+        self.assertFalse((ROOT / "skills" / "pilot" / "SKILL.md").exists())
+
+    def test_pilot_skill_remains_a_thin_adapter_not_parallel_contract(self):
+        skill = normalized_text(PILOT_SKILL)
+        lower = skill.lower()
+
+        self.assertIn("thin invocation adapter", lower)
+        self.assertIn("does not define a second maps_l operating contract", lower)
+        self.assertIn("own instructions and approved scope govern its authority", lower)
+        self.assertIn("playbook/index.md", lower)
+        self.assertIn("method-only", lower)
+        self.assertIn("orchestrated", lower)
+        self.assertIn("runtime-backed", lower)
+        self.assertIn("advance automatically while authorized parent work remains", lower)
+        self.assertIn("human only for a true boundary crossing", lower)
+
+        # The skill routes to canonical owners instead of copying AGENTS.md wholesale.
+        self.assertNotIn("## Hard operating invariants", PILOT_SKILL.read_text(encoding="utf-8"))
+        self.assertNotIn("## Scope-level authorization", PILOT_SKILL.read_text(encoding="utf-8"))
+        self.assertNotIn("## MAPS_L orchestration operator invariant", PILOT_SKILL.read_text(encoding="utf-8"))
+
+    def test_wiki_home_is_agent_onboarding_not_parallel_authority(self):
+        home = normalized_text(WIKI_SOURCE / "Home.md")
+        lower = home.lower()
+
+        self.assertIn("orientation surface for a fresh agent", lower)
+        self.assertIn("not an authority store", lower)
+        self.assertIn("docs/FIRST_RUN.md", home)
+        self.assertIn("AGENTS.md", home)
+        self.assertIn("orchestration operator", lower)
+        self.assertIn("agent slots", lower)
+        self.assertIn("delegation transfers execution, never ownership", lower)
+        self.assertIn("a finished child task is a reconciliation point", lower)
+        self.assertIn("target authority + approved roadmap/task + one relevant MAPS_L method", home)
+
+    def test_wiki_walkthrough_teaches_parent_continuation_and_true_escalation(self):
+        walkthrough = normalized_text(WIKI_SOURCE / "First-Task-Walkthrough.md")
+        lower = walkthrough.lower()
+
+        self.assertIn("define the parent done condition", lower)
+        self.assertIn("orchestration operator keeps parent ownership", lower)
+        self.assertIn("genuinely complete or a true authority boundary", lower)
+        self.assertIn("not a request for permission to continue inside approved scope", lower)
+        self.assertIn("default response to ordinary uncertainty", lower)
+        self.assertIn("decide inside authority first", lower)
+
+    def test_wiki_capability_page_requires_live_verification(self):
+        capability = normalized_text(WIKI_SOURCE / "Capability-Status.md")
+        lower = capability.lower()
+
+        self.assertIn("pin a dated subsystem inventory", lower)
+        self.assertIn("production call path / real behavior", lower)
+        self.assertIn("CAPABILITY_CHECKLIST.md", capability)
+        self.assertIn("real caller/path, not only a unit test", lower)
+        self.assertIn("current roadmap/checklist", lower)
+
+    def test_wiki_source_has_no_known_stale_contract_language(self):
+        wiki_text = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(WIKI_SOURCE.glob("*.md"))
+        )
+        stale_phrases = [
+            "Negative operating contract",
+            "f02ed62",
+            "pass #7",
+            "75 test modules",
+            "No destructive/irreversible action without explicit operator approval",
+        ]
+        for phrase in stale_phrases:
+            self.assertNotIn(phrase, wiki_text)
+
+    def test_wiki_sync_projects_reviewed_source_from_main(self):
+        sync = WIKI_SYNC.read_text(encoding="utf-8")
+        self.assertIn("- main", sync)
+        self.assertIn("docs/wiki/**", sync)
+        self.assertIn("cp docs/wiki/*.md wiki-out/", sync)
+        self.assertIn("Sync agent onboarding wiki from main", sync)
 
 
 if __name__ == "__main__":
