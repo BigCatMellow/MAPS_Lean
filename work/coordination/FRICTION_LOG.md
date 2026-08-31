@@ -49,6 +49,17 @@ Entry format:
   session actually receive it) NOT yet confirmed — UNVERIFIED end-to-end.
 - follow-up: confirm the next real session start actually receives the injected
   handoff; if the one-time hook-approval prompt blocks it, note that.
+- 2026-08-31 follow-up (session 10 -> 11 rotation, `loki` -> `gobi`, observer
+  `meda`): VERIFIED END-TO-END, delivered cleanly with no manual operator nudge.
+  (a) primary layer: session 11 received `MAPS_Lean_Handoff_2026-08-31-session10.md`
+  as SessionStart `additionalContext` on the first start — no hook-approval block.
+  (b) secondary layer: `/tmp/claude-rotate-worker.log` shows the tmux resume
+  prompt failed to land on attempt 1 ("resume prompt not visible in pane %0;
+  retrying") and succeeded on attempt 2 ("rotation delivered ... on attempt 2") —
+  the built-in verify-and-retry loop absorbed the failure automatically. Net: the
+  send-keys race that caused this entry still occurs, but the retry loop + the
+  hook now make it non-blocking. Entry 1 can move to verified; send-keys single
+  point of failure is retired.
 
 ## 2026-08-31 — coordinate-via-helper-lanes is a standing operator preference
 - class: operator-request
