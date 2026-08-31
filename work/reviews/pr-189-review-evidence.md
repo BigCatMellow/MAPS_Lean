@@ -1,7 +1,7 @@
 # PR #189 review evidence
 
 reviewer: independent-reviewer-nova
-head_sha: 8cea723584302e717dc3972b65fe314d88e0d844
+head_sha: 09ca9af665e95e3d7a11b2395be06a95e91a00d3
 independent: true
 summary: APPROVE — Q4/Q5 each answered with an explicit decision; every supervisor.py / execution.py / harness_guard.py / run_lineage.py callsite claim re-derived at HEAD and confirmed; §3c correctly left UNKNOWN; diff docs-only.
 
