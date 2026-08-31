@@ -45,6 +45,7 @@ Use only when the specific concern is active.
 | Route by demonstrated model/harness capability and cost | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Single worker-capability/routing method; includes the retained HPOM heuristic. |
 | Apply provider/tool-specific operating guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Provider adaptation only; cannot redefine MAPS authority. |
 | Test a consequential approved claim with a formal dissent mechanism | [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md) | Formal narrow protocol; ordinary helper challenge does not require this artifact. |
+| Audit whether durable records are connected, reconciled, and discoverable across sessions | [SPIDERWEB_AUDIT.md](SPIDERWEB_AUDIT.md) | Treating link count, topic similarity, or the derived graph as authority. |
 | Isolate writable dispatched work or recover worktree-specific failures | [WORKTREE_ISOLATION.md](WORKTREE_ISOLATION.md) | Git isolation mechanics; no merge/permission authority. |
 | Test or tune a workflow with an agent scenario | [SIMULATION_DESIGN.md](SIMULATION_DESIGN.md) | Simulation/evaluation; plausible output is not production proof. |
 | Plan/import a project into ProjectUpdater | [ROADMAP_AND_PROJECTUPDATER.md](ROADMAP_AND_PROJECTUPDATER.md) | ProjectUpdater representation; not the canonical task store. |

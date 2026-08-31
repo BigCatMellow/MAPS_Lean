@@ -49,6 +49,15 @@ FORBIDDEN_TEXT = (
     ("old MultiAgentProject path", re.compile(r"\bMultiAgentProject\b")),
 )
 
+# These active files legitimately embed `legacy/` path literals as a
+# historical-exclusion list (paths the scanner should skip), not as a
+# runtime/test dependency on legacy code. FORBIDDEN_TEXT scanning is skipped
+# for them; the AST legacy-import check still applies.
+HISTORICAL_EXCLUDE_FILES = (
+    "scripts/check_spiderweb.py",
+    "tests/test_spiderweb_audit.py",
+)
+
 HISTORICAL_EXCLUDES = (
     "legacy/",
     "migration/legacy-runtime-source/",
@@ -117,6 +126,8 @@ def active_dependency_failures() -> list[str]:
             continue
         for detail in python_legacy_imports(path, text):
             failures.append(f"{rel}: {detail}")
+        if rel in HISTORICAL_EXCLUDE_FILES:
+            continue
         for label, pattern in FORBIDDEN_TEXT:
             for match in pattern.finditer(text):
                 if _negative_test_assertion(rel, text, match.start()):
