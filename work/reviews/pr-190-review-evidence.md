@@ -1,7 +1,7 @@
 # Review: PR #190 — SEC4/6.10 Half 2 design addendum (Q4–Q8)
 
 reviewer: independent-reviewer-maps-lean-fido
-head_sha: 7b449f47ec71069072c9fee5348d17b5b7f6b6e7
+head_sha: 523bf48a683d1d55f2d684c2d7132f0d9b4184c8
 independent: true
 summary: APPROVE. Design-only addendum, scope clean (one work/notes/ file + this evidence file, no runtime/ or tests/, git diff --check clean). Every factual claim in the note's "Re-verified facts at HEAD" section and its Q4–Q8 bodies was re-derived independently at the reviewed code commit 7b449f4 with git/grep — all TRUE. Q4–Q8 decisions are sound and the rule-12 collapse (delete SkillTrustState; strictly one-directional store → provenance → trust-class chain) is the correct resolution. Two non-blocking nits recorded in the Method section for the implementation PR to sweep. Reviewer did not author PR #190 or its parent note (2026-08-25-sec4-skill-lifecycle-persistence-design.md).
 
