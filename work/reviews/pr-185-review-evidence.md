@@ -60,3 +60,5 @@ adequate. `FileNotFoundError` (git binary absent) is not caught by
 The composition-root / real-dispatch-flow gap (E6(b)) remains OPEN; the roadmap
 rows E6 and 6.16 were updated in this PR, state the gap explicitly, and neither
 is marked `DONE`.
+
+<!-- review re-verified; CI retrigger -->
