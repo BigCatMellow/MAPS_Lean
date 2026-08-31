@@ -85,6 +85,19 @@ binds the local Git worktree identity observed at run creation. Verification com
 worktree as if it were the assigned run surface. Runs without a stored binding
 preserve legacy behavior and report the binding coverage as missing.
 
+`compare_worktree_identity()` is the single definition of "same worktree" (the
+four immutable identity fields, not `head_revision`). `verify_git_run()` uses it,
+and so does the lifecycle guard: `runtime/policy/harness_guard.py::CanonicalRunGuard`
+reads the current worktree identity through an injectable
+`worktree_identity` source and, on continuing operations only (`start` / `send`
+/ `resume`), denies a worktree-bound run with guard code `RUN_WORKTREE_MISMATCH`
+from a different worktree and `RUN_WORKTREE_UNAVAILABLE` when identity cannot be
+read. Unbound runs are always allowed and `SESSION_STOPPING` is never denied by
+this check. This closes the guard-layer gap only: `register_canonical_run_guards()`
+/ `HarnessService` enforcement stays default-off and is not wired into a real
+dispatch flow (`maps claim` / `maps flow start`), so no lifecycle enforcement of
+canonical run evidence is live by default.
+
 Rename/copy parsing preserves both the source and destination path so moving a
 protected file cannot hide the original path.
 

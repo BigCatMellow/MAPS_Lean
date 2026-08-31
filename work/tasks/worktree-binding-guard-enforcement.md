@@ -1,6 +1,6 @@
 # Task: Worktree binding guard enforcement
 
-- Status: `READY`
+- Status: `IN REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: unassigned
@@ -135,7 +135,28 @@ Escalate to: operator or a follow-up design task.
 
 ## Completion / handoff
 
-- Completed: nothing yet.
-- Not completed: all acceptance criteria.
-- Current blocker: none; ready to dispatch.
-- Next action if not DONE: implement per the approved design note.
+- Completed (branch `impl/worktree-binding-guard-20260831`, pending independent
+  review with mutation testing):
+  - `compare_worktree_identity()` + `WORKTREE_IDENTITY_FIELDS` added to
+    `runtime/integrity/git_scope.py` as the single definition of worktree
+    sameness; exported from `runtime/integrity/__init__.py`.
+  - `verify_git_run()` refactored to call it; emitted payload keys
+    (`reason`, `worktree_binding`, `worktree_mismatch.{expected,actual}_*`)
+    unchanged — regression-tested in `tests/test_runtime_review_hardening.py`
+    and `tests/test_execution_integrity.py`.
+  - `CanonicalRunGuard.__init__` gained an injectable
+    `worktree_identity` source (default `collect_git_worktree_identity`).
+  - `_require_bound_worktree()` runs only on continuing operations
+    (`start`/`send`/`resume`), after `_require_current_run()`: allows unbound
+    runs, denies `RUN_WORKTREE_UNAVAILABLE` on unreadable identity, denies
+    `RUN_WORKTREE_MISMATCH` on differing identity fields. `SESSION_STOPPING`
+    is never gated by this check.
+  - Coverage in `tests/test_harness_canonical_guard.py`
+    (`WorktreeBindingGuardTests`): verified/mismatch/unavailable/unbound/stop.
+  - `runtime/integrity/README.md` and `work/roadmaps/CAPABILITY_CHECKLIST.md`
+    rows E6 + 6.16 updated; both state the composition-root gap remains open
+    and neither row is marked `DONE`.
+- Not completed: composition-root / real-dispatch-flow enforcement (E6(b)) —
+  out of scope for this task by design.
+- Current blocker: none; awaiting `INDEPENDENT_REVIEW` with mutation testing.
+- Next action if not DONE: address independent-review findings.

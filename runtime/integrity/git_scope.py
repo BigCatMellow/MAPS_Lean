@@ -95,6 +95,41 @@ def collect_git_worktree_identity(repo_root: str | Path) -> dict[str, str]:
     }
 
 
+WORKTREE_IDENTITY_FIELDS = (
+    "repo_root",
+    "git_common_dir",
+    "git_dir",
+    "worktree_private_dir",
+)
+
+
+def compare_worktree_identity(
+    expected: dict[str, Any], actual: dict[str, Any]
+) -> dict[str, Any]:
+    """Single definition of "same Git worktree".
+
+    Compares only the immutable identity fields (not ``head_revision``, which
+    moves with normal work). Returns ``{"status": "match"}`` or
+    ``{"status": "mismatch", "worktree_mismatch": {...}}`` where the detail
+    mapping carries ``expected_<field>`` / ``actual_<field>`` keys for every
+    field in :data:`WORKTREE_IDENTITY_FIELDS`.
+    """
+    if any(
+        expected.get(field) != actual.get(field)
+        for field in WORKTREE_IDENTITY_FIELDS
+    ):
+        detail = {
+            f"expected_{field}": expected.get(field)
+            for field in WORKTREE_IDENTITY_FIELDS
+        }
+        detail |= {
+            f"actual_{field}": actual.get(field)
+            for field in WORKTREE_IDENTITY_FIELDS
+        }
+        return {"status": "mismatch", "worktree_mismatch": detail}
+    return {"status": "match"}
+
+
 def collect_git_changes(
     repo_root: str | Path,
     *,
@@ -152,8 +187,8 @@ def verify_git_run(store: Any, run_id: str, *, repo_root: str | Path) -> dict:
                 "forbidden_changes": [],
                 "worktree_binding": "unavailable",
             }
-        compared = ("repo_root", "git_common_dir", "git_dir", "worktree_private_dir")
-        if any(expected.get(field) != actual.get(field) for field in compared):
+        comparison = compare_worktree_identity(expected, actual)
+        if comparison["status"] == "mismatch":
             return {
                 "ok": False,
                 "run_id": run_id,
@@ -162,11 +197,7 @@ def verify_git_run(store: Any, run_id: str, *, repo_root: str | Path) -> dict:
                 "out_of_scope": [],
                 "forbidden_changes": [],
                 "worktree_binding": "mismatch",
-                "worktree_mismatch": {
-                    f"expected_{field}": expected.get(field)
-                    for field in compared
-                }
-                | {f"actual_{field}": actual.get(field) for field in compared},
+                "worktree_mismatch": comparison["worktree_mismatch"],
             }
     changed = collect_git_changes(
         repo_root,

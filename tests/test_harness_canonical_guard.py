@@ -312,5 +312,82 @@ class CanonicalRunGuardTests(unittest.TestCase):
         )
 
 
+BOUND_WORKTREE = {
+    "repo_root": "/repo",
+    "git_common_dir": "/repo/.git",
+    "git_dir": "/repo/.git",
+    "worktree_private_dir": "/repo/.git",
+    "head_revision": "abc123",
+}
+
+OTHER_WORKTREE = dict(BOUND_WORKTREE, repo_root="/elsewhere", git_dir="/elsewhere/.git")
+
+
+class WorktreeBindingGuardTests(unittest.TestCase):
+    def setUp(self):
+        self.source = FakeSource()
+        self.source.manifest["worktree"] = dict(BOUND_WORKTREE)
+
+    def _guard(self, identity):
+        return CanonicalRunGuard(
+            self.source, repo_root=".", now=lambda: NOW, worktree_identity=identity
+        )
+
+    def test_bound_run_in_bound_worktree_is_verified(self):
+        guard = self._guard(lambda repo_root: dict(BOUND_WORKTREE))
+
+        outcome = guard(context("start", include_session=False))
+
+        self.assertEqual(outcome.directive, HookDirective.ANNOTATE)
+        self.assertEqual(outcome.annotations["guard_code"], "CANONICAL_RUN_VERIFIED")
+
+    def test_bound_run_from_different_worktree_is_denied(self):
+        guard = self._guard(lambda repo_root: dict(OTHER_WORKTREE))
+
+        for operation in ("start", "resume"):
+            with self.subTest(operation=operation):
+                self.source.session_adapter = "dummy"
+                outcome = guard(context(operation))
+                self.assertEqual(outcome.directive, HookDirective.DENY)
+                self.assertEqual(
+                    outcome.annotations["guard_code"], "RUN_WORKTREE_MISMATCH"
+                )
+
+    def test_unreadable_worktree_identity_is_denied(self):
+        def boom(repo_root):
+            raise RuntimeError("not a git worktree")
+
+        guard = self._guard(boom)
+
+        outcome = guard(context("send"))
+
+        self.assertEqual(outcome.directive, HookDirective.DENY)
+        self.assertEqual(outcome.annotations["guard_code"], "RUN_WORKTREE_UNAVAILABLE")
+
+    def test_unbound_run_is_still_allowed_without_reading_identity(self):
+        self.source.manifest.pop("worktree")
+        calls = []
+
+        def spy(repo_root):
+            calls.append(repo_root)
+            raise AssertionError("must not read identity for an unbound run")
+
+        guard = self._guard(spy)
+
+        outcome = guard(context("start", include_session=False))
+
+        self.assertEqual(outcome.directive, HookDirective.ANNOTATE)
+        self.assertEqual(calls, [])
+
+    def test_session_stopping_is_not_denied_by_worktree_check(self):
+        self.source.session_adapter = "dummy"
+        guard = self._guard(lambda repo_root: dict(OTHER_WORKTREE))
+
+        outcome = guard(context("stop"))
+
+        self.assertEqual(outcome.directive, HookDirective.ANNOTATE)
+        self.assertEqual(outcome.annotations["guard_code"], "CANONICAL_RUN_VERIFIED")
+
+
 if __name__ == "__main__":
     unittest.main()
