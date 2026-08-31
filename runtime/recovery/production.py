@@ -113,6 +113,10 @@ from runtime.environment.validation import _default_executor
 from runtime.harness.adapters import HcomHarnessAdapter
 from runtime.harness.hooks import HookRegistry
 from runtime.harness.service import HarnessService
+from runtime.policy.destructive_action_guard import (
+    DestructiveExternalActionGuard,
+    register_destructive_external_action_guards,
+)
 from runtime.policy.harness_guard import CanonicalRunGuard, register_canonical_run_guards
 from runtime.recovery.store import RecoveryStore
 from runtime.recovery.supervisor import RecoverySupervisor
@@ -361,13 +365,16 @@ def build_canonical_harness_service(
     typing; **no second store is opened and no new persistence appears** (design
     §4.5).
 
-    Only `CanonicalRunGuard` is registered. The destructive-external-action
-    guard is intentionally not composed here: the two Hook events it would
-    subscribe to are fired by nothing in `runtime/`, so wiring it would make the
-    registry advertise an enforcement role that no operation consults
-    (design §3d).
+    Both `CanonicalRunGuard` and `DestructiveExternalActionGuard` are
+    registered. `HarnessService.stop()` fires `BEFORE_DESTRUCTIVE_ACTION`
+    (SEC3 / 6.4, addendum Q2), so the destructive guard now has a real firing
+    call site -- the earlier "fired by nothing in `runtime/`" statement is
+    retired for that event. `BEFORE_EXTERNAL_ACTION` still has no firing site;
+    the guard subscribes to it (both-events registration) but nothing fires it.
+    The destructive guard reads the same `task_reader` for its `task_policy`
+    lookup; no second store is opened.
 
-    This guard never returns `ALLOW` and denies on absent evidence, so callers
+    `CanonicalRunGuard` never returns `ALLOW` and denies on absent evidence, so callers
     must treat composing it as opt-in / default-off (design §2c): its first
     production exposure converts currently-working resumes into `resume_denied`
     (most likely via `LEASE_EXPIRED`) and, on repeat, into
@@ -385,6 +392,9 @@ def build_canonical_harness_service(
     registry = HookRegistry()
     register_canonical_run_guards(
         registry, CanonicalRunGuard(task_reader, repo_root=repo_root)
+    )
+    register_destructive_external_action_guards(
+        registry, DestructiveExternalActionGuard(task_reader)
     )
     return HarnessService([adapter], hooks=registry)
 

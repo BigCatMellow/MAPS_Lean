@@ -13,7 +13,12 @@ from runtime.harness import (
 )
 from runtime.harness.hooks import HookEnforcement
 from runtime.harness.service import HarnessService
-from runtime.policy import CanonicalRunGuard, register_canonical_run_guards
+from runtime.policy import (
+    CanonicalRunGuard,
+    DestructiveExternalActionGuard,
+    register_canonical_run_guards,
+    register_destructive_external_action_guards,
+)
 
 
 NOW = datetime(2026, 8, 15, 16, 0, 0, tzinfo=timezone.utc)
@@ -27,6 +32,13 @@ class FakeCanonicalSource:
             "status": "ACTIVE",
             "claimed_by": "worker-1",
             "lease_expires_at": "2026-08-15T16:15:00Z",
+            "policy": {
+                "destructive_action": True,
+                "external_side_effect": False,
+                "requires_operator_approval": False,
+                "approved_by": None,
+                "approved_at": None,
+            },
         }
         self.manifest = {
             "run_id": "RUN-1",
@@ -153,9 +165,13 @@ class HarnessServiceTests(unittest.TestCase):
     def setUp(self):
         self.adapter = DummyAdapter()
         self.hooks = HookRegistry()
+        self.source = FakeCanonicalSource()
         register_canonical_run_guards(
             self.hooks,
-            CanonicalRunGuard(FakeCanonicalSource(), repo_root=".", now=lambda: NOW),
+            CanonicalRunGuard(self.source, repo_root=".", now=lambda: NOW),
+        )
+        register_destructive_external_action_guards(
+            self.hooks, DestructiveExternalActionGuard(self.source)
         )
         self.service = HarnessService([self.adapter], hooks=self.hooks)
 
@@ -238,6 +254,26 @@ class HarnessServiceTests(unittest.TestCase):
         self.assertEqual(seen, ["recovery wants replacement"])
         self.assertEqual(self.adapter.calls, [])
 
+    def test_stop_destructive_guard_denies_action_outside_policy_envelope(self):
+        self.source.task["policy"]["destructive_action"] = False
+        result = self.service.stop(binding(), ref(), "recovery kill")
+        self.assertEqual(result.code, "HOOK_DENIED")
+        self.assertEqual(self.adapter.calls, [])
+
+    def test_stop_destructive_guard_allows_in_envelope_then_session_stopping_runs(self):
+        seen = []
+        self.hooks.register(
+            HookSpec(
+                "stop-observer",
+                HookEvent.SESSION_STOPPING,
+                lambda ctx: seen.append("ran") or HookOutcome(HookDirective.ALLOW),
+            )
+        )
+        result = self.service.stop(binding(), ref(), "recovery kill")
+        self.assertTrue(result.ok)
+        self.assertEqual(result.code, "STOPPED")
+        self.assertEqual(seen, ["ran"])
+
     def test_start_pre_hook_blocks_before_adapter(self):
         self.hooks.register(
             HookSpec(
@@ -292,9 +328,11 @@ class HarnessServiceTests(unittest.TestCase):
             service.start("dummy", binding(session_id=None), {"tool": "x"}),
             service.send(binding(), ref(), {"message": "hello"}),
             service.resume(binding(), ref()),
-            service.stop(binding(), ref(), "cleanup"),
         )
         self.assertTrue(all(result.code == "CANONICAL_GUARD_REQUIRED" for result in results))
+        # stop() gates on the destructive/external guard first (SEC3 / 6.4).
+        stop_result = service.stop(binding(), ref(), "cleanup")
+        self.assertEqual(stop_result.code, "DESTRUCTIVE_GUARD_REQUIRED")
         self.assertEqual(adapter.calls, [])
 
     def test_plain_allow_hook_is_not_canonical_guard(self):

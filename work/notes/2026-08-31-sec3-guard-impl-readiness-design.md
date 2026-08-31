@@ -30,14 +30,18 @@ Re-verified at this branch head (`origin/main` `03bb8a4`, PR #190 merged):
   `external_side_effect`, `requires_operator_approval`, `security_sensitive`,
   `broad_architecture`, `paid_execution`, plus `approved_by` / `approved_at` /
   `approval_note`. Backed by the `task_policy` table. The six booleans are also
-  **snapshotted into the run manifest** (`runtime/state/integrity.py:57-79`,
-  `definition["policy"]`) — but `approved_by`/`approved_at` are **not** in that
-  snapshot; approval state is live task state only.
+  folded into the task-revision hash input (`runtime/state/integrity.py`
+  `_task_definition_conn`, `definition["policy"]`) — but **NOTE (impl
+  correction):** that is the revision-hash input, not a column persisted on the
+  run manifest. `get_run_manifest()` carries no `policy` key at HEAD, and
+  `approved_by`/`approved_at` are live task state only. See the "Implementation
+  correction" section below.
 - **An operator-approval mechanism exists** —
   `PolicyStateMixin.record_operator_approval(task_id, *, approved_by, note)`
   (event `HUMAN_REAUTHORIZATION_RECORDED`), reachable from the CLI as
-  `maps ... approve --task-id … --approved-by … --note …`
-  (`runtime/routing/cli.py:137-142`). `clear_operator_approval` is its inverse.
+  `maps ... approve <task_id> --approved-by … --note …` — the task id is
+  **positional** (`runtime/routing/cli.py`, `approve.add_argument("task_id")`).
+  `clear_operator_approval` is its inverse.
 - **A policy-decision helper exists** — `runtime/policy/evaluator.py`:
   `task_needs_human_reauthorization(task)` returns
   `(bool(policy["requires_operator_approval"]), …)`; `_approved(task)` returns
@@ -242,7 +246,7 @@ worse-labelled `DENY` with an implied escape hatch that does not exist.
 
 **Operator workflow with DENY-only:** operation denied
 `OPERATOR_REAUTHORIZATION_ABSENT` → operator runs
-`maps … approve --task-id <T> --approved-by <id> --note <why>` → re-run the
+`maps … approve <T> --approved-by <id> --note <why>` (task id positional) → re-run the
 operation → guard re-reads `policy["approved_by"]` via `_approved(task)` → ALLOW.
 Deterministic, uses only existing surfaces. Document this in the impl PR
 description and in the guard's module docstring.
@@ -292,6 +296,23 @@ separate roadmap item (call it SEC3 Half 3 / "async approval bridge").
 - **`runtime/state/schema.sql`** — unchanged; `task_policy` is sufficient.
 
 ---
+
+## Implementation correction (PR #<impl>, rule 14 re-verify at HEAD `ee342c5`)
+
+Q1 proposed reading the envelope booleans from a run-manifest policy snapshot
+(`source.get_run_manifest(run_id)["policy"]`) for tamper-evidence, and approval
+state from the live task. Re-verified at the implementing HEAD:
+**`get_run_manifest()` returns no `policy` key** — `runtime/state/integrity.py`
+`_task_definition_conn` builds a `definition["policy"]` only as an input to the
+task-revision hash; it is never written as a `run_manifests` column. That
+snapshot does not exist.
+
+Resolution, no schema change (STOP condition not hit — `task_policy` suffices):
+the guard reads **both** the envelope booleans and the approval state from the
+live task via `source.get_task(task_id)["policy"]`. `run_id` from the binding is
+still used, but only in `evidence_refs`. This is strictly within the "no new
+policy field / authority store / schema change" boundary; adding a manifest
+policy snapshot would be the schema change the note forbids.
 
 ## Roadmap impact
 
@@ -365,8 +386,8 @@ runtime.smoke` must exit 0. Push before any full-suite run; rely on CI.
 Update the 6.4 / SEC3 evidence text in `work/roadmaps/CAPABILITY_CHECKLIST.md`
 in the same PR (no status flip — the capability-declaration-manifest half is
 still NOT STARTED). Document the DENY-only operator workflow (`maps … approve
---task-id … --approved-by … --note …` then re-run) in the PR description and the
-guard module docstring.
+<task_id> --approved-by … --note …` then re-run — task id positional) in the PR
+description and the guard module docstring.
 
 Then: PR into `main` (never push to main). Request independent review per
 `reference_committee_review` and add a bound
