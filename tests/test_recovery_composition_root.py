@@ -142,6 +142,20 @@ class BuildCanonicalHarnessServiceTests(unittest.TestCase):
                 )
             )
 
+    def test_registers_memory_provenance_enforcement_on_before_send(self):
+        """6.22 slice 1: `MemoryProvenanceGuard` is composed here on the
+        already-fired `BEFORE_SEND`, mirroring the SEC3 destructive guard. No
+        production `send()` caller exists yet, so it changes no live behavior.
+        """
+        service = build_canonical_harness_service(
+            self.store, project_id="proj-1", repo_root=self.repo
+        )
+        self.assertTrue(
+            service.hooks.has_enforcement(
+                HookEvent.BEFORE_SEND, HookEnforcement.MEMORY_PROVENANCE
+            )
+        )
+
     def test_reuses_the_callers_store_as_the_canonical_run_source(self):
         """§3b/§4.5: the caller's TaskStore is reused; no second store is opened."""
         # production.py must not even name TaskStore -- construction reuses the
