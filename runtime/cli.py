@@ -322,7 +322,156 @@ def build_parser() -> argparse.ArgumentParser:
     flow_review_start.add_argument('--run-id')
     flow_review_start.add_argument('--artifact-ref', action='append', default=[])
 
+    skill = sub.add_parser(
+        'skill',
+        help='operator-driven Skill trust-lifecycle transitions (SEC4 / 6.10)',
+    )
+    skill_sub = skill.add_subparsers(dest='skill_command', required=True)
+
+    skill_list = skill_sub.add_parser(
+        'list', help='list recorded Skill lifecycle subjects and their composed state'
+    )
+    skill_list.add_argument(
+        '--state', help='filter to one composed lifecycle state (e.g. QUARANTINED)'
+    )
+
+    skill_show = skill_sub.add_parser(
+        'show', help='show one subject plus its full decision history'
+    )
+    skill_show.add_argument(
+        'key',
+        help="catalog_key, or '<source_id>:<skill_id>[@<sha256-prefix>]'",
+    )
+
+    for verb, verb_help in (
+        ('approve', 'record VALIDATED/QUARANTINED -> APPROVED (operator decision)'),
+        ('activate', 'record APPROVED -> ACTIVE'),
+        ('retire', 'record QUARANTINED/ACTIVE -> RETIRED'),
+        ('supersede', 'record ACTIVE -> SUPERSEDED'),
+    ):
+        verb_parser = skill_sub.add_parser(verb, help=verb_help)
+        verb_parser.add_argument(
+            'key', help="catalog_key, or '<source_id>:<skill_id>[@<sha256-prefix>]'"
+        )
+        verb_parser.add_argument(
+            '--decision-ref',
+            required=True,
+            help='commit / PR / decision-doc reference for this transition',
+        )
+        if verb == 'approve':
+            verb_parser.add_argument(
+                '--actor',
+                required=True,
+                help='operator identity recorded as decided_by',
+            )
+
     return parser
+
+
+_SKILL_TRANSITION_TARGETS = {
+    'approve': 'APPROVED',
+    'activate': 'ACTIVE',
+    'retire': 'RETIRED',
+    'supersede': 'SUPERSEDED',
+}
+
+
+def _resolve_skill_catalog_key(store, arg: str):
+    """Resolve an operator-supplied Skill reference to a `catalog_key`.
+
+    Accepts a full `catalog_key` (contains ``@sha256:``), a
+    ``<source_id>:<skill_id>`` pair (must match exactly one recorded
+    revision), or ``<source_id>:<skill_id>@<sha256-prefix>``. Read-only: it
+    never composes lifecycle state. Returns the `catalog_key` string, or a
+    `MutationResult` describing why resolution failed.
+    """
+    text = arg.strip() if isinstance(arg, str) else ''
+    if not text:
+        return MutationResult(
+            False, 'INVALID_SKILL_REFERENCE', 'a Skill reference is required'
+        )
+    if '@sha256:' in text:
+        return text
+    pair, _, sha_prefix = text.partition('@')
+    source_id, separator, skill_id = pair.partition(':')
+    if not separator or not source_id.strip() or not skill_id.strip():
+        return MutationResult(
+            False,
+            'INVALID_SKILL_REFERENCE',
+            "expected a catalog_key or '<source_id>:<skill_id>[@<sha256-prefix>]', "
+            f'got {arg!r}',
+        )
+    matches = [
+        subject
+        for subject in store.list_skill_lifecycle_subjects()
+        if subject['source_id'] == source_id.strip()
+        and subject['skill_id'] == skill_id.strip()
+        and (not sha_prefix or subject['content_sha256'].startswith(sha_prefix))
+    ]
+    if not matches:
+        return MutationResult(
+            False,
+            'SKILL_SUBJECT_NOT_FOUND',
+            f'no recorded Skill lifecycle subject for {arg!r}',
+        )
+    if len(matches) > 1:
+        code = 'AMBIGUOUS_SHA_PREFIX' if sha_prefix else 'MULTIPLE_REVISIONS'
+        candidates = ', '.join(
+            sorted(subject['content_sha256'][:12] for subject in matches)
+        )
+        return MutationResult(
+            False,
+            code,
+            f'{arg!r} matches {len(matches)} recorded revisions; disambiguate '
+            f'with @<sha256-prefix> (candidates: {candidates})',
+        )
+    return matches[0]['catalog_key']
+
+
+def _dispatch_skill(store, args) -> int:
+    from runtime.skills.lifecycle import SkillLifecycleState
+
+    if args.skill_command == 'list':
+        state = None
+        if args.state:
+            try:
+                state = SkillLifecycleState(args.state)
+            except ValueError:
+                return _emit(MutationResult(
+                    False,
+                    'INVALID_LIFECYCLE_STATE',
+                    f'{args.state!r} is not a Skill lifecycle state',
+                ))
+        return _emit(store.list_skill_lifecycle_subjects(state))
+
+    resolved = _resolve_skill_catalog_key(store, args.key)
+    if isinstance(resolved, MutationResult):
+        return _emit(resolved)
+
+    if args.skill_command == 'show':
+        subject = store.get_skill_lifecycle_subject(resolved)
+        if subject is None:
+            return _emit(MutationResult(
+                False,
+                'SKILL_SUBJECT_NOT_FOUND',
+                f'no recorded Skill lifecycle subject {resolved}',
+            ))
+        return _emit({
+            'ok': True,
+            'subject': subject,
+            'decisions': store.list_skill_lifecycle_decisions(resolved),
+        })
+
+    # approve / activate / retire / supersede: map the verb to its target
+    # state and let the store's in-transaction replay decide the from_state
+    # and reject an illegal edge. The CLI never pre-checks the transition.
+    target = SkillLifecycleState(_SKILL_TRANSITION_TARGETS[args.skill_command])
+    return _emit(store.record_skill_lifecycle_transition(
+        resolved,
+        target,
+        decision_ref=args.decision_ref,
+        decided_by=getattr(args, 'actor', None),
+    ))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -520,6 +669,8 @@ def main(argv: list[str] | None = None) -> int:
                 artifact_refs=args.artifact_ref,
             ))
         raise AssertionError(args.flow_command)
+    if args.command == 'skill':
+        return _dispatch_skill(store, args)
     raise AssertionError(args.command)
 
 

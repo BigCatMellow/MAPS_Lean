@@ -683,36 +683,48 @@ class SkillLifecycleSourceGuardTests(unittest.TestCase):
                 f"{path.name} must not open its own connection; BaseStore owns that",
             )
 
-    def test_half_2_read_side_consumers_only_no_operator_transition_caller(self):
-        """Half 2 wires the read side (catalog build + refusal); it does not
-        add a production caller for `record_skill_lifecycle_transition`
-        (operator-driven transitions are a later task)."""
-        read_side = (
+    def test_skill_lifecycle_store_consumers_are_the_known_seams(self):
+        """The durable store has exactly the intended production consumers:
+
+        - `runtime/skills/catalog.py` — Half 2 read side (catalog build +
+          `load_catalog_skill` refusal) and subject recording.
+        - `runtime/cli.py` — SEC4 A1/A2 operator surface: `maps skill
+          list|show` (read) and `approve|activate|retire|supersede`, the
+          first production caller of `record_skill_lifecycle_transition`.
+
+        Nothing else in `runtime/` touches the store's Skill-lifecycle API.
+        """
+        subject_and_read_side = (
             "record_skill_lifecycle_subject",
             "get_skill_lifecycle_state",
             "get_skill_lifecycle_subject",
         )
+        transition_callers = {
+            REPO_ROOT / "runtime" / "state" / "skill_lifecycle_storage.py",
+            REPO_ROOT / "runtime" / "cli.py",
+        }
         allowed = {
             REPO_ROOT / "runtime" / "state" / "skill_lifecycle_storage.py",
             REPO_ROOT / "runtime" / "skills" / "catalog.py",
+            REPO_ROOT / "runtime" / "cli.py",
         }
         for path in (REPO_ROOT / "runtime").rglob("*.py"):
             text = path.read_text(encoding="utf-8")
             if "record_skill_lifecycle_transition" in text:
-                self.assertEqual(
+                self.assertIn(
                     path,
-                    REPO_ROOT / "runtime" / "state" / "skill_lifecycle_storage.py",
+                    transition_callers,
                     f"{path.relative_to(REPO_ROOT)} calls the operator-transition "
-                    "API; that has no production caller yet",
+                    "API; the only production caller is runtime/cli.py",
                 )
             if path in allowed:
                 continue
-            for name in read_side:
+            for name in subject_and_read_side:
                 self.assertNotIn(
                     name,
                     text,
-                    f"{path.relative_to(REPO_ROOT)} uses {name}; the only Half-2 "
-                    "consumer is runtime/skills/catalog.py",
+                    f"{path.relative_to(REPO_ROOT)} uses {name}; the only "
+                    "consumers are runtime/skills/catalog.py and runtime/cli.py",
                 )
         # Half 2 collapsed SkillTrustState into SkillLifecycleState
         # (design-note question 6).
