@@ -32,12 +32,16 @@ Entry format:
   one ~5.5h later. `claude-selfclear` delivers the resume prompt via
   `tmux send-keys` after `/clear`, which lost it (timing / auto-mode-wizard
   race). Second known instance of resume context not reaching a fresh session.
-- countermeasure: `~/.local/bin/maps-handoff-context` (new SessionStart hook
-  script — finds newest `~/MAPS_Lean_Handoff_*.md` by session-number+date,
-  injects it as `additionalContext`); registered in
+- countermeasure: three layers — (a) [primary] `~/.local/bin/maps-handoff-context`
+  (new SessionStart hook script — finds newest `~/MAPS_Lean_Handoff_*.md` by
+  session-number+date, injects it as `additionalContext`), registered in
   `~/Projects/MAPS_Lean/.claude/settings.local.json` under `SessionStart`;
-  `~/.local/bin/claude-selfclear` now warns if the newest handoff is >2h old.
-  Memory: `feedback_selfclear_resume_prompt_dropped.md`. NOTE: these are
+  (b) [secondary] `~/.local/bin/claude-selfclear` hardened this session with a
+  verify-and-retry loop — after sending the resume prompt it captures the pane,
+  checks a ~50-char probe of the prompt's first line is visible, retries up to
+  4x if not, and on total failure prints a loud manual `tmux attach`
+  instruction; (c) `claude-selfclear` also warns if the newest handoff is >2h
+  old. Memory: `feedback_selfclear_resume_prompt_dropped.md`. NOTE: these are
   local-machine files, NOT in this repo — the paths are recorded here for
   visibility; the repo cannot contain them.
 - verified: hook script tested manually 2026-08-31 (emitted the session-9
