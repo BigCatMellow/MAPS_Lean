@@ -124,8 +124,11 @@ class BuildCanonicalHarnessServiceTests(unittest.TestCase):
                 f"missing CANONICAL_RUN enforcement on {event}",
             )
 
-    def test_does_not_register_destructive_external_action_enforcement(self):
-        """§3d: registering the second guard would make has_enforcement lie."""
+    def test_registers_destructive_external_action_enforcement(self):
+        """SEC3 / 6.4: `HarnessService.stop()` fires `BEFORE_DESTRUCTIVE_ACTION`,
+        so the guard is now composed here (addendum Q2). Both events carry the
+        enforcement role; only the destructive event has a firing call site.
+        """
         service = build_canonical_harness_service(
             self.store, project_id="proj-1", repo_root=self.repo
         )
@@ -133,7 +136,7 @@ class BuildCanonicalHarnessServiceTests(unittest.TestCase):
             HookEvent.BEFORE_DESTRUCTIVE_ACTION,
             HookEvent.BEFORE_EXTERNAL_ACTION,
         ):
-            self.assertFalse(
+            self.assertTrue(
                 service.hooks.has_enforcement(
                     event, HookEnforcement.DESTRUCTIVE_EXTERNAL_ACTION
                 )

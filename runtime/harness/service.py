@@ -75,6 +75,22 @@ class HarnessService:
             retry=RetryDisposition.UNSAFE,
         )
 
+    def _require_destructive_enforcement(
+        self,
+        event: HookEvent,
+        operation: str,
+    ) -> OperationResult | None:
+        if self.hooks.has_enforcement(
+            event, HookEnforcement.DESTRUCTIVE_EXTERNAL_ACTION
+        ):
+            return None
+        return OperationResult.failure(
+            "DESTRUCTIVE_GUARD_REQUIRED",
+            "Destructive harness operation requires destructive/external action enforcement.",
+            data={"operation": operation, "event": event.value},
+            retry=RetryDisposition.UNSAFE,
+        )
+
     @staticmethod
     def _validate_binding_session(
         binding: ExecutionBinding,
@@ -147,11 +163,17 @@ class HarnessService:
         binding: ExecutionBinding | None = None,
         session_ref: SessionRef | None = None,
         details: Mapping[str, Any] | None = None,
+        destructive: bool | None = None,
+        external: bool | None = None,
     ) -> dict[str, Any]:
         context: dict[str, Any] = {
             "operation": operation,
             "adapter_id": adapter_id,
         }
+        if destructive is not None:
+            context["destructive"] = destructive
+        if external is not None:
+            context["external"] = external
         if binding is not None:
             context["binding"] = binding.to_dict()
         if session_ref is not None:
@@ -323,6 +345,32 @@ class HarnessService:
         if error is not None:
             return error
         assert adapter is not None
+
+        # `stop` is definitionally a destructive operation (irreversible
+        # termination of in-flight session state). The two booleans are a fixed
+        # literal set by this code path -- declaration-at-the-operation, never
+        # inferred (addendum Q2). This gate and firing site run *before* the
+        # canonical-run check.
+        destructive_enforcement_error = self._require_destructive_enforcement(
+            HookEvent.BEFORE_DESTRUCTIVE_ACTION, "stop"
+        )
+        if destructive_enforcement_error is not None:
+            return destructive_enforcement_error
+
+        destructive_before = self.hooks.run(
+            HookEvent.BEFORE_DESTRUCTIVE_ACTION,
+            self._context(
+                "stop",
+                adapter_id=session_ref.adapter,
+                binding=binding,
+                session_ref=session_ref,
+                details={"reason": reason},
+                destructive=True,
+                external=False,
+            ),
+        )
+        if not destructive_before.permitted:
+            return self._hook_block("stop", destructive_before)
 
         enforcement_error = self._require_canonical_enforcement(
             HookEvent.SESSION_STOPPING, "stop"
