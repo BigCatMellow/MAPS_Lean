@@ -131,6 +131,27 @@ def recommend_route(
                     )
                 )
                 continue
+        else:
+            # The task's own environment contract can require a proven
+            # environment before it routes. With no fresh report projected for
+            # it, hold the task at the policy gate -- a hold, not a hard reject:
+            # it clears the moment the task's next flow start records a fresh
+            # report. This mirrors the ``environment_incompatible`` fallback
+            # above and adds no new PolicyDecision outcome kind. A
+            # ``required_for_routing`` that is unset/false is byte-identical to
+            # today.
+            environment_contract = task.get("environment")
+            if isinstance(environment_contract, Mapping) and environment_contract.get(
+                "required_for_routing"
+            ):
+                blocked_fallbacks.append(
+                    RouteRecommendation(
+                        "policy_gate",
+                        task_id,
+                        reasons=("environment_report_required",),
+                    )
+                )
+                continue
 
         allowed: list[WorkerProfile] = []
         reauthorization_required: set[str] = set()

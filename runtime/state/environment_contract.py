@@ -92,7 +92,10 @@ class EnvironmentContractMixin:
     """Optional task-level environment requirements.
 
     This records only a task's expected specification and evidence freshness
-    policy. It intentionally does not source reports or influence routing.
+    policy. It does not source reports. Routing consumes it read-only: a
+    ``required_for_routing`` task with no fresh projected report is held at the
+    policy gate (``runtime/routing/router.py``); the default (0) leaves routing
+    unchanged.
     """
 
     def update_contract(self, task_id: str, contract: Mapping[str, object]) -> MutationResult:

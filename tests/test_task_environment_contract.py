@@ -200,16 +200,27 @@ class TaskEnvironmentContractTests(unittest.TestCase):
             any("required_for_routing" in reason for reason in validation.reasons)
         )
 
-    def test_environment_requirement_does_not_change_missing_report_routing(self):
-        self.shape(
-            environment=environment_contract(required_for_routing=True),
-        )
+    def test_default_environment_contract_does_not_change_missing_report_routing(self):
+        # required_for_routing defaults off: a missing report stays non-blocking.
+        self.shape(environment=environment_contract())
         self.assertTrue(self.store.promote_ready(self.task_id).ok)
         route = recommend_route(
             [self.store.get_task(self.task_id)], [WorkerProfile("core", "core")]
         )
         self.assertEqual(route.route, "claim_or_assign")
         self.assertEqual(route.task_id, self.task_id)
+
+    def test_required_for_routing_holds_task_until_a_report_exists(self):
+        # required_for_routing=1 is a hold (not a hard reject) when no fresh
+        # report can be projected for the task (roadmap 6.24).
+        self.shape(environment=environment_contract(required_for_routing=True))
+        self.assertTrue(self.store.promote_ready(self.task_id).ok)
+        route = recommend_route(
+            [self.store.get_task(self.task_id)], [WorkerProfile("core", "core")]
+        )
+        self.assertEqual(route.route, "policy_gate")
+        self.assertEqual(route.task_id, self.task_id)
+        self.assertEqual(route.reasons, ("environment_report_required",))
 
 
 if __name__ == "__main__":

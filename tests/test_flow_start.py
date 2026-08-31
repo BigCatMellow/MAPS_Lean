@@ -11,6 +11,9 @@ from runtime.cli import main
 from runtime.flow_start import flow_start
 from runtime.state import TaskStore
 
+RUNTIME_ROOT = Path(__file__).resolve().parents[1]
+CI_SPEC = RUNTIME_ROOT / "runtime" / "environment" / "specs" / "maps-runtime-ci.json"
+
 
 def contract(*, output_path: str = "src") -> dict:
     return {
@@ -200,6 +203,58 @@ class FlowStartTests(unittest.TestCase):
                 for k in subjects
             )
         )
+
+    def _make_ready_with_environment(self, spec_ref: str) -> str:
+        created = self.store.create_task(title="env flow fixture")
+        self.assertTrue(created.ok, created.message)
+        task_id = created.task["task_id"]
+        c = contract()
+        c["environment"] = {"spec_ref": spec_ref, "max_age_seconds": 3600}
+        shaped = self.store.update_contract(task_id, c)
+        self.assertTrue(shaped.ok, shaped.message)
+        self.assertTrue(self.store.promote_ready(task_id, actor="tester").ok)
+        return task_id
+
+    def test_flow_start_records_environment_evidence_for_contracted_task(self):
+        spec_dir = self.repo / "runtime" / "environment" / "specs"
+        spec_dir.mkdir(parents=True)
+        (spec_dir / "ci.json").write_text(
+            CI_SPEC.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        spec_ref = "runtime/environment/specs/ci.json"
+        task_id = self._make_ready_with_environment(spec_ref)
+
+        result = flow_start(
+            self.store, task_id, worker_id="worker-1", repo_root=self.repo,
+            created_by="tester",
+        )
+        self.assertTrue(result["ok"], result)
+        run_id = result["run_manifest"]["run_id"]
+        evidence = self.store.list_run_environment_evidence(run_id)
+        self.assertEqual(len(evidence), 1)
+        self.assertEqual(evidence[0]["spec_ref"], spec_ref)
+        self.assertEqual(evidence[0]["recorded_by"], "maps-flow-start")
+
+    def test_flow_start_records_nothing_for_uncontracted_task(self):
+        task_id = self.make_ready()
+        result = flow_start(
+            self.store, task_id, worker_id="worker-1", repo_root=self.repo,
+            created_by="tester",
+        )
+        self.assertTrue(result["ok"], result)
+        run_id = result["run_manifest"]["run_id"]
+        self.assertEqual(self.store.list_run_environment_evidence(run_id), [])
+
+    def test_flow_start_fails_when_environment_spec_ref_is_missing(self):
+        task_id = self._make_ready_with_environment(
+            "runtime/environment/specs/absent.json"
+        )
+        result = flow_start(
+            self.store, task_id, worker_id="worker-1", repo_root=self.repo,
+            created_by="tester",
+        )
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["failed_step"], "environment_evidence")
 
     def test_flow_start_without_a_skills_dir_is_unchanged(self):
         task_id = self.make_ready()
