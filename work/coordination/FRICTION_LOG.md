@@ -60,6 +60,14 @@ Entry format:
   send-keys race that caused this entry still occurs, but the retry loop + the
   hook now make it non-blocking. Entry 1 can move to verified; send-keys single
   point of failure is retired.
+- 2026-08-31 follow-up (trajectory check #10, `lola`): **CLOSED — verified.**
+  Recorded in PR #188 (`f620df4`) and re-confirmed a third time independently:
+  this trajectory-check session itself started with
+  `MAPS_Lean_Handoff_2026-08-31-session11.md` injected as SessionStart
+  `additionalContext` by the `maps-handoff-context` hook, no operator nudge,
+  no hook-approval block. `verified:` is now END-TO-END across three real
+  rotations. follow-up bullet 1 ("confirm the next real session start actually
+  receives the injected handoff") is discharged.
 
 ## 2026-08-31 — coordinate-via-helper-lanes is a standing operator preference
 - class: operator-request
@@ -86,11 +94,19 @@ Entry format:
   (`DEFAULT_THRESHOLD_TOKENS` 150k→185k, `SOFT_FRACTION` 0.60→0.78,
   `HARD_FRACTION` 0.75→0.90). Also lossless handoffs via the SessionStart hook
   (entry 1) so a rotation costs ~5k re-orientation not ~40k.
-- verified: UNVERIFIED — needs a coordinator session to run a full
-  coordinate→dispatch→review→merge cycle under the new threshold without a
-  disruptive mid-arc rotation.
+- verified: PARTIAL — countermeasure confirmed live in code (trajectory check
+  #10, `lola`): `legacy/MAP-System/MAP_System/scripts/context_rotation.py:72-74`
+  reads `DEFAULT_THRESHOLD_TOKENS = 185_000`, `SOFT_FRACTION = 0.78`,
+  `HARD_FRACTION = 0.90` exactly per spec, merged PR #187 (`84cc3f7`). The
+  full-arc behavioral bar (a coordinator running coordinate→dispatch→review→merge
+  under 185k without a disruptive mid-arc rotation) is NOT yet explicitly logged;
+  sessions 11→12 handoffs have been clean but no arc recorded "no disruptive
+  rotation under the new threshold". Coordinator call whether that suffices.
 - follow-up: if `limit_watcher` (hcom-side) has its own separate threshold
   config, that may also need raising — check `hcom config` next session.
+  (Per memory `feedback_limit_watcher_hcom`: unverified hcom-side self-rotation
+  demands are not a real MAPS_Lean mechanism — this is a check-if-it-recurs
+  item, not an escalation.)
 
 ## 2026-08-31 — "triage" continuous-improvement loop was procedure-only, nothing ran it
 - class: process-gap
@@ -103,10 +119,14 @@ Entry format:
 - countermeasure: this PR — `FRICTION_LOG.md` (this file) + capture wired into
   `REPAIR_AND_LEARNING.md` and the session-handoff checklist + consumption wired
   as a standing duty into every `ROADMAP_TRAJECTORY_CHECK.md` pass.
-- verified: UNVERIFIED — first real consumption happens at roadmap trajectory
-  check #10.
-- follow-up: trajectory check #10 must actually skim this log and record that it
-  did; if it doesn't, the loop still isn't real.
+- verified: VERIFIED (trajectory check #10, `lola`, 2026-08-31) — pass #10
+  skimmed all 5 entries in this log and recorded an explicit disposition for
+  each in `work/notes/2026-08-31-roadmap-trajectory-check-10.md` §2. Entries 1
+  and 4 (this one) moved to verified; entry 3 downgraded to a precise partial;
+  entries 2 and 5 already closed. The consumption half of the triage loop is now
+  demonstrably real.
+- follow-up: none — but every future trajectory-check pass carries the same
+  standing duty; if a pass skips it, the loop has regressed.
 
 ## 2026-08-31 — orchestrator tool-use burned ~30-40k context on avoidable dumps
 - class: tool-gap
