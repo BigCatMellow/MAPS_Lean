@@ -76,13 +76,19 @@ because it was already granted:
   executed;
 - only the `quick` tier is ever reachable from here (`normal`/`full` are
   review-time tiers and are not wired), under a bounded wall-clock budget;
-- the table has zero production writers today, so nothing executes at all.
+- a `validation_repo_root` must still be explicitly passed for anything to
+  execute (see the first bullet) -- no validator is constructed on the
+  `claim`-piggyback path.
 
-That last point is the reason this is acceptable now and the reason it must be
-re-decided later: **when a production writer of `run_environment_evidence` is
-introduced, the authority question above must be answered again on its own
-merits -- who may write those rows, and whether their `validation.quick` should
-run unattended -- and not inherited from this note.**
+As of roadmap 6.24 (#204) `flow_start` step 4 is a production writer of
+`run_environment_evidence` (for tasks carrying an environment contract). That
+fires the re-decision this note calls for: **the authority question above --
+who may write those rows via `flow_start`, and whether their `validation.quick`
+should run unattended when a caller passes `validation_repo_root` against a
+`flow_start`-written spec -- must be answered again on its own merits and not
+inherited from this note.** That re-decision is a separate open design task
+(see project memory `env-evidence-writer-authority-redecision`); no gate here
+changes until it lands.
 """
 
 from __future__ import annotations
@@ -194,10 +200,11 @@ class RunBoundValidator:
     The spec is sourced from exactly one place: `run_environment_evidence` rows
     bound to this incident's own `run_id`. There is no fallback, no conventional
     path, no bundled or remembered spec, and no synthesis from a fingerprint --
-    when no row exists the honest answer is `no_spec_bound`. Since
-    `record_run_environment_evidence` currently has zero production writers, that
-    is the answer every real incident gets today; this wiring is deliberately
-    inert until a production writer of run-bound environment evidence exists.
+    when no row exists the honest answer is `no_spec_bound`. As of roadmap
+    6.24 (#204) `flow_start` step 4 writes a `run_environment_evidence` row for
+    the run of any task carrying an environment contract, so incidents on such
+    runs can now get a bound spec here; an incident on a run whose task had no
+    environment contract still gets `no_spec_bound`.
 
     Double-read note. `tick()` separately calls
     `_advisory_environment_evidence(run_id)`, which reads the same table. In the
