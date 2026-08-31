@@ -1,143 +1,80 @@
 # MultiAgentProject Lean
 
-A provider-neutral workspace for building with Codex, Claude, or other coding
-agents. It keeps MAP's durable methods and control plane while removing the
-requirement for WezTerm as the agent-window cockpit.
+MAPS_L is a provider-neutral operating system around capable AI workers: task
+truth, bounded authority, orchestration, reusable methods, verification,
+recovery, and durable evidence without requiring a specific model or terminal UI.
 
 ## Start here
 
-For your first task, [follow the canonical first-run route](docs/FIRST_RUN.md).
-It starts with [AGENTS.md](AGENTS.md), the **single repository-wide operating
-contract**, and tells you exactly when to read current state, the control plane,
-and one relevant playbook method. Do not construct a second orientation sequence
-from this README.
+For repository work, follow [`docs/FIRST_RUN.md`](docs/FIRST_RUN.md). It begins
+with [`AGENTS.md`](AGENTS.md), the **single repository-wide operating contract**,
+then routes you to the approved roadmap/task and one relevant method.
 
-Resuming after a session break? Read [Current State](state/CURRENT.md) first.
+Do **not** read the repository tree broadly as orientation.
 
-For a project that spans sessions, multiple tasks, or multiple agents, use
-[Project Bootstrap](playbook/PROJECT_BOOTSTRAP.md) before creating the first
-implementation task. It follows a simple planning rule: inspect reality, define
-DONE, plan backward, challenge the draft, then execute forward and adapt from
-evidence.
+### Fast routes
 
-Once oriented, create a task record from [the task template](templates/task.md)
-before a multi-agent or consequential change and put reviews, decisions, and
-handoffs in `work/` using the templates.
+- New durable project/work arc → [Project Bootstrap](playbook/PROJECT_BOOTSTRAP.md)
+- Select a reusable method → [Playbook index](playbook/INDEX.md)
+- Find a durable `work/` record class → [Work routing index](work/README.md)
+- Resume cross-session work → [Current State](state/CURRENT.md), then its linked handoff and live GitHub
+- Role-bound browser coordination / current PR state → [Coordination](work/coordination/README.md), then live GitHub
+- Runtime/control-plane setup → [Fresh Clone Setup](docs/FRESH_INSTALL.md)
+- Capability/roadmap question → [Roadmap router](work/roadmaps/README.md)
 
-For a fresh runtime setup, start with [Fresh Clone Setup](docs/FRESH_INSTALL.md).
-For component-level installation and migration details, use
-[Control-Plane Setup](docs/CONTROL_PLANE_SETUP.md).
-
-### Documentation model
-
-MAPS_L deliberately avoids a stack of peer instruction files:
+## Documentation model
 
 ```text
 AGENTS.md              = global operating contract
-approved roadmap/task  = scoped authority and exact work
-runtime state          = live task/execution truth
-playbook/docs          = subordinate methods and guidance
-work/state records     = evidence and continuation
+approved roadmap/task  = scoped authority + exact work
+runtime task state     = mutable task/execution truth
+playbook/docs          = subordinate methods/guidance
+work/state             = evidence + continuation
 migration/legacy       = reference/history
 ```
 
-Playbook files may be strict about the method they own, but they do not create
-new repository-wide permission or orchestration rules. Normal work should need
-`AGENTS.md + approved roadmap/task + one relevant method` in the common case.
-Repeatedly needing several overlapping methods is treated as a consolidation
-problem, not as normal process.
+Normal work should need:
 
-## Active runtime
+```text
+AGENTS.md + approved roadmap/task + one relevant method
+```
 
-The replacement runtime landed on `main` via PR #16 and has continued to grow
-since. **Do not trust a PR number or test count in this README as current —
-recover live state from GitHub and `work/coordination/README.md`, the durable
-coordination entry point.** As of this edit, `main` carries the following
-capability areas (non-exhaustive; see `runtime/` and `tests/` for the current
-ground truth):
-
-- **SQLite task truth + AGI gate** — canonical task lifecycle, atomic claims,
-  leases, durable submission authorship, scoped reservations, review separation,
-  rework, and explicit policy state.
-- **LangGraph routing** — read-first recommendations using explicit worker
-  capability profiles and policy gates; checkpoint DB is separate from task truth.
-- **hcom adapter** — project-isolated messaging/session transport; no task authority.
-- **RnS recovery** — deterministic recovery of already-active, explicitly bound
-  sessions with bounded retries, `run_id` binding, and advisory (non-gating)
-  environment-equivalence evidence surfacing; no WezTerm requirement.
-- **Bounded local helpers** — Ollama text/draft work and scoped Aider editing;
-  helpers cannot approve or complete parent tasks.
-- **Fresh-clone setup/smoke** — preview-first installer and disposable end-to-end
-  lifecycle verification.
-- **Execution integrity** — immutable run/context binding, task/context staleness,
-  writable/forbidden Git scope proof, run-budget checks, continuity-aware review,
-  and optional criterion-level evidence.
-- **Operational learning (Storage-0)** — append-only, CANDIDATE-only lesson
-  persistence; promotion/retirement authority is operator-only and not yet
-  mechanically implemented (design record: `work/notes/2026-08-17-operational-learning-authority-design.md`).
-- **Context Builder Stage 2 retrieval** — evaluated candidates including a
-  local `fastembed` embedding-based retriever, excluded from core CI (see
-  `runtime/requirements.txt` and the review finding on a missing semantic-eval
-  CI lane).
-- **Branch protection on `main`** — PR-only, required Runtime CI status check,
-  no force-push/delete. Independent-review enforcement beyond CI is not yet
-  mechanically enforced; see issue #61.
-
-The original integration review is recorded in
-[`work/reviews/RUNTIME_INTEGRATION_REVIEW.md`](work/reviews/RUNTIME_INTEGRATION_REVIEW.md).
-The final active dependency sweep is recorded in
-[`migration/FINAL_LEGACY_DEPENDENCY_SWEEP.md`](migration/FINAL_LEGACY_DEPENDENCY_SWEEP.md).
-Both describe `main` as of PR #16, not current `main` — check `tests/` and CI
-for the current test count rather than trusting a number here.
+Add other material only when the task actually needs it. Repeated chain-reading
+is a routing/consolidation defect, not normal process.
 
 ## Core responsibility boundaries
 
-```text
-SQLite      = task truth / ownership / evidence
-LangGraph   = routing recommendation + checkpoint memory
-hcom        = communication / session control
-RnS         = recovery of known active sessions
-helpers     = bounded delegated work
-integrity   = frozen execution contract + proof; no new authority
-Markdown    = durable human-readable project record
-WezTerm     = optional presentation
-```
+| Component | Owns |
+| --- | --- |
+| SQLite task state | task truth, ownership, evidence, lifecycle |
+| LangGraph | routing recommendation/checkpoint state |
+| hcom | communication/session transport |
+| RnS | bounded recovery of known active sessions |
+| helpers | bounded delegated work |
+| execution integrity | frozen execution contract + proof |
+| Markdown | durable human/agent-readable records |
+| terminal UI | optional presentation only |
 
-Capability never grants authority. A router recommendation, active hcom session,
-helper result, recovery command, or run manifest does not by itself change MAPS
-task truth.
+Capability never grants authority. Verify current production wiring in code,
+tests, CI, and the relevant capability evidence rather than trusting a dated
+README inventory.
 
-## What is deliberately retained
-
-- A named owner, scope, output paths, and observable acceptance criteria.
-- Independent review where the active task/risk policy requires it.
-- Risk-proportionate evidence and explicit authority-boundary gates.
-- Compact handoffs and durable decisions when work spans sessions or tools.
-
-## What is deliberately removed from the active default
-
-- A required WezTerm multiplexer and fixed visible startup roster.
-- The assumption that every control-plane signal must become operator-facing
-  terminal noise.
-- Ceremony for small, low-risk, single-agent edits.
-- A universal second `APPROVED → RELEASED` lifecycle.
-
-## Layout
+## Repository layout
 
 | Path | Purpose |
 | --- | --- |
-| [AGENTS.md](AGENTS.md) | Sole repository-wide operating contract. |
-| `runtime/` | Provider-neutral active runtime implementation. |
-| `tests/` | Active runtime regression tests. |
-| `docs/` | Subordinate workflow, setup, and quality guidance. |
-| `playbook/` | Subordinate reusable methods: planning, task lifecycle, research, risk, routing, repair. |
-| `templates/` | Task, review, handoff, decision, context, worker/task examples; structure, not authority. |
-| [state/CURRENT.md](state/CURRENT.md) | Compact shared continuation state. |
-| `work/` | Task records, decisions, reviews, evidence, and durable outputs. |
-| `migration/` | Curated source/evidence retained during promotion and removal proof. |
-| `legacy/` | Historical original source; no longer an active execution dependency. |
+| [`AGENTS.md`](AGENTS.md) | Sole repository-wide operating contract |
+| [`docs/FIRST_RUN.md`](docs/FIRST_RUN.md) | Lowest-cost onboarding route |
+| [`playbook/INDEX.md`](playbook/INDEX.md) | Reusable-method router |
+| [`work/README.md`](work/README.md) | Durable-record router |
+| [`work/roadmaps/README.md`](work/roadmaps/README.md) | Roadmap/capability router |
+| [`work/coordination/README.md`](work/coordination/README.md) | Role-bound coordination entry; live state remains on GitHub |
+| [`state/CURRENT.md`](state/CURRENT.md) | Compact cross-session orientation snapshot |
+| `runtime/` | Active provider-neutral runtime implementation |
+| `tests/` | Active regression/evaluation tests |
+| `templates/` | Record structures; not authority |
+| `migration/` | Curated promotion/removal evidence |
+| `legacy/` | Historical source; not an active execution dependency |
 
-`legacy/` is intentionally still present. The runtime is merged, current
-preservation/privacy and active dependency gates pass, and the only remaining
-migration action is a **separate explicit operator-approved deletion of
-`legacy/`**.
+For the visual relationship graph, see [`obsidian/README.md`](obsidian/README.md).
+Links are navigation claims, not proof of authority, freshness, or truth.

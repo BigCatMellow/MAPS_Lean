@@ -1,46 +1,25 @@
 # Lean Project Playbook
 
 This index is **navigation, not a second operating contract**. Repository-wide
-agent authority and behavior are defined only in [`AGENTS.md`](../AGENTS.md).
-Playbook files are reusable methods inside that authority.
-
-Historical behavior worth retaining is curated under `migration/`; ordinary
-agents should not need the old `legacy/` tree.
+authority/behavior live in [`AGENTS.md`](../AGENTS.md); these files are reusable
+methods inside that authority. Historical material lives under `migration/` or
+`legacy/` and is not part of the normal read path.
 
 ## Authority and reading budget
 
-Use this chain:
-
 ```text
-AGENTS.md
-  global operating contract
-      ↓
-approved roadmap/project
-  objective + standing permission envelope
-      ↓
-active task
-  exact child scope
-      ↓
-ONE relevant playbook method in the common case
-  procedure only; no new authority
-      ↓
-evidence / review / handoff
+AGENTS.md → approved roadmap/project → active task
+          → ONE relevant playbook method → evidence/review/handoff
 ```
 
-A playbook may use `MUST`/`MUST NOT` for the method it owns, but it may not
-create or override repository-wide authority, permission, or orchestration rules.
-If a method appears to conflict with `AGENTS.md` or the approved task/roadmap,
-the higher source wins and the lower document should be repaired rather than
-blended into a new interpretation.
-
-Normal work should not require chain-reading the playbook. Start with one method.
-Follow a second only when the first explicitly delegates a distinct concern to
-it. If routine work repeatedly requires stitching several overlapping methods
-together, treat that as documentation sprawl and consolidate the owners.
+A playbook may define requirements for the method it owns, but cannot override a
+higher authority source. If it appears to conflict, follow the higher source and
+repair the lower one. Normal work should not require chain-reading playbooks; if
+several routinely overlap, consolidate their owners.
 
 ## Core workflow methods
 
-These own the common project lifecycle. Prefer these before specialized methods.
+Prefer these for the common project lifecycle.
 
 | Need | Primary owner | Boundary |
 | --- | --- | --- |
@@ -56,7 +35,7 @@ These own the common project lifecycle. Prefer these before specialized methods.
 
 ## Specialized methods
 
-Use these only when their specific concern is active.
+Use only when the specific concern is active.
 
 | Need | Use | Relationship / non-overlap |
 | --- | --- | --- |
@@ -74,54 +53,36 @@ Use these only when their specific concern is active.
 | Capture a worthwhile discovery without expanding current scope | [EMERGENCE.md](EMERGENCE.md) | Discovery capture only. |
 | Repair drift and learn from repeated failures | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | Repair/learning loop; findings do not silently become global policy. |
 | Classify information as authority, task context, fact, Skill, flow, tool, or example | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Information type, not lifecycle status or authority creation. |
-| Keep project information trustworthy over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Active/retired/archive lifecycle; not information classification. |
-| Continue across sessions | [Context](../docs/CONTEXT.md) and [handoff template](../templates/handoff.md) | Continuation state/evidence only; does not expand task authority. |
+| Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Active/retired/archive lifecycle plus routing maintenance; not information classification. |
+| Continue across sessions | [Current state](../state/CURRENT.md) and [handoff template](../templates/handoff.md) | Continuation state/evidence only; does not expand task authority. |
 
 ## Adding or changing a method
 
-Follow the anti-sprawl invariant in `AGENTS.md`.
+Follow the anti-sprawl invariant in `AGENTS.md`. Before adding a playbook file:
 
-Before creating a new active playbook file:
+1. Name the existing concept owner and why it cannot coherently own the addition.
+2. Give the proposed method one distinct reusable job.
+3. Link rather than copy shared rules.
+4. Add one index entry that states the non-overlap.
+5. Merge/retire any method it supersedes in the same arc.
 
-1. Name the existing document that would otherwise own the concept.
-2. Show why extending that owner would make it less coherent.
-3. Give the proposed method one distinct reusable job.
-4. Link rather than copy shared rules from `AGENTS.md` or another owner.
-5. Add one index entry that makes the non-overlap explicit.
-6. If the new method supersedes an older one, merge useful material and retire or
-   narrow the older file in the same work arc.
+A new file is not evidence of a new capability. Fewer, clearer owners are preferred.
 
-A new file is not evidence of a new capability. Fewer, clearer owners are
-preferred to a larger library of partially overlapping instructions.
+## Runtime detail
 
-## Retained control plane and optional presentation
-
-- **SQLite:** canonical mutable task state—atomic claims, leases, submissions,
-  reviews, and task events.
-- **LangGraph:** deterministic route selection from task/dependency state,
-  policy, availability, helpers, and gates. Its checkpoint database is
-  separate from MAPS task truth. It recommends; accountable agents act.
-- **RnS:** deterministic restart/limit recovery. It relies on durable handoffs
-  and hcom/session adapters rather than terminal authority.
-- **hcom:** cross-provider messages, session control, and current RnS transport.
-  Its own local state is not MAPS task authority.
-- **WezTerm or any other terminal UI:** optional presentation only.
+For SQLite/LangGraph/RnS/hcom responsibility boundaries, read
+[CONTROL_PLANE.md](CONTROL_PLANE.md). This index does not duplicate that detail.
 
 ## Legacy audit and migration sources
 
-The full legacy archive is temporary. Durable findings and selected source/tests
-are being moved into:
+Agents needing legacy provenance should start with:
 
 - [Legacy Knowledge Audit](../migration/LEGACY_KNOWLEDGE_AUDIT.md)
 - [Legacy Promotion Ledger](../migration/LEGACY_PROMOTION_LEDGER.md)
-- [Future Ideas Backlog](../migration/FUTURE_IDEAS_BACKLOG.md) — promising deferred ideas preserved without making them active commitments
+- [Future Ideas Backlog](../migration/FUTURE_IDEAS_BACKLOG.md)
 - [Legacy Removal Checklist](../migration/LEGACY_REMOVAL_CHECKLIST.md)
-- `migration/legacy-runtime-source/` — first control-plane extraction
-- `migration/legacy-knowledge-source/` — second execution/knowledge extraction
+- [Source catalog](SOURCE_CATALOG.md)
 
-Migration snapshots are reference source only. Active runtime code must not
-import or execute from them.
-
-See [the source catalog](SOURCE_CATALOG.md) for earlier source mapping; where it
-conflicts with the newer migration audit, the newer audit/ledger governs the
-legacy-removal decision.
+Migration snapshots are reference source only; active runtime code must not import
+or execute from them. Newer migration audit/ledger evidence outranks older source
+mapping for legacy-removal decisions.

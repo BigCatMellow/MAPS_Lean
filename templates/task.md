@@ -6,7 +6,8 @@
 - Owner: <agent or person>
 - Risk: `LOW | MEDIUM | HIGH`
 - Goal: <observable outcome>
-- Parent roadmap: <path + authorization revision, or `none`>
+- Parent roadmap: <direct path/link + authorization revision, or `none`>
+- Related records: <only directly useful decision/evidence/handoff/review links, or `none`>
 - Autonomous continuation: `YES | NO`
 
 ## Inputs and source of truth
@@ -57,6 +58,13 @@ Include only what materially applies; use `N/A` explicitly when useful.
 - External side effects: <publication/deployment/API/data mutation or N/A>
 - Effort limit: <time/cost/attempt threshold or N/A>
 - Approved reference: <mockup/spec/schema/behavior reference or N/A>
+- Operational independence: `REQUIRED | N/A — <reason>` (whole-gate `N/A` only for genuinely non-repeatable/one-off work per `OIG-NA-WHOLE`; repeatable work stays `REQUIRED`)
+- Reproduction package: <first-time-user/manual reproduction instructions + source inputs/provenance + verification, plus automation (code/script/formulas/query/config/template) unless that component is `N/A — <reason>` per `OIG-NA-AUTO`>
+
+For repeatable operational work, follow the
+[Operational independence gate](../playbook/TASK_LIFECYCLE.md#operational-independence-gate).
+Solve/discover the real process first when needed, then codify the successful
+path so future operation does not depend on the original AI/session.
 
 ## Question-resolution ladder
 
@@ -105,12 +113,13 @@ mandatory AGI requirement passes.
 
 ## Notes / decisions
 
-- <only forward-relevant information>
+- <only forward-relevant information; link detailed owner records instead of copying them>
 
 ## Completion / handoff
 
 - Completed: <what is verified true now>
 - Not completed: <remaining work or `none`>
+- Reproduction package: <manual instructions + source inputs + verification path, plus automation unless `automation N/A — reason`; whole-gate `N/A — reason` only for genuinely one-off work>
 - Current blocker: <none or exact blocker>
 - Next eligible roadmap task: <task ID/path or `roadmap complete`>
 - Human action required: <none or exact boundary decision>

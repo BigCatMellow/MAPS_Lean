@@ -24,7 +24,7 @@ been authorized.
    [Roadmaps and ProjectUpdater Checklists](../../playbook/ROADMAP_AND_PROJECTUPDATER.md).
 5. Project Bootstrap → [task template](../../templates/task.md) and
    [decision template](../../templates/decision.md). The index's continuation
-   link → [Context](../../docs/CONTEXT.md) and the
+   link → Context (`docs/CONTEXT.md`, retired after this report) and the
    [handoff template](../../templates/handoff.md).
 
 No legacy document, runtime command, or ProjectUpdater command was used.
