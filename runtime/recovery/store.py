@@ -48,6 +48,13 @@ class RecoveryIncident:
     # (see RecoverySupervisor.tick()); it grants no recovery authority by
     # itself and does not change any existing recovery decision.
     run_id: str | None = None
+    # Consecutive-block counter for the opt-in resume-validation gate
+    # (RecoverySupervisor `validation_blocks_resume`). 0 unless that gate is
+    # enabled and this incident's pre-resume quick-tier check has failed on
+    # one or more consecutive due passes; reset to 0 by any non-block outcome.
+    # JSON-store field only, exactly like every other field here -- no schema
+    # change (the SQL task DB is untouched by RnS state).
+    validation_blocks: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

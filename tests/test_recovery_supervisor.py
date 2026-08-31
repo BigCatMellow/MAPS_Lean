@@ -1230,6 +1230,178 @@ class ResumeValidationAdvisoryTests(unittest.TestCase):
         self.assertEqual(validator.calls, [None])
 
 
+PASSING_VALIDATION = {"attempted": True, "passed": True, "tier": "quick"}
+
+
+class ResumeValidationGateTests(unittest.TestCase):
+    """`validation_blocks_resume=True` turns the advisory check into a gate.
+
+    Per `work/notes/2026-08-31-resume-validation-gate-design.md` §Q5. Reuses
+    the advisory-tests scaffolding: one scheduled incident (TASK-1 / worker-1
+    / session-1 / RUN-1), a stopped session, backoff (60, 120), flat probe
+    delay 30s.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.now = datetime(2026, 8, 31, 20, 0, tzinfo=timezone.utc)
+        self.counter = 0
+
+    def supervisor(self, *, sessions=None, tasks=None, **kwargs):
+        self.counter += 1
+        store = RecoveryStore(Path(self.td.name) / f"recovery-{self.counter}.json")
+        store.schedule(
+            task_id="TASK-1",
+            worker_id="worker-1",
+            session_name="session-1",
+            reason="scheduled",
+            resume_after=(self.now - timedelta(seconds=1)).isoformat(),
+            run_id="RUN-1",
+        )
+        hcom = FakeHcom(
+            sessions
+            if sessions is not None
+            else [{"name": "session-1", "status": "stopped"}]
+        )
+        sup = RecoverySupervisor(
+            task_reader=FakeTasks(tasks or [active_task()]),
+            hcom=hcom,
+            recovery_store=store,
+            backoff_seconds=(60, 120),
+            silent_stop_probe_delay_seconds=30,
+            **kwargs,
+        )
+        return sup, hcom, store
+
+    @staticmethod
+    def _incident(store):
+        return next(iter(store.load()["incidents"].values()))
+
+    def test_flag_off_a_failing_tier_is_still_advisory(self):
+        """The default: identical to having no gate -- the resume proceeds."""
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, hcom, store = self.supervisor(resume_validator=validator)
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertEqual(len(hcom.resumes), 1)
+        self.assertEqual(self._incident(store)["state"], "probing")
+        self.assertEqual(self._incident(store).get("validation_blocks", 0), 0)
+
+    def test_flag_on_a_failing_tier_blocks_before_any_resume_call(self):
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, hcom, store = self.supervisor(
+            resume_validator=validator, validation_blocks_resume=True
+        )
+        actions = sup.tick(now=self.now)
+
+        self.assertEqual(actions[0]["action"], "resume_blocked_validation")
+        self.assertEqual(actions[0]["reason"], "quick_validation_failed")
+        self.assertEqual(actions[0]["validation_blocks"], 1)
+        self.assertEqual(actions[0]["resume_validation"], FAILING_VALIDATION)
+        self.assertIsNone(actions[0]["harness_resume"])
+        # No resume was attempted, by any path.
+        self.assertEqual(hcom.resumes, [])
+
+        incident = self._incident(store)
+        self.assertEqual(incident["state"], "blocked_validation")
+        self.assertEqual(incident["last_error"], "quick validation tier failed")
+        self.assertEqual(incident["validation_blocks"], 1)
+        # The transient retry budget is untouched.
+        self.assertEqual(incident["attempt"], 0)
+        # Rescheduled on the flat probe interval (30s), not the backoff ladder.
+        self.assertEqual(
+            incident["next_attempt_at"],
+            "2026-08-31T20:00:30Z",
+        )
+
+    def test_flag_on_a_passing_tier_resumes_normally(self):
+        validator = RecordingValidator(PASSING_VALIDATION)
+        sup, hcom, store = self.supervisor(
+            resume_validator=validator, validation_blocks_resume=True
+        )
+        actions = sup.tick(now=self.now)
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertEqual(len(hcom.resumes), 1)
+        self.assertEqual(self._incident(store)["state"], "probing")
+        self.assertEqual(self._incident(store)["attempt"], 1)
+
+    def test_flag_on_attempted_false_never_blocks(self):
+        """A skip / error result is not a failure -- design note Q6.4."""
+        for result in (
+            {"attempted": False, "reason": "no_spec_bound"},
+            {"attempted": False, "reason": "budget_exceeded"},
+            {"attempted": False, "reason": "validation_error"},
+        ):
+            with self.subTest(result=result):
+                validator = RecordingValidator(result)
+                sup, hcom, store = self.supervisor(
+                    resume_validator=validator, validation_blocks_resume=True
+                )
+                actions = sup.tick(now=self.now)
+                self.assertEqual(actions[0]["action"], "resume")
+                self.assertEqual(len(hcom.resumes), 1)
+                self.assertEqual(self._incident(store)["state"], "probing")
+
+    def test_a_blocked_incident_is_re_processed_and_a_later_pass_resets_the_streak(self):
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, hcom, store = self.supervisor(
+            resume_validator=validator, validation_blocks_resume=True
+        )
+        sup.tick(now=self.now)
+        self.assertEqual(self._incident(store)["state"], "blocked_validation")
+
+        # Next due pass: the tier now passes -> the incident recovers, resumes,
+        # and the block streak is cleared.
+        validator.result = PASSING_VALIDATION
+        later = self.now + timedelta(seconds=31)
+        actions = sup.tick(now=later)
+        self.assertEqual(actions[0]["action"], "resume")
+        self.assertEqual(len(hcom.resumes), 1)
+        incident = self._incident(store)
+        self.assertEqual(incident["state"], "probing")
+        self.assertEqual(incident["validation_blocks"], 0)
+        self.assertEqual(incident["attempt"], 1)
+
+    def test_persistent_block_ceiling_fires_after_three_consecutive_blocks(self):
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, hcom, store = self.supervisor(
+            resume_validator=validator, validation_blocks_resume=True
+        )
+        t = self.now
+        for expected in (1, 2):
+            actions = sup.tick(now=t)
+            self.assertEqual(actions[0]["action"], "resume_blocked_validation")
+            self.assertEqual(actions[0]["validation_blocks"], expected)
+            t += timedelta(seconds=31)
+
+        actions = sup.tick(now=t)
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(actions[0]["reason"], "validation_block_persistent")
+        self.assertEqual(actions[0]["validation_blocks"], 3)
+        incident = self._incident(store)
+        self.assertEqual(incident["state"], "failed")
+        self.assertEqual(incident["last_error"], "validation_block_persistent")
+        # Never consumed a transient attempt across the whole sequence.
+        self.assertEqual(incident["attempt"], 0)
+        self.assertEqual(hcom.resumes, [])
+
+    def test_ceiling_is_independent_of_the_transient_retry_budget(self):
+        """Two backoff slots, but the gate never touches `attempt`."""
+        validator = RecordingValidator(FAILING_VALIDATION)
+        sup, _hcom, store = self.supervisor(
+            resume_validator=validator, validation_blocks_resume=True
+        )
+        t = self.now
+        for _ in range(3):
+            sup.tick(now=t)
+            t += timedelta(seconds=31)
+        incident = self._incident(store)
+        self.assertEqual(incident["state"], "failed")
+        self.assertEqual(incident["last_error"], "validation_block_persistent")
+        self.assertEqual(incident["attempt"], 0)
+
+
 class SupervisorSourceBoundaryTests(unittest.TestCase):
     def test_supervisor_source_never_names_the_declared_environment_spec_type(self):
         """`runtime/recovery/supervisor.py` must not contain the literal "EnvironmentSpec".

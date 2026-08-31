@@ -409,6 +409,7 @@ def run_recovery_tick(
     recovery_state_path: str | Path = DEFAULT_RECOVERY_STATE_PATH,
     validation_repo_root: str | Path | None = None,
     harness_project_id: str | None = None,
+    enforce_validation: bool = False,
 ) -> dict[str, Any]:
     """Run exactly one bounded RnS pass and return an audit-friendly summary.
 
@@ -456,9 +457,24 @@ def run_recovery_tick(
     enforcement is strict -- see
     `work/notes/2026-08-26-hook-enforcement-composition-root-design.md` §2c.
 
+    `enforce_validation` opts this pass in to the resume-validation *gate*: a
+    concrete failed `quick`-tier check (`{"attempted": True, "passed": False}`)
+    parks the incident in a distinct `blocked_validation` state before any
+    resume call, without consuming the transient retry budget (design note
+    `work/notes/2026-08-31-resume-validation-gate-design.md` §Q5). It has **no
+    default** and requires `validation_repo_root` -- without a checkout no
+    validator is constructed, so the flag would otherwise be a silent no-op.
+    Advisory recording is unchanged when it is False.
+
     Raises whatever the underlying supervisor/hcom calls raise. Callers that
     must not fail on a recovery problem should use `run_recovery_tick_isolated`.
     """
+    if enforce_validation and validation_repo_root is None:
+        raise ValueError(
+            "enforce_validation requires validation_repo_root: the resume-"
+            "validation gate has nothing to enforce without a checkout to run "
+            "the quick tier in; it is never inferred from the cwd"
+        )
     harness_service = None
     if harness_project_id is not None:
         # Opt-in canonical-run enforcement on the resume path. Reuses the same
@@ -504,6 +520,7 @@ def run_recovery_tick(
         recovery_store=RecoveryStore(recovery_state_path),
         resume_validator=resume_validator,
         harness_service=harness_service,
+        validation_blocks_resume=enforce_validation,
         # environment_reader deliberately omitted -- see module docstring.
         # harness_service is None unless a caller opts in via harness_project_id
         # (default-off; design note §2c) -- when None, tick() uses its existing,
@@ -529,6 +546,7 @@ def run_recovery_tick_isolated(
     recovery_state_path: str | Path = DEFAULT_RECOVERY_STATE_PATH,
     validation_repo_root: str | Path | None = None,
     harness_project_id: str | None = None,
+    enforce_validation: bool = False,
 ) -> dict[str, Any]:
     """`run_recovery_tick` with every failure contained in the return value.
 
@@ -548,6 +566,7 @@ def run_recovery_tick_isolated(
             recovery_state_path=recovery_state_path,
             validation_repo_root=validation_repo_root,
             harness_project_id=harness_project_id,
+            enforce_validation=enforce_validation,
         )
     except Exception as exc:  # noqa: BLE001 - deliberate isolation boundary
         return {

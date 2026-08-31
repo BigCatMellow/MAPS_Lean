@@ -499,6 +499,34 @@ maps recovery-tick --enforce-canonical-run --harness-project-id <P> --repo-root 
   mutates. So `recover + re-tick` is a complete workflow; no "start a fresh
   run" step is required for a revision-stable task.
 
+### Opt-in resume-validation gate
+
+By default `maps recovery-tick --repo-root <checkout>` runs the `quick`
+validation tier against each about-to-be-resumed incident **advisorily**: the
+result is recorded on the action dict (`resume_validation`) and read by
+nothing — a failed tier never blocks, delays, or fails a resume.
+
+Add `--enforce-validation` (requires `--repo-root`) to turn that observation
+into a gate:
+
+```text
+maps recovery-tick --repo-root <checkout> --enforce-validation --binding W=S
+```
+
+With the flag on, an incident whose pre-resume check concretely fails
+(`{"attempted": true, "passed": false}`) is parked in a distinct
+`blocked_validation` state **before** any resume call — no harness/hcom
+resume is attempted, the transient `attempt` retry budget is untouched, and
+the incident is rescheduled on the flat `silent_stop_probe_delay_seconds`
+probe interval. An `{"attempted": false, ...}` result (missing / ambiguous /
+unparseable spec, budget-skipped, validator error) is **not** a failure and
+never blocks. After three consecutive blocks with no intervening non-block
+outcome the incident becomes `failed` / `validation_block_persistent`
+(distinct from `retry_budget_exhausted`); a later passing tier resets the
+streak. Default off; never enabled on the `maps claim` piggyback pass. This
+gate is independent of `--enforce-canonical-run` and composes with it
+(validation gate first, then the canonical guard on the harness path).
+
 ## 6. Local model / Aider helpers
 
 Legacy already contains useful bounded helper wrappers:

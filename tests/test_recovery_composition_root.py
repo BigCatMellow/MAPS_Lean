@@ -409,6 +409,119 @@ class RecoveryTickEnforcementCliTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIsNone(captured.get("harness_project_id"))
 
+    def test_enforce_validation_without_repo_root_exits_nonzero(self):
+        code, _out, err = self.run_cli(
+            ["--db", str(self.db), "recovery-tick", "--enforce-validation"]
+        )
+        self.assertNotEqual(code, 0)
+        self.assertIn("--repo-root", err)
+
+    def test_enforce_validation_with_repo_root_threads_the_flag_through(self):
+        captured: dict = {}
+        real = run_recovery_tick_isolated
+
+        def spy(*args, **kwargs):
+            captured.update(kwargs)
+            return real(*args, **kwargs)
+
+        with mock.patch(
+            "runtime.recovery.production.HcomAdapter",
+            lambda **kw: FakeHcomBackend(),
+        ), mock.patch("runtime.cli.run_recovery_tick_isolated", spy):
+            code, _out, _err = self.run_cli(
+                ["--db", str(self.db), "recovery-tick",
+                 "--repo-root", str(self.root), "--enforce-validation"]
+            )
+        self.assertEqual(code, 0)
+        self.assertTrue(captured["enforce_validation"])
+        self.assertEqual(captured["validation_repo_root"], str(self.root))
+        self.assertIsNone(captured["harness_project_id"])
+
+    def test_recovery_tick_default_does_not_enable_the_validation_gate(self):
+        captured: dict = {}
+        real = run_recovery_tick_isolated
+
+        def spy(*args, **kwargs):
+            captured.update(kwargs)
+            return real(*args, **kwargs)
+
+        with mock.patch(
+            "runtime.recovery.production.HcomAdapter",
+            lambda **kw: FakeHcomBackend(),
+        ), mock.patch("runtime.cli.run_recovery_tick_isolated", spy):
+            code, _out, _err = self.run_cli(
+                ["--db", str(self.db), "recovery-tick", "--repo-root", str(self.root)]
+            )
+        self.assertEqual(code, 0)
+        self.assertFalse(captured["enforce_validation"])
+
+
+class ProductionValidationGateWiringTests(unittest.TestCase):
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+        self.db = self.root / "maps.db"
+        TaskStore(self.db)
+
+    def test_isolated_enforce_validation_without_repo_root_is_contained_valueerror(self):
+        out = run_recovery_tick_isolated(
+            TaskStore(self.db),
+            recovery_state_path=self.root / "recovery.json",
+            enforce_validation=True,
+        )
+        self.assertFalse(out["ok"])
+        self.assertIn("ValueError", out["error"])
+        self.assertIn("validation_repo_root", out["error"])
+
+    def test_enforce_validation_threads_validation_blocks_resume_to_the_supervisor(self):
+        from runtime.recovery import production as prod
+
+        captured: dict = {}
+
+        class CapturingSupervisor(prod.RecoverySupervisor):
+            def __init__(self, **kwargs):
+                captured.update(kwargs)
+                super().__init__(**kwargs)
+
+        backend = FakeHcomBackend(sessions=[])
+        with mock.patch(
+            "runtime.recovery.production.RecoverySupervisor", CapturingSupervisor
+        ), mock.patch(
+            "runtime.recovery.production.HcomAdapter", lambda **kw: backend
+        ), mock.patch(
+            "runtime.recovery.production.RunBoundValidator", lambda **kw: object()
+        ):
+            run_recovery_tick(
+                TaskStore(self.db),
+                recovery_state_path=self.root / "recovery.json",
+                validation_repo_root=str(self.root),
+                enforce_validation=True,
+            )
+        self.assertTrue(captured["validation_blocks_resume"])
+
+    def test_default_leaves_validation_blocks_resume_false(self):
+        from runtime.recovery import production as prod
+
+        captured: dict = {}
+
+        class CapturingSupervisor(prod.RecoverySupervisor):
+            def __init__(self, **kwargs):
+                captured.update(kwargs)
+                super().__init__(**kwargs)
+
+        backend = FakeHcomBackend(sessions=[])
+        with mock.patch(
+            "runtime.recovery.production.RecoverySupervisor", CapturingSupervisor
+        ), mock.patch(
+            "runtime.recovery.production.HcomAdapter", lambda **kw: backend
+        ):
+            run_recovery_tick(
+                TaskStore(self.db),
+                recovery_state_path=self.root / "recovery.json",
+            )
+        self.assertFalse(captured["validation_blocks_resume"])
+
 
 class CompositionRootSourceBoundaryTests(unittest.TestCase):
     def test_supervisor_source_untouched_by_the_composition_root(self):
