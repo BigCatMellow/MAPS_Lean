@@ -21,7 +21,10 @@ PILOT_SKILL = ROOT / ".claude" / "skills" / "pilot" / "SKILL.md"
 
 # Conscious-friction guards. These are not claims that the exact numbers are
 # inherently optimal; changing them requires an explicit reviewed tradeoff.
-PLAYBOOK_SURFACE_BUDGET = 23
+# Raised 23 -> 24 for playbook/SPIDERWEB_AUDIT.md: a genuinely distinct
+# reusable method (bounded advisory durable-record relationship audit) that
+# does not belong to an existing concept owner.
+PLAYBOOK_SURFACE_BUDGET = 24
 AGENTS_BYTE_BUDGET = 10_000
 ROOT_README_BYTE_BUDGET = 4_000
 FIRST_RUN_BYTE_BUDGET = 3_000
