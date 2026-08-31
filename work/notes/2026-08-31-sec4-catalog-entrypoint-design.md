@@ -45,8 +45,12 @@ guessing (rules 9/10). It answers three questions:
   - `None`/`DISCOVERED` → `OBSERVATION` → **WITHHOLD** (emitted as `ON_DEMAND`
     metadata with a `withheld_reason`, not in the default load set);
   - `VALIDATED` → `REVIEWED_GUIDANCE` → LOAD (metadata only — still no body);
-  - `APPROVED` → `APPROVED_SKILL` → LOAD; `ACTIVE` → `ACTIVE_INSTRUCTION` →
-    LOAD;
+  - `APPROVED` → `APPROVED_SKILL` → LOAD (metadata only); `ACTIVE` →
+    `ACTIVE_INSTRUCTION` → **WITHHOLD in practice** — `_ADMISSION_TABLE` maps it
+    to LOAD, but `_LOAD_REQUIRES_PROVEN_ACTIVE_SOURCE` withholds it until a
+    separate Skill-loader task proves the source active (none exists);
+    unreachable in this slice regardless (no `APPROVED`→`ACTIVE` transition
+    runs);
   - **`QUARANTINED` → `QUARANTINED` → DENY** (entry dropped from the plan
     entirely, counted under `coverage`);
   - `SUPERSEDED` → `SUPERSEDED` → WITHHOLD; `RETIRED` → `RETIRED` → WITHHOLD.
@@ -104,9 +108,14 @@ def build_project_skill_catalog(repo_root, store, *, now=None) -> SkillCatalog:
         root=Path(repo_root) / ".claude" / "skills",
         kind=SkillSourceKind.BUNDLED,
     )
-    catalog = build_skill_catalog([source], store=store)
-    register_skill_catalog(catalog, store, now=now)   # idempotent, gate-driven
-    return catalog
+    # Register subjects first (gate-driven, idempotent), THEN build with the
+    # store, so the returned catalog carries the freshly-recorded lifecycle
+    # states. (Impl correction, PR after #197: the original snippet built
+    # store-first and returned a pre-registration catalog with every
+    # `lifecycle_state` None -- the trust gate would not drop a QUARANTINED
+    # Skill until the *next* call.)
+    register_skill_catalog(build_skill_catalog([source]), store, now=now)
+    return build_skill_catalog([source], store=store)
 ```
 
 `flow_start` step 2 becomes:
@@ -174,7 +183,7 @@ selection-layer DENY above.
 ## Smallest-first slice — what the impl PR does
 
 1. `runtime/skills/catalog.py`: add `build_project_skill_catalog(repo_root, store, *, now=None)` (≈8 lines); export from `runtime/skills/__init__.py`.
-2. `runtime/flow_start.py`: build the catalog and pass `skill_catalog=` to `build_context_plan`. One import, ~2 lines in `flow_start`. `flow_start`'s docstring step 2 updated ("build a read-only context plan, including matched bundled Skills gated by their durable lifecycle state").
+2. `runtime/flow_start.py`: build the catalog and pass `skill_catalog=` to `build_context_plan`. One import; the catalog build sits between claim and context in its own small `try` (a malformed `.claude/skills/` is a new failure mode this wiring introduces — reported as a `"skills"` / `SKILL_CATALOG_FAILED` failed step rather than mislabelled as `INVALID_REPO_ROOT`). `flow_start`'s docstring step 2 updated.
 3. Tests (`tests/test_flow_start.py` + wherever flow-start context-plan behaviour is asserted):
    - `maps flow start` on a task whose signals match the `pilot` Skill, with a `QUARANTINED` subject recorded for that Skill's `catalog_key` in the store → the plan's `skills` list excludes it and `coverage` counts the DENY.
    - same task, subject `VALIDATED` → Skill appears as metadata (no body).

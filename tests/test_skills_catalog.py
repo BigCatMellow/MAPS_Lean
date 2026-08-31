@@ -9,10 +9,12 @@ from runtime.skills import (
     SkillCatalogSource,
     SkillNotFoundError,
     SkillSourceKind,
+    build_project_skill_catalog,
     build_skill_catalog,
     load_catalog_skill,
     register_skill_catalog,
 )
+from runtime.skills.catalog import _catalog_key
 from runtime.skills.gate import SkillGateDisposition
 from runtime.skills.lifecycle import SkillLifecycleState
 from runtime.state import TaskStore
@@ -272,6 +274,70 @@ def _temp_store(test_case):
     td = tempfile.TemporaryDirectory()
     test_case.addCleanup(td.cleanup)
     return TaskStore(Path(td.name) / "state.db")
+
+
+class CatalogKeyFormatTests(unittest.TestCase):
+    """`catalog_key` is a persistence key -- pin its exact string layout so a
+    reordering / separator change is caught (the round-trip tests only assert
+    the content hash is a substring)."""
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        root = Path(self.td.name) / "bundled"
+        root.mkdir()
+        (root / "one").mkdir()
+        (root / "one" / "SKILL.md").write_text(SKILL.format(name="one"), encoding="utf-8")
+        self.source = SkillCatalogSource(
+            source_id="bundled", root=root, kind=SkillSourceKind.BUNDLED
+        )
+
+    def test_catalog_key_exact_format_is_pinned(self):
+        catalog = build_skill_catalog([self.source])
+        entry = catalog.require_unique("one")
+        d = entry.descriptor
+        expected = f"bundled:{d.skill_id}@sha256:{d.content_sha256}"
+        self.assertEqual(_catalog_key("bundled", d), expected)
+        self.assertEqual(entry.catalog_key, expected)
+
+    def test_catalog_key_orders_source_id_before_skill_id(self):
+        catalog = build_skill_catalog([self.source])
+        d = catalog.require_unique("one").descriptor
+        key = _catalog_key("bundled", d)
+        self.assertTrue(key.startswith(f"bundled:{d.skill_id}@sha256:"))
+        self.assertLess(key.index("bundled"), key.index(d.skill_id))
+        self.assertEqual(key.count(":"), 2)  # source_id:skill_id + @sha256:
+
+
+class BuildProjectSkillCatalogTests(unittest.TestCase):
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo = Path(self.td.name) / "repo"
+        self.repo.mkdir()
+
+    def _add(self, name: str):
+        skill = self.repo / ".claude" / "skills" / name
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(SKILL.format(name=name), encoding="utf-8")
+
+    def test_discovers_bundled_source_and_records_subjects_idempotently(self):
+        self._add("one")
+        store = _temp_store(self)
+        catalog = build_project_skill_catalog(self.repo, store)
+        entry = catalog.require_unique("one")
+        self.assertEqual(entry.provenance.source_id, "bundled")
+        self.assertEqual(entry.provenance.source_kind, SkillSourceKind.BUNDLED)
+        self.assertIsNotNone(store.get_skill_lifecycle_state(entry.catalog_key))
+
+        build_project_skill_catalog(self.repo, store)  # idempotent
+        self.assertEqual(len(store.list_skill_lifecycle_subjects()), 1)
+
+    def test_missing_skills_dir_yields_empty_catalog_and_no_writes(self):
+        store = _temp_store(self)
+        catalog = build_project_skill_catalog(self.repo, store)
+        self.assertEqual(catalog.entries, ())
+        self.assertEqual(store.list_skill_lifecycle_subjects(), [])
 
 
 if __name__ == "__main__":

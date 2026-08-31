@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from runtime.context_builder import build_context_plan
+from runtime.skills import SkillCatalogError, SkillParseError, build_project_skill_catalog
 from runtime.state import MutationResult, TaskStore
 
 
@@ -66,10 +67,13 @@ def flow_start(
     The flow composes existing guarded operations in order:
 
     1. claim the task for an explicit worker;
-    2. build a read-only context plan;
+    2. discover the project's bundled Skills into a durable catalog, then build
+       a read-only context plan including the Skills matched to this task,
+       gated by their recorded lifecycle state (a QUARANTINED Skill is dropped);
     3. bind an immutable run manifest.
 
     It intentionally stops before choosing or launching a provider session.
+    No Skill procedure body is loaded -- only descriptor/provenance metadata.
     """
 
     claim = store.claim_task(task_id, worker_id, lease_seconds=lease_seconds)
@@ -77,7 +81,17 @@ def flow_start(
         return _failed("claim", claim)
 
     try:
-        context_plan = build_context_plan(store, task_id, repo_root=repo_root)
+        skill_catalog = build_project_skill_catalog(repo_root, store)
+    except (SkillCatalogError, SkillParseError) as exc:
+        return _failed(
+            "skills",
+            MutationResult(False, "SKILL_CATALOG_FAILED", str(exc)),
+        )
+
+    try:
+        context_plan = build_context_plan(
+            store, task_id, repo_root=repo_root, skill_catalog=skill_catalog
+        )
     except ValueError as exc:
         return _failed(
             "context",

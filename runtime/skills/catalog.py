@@ -226,6 +226,41 @@ def build_skill_catalog(
     return SkillCatalog(entries=tuple(entries))
 
 
+def build_project_skill_catalog(
+    repo_root: str | Path,
+    store: "SkillLifecycleStorageMixin",
+    *,
+    now=None,
+) -> SkillCatalog:
+    """The first production entrypoint that builds a catalog with a store.
+
+    SEC4 / 6.10, `work/notes/2026-08-31-sec4-catalog-entrypoint-design.md` (a)/(b).
+    One ``BUNDLED`` source rooted at ``<repo_root>/.claude/skills/``, discovered
+    fresh on every call -- no config key, no multi-source list, no third-party
+    sources. A checkout without that directory yields an empty catalog
+    (``discover_skills`` returns ``()`` for an absent root), so the flow is
+    byte-identical to before this wiring for such a checkout.
+
+    Records a durable lifecycle subject for every not-yet-recorded entry
+    (``register_skill_catalog``, idempotent / gate-driven) so that a later
+    ``build_context_plan`` sees each Skill's real composed lifecycle state and
+    the trust gate can act on it (e.g. drop a ``QUARANTINED`` Skill).
+    """
+
+    source = SkillCatalogSource(
+        source_id="bundled",
+        root=Path(repo_root) / ".claude" / "skills",
+        kind=SkillSourceKind.BUNDLED,
+    )
+    # Record subjects first (gate-driven, idempotent), *then* build the catalog
+    # with the store so the returned entries carry each Skill's freshly-recorded
+    # lifecycle state. Building store-first would return a pre-registration
+    # catalog (every `lifecycle_state` None) and the trust gate would not act on
+    # a QUARANTINED Skill until the *next* call.
+    register_skill_catalog(build_skill_catalog([source]), store, now=now)
+    return build_skill_catalog([source], store=store)
+
+
 def register_skill_catalog(
     catalog: SkillCatalog,
     store: "SkillLifecycleStorageMixin",

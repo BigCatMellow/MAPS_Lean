@@ -45,10 +45,12 @@ class MemoryTrustGateError(ValueError):
 #
 # `ACTIVE_INSTRUCTION` and `CANONICAL_POLICY` are effectively unreachable at
 # this seam today: `_select_skills()` projects a Skill's lifecycle state via
-# `skill_lifecycle_trust_class()`, but every entry's `lifecycle_state` is
-# `None` (mapped to `OBSERVATION`) until a durable store is wired into
-# `build_skill_catalog()`, and no memory-like producer emits
-# `CANONICAL_POLICY` at all. #148 conditions
+# `skill_lifecycle_trust_class()`. `build_project_skill_catalog()` (wired into
+# `maps flow start`) now builds the catalog with a durable store, so a Skill's
+# `lifecycle_state` can be a real value -- but reaching `ACTIVE` requires the
+# operator-driven `APPROVED -> ACTIVE` transitions, and no memory-like producer
+# emits `CANONICAL_POLICY` at all. A Skill with no subject row (the common
+# case) is still `None`, mapped to `OBSERVATION`. #148 conditions
 # `ACTIVE_INSTRUCTION`'s load on "a separate Skill loader task proves the
 # source active"; that condition is carried forward as
 # `_LOAD_REQUIRES_PROVEN_ACTIVE_SOURCE` below rather than silently widened.
