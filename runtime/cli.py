@@ -186,7 +186,32 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             'opt in to advisory quick-tier validation of each about-to-be-resumed '
             'incident, run in this checkout; no default, and validation is never '
-            'enabled on the claim-piggybacked pass'
+            'enabled on the claim-piggybacked pass. Advisory only on its own -- '
+            'it does not enable canonical-run enforcement (see '
+            '--enforce-canonical-run)'
+        ),
+    )
+    # Opt-in canonical-run enforcement on the resume path (design note
+    # work/notes/2026-08-26-hook-enforcement-composition-root-design.md).
+    # Default-off and deliberately a separate flag from --repo-root: the guard
+    # never returns ALLOW and denies on absent evidence, so enabling it converts
+    # currently-working resumes into resume_denied / failed. Never on the
+    # claim-piggybacked pass.
+    recovery_tick.add_argument(
+        '--enforce-canonical-run',
+        action='store_true',
+        help=(
+            'route each resume through HarnessService.resume() with a fail-closed '
+            'CanonicalRunGuard installed; requires --repo-root and '
+            '--harness-project-id, default off'
+        ),
+    )
+    recovery_tick.add_argument(
+        '--harness-project-id',
+        default=None,
+        help=(
+            'project_id the single hcom harness adapter is bound to when '
+            '--enforce-canonical-run is set; never inferred from an incident'
         ),
     )
 
@@ -286,7 +311,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
     store = TaskStore(args.db)
 
     if args.command == 'init':
@@ -384,6 +410,21 @@ def main(argv: list[str] | None = None) -> int:
             bindings = _parse_bindings(args.binding)
         except ValueError as exc:
             return _emit(MutationResult(False, 'INVALID_RECOVERY_BINDING', str(exc)))
+        harness_project_id = None
+        if args.enforce_canonical_run:
+            if not args.repo_root:
+                parser.error(
+                    '--enforce-canonical-run requires --repo-root (the checkout '
+                    'canonical run state is verified against; it is never '
+                    'inferred from the current directory)'
+                )
+            if not args.harness_project_id:
+                parser.error(
+                    '--enforce-canonical-run requires --harness-project-id (the '
+                    'project the hcom harness adapter is bound to; it is never '
+                    'inferred from an incident)'
+                )
+            harness_project_id = args.harness_project_id
         return _emit(run_recovery_tick_isolated(
             store,
             bindings=bindings,
@@ -391,6 +432,7 @@ def main(argv: list[str] | None = None) -> int:
             hcom_executable=args.hcom_executable,
             hcom_timeout_seconds=args.hcom_timeout_seconds,
             validation_repo_root=args.repo_root,
+            harness_project_id=harness_project_id,
         ))
     if args.command == 'heartbeat':
         return _emit(store.heartbeat(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))

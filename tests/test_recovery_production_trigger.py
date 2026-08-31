@@ -135,15 +135,38 @@ FORBIDDEN_MODULES = (
     "apscheduler",
     "schedule",
 )
-FORBIDDEN_SUBSTRINGS = (
+# Harness-composition identifiers. Deliberately present in
+# `runtime/recovery/production.py` as of the Hook/Harness composition root
+# (`work/notes/2026-08-26-hook-enforcement-composition-root-design.md`):
+# `build_canonical_harness_service` composes exactly one `HarnessService` with a
+# `HookRegistry` carrying `CanonicalRunGuard`, opt-in and default-off. They must
+# still never appear in `runtime/cli.py`, which only parses the opt-in flags and
+# never constructs harness objects itself.
+HARNESS_COMPOSITION_SUBSTRINGS = (
     "hookevent",
     "hookregistry",
     "harnessservice",
     "hcomharnessadapter",
+)
+FORBIDDEN_SUBSTRINGS = HARNESS_COMPOSITION_SUBSTRINGS + (
     "daemon",
     "time . sleep",
     "while true",
 )
+# Applied to every trigger-source file: a daemon/scheduler/background worker is
+# out of scope everywhere (design §4.2).
+ALWAYS_FORBIDDEN_SUBSTRINGS = (
+    "daemon",
+    "time . sleep",
+    "while true",
+)
+# Per-file substring bans. `production.py` is now the sanctioned composition
+# root, so only the always-forbidden set applies to it; `cli.py` stays a thin
+# flag-parsing layer and must contain neither.
+FORBIDDEN_SUBSTRINGS_BY_FILE = {
+    "runtime/recovery/production.py": ALWAYS_FORBIDDEN_SUBSTRINGS,
+    "runtime/cli.py": ALWAYS_FORBIDDEN_SUBSTRINGS + HARNESS_COMPOSITION_SUBSTRINGS,
+}
 
 
 def code_text_from_source(source: str) -> str:
@@ -535,6 +558,7 @@ class TriggerSourceGuardTests(unittest.TestCase):
         root = Path(__file__).parents[1]
         for relative in ("runtime/recovery/production.py", "runtime/cli.py"):
             text = code_text(root / relative)
+            forbidden_substrings = FORBIDDEN_SUBSTRINGS_BY_FILE[relative]
             # Import forms are matched by pattern, not substring: a plain
             # `import threading` check is trivially evaded by
             # `from threading import Thread`, and this test's entire job is to
@@ -547,7 +571,7 @@ class TriggerSourceGuardTests(unittest.TestCase):
                     f"{relative} must not import {module!r}"
                     + (f" (matched {match.group(0)!r})" if match else ""),
                 )
-            for forbidden in FORBIDDEN_SUBSTRINGS:
+            for forbidden in forbidden_substrings:
                 self.assertNotIn(forbidden, text, f"{relative} must not contain {forbidden!r}")
 
     def test_the_guard_actually_trips(self):

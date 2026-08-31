@@ -15,12 +15,18 @@ worker here -- the trigger cadence comes entirely from already-occurring
 external events (a `maps claim` call, or a human/CI running `maps
 recovery-tick`).
 
-`harness_service` and `environment_reader` are intentionally left `None`. Both
-are already-supported optional inputs to `RecoverySupervisor`; re-confirmed by
-grep at implementation time that no production `HarnessService` /
-`HcomHarnessAdapter` construction exists anywhere outside tests, so `tick()`
-uses its existing, unchanged direct-`hcom.resume()` fallback. Building that
-wiring is explicitly out of scope for this call site.
+`environment_reader` is intentionally left `None`. `harness_service` defaults to
+`None` too -- and every caller that does not deliberately opt in gets that
+default, so `tick()` uses its existing, unchanged direct-`hcom.resume()`
+fallback and behavior is byte-identical to before this wiring existed. A caller
+may opt in by passing `harness_project_id` (with `validation_repo_root`), which
+constructs `build_canonical_harness_service(...)` below -- the minimum-viable
+production composition root from
+`work/notes/2026-08-26-hook-enforcement-composition-root-design.md`. That
+composition is deliberately default-off: `CanonicalRunGuard` never returns
+`ALLOW` and denies on absent evidence, so its first production exposure will
+convert currently-working resumes into `resume_denied` (see that note's §2c).
+The `maps claim` piggyback path never opts in.
 
 This module is also the composition root for the *advisory* resume-path
 validation tier, per
@@ -104,6 +110,10 @@ from runtime.environment import parse_environment_spec, run_validation_tier
 # `tests/test_recovery_production_trigger.py`'s source guard forbids this file
 # from importing `subprocess` at all (a #165 boundary that must keep holding).
 from runtime.environment.validation import _default_executor
+from runtime.harness.adapters import HcomHarnessAdapter
+from runtime.harness.hooks import HookRegistry
+from runtime.harness.service import HarnessService
+from runtime.policy.harness_guard import CanonicalRunGuard, register_canonical_run_guards
 from runtime.recovery.store import RecoveryStore
 from runtime.recovery.supervisor import RecoverySupervisor
 
@@ -318,6 +328,66 @@ class RunBoundValidator:
         }
 
 
+def build_canonical_harness_service(
+    task_reader: Any,
+    *,
+    project_id: str,
+    repo_root: str | Path,
+    hcom_dir: str | Path = DEFAULT_HCOM_DIR,
+    hcom_executable: str | Path = DEFAULT_HCOM_EXECUTABLE,
+    hcom_timeout_seconds: float = DEFAULT_HCOM_TIMEOUT_SECONDS,
+) -> HarnessService:
+    """Compose the one production `HarnessService` for canonical-run enforcement.
+
+    This is the minimum-viable composition root designed in
+    `work/notes/2026-08-26-hook-enforcement-composition-root-design.md` (§3b).
+    It is deliberately a module-level helper here rather than a new module:
+    `production.py` already declares itself the production composition site for
+    the RnS flow and already composes a second optional collaborator
+    (`RunBoundValidator`) under the same explicit-opt-in shape, and there is
+    exactly one production consumer of a `HarnessService` today (the
+    `harness_service=` parameter of `RecoverySupervisor`).
+
+    Construction order mirrors `tests/test_recovery_supervisor.py` (the only
+    existing correct composition of these objects):
+
+    1. `HcomHarnessAdapter(HcomAdapter(...), project_id=..., lineage_writer=...)`
+    2. `HookRegistry()`
+    3. `register_canonical_run_guards(registry, CanonicalRunGuard(task_reader, repo_root=...))`
+    4. `HarnessService([adapter], hooks=registry)`
+
+    `task_reader` is the caller's existing `TaskStore`. It already satisfies the
+    `CanonicalRunSource` protocol (and the adapter's `lineage_writer`) by duck
+    typing; **no second store is opened and no new persistence appears** (design
+    §4.5).
+
+    Only `CanonicalRunGuard` is registered. `DestructiveExternalActionGuard`'s
+    two events (`BEFORE_DESTRUCTIVE_ACTION`, `BEFORE_EXTERNAL_ACTION`) are fired
+    by nothing in `runtime/`, so registering it would make `has_enforcement`
+    report a role nothing consults (design §3d).
+
+    This guard never returns `ALLOW` and denies on absent evidence, so callers
+    must treat composing it as opt-in / default-off (design §2c): its first
+    production exposure converts currently-working resumes into `resume_denied`
+    (most likely via `LEASE_EXPIRED`) and, on repeat, into
+    `failed`/`retry_budget_exhausted`.
+    """
+    adapter = HcomHarnessAdapter(
+        HcomAdapter(
+            hcom_dir=hcom_dir,
+            executable=hcom_executable,
+            timeout_seconds=hcom_timeout_seconds,
+        ),
+        project_id=project_id,
+        lineage_writer=task_reader,
+    )
+    registry = HookRegistry()
+    register_canonical_run_guards(
+        registry, CanonicalRunGuard(task_reader, repo_root=repo_root)
+    )
+    return HarnessService([adapter], hooks=registry)
+
+
 def run_recovery_tick(
     task_reader: Any,
     *,
@@ -327,6 +397,7 @@ def run_recovery_tick(
     hcom_timeout_seconds: float = DEFAULT_HCOM_TIMEOUT_SECONDS,
     recovery_state_path: str | Path = DEFAULT_RECOVERY_STATE_PATH,
     validation_repo_root: str | Path | None = None,
+    harness_project_id: str | None = None,
 ) -> dict[str, Any]:
     """Run exactly one bounded RnS pass and return an audit-friendly summary.
 
@@ -364,9 +435,42 @@ def run_recovery_tick(
     command ceiling is a change to that module and out of scope here), and by
     DEFAULT_MAX_VALIDATIONS_PER_TICK executions.
 
+    `harness_project_id` opts this pass in to canonical-run enforcement on the
+    resume path (`build_canonical_harness_service`). It has **no default**: when
+    it is None -- every caller that does not deliberately pass one, including the
+    `maps claim` piggyback -- no `HarnessService` is constructed, `tick()` takes
+    its unchanged direct-`hcom.resume()` fallback, and behavior is byte-identical
+    to before this wiring existed. When set, `validation_repo_root` is required
+    (the checkout `CanonicalRunGuard` verifies against; never inferred) and
+    enforcement is strict -- see
+    `work/notes/2026-08-26-hook-enforcement-composition-root-design.md` §2c.
+
     Raises whatever the underlying supervisor/hcom calls raise. Callers that
     must not fail on a recovery problem should use `run_recovery_tick_isolated`.
     """
+    harness_service = None
+    if harness_project_id is not None:
+        # Opt-in canonical-run enforcement on the resume path. Reuses the same
+        # checkout the advisory validation tier names (`validation_repo_root`);
+        # the two opt-ins stay separate flags (design §3c) so `--repo-root`
+        # alone keeps meaning advisory-validation-only. `harness_project_id`
+        # is never inferred -- `HcomHarnessAdapter` is bound to a single
+        # project_id and a tick can span several, so deriving it would be a
+        # guess.
+        if validation_repo_root is None:
+            raise ValueError(
+                "harness_project_id requires validation_repo_root: canonical-run "
+                "enforcement must name the checkout to verify against; it is "
+                "never inferred from the cwd"
+            )
+        harness_service = build_canonical_harness_service(
+            task_reader,
+            project_id=harness_project_id,
+            repo_root=validation_repo_root,
+            hcom_dir=hcom_dir,
+            hcom_executable=hcom_executable,
+            hcom_timeout_seconds=hcom_timeout_seconds,
+        )
     resume_validator = (
         RunBoundValidator(
             # The caller's existing TaskStore already exposes
@@ -388,7 +492,11 @@ def run_recovery_tick(
         ),
         recovery_store=RecoveryStore(recovery_state_path),
         resume_validator=resume_validator,
-        # environment_reader/harness_service deliberately omitted -- see module docstring.
+        harness_service=harness_service,
+        # environment_reader deliberately omitted -- see module docstring.
+        # harness_service is None unless a caller opts in via harness_project_id
+        # (default-off; design note §2c) -- when None, tick() uses its existing,
+        # unchanged direct-`hcom.resume()` fallback.
     )
     opened = supervisor.observe_silent_stops(dict(bindings or {}))
     actions = supervisor.tick()
@@ -409,6 +517,7 @@ def run_recovery_tick_isolated(
     hcom_timeout_seconds: float = DEFAULT_HCOM_TIMEOUT_SECONDS,
     recovery_state_path: str | Path = DEFAULT_RECOVERY_STATE_PATH,
     validation_repo_root: str | Path | None = None,
+    harness_project_id: str | None = None,
 ) -> dict[str, Any]:
     """`run_recovery_tick` with every failure contained in the return value.
 
@@ -427,6 +536,7 @@ def run_recovery_tick_isolated(
             hcom_timeout_seconds=hcom_timeout_seconds,
             recovery_state_path=recovery_state_path,
             validation_repo_root=validation_repo_root,
+            harness_project_id=harness_project_id,
         )
     except Exception as exc:  # noqa: BLE001 - deliberate isolation boundary
         return {
