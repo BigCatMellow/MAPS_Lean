@@ -6,7 +6,10 @@ import json
 import sys
 
 from runtime.policy import HaltStore, WorkerProfile
-from runtime.routing.environment_reports import select_fresh_environment_reports
+from runtime.routing.environment_reports import (
+    select_fresh_environment_reports,
+    select_recorded_environment_reports,
+)
 from runtime.routing import route_project
 from runtime.routing.langgraph_runtime import _deserialize_environment_reports
 from runtime.state import TaskStore
@@ -76,6 +79,16 @@ def main(argv: list[str] | None = None) -> int:
             "is caller-supplied evidence, not environment inspection"
         ),
     )
+    route.add_argument(
+        "--environment-reports-from-recorded",
+        action="store_true",
+        help=(
+            "project routing environment reports from recorded run evidence "
+            "(run_environment_evidence written at `maps flow start`); the pure "
+            "router still only consumes reports. If --environment-reports-json "
+            "is also given, the caller-supplied envelope wins."
+        ),
+    )
 
     approve = sub.add_parser(
         "approve", help="record operator approval for an explicitly gated task"
@@ -115,15 +128,30 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "route":
             workers = read_workers(args.workers_json)
             store = TaskStore(args.db)
-            environment_reports = (
-                read_environment_reports(
+            if args.environment_reports_json:
+                if args.environment_reports_from_recorded:
+                    print(
+                        "note: --environment-reports-json overrides "
+                        "--environment-reports-from-recorded for this run",
+                        file=sys.stderr,
+                    )
+                environment_reports = read_environment_reports(
                     args.environment_reports_json,
                     store=store,
                     repo_root=args.repo_root,
                 )
-                if args.environment_reports_json
-                else None
-            )
+            elif args.environment_reports_from_recorded:
+                routable = store.list_tasks(
+                    project_id=args.project_id,
+                    statuses=("READY", "CHANGES_REQUESTED"),
+                )
+                environment_reports = select_recorded_environment_reports(
+                    store,
+                    [task["task_id"] for task in routable],
+                    repo_root=args.repo_root,
+                ).reports
+            else:
+                environment_reports = None
             return emit(
                 route_project(
                     store,

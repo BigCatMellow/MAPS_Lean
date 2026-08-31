@@ -216,6 +216,56 @@ class PolicyRoutingTests(unittest.TestCase):
         self.assertEqual(result.route, "claim_or_assign")
         self.assertEqual(result.task_id, "TASK-1")
 
+    def test_router_holds_required_task_with_no_report(self):
+        core = WorkerProfile("core", "core")
+        required = task(environment={"required_for_routing": True})
+        result = recommend_route([required], [core], environment_reports={})
+        self.assertEqual(result.route, "policy_gate")
+        self.assertEqual(result.task_id, "TASK-1")
+        self.assertEqual(result.reasons, ("environment_report_required",))
+
+    def test_router_holds_required_task_before_first_flow_start(self):
+        # required_for_routing task whose first flow_start has not run yet must
+        # HOLD, not raise, when the report mapping is absent entirely.
+        core = WorkerProfile("core", "core")
+        required = task(environment={"required_for_routing": True})
+        result = recommend_route([required], [core], environment_reports=None)
+        self.assertEqual(result.route, "policy_gate")
+        self.assertEqual(result.reasons, ("environment_report_required",))
+
+    def test_router_required_task_routes_once_fresh_report_exists(self):
+        core = WorkerProfile("core", "core")
+        required = task(environment={"required_for_routing": True})
+        for state in (CompatibilityState.COMPATIBLE, CompatibilityState.DRIFTED):
+            with self.subTest(state=state):
+                result = recommend_route(
+                    [required],
+                    [core],
+                    environment_reports={"TASK-1": compatibility_report(state)},
+                )
+                self.assertEqual(result.route, "claim_or_assign")
+                self.assertEqual(result.task_id, "TASK-1")
+
+    def test_router_required_task_still_gated_on_incompatible_report(self):
+        core = WorkerProfile("core", "core")
+        required = task(environment={"required_for_routing": True})
+        result = recommend_route(
+            [required],
+            [core],
+            environment_reports={
+                "TASK-1": compatibility_report(CompatibilityState.INCOMPATIBLE)
+            },
+        )
+        self.assertEqual(result.route, "policy_gate")
+        self.assertEqual(result.reasons, ("environment_incompatible",))
+
+    def test_router_missing_report_not_blocking_when_not_required(self):
+        core = WorkerProfile("core", "core")
+        not_required = task(environment={"required_for_routing": False})
+        result = recommend_route([not_required], [core], environment_reports={})
+        self.assertEqual(result.route, "claim_or_assign")
+        self.assertEqual(result.task_id, "TASK-1")
+
     def test_review_prefers_eligible_independent_reviewer(self):
         review_task = task(
             status="READY_FOR_REVIEW", submission={"author_id": "author"}

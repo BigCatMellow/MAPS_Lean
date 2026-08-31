@@ -23,6 +23,39 @@ def _failed(step: str, result: MutationResult | Mapping[str, Any]) -> dict[str, 
     }
 
 
+def _record_environment_evidence(
+    store: TaskStore,
+    run_id: str,
+    contract: Mapping[str, Any],
+    repo_root: str | Path,
+) -> MutationResult:
+    """Wire E2 inspection + E3 recording for a contracted task's run.
+
+    Uses ``runtime.environment.safety.inspect_local_environment`` -- the
+    containment-checked wrapper that will not follow dependency inputs outside
+    the repo -- NOT the raw ``runtime.environment.fingerprint`` inspector. This
+    adds no new probing capability: it composes two functions that already ship.
+    """
+
+    from runtime.environment.safety import inspect_local_environment
+    from runtime.environment.spec import EnvironmentSpecError, load_environment_spec
+
+    spec_ref = str(contract["spec_ref"])
+    root = Path(repo_root)
+    try:
+        spec = load_environment_spec(root / spec_ref)
+        fingerprint = inspect_local_environment(spec, repo_root=root)
+    except (EnvironmentSpecError, OSError, ValueError, RuntimeError) as exc:
+        return MutationResult(False, "ENVIRONMENT_INSPECTION_FAILED", str(exc))
+    return store.record_run_environment_evidence(
+        run_id,
+        spec=spec,
+        fingerprint=fingerprint,
+        spec_ref=spec_ref,
+        recorded_by="maps-flow-start",
+    )
+
+
 def _parse_runtime_limits(items: Sequence[str]) -> dict[str, int] | MutationResult:
     limits: dict[str, int] = {}
     for item in items:
@@ -118,6 +151,21 @@ def flow_start(
     )
     if not run.ok:
         return _failed("run_manifest", run)
+
+    # 4. when the task carries an environment contract, record production
+    #    environment evidence for this run (the task_environment row is itself
+    #    the opt-in -- a task with no contract records nothing and routes
+    #    exactly as before).
+    task_record = store.get_task(task_id)
+    environment_contract = (
+        task_record.get("environment") if task_record is not None else None
+    )
+    if environment_contract is not None:
+        evidence = _record_environment_evidence(
+            store, run.task["run_id"], environment_contract, repo_root
+        )
+        if not evidence.ok:
+            return _failed("environment_evidence", evidence)
 
     return {
         "ok": True,
