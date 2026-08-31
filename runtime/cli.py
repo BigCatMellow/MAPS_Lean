@@ -214,6 +214,21 @@ def build_parser() -> argparse.ArgumentParser:
             '--enforce-canonical-run is set; never inferred from an incident'
         ),
     )
+    # Opt-in resume-validation gate (design note
+    # work/notes/2026-08-31-resume-validation-gate-design.md). Default-off and
+    # deliberately separate from --enforce-canonical-run: this gate reads the
+    # advisory quick-tier result tick() already computes and parks the incident
+    # in a distinct non-attempt-consuming `blocked_validation` state before any
+    # resume call -- it needs no HarnessService and no CANONICAL_RUN hook.
+    recovery_tick.add_argument(
+        '--enforce-validation',
+        action='store_true',
+        help=(
+            'block a resume when the pre-resume quick validation tier concretely '
+            'fails (attempted+not-passed); requires --repo-root, default off. '
+            'Advisory recording is unchanged without this flag'
+        ),
+    )
 
     heartbeat = sub.add_parser('heartbeat', help='renew the active claim lease')
     heartbeat.add_argument('task_id')
@@ -425,6 +440,13 @@ def main(argv: list[str] | None = None) -> int:
                     'inferred from an incident)'
                 )
             harness_project_id = args.harness_project_id
+        if args.enforce_validation and not args.repo_root:
+            parser.error(
+                '--enforce-validation requires --repo-root (the checkout the '
+                'quick validation tier runs in; the gate has nothing to '
+                'enforce without a validator, and it is never inferred from '
+                'the current directory)'
+            )
         return _emit(run_recovery_tick_isolated(
             store,
             bindings=bindings,
@@ -433,6 +455,7 @@ def main(argv: list[str] | None = None) -> int:
             hcom_timeout_seconds=args.hcom_timeout_seconds,
             validation_repo_root=args.repo_root,
             harness_project_id=harness_project_id,
+            enforce_validation=args.enforce_validation,
         ))
     if args.command == 'heartbeat':
         return _emit(store.heartbeat(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))

@@ -34,6 +34,39 @@ _CANONICAL_DENIAL_CODES = {"HOOK_DENIED", "APPROVAL_REQUIRED"}
 # work/notes/2026-08-31-canonical-enforcement-first-exposure-design.md §2b.
 _MAX_CONSECUTIVE_CANONICAL_DENIALS = 3
 
+# Incident states tick() and _open_incident_for treat as still in play. A
+# blocked_validation incident (see tick()) is re-processed on the next due
+# pass exactly like a probing one -- the block is a parked, recoverable state,
+# not a terminal one. "denied" is the equivalent parked state for a
+# canonical-run denial (PR #195); it is listed here so the two features
+# compose regardless of merge order -- an incident only ever reaches it once
+# that PR's tick() branch exists.
+_REPROCESSABLE_STATES = {"scheduled", "probing", "blocked_validation", "denied"}
+
+# Consecutive-block ceiling for the opt-in resume-validation gate. Mirrors the
+# canonical-denial ceiling pattern: a failed quick tier is deterministic
+# w.r.t. an identical re-run, so a validation block never consumes the
+# transient `attempt` retry budget; instead N consecutive blocks with no
+# intervening non-block outcome promote the incident to a distinct terminal
+# failure (`validation_block_persistent`), separate from
+# `retry_budget_exhausted`.
+_MAX_CONSECUTIVE_VALIDATION_BLOCKS = 3
+
+
+def _quick_validation_failed(result: Any) -> bool:
+    """True only for a concrete failed quick-tier check.
+
+    A result of `{"attempted": False, ...}` -- a missing / ambiguous /
+    unparseable spec, a budget-skipped incident, or an errored validator --
+    is NOT a failure and must never block a resume (design note Q6.4). Only an
+    explicit `{"attempted": True, "passed": False}` blocks.
+    """
+    return (
+        isinstance(result, Mapping)
+        and result.get("attempted") is True
+        and result.get("passed") is False
+    )
+
 
 def session_is_live(session: Mapping[str, Any], *, stale_after_seconds: int = 1800) -> bool:
     if str(session.get("status", "")).lower() not in LIVE_STATUSES:
@@ -65,6 +98,7 @@ class RecoverySupervisor:
         environment_reader: Any | None = None,
         harness_service: Any | None = None,
         resume_validator: Any | None = None,
+        validation_blocks_resume: bool = False,
     ):
         self.task_reader = task_reader
         self.hcom = hcom
@@ -107,6 +141,21 @@ class RecoverySupervisor:
         # it red. Composition of a concrete validator, and every import it
         # needs, belongs in runtime/recovery/production.py.
         self.resume_validator = resume_validator
+        # Opt-in resume-validation gate. Default False: when False the
+        # `resume_validator` result stays strictly advisory (byte-identical to
+        # before this flag existed -- the result is recorded on the action
+        # dict and read by nothing). When True, an incident whose pre-resume
+        # check returns a concrete `{"attempted": True, "passed": False}` is
+        # parked in a distinct `blocked_validation` state *before* the resume
+        # attempt: no harness/hcom resume call is made, the transient `attempt`
+        # retry budget is untouched, and the incident is rescheduled on the
+        # flat `silent_stop_probe_delay_seconds` probe interval. This is
+        # disjoint from -- and composes ahead of -- any canonical-run denial
+        # handling on the harness path. Composed only via
+        # runtime/recovery/production.py from an explicit
+        # `maps recovery-tick --enforce-validation` (which itself requires
+        # `--repo-root`, since no validator is constructed without it).
+        self._validation_blocks_resume = bool(validation_blocks_resume)
         if not backoff_seconds or any(value <= 0 for value in backoff_seconds):
             raise ValueError("backoff_seconds must contain positive values")
 
@@ -227,7 +276,7 @@ class RecoverySupervisor:
         return any(
             item.get("task_id") == task_id
             and item.get("session_name") == session_name
-            and item.get("state") in {"scheduled", "probing"}
+            and item.get("state") in _REPROCESSABLE_STATES
             for item in state.get("incidents", {}).values()
         )
 
@@ -310,7 +359,7 @@ class RecoverySupervisor:
         actions: list[dict[str, Any]] = []
 
         for incident_id, incident in sorted(state["incidents"].items()):
-            if incident.get("state") not in {"scheduled", "probing", "denied"}:
+            if incident.get("state") not in _REPROCESSABLE_STATES:
                 continue
             session_name = str(incident["session_name"])
             task_id = str(incident["task_id"])
@@ -428,6 +477,55 @@ class RecoverySupervisor:
                         "attempted": False,
                         "reason": "validation_error",
                     }
+
+            # Opt-in resume-validation gate. Runs here deliberately: after the
+            # advisory observation above (so the same result is still recorded
+            # on the action dict) and strictly *before* any harness/hcom
+            # resume call, so a broken environment never triggers a
+            # canonical-guarded resume attempt. Disjoint from the canonical
+            # denial path below: this parks the incident in `blocked_validation`
+            # and `continue`s before `attempt` is ever incremented, so it
+            # composes cleanly with -- and cannot collide with -- that path's
+            # own state handling.
+            if self._validation_blocks_resume and _quick_validation_failed(
+                resume_validation
+            ):
+                blocks = int(incident.get("validation_blocks", 0)) + 1
+                incident["validation_blocks"] = blocks
+                incident["last_attempt_at"] = _time_z(now)
+                incident["updated_at"] = _time_z(now)
+                if blocks >= _MAX_CONSECUTIVE_VALIDATION_BLOCKS:
+                    incident["state"] = "failed"
+                    incident["last_error"] = "validation_block_persistent"
+                    block_action = "fail"
+                    block_reason = "validation_block_persistent"
+                else:
+                    incident["state"] = "blocked_validation"
+                    incident["last_error"] = "quick validation tier failed"
+                    incident["next_attempt_at"] = _time_z(
+                        now
+                        + timedelta(seconds=self.silent_stop_probe_delay_seconds)
+                    )
+                    block_action = "resume_blocked_validation"
+                    block_reason = "quick_validation_failed"
+                actions.append(
+                    {
+                        "incident_id": incident_id,
+                        "action": block_action,
+                        "reason": block_reason,
+                        "validation_blocks": blocks,
+                        "environment_evidence": evidence,
+                        "harness_resume": harness_resume,
+                        "resume_validation": resume_validation,
+                    }
+                )
+                continue
+
+            # Any non-block outcome for an incident that had accumulated a
+            # validation-block streak resets it -- the ceiling is for
+            # *consecutive* blocks only.
+            if incident.get("validation_blocks"):
+                incident["validation_blocks"] = 0
 
             resolved = False
             canonically_denied = False
