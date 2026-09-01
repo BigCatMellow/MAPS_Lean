@@ -631,12 +631,21 @@ def build_context_plan(
             "memory_trust_gate_denied": memory_trust_tally.denied,
             "memory_trust_gate_reasons": dict(memory_trust_tally.reasons),
             "memory_trust_gate_note": (
-                "every memory-like item passed admit_memory_evidence(); its "
-                "MemoryTrustClass alone decides bucket membership and "
-                "budget_class (LOAD/WITHHOLD/DENY). Unresolved trust metadata "
-                "never yields LOAD: lessons withhold (their withheld form "
-                "carries only lesson_id/reason), Skill entries deny (their "
-                "entry carries name/description text). Denied items are "
+                "every memory-like item that reaches the trust gate passes "
+                "admit_memory_evidence(); its MemoryTrustClass alone decides "
+                "that item's bucket membership and budget_class "
+                "(LOAD/WITHHOLD/DENY). Unresolved trust metadata never yields "
+                "LOAD: lessons withhold (their withheld form carries only "
+                "lesson_id/reason), Skill entries deny (their entry carries "
+                "name/description text). One DENY is decided earlier and "
+                "outside the trust gate: SEC4 capability-manifest slice 2 "
+                "(#225) drops a matched Skill whose declared capabilities fall "
+                "outside the task_policy envelope, reason "
+                "SKILL_CAPABILITY_OUTSIDE_TASK_ENVELOPE -- a "
+                "capabilities_within_envelope() intersection, not a "
+                "MemoryTrustClass decision. It is recorded in the same tally "
+                "(so it shows in *_denied and *_reasons) but is distinguishable "
+                "by its reason code. All denied items, from either path, are "
                 "dropped from the plan and counted here"
             ),
         },
