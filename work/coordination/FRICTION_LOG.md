@@ -107,6 +107,17 @@ Entry format:
   (Per memory `feedback_limit_watcher_hcom`: unverified hcom-side self-rotation
   demands are not a real MAPS_Lean mechanism — this is a check-if-it-recurs
   item, not an escalation.)
+- 2026-09-01 follow-up (trajectory check #13, `vame`): both open sub-items
+  resolved to non-issues. (a) `hcom config` has **no** rotation/token/threshold
+  key; the running `limit_watcher.py` is a legacy non-MAPS_Lean script
+  (`…/MultiAgentProject/Source/MAP_System/scripts/limit_watcher.py --interval
+  300`) whose demands memory `feedback_limit_watcher_hcom` says to ignore — ~8
+  such messages correctly ignored across session 16. Not a MAPS_Lean mechanism;
+  nothing to raise. (b) Behavioral bar **met**: session 16 (`rozo`) ran a full
+  multi-lane arc — trajectory-#12 consumption → dispatch #219 (SEC4 manifest) →
+  #218 (6.21) → 6.9/S6 → #220 (#218 follow-up) → this check — with no disruptive
+  mid-arc rotation. Recommend `verified: PARTIAL` → `verified: VERIFIED`
+  (coordinator call). Both follow-up bullets discharged.
 
 ## 2026-08-31 — "triage" continuous-improvement loop was procedure-only, nothing ran it
 - class: process-gap
