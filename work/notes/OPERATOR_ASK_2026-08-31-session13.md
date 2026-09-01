@@ -57,15 +57,14 @@ that task's runs to become quick-tier-executable under an explicit
 `required_for_routing`. No runtime change; the Q4 `--trusted-evidence-recorder`
 fallback slice is **not** needed.
 
-### Ask #3 / Infra #1 — kill zombie pid 3874 — **AUTHORIZED; operator to run**
+### Ask #3 / Infra #1 — kill zombie pid 3874 — **DONE**
 
-The `kill 3874` command is **classifier-blocked for agents** (killing an
-arbitrary process). The operator runs it directly:
-`! kill 3874` (or `kill -9 3874` if it does not exit). Confirmed alive this
-session: session-8 `claude` orphan, ~1d 17h CPU, PPID 3868, stale session-8
-orchestration prompt (references long-merged PRs #173/#174/#178/#179). Holds
-worktree locks on `agent-a633de15fc2a5afd0` / `agent-ab5f53cc65eae08e5` /
-`agent-abbdc8e8498cbe3a8` / `agent-ace9b0d006a4789c9`.
+Operator ran `kill 3874` (session 17). Confirmed dead (`ps -p 3874` → gone).
+It was a session-8 `claude` orphan, ~1d 17h CPU, PPID 3868, running a stale
+session-8 orchestration prompt (referenced long-merged PRs #173/#174/#178/#179).
+Its 4 worktree locks (`agent-a633de15fc2a5afd0` / `agent-ab5f53cc65eae08e5` /
+`agent-abbdc8e8498cbe3a8` / `agent-ace9b0d006a4789c9`) are now safe to release
+as part of Infra #2.
 
 ### Infra #2 / #3 — worktree + stale-branch cleanup — still pending the operator
 
