@@ -9,8 +9,10 @@ time), `build_skill_catalog(..., store=...)` populates
 `SkillProvenance.lifecycle_state` from `get_skill_lifecycle_state()`, and
 `load_catalog_skill(entry, store)` refuses activation of a Skill whose
 composed state is `QUARANTINED`/`RETIRED`/`SUPERSEDED` -- the first real
-refusal. `record_skill_lifecycle_transition()` still has no production
-caller; operator-driven transitions are a later task.
+refusal. `record_skill_lifecycle_transition()` is called in production by
+the `maps skill approve|activate|retire|supersede` CLI verbs
+(`runtime.cli._dispatch_skill`, added in PR #205) for operator-driven
+transitions.
 
 What this layer does and does not adjudicate:
 

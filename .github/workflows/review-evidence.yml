@@ -5,6 +5,10 @@ name: review-evidence
 # NOT prove reviewer identity is distinct from the author -- see
 # scripts/check_review_evidence.py and
 # work/notes/2026-08-17-independent-review-enforcement-design.md.
+#
+# Also runs scripts/check_stale_no_caller_docstrings.py (CLAUDE.md rule 20
+# safeguard: fails when a runtime docstring still claims a symbol has "no
+# production caller" after one was added).
 
 on:
   pull_request:
@@ -28,3 +32,6 @@ jobs:
 
       - name: Verify review evidence for exact head
         run: python scripts/check_review_evidence.py "${{ github.event.pull_request.number }}"
+
+      - name: Verify no stale "no production caller" docstrings
+        run: python scripts/check_stale_no_caller_docstrings.py
