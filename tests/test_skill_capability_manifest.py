@@ -282,5 +282,212 @@ class CapabilityManifestEndToEndTests(unittest.TestCase):
         self.assertEqual(plan["coverage"]["memory_trust_gate_denied"], 0)
 
 
+class CapabilityEnvelopeTests(unittest.TestCase):
+    """SEC4 slice 2: capabilities_within_envelope declared ⊆ permitted check."""
+
+    def test_baseline_tokens_always_permitted(self):
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        for tok in ("filesystem-read", "filesystem-write", "shell",
+                    "network-read", "github-read", "database-read"):
+            self.assertEqual(capabilities_within_envelope([tok], {}), (True, ()))
+            self.assertEqual(capabilities_within_envelope([tok], None), (True, ()))
+
+    def test_process_stop_requires_destructive_action(self):
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        self.assertEqual(
+            capabilities_within_envelope(["process-stop"], {"destructive_action": 0}),
+            (False, ("process-stop",)),
+        )
+        self.assertEqual(
+            capabilities_within_envelope(["process-stop"], {"destructive_action": 1}),
+            (True, ()),
+        )
+
+    def test_network_general_and_github_write_require_external_side_effect(self):
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        pol = {"external_side_effect": 1}
+        self.assertEqual(
+            capabilities_within_envelope(["network-general", "github-write"], pol),
+            (True, ()),
+        )
+        self.assertEqual(
+            capabilities_within_envelope(["network-general"], {"external_side_effect": 0}),
+            (False, ("network-general",)),
+        )
+
+    def test_external_deploy_requires_both_flags(self):
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        self.assertEqual(
+            capabilities_within_envelope(
+                ["external-deploy"], {"external_side_effect": 1, "destructive_action": 0}
+            ),
+            (False, ("external-deploy",)),
+        )
+        self.assertEqual(
+            capabilities_within_envelope(
+                ["external-deploy"], {"external_side_effect": 1, "destructive_action": 1}
+            ),
+            (True, ()),
+        )
+
+    def test_secret_use_requires_security_sensitive(self):
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        self.assertEqual(
+            capabilities_within_envelope(["secret-use:aws"], {"security_sensitive": 0}),
+            (False, ("secret-use:aws",)),
+        )
+        self.assertEqual(
+            capabilities_within_envelope(["secret-use:aws"], {"security_sensitive": 1}),
+            (True, ()),
+        )
+
+    def test_unrecognized_token_is_offending_fail_closed(self):
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        self.assertEqual(
+            capabilities_within_envelope(
+                ["totally-made-up"],
+                {"destructive_action": 1, "external_side_effect": 1, "security_sensitive": 1},
+            ),
+            (False, ("totally-made-up",)),
+        )
+
+    def test_missing_policy_map_fails_closed_for_consequential_only(self):
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        ok, offending = capabilities_within_envelope(
+            ["filesystem-read", "process-stop"], None
+        )
+        self.assertFalse(ok)
+        self.assertEqual(offending, ("process-stop",))
+
+    def test_offending_tokens_sorted_and_deduped(self):
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        ok, offending = capabilities_within_envelope(
+            ["process-stop", "network-general", "process-stop"], {}
+        )
+        self.assertFalse(ok)
+        self.assertEqual(offending, ("network-general", "process-stop"))
+
+    def test_empty_declaration_is_always_within(self):
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        self.assertEqual(capabilities_within_envelope([], None), (True, ()))
+
+
+class CapabilityIntersectionPlanTests(unittest.TestCase):
+    """SEC4 slice 2: _select_skills DENYs an out-of-envelope Skill from the plan."""
+
+    _REASON = "SKILL_CAPABILITY_OUTSIDE_TASK_ENVELOPE"
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo = Path(self.td.name) / "repo"
+        (self.repo / ".claude" / "skills").mkdir(parents=True)
+        (self.repo / "AGENTS.md").write_text("authority\n", encoding="utf-8")
+        self.store = TaskStore(self.repo / "maps.db")
+
+    def _add_skill(self, name, description, capabilities=None):
+        skill = self.repo / ".claude" / "skills" / name
+        skill.mkdir()
+        (skill / "SKILL.md").write_text(
+            f"---\nname: {name}\ndescription: {description}\n---\n\n1. Do the bounded work.\n",
+            encoding="utf-8",
+        )
+        if capabilities is not None:
+            (skill / "capabilities").write_text(capabilities, encoding="utf-8")
+
+    def _task(self, policy):
+        self.assertTrue(self.store.create_task(task_id="T").ok)
+        self.assertTrue(
+            self.store.update_contract(
+                "T",
+                {
+                    "title": "Research context assembly",
+                    "outcome": "Context explicit.",
+                    "task_type": "RESEARCH",
+                    "owner": "o",
+                    "risk": "LOW",
+                    "decision_authority": "planning",
+                    "verification": "inspect",
+                    "evidence_expected": "json",
+                    "review_required": "OWNER_CHECK",
+                    "escalation": "stop",
+                    "inputs": ["AGENTS.md"],
+                    "sources": ["AGENTS.md"],
+                    "dependencies": [],
+                    "output_paths": ["research-context.json"],
+                    "non_goals": ["none"],
+                    "acceptance_criteria": ["explicit"],
+                    "stop_conditions": ["outside repo"],
+                    "policy": policy,
+                },
+            ).ok
+        )
+        return "T"
+
+    def _plan(self, task_id):
+        catalog = build_project_skill_catalog(self.repo, self.store)
+        return build_context_plan(
+            self.store, task_id, repo_root=self.repo, skill_catalog=catalog
+        )
+
+    def test_out_of_envelope_skill_denied_from_plan(self):
+        self._add_skill(
+            "research-stopper",
+            "RESEARCH context planning that can stop a runaway process.",
+            capabilities="process-stop\n",
+        )
+        plan = self._plan(self._task({"destructive_action": False}))
+        self.assertEqual([s["name"] for s in plan["skills"]], [])
+        self.assertEqual(
+            plan["coverage"]["memory_trust_gate_reasons"].get(self._REASON), 1
+        )
+
+    def test_in_envelope_skill_surfaces(self):
+        self._add_skill(
+            "research-stopper",
+            "RESEARCH context planning that can stop a runaway process.",
+            capabilities="process-stop\n",
+        )
+        plan = self._plan(
+            self._task(
+                {"destructive_action": True, "requires_operator_approval": True}
+            )
+        )
+        self.assertIn("research-stopper", {s["name"] for s in plan["skills"]})
+        self.assertNotIn(
+            self._REASON, plan["coverage"]["memory_trust_gate_reasons"]
+        )
+
+    def test_baseline_only_skill_unaffected_by_envelope(self):
+        self._add_skill(
+            "research-reader",
+            "RESEARCH context planning: read repository files and references.",
+            capabilities="filesystem-read\nfilesystem-write\n",
+        )
+        plan = self._plan(self._task({"destructive_action": False}))
+        self.assertIn("research-reader", {s["name"] for s in plan["skills"]})
+
+    def test_no_manifest_skill_unaffected_on_capability_axis(self):
+        self._add_skill(
+            "research-plain",
+            "RESEARCH context planning with a plain deterministic procedure.",
+            capabilities=None,
+        )
+        plan = self._plan(self._task({"destructive_action": False}))
+        self.assertIn("research-plain", {s["name"] for s in plan["skills"]})
+        self.assertNotIn(
+            self._REASON, plan["coverage"]["memory_trust_gate_reasons"]
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

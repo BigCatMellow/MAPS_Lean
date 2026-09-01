@@ -13,6 +13,78 @@ _TOP_LEVEL_KEY = re.compile(r"^([A-Za-z0-9_.-]+)\s*:\s*(.*)$")
 _REQUIRED_KEYS = ("name", "description")
 _BLOCK_SCALARS = {"|", "|-", "|+", ">", ">-", ">+"}
 
+# SEC4 capability-declaration manifest
+# (`work/notes/2026-09-01-sec4-capability-declaration-manifest-design.md`,
+# `…-slice2-design.md`). A Skill bundle MAY carry a top-level `capabilities`
+# sidecar: one capability token per line (`#` comments and blank lines ignored),
+# drawn from the roadmap `04-agentic-security.md` s5.1 vocabulary. It is
+# descriptive supply-chain metadata only -- it feeds the gate report (slice 1)
+# and the `_select_skills` capability intersection (slice 2), and is never read
+# by a runtime guard or written into `task_policy`. The parser lives here (not
+# in `gate.py`) so both `SkillDescriptor` discovery and `gate.assess_skill` can
+# consume it without an import cycle (`gate` imports `format`, never the reverse).
+_CAPABILITY_MANIFEST_FILENAME = "capabilities"
+_CAPABILITY_TOKENS = frozenset(
+    {
+        "filesystem-read",
+        "filesystem-write",
+        "shell",
+        "network-read",
+        "network-general",
+        "github-read",
+        "github-write",
+        "database-read",
+        "database-write",
+        "process-stop",
+        "external-deploy",
+    }
+)
+_SECRET_USE_RE = re.compile(r"^secret-use:[a-z0-9][a-z0-9-]*$")
+
+_MANIFEST_MALFORMED = object()
+
+
+def _parse_capability_manifest(payload: bytes) -> "frozenset[str] | object":
+    """Parse a `capabilities` sidecar into a set of declared tokens.
+
+    Returns ``_MANIFEST_MALFORMED`` for non-UTF-8 content or any line that is
+    not a blank/comment and not a recognized capability token. An empty result
+    (file present, only comments) is a deliberate "declares nothing" assertion,
+    distinct from an absent manifest.
+    """
+
+    try:
+        text = payload.decode("utf-8")
+    except UnicodeDecodeError:
+        return _MANIFEST_MALFORMED
+    tokens: set[str] = set()
+    for raw in text.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        if line in _CAPABILITY_TOKENS or _SECRET_USE_RE.match(line):
+            tokens.add(line)
+        else:
+            return _MANIFEST_MALFORMED
+    return frozenset(tokens)
+
+
+def _declared_capabilities_tuple(payload: bytes | None) -> tuple[str, ...]:
+    """Sorted declared-capability tuple for `SkillDescriptor`.
+
+    ``()`` when the sidecar is absent OR malformed -- a malformed manifest is
+    already `QUARANTINE`d by the slice-1 gate, so such a Skill never reaches the
+    slice-2 intersection as non-DENY; representing it as "declares nothing" here
+    is safe and keeps the descriptor field a plain string tuple.
+    """
+
+    if payload is None:
+        return ()
+    parsed = _parse_capability_manifest(payload)
+    if parsed is _MANIFEST_MALFORMED:
+        return ()
+    return tuple(sorted(parsed))
+
 
 class SkillParseError(ValueError):
     """A Skill directory cannot be represented safely by the v1 format layer."""
@@ -42,6 +114,9 @@ class SkillDescriptor:
     reference_paths: tuple[str, ...]
     asset_paths: tuple[str, ...]
     example_paths: tuple[str, ...]
+    # SEC4 slice 2: sorted tokens from the optional `capabilities` sidecar
+    # (`()` when absent or malformed). Descriptive metadata, not authority.
+    declared_capabilities: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -262,6 +337,11 @@ def _descriptor_for_root(skill_root: Path) -> SkillDescriptor:
     files = _regular_files(skill_root)
     relative_files = tuple(path.relative_to(skill_root).as_posix() for path in files)
     resources = tuple(path for path in relative_files if path != "SKILL.md")
+    manifest_payload = (
+        (skill_root / _CAPABILITY_MANIFEST_FILENAME).read_bytes()
+        if _CAPABILITY_MANIFEST_FILENAME in relative_files
+        else None
+    )
 
     return SkillDescriptor(
         skill_id=skill_root.name,
@@ -276,6 +356,7 @@ def _descriptor_for_root(skill_root: Path) -> SkillDescriptor:
         reference_paths=_group(resources, "references"),
         asset_paths=_group(resources, "assets"),
         example_paths=_group(resources, "examples"),
+        declared_capabilities=_declared_capabilities_tuple(manifest_payload),
     )
 
 
@@ -339,6 +420,9 @@ def load_skill(descriptor: SkillDescriptor) -> SkillDocument:
         reference_paths=_group(resources, "references"),
         asset_paths=_group(resources, "assets"),
         example_paths=_group(resources, "examples"),
+        declared_capabilities=_declared_capabilities_tuple(
+            by_relative.get(_CAPABILITY_MANIFEST_FILENAME)
+        ),
     )
     if (
         current.skill_id != descriptor.skill_id
@@ -346,6 +430,7 @@ def load_skill(descriptor: SkillDescriptor) -> SkillDocument:
         or current.description != descriptor.description
         or current.declared_metadata_keys != descriptor.declared_metadata_keys
         or current.resource_paths != descriptor.resource_paths
+        or current.declared_capabilities != descriptor.declared_capabilities
     ):
         raise SkillChangedError(
             f"{descriptor.root}: Skill identity changed after discovery"

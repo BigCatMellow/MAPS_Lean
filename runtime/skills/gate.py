@@ -10,6 +10,10 @@ from runtime.state.observability import redact_sensitive_text
 from .format import (
     SkillChangedError,
     SkillDescriptor,
+    _CAPABILITY_MANIFEST_FILENAME,
+    _MANIFEST_MALFORMED,
+    _declared_capabilities_tuple,
+    _parse_capability_manifest,
     _parse_skill_payload,
     _verified_snapshot,
 )
@@ -102,31 +106,11 @@ _SENSITIVE_FILENAMES = {
 }
 _SENSITIVE_SUFFIXES = {".pem", ".key", ".p12", ".pfx"}
 
-# SEC4 capability-declaration manifest, slice 1
-# (`work/notes/2026-09-01-sec4-capability-declaration-manifest-design.md`).
-# A Skill bundle MAY carry a top-level `capabilities` sidecar: one capability
-# token per line (`#` comments and blank lines ignored), drawn from the
-# roadmap `04-agentic-security.md` s5.1 vocabulary. It is descriptive
-# supply-chain metadata only -- it feeds the gate report and nothing else,
-# and is never read by a runtime guard or written into `task_policy`.
-_CAPABILITY_MANIFEST_FILENAME = "capabilities"
-_CAPABILITY_TOKENS = frozenset(
-    {
-        "filesystem-read",
-        "filesystem-write",
-        "shell",
-        "network-read",
-        "network-general",
-        "github-read",
-        "github-write",
-        "database-read",
-        "database-write",
-        "process-stop",
-        "external-deploy",
-    }
-)
-_SECRET_USE_RE = re.compile(r"^secret-use:[a-z0-9][a-z0-9-]*$")
-
+# SEC4 capability-declaration manifest, slice 1. The `capabilities` sidecar
+# vocabulary and its parser now live in `runtime/skills/format.py` (so both
+# `SkillDescriptor` discovery and this gate can consume them without an import
+# cycle); this module keeps only the detector-reconciliation half.
+#
 # Which REVIEW-severity static detector evidences which declared capability
 # class. BLOCK-severity detectors (`NETWORK_PIPE_EXEC`, `SENSITIVE_LITERAL`,
 # `AUTHORITY_OVERRIDE_CLAIM`, `SENSITIVE_RESOURCE_NAME`) are intrinsically
@@ -143,34 +127,6 @@ _DETECTOR_CAPABILITY = {
 _SATISFYING_TOKENS = {
     "network-general": frozenset({"network-general", "network-read"}),
 }
-
-_MANIFEST_MALFORMED = object()
-
-
-def _parse_capability_manifest(payload: bytes) -> "frozenset[str] | object":
-    """Parse a `capabilities` sidecar into a set of declared tokens.
-
-    Returns ``_MANIFEST_MALFORMED`` for non-UTF-8 content or any line that is
-    not a blank/comment and not a recognized capability token. An empty result
-    (file present, only comments) is a deliberate "declares nothing" assertion,
-    distinct from an absent manifest.
-    """
-
-    try:
-        text = payload.decode("utf-8")
-    except UnicodeDecodeError:
-        return _MANIFEST_MALFORMED
-    tokens: set[str] = set()
-    for raw in text.splitlines():
-        line = raw.split("#", 1)[0].strip()
-        if not line:
-            continue
-        if line in _CAPABILITY_TOKENS or _SECRET_USE_RE.match(line):
-            tokens.add(line)
-        else:
-            return _MANIFEST_MALFORMED
-    return frozenset(tokens)
-
 
 def _declared_covers(capability: str, declared: "frozenset[str]") -> bool:
     return bool(declared & _SATISFYING_TOKENS.get(capability, frozenset({capability})))
@@ -457,11 +413,15 @@ def assess_skill(descriptor: SkillDescriptor) -> SkillGateReport:
         path=descriptor.skill_file,
     )
     resource_paths = tuple(path for path in sorted(by_relative) if path != "SKILL.md")
+    declared_capabilities = _declared_capabilities_tuple(
+        by_relative.get(_CAPABILITY_MANIFEST_FILENAME)
+    )
     if (
         values["name"] != descriptor.name
         or values["description"] != descriptor.description
         or metadata_keys != descriptor.declared_metadata_keys
         or resource_paths != descriptor.resource_paths
+        or declared_capabilities != descriptor.declared_capabilities
     ):
         raise SkillChangedError(
             f"{descriptor.root}: Skill identity changed after discovery"

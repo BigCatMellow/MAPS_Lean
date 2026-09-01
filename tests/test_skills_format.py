@@ -173,6 +173,37 @@ Body.
         with self.assertRaises(SkillParseError):
             discover_skills(self.root)
 
+    def test_declared_capabilities_parsed_from_sidecar(self):
+        skill = self.make_skill()
+        (skill / "capabilities").write_text(
+            "# what this Skill needs\nnetwork-general\nsecret-use:environment\n\nshell\n",
+            encoding="utf-8",
+        )
+        descriptor = discover_skills(self.root)[0]
+        self.assertEqual(
+            descriptor.declared_capabilities,
+            ("network-general", "secret-use:environment", "shell"),
+        )
+        # Round-trips through activation identity unchanged.
+        self.assertEqual(
+            load_skill(descriptor).descriptor.declared_capabilities,
+            descriptor.declared_capabilities,
+        )
+
+    def test_declared_capabilities_empty_when_absent_or_malformed(self):
+        skill = self.make_skill()
+        self.assertEqual(discover_skills(self.root)[0].declared_capabilities, ())
+        (skill / "capabilities").write_text("not-a-real-token\n", encoding="utf-8")
+        self.assertEqual(discover_skills(self.root)[0].declared_capabilities, ())
+
+    def test_changed_capabilities_sidecar_is_a_skill_identity_change(self):
+        skill = self.make_skill()
+        (skill / "capabilities").write_text("network-read\n", encoding="utf-8")
+        descriptor = discover_skills(self.root)[0]
+        (skill / "capabilities").write_text("network-general\n", encoding="utf-8")
+        with self.assertRaises(SkillChangedError):
+            load_skill(descriptor)
+
     def test_resource_inventory_is_explicit_and_non_executing(self):
         skill = self.make_skill()
         for relative, content in (

@@ -13,6 +13,7 @@ from runtime.policy.memory_trust_gate import (
     MemoryAdmission,
     admit_memory_evidence,
 )
+from runtime.skills.capability_policy import capabilities_within_envelope
 from runtime.skills.catalog import SkillCatalog, SkillCatalogError, load_catalog_skill
 from runtime.skills.format import SkillParseError
 from runtime.skills.lifecycle import SkillLifecycleState
@@ -387,6 +388,21 @@ def _select_skills(
         skill_tokens = _text_tokens(descriptor.name) | _text_tokens(descriptor.description)
         matched = sorted(signals & skill_tokens)
         if not matched:
+            continue
+        # SEC4 capability-manifest slice 2: a matched Skill whose `capabilities`
+        # manifest declares a capability the running task's task_policy envelope
+        # does not permit is DENY'd from the plan -- before the trust gate, so
+        # an out-of-envelope Skill is never body-loaded. task["policy"] is read
+        # as the task's already-decided envelope (attached by store.get_task);
+        # the manifest is never written back. Seam is _select_skills, not
+        # load_catalog_skill (which has no task context).
+        within, _offending = capabilities_within_envelope(
+            descriptor.declared_capabilities, task.get("policy")
+        )
+        if not within:
+            tally.record(
+                MemoryAdmission.DENY, "SKILL_CAPABILITY_OUTSIDE_TASK_ENVELOPE"
+            )
             continue
         lifecycle_state = entry.provenance.lifecycle_state
         try:
