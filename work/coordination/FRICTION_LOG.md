@@ -118,6 +118,11 @@ Entry format:
   #218 (6.21) → 6.9/S6 → #220 (#218 follow-up) → this check — with no disruptive
   mid-arc rotation. Recommend `verified: PARTIAL` → `verified: VERIFIED`
   (coordinator call). Both follow-up bullets discharged.
+- 2026-09-01 follow-up (trajectory check #14, `gela`): **`verified: PARTIAL` →
+  `verified: VERIFIED`.** Session 16 has since run an even longer arc (#221 6.9/S6
+  → #223/#224/#227 design notes → #225 SEC4 slice 2 → #226 6.21 increment-a →
+  checks #13, #14) with no disruptive mid-arc rotation. Behavioral bar met twice
+  over; both #13 follow-up sub-items already resolved to non-issues. Entry closed.
 
 ## 2026-08-31 — "triage" continuous-improvement loop was procedure-only, nothing ran it
 - class: process-gap
@@ -152,3 +157,8 @@ Entry format:
 - follow-up: if this recurs in a later coordinator session, consider a durable
   countermeasure (e.g. a scratchpad orientation script that produces a compact
   status digest instead of ad-hoc exploration).
+- 2026-09-01 follow-up (trajectory check #14, `gela`): **no recurrence — 3rd
+  consecutive arc.** The #221–#227 implementer lanes (this trajectory lane
+  included) used targeted `/usr/bin/grep`, `git show --stat` / path-scoped
+  `git show`, `sed -n` line ranges, and `Read` with offset/limit — no 100KB+
+  dumps, no whole-doc re-reads. Stays open (behavioral, "if it recurs").
