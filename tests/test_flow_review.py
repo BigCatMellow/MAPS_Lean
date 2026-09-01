@@ -410,6 +410,29 @@ class FlowReviewRecordTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertEqual(result["failed_step"], "record")
         self.assertEqual(result["step_result"]["code"], "NOT_REVIEW_OWNER")
+        # The subject binding must NOT leak to a non-owner: the flow skips its
+        # own preflight entirely when the caller does not hold the review.
+        self.assertNotIn("rederiv", json.dumps(result).lower())
+        self.assertNotIn("freshness_mode", json.dumps(result))
+
+    def test_non_owner_of_rederived_review_sees_no_subject(self):
+        task_id, _ = self._started(
+            freshness_mode="REDERIVED_AT_REVIEW", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="someone-else",
+            verdict="APPROVED",
+            summary="not my review",
+        )
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["failed_step"], "record")
+        self.assertEqual(result["step_result"]["code"], "NOT_REVIEW_OWNER")
+        self.assertNotIn("REDERIVED_AT_REVIEW", json.dumps(result))
+        self.assertNotIn(SHA_A, json.dumps(result))
 
     def test_verdict_is_normalized_in_result(self):
         task_id, _ = self._started(
@@ -428,7 +451,7 @@ class FlowReviewRecordTests(unittest.TestCase):
         self.assertEqual(result["verdict"], "APPROVED")
         self.assertEqual(result["new_status"], "DONE")
 
-    def test_no_open_review_fails_preflight(self):
+    def test_no_open_review_rejected_by_store(self):
         task_id, _ = self.submitted(risk="LOW")
 
         result = flow_review_record(
@@ -440,7 +463,7 @@ class FlowReviewRecordTests(unittest.TestCase):
         )
 
         self.assertFalse(result["ok"])
-        self.assertEqual(result["failed_step"], "preflight")
+        self.assertEqual(result["failed_step"], "record")
         self.assertEqual(result["step_result"]["code"], "NO_OPEN_REVIEW")
 
     def test_changes_requested_sets_status(self):
@@ -518,7 +541,8 @@ class FlowReviewRecordTests(unittest.TestCase):
             summary="round two",
         )
         self.assertFalse(second["ok"])
-        self.assertEqual(second["failed_step"], "preflight")
+        self.assertEqual(second["failed_step"], "record")
+        self.assertEqual(second["step_result"]["code"], "NO_OPEN_REVIEW")
 
     def test_cli_flow_review_record_end_to_end(self):
         task_id, _ = self.submitted(risk="LOW")
