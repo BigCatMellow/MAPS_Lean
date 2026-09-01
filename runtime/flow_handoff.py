@@ -20,13 +20,20 @@ def flow_handoff(
     ``flow handoff`` declares that ``to_worker`` continues ``from_worker``'s
     work on task ``task_id``: it records exactly one ``continuity_links`` row
     and stops. The identity->identity link is the whole state change — the
-    review-independence consequence (``to_worker``, and anyone already in
-    ``from_worker``'s continuity component, can no longer claim independent
-    review of this task's lineage) falls out automatically from the existing
+    review-independence consequence falls out automatically from the existing
     ``_continuity_component_conn`` walk on every ``claim_review`` /
     ``record_review`` / review-binding / policy call. The flow touches no
     review table and pre-disqualifies nothing (the component walk is the single
     source of truth).
+
+    **Scope of the consequence.** ``continuity_links`` has no ``task_id`` and
+    ``_continuity_component_conn`` is undirected and global, so the effect is
+    *not* limited to ``task_id``: after this handoff, ``to_worker`` — and anyone
+    already in ``from_worker``'s continuity component — can no longer claim
+    independent review of **any** task whose submission author is in that
+    component. This is the conservative direction (it only ever removes review
+    eligibility) and is exactly how ``record_continuity_link`` behaves for every
+    other caller; ``flow handoff`` adds no new semantic.
 
     Stop boundary — **before the incoming worker claims.** ``flow handoff`` does
     not release ``from_worker``'s claim (there is no claim-release primitive and
@@ -90,11 +97,13 @@ def flow_handoff(
             "state": "STOPPED_BEFORE_REPLACEMENT_CLAIM",
             "reason": (
                 f"{to_worker} is now recorded as a continuation of {from_worker} "
-                f"for {task_id} and cannot claim independent review of its "
-                "lineage; the incoming worker must still claim-recover the task "
-                "after the outgoing lease expires (maps claim / maps flow start) "
-                "and bind its own run manifest — flow handoff selects no worker "
-                "and launches no session"
+                f"(via {task_id}) and — because a continuity link is a global "
+                "identity relationship — cannot claim independent review of any "
+                f"task authored within {from_worker}'s continuity component; the "
+                "incoming worker must still claim-recover the task after the "
+                "outgoing lease expires (maps claim / maps flow start) and bind "
+                "its own run manifest — flow handoff selects no worker and "
+                "launches no session"
             ),
         },
     }
