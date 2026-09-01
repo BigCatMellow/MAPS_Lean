@@ -117,6 +117,11 @@ class SkillDescriptor:
     # SEC4 slice 2: sorted tokens from the optional `capabilities` sidecar
     # (`()` when absent or malformed). Descriptive metadata, not authority.
     declared_capabilities: tuple[str, ...] = ()
+    # 6.9 / S6 slice 2: `(relative_path, byte_size)` for every entry in
+    # `resource_paths`, recorded at discovery from the file listing already
+    # walked (no extra read). Lets the Context Builder attach an
+    # execution-resource manifest without touching the filesystem.
+    resource_sizes: tuple[tuple[str, int], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -328,6 +333,12 @@ def _group(paths: tuple[str, ...], prefix: str) -> tuple[str, ...]:
     return tuple(path for path in paths if path.startswith(needle))
 
 
+def _resource_sizes(skill_root: Path, resources: tuple[str, ...]) -> tuple[tuple[str, int], ...]:
+    """`(relative_path, st_size)` for each declared resource -- one `stat` per
+    file, no read. `skill_root` is the resolved Skill directory."""
+    return tuple((rel, (skill_root / rel).stat().st_size) for rel in resources)
+
+
 def _descriptor_for_root(skill_root: Path) -> SkillDescriptor:
     if skill_root.is_symlink():
         raise SkillParseError(f"{skill_root}: symlinked Skill directories are not supported")
@@ -357,6 +368,7 @@ def _descriptor_for_root(skill_root: Path) -> SkillDescriptor:
         asset_paths=_group(resources, "assets"),
         example_paths=_group(resources, "examples"),
         declared_capabilities=_declared_capabilities_tuple(manifest_payload),
+        resource_sizes=_resource_sizes(skill_root, resources),
     )
 
 
@@ -423,6 +435,9 @@ def load_skill(descriptor: SkillDescriptor) -> SkillDocument:
         declared_capabilities=_declared_capabilities_tuple(
             by_relative.get(_CAPABILITY_MANIFEST_FILENAME)
         ),
+        resource_sizes=tuple(
+            (rel, len(by_relative[rel])) for rel in resources
+        ),
     )
     if (
         current.skill_id != descriptor.skill_id
@@ -431,8 +446,39 @@ def load_skill(descriptor: SkillDescriptor) -> SkillDocument:
         or current.declared_metadata_keys != descriptor.declared_metadata_keys
         or current.resource_paths != descriptor.resource_paths
         or current.declared_capabilities != descriptor.declared_capabilities
+        or current.resource_sizes != descriptor.resource_sizes
     ):
         raise SkillChangedError(
             f"{descriptor.root}: Skill identity changed after discovery"
         )
     return SkillDocument(descriptor=current, body=body)
+
+
+def load_skill_resource(descriptor: SkillDescriptor, relative_path: str) -> bytes:
+    """Return the exact bytes of one declared execution-level Skill resource.
+
+    `relative_path` must be one of `descriptor.resource_paths` -- a declared
+    `scripts/` / `references/` / `examples/` / `assets/` file. `SKILL.md`,
+    undeclared paths, absolute paths, and `..` traversal are all rejected by
+    that allowlist check (they are never members of `resource_paths`).
+
+    The whole Skill directory is hash-verified against
+    `descriptor.content_sha256` before the read (`_verified_snapshot`), so a
+    post-discovery content change raises `SkillChangedError`. Deterministic,
+    single named file, no store -- this is the "only if needed" pull for
+    roadmap 6.9's "execution" level, not search or retrieval.
+    """
+
+    if relative_path not in descriptor.resource_paths:
+        raise SkillParseError(
+            f"{relative_path!r} is not a declared resource of Skill "
+            f"{descriptor.skill_id!r}"
+        )
+    snapshot, _digest = _verified_snapshot(descriptor)
+    for path, payload in snapshot:
+        if path.relative_to(descriptor.root).as_posix() == relative_path:
+            return payload
+    raise SkillChangedError(
+        f"{descriptor.root}: declared resource {relative_path!r} is gone; "
+        "rediscover before use"
+    )

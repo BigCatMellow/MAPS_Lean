@@ -35,6 +35,7 @@ from .format import (
     SkillParseError,
     discover_skills,
     load_skill,
+    load_skill_resource,
 )
 from .gate import (
     SkillGateDisposition,
@@ -87,6 +88,7 @@ __all__ = [
     "initial_transition_from_gate_report",
     "load_catalog_skill",
     "load_skill",
+    "load_skill_resource",
     "load_skill_selection_corpus",
     "register_skill_catalog",
     "transition",

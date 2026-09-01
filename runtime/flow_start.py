@@ -106,10 +106,13 @@ def flow_start(
     3. bind an immutable run manifest.
 
     It intentionally stops before choosing or launching a provider session.
-    Per roadmap 6.9 / S6 slice 1, a matched Skill whose trust-gate decision is
-    `LOAD` has its hash-verified SKILL.md body attached to the plan
-    (`plan["skills"][i]["body"]`); WITHHELD / ON_DEMAND / DENIED Skills and
-    Skill scripts/references/examples are still not loaded.
+    Per roadmap 6.9 / S6, a matched Skill whose trust-gate decision is `LOAD`
+    has its hash-verified SKILL.md body attached to the plan
+    (`plan["skills"][i]["body"]`, slice 1) plus an `execution_resources`
+    manifest -- path / kind / size of its scripts/references/examples/assets,
+    NEVER content (slice 2). WITHHELD / ON_DEMAND / DENIED Skills get neither,
+    and resource *content* is only ever pulled on demand by a downstream
+    consumer via `runtime.skills.load_skill_resource`.
     """
 
     claim = store.claim_task(task_id, worker_id, lease_seconds=lease_seconds)

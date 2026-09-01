@@ -662,6 +662,102 @@ class ContextBuilderTests(unittest.TestCase):
         self.assertEqual(plan["skills"], [])
         self.assertEqual(plan["coverage"]["skill_bodies_loaded"], 0)
 
+    # --- 6.9 / S6 slice 2: execution-resource manifest --------------------
+
+    def _catalog_with_resourced_matching_skill(self) -> SkillCatalog:
+        skills_root = self.root / "skills-src"
+        skills_root.mkdir()
+        self._write_skill(
+            skills_root,
+            "context-plan-builder",
+            name="context-plan-builder",
+            description=(
+                "Reference guidance for assembling a task context plan during "
+                "RESEARCH work."
+            ),
+        )
+        skill = skills_root / "context-plan-builder"
+        (skill / "scripts").mkdir()
+        (skill / "scripts" / "check.py").write_text("print('c')\n", encoding="utf-8")
+        (skill / "references").mkdir()
+        (skill / "references" / "guide.md").write_text("# guide\n", encoding="utf-8")
+        source = SkillCatalogSource(
+            source_id="local", root=skills_root, kind=SkillSourceKind.LOCAL
+        )
+        return build_skill_catalog([source])
+
+    def test_load_skill_carries_execution_resource_manifest_without_content(self):
+        task_id = self.create_task()
+        catalog = self._catalog_with_resourced_matching_skill()
+        with patch(
+            "runtime.context_builder._skill_trust_class",
+            lambda state: MemoryTrustClass.APPROVED_SKILL,
+        ):
+            plan = build_context_plan(
+                self.store, task_id, repo_root=self.root, skill_catalog=catalog
+            )
+        entry = plan["skills"][0]
+        manifest = entry["execution_resources"]
+        by_path = {r["path"]: r for r in manifest}
+        self.assertEqual(
+            sorted(by_path), ["references/guide.md", "scripts/check.py"]
+        )
+        self.assertEqual(by_path["scripts/check.py"]["kind"], "script")
+        self.assertEqual(by_path["references/guide.md"]["kind"], "reference")
+        self.assertEqual(by_path["scripts/check.py"]["size_bytes"], len(b"print('c')\n"))
+        # no file content anywhere in the manifest or the plan
+        for r in manifest:
+            self.assertEqual(set(r), {"path", "kind", "size_bytes"})
+        self.assertNotIn("print('c')", json.dumps(plan))
+        self.assertNotIn("# guide", json.dumps(plan))
+        self.assertEqual(plan["coverage"]["skill_execution_resources_listed"], 1)
+
+    def test_load_skill_with_no_resources_has_no_manifest_key(self):
+        plan = self._plan_with_skill_trust_class(
+            lambda state: MemoryTrustClass.APPROVED_SKILL
+        )
+        entry = plan["skills"][0]
+        self.assertNotIn("execution_resources", entry)
+        self.assertEqual(plan["coverage"]["skill_execution_resources_listed"], 0)
+
+    def test_withheld_skill_gets_no_execution_manifest(self):
+        # default None-state Skill -> OBSERVATION -> WITHHOLD / ON_DEMAND
+        task_id = self.create_task()
+        catalog = self._catalog_with_resourced_matching_skill()
+        plan = build_context_plan(
+            self.store, task_id, repo_root=self.root, skill_catalog=catalog
+        )
+        self.assertNotIn("execution_resources", plan["skills"][0])
+        self.assertEqual(plan["coverage"]["skill_execution_resources_listed"], 0)
+
+    def test_denied_skill_gets_no_execution_manifest(self):
+        denied = self._plan_with_skill_trust_class(
+            lambda state: MemoryTrustClass.QUARANTINED
+        )
+        self.assertEqual(denied["skills"], [])
+        self.assertEqual(
+            denied["coverage"]["skill_execution_resources_listed"], 0
+        )
+
+    def test_execution_manifest_build_failure_is_fail_closed(self):
+        task_id = self.create_task()
+        catalog = self._catalog_with_resourced_matching_skill()
+        with patch(
+            "runtime.context_builder._skill_trust_class",
+            lambda state: MemoryTrustClass.APPROVED_SKILL,
+        ), patch(
+            "runtime.context_builder._execution_resource_manifest",
+            side_effect=OSError("boom"),
+        ):
+            plan = build_context_plan(
+                self.store, task_id, repo_root=self.root, skill_catalog=catalog
+            )
+        self.assertIsNotNone(plan)
+        entry = plan["skills"][0]
+        self.assertNotIn("execution_resources", entry)
+        self.assertEqual(entry["execution_resources_withheld_reason"], "OSError")
+        self.assertEqual(plan["coverage"]["skill_execution_resources_listed"], 0)
+
     def test_skills_default_empty_without_catalog(self):
         task_id = self.create_task()
         plan = build_context_plan(self.store, task_id, repo_root=self.root)
