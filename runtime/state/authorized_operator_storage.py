@@ -198,6 +198,9 @@ class AuthorizedOperatorStorageMixin:
         decision_ref: str,
         now=None,
     ) -> MutationResult:
+        """Append one revocation. A revoked operator cannot be re-authorized in
+        this slice (`record_authorized_operator` → ``OPERATOR_ALREADY_RECORDED``);
+        rotation is out of scope (design Q B5)."""
         op = _clean(operator_id)
         by = _clean(revoked_by)
         ref = _clean(decision_ref)
@@ -247,12 +250,16 @@ class AuthorizedOperatorStorageMixin:
                     "at least one authorized operator must remain; add another "
                     "before revoking this one",
                 )
-            conn.execute(
-                "INSERT INTO authorized_operator_revocations("
-                "operator_id, revoked_by, decision_ref, revoked_at, created_at) "
-                "VALUES (?, ?, ?, ?, ?)",
-                (op, by, ref, stamp, stamp),
-            )
+            try:
+                conn.execute(
+                    "INSERT INTO authorized_operator_revocations("
+                    "operator_id, revoked_by, decision_ref, revoked_at, created_at) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (op, by, ref, stamp, stamp),
+                )
+            except sqlite3.IntegrityError as exc:
+                conn.rollback()
+                return MutationResult(False, "INVALID_REVOCATION", str(exc))
             conn.commit()
         return MutationResult(
             True, "OPERATOR_REVOKED", f"{op} revoked by {by}", {"operator_id": op}

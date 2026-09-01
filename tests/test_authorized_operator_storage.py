@@ -113,6 +113,34 @@ class AuthorizedOperatorRegistryTests(unittest.TestCase):
         self.assertFalse(r.ok)
         self.assertEqual(r.code, "OPERATOR_ALREADY_RECORDED")
 
+    def test_unauthorized_revoker_is_refused(self):
+        self._genesis("alice")
+        self.assertTrue(
+            self.store.record_authorized_operator(
+                "bob", added_by="alice", decision_ref="d:2"
+            ).ok
+        )
+        r = self.store.revoke_authorized_operator(
+            "bob", revoked_by="eve", decision_ref="d:x"
+        )
+        self.assertFalse(r.ok)
+        self.assertEqual(r.code, "UNAUTHORIZED_AUTHORIZER")
+        self.assertTrue(self.store.is_authorized_operator("bob"))
+
+    def test_revoke_with_overlong_decision_ref_is_a_clean_failure(self):
+        self._genesis("alice")
+        self.assertTrue(
+            self.store.record_authorized_operator(
+                "bob", added_by="alice", decision_ref="d:2"
+            ).ok
+        )
+        r = self.store.revoke_authorized_operator(
+            "bob", revoked_by="alice", decision_ref="x" * 600
+        )
+        self.assertFalse(r.ok)
+        self.assertEqual(r.code, "INVALID_REVOCATION")
+        self.assertTrue(self.store.is_authorized_operator("bob"))
+
     def test_revoke_unknown_operator_is_typed(self):
         self._genesis("alice")
         r = self.store.revoke_authorized_operator(
