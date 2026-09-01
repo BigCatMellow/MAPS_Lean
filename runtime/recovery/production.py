@@ -49,9 +49,13 @@ privilege**. Two things a careless version of this note would get wrong:
 
 - `EnvironmentSpec.setup_commands` is only ever declared, parsed and serialised
   -- nothing in this codebase executes it -- and `run_validation_tier` had zero
-  production callers before this module. So there is no pre-existing production
-  execution of spec-declared shell commands for this to be "the same as". This
-  is the first one.
+  production callers before this module (the in-module `make_validation_hook`
+  builder, itself with no production caller, is dormant composition
+  scaffolding). So there is no pre-existing production execution of
+  spec-declared shell commands for this to be "the same as". This is the
+  first one.
+  # noqa: stale-caller-check -- historical claim; the only grep hit is the
+  # dormant same-module builder above.
 - Write access to the task DB did not previously buy arbitrary local shell
   execution on the recovery path. The only other subprocess that path reaches is
   `HcomAdapter._run`, which builds a fixed argv and passes `shell=False`; the
