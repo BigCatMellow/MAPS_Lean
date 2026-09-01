@@ -8,7 +8,7 @@ import sys
 
 from runtime.context_builder import build_context_plan
 from runtime.evaluation import IncidentCategory, RegressionCaseError, freeze_regression_case
-from runtime.flow_review import flow_review_start
+from runtime.flow_review import flow_review_record, flow_review_start
 from runtime.flow_start import flow_start_from_runtime_limit_args
 from runtime.recovery.production import (
     CLAIM_PIGGYBACK_HCOM_TIMEOUT_SECONDS,
@@ -321,6 +321,27 @@ def build_parser() -> argparse.ArgumentParser:
     )
     flow_review_start.add_argument('--run-id')
     flow_review_start.add_argument('--artifact-ref', action='append', default=[])
+
+    flow_review_record = flow_sub.add_parser(
+        'review-record',
+        help='record a review verdict (freshness-aware composition over record_review)',
+    )
+    flow_review_record.add_argument('task_id')
+    flow_review_record.add_argument('--reviewer-id', required=True)
+    flow_review_record.add_argument(
+        '--verdict',
+        required=True,
+        choices=['APPROVED', 'CHANGES_REQUESTED', 'BLOCKED'],
+    )
+    flow_review_record.add_argument('--summary', required=True)
+    flow_review_record.add_argument(
+        '--rederived-artifact-ref',
+        action='append',
+        default=[],
+        dest='rederived_artifact_ref',
+        help='re-derived immutable artifact/evidence ref for a REDERIVED_AT_REVIEW '
+        'subject; repeat for multiple',
+    )
 
     skill = sub.add_parser(
         'skill',
@@ -667,6 +688,15 @@ def main(argv: list[str] | None = None) -> int:
                 freshness_mode=args.freshness_mode,
                 run_id=args.run_id,
                 artifact_refs=args.artifact_ref,
+            ))
+        if args.flow_command == 'review-record':
+            return _emit(flow_review_record(
+                store,
+                args.task_id,
+                reviewer_id=args.reviewer_id,
+                verdict=args.verdict,
+                summary=args.summary,
+                rederived_artifact_refs=args.rederived_artifact_ref,
             ))
         raise AssertionError(args.flow_command)
     if args.command == 'skill':

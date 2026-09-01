@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 from runtime.cli import main
-from runtime.flow_review import flow_review_start
+from runtime.flow_review import flow_review_record, flow_review_start
 from runtime.state import TaskStore
 
 
@@ -286,6 +286,303 @@ class FlowReviewTests(unittest.TestCase):
         payload = json.loads(buffer.getvalue())
         self.assertFalse(payload["ok"])
         self.assertEqual(payload["failed_step"], "review_subject_preflight")
+
+
+SHA_B = "sha256:" + "b" * 64
+
+
+class FlowReviewRecordTests(unittest.TestCase):
+    """`flow_review_record` — verdict recording as a composition over
+    `record_review`, adding freshness-mode-aware re-derived artifact refs."""
+
+    # Reuse the fixture builders from FlowReviewTests without inheriting (and
+    # re-running) its test methods.
+    setUp = FlowReviewTests.setUp
+    submitted = FlowReviewTests.submitted
+
+    def _started(self, *, risk="LOW", reviewer="reviewer", **start_kwargs):
+        task_id, run = self.submitted(risk=risk)
+        started = flow_review_start(
+            self.store, task_id, reviewer_id=reviewer, **start_kwargs
+        )
+        self.assertTrue(started["ok"], started)
+        return task_id, run
+
+    def test_revision_bound_subject_approved_goes_done(self):
+        task_id, run = self._started(
+            run_id=None, freshness_mode="REVISION_BOUND", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="APPROVED",
+            summary="verified independently",
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["code"], "FLOW_REVIEW_RECORDED")
+        self.assertEqual(result["verdict"], "APPROVED")
+        self.assertEqual(result["new_status"], "DONE")
+        self.assertEqual(result["review"]["verdict"], "APPROVED")
+        self.assertIsNotNone(result["review"]["completed_at"])
+        self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
+
+    def test_rederived_subject_approved_with_matching_refs_goes_done(self):
+        task_id, _ = self._started(
+            freshness_mode="REDERIVED_AT_REVIEW", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="APPROVED",
+            summary="re-derived and matched",
+            rederived_artifact_refs=[SHA_A],
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["new_status"], "DONE")
+        self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
+
+    def test_rederived_subject_approved_without_refs_fails_early(self):
+        task_id, _ = self._started(
+            freshness_mode="REDERIVED_AT_REVIEW", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="APPROVED",
+            summary="forgot to pass refs",
+        )
+
+        self.assertFalse(result["ok"])
+        # Early deterministic preflight, NOT a raw hook error surfaced from deep
+        # inside record_review.
+        self.assertEqual(result["failed_step"], "rederivation_preflight")
+        self.assertEqual(
+            result["step_result"]["code"], "REVIEW_REDERIVATION_REQUIRED"
+        )
+        # Nothing recorded; the review is still open and the task unchanged.
+        self.assertEqual(self.store.get_task(task_id)["status"], "READY_FOR_REVIEW")
+        open_reviews = [
+            r for r in self.store.list_reviews(task_id) if r["completed_at"] is None
+        ]
+        self.assertEqual(len(open_reviews), 1)
+
+    def test_rederived_subject_mismatched_refs_rejected_by_store(self):
+        task_id, _ = self._started(
+            freshness_mode="REDERIVED_AT_REVIEW", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="APPROVED",
+            summary="wrong refs",
+            rederived_artifact_refs=[SHA_B],
+        )
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["failed_step"], "record")
+        self.assertEqual(
+            result["step_result"]["code"], "REVIEW_REDERIVATION_MISMATCH"
+        )
+
+    def test_non_owner_reviewer_rejected_by_store(self):
+        task_id, _ = self._started(
+            freshness_mode="REVISION_BOUND", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="someone-else",
+            verdict="APPROVED",
+            summary="not my review",
+        )
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["failed_step"], "record")
+        self.assertEqual(result["step_result"]["code"], "NOT_REVIEW_OWNER")
+
+    def test_verdict_is_normalized_in_result(self):
+        task_id, _ = self._started(
+            freshness_mode="REVISION_BOUND", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="approved",
+            summary="lowercase verdict still works",
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["verdict"], "APPROVED")
+        self.assertEqual(result["new_status"], "DONE")
+
+    def test_no_open_review_fails_preflight(self):
+        task_id, _ = self.submitted(risk="LOW")
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="APPROVED",
+            summary="nobody claimed",
+        )
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["failed_step"], "preflight")
+        self.assertEqual(result["step_result"]["code"], "NO_OPEN_REVIEW")
+
+    def test_changes_requested_sets_status(self):
+        task_id, _ = self._started(
+            freshness_mode="REVISION_BOUND", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="CHANGES_REQUESTED",
+            summary="please fix",
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["new_status"], "CHANGES_REQUESTED")
+        self.assertEqual(
+            self.store.get_task(task_id)["status"], "CHANGES_REQUESTED"
+        )
+
+    def test_blocked_sets_status(self):
+        task_id, _ = self._started(
+            freshness_mode="REVISION_BOUND", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="BLOCKED",
+            summary="external blocker",
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["new_status"], "BLOCKED")
+        self.assertEqual(self.store.get_task(task_id)["status"], "BLOCKED")
+
+    def test_blocked_on_rederived_subject_needs_no_refs(self):
+        # The rederivation preflight mirrors the hook, which is APPROVED-only.
+        task_id, _ = self._started(
+            freshness_mode="REDERIVED_AT_REVIEW", artifact_refs=[SHA_A]
+        )
+
+        result = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="BLOCKED",
+            summary="blocked before re-derivation",
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["new_status"], "BLOCKED")
+
+    def test_not_ready_for_review_rejected_by_store(self):
+        task_id, _ = self._started(
+            freshness_mode="REVISION_BOUND", artifact_refs=[SHA_A]
+        )
+        first = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="CHANGES_REQUESTED",
+            summary="round one",
+        )
+        self.assertTrue(first["ok"], first)
+
+        # Task is now CHANGES_REQUESTED; a second record has no open review.
+        second = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="APPROVED",
+            summary="round two",
+        )
+        self.assertFalse(second["ok"])
+        self.assertEqual(second["failed_step"], "preflight")
+
+    def test_cli_flow_review_record_end_to_end(self):
+        task_id, _ = self.submitted(risk="LOW")
+        db = str(self.root / "maps.db")
+
+        with redirect_stdout(io.StringIO()):
+            start_code = main(
+                [
+                    "--db", db, "flow", "review-start", task_id,
+                    "--reviewer-id", "reviewer",
+                    "--freshness-mode", "REDERIVED_AT_REVIEW",
+                    "--artifact-ref", SHA_A,
+                ]
+            )
+        self.assertEqual(start_code, 0)
+
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = main(
+                [
+                    "--db", db, "flow", "review-record", task_id,
+                    "--reviewer-id", "reviewer",
+                    "--verdict", "APPROVED",
+                    "--summary", "cli approved after re-derivation",
+                    "--rederived-artifact-ref", SHA_A,
+                ]
+            )
+
+        self.assertEqual(code, 0)
+        payload = json.loads(buffer.getvalue())
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["code"], "FLOW_REVIEW_RECORDED")
+        self.assertEqual(payload["new_status"], "DONE")
+        self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
+
+    def test_cli_flow_review_record_missing_refs_exits_nonzero(self):
+        task_id, _ = self.submitted(risk="LOW")
+        db = str(self.root / "maps.db")
+        with redirect_stdout(io.StringIO()):
+            start_code = main(
+                [
+                    "--db", db, "flow", "review-start", task_id,
+                    "--reviewer-id", "reviewer",
+                    "--freshness-mode", "REDERIVED_AT_REVIEW",
+                    "--artifact-ref", SHA_A,
+                ]
+            )
+        self.assertEqual(start_code, 0)
+
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = main(
+                [
+                    "--db", db, "flow", "review-record", task_id,
+                    "--reviewer-id", "reviewer",
+                    "--verdict", "APPROVED",
+                    "--summary", "no refs supplied",
+                ]
+            )
+
+        self.assertEqual(code, 2)
+        payload = json.loads(buffer.getvalue())
+        self.assertFalse(payload["ok"])
+        self.assertEqual(payload["failed_step"], "rederivation_preflight")
 
 
 if __name__ == "__main__":
