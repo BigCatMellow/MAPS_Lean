@@ -595,6 +595,72 @@ class ContextBuilderTests(unittest.TestCase):
         self.assertEqual(plan["coverage"]["memory_trust_gate_admitted"], 1)
         self.assertEqual(plan["coverage"]["memory_trust_gate_denied"], 0)
 
+    # --- roadmap 6.9 / S6 slice 1: progressive body loading ------------------
+
+    def test_load_classified_skill_carries_hash_verified_body(self):
+        plan = self._plan_with_skill_trust_class(
+            lambda state: MemoryTrustClass.APPROVED_SKILL
+        )
+        entry = plan["skills"][0]
+        self.assertIn("Procedure body.", entry["body"])
+        self.assertEqual(len(entry["body_sha256"]), 64)
+        self.assertNotIn("body_withheld_reason", entry)
+        self.assertEqual(plan["coverage"]["skill_bodies_loaded"], 1)
+        # the unrelated Skill contributes nothing -- S6 exit gate
+        self.assertEqual(len(plan["skills"]), 1)
+        self.assertNotIn("database-migration", json.dumps(plan))
+
+    def test_withheld_skill_has_no_body(self):
+        # default: no store subject row -> OBSERVATION -> WITHHOLD / ON_DEMAND
+        task_id = self.create_task()
+        catalog = self._catalog_with_matching_and_unrelated_skill()
+        plan = build_context_plan(
+            self.store, task_id, repo_root=self.root, skill_catalog=catalog
+        )
+        entry = plan["skills"][0]
+        self.assertEqual(entry["budget_class"], "ON_DEMAND")
+        self.assertIn("withheld_reason", entry)
+        self.assertNotIn("body", entry)
+        self.assertEqual(plan["coverage"]["skill_bodies_loaded"], 0)
+
+    def test_denied_skill_has_no_body(self):
+        plan = self._plan_with_skill_trust_class(
+            lambda state: MemoryTrustClass.QUARANTINED
+        )
+        self.assertEqual(plan["skills"], [])
+        self.assertEqual(plan["coverage"]["skill_bodies_loaded"], 0)
+
+    def test_body_activation_failure_is_fail_closed(self):
+        task_id = self.create_task()
+        catalog = self._catalog_with_matching_and_unrelated_skill()
+        # mutate the Skill's bytes after discovery so the pre-read hash
+        # re-verification in load_skill rejects the content.
+        matched_dir = self.root / "skills-src" / "context-plan-builder"
+        (matched_dir / "SKILL.md").write_text(
+            "---\nname: context-plan-builder\ndescription: Reference guidance "
+            "for assembling a task context plan during RESEARCH work.\n---\n"
+            "Tampered body.\n",
+            encoding="utf-8",
+        )
+        with patch(
+            "runtime.context_builder._skill_trust_class",
+            lambda state: MemoryTrustClass.APPROVED_SKILL,
+        ):
+            plan = build_context_plan(
+                self.store, task_id, repo_root=self.root, skill_catalog=catalog
+            )
+        self.assertIsNotNone(plan)
+        entry = plan["skills"][0]
+        self.assertNotIn("body", entry)
+        self.assertIn("body_withheld_reason", entry)
+        self.assertEqual(plan["coverage"]["skill_bodies_loaded"], 0)
+
+    def test_maps_context_plan_has_no_skill_bodies(self):
+        task_id = self.create_task()
+        plan = build_context_plan(self.store, task_id, repo_root=self.root)
+        self.assertEqual(plan["skills"], [])
+        self.assertEqual(plan["coverage"]["skill_bodies_loaded"], 0)
+
     def test_skills_default_empty_without_catalog(self):
         task_id = self.create_task()
         plan = build_context_plan(self.store, task_id, repo_root=self.root)

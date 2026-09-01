@@ -183,14 +183,18 @@ class FlowStartTests(unittest.TestCase):
         # QUARANTINED skill is dropped entirely, and counted as a DENY.
         self.assertNotIn("implementation release helper", names)
         self.assertGreaterEqual(plan["coverage"]["memory_trust_gate_denied"], 1)
-        # The clean matched skill is still present, metadata only (no body key).
+        # The clean matched skill is present and, per roadmap 6.9 / S6 slice 1,
+        # a VALIDATED (LOAD-classified) Skill now carries its hash-verified body.
         self.assertIn("implementation review helper", names)
-        self.assertNotIn(
-            "QUARANTINED", set(states.values())
+        self.assertNotIn("QUARANTINED", set(states.values()))
+        clean = next(
+            s for s in plan["skills"] if s["name"] == "implementation review helper"
         )
-        for s in plan["skills"]:
-            self.assertNotIn("body", s)
-            self.assertNotIn("procedure", s)
+        self.assertIn("Read the diff.", clean["body"])
+        self.assertEqual(len(clean["body_sha256"]), 64)
+        self.assertEqual(plan["coverage"]["skill_bodies_loaded"], 1)
+        # No trace of the quarantined Skill's body anywhere in the plan.
+        self.assertNotIn("evil.example", json.dumps(plan))
 
         # The durable subject really recorded QUARANTINED for the bad skill.
         subjects = {

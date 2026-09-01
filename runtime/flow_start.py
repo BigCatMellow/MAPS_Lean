@@ -106,7 +106,10 @@ def flow_start(
     3. bind an immutable run manifest.
 
     It intentionally stops before choosing or launching a provider session.
-    No Skill procedure body is loaded -- only descriptor/provenance metadata.
+    Per roadmap 6.9 / S6 slice 1, a matched Skill whose trust-gate decision is
+    `LOAD` has its hash-verified SKILL.md body attached to the plan
+    (`plan["skills"][i]["body"]`); WITHHELD / ON_DEMAND / DENIED Skills and
+    Skill scripts/references/examples are still not loaded.
     """
 
     claim = store.claim_task(task_id, worker_id, lease_seconds=lease_seconds)
