@@ -240,10 +240,36 @@ class NonGoalTests(unittest.TestCase):
             ],
         )
 
-    def test_context_builder_never_loads_skill_bodies(self):
+    def test_context_builder_body_loading_is_load_gated_and_activation_level_only(self):
+        """Roadmap 6.9 / S6 slice 1: `_select_skills` may attach a Skill body to
+        the plan, but only under two constraints:
+
+        * gated on the trust-gate `MemoryAdmission.LOAD` decision -- a
+          `WITHHOLD` / `ON_DEMAND` / `DENY` (or `None`-state) Skill gets no
+          body;
+        * "activation" level only -- the `SKILL.md` body via the
+          hash-verifying `load_catalog_skill` (never a direct `load_skill(`
+          call), and never `scripts` / `references` / `examples` / `assets`
+          resource content (the "execution" level, a later slice).
+        """
         text = (_REPO_ROOT / "runtime" / "context_builder.py").read_text(encoding="utf-8")
+        # activation goes through load_catalog_skill (re-verifies the directory
+        # hash before reading the body), not a bare load_skill() call.
         self.assertNotIn("load_skill(", text)
-        self.assertNotIn("load_catalog_skill(", text)
+        self.assertIn("load_catalog_skill(", text)
+        # the body attach is gated on the LOAD admission decision.
+        self.assertIn(
+            "decision.admission is MemoryAdmission.LOAD and store is not None",
+            text,
+        )
+        # "execution"-level resource paths are never pulled into the plan.
+        for execution_level_attr in (
+            "script_paths",
+            "reference_paths",
+            "example_paths",
+            "asset_paths",
+        ):
+            self.assertNotIn(execution_level_attr, text)
 
 
 if __name__ == "__main__":
