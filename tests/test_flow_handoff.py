@@ -89,6 +89,18 @@ class FlowHandoffTests(unittest.TestCase):
         self.assertEqual(
             self.store.continuity_component("worker-a"), {"worker-a", "worker-b"}
         )
+        # Direction is load-bearing (lineage / trace / audit consumers read
+        # predecessor -> replacement): from_worker is the predecessor.
+        self.assertEqual(
+            result["continuity_link"]["message"], "worker-a -> worker-b"
+        )
+        with self.store._connect() as conn:
+            row = conn.execute(
+                "SELECT predecessor_id, replacement_id FROM continuity_links"
+            ).fetchone()
+        self.assertEqual(
+            (row["predecessor_id"], row["replacement_id"]), ("worker-a", "worker-b")
+        )
         # No task-state change: still ACTIVE, still claimed by worker-a.
         task = self.store.get_task(task_id)
         self.assertEqual(task["status"], "ACTIVE")
