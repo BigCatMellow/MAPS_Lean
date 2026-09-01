@@ -19,8 +19,18 @@ Run at natural work-arc boundaries, not after every task:
 
 ## The check
 
-1. **Re-verify reality.** Spot-check current roadmap/checklist claims against the
-   actual merged code, tests, PRs, artifacts, or other authoritative evidence.
+**Derive the work arc from a commit range, never a hand-listed set of PR
+numbers.** The arc is `<last-check-commit>..HEAD`, where `<last-check-commit>` is
+the squash-merge commit on `main` of the previous `Roadmap trajectory check #N`
+PR (find it with `git log --oneline --grep='Roadmap trajectory check' main | head -1`).
+Enumerate the arc with `git log --oneline <last-check-commit>..HEAD` and check
+every PR in that output. Hand-listing PRs (e.g. "PRs #194–#207") silently drops
+any PR merged outside the guessed range — this happened to check #11, which was
+dispatched as "#202–#207" but actually owed "#194–#207".
+
+1. **Re-verify reality.** Enumerate the arc as above, then spot-check current
+   roadmap/checklist claims across it against the actual merged code, tests, PRs,
+   artifacts, or other authoritative evidence.
 2. **Name what changed.** Record new evidence that materially changes assumptions,
    dependencies, risk, priority, scope, or the route to DONE.
 3. **Choose a trajectory action.** `CONTINUE`, `REPRIORITIZE`, `RESEARCH`,
