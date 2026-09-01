@@ -102,6 +102,180 @@ _SENSITIVE_FILENAMES = {
 }
 _SENSITIVE_SUFFIXES = {".pem", ".key", ".p12", ".pfx"}
 
+# SEC4 capability-declaration manifest, slice 1
+# (`work/notes/2026-09-01-sec4-capability-declaration-manifest-design.md`).
+# A Skill bundle MAY carry a top-level `capabilities` sidecar: one capability
+# token per line (`#` comments and blank lines ignored), drawn from the
+# roadmap `04-agentic-security.md` s5.1 vocabulary. It is descriptive
+# supply-chain metadata only -- it feeds the gate report and nothing else,
+# and is never read by a runtime guard or written into `task_policy`.
+_CAPABILITY_MANIFEST_FILENAME = "capabilities"
+_CAPABILITY_TOKENS = frozenset(
+    {
+        "filesystem-read",
+        "filesystem-write",
+        "shell",
+        "network-read",
+        "network-general",
+        "github-read",
+        "github-write",
+        "database-read",
+        "database-write",
+        "process-stop",
+        "external-deploy",
+    }
+)
+_SECRET_USE_RE = re.compile(r"^secret-use:[a-z0-9][a-z0-9-]*$")
+
+# Which REVIEW-severity static detector evidences which declared capability
+# class. BLOCK-severity detectors (`NETWORK_PIPE_EXEC`, `SENSITIVE_LITERAL`,
+# `AUTHORITY_OVERRIDE_CLAIM`, `SENSITIVE_RESOURCE_NAME`) are intrinsically
+# dangerous and a manifest can never bless them, so they are not listed.
+_DETECTOR_CAPABILITY = {
+    "SCRIPT_NETWORK_ACCESS": "network-general",
+    "CREDENTIAL_ENVIRONMENT_ACCESS": "secret-use:environment",
+    "DESTRUCTIVE_OPERATION": "filesystem-write",
+    "PRIVILEGE_OPERATION": "shell",
+    "EXECUTABLE_RESOURCE_PRESENT": "shell",
+}
+# A declared token that also satisfies a detected capability class (coarse for
+# slice 1: a declared `network-read` covers a generic network detection).
+_SATISFYING_TOKENS = {
+    "network-general": frozenset({"network-general", "network-read"}),
+}
+
+_MANIFEST_MALFORMED = object()
+
+
+def _parse_capability_manifest(payload: bytes) -> "frozenset[str] | object":
+    """Parse a `capabilities` sidecar into a set of declared tokens.
+
+    Returns ``_MANIFEST_MALFORMED`` for non-UTF-8 content or any line that is
+    not a blank/comment and not a recognized capability token. An empty result
+    (file present, only comments) is a deliberate "declares nothing" assertion,
+    distinct from an absent manifest.
+    """
+
+    try:
+        text = payload.decode("utf-8")
+    except UnicodeDecodeError:
+        return _MANIFEST_MALFORMED
+    tokens: set[str] = set()
+    for raw in text.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        if line in _CAPABILITY_TOKENS or _SECRET_USE_RE.match(line):
+            tokens.add(line)
+        else:
+            return _MANIFEST_MALFORMED
+    return frozenset(tokens)
+
+
+def _declared_covers(capability: str, declared: "frozenset[str]") -> bool:
+    return bool(declared & _SATISFYING_TOKENS.get(capability, frozenset({capability})))
+
+
+def _apply_capability_manifest(
+    findings: list[SkillGateFinding],
+    by_relative: dict[str, bytes],
+) -> list[SkillGateFinding]:
+    """Reconcile the static detector findings against the `capabilities` sidecar.
+
+    - no manifest, but a capability-bearing detector fired -> one
+      ``CAPABILITY_MANIFEST_ABSENT`` (REVIEW); detector findings unchanged.
+    - manifest unreadable / unknown token -> ``CAPABILITY_MANIFEST_MALFORMED``
+      (BLOCK); reconciliation is skipped (an unreadable manifest is not trusted).
+    - manifest present: a detected capability it covers downgrades that
+      detector finding to ``DECLARED_CAPABILITY_USE`` (INFO); a detected
+      capability it omits adds ``UNDECLARED_CAPABILITY`` (BLOCK); a declared
+      token nothing evidences adds ``OVER_DECLARED_CAPABILITY`` (INFO).
+    """
+
+    manifest = (
+        _parse_capability_manifest(by_relative[_CAPABILITY_MANIFEST_FILENAME])
+        if _CAPABILITY_MANIFEST_FILENAME in by_relative
+        else None
+    )
+
+    capability_findings = [f for f in findings if f.code in _DETECTOR_CAPABILITY]
+    detected = {_DETECTOR_CAPABILITY[f.code] for f in capability_findings}
+
+    if manifest is _MANIFEST_MALFORMED:
+        return findings + [
+            _finding(
+                "CAPABILITY_MANIFEST_MALFORMED",
+                SkillGateSeverity.BLOCK,
+                _CAPABILITY_MANIFEST_FILENAME,
+                "Capability manifest is not UTF-8 text or contains an "
+                "unrecognized capability token.",
+            )
+        ]
+
+    if manifest is None:
+        if not detected:
+            return findings
+        return findings + [
+            _finding(
+                "CAPABILITY_MANIFEST_ABSENT",
+                SkillGateSeverity.REVIEW,
+                _CAPABILITY_MANIFEST_FILENAME,
+                "Skill exercises capability classes ("
+                + ", ".join(sorted(detected))
+                + ") but declares no `capabilities` manifest.",
+            )
+        ]
+
+    assert isinstance(manifest, frozenset)
+    covered = {cap for cap in detected if _declared_covers(cap, manifest)}
+    undeclared = detected - covered
+
+    reconciled: list[SkillGateFinding] = []
+    for finding in findings:
+        capability = _DETECTOR_CAPABILITY.get(finding.code)
+        if capability is not None and capability in covered:
+            reconciled.append(
+                _finding(
+                    "DECLARED_CAPABILITY_USE",
+                    SkillGateSeverity.INFO,
+                    finding.path,
+                    f"Declared capability {capability!r} is exercised here "
+                    "(matches the `capabilities` manifest).",
+                )
+            )
+        else:
+            reconciled.append(finding)
+
+    for capability in sorted(undeclared):
+        reconciled.append(
+            _finding(
+                "UNDECLARED_CAPABILITY",
+                SkillGateSeverity.BLOCK,
+                _CAPABILITY_MANIFEST_FILENAME,
+                f"Skill exercises {capability!r} but the `capabilities` "
+                "manifest does not declare it.",
+            )
+        )
+
+    over_declared = {
+        token
+        for token in manifest
+        if not any(
+            token in _SATISFYING_TOKENS.get(cap, frozenset({cap})) for cap in detected
+        )
+    }
+    for token in sorted(over_declared):
+        reconciled.append(
+            _finding(
+                "OVER_DECLARED_CAPABILITY",
+                SkillGateSeverity.INFO,
+                _CAPABILITY_MANIFEST_FILENAME,
+                f"Declared capability {token!r} is not evidenced by any static "
+                "check; review whether the declaration is over-broad.",
+            )
+        )
+    return reconciled
+
 
 def _finding(
     code: str,
@@ -363,6 +537,8 @@ def assess_skill(descriptor: SkillDescriptor) -> SkillGateReport:
             is_script=relative in script_paths,
         )
         findings.extend(resource_findings)
+
+    findings = _apply_capability_manifest(findings, by_relative)
 
     findings = list(
         {
