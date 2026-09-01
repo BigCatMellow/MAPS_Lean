@@ -122,10 +122,15 @@ _DETECTOR_CAPABILITY = {
     "PRIVILEGE_OPERATION": "shell",
     "EXECUTABLE_RESOURCE_PRESENT": "shell",
 }
-# A declared token that also satisfies a detected capability class (coarse for
-# slice 1: a declared `network-read` covers a generic network detection).
+# A declared token that also satisfies a detected capability class. The static
+# `SCRIPT_NETWORK_ACCESS` detector cannot distinguish read-only from mutating
+# network calls, so only the broader `network-general` declaration covers it --
+# a `network-read`-only declaration no longer clears a detected generic access
+# (capability-granularity slice, design note 2026-09-01). `network-read` remains
+# a valid, baseline-permitted declaration for a Skill that self-asserts
+# read-only network use without tripping the detector.
 _SATISFYING_TOKENS = {
-    "network-general": frozenset({"network-general", "network-read"}),
+    "network-general": frozenset({"network-general"}),
 }
 
 def _declared_covers(capability: str, declared: "frozenset[str]") -> bool:
