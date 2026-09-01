@@ -12,7 +12,11 @@ never reaches a `HookRegistry` guard, and this module holds no state.
 
 Coarse / whole-Skill, matching slice 1's granularity. `broad_architecture` and
 `paid_execution` are unmapped — a known gap (no capability token corresponds to
-either). Per-capability scoping (paths, hosts) is a later slice.
+either). A path-scoped `filesystem-write:<relative-path>` declaration is
+*accepted* (capability-granularity slice) and permitted identically to bare
+`filesystem-write` — a strict narrowing of an already-baseline capability;
+*enforcing* the declared path against the task's output paths, and per-host
+`network-general` scoping, remain later slices.
 """
 
 from __future__ import annotations
@@ -46,6 +50,12 @@ _REQUIRES: dict[str, tuple[str, ...]] = {
 }
 
 _SECRET_USE_PREFIX = "secret-use:"
+# A path-scoped `filesystem-write:<relative-path>` declaration (capability-
+# granularity slice) is a strict narrowing of the unscoped `filesystem-write`,
+# which is already baseline-permitted -- it can never need *more* permission
+# than the broader form, so it is baseline too. Enforcing the declared path
+# against the task's output paths is a later slice, not wired here.
+_FILESYSTEM_WRITE_PREFIX = "filesystem-write:"
 
 
 def _required_flags(token: str) -> tuple[str, ...] | None:
@@ -53,6 +63,8 @@ def _required_flags(token: str) -> tuple[str, ...] | None:
     unrecognized (treated as never-permitted — fail closed)."""
 
     if token in _BASELINE:
+        return ()
+    if token.startswith(_FILESYSTEM_WRITE_PREFIX):
         return ()
     if token.startswith(_SECRET_USE_PREFIX):
         return ("security_sensitive",)

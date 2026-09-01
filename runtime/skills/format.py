@@ -40,6 +40,16 @@ _CAPABILITY_TOKENS = frozenset(
     }
 )
 _SECRET_USE_RE = re.compile(r"^secret-use:[a-z0-9][a-z0-9-]*$")
+# Optional path-scoped write declaration (capability-granularity slice): a Skill
+# MAY narrow the unscoped `filesystem-write` to `filesystem-write:<relative-path>`.
+# The suffix is a posix-relative path -- no leading `/` (absolute), no `..`
+# segment (traversal); an empty suffix is rejected. Meaning/permission are
+# unchanged from bare `filesystem-write` (see `capability_policy.py`);
+# enforcement of the declared path against a task's output paths is a later
+# slice and deliberately not wired here.
+_FILESYSTEM_WRITE_PATH_RE = re.compile(
+    r"^filesystem-write:(?!/)(?!.*\.\.)[A-Za-z0-9_.\-/]+$"
+)
 
 _MANIFEST_MALFORMED = object()
 
@@ -62,7 +72,11 @@ def _parse_capability_manifest(payload: bytes) -> "frozenset[str] | object":
         line = raw.split("#", 1)[0].strip()
         if not line:
             continue
-        if line in _CAPABILITY_TOKENS or _SECRET_USE_RE.match(line):
+        if (
+            line in _CAPABILITY_TOKENS
+            or _SECRET_USE_RE.match(line)
+            or _FILESYSTEM_WRITE_PATH_RE.match(line)
+        ):
             tokens.add(line)
         else:
             return _MANIFEST_MALFORMED

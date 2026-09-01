@@ -141,7 +141,11 @@ class CapabilityManifestGateTests(unittest.TestCase):
         self.assertIn("UNDECLARED_CAPABILITY", self.codes(report))
         self.assertEqual(report.disposition, SkillGateDisposition.QUARANTINE)
 
-    def test_network_read_declaration_satisfies_generic_network_detection(self):
+    def test_network_read_only_no_longer_covers_a_detected_generic_access(self):
+        # capability-granularity slice: the static SCRIPT_NETWORK_ACCESS
+        # detector can't tell read from write, so a `network-read`-only
+        # declaration no longer clears it -- the Skill must declare
+        # `network-general`.
         descriptor = self.make_skill(
             resources={
                 "scripts/fetch.py": "import requests\nrequests.get('https://example.invalid/x')\n",
@@ -150,9 +154,33 @@ class CapabilityManifestGateTests(unittest.TestCase):
         )
         report = assess_skill(descriptor)
         codes = self.codes(report)
+        self.assertIn("UNDECLARED_CAPABILITY", codes)
+        self.assertEqual(report.disposition, SkillGateDisposition.QUARANTINE)
+
+    def test_network_general_declaration_still_covers_a_detected_generic_access(self):
+        descriptor = self.make_skill(
+            resources={
+                "scripts/fetch.py": "import requests\nrequests.get('https://example.invalid/x')\n",
+                "capabilities": "network-general\nshell\n",
+            },
+        )
+        report = assess_skill(descriptor)
+        codes = self.codes(report)
+        self.assertIn("DECLARED_CAPABILITY_USE", codes)
         self.assertNotIn("UNDECLARED_CAPABILITY", codes)
         self.assertNotIn("SCRIPT_NETWORK_ACCESS", codes)
-        self.assertNotIn("EXECUTABLE_RESOURCE_PRESENT", codes)
+        self.assertEqual(report.disposition, SkillGateDisposition.CLEAR)
+
+    def test_network_read_declaration_with_no_network_content_is_clean(self):
+        # No detector fires -> nothing to reconcile -> `network-read` is an
+        # unremarkable declaration, unaffected by the slice.
+        descriptor = self.make_skill(
+            resources={"capabilities": "network-read\n"},
+        )
+        report = assess_skill(descriptor)
+        codes = self.codes(report)
+        self.assertNotIn("UNDECLARED_CAPABILITY", codes)
+        self.assertIn("OVER_DECLARED_CAPABILITY", codes)  # declared, nothing evidences it
         self.assertEqual(report.disposition, SkillGateDisposition.CLEAR)
 
     def test_secret_use_environment_declaration_covers_credential_detector(self):
@@ -256,18 +284,21 @@ class CapabilityManifestEndToEndTests(unittest.TestCase):
         self.assertGreaterEqual(plan["coverage"]["memory_trust_gate_denied"], 1)
 
     def test_declared_capability_skill_survives_into_plan_metadata(self):
+        # A correctly-declared Skill whose only detected capabilities are
+        # baseline (filesystem-write / shell) -> VALIDATED, and it is not
+        # dropped by either the gate or the slice-2 envelope check.
         self._add_skill(
-            "research-context-fetch",
+            "research-context-cleanup",
             "Reference guidance for RESEARCH work that assembles a context plan.",
             {
-                "scripts/fetch.py": "import requests\nrequests.get('https://example.invalid/spec')\n",
-                "capabilities": "network-read\nshell\n",
+                "scripts/tidy.sh": "rm -rf ./scratch\n",
+                "capabilities": "filesystem-write\nshell\n",
             },
         )
         task_id = self._research_task()
 
         catalog = build_project_skill_catalog(self.repo, self.store)
-        entry = catalog.require_unique("research-context-fetch")
+        entry = catalog.require_unique("research-context-cleanup")
         self.assertEqual(
             self.store.get_skill_lifecycle_state(entry.catalog_key).value, "VALIDATED"
         )
@@ -276,7 +307,7 @@ class CapabilityManifestEndToEndTests(unittest.TestCase):
             self.store, task_id, repo_root=self.repo, skill_catalog=catalog
         )
         names = {item["name"] for item in plan["skills"]}
-        self.assertIn("research-context-fetch", names)
+        self.assertIn("research-context-cleanup", names)
         # A correctly-declared Skill is VALIDATED, not QUARANTINED, so it is not
         # DENY'd out of the plan the way the undeclared-capability Skill is.
         self.assertEqual(plan["coverage"]["memory_trust_gate_denied"], 0)
@@ -292,6 +323,22 @@ class CapabilityEnvelopeTests(unittest.TestCase):
                     "network-read", "github-read", "database-read"):
             self.assertEqual(capabilities_within_envelope([tok], {}), (True, ()))
             self.assertEqual(capabilities_within_envelope([tok], None), (True, ()))
+
+    def test_path_scoped_filesystem_write_permitted_like_bare_token(self):
+        # capability-granularity slice: a `filesystem-write:<path>` declaration
+        # is a strict narrowing of the already-baseline bare token, so it is
+        # permitted identically, under every policy.
+        from runtime.skills.capability_policy import capabilities_within_envelope
+
+        for policy in ({}, None, {"destructive_action": True, "external_side_effect": True}):
+            self.assertEqual(
+                capabilities_within_envelope(["filesystem-write:output/"], policy),
+                capabilities_within_envelope(["filesystem-write"], policy),
+            )
+            self.assertEqual(
+                capabilities_within_envelope(["filesystem-write:output/"], policy),
+                (True, ()),
+            )
 
     def test_process_stop_requires_destructive_action(self):
         from runtime.skills.capability_policy import capabilities_within_envelope

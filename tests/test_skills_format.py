@@ -197,6 +197,28 @@ Body.
         (skill / "capabilities").write_text("not-a-real-token\n", encoding="utf-8")
         self.assertEqual(discover_skills(self.root)[0].declared_capabilities, ())
 
+    def test_path_scoped_filesystem_write_token_is_parsed(self):
+        # capability-granularity slice: `filesystem-write:<relative-path>` is an
+        # optional narrower form of the bare token.
+        skill = self.make_skill()
+        (skill / "capabilities").write_text(
+            "filesystem-write:output/\nfilesystem-write:a/b.txt\n", encoding="utf-8"
+        )
+        self.assertEqual(
+            discover_skills(self.root)[0].declared_capabilities,
+            ("filesystem-write:a/b.txt", "filesystem-write:output/"),
+        )
+
+    def test_malformed_path_scoped_filesystem_write_token_is_rejected(self):
+        skill = self.make_skill()
+        for bad in ("filesystem-write:", "filesystem-write:../etc", "filesystem-write:/abs"):
+            (skill / "capabilities").write_text(bad + "\n", encoding="utf-8")
+            # a single unrecognized line makes the whole manifest malformed ->
+            # declared_capabilities collapses to ()
+            self.assertEqual(
+                discover_skills(self.root)[0].declared_capabilities, (), bad
+            )
+
     def test_changed_capabilities_sidecar_is_a_skill_identity_change(self):
         skill = self.make_skill()
         (skill / "capabilities").write_text("network-read\n", encoding="utf-8")
