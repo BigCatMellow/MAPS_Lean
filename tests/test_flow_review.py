@@ -328,6 +328,11 @@ class FlowReviewRecordTests(unittest.TestCase):
         self.assertEqual(result["review"]["verdict"], "APPROVED")
         self.assertIsNotNone(result["review"]["completed_at"])
         self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
+        # Deterministic-flow family convention: a machine-readable next_step in
+        # the same {state, reason} shape as flow_start / flow_review_start.
+        self.assertEqual(result["next_step"]["state"], "REVIEW_RECORDED")
+        self.assertIn("DONE", result["next_step"]["reason"])
+        self.assertIn("does not", result["next_step"]["reason"])
 
     def test_rederived_subject_approved_with_matching_refs_goes_done(self):
         task_id, _ = self._started(
@@ -607,6 +612,134 @@ class FlowReviewRecordTests(unittest.TestCase):
         payload = json.loads(buffer.getvalue())
         self.assertFalse(payload["ok"])
         self.assertEqual(payload["failed_step"], "rederivation_preflight")
+
+
+class FlowReviewSequenceTests(unittest.TestCase):
+    """`flow_review_start` -> `flow_review_record` as one coherent deterministic
+    sequence: the subject bound by start is exactly the one record validates
+    against, and the review row is the same across both verbs."""
+
+    setUp = FlowReviewTests.setUp
+    submitted = FlowReviewTests.submitted
+
+    def test_revision_bound_start_then_record_is_coherent(self):
+        task_id, _ = self.submitted(risk="HIGH")
+
+        started = flow_review_start(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            freshness_mode="REVISION_BOUND",
+            artifact_refs=[SHA_A],
+        )
+        self.assertTrue(started["ok"], started)
+        self.assertEqual(started["next_step"]["state"], "STOPPED_BEFORE_REVIEW_VERDICT")
+        started_review_id = started["review"]["id"]
+        self.assertEqual(started["review_subject"]["artifact_refs"], [SHA_A])
+
+        recorded = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="APPROVED",
+            summary="coherent sequence",
+        )
+        self.assertTrue(recorded["ok"], recorded)
+        # Same review row closed that start opened.
+        self.assertEqual(recorded["review"]["id"], started_review_id)
+        self.assertEqual(recorded["new_status"], "DONE")
+        self.assertEqual(recorded["next_step"]["state"], "REVIEW_RECORDED")
+        self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
+
+    def test_rederived_start_then_record_matching_refs_is_coherent(self):
+        task_id, _ = self.submitted(risk="HIGH")
+
+        started = flow_review_start(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            freshness_mode="REDERIVED_AT_REVIEW",
+            artifact_refs=[SHA_A],
+        )
+        self.assertTrue(started["ok"], started)
+        bound_refs = started["review_subject"]["artifact_refs"]
+        self.assertEqual(bound_refs, [SHA_A])
+
+        # Record consuming exactly the refs start bound -> DONE.
+        recorded = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="APPROVED",
+            summary="re-derived to the bound subject",
+            rederived_artifact_refs=bound_refs,
+        )
+        self.assertTrue(recorded["ok"], recorded)
+        self.assertEqual(recorded["review"]["id"], started["review"]["id"])
+        self.assertEqual(recorded["new_status"], "DONE")
+
+    def test_second_round_review_resolves_the_latest_completed_review(self):
+        # Round 1: CHANGES_REQUESTED. Author resubmits. Round 2: APPROVED.
+        # flow_review_record must report the round-2 review, not round 1.
+        task_id, _ = self.submitted(risk="LOW")
+
+        r1_start = flow_review_start(self.store, task_id, reviewer_id="reviewer")
+        self.assertTrue(r1_start["ok"], r1_start)
+        r1 = flow_review_record(
+            self.store, task_id, reviewer_id="reviewer",
+            verdict="CHANGES_REQUESTED", summary="round one",
+        )
+        self.assertTrue(r1["ok"], r1)
+        r1_review_id = r1["review"]["id"]
+
+        # author re-claims CHANGES_REQUESTED, addresses feedback, resubmits
+        self.assertTrue(
+            self.store.claim_task(task_id, "author", lease_seconds=600).ok
+        )
+        self.assertTrue(
+            self.store.submit_task(task_id, "author", "round two ready").ok
+        )
+        r2_start = flow_review_start(self.store, task_id, reviewer_id="reviewer")
+        self.assertTrue(r2_start["ok"], r2_start)
+        r2 = flow_review_record(
+            self.store, task_id, reviewer_id="reviewer",
+            verdict="APPROVED", summary="round two",
+        )
+        self.assertTrue(r2["ok"], r2)
+        self.assertNotEqual(r2["review"]["id"], r1_review_id)
+        self.assertEqual(r2["review"]["id"], r2_start["review"]["id"])
+        self.assertEqual(r2["review"]["verdict"], "APPROVED")
+        self.assertEqual(r2["new_status"], "DONE")
+
+    def test_rederived_start_then_record_mismatched_refs_rejected_by_store(self):
+        task_id, _ = self.submitted(risk="HIGH")
+
+        started = flow_review_start(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            freshness_mode="REDERIVED_AT_REVIEW",
+            artifact_refs=[SHA_A],
+        )
+        self.assertTrue(started["ok"], started)
+
+        recorded = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer",
+            verdict="APPROVED",
+            summary="re-derived to the wrong subject",
+            rederived_artifact_refs=[SHA_B],
+        )
+        self.assertFalse(recorded["ok"])
+        self.assertEqual(recorded["failed_step"], "record")
+        self.assertEqual(
+            recorded["step_result"]["code"], "REVIEW_REDERIVATION_MISMATCH"
+        )
+        # Review still open — the sequence did not close it on a store rejection.
+        self.assertEqual(
+            self.store.get_task(task_id)["status"], "READY_FOR_REVIEW"
+        )
 
 
 if __name__ == "__main__":

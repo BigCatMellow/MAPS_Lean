@@ -141,12 +141,20 @@ def flow_review_start(
     }
 
 
-def _review_by_id(
+def _latest_completed_review_for(
     reviews: Sequence[Mapping[str, Any]],
-    review_id: int,
+    reviewer_id: str,
 ) -> Mapping[str, Any] | None:
-    for review in reviews:
-        if int(review["id"]) == review_id:
+    """The reviewer's most recently completed review on the task (mirrors
+    `_open_review_for`'s newest-first scan). After a successful `record_review`
+    this is the review that was just closed — resolved without re-indexing on
+    the pre-call open-review lookup, which may be `None` on the non-owner path.
+    """
+    for review in reversed(reviews):
+        if (
+            review.get("completed_at") is not None
+            and review.get("reviewer_id") == reviewer_id
+        ):
             return review
     return None
 
@@ -178,7 +186,9 @@ def flow_review_record(
        ``NOT_REVIEW_OWNER``, reviewability, independence, criterion
        verification, review-binding approval, verdict -> status) stays in the
        store primitive;
-    4. stops. No outcome recording, no next-task dispatch, no session action.
+    4. stops, returning a ``next_step`` block in the same ``{state, reason}``
+       shape as ``flow_start`` / ``flow_review_start``: no real-world outcome
+       recording, no next-task dispatch, no session action.
     """
 
     # Resolve only the caller's *own* open review. If they do not hold one,
@@ -218,14 +228,23 @@ def flow_review_record(
     if not recorded.ok:
         return _failed("record", recorded)
 
-    closed = _review_by_id(store.list_reviews(task_id), int(review["id"]))
+    new_status = (recorded.task or {}).get("status")
+    closed = _latest_completed_review_for(store.list_reviews(task_id), reviewer_id)
     return {
         "ok": True,
         "code": "FLOW_REVIEW_RECORDED",
         "task_id": task_id,
         "reviewer_id": reviewer_id,
         "verdict": verdict.strip().upper(),
-        "new_status": (recorded.task or {}).get("status"),
+        "new_status": new_status,
         "review": dict(closed) if closed is not None else None,
         "record": _mutation_payload(recorded),
+        "next_step": {
+            "state": "REVIEW_RECORDED",
+            "reason": (
+                f"the task is now {new_status}; flow review-record does not "
+                "record real-world outcomes (maps outcome-record) or dispatch "
+                "follow-on work"
+            ),
+        },
     }
