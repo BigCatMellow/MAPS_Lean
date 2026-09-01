@@ -162,3 +162,7 @@ Entry format:
   included) used targeted `/usr/bin/grep`, `git show --stat` / path-scoped
   `git show`, `sed -n` line ranges, and `Read` with offset/limit — no 100KB+
   dumps, no whole-doc re-reads. Stays open (behavioral, "if it recurs").
+- 2026-09-01 follow-up (trajectory check #15, `gela`): **no recurrence — 4th
+  consecutive arc.** The #229–#232 lanes (#229 a ~25-line prose fix; #230/#232
+  design notes from this lane; #231 the flow-handoff impl) used the same scoped
+  tooling. Stays open.
