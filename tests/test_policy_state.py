@@ -122,6 +122,64 @@ class PolicyStateTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["submission"]["author_id"], "worker")
         self.assertIn("policy", rows[0])
+    _REAUTH_REASON = (
+        "destructive/external envelope requires operator reauthorization"
+    )
+
+    def test_destructive_envelope_without_reauth_flag_fails_ready(self):
+        store = self.make_store()
+        task_id = self.create_id(store)
+        store.update_contract(task_id, full_contract())  # destructive_action=True
+        validation = store.validate_ready(task_id)
+        self.assertFalse(validation.ok)
+        self.assertEqual(validation.agi_status, "AGI FAIL — NEEDS_SHAPING")
+        self.assertTrue(
+            any(self._REAUTH_REASON in reason for reason in validation.reasons)
+        )
+        self.assertFalse(store.promote_ready(task_id).ok)
+
+    def test_external_side_effect_without_reauth_flag_fails_ready(self):
+        store = self.make_store()
+        task_id = self.create_id(store)
+        contract = full_contract()
+        contract["policy"] = {
+            **contract["policy"],
+            "destructive_action": False,
+            "external_side_effect": True,
+        }
+        store.update_contract(task_id, contract)
+        validation = store.validate_ready(task_id)
+        self.assertFalse(validation.ok)
+        self.assertTrue(
+            any(self._REAUTH_REASON in reason for reason in validation.reasons)
+        )
+
+    def test_destructive_envelope_with_reauth_flag_passes_ready(self):
+        store = self.make_store()
+        task_id = self.create_id(store)
+        contract = full_contract()
+        contract["policy"] = {
+            **contract["policy"],
+            "requires_operator_approval": True,
+        }
+        store.update_contract(task_id, contract)
+        validation = store.validate_ready(task_id)
+        self.assertTrue(validation.ok, validation.reasons)
+        self.assertTrue(store.promote_ready(task_id).ok)
+
+    def test_non_consequential_task_unaffected_by_reauth_rule(self):
+        store = self.make_store()
+        task_id = self.create_id(store)
+        store.update_contract(task_id, full_contract(policy={
+            "requires_operator_approval": False,
+            "destructive_action": False,
+            "external_side_effect": False,
+            "security_sensitive": False,
+            "broad_architecture": False,
+            "paid_execution": True,
+        }))
+        validation = store.validate_ready(task_id)
+        self.assertTrue(validation.ok, validation.reasons)
 
 
 if __name__ == "__main__":
