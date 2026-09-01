@@ -25,13 +25,16 @@ from tests.test_skill_lifecycle_storage import (
 
 
 class _SkillCliMixin(SkillFixtureMixin):
-    def run_cli(self, *args: str) -> tuple[int, object]:
+    def run_maps(self, *args: str) -> tuple[int, object]:
         buffer = io.StringIO()
         with redirect_stdout(buffer):
-            code = main(['--db', str(self.db_dir / 'maps.db'), 'skill', *args])
+            code = main(['--db', str(self.db_dir / 'maps.db'), *args])
         text = buffer.getvalue()
         payload = json.loads(text) if text.strip() else None
         return code, payload
+
+    def run_cli(self, *args: str) -> tuple[int, object]:
+        return self.run_maps('skill', *args)
 
     def seed(self, name: str, *, body: str = SAFE_BODY, **kwargs):
         entry, _report, result = self.register(name, body=body, **kwargs)
@@ -230,6 +233,101 @@ class SkillCatalogKeyResolverTests(_SkillCliMixin, unittest.TestCase):
     def test_pair_with_no_recorded_subject_is_not_found(self):
         result = _resolve_skill_catalog_key(self.store, 'bundled:ghost')
         self.assertEqual(result.code, 'SKILL_SUBJECT_NOT_FOUND')
+
+
+class OperatorRegistryCliTests(_SkillCliMixin, unittest.TestCase):
+    """SEC4 Half 3 — `maps init --operator`, `maps operator …`, and the opt-in
+    identity check on `maps skill approve`."""
+
+    def test_init_seeds_genesis_and_lists(self):
+        code, payload = self.run_maps(
+            'init', '--operator', 'alice', '--operator-decision-ref', 'd:1'
+        )
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload['genesis_operator']['code'], 'OPERATOR_AUTHORIZED')
+
+        code, payload = self.run_maps('operator', 'list')
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            [o['operator_id'] for o in payload['operators']], ['alice']
+        )
+        self.assertTrue(payload['operators'][0]['authorized'])
+
+    def test_init_operator_without_decision_ref_is_typed(self):
+        code, payload = self.run_maps('init', '--operator', 'alice')
+        self.assertEqual(code, 2)
+        self.assertEqual(payload['code'], 'INVALID_DECISION_REF')
+
+    def test_plain_init_is_unchanged(self):
+        code, payload = self.run_maps('init')
+        self.assertEqual(code, 0)
+        self.assertNotIn('genesis_operator', payload)
+        self.assertIn('settings', payload)
+
+    def test_operator_add_and_revoke_roundtrip(self):
+        self.run_maps('init', '--operator', 'alice', '--operator-decision-ref', 'd:1')
+        code, payload = self.run_maps(
+            'operator', 'add', 'bob', '--by', 'alice', '--decision-ref', 'd:2'
+        )
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload['code'], 'OPERATOR_AUTHORIZED')
+
+        code, payload = self.run_maps(
+            'operator', 'add', 'carol', '--by', 'eve', '--decision-ref', 'd:3'
+        )
+        self.assertEqual(code, 2)
+        self.assertEqual(payload['code'], 'UNAUTHORIZED_AUTHORIZER')
+
+        code, payload = self.run_maps(
+            'operator', 'revoke', 'bob', '--by', 'alice', '--decision-ref', 'd:4'
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(payload['code'], 'OPERATOR_REVOKED')
+
+    def test_skill_approve_inert_while_registry_empty(self):
+        self.seed('reg-skill')
+        code, payload = self.run_cli(
+            'approve', 'bundled:reg-skill',
+            '--actor', 'nobody-in-particular', '--decision-ref', 'd:x',
+        )
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload['code'], 'SKILL_TRANSITION_RECORDED')
+
+    def test_skill_approve_blocked_for_unknown_actor_once_seeded(self):
+        self.seed('reg-skill')
+        self.run_maps('init', '--operator', 'alice', '--operator-decision-ref', 'd:1')
+
+        code, payload = self.run_cli(
+            'approve', 'bundled:reg-skill',
+            '--actor', 'mallory', '--decision-ref', 'd:x',
+        )
+        self.assertEqual(code, 2, payload)
+        self.assertEqual(payload['code'], 'UNAUTHORIZED_ACTOR')
+        _, show = self.run_cli('show', 'bundled:reg-skill')
+        self.assertEqual(show['decisions'], [])
+
+    def test_skill_approve_allowed_for_authorized_actor(self):
+        self.seed('reg-skill')
+        self.run_maps('init', '--operator', 'alice', '--operator-decision-ref', 'd:1')
+
+        code, payload = self.run_cli(
+            'approve', 'bundled:reg-skill',
+            '--actor', 'alice', '--decision-ref', 'd:ok',
+        )
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload['task']['to_state'], 'APPROVED')
+
+    def test_seeded_registry_does_not_gate_activate(self):
+        self.seed('reg-skill')
+        self.run_maps('init', '--operator', 'alice', '--operator-decision-ref', 'd:1')
+        self.assertEqual(
+            self.run_cli('approve', 'bundled:reg-skill',
+                         '--actor', 'alice', '--decision-ref', 'd:a')[0], 0)
+        code, payload = self.run_cli(
+            'activate', 'bundled:reg-skill', '--decision-ref', 'd:b'
+        )
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload['task']['to_state'], 'ACTIVE')
 
 
 if __name__ == '__main__':
