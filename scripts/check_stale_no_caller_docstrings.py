@@ -16,27 +16,33 @@ docstring asserting it has none:
 Memory: `feedback_stale_no_production_caller_docstrings`.
 
 What it does (deliberately conservative -- a curated phrase list, one symbol
-per hit, and only a real `symbol(` call counts):
+per hit, and only a real syntactic call counts):
 
-1. Scan every `runtime/**/*.py` line for one of `STALE_PHRASES`.
-2. Extract the symbol the phrase is about: the nearest backticked
-   `` `symbol` `` / `` `symbol()` `` token earlier in the same docstring
-   paragraph, else the nearest enclosing `def <name>(`.
-3. Run `/usr/bin/grep -rn "<symbol>(" runtime/ --include='*.py'`, excluding
-   the defining file and any `tests/` path. If a call site is found, FAIL and
+1. Scan every non-test `runtime/**/*.py` for one of `STALE_PHRASES`, collapsing
+   whitespace across line breaks so a phrase wrapped over two lines is found
+   once (attributed to the line it starts on).
+2. Extract the symbol the phrase is about: the closest backticked
+   `` `symbol` `` / `` `symbol()` `` token that appears *before* the phrase on
+   its line (or, failing that, on an earlier line of the same block), else the
+   nearest enclosing `def <name>(`. A dotted `` `Class.method` `` resolves to
+   the final attribute.
+3. Parse every non-test `runtime/**/*.py` and look for an `ast.Call` whose
+   callee name is that symbol -- excluding calls lexically inside the
+   symbol's own function body (so plain recursion is not "a caller"). Calls
+   in the *same module* as the docstring do count. If any is found, FAIL and
    name `file:line`, the phrase, and the offending caller.
 
 False-positive escape hatch: put `# noqa: stale-caller-check` on or within a
-couple of lines of the phrase (same docstring / comment block). Use it when
-the claim is genuinely narrower than a bare-name grep can see -- e.g. it is
+dozen lines of the phrase (same docstring / comment block). Use it when the
+claim is genuinely narrower than a bare-name match can see -- e.g. it is
 about `Foo.bar` and `bar` is also an unrelated method elsewhere, or the
 claim is explicitly historical ("had zero callers before this module").
 """
 
 from __future__ import annotations
 
+import ast
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -67,19 +73,33 @@ _BACKTICK_SYMBOL = re.compile(r"`([A-Za-z_][A-Za-z0-9_.]*)(?:\(\))?`")
 _DEF_LINE = re.compile(r"^\s*(?:async\s+)?def\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 
 
-def _symbol_for(lines: list[str], idx: int) -> str | None:
-    """Best-effort symbol the stale phrase on line `idx` is documenting."""
-    # 1. Nearest backticked symbol at or above the phrase, within the same
-    #    contiguous non-blank block (a docstring paragraph / comment block).
+def _symbol_for(lines: list[str], idx: int, phrase: str) -> str | None:
+    """Best-effort symbol the stale phrase (which *begins* on line `idx`) is
+    documenting.
+
+    Prefers the closest backticked token that sits *before* the phrase; a
+    backtick after the phrase on the same line (e.g. "... has no production
+    caller, unlike `OtherThing`") is ignored.
+    """
+    first_word = phrase.split()[0]
     for j in range(idx, max(idx - 12, -1), -1):
         line = lines[j]
         if j != idx and not line.strip():
             break
-        matches = _BACKTICK_SYMBOL.findall(line)
-        if matches:
-            # last one on the line == closest to the phrase
-            return matches[-1].split(".")[-1]
-    # 2. Fall back to the nearest enclosing `def`.
+        cut = len(line)
+        if j == idx:
+            pos = line.lower().find(phrase)
+            if pos == -1:  # phrase wraps onto the next line
+                pos = line.lower().find(f" {first_word} ")
+                if pos == -1:
+                    pos = line.lower().rfind(first_word)
+            if pos != -1:
+                cut = pos
+        before = [m for m in _BACKTICK_SYMBOL.finditer(line) if m.start() < cut]
+        if before:
+            # last one before the phrase == closest to it
+            return before[-1].group(1).split(".")[-1]
+    # Fall back to the nearest enclosing `def`.
     for j in range(idx, -1, -1):
         m = _DEF_LINE.match(lines[j])
         if m:
@@ -87,71 +107,104 @@ def _symbol_for(lines: list[str], idx: int) -> str | None:
     return None
 
 
-def _grep(symbol: str, runtime_dir: Path) -> str:
-    for exe in ("/usr/bin/grep", "grep"):
-        try:
-            return subprocess.run(
-                [exe, "-rn", f"{symbol}(", str(runtime_dir), "--include=*.py"],
-                capture_output=True, text=True, check=False,
-            ).stdout
-        except FileNotFoundError:  # pragma: no cover
+def _phrase_line_starts(lines: list[str], phrase: str) -> list[int]:
+    """Source line indexes on which `phrase` begins, after collapsing
+    whitespace across line breaks so a phrase wrapped over two lines is found
+    once, attributed to the line it starts on."""
+    flat: list[str] = []
+    origin: list[int] = []
+    for i, ln in enumerate(lines):
+        seg = re.sub(r"\s+", " ", ln.strip())
+        if not seg:
             continue
-    raise RuntimeError("grep not found on PATH")
+        if flat:
+            flat.append(" ")
+            origin.append(i)
+        for ch in seg:
+            flat.append(ch)
+            origin.append(i)
+    text = "".join(flat).lower()
+    out: list[int] = []
+    k = text.find(phrase)
+    while k != -1:
+        out.append(origin[k])
+        k = text.find(phrase, k + 1)
+    return out
 
 
-def _callers(symbol: str, defining_file: Path, runtime_dir: Path) -> list[str]:
-    out = _grep(symbol, runtime_dir)
-    hits = []
-    for raw in out.splitlines():
-        try:
-            fpath, lineno, text = raw.split(":", 2)
-        except ValueError:
-            continue
-        p = Path(fpath).resolve()
-        if p == defining_file.resolve():
-            continue
+def _runtime_sources(runtime_dir: Path):
+    for p in sorted(runtime_dir.rglob("*.py")):
         if "tests" in p.parts:
             continue
-        stripped = text.strip()
-        if _DEF_LINE.match(stripped) or stripped.startswith(("#", "*", '"', "'")):
+        try:
+            src = p.read_text(encoding="utf-8")
+            yield p, src.splitlines(), ast.parse(src, filename=str(p))
+        except (SyntaxError, UnicodeDecodeError):  # pragma: no cover
             continue
-        # require it to look like an actual call, not a bare mention
-        if re.search(rf"(?<![A-Za-z0-9_]){re.escape(symbol)}\s*\(", text):
-            hits.append(f"{fpath}:{lineno}: {stripped}")
+
+
+def _callee_name(func: ast.expr) -> str | None:
+    if isinstance(func, ast.Attribute):
+        return func.attr
+    if isinstance(func, ast.Name):
+        return func.id
+    return None
+
+
+def _self_body_ranges(tree: ast.AST, symbol: str) -> list[tuple[int, int]]:
+    """Line ranges of every `def <symbol>` body -- calls inside these are
+    recursion, not a production caller."""
+    ranges = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == symbol:
+            ranges.append((node.lineno, getattr(node, "end_lineno", node.lineno)))
+    return ranges
+
+
+# Note: caller detection is purely AST (`ast.Call` nodes). An earlier version
+# grepped `"<symbol>("` and then re-filtered hits with a call-shape regex; the
+# regex was dead code (the grep already excluded bare mentions) and grep could
+# not see a call inside the symbol's own defining file. AST fixes both and
+# needs no such regex -- a bare mention, a string literal, or `x = symbol` is
+# simply not a Call node.
+def _callers(symbol: str, runtime_dir: Path) -> list[str]:
+    hits: list[str] = []
+    for path, src_lines, tree in _runtime_sources(runtime_dir):
+        skip = _self_body_ranges(tree, symbol)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            if _callee_name(node.func) != symbol:
+                continue
+            if any(lo <= node.lineno <= hi for lo, hi in skip):
+                continue
+            text = ""
+            if 0 <= node.lineno - 1 < len(src_lines):
+                text = src_lines[node.lineno - 1].strip()
+            hits.append(f"{path}:{node.lineno}: {text}")
     return hits
 
 
 def scan(runtime_dir: Path = RUNTIME_DIR, repo_root: Path = REPO_ROOT) -> list[str]:
     failures: list[str] = []
     for path in sorted(runtime_dir.rglob("*.py")):
+        if "tests" in path.parts:
+            continue
         lines = path.read_text(encoding="utf-8").splitlines()
-        for idx, line in enumerate(lines):
-            # Phrases wrap across lines in real docstrings ("...no production\n
-            # caller..."), so match against this line joined with the next,
-            # whitespace-collapsed.
-            nxt = lines[idx + 1] if idx + 1 < len(lines) else ""
-            prev = lines[idx - 1] if idx > 0 else ""
-            window = re.sub(r"\s+", " ", f"{line} {nxt}".lower())
-            prev_window = re.sub(r"\s+", " ", f"{prev} {line}".lower())
-            phrase = next((p for p in STALE_PHRASES if p in window), None)
-            if phrase is None:
-                continue
-            # Attribute each occurrence to exactly one line: if the previous
-            # line's own 2-line window already contained this phrase, it was
-            # (or will be) reported there.
-            if phrase in prev_window:
-                continue
-            # Escape hatch: NOQA on a nearby line -- typically the closing
-            # `"""` of the same docstring, which may be several wrapped
-            # sentences (and blank lines) below the phrase.
-            if any(NOQA in lines[k]
-                   for k in range(max(idx - 3, 0), min(idx + 13, len(lines)))):
-                continue
-            symbol = _symbol_for(lines, idx)
-            if not symbol:
-                continue
-            callers = _callers(symbol, path, runtime_dir)
-            if callers:
+        for phrase in STALE_PHRASES:
+            for idx in _phrase_line_starts(lines, phrase):
+                # Escape hatch: NOQA on a nearby line -- typically the closing
+                # `"""` of the same docstring, which may be several wrapped
+                # sentences (and blank lines) below the phrase.
+                if any(NOQA in lines[k]
+                       for k in range(max(idx - 3, 0), min(idx + 13, len(lines)))):
+                    continue
+                symbol = _symbol_for(lines, idx, phrase)
+                if not symbol:
+                    continue
+                callers = _callers(symbol, runtime_dir)
+                if not callers:
+                    continue
                 rel = path.relative_to(repo_root)
                 failures.append(
                     f"{rel}:{idx + 1}: says {phrase!r} about `{symbol}` but it "
