@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+import json
 import tempfile
 import unittest
 
@@ -116,6 +118,23 @@ class RoutingEnvironmentReportSelectionTests(unittest.TestCase):
         self.assertEqual(selected.reports, {})
         self.assertEqual(selected.diagnostics, {"TASK-1": "report_stale"})
 
+    def test_future_dated_report_is_omitted_not_read_as_fresh(self) -> None:
+        selected = select_fresh_environment_reports(
+            {
+                "TASK-1": self._envelope(
+                    produced_at=(self.now + timedelta(seconds=60)).isoformat(),
+                )
+            },
+            store=self.store,
+            repo_root=REPO_ROOT,
+            now=self.now,
+        )
+
+        self.assertEqual(selected.reports, {})
+        self.assertEqual(
+            selected.diagnostics, {"TASK-1": "produced_at_in_future"}
+        )
+
     def test_task_revision_mismatch_is_omitted(self) -> None:
         selected = select_fresh_environment_reports(
             {"TASK-1": self._envelope(task_revision="old-revision")},
@@ -166,7 +185,12 @@ class RecordedEnvironmentReportSelectionTests(unittest.TestCase):
         self.spec = load_environment_spec(REPO_ROOT / SPEC_REF)
 
     def _contracted_task(
-        self, task_id: str = "TASK-REC", *, required: bool = False, max_age: int = 900
+        self,
+        task_id: str = "TASK-REC",
+        *,
+        required: bool = False,
+        max_age: int = 900,
+        allow_older_task_revision: bool = False,
     ) -> str:
         created = self.store.create_task(task_id=task_id, project_id="default")
         self.assertTrue(created.ok, created)
@@ -175,6 +199,7 @@ class RecordedEnvironmentReportSelectionTests(unittest.TestCase):
             "spec_ref": SPEC_REF,
             "max_age_seconds": max_age,
             "required_for_routing": required,
+            "allow_older_task_revision": allow_older_task_revision,
         }
         shaped = self.store.update_contract(task_id, contract)
         self.assertTrue(shaped.ok, shaped.message)
@@ -275,6 +300,97 @@ class RecordedEnvironmentReportSelectionTests(unittest.TestCase):
     def test_missing_task_is_reported(self) -> None:
         selected = self._select(["TASK-GONE"])
         self.assertEqual(selected.diagnostics, {"TASK-GONE": "task_missing"})
+
+    def _bump_task_revision(self, task_id: str) -> None:
+        # `outcome` is part of the canonical task definition, so changing it
+        # advances compute_task_revision() while the recorded evidence keeps the
+        # run manifest's older task_revision.
+        before = self.store.compute_task_revision(task_id)
+        with self.store._connect() as conn:
+            conn.execute(
+                "UPDATE tasks SET outcome = ? WHERE task_id = ?",
+                ("revised outcome text", task_id),
+            )
+        self.assertNotEqual(self.store.compute_task_revision(task_id), before)
+
+    def test_recorded_report_at_older_revision_dropped_when_flag_absent(self) -> None:
+        task_id = self._contracted_task()
+        self._record(task_id, self._fingerprint())
+        self._bump_task_revision(task_id)
+        selected = self._select([task_id])
+        self.assertEqual(selected.reports, {})
+        self.assertEqual(
+            selected.diagnostics, {task_id: "task_revision_mismatch"}
+        )
+
+    def test_recorded_report_at_older_revision_accepted_when_flag_set(self) -> None:
+        # allow_older_task_revision=True is a wired operator knob: an older-
+        # revision recorded report is accepted rather than dropped.
+        task_id = self._contracted_task(allow_older_task_revision=True)
+        self._record(task_id, self._fingerprint())
+        self._bump_task_revision(task_id)
+        selected = self._select([task_id])
+        self.assertEqual(selected.diagnostics, {task_id: "fresh"})
+        self.assertEqual(selected.reports[task_id].state.value, "COMPATIBLE")
+
+    def test_recorded_report_dated_in_the_future_is_dropped(self) -> None:
+        task_id = self._contracted_task()
+        self._record(task_id, self._fingerprint())
+        # Evaluate freshness at a moment strictly before the evidence was
+        # written: negative age must drop the report, never read as fresh.
+        selected = self._select(
+            [task_id], now=datetime(2000, 1, 1, tzinfo=timezone.utc)
+        )
+        self.assertEqual(selected.reports, {})
+        self.assertEqual(
+            selected.diagnostics, {task_id: "produced_at_in_future"}
+        )
+
+    def test_recorded_report_spec_hash_mismatch_is_dropped(self) -> None:
+        task_id = self._contracted_task()
+        mismatched = replace(
+            self._fingerprint(), environment_spec_hash="a" * 64
+        )
+        # Bypass the recorder's own spec-hash fail-close so the stored snapshot
+        # carries a hash that disagrees with the contract's spec.
+        run = self.store.create_run_manifest(
+            task_id, "worker", repo_root=Path(self.tmp.name),
+            created_by="dispatcher", readable_paths=["."],
+        )
+        self.assertTrue(run.ok, run.message)
+        snapshot = json.dumps(
+            {
+                "state": "COMPATIBLE",
+                "compatible": True,
+                "reasons": [],
+                "warnings": [],
+                "environment_spec_hash": "a" * 64,
+                "fingerprint_sha256": mismatched.sha256,
+                "reference_fingerprint_sha256": None,
+            }
+        )
+        with self.store._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO run_environment_evidence(
+                    run_id, spec_ref, environment_spec_hash, fingerprint_sha256,
+                    compatibility_state, reference_fingerprint_sha256,
+                    spec_snapshot, fingerprint_snapshot, compatibility_snapshot,
+                    recorded_by, created_at
+                ) VALUES (?, ?, ?, ?, 'COMPATIBLE', NULL, '{}', '{}', ?, 'observer', ?)
+                """,
+                (
+                    run.task["run_id"],
+                    SPEC_REF,
+                    "a" * 64,
+                    mismatched.sha256,
+                    snapshot,
+                    datetime.now(timezone.utc).isoformat(),
+                ),
+            )
+        selected = self._select([task_id])
+        self.assertEqual(selected.reports, {})
+        self.assertEqual(selected.diagnostics, {task_id: "spec_hash_mismatch"})
 
 
 if __name__ == "__main__":
