@@ -8,7 +8,10 @@ name: review-evidence
 #
 # Also runs scripts/check_stale_no_caller_docstrings.py (CLAUDE.md rule 20
 # safeguard: fails when a runtime docstring still claims a symbol has "no
-# production caller" after one was added).
+# production caller" after one was added) and
+# scripts/check_coverage_note_pins.py (rule 20 safeguard: fails when a
+# self-describing coverage note in context_builder.py has no test pinning it --
+# work/notes/2026-09-01-invariant-prose-drift-safeguard-design.md).
 
 on:
   pull_request:
@@ -32,6 +35,9 @@ jobs:
 
       - name: Verify no stale "no production caller" docstrings
         run: python scripts/check_stale_no_caller_docstrings.py
+
+      - name: Verify every context-builder coverage note is test-pinned
+        run: python scripts/check_coverage_note_pins.py
 
       - name: Verify review evidence for exact head
         run: python scripts/check_review_evidence.py "${{ github.event.pull_request.number }}"
