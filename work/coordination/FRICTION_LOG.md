@@ -166,3 +166,38 @@ Entry format:
   consecutive arc.** The #229–#232 lanes (#229 a ~25-line prose fix; #230/#232
   design notes from this lane; #231 the flow-handoff impl) used the same scoped
   tooling. Stays open.
+- 2026-09-01 follow-up (trajectory check #16, `nava`): **no recurrence — 5th
+  consecutive arc.** The #234–#238 lanes (2 design notes, a 1-line prose fix, the
+  #236 safeguard, the #237 slice-2 impl) used scoped `git show` / `/usr/bin/grep`
+  / `sed -n` / `Read` offset+limit throughout. Stays open.
+
+## 2026-09-01 — stale slice-boundary NonGoalTests assertions
+- class: recurring-stall
+- signal: a `NonGoalTests` source-substring assertion (`assertNotIn("<symbol>",
+  runtime/context_builder.py source)`) that correctly encodes "slice N does not
+  do X" breaks when slice N+1 legitimately introduces X. Occurrence 1: PR #221
+  added `load_catalog_skill(` (a call slice-1's own test banned by substring),
+  CI caught it, follow-up commit renamed+rewrote the test. Occurrence 2: PR #237
+  added `script_paths` / `reference_paths` / `example_paths` / `asset_paths`
+  references to `_select_skills` as legitimate execution-resource *manifest*
+  vocabulary; `tests/test_memory_trust_gate.py::NonGoalTests` still banned those
+  names by `assertNotIn`; CI caught it; follow-up commit `66e108d` flipped them
+  to `assertIn` and added `assertNotIn("load_skill_resource(", text)` as the real
+  slice-2 non-goal.
+- countermeasure: NOT a rule-20 CI script. PR #232's own design note §5 ("out of
+  scope") already reasoned this through: a CI check cannot distinguish "this
+  assertion is correct today" from "the next planned slice will legitimately
+  flip it" — that is forward-looking design knowledge, not a static property, and
+  the class is already self-catching (CI red on the impl commit). The fitting
+  countermeasure is a **dispatch-time discipline** (AGI-standard shape, rule 19):
+  *a dispatch for a scope-expanding slice must name the sibling NonGoal /
+  boundary tests the slice will legitimately supersede, so the implementer
+  updates them in the same PR rather than tripping CI.* Reviewer-side is covered
+  by memory `feedback_stale_slice_boundary_nongoal_test` /
+  `feedback_review_test_set_too_narrow`.
+- verified: END-TO-END (twice) — CI caught both occurrences; each was fixed by a
+  same-branch follow-up commit before merge. No escaped defect either time.
+- follow-up: check #17 verifies the dispatch discipline above was actually
+  adopted (a scope-expanding-slice dispatch that names its superseded boundary
+  tests). If a 3rd occurrence lands *and* the dispatch discipline was in place,
+  re-open for a mechanical safeguard discussion.
