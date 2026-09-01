@@ -139,3 +139,102 @@ def flow_review_start(
             ),
         },
     }
+
+
+def _review_by_id(
+    reviews: Sequence[Mapping[str, Any]],
+    review_id: int,
+) -> Mapping[str, Any] | None:
+    for review in reviews:
+        if int(review["id"]) == review_id:
+            return review
+    return None
+
+
+def flow_review_record(
+    store: TaskStore,
+    task_id: str,
+    *,
+    reviewer_id: str,
+    verdict: str,
+    summary: str,
+    rederived_artifact_refs: Sequence[str] = (),
+) -> dict[str, Any]:
+    """Record a review verdict as a pure composition over ``record_review``.
+
+    The flow adds exactly one missing piece to the plain store passthrough:
+    freshness-mode-aware re-derived artifact refs. It:
+
+    1. preflights the open review for ``(task_id, reviewer_id)``;
+    2. if the verdict is ``APPROVED``, that review's subject is bound
+       ``REDERIVED_AT_REVIEW``, and no re-derived refs were supplied, fails
+       early and deterministically (mirroring the deep review-binding hook,
+       which itself only runs on ``APPROVED``) instead of surfacing a raw
+       hook error;
+    3. calls ``store.record_review(..., rederived_artifact_refs=...)`` — all
+       real enforcement (ownership, reviewability, independence, criterion
+       verification, review-binding approval, verdict -> status) stays in the
+       store primitive;
+    4. stops. No outcome recording, no next-task dispatch, no session action.
+    """
+
+    reviews = store.list_reviews(task_id)
+    review = _open_review_for(reviews, reviewer_id)
+    if review is None:
+        # A review claimed by a different identity still resolves here so that
+        # ownership is rejected by record_review itself (NOT_REVIEW_OWNER),
+        # keeping every real authority check in the store primitive.
+        review = next(
+            (r for r in reversed(reviews) if r.get("completed_at") is None), None
+        )
+        if review is None:
+            return _failed(
+                "preflight",
+                MutationResult(
+                    False,
+                    "NO_OPEN_REVIEW",
+                    f"no open review exists for {task_id}",
+                ),
+            )
+
+    # Mirror the review-binding hook, which only requires re-derived refs on an
+    # APPROVED verdict (CHANGES_REQUESTED / BLOCKED never reach that check).
+    subject = store.get_review_subject(int(review["id"]))
+    if (
+        verdict.strip().upper() == "APPROVED"
+        and subject is not None
+        and subject.get("freshness_mode") == "REDERIVED_AT_REVIEW"
+        and not rederived_artifact_refs
+    ):
+        return _failed(
+            "rederivation_preflight",
+            MutationResult(
+                False,
+                "REVIEW_REDERIVATION_REQUIRED",
+                "approval of a REDERIVED_AT_REVIEW review requires rederived "
+                "immutable artifact/evidence refs",
+                dict(subject),
+            ),
+        )
+
+    recorded = store.record_review(
+        task_id,
+        reviewer_id,
+        verdict,
+        summary,
+        rederived_artifact_refs=tuple(rederived_artifact_refs) or None,
+    )
+    if not recorded.ok:
+        return _failed("record", recorded)
+
+    closed = _review_by_id(store.list_reviews(task_id), int(review["id"]))
+    return {
+        "ok": True,
+        "code": "FLOW_REVIEW_RECORDED",
+        "task_id": task_id,
+        "reviewer_id": reviewer_id,
+        "verdict": verdict.strip().upper(),
+        "new_status": (recorded.task or {}).get("status"),
+        "review": dict(closed) if closed is not None else None,
+        "record": _mutation_payload(recorded),
+    }
