@@ -169,11 +169,11 @@ merge.
 the shared checkout (5829 bytes, session-16 header added by `rozo`) but is
 **still untracked** — `git log --all -- 'work/notes/OPERATOR_ASK*'` → nothing;
 `git status` in the canonical checkout → `?? work/notes/OPERATOR_ASK_2026-08-31-
-session13.md`. Flagged as untracked by check #12 §1f; four sessions (13–16) have
-now run without it entering git. The ask itself is referenced in 4 tracked files
-(this-note predecessors + `pr-216-review-evidence.md` + the two design notes) but
-its canonical framing lives only in an untracked working-tree file invisible to
-any fresh worktree. **Process gap — escalated to @rozo (§3).**
+session13.md`. Flagged as untracked by check #12 §1f; four sessions (13–16) had
+run without it entering git. **RESOLVED in this PR** — @rozo directed it be
+added to the check-#13 branch (`git add` + commit "Track OPERATOR_ASK
+session-13 doc"), so the ask document is durable from this merge forward.
+Finding #3 closed.
 
 Ask #1 content unchanged: authorize (or decline) one
 `maps recovery-tick --enforce-canonical-run --repo-root <checkout>` pass against
@@ -215,11 +215,11 @@ the unmade operator trust-root/bootstrap decision
    `runtime/` changes against the checklist rows that name those files —
    non-trivial; not proposed here as in-scope).
 
-4. **Operator ask #1's canonical document is still untracked after 4 sessions.**
-   A load-bearing operator-decision file that trajectory checks #11, #12, #13
-   all depend on has never been committed. This is now itself a process risk
-   (a fresh coordinator session, or a `--continue` into a clean worktree, sees
-   no operator ask at all).
+4. **Operator ask #1's canonical document was untracked for 4 sessions —
+   fixed in this PR.** A load-bearing operator-decision file that trajectory
+   checks #11–#13 all depend on had never been committed (a fresh coordinator
+   session or `--continue` into a clean worktree saw no operator ask at all).
+   @rozo directed it be added to this branch; it is now tracked.
 
 ## 3. Friction-log consumption (standing duty)
 
@@ -235,10 +235,10 @@ Log skimmed in full (5 entries). No entry is `verified: UNVERIFIED`.
 
 A **follow-up line for entry 3** is appended to `FRICTION_LOG.md` in this PR
 (behavioral bar met + hcom-config sub-item resolved). No entry needs escalation
-to in-scope trajectory work. **One item escalated to @rozo outside the log:**
-operator ask #1's canonical document is still untracked (§1g, §2.4) — recommend
-`rozo` commit `work/notes/OPERATOR_ASK_2026-08-31-session13.md` (or a renamed
-tracked equivalent) so it survives into a fresh worktree.
+to in-scope trajectory work. **One item escalated to @rozo and resolved
+in-PR:** operator ask #1's canonical document was untracked (§1g, §2.4);
+@rozo directed `work/notes/OPERATOR_ASK_2026-08-31-session13.md` be committed
+on this branch, done.
 
 ## 4. Tenth-seat / §7 duty
 
@@ -306,13 +306,11 @@ Not REPRIORITIZE, not RESEARCH/STOP. Reasoning:
    `review-start` → `review-record` integration/e2e hardening pass if the
    remaining verbs all need decisions first.
 
-### Operator ask #1 — re-surface (4th consecutive), and **commit the doc**
+### Operator ask #1 — re-surface (4th consecutive)
 
 The framing in `OPERATOR_ASK_2026-08-31-session13.md` (session-16 header) is
-adequate. Two asks of @rozo: (a) carry the go/no-go to the operator a 4th time;
-(b) **commit the operator-ask document** — it has steered checks #11–#13 and
-lives only in an untracked file. This is a process fix within the approved
-envelope, not new scope.
+adequate. Ask of @rozo: carry the go/no-go to the operator a 4th time. (The
+"commit the doc" ask is done — it is tracked as of this PR.)
 
 ## 6. Checklist update
 
@@ -347,8 +345,9 @@ All flagged to @rozo. No `DONE`/`IN PROGRESS`/`NOT STARTED` label changed.
   6.21 review-record slice 1 ✅ merged (#218); 6.9/S6 ⏳ design merged (#217),
   impl in flight. Check #14 should verify the 6.9/S6 impl landed and check the
   §5 next-3 above.
-- Operator ask #1 doc: STILL UNTRACKED after 4 sessions — check #14 should
-  verify whether @rozo committed it.
+- Operator ask #1 doc: `work/notes/OPERATOR_ASK_2026-08-31-session13.md` is now
+  TRACKED (committed on this branch per @rozo). Check #14: verify it stayed
+  tracked and that its content is current for the session.
 - Friction entry 3: recommended → `verified: VERIFIED` (behavioral bar met this
   pass); entry 5 stays open (near-miss, no coordinator recurrence).
 - Zombie pid 3874 (session-8 orphan): still alive at check-13 time (~61h CPU,
@@ -373,9 +372,9 @@ exit 0 — record the sha.
 
 Specifically check: (a) **operator ask #1** — answered? If a first
 `--enforce-canonical-run` pass was authorized and run, 6.4/6.5/6.16/6.22 +
-H5/E4 **+ L6** may be flippable — verify all 7 hard first. Also: did @rozo
-**commit** `work/notes/OPERATOR_ASK_2026-08-31-session13.md` (still untracked
-after 4 sessions)? (b) Did check-#13's §5 next-3 land: 6.9/S6 body-loading
+H5/E4 **+ L6** may be flippable — verify all 7 hard first. Also confirm
+`work/notes/OPERATOR_ASK_2026-08-31-session13.md` (now tracked as of check #13)
+stayed tracked and current. (b) Did check-#13's §5 next-3 land: 6.9/S6 body-loading
 slice, SEC4 manifest slice 2 (runtime capability-intersection at activation),
 next 6.21 verb? (c) Re-derive the 16/13/6 scoreboard from the master-inventory
 §7 table. **If it is still 16/13/6 AND this pass finds nothing substantive,
