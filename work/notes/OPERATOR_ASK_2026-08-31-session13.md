@@ -13,14 +13,17 @@ the canonical answer; the coordinator dispatches the now-unblocked impl work.
 ### Ask #1 — first enforced `--enforce-canonical-run` pass — **AUTHORIZED**
 
 One enforced pass is authorized. **Target/timing still to be pinned with the
-operator by the coordinator** — the obvious candidate is the MAPS_Lean checkout
-itself (`--repo-root ~/Projects/MAPS_Lean`), which is where the control plane
-already runs. Expect `LEASE_EXPIRED` denials on first run; remediate per
-`docs/CONTROL_PLANE_SETUP.md` §5 (claim-recovery under the manifest's original
-worker id). The coordinator runs the operator workflow — no impl/review agent
-runs `maps recovery-tick --enforce-canonical-run` autonomously. Unblocks
-**6.4 / 6.5 / 6.16 / 6.22 + H5 / E4 / L6** (verify each hard before any status
-flip).
+operator by the coordinator.** The obvious candidate is the MAPS_Lean checkout
+(`--repo-root ~/Projects/MAPS_Lean`) — but **`.maps/` does not yet exist in this
+dev checkout**, so there is no control-plane DB here today. Establishing the
+control-plane DB path and registering the `--harness-project-id` (per
+`docs/CONTROL_PLANE_SETUP.md`) is part of the coordinator's target-pinning step,
+**before** any enforced pass. Only once a control plane with real run manifests
+exists does the `LEASE_EXPIRED`-on-first-run → remediate-per-§5 (claim-recovery
+under the manifest's original worker id) narrative apply. The coordinator runs
+the operator workflow — no impl/review agent runs `maps recovery-tick
+--enforce-canonical-run` autonomously. Unblocks **6.4 / 6.5 / 6.16 / 6.22 +
+H5 / E4 / L6** (verify each hard before any status flip).
 
 ### `flow release-check` batch (#234 §6) — **RECOMMENDED ANSWERS ACCEPTED**
 
