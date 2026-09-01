@@ -13,7 +13,8 @@ from runtime.policy.memory_trust_gate import (
     MemoryAdmission,
     admit_memory_evidence,
 )
-from runtime.skills.catalog import SkillCatalog
+from runtime.skills.catalog import SkillCatalog, SkillCatalogError, load_catalog_skill
+from runtime.skills.format import SkillParseError
 from runtime.skills.lifecycle import SkillLifecycleState
 from runtime.trust import (
     MemoryTrustClass,
@@ -326,23 +327,37 @@ def _skill_task_signal_tokens(task: dict[str, Any]) -> set[str]:
 
 
 def _select_skills(
-    skill_catalog: SkillCatalog | None, task: dict[str, Any]
+    skill_catalog: SkillCatalog | None,
+    task: dict[str, Any],
+    store: TaskStore | None = None,
 ) -> tuple[list[dict[str, Any]], _AdmissionTally]:
     """Attributed, provenance-labeled Skill selection evidence.
 
     Fails closed: an absent/empty catalog, or any error while deriving task
-    signals, yields no skills rather than breaking the rest of the plan. Only
-    descriptor/provenance metadata is read here -- `load_skill`/
-    `load_catalog_skill` (procedure body activation) is never called, so no
-    Skill instruction text can enter the plan. Matching uses only the
-    metadata the v1 Skill format actually exposes (name/description text)
-    against task signal tokens (task_type, project_id, output-path
-    segments); an unmatched Skill is simply omitted, satisfying the S6 exit
-    gate that unrelated Skills demonstrably stay out of context. A matched
-    Skill's `lifecycle_state` is always its real composed provenance value
-    (or `None` when no durable subject row exists, the case for every Skill
-    until a store is wired in) -- selection never implies vetting that
-    hasn't happened.
+    signals, yields no skills rather than breaking the rest of the plan.
+    Matching uses only the metadata the v1 Skill format actually exposes
+    (name/description text) against task signal tokens (task_type, project_id,
+    output-path segments); an unmatched Skill is simply omitted, satisfying
+    the S6 exit gate that unrelated Skills demonstrably stay out of context. A
+    matched Skill's `lifecycle_state` is always its real composed provenance
+    value (or `None` when no durable subject row exists) -- selection never
+    implies vetting that hasn't happened.
+
+    Progressive body loading (roadmap 6.9 / S6 slice 1): for a matched Skill
+    whose trust-gate decision is `LOAD` -- and only then -- this calls the
+    existing `load_catalog_skill(entry, store)` and attaches the
+    hash-verified `SKILL.md` body (`item["body"]` + `item["body_sha256"]`).
+    This advances 6.9 from the "startup" level (name/description metadata) to
+    "activation" (full SKILL.md) for exactly the Skills already trusted to
+    load. `WITHHOLD`/`ON_DEMAND` and `DENY` Skills get no body, unchanged. No
+    new retrieval: the body comes only from an entry already selected here.
+    `scripts`/`references`/`examples` content (the "execution" level) is still
+    not loaded. If body activation raises (`SkillCatalogError` -- e.g. a
+    QUARANTINED state slipping past the gate -- or `SkillParseError`/
+    `SkillChangedError` on a post-discovery content change), the item is kept
+    metadata-only with `item["body_withheld_reason"]` and the plan is not
+    broken. With `store=None` (e.g. `maps context`, which passes no catalog)
+    no body is ever loaded.
 
     Trust gate (roadmap 6.22): a matched Skill's `budget_class` is now the
     output of `admit_memory_evidence()` rather than a hardcoded
@@ -409,6 +424,14 @@ def _select_skills(
         }
         if decision.admission is MemoryAdmission.WITHHOLD:
             item["withheld_reason"] = decision.code
+        if decision.admission is MemoryAdmission.LOAD and store is not None:
+            try:
+                document = load_catalog_skill(entry, store)
+            except (SkillCatalogError, SkillParseError) as exc:
+                item["body_withheld_reason"] = type(exc).__name__
+            else:
+                item["body"] = document.body
+                item["body_sha256"] = document.descriptor.content_sha256
         selected.append(item)
     return selected, tally
 
@@ -530,7 +553,7 @@ def build_context_plan(
     ]
 
     guidance, withheld_guidance, memory_trust_tally = _lesson_guidance(store, task)
-    skills, skill_tally = _select_skills(skill_catalog, task)
+    skills, skill_tally = _select_skills(skill_catalog, task, store)
     memory_trust_tally.merge(skill_tally)
     memory_like = [*guidance, *withheld_guidance, *skills]
     memory_trust_classification_present = all(
@@ -570,6 +593,7 @@ def build_context_plan(
                 "search for unreferenced context"
             ),
             "budget_classification_present": True,
+            "skill_bodies_loaded": sum(1 for item in skills if "body" in item),
             "budget_classification_note": (
                 "authority/required tagged MUST_LOAD, dependencies tagged "
                 "SHOULD_LOAD; memory-like guidance/withheld_guidance/skills "
