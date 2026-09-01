@@ -488,26 +488,14 @@ class CapabilityIntersectionPlanTests(unittest.TestCase):
             self._REASON, plan["coverage"]["memory_trust_gate_reasons"]
         )
 
-    def test_coverage_note_acknowledges_the_pre_trust_gate_capability_deny(self):
-        # The memory_trust_gate_note must not over-claim that every counted DENY
-        # was a MemoryTrustClass decision -- the capability-envelope DENY (#225)
-        # happens before, and outside, admit_memory_evidence().
-        self._add_skill(
-            "research-stopper",
-            "RESEARCH context planning that can stop a runaway process.",
-            capabilities="process-stop\n",
-        )
-        plan = self._plan(self._task({"destructive_action": False}))
-        note = plan["coverage"]["memory_trust_gate_note"]
-        self.assertNotIn("every memory-like item passed admit_memory_evidence", note)
-        self.assertIn(self._REASON, note)
-        self.assertIn("capabilities_within_envelope", note)
-        self.assertIn("outside the trust gate", note)
-        # still distinguishable in the structured breakdown, and still counted
-        self.assertEqual(
-            plan["coverage"]["memory_trust_gate_reasons"][self._REASON], 1
-        )
-        self.assertGreaterEqual(plan["coverage"]["memory_trust_gate_denied"], 1)
+    # NOTE: the coverage-note consistency assertion for `memory_trust_gate_note`
+    # that once lived here (PR #229) is now generalized across all four
+    # `build_context_plan` coverage notes in
+    # `tests/test_context_builder.py::CoverageNoteConsistencyTests` — one
+    # consistency test in the module's own test file, per
+    # `work/notes/2026-09-01-invariant-prose-drift-safeguard-design.md` §3/§4.
+    # The structured-breakdown behavior (reason counted, distinguishable) is
+    # still covered by `test_out_of_envelope_skill_denied_from_plan` above.
 
 
 if __name__ == "__main__":

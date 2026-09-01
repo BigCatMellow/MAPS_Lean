@@ -15,6 +15,7 @@ from runtime.skills import (
     SkillCatalog,
     SkillCatalogSource,
     SkillSourceKind,
+    build_project_skill_catalog,
     build_skill_catalog,
 )
 from runtime.state import TaskStore
@@ -724,6 +725,195 @@ class ContextBuilderTests(unittest.TestCase):
         plan = build_context_plan(self.store, task_id, repo_root=self.root)
         self.assertIn("skills", plan)
         self.assertEqual(plan["skills"], [])
+
+
+class CoverageNoteConsistencyTests(unittest.TestCase):
+    """Part A of the invariant-prose-drift rule-20 safeguard
+    (`work/notes/2026-09-01-invariant-prose-drift-safeguard-design.md` §3).
+
+    Every self-describing ``*_note`` string in ``build_context_plan``'s
+    ``coverage`` dict is asserted here against the ``coverage`` dict that the
+    *same* plan produced — so a `_select_skills` / coverage-assembly change
+    that makes a note lie fails CI, close to the diff.
+
+    This test also subscripts each note key by name (``coverage["<key>"]``),
+    which is what ``scripts/check_coverage_note_pins.py`` (Part B) checks for.
+
+    Robustness ceiling (design §3): it catches (i) a note reverting to a
+    known-bad unqualified claim and (ii) a structural note<->coverage
+    inconsistency it is written to check — NOT an arbitrary future false note.
+    Part B stops a new note being born unchecked.
+
+    Generalizes and replaces PR #229's
+    ``test_skill_capability_manifest.py::test_coverage_note_acknowledges_the_pre_trust_gate_capability_deny``
+    (one consistency test, in the module's own test file — not two).
+    """
+
+    _CAPABILITY_REASON = "SKILL_CAPABILITY_OUTSIDE_TASK_ENVELOPE"
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo = Path(self.td.name) / "repo"
+        (self.repo / ".claude" / "skills").mkdir(parents=True)
+        (self.repo / "AGENTS.md").write_text("active authority\n", encoding="utf-8")
+        self.store = TaskStore(self.repo / "maps.db")
+
+    def _add_skill(self, name, description, capabilities=None):
+        skill = self.repo / ".claude" / "skills" / name
+        skill.mkdir()
+        (skill / "SKILL.md").write_text(
+            f"---\nname: {name}\ndescription: {description}\n---\n\n"
+            "1. Do the bounded work.\n",
+            encoding="utf-8",
+        )
+        if capabilities is not None:
+            (skill / "capabilities").write_text(capabilities, encoding="utf-8")
+
+    def _multi_path_plan(self):
+        """A plan that exercises every admission path a coverage note describes:
+        a capability-envelope DENY (pre-trust-gate), a real trust-gate decision,
+        and memory-like guidance carrying trust metadata."""
+        # capability-envelope DENY: declares process-stop, task is not destructive.
+        self._add_skill(
+            "research-stopper",
+            "RESEARCH context planning that can stop a runaway process.",
+            capabilities="process-stop\n",
+        )
+        # a plain matched Skill -> goes through the trust gate for a real decision.
+        self._add_skill(
+            "research-plain",
+            "RESEARCH context planning with a plain deterministic procedure.",
+        )
+        self.assertTrue(self.store.create_task(task_id="T").ok)
+        self.assertTrue(
+            self.store.update_contract(
+                "T",
+                {
+                    "title": "Research context assembly",
+                    "outcome": "Context is explicit.",
+                    "task_type": "RESEARCH",
+                    "owner": "owner-a",
+                    "risk": "LOW",
+                    "decision_authority": "Read-only context planning.",
+                    "verification": "Inspect references.",
+                    "evidence_expected": "Context plan JSON.",
+                    "review_required": "OWNER_CHECK",
+                    "escalation": "Stop on ambiguity.",
+                    "inputs": ["AGENTS.md"],
+                    "sources": ["AGENTS.md"],
+                    "dependencies": [],
+                    "output_paths": ["research-context.json"],
+                    "non_goals": ["Do not scan the repository."],
+                    "acceptance_criteria": ["Only explicit context is planned."],
+                    "stop_conditions": ["A required source is outside the repo."],
+                    "policy": {
+                        "requires_operator_approval": False,
+                        "destructive_action": False,
+                        "external_side_effect": False,
+                        "security_sensitive": False,
+                        "broad_architecture": False,
+                        "paid_execution": False,
+                    },
+                },
+            ).ok
+        )
+        # a stale operational lesson -> withheld_guidance carrying trust metadata.
+        lesson = {
+            "lesson_version": 1,
+            "lesson_id": "LESSON-STALE",
+            "status": "CANDIDATE",
+            "claim": "Prefer the deterministic path.",
+            "source_kind": "TASK_OUTCOME",
+            "source_refs": ["outcome:LESSON-STALE"],
+            "applicability": {
+                "global": True,
+                "project_ids": [],
+                "task_types": [],
+                "risk_levels": [],
+                "path_prefixes": [],
+            },
+            "created_by": "observer-a",
+            "created_at": "2026-08-17T19:00:00Z",
+            "promotion": None,
+            "superseded_by": None,
+            "retirement": None,
+        }
+        self.assertTrue(
+            self.store.record_operational_lesson_candidate(
+                lesson, created_by="observer-a"
+            ).ok
+        )
+        self.assertTrue(
+            self.store.promote_operational_lesson(
+                "LESSON-STALE",
+                decision_ref="decision:LESSON-STALE",
+                promoted_by="operator-a",
+                starts_at="2026-08-17T19:00:00Z",
+                review_at="2026-08-20T19:00:00Z",
+                expires_at=None,
+            ).ok
+        )
+        catalog = build_project_skill_catalog(self.repo, self.store)
+        return build_context_plan(
+            self.store, "T", repo_root=self.repo, skill_catalog=catalog
+        )
+
+    def test_every_coverage_note_is_consistent_with_its_own_plan(self):
+        plan = self._multi_path_plan()
+        coverage = plan["coverage"]
+
+        # --- note ------------------------------------------------------
+        note = coverage["note"]
+        self.assertIn("does not", note)
+        self.assertFalse(coverage["semantic_retrieval_used"])
+        self.assertFalse(coverage["repository_scan_used"])
+        self.assertFalse(coverage["file_contents_included"])
+
+        # --- budget_classification_note ------------------------------
+        budget_note = coverage["budget_classification_note"]
+        self.assertIn("No new retrieval mechanism", budget_note)
+        # the claim is verified by the same "no search" flags ...
+        self.assertFalse(coverage["semantic_retrieval_used"])
+        self.assertFalse(coverage["repository_scan_used"])
+        # ... and the "tagged by the memory trust gate" half:
+        self.assertIn("memory trust gate", budget_note)
+        self.assertTrue(coverage["memory_trust_gate_applied"])
+
+        # --- memory_trust_classification_note -----------------------
+        mtc_note = coverage["memory_trust_classification_note"]
+        self.assertIn("fails closed", mtc_note)
+        self.assertTrue(coverage["memory_trust_classification_present"])
+        # "without suppressing canonical authority or required task context":
+        self.assertTrue(plan["authority"])
+        self.assertIn("required", plan)
+        # metadata "when present": the stale lesson is withheld with trust class.
+        self.assertTrue(plan["withheld_guidance"])
+        self.assertTrue(
+            all("trust_class" in item for item in plan["withheld_guidance"])
+        )
+
+        # --- memory_trust_gate_note (the one that drifted, PR #225) ---
+        gate_note = coverage["memory_trust_gate_note"]
+        reasons = coverage["memory_trust_gate_reasons"]
+        # the plan really did exercise both paths:
+        self.assertEqual(reasons.get(self._CAPABILITY_REASON), 1)
+        self.assertGreaterEqual(coverage["memory_trust_gate_denied"], 1)
+        self.assertTrue(
+            any(r.startswith("TRUST_CLASS_") for r in reasons),
+            f"expected a trust-class reason in {reasons}",
+        )
+        # A non-trust reason is present -> the note MUST be qualified. PR #225's
+        # note ("every memory-like item passed admit_memory_evidence(); its
+        # MemoryTrustClass alone decides ...") had none of these and this test
+        # would have failed it.
+        self.assertIn("reaches the trust gate", gate_note)
+        self.assertNotIn(
+            "every memory-like item passed admit_memory_evidence", gate_note
+        )
+        self.assertIn(self._CAPABILITY_REASON, gate_note)
+        self.assertIn("outside the trust gate", gate_note)
+        self.assertIn("capabilities_within_envelope", gate_note)
 
 
 if __name__ == "__main__":
