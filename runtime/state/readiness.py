@@ -122,6 +122,29 @@ class ReadinessMixin:
             if validation is not None:
                 reasons.append(f"invalid environment contract: {validation.message}")
 
+        # PR #194 residual (6.4 / SEC3): a task whose envelope permits a
+        # destructive or external-side-effect action must also require operator
+        # reauthorization, otherwise the runtime destructive-action enforcement
+        # reaches its ALLOW path with no human in the loop. Closes the
+        # "destructive_action=True while requires_operator_approval=False" gap.
+        policy = conn.execute(
+            """
+            SELECT destructive_action, external_side_effect,
+                   requires_operator_approval
+            FROM task_policy WHERE task_id = ?
+            """,
+            (task_id,),
+        ).fetchone()
+        if (
+            policy is not None
+            and (policy["destructive_action"] or policy["external_side_effect"])
+            and not policy["requires_operator_approval"]
+        ):
+            reasons.append(
+                "destructive/external envelope requires operator reauthorization "
+                "(set requires_operator_approval)"
+            )
+
         dependency_blockers: list[str] = []
         for dependency in dependencies:
             dep_row = conn.execute(
