@@ -77,6 +77,21 @@ def _acquisition_bundle(observed_ref: str = SHA_A):
     }
 
 
+def _failing_benchmark_results():
+    """Perfect results except one BLOCKER property forced to FAIL, so
+    ``evaluate_benchmark_results`` returns ``benchmark_status == "FAIL"``."""
+    results = _perfect_benchmark_results()
+    first = BENCHMARK_PROTOCOL["scenarios"][0]
+    blocker = next(p["id"] for p in first["properties"] if p["kind"] == "BLOCKER")
+    for result in results:
+        if result["scenario_id"] == first["id"]:
+            result["properties"][blocker] = {
+                "state": "FAIL",
+                "evidence_refs": [f"evidence:{first['id']}:{blocker}"],
+            }
+    return results
+
+
 def _perfect_benchmark_results():
     results = []
     for scenario in BENCHMARK_PROTOCOL["scenarios"]:
@@ -134,6 +149,9 @@ class FlowReleaseCheckTests(unittest.TestCase):
         self.store = TaskStore(Path(self.tmp.name) / "maps.db")
 
     def _ready_for_review(self, task_id="REL-1", **contract_changes):
+        contract_changes.setdefault(
+            "output_paths", [f"runtime/{task_id.lower()}_out.py"]
+        )
         self.assertTrue(self.store.create_task(task_id=task_id).ok)
         self.assertTrue(
             self.store.update_contract(
@@ -205,6 +223,32 @@ class FlowReleaseCheckTests(unittest.TestCase):
         )
         stored = self.store.get_release_check(result["release_check_id"])
         self.assertGreaterEqual(len(stored["input_evidence_refs"]), 2)
+
+    def test_failing_release_smoke_blocks_with_passing_artifact_identity(self):
+        task_id = self._ready_for_review()
+        self._bind_review_subject(task_id)
+
+        result = flow_release_check(
+            self.store,
+            task_id,
+            recorded_by="releaser",
+            evidence={
+                "acquisition": _acquisition_bundle(observed_ref=SHA_A),
+                "benchmark": {
+                    "protocol": BENCHMARK_PROTOCOL,
+                    "results": _failing_benchmark_results(),
+                },
+            },
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["summary"]["artifact_identity"]["state"], "PASS")
+        self.assertEqual(result["summary"]["release_smoke"]["state"], "FAIL")
+        self.assertEqual(result["summary"]["composite"], "BLOCKED")
+        self.assertEqual(
+            self.store.get_release_check(result["release_check_id"])["composite_state"],
+            "BLOCKED",
+        )
 
     def test_mismatched_artifact_ref_blocks(self):
         task_id = self._ready_for_review()
@@ -407,6 +451,39 @@ class FlowReleaseCheckTests(unittest.TestCase):
                 ]
             )
         self.assertEqual(code, 2)
+
+    def test_store_record_release_check_rejects_cross_task_review(self):
+        task_a = self._ready_for_review(task_id="REL-A")
+        review_a = self._bind_review_subject(task_a)
+        task_b = self._ready_for_review(task_id="REL-B")
+
+        result = self.store.record_release_check(
+            task_b,
+            review_a,  # a review belonging to task_a
+            artifact_identity_state="NOT_APPLICABLE",
+            release_smoke_state="NOT_APPLICABLE",
+            composite_state="READY_FOR_OPERATOR_VERDICT",
+            summary={},
+            recorded_by="releaser",
+        )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "RELEASE_CHECK_TASK_MISMATCH")
+        self.assertEqual(self.store.list_release_checks(task_b), [])
+
+    def test_store_record_release_check_rejects_bad_composite_state(self):
+        task_id = self._ready_for_review()
+        review_id = self._bind_review_subject(task_id)
+        result = self.store.record_release_check(
+            task_id,
+            review_id,
+            artifact_identity_state="NOT_APPLICABLE",
+            release_smoke_state="NOT_APPLICABLE",
+            composite_state="MAYBE",
+            summary={},
+            recorded_by="releaser",
+        )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "INVALID_RELEASE_CHECK")
 
     def test_state_store_release_check_is_immutable(self):
         task_id = self._ready_for_review()
