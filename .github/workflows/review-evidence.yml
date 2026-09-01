@@ -30,8 +30,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Verify review evidence for exact head
-        run: python scripts/check_review_evidence.py "${{ github.event.pull_request.number }}"
-
       - name: Verify no stale "no production caller" docstrings
         run: python scripts/check_stale_no_caller_docstrings.py
+
+      - name: Verify review evidence for exact head
+        run: python scripts/check_review_evidence.py "${{ github.event.pull_request.number }}"
