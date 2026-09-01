@@ -1,0 +1,26 @@
+# PR #222 review evidence — Roadmap trajectory check #13
+
+reviewer: maps-lean-luve
+head_sha: fe0e6487461d94b5a47dbe6ded309a58e7b2887e
+independent: true
+summary: Independent verification-only review by maps-lean-luve (did not author — vame did). Analysis note + newly-tracked OPERATOR_ASK doc + FRICTION_LOG follow-up + 3 checklist prose corrections. All 6 dispatch criteria pass. Arc `4396b4f..2346056` enumerates exactly PRs #215-#219 by commit range (not hand-listed); #220 correctly excluded as open-not-merged. The 3 checklist edits (L6 line 74, 6.9 line 118, 6.10 line 119) are each verified against merged code and each keeps its Status cell unchanged (all stay IN PROGRESS) — the 6.10 "no capability-declaration manifest" clause was provably false post-#219 (`runtime/skills/gate.py::_apply_capability_manifest` emits `UNDECLARED_CAPABILITY` BLOCK) and is corrected; the L6 "independent" categorisation from check #12 §5 is corrected to "BLOCKED on operator ask #1" per #216's scoping note + a verified `HarnessService` construction analysis; the 7-row ask-#1 cluster (6.4/6.5/6.16/6.22/H5/E4 + L6) is arithmetically and substantively right. Scoreboard re-derived from the checklist §7 table = 16 DONE / 13 IN PROGRESS (incl. 6.33's `IN PROGRESS (evaluation-only, by design)`) / 6 NOT STARTED = 35, matching the note. TENTH_SEAT Trigger 2 correctly did NOT fire (three substantive findings: stale clause, L6 mis-cat, untracked ask) and the check-#14 caveat is recorded; no minority reports exist to read. Friction entry 3 PARTIAL→VERIFIED is recommended, not applied (correctly left as a coordinator call); its justification checks out — `hcom config` has no rotation/token/threshold key and the running `limit_watcher.py` is a legacy non-MAPS_Lean script. `runtime.smoke` exit 0 at 2346056. Action CONTINUE is defensible (a deliberate, evidence-driven change from #12's REPRIORITIZE, which is now visibly executing). NB: head_sha rebound by coordinator to the post-rebase commit (branch predated #220; rebase was clean, no checklist conflict — #220 touched only the 6.21 row).
+
+## Dispatch criteria
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | Arc derived from commit range, not hand-guessed | PASS. `git log --oneline --grep='Roadmap trajectory check' origin/main | head -1` → `4396b4f` (#214); `git log --oneline 4396b4f..origin/main` → #215/#216/#217/#218/#219. Note enumerates exactly these 5. #220 excluded (open, not merged at HEAD). |
+| 2 | Every status/code citation checks against merged code at HEAD (rule 14) | PASS. Spot-checked: `_apply_capability_manifest` / `UNDECLARED_CAPABILITY` live in `runtime/skills/gate.py` (#219); `flow_review_record` + `maps flow review-record` in `runtime/flow_review.py` + `runtime/cli.py` (#218); `HarnessService(` constructed only in `runtime/recovery/production.py::build_canonical_harness_service` (`/usr/bin/grep -rn`, tests excluded); `create_run_manifest` callers = `flow_start.py` + `integrity/cli.py`, neither with a `HarnessService` in scope (#216/L6 claim); `context_builder._select_skills` still has no body-activation call at HEAD (6.9 claim, pre-#221). |
+| 3 | NO checklist status flip | PASS. `git diff origin/main..HEAD -- work/roadmaps/CAPABILITY_CHECKLIST.md` — every changed row line keeps `| IN PROGRESS |`. Only prose within the evidence column changed on rows L6, 6.9, 6.10. |
+| 4 | Friction-log entry 3 PARTIAL→VERIFIED justified against real system state | PASS (recommended, not applied — a coordinator call, correctly left). `hcom config` exposes no rotation/token/threshold key; the running `limit_watcher.py` is `…/MAP_System/scripts/limit_watcher.py` (legacy non-MAPS_Lean), whose self-rotation demands memory `feedback_limit_watcher_hcom` says to ignore. Behavioral bar met this session (multi-lane arc, no disruptive mid-arc rotation). FRICTION_LOG.md follow-up line appended. |
+| 5 | TENTH_SEAT Trigger 2 correctly did NOT fire; check-#14 caveat recorded | PASS. Three substantive findings (§1b stale 6.10 clause, §1d L6 mis-categorisation, §1g untracked operator-ask doc). §4 records that a genuinely clean #14 would be the first Trigger-2 firing. `ls work/reviews/trajectory-*-minority-report.md` → none. §7 warning-signs checklist worked through. |
+| 6 | Action CONTINUE is defensible | PASS. #12's REPRIORITIZE next-3 produced 3 arc PRs (2 merged slices + 1 design note, impl in flight); the pre-registered RESEARCH/STOP condition ("next-3 untouched") is not met. Scoreboard holding at 16/13/6 is the designed shape of slice-scoped PRs, not a stall. The one real blocker (operator ask #1, now 7 rows) is unchanged and correctly kept surfaced. CONTINUE stays inside the approved envelope. |
+
+## Additional checks
+
+- **OPERATOR_ASK doc now tracked** — `work/notes/OPERATOR_ASK_2026-08-31-session13.md` added on this branch (finding #3 closed); it was `??` untracked across sessions 13–16.
+- **Scoreboard** re-derived independently = 16/13/6, matches the note (sixth consecutive unchanged pass, explicitly expected here).
+- No second status tracker introduced; `00-MASTER-MAPS-CAPABILITY-ROADMAP.md` still `PLANNING MASTER — NOT ACTIVE AUTHORITY`.
+- `python3 -m runtime.smoke` exit 0 at the arc HEAD.
+
+## Verdict: APPROVE
