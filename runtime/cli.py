@@ -9,6 +9,7 @@ import sys
 from runtime.context_builder import build_context_plan
 from runtime.evaluation import IncidentCategory, RegressionCaseError, freeze_regression_case
 from runtime.flow_handoff import flow_handoff
+from runtime.flow_release_check import flow_release_check
 from runtime.flow_review import flow_review_record, flow_review_start
 from runtime.flow_start import flow_start_from_runtime_limit_args
 from runtime.recovery.production import (
@@ -353,6 +354,25 @@ def build_parser() -> argparse.ArgumentParser:
     flow_handoff_p.add_argument('--from-worker', required=True, dest='from_worker')
     flow_handoff_p.add_argument('--to-worker', required=True, dest='to_worker')
     flow_handoff_p.add_argument('--reason', required=True)
+
+    flow_release_check_p = flow_sub.add_parser(
+        'release-check',
+        help='assemble artifact-identity + release-smoke evidence for an '
+        'OPERATOR_VISIBLE_RELEASE_CHECK review, stopping before the verdict',
+    )
+    flow_release_check_p.add_argument('task_id')
+    flow_release_check_p.add_argument(
+        '--recorded-by', required=True, dest='recorded_by'
+    )
+    flow_release_check_p.add_argument(
+        '--evidence-json',
+        dest='evidence_json',
+        help='path to a JSON bundle {"acquisition": {"manifest", "observations"}, '
+        '"benchmark": {"protocol", "results"}}; any key optional',
+    )
+    flow_release_check_p.add_argument(
+        '--operator-ack-ref', dest='operator_ack_ref'
+    )
 
     skill = sub.add_parser(
         'skill',
@@ -716,6 +736,22 @@ def main(argv: list[str] | None = None) -> int:
                 from_worker=args.from_worker,
                 to_worker=args.to_worker,
                 reason=args.reason,
+            ))
+        if args.flow_command == 'release-check':
+            evidence = None
+            if args.evidence_json:
+                try:
+                    evidence = json.loads(Path(args.evidence_json).read_text())
+                except (OSError, ValueError) as exc:
+                    return _emit(MutationResult(
+                        False, "INVALID_EVIDENCE_JSON", str(exc)
+                    ))
+            return _emit(flow_release_check(
+                store,
+                args.task_id,
+                recorded_by=args.recorded_by,
+                evidence=evidence,
+                operator_ack_ref=args.operator_ack_ref,
             ))
         raise AssertionError(args.flow_command)
     if args.command == 'skill':

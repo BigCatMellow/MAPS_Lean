@@ -838,3 +838,49 @@ WHEN EXISTS (
 BEGIN
     SELECT RAISE(ABORT, 'skill lifecycle state is terminal; no further decisions');
 END;
+
+-- Operator-visible release check (6.21 `maps flow release-check`). Append-only
+-- evidence assembled BEFORE the review verdict for an
+-- OPERATOR_VISIBLE_RELEASE_CHECK task: the artifact-identity aggregate (from
+-- `evaluate_acquisition_evidence`), the release-path-smoke aggregate (from
+-- `evaluate_benchmark_results`), the composite state, and the full summary
+-- snapshot. The flow records no verdict; `composite_state = 'BLOCKED'` is
+-- advisory input to `maps flow review-record`, not an approval gate (that is a
+-- later hardening slice). Re-running the check appends a new row; the latest by
+-- id is current.
+CREATE TABLE IF NOT EXISTS release_checks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
+    review_id INTEGER NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
+    subject_run_id TEXT,
+    artifact_identity_state TEXT NOT NULL CHECK (
+        artifact_identity_state IN ('PASS','FAIL','UNKNOWN','NOT_APPLICABLE')
+    ),
+    artifact_identity_report_ref TEXT,
+    release_smoke_state TEXT NOT NULL CHECK (
+        release_smoke_state IN ('COMPLETE','FAIL','INCOMPLETE','NOT_APPLICABLE')
+    ),
+    release_smoke_report_ref TEXT,
+    input_evidence_refs TEXT NOT NULL DEFAULT '[]',
+    composite_state TEXT NOT NULL CHECK (
+        composite_state IN ('READY_FOR_OPERATOR_VERDICT','BLOCKED')
+    ),
+    summary_snapshot TEXT NOT NULL,
+    operator_ack_ref TEXT,
+    recorded_by TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_release_checks_task
+    ON release_checks(task_id, review_id, id);
+
+CREATE TRIGGER IF NOT EXISTS trg_release_checks_no_update
+BEFORE UPDATE ON release_checks
+BEGIN
+    SELECT RAISE(ABORT, 'release checks are immutable; re-run to append a new one');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_release_checks_no_delete
+BEFORE DELETE ON release_checks
+BEGIN
+    SELECT RAISE(ABORT, 'release checks are immutable');
+END;
