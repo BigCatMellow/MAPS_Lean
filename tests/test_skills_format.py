@@ -9,6 +9,7 @@ from runtime.skills import (
     SkillParseError,
     discover_skills,
     load_skill,
+    load_skill_resource,
 )
 
 
@@ -233,6 +234,73 @@ Body.
         self.assertEqual(descriptor.reference_paths, ("references/release.md",))
         self.assertEqual(descriptor.asset_paths, ("assets/template.txt",))
         self.assertEqual(descriptor.example_paths, ("examples/good.yaml",))
+
+    # --- 6.9 / S6 slice 2: resource sizes + single-resource loader ----------
+
+    def _skill_with_resources(self):
+        skill = self.make_skill()
+        for relative, content in (
+            ("scripts/check.py", "print('check')\n"),
+            ("references/release.md", "# reference\n"),
+            ("examples/good.yaml", "example: true\n"),
+        ):
+            path = skill / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        return discover_skills(self.root)[0]
+
+    def test_resource_sizes_recorded_at_discovery_and_activation(self):
+        descriptor = self._skill_with_resources()
+        by_path = dict(descriptor.resource_sizes)
+        # every declared resource has a size, and it is the real byte length
+        self.assertEqual(sorted(by_path), sorted(descriptor.resource_paths))
+        self.assertEqual(by_path["scripts/check.py"], len(b"print('check')\n"))
+        self.assertEqual(by_path["references/release.md"], len(b"# reference\n"))
+        # activation reconstructs the same sizes from the verified bytes
+        self.assertEqual(
+            load_skill(descriptor).descriptor.resource_sizes,
+            descriptor.resource_sizes,
+        )
+
+    def test_changed_resource_size_is_a_skill_identity_change(self):
+        descriptor = self._skill_with_resources()
+        (descriptor.root / "scripts" / "check.py").write_text(
+            "print('check check')\n", encoding="utf-8"
+        )
+        with self.assertRaises(SkillChangedError):
+            load_skill(descriptor)
+
+    def test_load_skill_resource_returns_exact_declared_bytes(self):
+        descriptor = self._skill_with_resources()
+        self.assertEqual(
+            load_skill_resource(descriptor, "scripts/check.py"),
+            b"print('check')\n",
+        )
+        self.assertEqual(
+            load_skill_resource(descriptor, "references/release.md"),
+            b"# reference\n",
+        )
+
+    def test_load_skill_resource_rejects_undeclared_and_traversal_and_skill_md(self):
+        descriptor = self._skill_with_resources()
+        for bad in ("SKILL.md", "../etc/passwd", "/etc/passwd", "scripts/other.py", "notes.txt"):
+            with self.assertRaises(SkillParseError):
+                load_skill_resource(descriptor, bad)
+
+    def test_load_skill_resource_detects_post_discovery_drift(self):
+        descriptor = self._skill_with_resources()
+        (descriptor.root / "references" / "release.md").write_text(
+            "# tampered\n", encoding="utf-8"
+        )
+        with self.assertRaises(SkillChangedError):
+            load_skill_resource(descriptor, "scripts/check.py")
+
+    def test_skill_without_resources_has_empty_resource_sizes(self):
+        self.make_skill(directory="plain")
+        descriptor = next(
+            d for d in discover_skills(self.root) if d.skill_id == "plain"
+        )
+        self.assertEqual(descriptor.resource_sizes, ())
 
     def test_hash_is_stable_for_same_paths_and_bytes(self):
         first_root = self.root / "set-a"

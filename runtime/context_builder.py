@@ -327,6 +327,35 @@ def _skill_task_signal_tokens(task: dict[str, Any]) -> set[str]:
     return tokens
 
 
+_EXECUTION_RESOURCE_KINDS = (
+    ("script_paths", "script"),
+    ("reference_paths", "reference"),
+    ("example_paths", "example"),
+    ("asset_paths", "asset"),
+)
+
+
+def _execution_resource_manifest(descriptor: Any) -> list[dict[str, Any]]:
+    """Listing of a Skill's execution-level resources -- `path`, `kind`, and
+    `size_bytes` -- and never file content (roadmap 6.9 / S6 slice 2).
+
+    Sizes come from `descriptor.resource_sizes`, recorded at discovery; this
+    function does no filesystem access. A declared path with no recorded size
+    is still listed with `size_bytes` `None` so the entry is never silently
+    dropped. Order follows `_EXECUTION_RESOURCE_KINDS`, then the descriptor's
+    per-kind path order (already sorted at discovery).
+    """
+
+    sizes = dict(getattr(descriptor, "resource_sizes", ()) or ())
+    manifest: list[dict[str, Any]] = []
+    for attr, kind in _EXECUTION_RESOURCE_KINDS:
+        for path in getattr(descriptor, attr, ()):
+            manifest.append(
+                {"path": path, "kind": kind, "size_bytes": sizes.get(path)}
+            )
+    return manifest
+
+
 def _select_skills(
     skill_catalog: SkillCatalog | None,
     task: dict[str, Any],
@@ -351,14 +380,25 @@ def _select_skills(
     This advances 6.9 from the "startup" level (name/description metadata) to
     "activation" (full SKILL.md) for exactly the Skills already trusted to
     load. `WITHHOLD`/`ON_DEMAND` and `DENY` Skills get no body, unchanged. No
-    new retrieval: the body comes only from an entry already selected here.
-    `scripts`/`references`/`examples` content (the "execution" level) is still
-    not loaded. If body activation raises (`SkillCatalogError` -- e.g. a
-    QUARANTINED state slipping past the gate -- or `SkillParseError`/
-    `SkillChangedError` on a post-discovery content change), the item is kept
-    metadata-only with `item["body_withheld_reason"]` and the plan is not
-    broken. With `store=None` (e.g. `maps context`, which passes no catalog)
-    no body is ever loaded.
+    new retrieval: the body comes only from an entry already selected here. If
+    body activation raises (`SkillCatalogError` -- e.g. a QUARANTINED state
+    slipping past the gate -- or `SkillParseError`/`SkillChangedError` on a
+    post-discovery content change), the item is kept metadata-only with
+    `item["body_withheld_reason"]` and the plan is not broken. With
+    `store=None` (e.g. `maps context`, which passes no catalog) no body is
+    ever loaded.
+
+    Execution-resource manifest (roadmap 6.9 / S6 slice 2): alongside the body,
+    a `LOAD` Skill's item gets `item["execution_resources"]` -- an ordered
+    listing of its `scripts`/`references`/`examples`/`assets` files as
+    `{"path", "kind", "size_bytes"}`, with **no file content** (sizes come from
+    `descriptor.resource_sizes`, recorded at discovery -- this reads no file
+    here). A downstream consumer pulls one named resource on demand,
+    hash-verified, via `runtime.skills.load_skill_resource` -- the "only if
+    needed" of roadmap 6.9's "execution" level, not search or retrieval, so
+    the 6.11 guardrail is untouched. Any error building the manifest is
+    fail-closed to `item["execution_resources_withheld_reason"]`. A Skill with
+    no such resources gets no `execution_resources` key.
 
     Trust gate (roadmap 6.22): a matched Skill's `budget_class` is now the
     output of `admit_memory_evidence()` rather than a hardcoded
@@ -448,6 +488,21 @@ def _select_skills(
             else:
                 item["body"] = document.body
                 item["body_sha256"] = document.descriptor.content_sha256
+                # roadmap 6.9 / S6 slice 2 -- the "execution" level: attach a
+                # *manifest* of the Skill's scripts/references/examples/assets
+                # (path, kind, size only, NEVER content). A downstream consumer
+                # pulls a named resource on demand via
+                # runtime.skills.load_skill_resource. This is pure descriptor
+                # metadata (sizes recorded at discovery) -- no filesystem read
+                # here -- so it is not retrieval and does not touch the 6.11
+                # guardrail; it rides the same LOAD decision the body does.
+                try:
+                    manifest = _execution_resource_manifest(document.descriptor)
+                except Exception as exc:  # fail-closed; never break the plan
+                    item["execution_resources_withheld_reason"] = type(exc).__name__
+                else:
+                    if manifest:
+                        item["execution_resources"] = manifest
         selected.append(item)
     return selected, tally
 
@@ -610,6 +665,9 @@ def build_context_plan(
             ),
             "budget_classification_present": True,
             "skill_bodies_loaded": sum(1 for item in skills if "body" in item),
+            "skill_execution_resources_listed": sum(
+                1 for item in skills if item.get("execution_resources")
+            ),
             "budget_classification_note": (
                 "authority/required tagged MUST_LOAD, dependencies tagged "
                 "SHOULD_LOAD; memory-like guidance/withheld_guidance/skills "

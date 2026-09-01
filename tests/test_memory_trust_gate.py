@@ -240,36 +240,44 @@ class NonGoalTests(unittest.TestCase):
             ],
         )
 
-    def test_context_builder_body_loading_is_load_gated_and_activation_level_only(self):
-        """Roadmap 6.9 / S6 slice 1: `_select_skills` may attach a Skill body to
-        the plan, but only under two constraints:
+    def test_context_builder_loading_is_load_gated_and_never_reads_content(self):
+        """Roadmap 6.9 / S6: `_select_skills` may attach a Skill's body
+        (slice 1, #221) and an execution-resource *manifest* (slice 2, #237)
+        to the plan, but only under these constraints:
 
-        * gated on the trust-gate `MemoryAdmission.LOAD` decision -- a
-          `WITHHOLD` / `ON_DEMAND` / `DENY` (or `None`-state) Skill gets no
-          body;
-        * "activation" level only -- the `SKILL.md` body via the
-          hash-verifying `load_catalog_skill` (never a direct `load_skill(`
-          call), and never `scripts` / `references` / `examples` / `assets`
-          resource content (the "execution" level, a later slice).
+        * both are gated on the trust-gate `MemoryAdmission.LOAD` decision --
+          a `WITHHOLD` / `ON_DEMAND` / `DENY` (or `None`-state) Skill gets
+          neither;
+        * the body comes only through the hash-verifying `load_catalog_skill`
+          (never a bare `load_skill(` call);
+        * the execution-resource manifest is a *listing* -- `script_paths` /
+          `reference_paths` / `example_paths` / `asset_paths` are legitimate
+          slice-2 vocabulary now (superseding slice 1's blanket ban on those
+          names) -- but `_select_skills` never reads resource *content*: no
+          `load_skill_resource(` call (the new slice-2 content-pulling
+          primitive, meant for a downstream consumer only) appears here.
         """
         text = (_REPO_ROOT / "runtime" / "context_builder.py").read_text(encoding="utf-8")
         # activation goes through load_catalog_skill (re-verifies the directory
         # hash before reading the body), not a bare load_skill() call.
         self.assertNotIn("load_skill(", text)
         self.assertIn("load_catalog_skill(", text)
-        # the body attach is gated on the LOAD admission decision.
+        # both the body attach and the manifest attach are gated on LOAD.
         self.assertIn(
             "decision.admission is MemoryAdmission.LOAD and store is not None",
             text,
         )
-        # "execution"-level resource paths are never pulled into the plan.
+        # the execution-resource manifest lists paths -- legitimate since #237.
         for execution_level_attr in (
             "script_paths",
             "reference_paths",
             "example_paths",
             "asset_paths",
         ):
-            self.assertNotIn(execution_level_attr, text)
+            self.assertIn(execution_level_attr, text)
+        # but content is never read here -- that is load_skill_resource's job,
+        # invoked only by a downstream consumer, never by _select_skills.
+        self.assertNotIn("load_skill_resource(", text)
 
 
 if __name__ == "__main__":
