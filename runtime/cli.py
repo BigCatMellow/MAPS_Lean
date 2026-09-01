@@ -8,6 +8,7 @@ import sys
 
 from runtime.context_builder import build_context_plan
 from runtime.evaluation import IncidentCategory, RegressionCaseError, freeze_regression_case
+from runtime.flow_handoff import flow_handoff
 from runtime.flow_review import flow_review_record, flow_review_start
 from runtime.flow_start import flow_start_from_runtime_limit_args
 from runtime.recovery.production import (
@@ -342,6 +343,16 @@ def build_parser() -> argparse.ArgumentParser:
         help='re-derived immutable artifact/evidence ref for a REDERIVED_AT_REVIEW '
         'subject; repeat for multiple',
     )
+
+    flow_handoff_p = flow_sub.add_parser(
+        'handoff',
+        help='record a same-task worker continuity link, stopping before the '
+        'incoming worker claims',
+    )
+    flow_handoff_p.add_argument('task_id')
+    flow_handoff_p.add_argument('--from-worker', required=True, dest='from_worker')
+    flow_handoff_p.add_argument('--to-worker', required=True, dest='to_worker')
+    flow_handoff_p.add_argument('--reason', required=True)
 
     skill = sub.add_parser(
         'skill',
@@ -697,6 +708,14 @@ def main(argv: list[str] | None = None) -> int:
                 verdict=args.verdict,
                 summary=args.summary,
                 rederived_artifact_refs=args.rederived_artifact_ref,
+            ))
+        if args.flow_command == 'handoff':
+            return _emit(flow_handoff(
+                store,
+                args.task_id,
+                from_worker=args.from_worker,
+                to_worker=args.to_worker,
+                reason=args.reason,
             ))
         raise AssertionError(args.flow_command)
     if args.command == 'skill':
