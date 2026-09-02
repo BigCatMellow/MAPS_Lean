@@ -6,35 +6,65 @@ release-check` shipped in **PR #244** (`7a466eb`) with `composite == "BLOCKED"`
 **advisory only**. This note scopes the "later 3b slice" that makes it
 approval-blocking.
 
-Verdict: **READY-TO-DISPATCH** — the direction is operator-pre-authorized; two
-narrow sub-decisions are resolvable by the reviewer at impl time (recommended
-answers below), not the operator.
+Verdict: **SCOPED — READY TO DISPATCH ONCE THE OPERATOR CONFIRMS 3b.** The
+mechanism, seam, smallest slice and tests are fully worked out below; what is
+*not* settled is the advisory→hard-blocking decision itself. §1 draws the
+callout the committed operator answer explicitly reserved for this slice.
 
-## 1. Is a fresh operator decision required? — NO
+## 1. Is a fresh operator decision required? — YES (one question)
 
-`work/notes/2026-09-01-6.21-release-design.md` §6 decision 3 put the choice to
-the operator: `composite == BLOCKED` **advisory (3a)** vs **hard-block
-`record_review APPROVED` (3b)**. The operator's answer (memory
-`project_maps_lean` / the #243 batch): *"`composite==BLOCKED` advisory-only for
-now, **approval-blocking is a later 3b slice**"*. So the end state — 3b makes it
-blocking — is already chosen. What was deferred was **timing**, not the
-decision. #244 built 3a; this is the deferred 3b.
+`work/notes/2026-09-01-6.21-release-design.md` §6 decision 3 offered the operator
+`composite == BLOCKED` **advisory (3a)** vs **hard-block `record_review
+APPROVED` (3b)**. The committed answer
+(`work/notes/OPERATOR_ASK_2026-08-31-session13.md`, release-check item 3):
 
-Rule 14 re-check against current evidence at HEAD `070dc65`:
-- `runtime/state/schema.sql` L847 comment: *"`composite_state = 'BLOCKED'` is
-  advisory input to `maps flow review-record`, not an approval gate (that is a
-  later hardening slice)."* — consistent.
-- `runtime/flow_release_check.py:57` docstring: *"`BLOCKED` is **advisory** —
-  this flow records no review verdict and does not gate `record_review`."* —
-  consistent; this flow still records no verdict after 3b (the gate lives in the
-  store's approval hook, not the flow).
+> "`composite == BLOCKED` → **advisory** to start (the reviewer sees `BLOCKED`
+> and chooses the verdict). The approval-blocking variant (3b) is a later
+> hardening slice **with its own callout** — not this one."
+
+The operator settled **(i)** the interim behaviour (advisory now, shipped in
+#244) and **(ii)** the sequencing (3b is a *separate later slice*). The operator
+**did not** pre-authorize the advisory→hard-blocking flip: "with its own
+callout" reserves that as its own operator-decision callout (the same doc uses
+"callout" for an OPERATOR DECISION — cf. its closing line, "blocked on an
+OPERATOR DECISION callout"). #234 §6 independently labels the 3b mechanism — a
+new `record_review`-APPROVED precondition in `_validate_review_approval_conn` —
+**"an authority-model change."** An authority-model change is not a reviewer
+call (rule 11: capability ≠ permission).
+
+**This note draws that callout so the slice is ready the moment it is
+answered.** Everything in §2–§5 is contingent on a YES.
+
+### The operator callout
+
+> **Decision (release-check 3b — approval gating).** Make a `composite ==
+> BLOCKED` result from `maps flow release-check` **hard-block `record_review`
+> APPROVED** for an `OPERATOR_VISIBLE_RELEASE_CHECK` task (today it is
+> advisory), with a non-empty `operator_ack_ref` on the latest `release_checks`
+> row as the recorded, auditable override. Also: an
+> `OPERATOR_VISIBLE_RELEASE_CHECK` task with **no** `release_checks` row at all
+> would be refused APPROVED (`RELEASE_CHECK_REQUIRED`) — the release check
+> becomes mandatory for that review type, symmetric with the bound-subject
+> gate.
+>
+> Recommended: **YES** to both. The review type already means "the operator
+> must see this before the verdict"; making a recorded BLOCKED actually block
+> (with an explicit ack escape hatch, no `--force`, no config flag) closes the
+> gap between the name and the enforcement. Cost: one ~8-line check, no schema,
+> no CLI change (§3).
+>
+> If **NO** (keep advisory): this note is shelved; 3a stands.
+> If **YES**: dispatch per the resume prompt; the two sub-decisions in §3′ are
+> then reviewer-resolvable.
+
+### Rule 14 re-check (mechanism facts, HEAD `070dc65`)
+- `runtime/state/schema.sql` L847 comment and `runtime/flow_release_check.py:57`
+  docstring both state today's advisory semantic — consistent; both get a
+  one-clause update on a YES. The flow still records **no** verdict after 3b
+  (the gate lives in the store's approval hook, not the flow).
 - `tests/test_flow_release_check.py::test_blocked_composite_does_not_prevent_review_approval`
-  (the M3-era test) explicitly asserts today's advisory behaviour — **3b
-  inverts this test** for the un-acked case. That is the expected, reviewed
-  behaviour change, flagged here per memory `feedback_review_test_set_too_narrow`.
-
-**No operator sign-off needed to dispatch.** An operator *decision* only
-re-enters if the reviewer picks a non-recommended answer on §3 below.
+  asserts today's advisory behaviour — **3b inverts this test** for the un-acked
+  case (flagged per memory `feedback_review_test_set_too_narrow`).
 
 ## 2. The seam (verified at HEAD `070dc65`)
 
@@ -116,7 +146,12 @@ review-type guard so it fires for every review type; (M5) `ORDER BY id DESC` →
 `ASC` (stale-row selection); (M6) `AND review_id = ?` dropped (cross-review
 leak).
 
-## 3′. Residual sub-decisions — reviewer's call at impl time (recommended answers)
+## 3′. Residual sub-decisions — reviewer's call *given an operator YES on §1* (recommended answers)
+
+Both fold into the single §1 callout above (which already states the
+recommended answers). If the operator answers §1 as "YES to both", these two
+are then reviewer-resolvable at impl time; a reviewer wanting a *different*
+answer routes it back.
 
 **(a) No `release_checks` row at all for an `OPERATOR_VISIBLE_RELEASE_CHECK`
 task at approval time — refuse or allow?**
@@ -144,7 +179,7 @@ strict version (reject a release check older than the current submission,
 mirroring `REVIEW_SUBMISSION_CHANGED`) needs 2 new columns on `release_checks`
 + `record_release_check` capturing them from the bound subject — a schema
 change, out of the smallest slice. Note it as `§4 fork`; the advisory→blocking
-step is the operator-pre-authorized piece and stands alone.
+step (pending the §1 operator YES) stands alone.
 
 ## 4. Fork — stale-release-check hardening (separate later slice)
 
@@ -182,8 +217,14 @@ that `operator_ack_ref` is still nullable text with no CHECK.
 
 You are implementing **6.21 release-check slice 3b** for MAPS_Lean. Source of
 truth: this note + `work/notes/2026-09-01-6.21-release-design.md` §6 decision 3
-+ the operator answer in the #243 batch (advisory now, "approval-blocking is a
-later 3b slice"). No fresh operator decision is needed to proceed.
++ the operator answer in `work/notes/OPERATOR_ASK_2026-08-31-session13.md`
+(release-check item 3).
+
+**PRECONDITION:** the operator must have answered the §1 callout "YES" (make a
+`composite == BLOCKED` release check hard-block `record_review` APPROVED, with
+`operator_ack_ref` as the override; a missing release check also refuses
+APPROVED). Do not start without that answer — the committed operator note
+reserved this as "its own callout". If §1 is unanswered, stop and surface it.
 
 Make `composite == BLOCKED` from `maps flow release-check` **hard-block
 `record_review` APPROVED** for an `OPERATOR_VISIBLE_RELEASE_CHECK` task, unless
