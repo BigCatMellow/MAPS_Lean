@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -295,6 +296,56 @@ def _withheld_lesson_with_trust_class(item: dict[str, Any]) -> dict[str, Any]:
 _TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
 _MIN_TOKEN_LEN = 3
 
+# 6.9/S6 selector-quality (path (a), design note
+# `work/notes/2026-09-02-6.9-s6-selector-quality-scoping.md` §2): the Skill
+# selector replaces "any shared token selects" with a match-strength gate, so
+# an incidental single generic-word overlap (the EXP-B HARD_NEGATIVE failure
+# mode -- a rate-limit task hitting `api-contract-review` on the word "api")
+# no longer surfaces a Skill. Strength is computed from the candidate catalog
+# alone -- no retrieval, no synonym map, no semantic layer (those stay gated by
+# roadmap 6.33). Each matched token is worth `1 / (number of catalogued Skills
+# whose name+description contains it)`, so a token unique to one Skill scores
+# 1.0 and a token shared by three scores ~0.33; process/format words that carry
+# no routing signal score 0. A Skill is surfaced only if it has an "anchor" --
+# at least one matched non-stopword token that identifies few Skills -- AND
+# *either* its matched tokens sum to at least `_SKILL_MATCH_STRENGTH_FLOOR`
+# *or* they cover at least `_SKILL_MATCH_COVERAGE_FLOOR` of the task's whole
+# signal-token set. The coverage arm keeps a direct match whose signal words
+# happen to be common: "plan a load test for the checkout service" shares only
+# generic words with `load-test-planning`, but they are *most* of what the task
+# says. Both floors come from that intent -- "a lone incidental token is not
+# enough; a real concept-word anchor plus either corroboration or near-total
+# overlap is" -- not fitted to an EXP-A/B number; the frozen corpora are the
+# regression check that DIRECT/PARAPHRASE/MULTI_SKILL/NO_SKILL do not regress.
+_SKILL_MATCH_STRENGTH_FLOOR = 2.0
+_SKILL_MATCH_COVERAGE_FLOOR = 0.5
+_SKILL_ANCHOR_MAX_SKILL_COUNT = 2
+
+# Process / format / meta words that appear in Skill names and descriptions but
+# carry no routing signal -- a task sharing only these with a Skill is not
+# about that Skill's subject. Contributes 0 to match strength and cannot be an
+# anchor. Deliberately small and hand-curated (explicit-first, like
+# `_MIN_TOKEN_LEN`); grouped by rationale.
+_SKILL_ROUTING_STOPWORDS = frozenset(
+    {
+        # review / verification framing
+        "review", "check", "checklist", "audit", "verify", "verification",
+        # planning / procedure framing
+        "plan", "planning", "guide", "guidance", "runbook", "procedure",
+        "process", "step", "steps", "workflow",
+        # document / output framing
+        "note", "notes", "doc", "docs", "document", "report", "writeup",
+        "summary", "spec",
+        # generic change / activity verbs and nouns
+        "change", "changes", "update", "task", "work", "comparison",
+        "before", "after", "using", "use", "new",
+        # generic testing word (a unit-test fixture task is not a capacity test)
+        "test", "tests",
+        # generic service noun (nearly every candidate description mentions it)
+        "service", "services",
+    }
+)
+
 
 def _text_tokens(text: str) -> set[str]:
     return {
@@ -367,8 +418,12 @@ def _select_skills(
     signals, yields no skills rather than breaking the rest of the plan.
     Matching uses only the metadata the v1 Skill format actually exposes
     (name/description text) against task signal tokens (task_type, project_id,
-    output-path segments); an unmatched Skill is simply omitted, satisfying
-    the S6 exit gate that unrelated Skills demonstrably stay out of context. A
+    output-path segments). 6.9/S6 selector-quality (see the module-level
+    `_SKILL_MATCH_STRENGTH_FLOOR` comment): a token-matched Skill is surfaced
+    only if the match has an anchor and clears the strength-or-coverage floor,
+    so an incidental single generic-word overlap is dropped exactly as a
+    zero-token match is -- satisfying the S6 exit gate that unrelated Skills
+    demonstrably stay out of context. A
     matched Skill's `lifecycle_state` is always its real composed provenance
     value (or `None` when no durable subject row exists) -- selection never
     implies vetting that hasn't happened.
@@ -422,10 +477,20 @@ def _select_skills(
     if not signals:
         return [], tally
 
+    # 6.9/S6 selector-quality: token document-frequency across the whole
+    # candidate catalog, used to weight each match by how few Skills a token
+    # identifies. Computed once per plan build.
+    catalog_token_sets = [
+        _text_tokens(e.descriptor.name) | _text_tokens(e.descriptor.description)
+        for e in skill_catalog.entries
+    ]
+    token_skill_count: Counter[str] = Counter(
+        token for token_set in catalog_token_sets for token in token_set
+    )
+
     selected: list[dict[str, Any]] = []
-    for entry in skill_catalog.entries:
+    for entry, skill_tokens in zip(skill_catalog.entries, catalog_token_sets):
         descriptor = entry.descriptor
-        skill_tokens = _text_tokens(descriptor.name) | _text_tokens(descriptor.description)
         matched = sorted(signals & skill_tokens)
         if not matched:
             continue
@@ -435,7 +500,10 @@ def _select_skills(
         # an out-of-envelope Skill is never body-loaded. task["policy"] is read
         # as the task's already-decided envelope (attached by store.get_task);
         # the manifest is never written back. Seam is _select_skills, not
-        # load_catalog_skill (which has no task context).
+        # load_catalog_skill (which has no task context). This SEC4 check runs
+        # for every token-matched Skill regardless of match strength -- an
+        # out-of-envelope declaration is a security signal that must still be
+        # counted even when the Skill would not be surfaced anyway.
         within, _offending = capabilities_within_envelope(
             descriptor.declared_capabilities, task.get("policy")
         )
@@ -443,6 +511,30 @@ def _select_skills(
             tally.record(
                 MemoryAdmission.DENY, "SKILL_CAPABILITY_OUTSIDE_TASK_ENVELOPE"
             )
+            continue
+        # 6.9/S6 selector-quality gate: a Skill is surfaced only when its
+        # matched tokens carry real routing signal, not one incidental shared
+        # word (the EXP-B HARD_NEGATIVE failure mode). `token_skill_count[token]`
+        # is >= 1 for every matched token (the token is in this Skill's own set
+        # by construction). Placed after the SEC4 check (above) and before the
+        # trust gate / body load (below): a weak match is a silent non-selection,
+        # exactly as a zero-token match already was.
+        match_strength = sum(
+            0.0
+            if token in _SKILL_ROUTING_STOPWORDS
+            else 1.0 / token_skill_count[token]
+            for token in matched
+        )
+        match_coverage = len(matched) / len(signals)
+        has_anchor = any(
+            token not in _SKILL_ROUTING_STOPWORDS
+            and token_skill_count[token] <= _SKILL_ANCHOR_MAX_SKILL_COUNT
+            for token in matched
+        )
+        if not has_anchor or (
+            match_strength < _SKILL_MATCH_STRENGTH_FLOOR
+            and match_coverage < _SKILL_MATCH_COVERAGE_FLOOR
+        ):
             continue
         lifecycle_state = entry.provenance.lifecycle_state
         try:
