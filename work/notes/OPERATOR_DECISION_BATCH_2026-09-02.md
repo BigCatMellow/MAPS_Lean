@@ -1,5 +1,32 @@
 # Operator decision batch — MAPS_Lean, 2026-09-02
 
+---
+
+## 2026-09-02 (session 23, `rafa`) — OPERATOR ANSWERED
+
+Operator verbatim:
+
+> "Items 1–4: proceed with recommended answers. Item 5: target
+> `~/Projects/MAPS_Lean` confirmed, go for the one enforced pass. Item 6: add
+> the 3 scoped Bash rules."
+
+Canonical answers:
+
+| # | Answer | Dispatch |
+|---|--------|----------|
+| 1 | **YES to both** — `composite == BLOCKED` hard-blocks `record_review` APPROVED for `OPERATOR_VISIBLE_RELEASE_CHECK`; missing `release_checks` row → `RELEASE_CHECK_REQUIRED`; non-empty `operator_ack_ref` is the recorded override | #249 §2–§5 release-check 3b IMPL slice |
+| 2 | **Adopt all three parts** (a)(b)(c) — merge-authority / merge-prep rule into `AGENTS.md` + session-handoff template; coordinator owns all merge-prep; checkout ≠ merge claim. Rule-20 countermeasure for the #245 rebase race + 5h queue stalls | `AGENTS.md` + handoff-template PR + the coordinator-checkout-is-merge-prep-only friction entry |
+| 3 | **Keep fail-open now + add opt-in `--enforce-operator-identity` flag as a later slice.** Never the hard cutover (ii) | SEC4 Half 3 completion planning unblocked; opt-in flag = own slice later |
+| 4 | **YES** — promote 6.9 / S6 → DONE. Post-#264 this is a straight §17.3 sign-off: explicit-first Skill routing per EXP-B at `2cff0e40…4565` (1.00 on DIRECT/PARAPHRASE/MULTI_SKILL/NO_SKILL/HARD_NEGATIVE, 0 false activation, f1 0.867) with VOCABULARY_SHIFT + AMBIGUOUS deferred to §6.33. Coordinator + reviewers (vame, nava) concur | follow-up PR flips 6.9 + S6 status cells to DONE, cites #264 note + this decision as §17.3 evidence; re-check L4; independent reviewer |
+| 5 | **Target = `~/Projects/MAPS_Lean` confirmed. GO for the one enforced pass.** `.maps/` control plane already stood up (session 21). Coordinator runs the operator workflow — no impl/review agent runs `maps recovery-tick --enforce-canonical-run` autonomously | the enforced `--enforce-canonical-run` pass (recipe: #255 runbook §9 / #261 resume prompt; use a `--require-canonical-run` run so 6.16's `_require_bound_worktree` executes). Verify 6.4/6.5/6.16/6.22 + H5/E4/L6 hard before any status flip |
+| 6 | **Add all three scoped Bash permission rules** — `git worktree remove`/`branch -D` for merged worktrees; `gh api -X DELETE` for the 5 audited stale remote branches; `git push --force-with-lease` for `vame/*` + `evtmp*` throwaway rebase branches | permission-rules PR (scoped, repo-local, audited) |
+
+The operator is the accountable party for every item above; the coordinator
+dispatches the now-unblocked impl work and records outcomes back to the roadmap
+with independent review.
+
+---
+
 Paste-ready. Consolidates the operator questions that have accumulated since the
 session-17 batch (`work/notes/OPERATOR_ASK_2026-08-31-session13.md`, answered in
 PR #243). Same shape as that batch: **question → recommended answer → what it
