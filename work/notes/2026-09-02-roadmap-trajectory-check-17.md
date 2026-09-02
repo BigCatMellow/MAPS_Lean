@@ -321,10 +321,29 @@ operator decision (it touches the authority model).
 
 ## 6. Recorded for the next pass (check #18)
 
-- **Arc anchor for #18:** the squash commit of *this* PR. `git log --oneline
-  --grep='Roadmap trajectory check' main | head -1` then `<that>..HEAD`. **This
-  PR's arc already folds in #245 (`5447700`) and #251 (`6b8e703`)** (they merged
-  during the pass — see the arc-derivation note); #18 does not owe them again.
+- **Arc anchor for #18 — READ THIS FIRST.** Check #18 MUST anchor its window at
+  **`6ea81b2`** (the check-#16 squash), **NOT** at #252's squash. Several PRs
+  merged between `6ea81b2` and #252's squash while #17 was in review, and every
+  one of them belongs to #18's review even though #17's note mentions some.
+  The full set #18 owes:
+
+  | PR | What | #18 verifies |
+  |----|------|--------------|
+  | #241 | 6.9/S6 frozen-eval scoping note | design note landed as scoped |
+  | #242 | SEC4 capability granularity (network-read split + `filesystem-write:<path>` token) | `_SATISFYING_TOKENS` has no `network-read` alias; token vocab+parse only, path enforcement still deferred |
+  | #243 | operator answered the #16 §3b batch | each answer acted on (see #17 §1 carried check 1) |
+  | #244 | `maps flow release-check` impl + `release_checks` table | advisory `composite==BLOCKED`, records no verdict, 6.21 stays IN PROGRESS |
+  | #245 | SEC4 Half 3 slice 1 — `authorized_operators` registry | `is_authorized_operator` gate on `maps skill approve`, opt-in-by-data, genesis at `maps init` |
+  | #246 | EXP-B 25-case frozen corpus + `test_exp_b_skill_routing.py` | ≥4 per §6.9 category, real `_select_skills`, sha256-pinned; f1 0.722 |
+  | #249 | release-check 3b (composite==BLOCKED → hard approval gate) scoping | design/scoping only; surfaces the operator decision |
+  | #250 | 6.9/S6 promotion gate-step — decision: NO FLIP | 6.9 stays IN PROGRESS |
+  | #251 | SEC4 Half 3 slice 2 scoping | recommends increment 2a (widen gate to `activate`/`retire`/`supersede`); no status flip |
+
+  Mechanically: `git log --oneline 6ea81b2..HEAD` at the start of #18 and check
+  every line, minus the ones this PR (#252) already verified — do not trust
+  "#17 mentioned it" as "reviewed"; re-confirm against merged code (rule 14).
+- `python3 -m runtime.smoke` exit 0 at `5447700` (#252's pre-rebase base;
+  re-run at #18's actual HEAD).
 - `python3 -m runtime.smoke` exit 0 at `5447700`.
 - Scoreboard: 16 / 13 / 6 — **tenth** consecutive pass. Tenth-Seat Trigger 2
   armed, **did not fire** (§4 — substantive findings). Re-arms for #18: a
