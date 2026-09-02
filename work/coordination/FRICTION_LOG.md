@@ -176,6 +176,12 @@ Entry format:
   #246 frozen corpus + test) + this trajectory lane used scoped `git show` /
   `/usr/bin/grep` / `sed -n` ranges / `Read` offset+limit throughout. Stays open
   (behavioral, "if it recurs").
+- 2026-09-02 follow-up (trajectory check #18, `vame`): **no recurrence — 7th
+  consecutive arc.** The 13-PR `6ea81b2..d8568a3` window (#241–#255: design
+  notes, scoping notes, the #255 Ask-#1 runbook, #242/#244 impl, two review
+  lanes) + this trajectory lane used scoped tooling throughout; the #255
+  deadlock trace followed specific call sites via `/usr/bin/grep` + `sed -n`,
+  not a dump. Stays open.
 
 ## 2026-09-01 — stale slice-boundary NonGoalTests assertions
 - class: recurring-stall
@@ -215,3 +221,11 @@ Entry format:
   ("If any existing test asserts an unauthorized actor can
   activate/retire/supersede against a seeded registry → update it"). Check #18
   gets the first real test — the #251 slice-2 impl PR. Stays open.
+- 2026-09-02 follow-up (trajectory check #18, `vame`): the #251 slice-2a impl
+  has **not landed yet** (dispatched to `luve`, no PR) — carries to #19. A
+  *second* scope-expanding `_select_skills` slice is now also queued: the #254
+  selector-quality impl (path a — HARD_NEGATIVE score + AMBIGUOUS margin + V01
+  lemmatiser), whose dispatch (#254 resume prompt) explicitly names the boundary
+  it supersedes ("the per-category structural asserts … change intentionally";
+  "`test_exp_a` v1 pins may shift — update alongside, note it"). Both impl PRs
+  are #19's test of the dispatch discipline. Stays open.
