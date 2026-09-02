@@ -170,6 +170,12 @@ Entry format:
   consecutive arc.** The #234–#238 lanes (2 design notes, a 1-line prose fix, the
   #236 safeguard, the #237 slice-2 impl) used scoped `git show` / `/usr/bin/grep`
   / `sed -n` / `Read` offset+limit throughout. Stays open.
+- 2026-09-02 follow-up (trajectory check #17, `vame`): **no recurrence — 6th
+  consecutive arc.** The #241–#246 lanes (a scoping design note, the #243
+  operator-answers record, #242 policy-token impl, #244 `flow release-check`,
+  #246 frozen corpus + test) + this trajectory lane used scoped `git show` /
+  `/usr/bin/grep` / `sed -n` ranges / `Read` offset+limit throughout. Stays open
+  (behavioral, "if it recurs").
 
 ## 2026-09-01 — stale slice-boundary NonGoalTests assertions
 - class: recurring-stall
@@ -201,3 +207,11 @@ Entry format:
   adopted (a scope-expanding-slice dispatch that names its superseded boundary
   tests). If a 3rd occurrence lands *and* the dispatch discipline was in place,
   re-open for a mechanical safeguard discussion.
+- 2026-09-02 follow-up (trajectory check #17, `vame`): **no clean test case this
+  arc** — none of #241–#246 was a scope-expanding `_select_skills` /
+  `context_builder` slice with `NonGoalTests` substring-assert risk. The
+  discipline IS being applied prospectively: the #251 SEC4 Half 3 slice-2 scoping
+  note's §3 Stop-conditions explicitly name the boundary the slice supersedes
+  ("If any existing test asserts an unauthorized actor can
+  activate/retire/supersede against a seeded registry → update it"). Check #18
+  gets the first real test — the #251 slice-2 impl PR. Stays open.
