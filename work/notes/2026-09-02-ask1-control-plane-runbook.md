@@ -129,6 +129,14 @@ unless the repo root has a readable Git worktree identity — it records the
 §10 is explicit: tracked Markdown is the durable record; local state is
 disposable. This is the basis of the reversibility answer (§5).
 
+Precision on the ignore rule: `.gitignore:10` is `/.maps/state/`, **not**
+`/.maps/`. Everything the runtime writes lives under `.maps/state/` (verified —
+`DEFAULT_DB`, `DEFAULT_RECOVERY_STATE_PATH`, the LangGraph checkpoint path all
+have the `state/` segment), so all of it is ignored. But a hypothetical future
+file placed directly at `.maps/<x>` (not under `state/`) would **not** be
+auto-ignored — no current code creates one; if the setup ever adds a
+`.maps/`-level file, widen the rule to `/.maps/` at that point.
+
 Immutability inside `maps.db`: `run_manifests`, `run_environment_evidence`,
 `skill_lifecycle_*`, `release_checks`, `run_recovery_links` all carry
 `BEFORE UPDATE`/`BEFORE DELETE` `RAISE(ABORT)` triggers. `tasks` rows are
@@ -352,6 +360,7 @@ any row** — this is what #18 / a future gate step checks.
 |---|---|---|---|
 | **6.4** Deterministic Hooks | write/credential guards + capability-declaration manifest not built; needs the `CANONICAL_RUN` + `DESTRUCTIVE_EXTERNAL_ACTION` composition exercised | the composition is **instantiated** in production for the first time (`build_canonical_harness_service` constructs both guards + registry) | **No** — write/credential guards still absent |
 | **6.5** Immediate deterministic validation | executed validation is advisory-only; no path consults the result to allow/deny; needs *enforcement* of the validation-tier *outcome* | **Nothing** — canonical-run enforcement guards run *identity*, not validation-tier outcome. That is `--enforce-validation` (a separate flag/gate) | **No** — wrong enforcement layer |
+| **6.22** Memory trust classes (`MemoryProvenanceGuard` first exposure) | `HarnessService.send()` has no production caller and no assembler emits `memory_provenance`; needs "a real `send()` caller denied on a `WITHHOLD` item" | the guard is **instantiated** in the composition (§3 step 5, `register_memory_provenance_guards`) — but `RecoverySupervisor` only ever calls `.resume()`, never `.send()`, so the guard's `BEFORE_SEND` callback is never fired by this pass | **No** — instantiation-only, same pattern as the H5 row; the real exit (a denied `send()` on a `WITHHOLD` item) is unreachable from `recovery-tick` |
 | **6.16 / E6(b)** Git worktree isolation | composition root default-off, exercised only on `recovery-tick`, **no first real production exposure** | the composition is instantiated; a *routable* `RUN_WORKTREE_MISMATCH` denial would be the exposure evidence — but see §3, no routable binding on a fresh DB | **No** — needs a routable binding to actually exercise the worktree seam |
 | **H5** Remaining adapters + contract suite | "closes only after the first real production exposure of an enforced pass (which converts currently-working resumes into `resume_denied`)" | the pass instantiates `HarnessService` + `HookRegistry` with a non-test caller (already true since #175's composition landed); a real `resume_denied` is **not reachable** (§3) | **No** — the stated exit criterion is currently unreachable; see §8 |
 | **E4** Validation tiers | execution is opt-in, `quick`-only, advisory; `make_validation_hook` attached to no production registry | **Nothing** — canonical pass carries the `CanonicalRunGuard` only, not a validation callback | **No** — same as 6.5 |
@@ -363,9 +372,11 @@ instantiated in a real enforced pass on <date>; behaviour observed: <N
 incidents, 0 routable, 0 denials>" (or, if a routable denial is later
 engineered, "denial <CODE> observed and remediated per §4"). **None of the 7
 reach DONE from the pass alone** — 6.4 needs write/credential guards, 6.5/E4
-need the validation-outcome gate, L6 needs manifest wiring, H5 needs a
-reachable `resume_denied` (§8), 6.16 needs the worktree seam actually
-exercised.
+need the validation-outcome gate, L6 needs manifest wiring, H5 and 6.22 need a
+reachable denial (a `resume_denied` / a denied `send()` respectively — §8),
+6.16 needs the worktree seam actually exercised. Three of the seven (6.16, H5,
+6.22) share the same "guard instantiated in the composition but its callback
+never fired for lack of a reachable operation" shape.
 
 ---
 
@@ -407,7 +418,15 @@ requires before it will route a resume through the guarded `HarnessService`,
 and the supervisor pre-checks that lineage before it would let the adapter
 bootstrap it. So the guard's decision logic cannot fire on a real incident.
 
-This needs a call from @soda (or the operator, if it's an authority question):
+**This is an operator decision, not a coordinator one.** The operator's #243
+"go" on Ask #1 was for a specific pictured outcome — currently-working resumes
+becoming `resume_denied`, exposing the enforcement layer for real. That outcome
+is now known to be **unreachable** without a code change (§3). So the operator
+authorised something that cannot happen as they pictured it, and must at
+minimum be told: *the pass you authorised will produce 0 denials against the
+current code; option (B) is the code change needed for the outcome you meant.*
+Whether to (A) run the 0-denial pass now for the instantiation evidence, or (B)
+do the lineage-bootstrap wiring first, is then the operator's call:
 
 - **(A) Accept a narrower "exposure"** — the first pass *instantiates* the
   composition in production and is documented to have processed the real
@@ -421,10 +440,12 @@ This needs a call from @soda (or the operator, if it's an authority question):
   produce (and §4 can remediate) a real denial. This is a scoped follow-up, not
   part of Ask #1's authorization.
 
-Recommendation: **(A)** — run the documented pass now for the instantiation
-evidence, and open a separate scoping note for the lineage-bootstrap wiring
-(B) as the real path to H5 DONE. This keeps Ask #1 within its granted scope
-(a pass, not a code change) and doesn't block on new design.
+Recommendation to put to the operator: **(A) + (B) sequenced** — run the
+documented 0-denial pass now for the instantiation evidence (it is within the
+granted scope: a pass, not a code change), *and* open a separate scoping note
+for the lineage-bootstrap wiring (B) as the real path to H5 / 6.16 / 6.22 DONE.
+(A) alone does not deliver what #243 authorised; (B) alone leaves the
+instantiation evidence ungathered.
 
 Everything else in this runbook is "go / timing" only.
 
