@@ -54,12 +54,27 @@ concept-word-controlled descriptions so every token overlap is intentional.
 `NEAR_MISS` is not included — §6.9 does not list it, and it is hard to author
 cleanly against a pure token selector without collapsing into `HARD_NEGATIVE`.
 
+The 5 `DIRECT` cases cover 5 of the 7 candidate Skills; `changelog-authoring`
+and `dependency-upgrade-review` have no `DIRECT` case (they appear only in
+`PARAPHRASE` / `MULTI_SKILL` / `HARD_NEGATIVE` cases). §6.9 requires ≥ 4 direct
+matches, not one per Skill, so this is within the bar — noted for a reviewer
+weighing per-Skill `DIRECT` confidence.
+
 ### Authoring discipline
 
-- **PARAPHRASE** cases reword the intent (no Skill-name synonyms) and the
-  fixture tokens overlap the *target* Skill only via **concept words unique to
-  its description** (verified against the per-Skill token sets; the 15
-  tokens shared by more than one Skill were kept out of the deciding overlap).
+- **PARAPHRASE** cases reword the intent in prose; the deciding overlap is
+  carried by the structured fixture fields (`task_type` / `project_id` /
+  output-path stems), and the authoring constraint applied was **the overlap
+  must not rest *solely* on tokens shared with the Skill name** — tokens that a
+  Skill-name synonym alone would supply (`steps`, `upgrade`, `impact`, …) were
+  deliberately stripped from the fixtures. Two of the four (EXPB-P01
+  `migration` via the output path; EXPB-P03 `dependency` via `task_type`) do
+  contain one token that also appears in the target Skill's *name*, but in both
+  the selection is additionally carried by description-unique concept words
+  (P01: `schema` / `backfill` / `cutover` / `database`; P03: `transitive` /
+  `advisory` / `lockfile` / `bump`) — so PARAPHRASE = 1.00 is a partial floor
+  for those two, not a pure name-token match. The four VOCABULARY_SHIFT cases
+  are the ones that avoid *every* name and description token (→ ABSTAIN).
 - **VOCABULARY_SHIFT** cases use genuine synonyms the exact-token selector
   cannot see (`credential`≠`credentials`, `renew`≠`rotation`, `brownout`≠`outage`).
   `expected_outcome` is `SELECT` — recording what a robust selector *should* do;

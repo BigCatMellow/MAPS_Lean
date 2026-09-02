@@ -62,14 +62,15 @@ CORPUS_PATH = (
     / "exp_a_skill_routing_v2.json"
 )
 
-_SIX_CATEGORIES = {
+_NON_OVERLAPPING_CATEGORIES = {
     "DIRECT",
     "PARAPHRASE",
     "VOCABULARY_SHIFT",
     "HARD_NEGATIVE",
     "NO_SKILL",
 }
-# "overlapping Skills" (§6.9) is MULTI_SKILL + AMBIGUOUS together.
+# §6.9's sixth category, "overlapping Skills", is MULTI_SKILL + AMBIGUOUS
+# together (design note §4a) — depth-checked as a combined count below.
 _OVERLAPPING = {"MULTI_SKILL", "AMBIGUOUS"}
 
 
@@ -142,7 +143,7 @@ class ExpBSkillRoutingBenchmarkTests(unittest.TestCase):
 
     def test_corpus_covers_every_6_9_category_with_depth(self) -> None:
         counts = Counter(case.category.value for case in self.corpus.cases)
-        for category in _SIX_CATEGORIES:
+        for category in _NON_OVERLAPPING_CATEGORIES:
             self.assertGreaterEqual(
                 counts[category], 4, f"{category}: {counts[category]} (< 4)"
             )
@@ -152,7 +153,7 @@ class ExpBSkillRoutingBenchmarkTests(unittest.TestCase):
             f"overlapping Skills: {counts['MULTI_SKILL']}+{counts['AMBIGUOUS']} (< 4)",
         )
         self.assertEqual(
-            set(counts) - _SIX_CATEGORIES - _OVERLAPPING,
+            set(counts) - _NON_OVERLAPPING_CATEGORIES - _OVERLAPPING,
             set(),
             "unexpected category present",
         )
