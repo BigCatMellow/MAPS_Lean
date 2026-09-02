@@ -1,3 +1,4 @@
+from .authorized_operator_storage import AuthorizedOperatorStorageMixin
 from .base import BaseStore
 from .common import MutationResult, ValidationResult
 from .environment_contract import EnvironmentContractMixin
@@ -23,6 +24,7 @@ from .submission_lineage import SubmissionRunLineageMixin
 class TaskStore(
     RunSessionTraceMixin,
     ExecutionScopeHardeningMixin,
+    AuthorizedOperatorStorageMixin,
     SkillLifecycleStorageMixin,
     OperationalLessonStorageMixin,
     HelperRecoveryLineageMixin,

@@ -884,3 +884,64 @@ BEFORE DELETE ON release_checks
 BEGIN
     SELECT RAISE(ABORT, 'release checks are immutable');
 END;
+
+-- ----------------------------------------------------------------------------
+-- SEC4 Half 3 -- authorized-operator registry.
+--
+-- The MAPS CLI otherwise trusts its invoking process entirely: whatever runs
+-- `python -m runtime.cli` is "the operator", and `--actor` / `decided_by` are
+-- unverified free strings. This registry is the one place an operator-identity
+-- claim can be checked against a recorded fact.
+--
+-- Both tables are append-only (no-update / no-delete triggers, house pattern).
+-- "authorized as of now" is composed, never a mutable column: an operator is
+-- authorized iff it has an `authorized_operators` row and no
+-- `authorized_operator_revocations` row.
+--
+-- Opt-in by data: an empty `authorized_operators` table means identity checks
+-- are disabled -- byte-identical to pre-registry behavior. The genesis row is
+-- written by `maps init --operator <id>` (added_by = the 'GENESIS' sentinel);
+-- every later row requires an already-authorized `added_by`.
+CREATE TABLE IF NOT EXISTS authorized_operators (
+    operator_id  TEXT PRIMARY KEY CHECK (length(trim(operator_id)) BETWEEN 1 AND 128),
+    display_name TEXT CHECK (display_name IS NULL OR length(trim(display_name)) BETWEEN 1 AND 256),
+    added_by     TEXT NOT NULL CHECK (length(trim(added_by)) BETWEEN 1 AND 128),
+    decision_ref TEXT NOT NULL CHECK (length(trim(decision_ref)) BETWEEN 1 AND 512),
+    added_at     TEXT NOT NULL,
+    created_at   TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS authorized_operator_revocations (
+    revocation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    operator_id   TEXT NOT NULL REFERENCES authorized_operators(operator_id),
+    revoked_by    TEXT NOT NULL CHECK (length(trim(revoked_by)) BETWEEN 1 AND 128),
+    decision_ref  TEXT NOT NULL CHECK (length(trim(decision_ref)) BETWEEN 1 AND 512),
+    revoked_at    TEXT NOT NULL,
+    created_at    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_authorized_operator_revocations_operator
+    ON authorized_operator_revocations(operator_id, revocation_id);
+
+CREATE TRIGGER IF NOT EXISTS trg_authorized_operators_no_update
+BEFORE UPDATE ON authorized_operators
+BEGIN
+    SELECT RAISE(ABORT, 'authorized operators are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_authorized_operators_no_delete
+BEFORE DELETE ON authorized_operators
+BEGIN
+    SELECT RAISE(ABORT, 'authorized operators are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_authorized_operator_revocations_no_update
+BEFORE UPDATE ON authorized_operator_revocations
+BEGIN
+    SELECT RAISE(ABORT, 'authorized operator revocations are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_authorized_operator_revocations_no_delete
+BEFORE DELETE ON authorized_operator_revocations
+BEGIN
+    SELECT RAISE(ABORT, 'authorized operator revocations are immutable');
+END;

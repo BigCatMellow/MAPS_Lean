@@ -75,7 +75,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument('--db', default=str(DEFAULT_DB), help='SQLite task-state path')
     sub = parser.add_subparsers(dest='command', required=True)
 
-    sub.add_parser('init', help='create/open the task database')
+    init = sub.add_parser('init', help='create/open the task database')
+    init.add_argument(
+        '--operator',
+        dest='genesis_operator',
+        help='SEC4 Half 3: seed the genesis authorized-operator row (opts the '
+        'identity registry in). Requires --operator-decision-ref.',
+    )
+    init.add_argument('--operator-decision-ref', dest='genesis_decision_ref')
+    init.add_argument('--operator-display-name', dest='genesis_display_name')
 
     create = sub.add_parser('create', help='create a NEEDS_SHAPING task')
     create.add_argument('--task-id')
@@ -374,6 +382,26 @@ def build_parser() -> argparse.ArgumentParser:
         '--operator-ack-ref', dest='operator_ack_ref'
     )
 
+    operator = sub.add_parser(
+        'operator',
+        help='SEC4 Half 3: the authorized-operator registry (opt-in identity check)',
+    )
+    operator_sub = operator.add_subparsers(dest='operator_command', required=True)
+    operator_add = operator_sub.add_parser(
+        'add', help='authorize an operator (must be added by an already-authorized one)'
+    )
+    operator_add.add_argument('operator_id')
+    operator_add.add_argument('--by', required=True, dest='added_by',
+                              help='operator_id of an already-authorized authorizer')
+    operator_add.add_argument('--decision-ref', required=True)
+    operator_add.add_argument('--display-name', dest='display_name')
+    operator_revoke = operator_sub.add_parser('revoke', help='revoke an operator')
+    operator_revoke.add_argument('operator_id')
+    operator_revoke.add_argument('--by', required=True, dest='revoked_by',
+                                 help='operator_id of an already-authorized authorizer')
+    operator_revoke.add_argument('--decision-ref', required=True)
+    operator_sub.add_parser('list', help='list the registry with composed authorization state')
+
     skill = sub.add_parser(
         'skill',
         help='operator-driven Skill trust-lifecycle transitions (SEC4 / 6.10)',
@@ -480,6 +508,25 @@ def _resolve_skill_catalog_key(store, arg: str):
     return matches[0]['catalog_key']
 
 
+def _dispatch_operator(store, args) -> int:
+    if args.operator_command == 'list':
+        return _emit({'ok': True, 'operators': store.list_authorized_operators()})
+    if args.operator_command == 'add':
+        return _emit(store.record_authorized_operator(
+            args.operator_id,
+            added_by=args.added_by,
+            decision_ref=args.decision_ref,
+            display_name=args.display_name,
+        ))
+    if args.operator_command == 'revoke':
+        return _emit(store.revoke_authorized_operator(
+            args.operator_id,
+            revoked_by=args.revoked_by,
+            decision_ref=args.decision_ref,
+        ))
+    raise AssertionError(args.operator_command)
+
+
 def _dispatch_skill(store, args) -> int:
     from runtime.skills.lifecycle import SkillLifecycleState
 
@@ -514,6 +561,20 @@ def _dispatch_skill(store, args) -> int:
             'decisions': store.list_skill_lifecycle_decisions(resolved),
         })
 
+    # SEC4 Half 3 (opt-in-by-data): once the authorized-operator registry is
+    # seeded, `maps skill approve` requires --actor to be a currently authorized
+    # operator. While the registry is empty the check is inert (byte-identical
+    # to pre-registry behavior). CLI-side per design Q B3 -- the store method
+    # stays a faithful recorder of the claimed actor.
+    if args.skill_command == 'approve' and store.has_authorized_operator_registry():
+        if not store.is_authorized_operator(getattr(args, 'actor', None) or ''):
+            return _emit(MutationResult(
+                False,
+                'UNAUTHORIZED_ACTOR',
+                f'{getattr(args, "actor", None)!r} is not a currently authorized '
+                'operator (maps operator list)',
+            ))
+
     # approve / activate / retire / supersede: map the verb to its target
     # state and let the store's in-transaction replay decide the from_state
     # and reject an illegal edge. The CLI never pre-checks the transition.
@@ -532,7 +593,31 @@ def main(argv: list[str] | None = None) -> int:
     store = TaskStore(args.db)
 
     if args.command == 'init':
-        return _emit({'ok': True, 'db': str(Path(args.db)), 'settings': store.connection_settings()})
+        payload = {
+            'ok': True,
+            'db': str(Path(args.db)),
+            'settings': store.connection_settings(),
+        }
+        if args.genesis_operator:
+            if not args.genesis_decision_ref:
+                return _emit(MutationResult(
+                    False,
+                    'INVALID_DECISION_REF',
+                    '--operator requires --operator-decision-ref',
+                ))
+            from runtime.state.authorized_operator_storage import GENESIS_AUTHORIZER
+            genesis = store.record_authorized_operator(
+                args.genesis_operator,
+                added_by=GENESIS_AUTHORIZER,
+                decision_ref=args.genesis_decision_ref,
+                display_name=args.genesis_display_name,
+            )
+            if not genesis.ok:
+                return _emit(genesis)
+            payload['genesis_operator'] = asdict(genesis)
+        return _emit(payload)
+    if args.command == 'operator':
+        return _dispatch_operator(store, args)
     if args.command == 'create':
         return _emit(store.create_task(
             task_id=args.task_id,
