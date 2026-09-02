@@ -12,7 +12,9 @@ unanswered operator batch. Tenth-Seat Trigger 2 armed, did not fire.)
 $ git log --oneline --grep='Roadmap trajectory check' main | head -1
 6ea81b2 Roadmap trajectory check #16 (ff37c8a..HEAD — PRs #234-#238) (#240)
 
-$ git log --oneline 6ea81b2..origin/main
+$ git log --oneline 6ea81b2..origin/main   # re-run after #245 + #251 merged
+5447700 SEC4 Half 3 slice 1: authorized-operator registry (#245)
+6b8e703 Design note: SEC4 Half 3 slice 2 scoping — widen operator gate to all skill verbs (#251)
 070dc65 6.9/S6: EXP-B expanded frozen Skill-selection evaluation (25-case corpus) (#246)
 7a466eb 6.21: maps flow release-check — compose artifact-identity + release-smoke evidence (#244)
 ffbf71c Operator answered the trajectory-#16 decision batch (session 17) (#243)
@@ -20,17 +22,21 @@ ffbf71c Operator answered the trajectory-#16 decision batch (session 17) (#243)
 5d4a9f2 SEC4 capability granularity: network-read split + filesystem-write:<path> token (#242)
 ```
 
-Arc = **5 PRs: #242, #241, #243, #244, #246** (within the 3–6 window). 2 impl
-(#242 capability-granularity, #244 `flow release-check`), 2 design notes (#241
-6.9 frozen-eval scoping, #246 is impl not design — corrects to: #246 the 25-case
-frozen corpus + test, #241 the scoping note), 1 operator-decision record (#243).
-Re-tally: **#242 impl, #241 design note, #243 operator-answers record, #244 impl,
-#246 impl (corpus + frozen test).** HEAD `070dc65`.
+Arc = **7 PRs: #242, #241, #243, #244, #246, #251, #245** — **just over the 3–6
+window; acknowledged.** The window matters more than the count: `#251`
+(`6b8e703`) and `#245` (`5447700`) merged *after* the `#252` branch was first
+cut, landing inside `6ea81b2..HEAD`. If they were left as "in-flight for #18",
+#18's anchor would be `#252`'s squash and `git log <anchor>..HEAD` would **skip
+both** — the exact anchor-accounting gap that hit check #11 (dispatched
+"#202–#207", owed "#194–#207"). So `#252` was rebased onto `5447700` and both are
+folded into this arc with verification (light for the two design-shaped ones).
 
-**#245 (SEC4 Half 3 slice 1) is NOT in this arc** — luve APPROVE, rebased to tip
-`d86c6f2`, MERGEABLE, awaiting `gh pr merge`. In-flight, counts toward #18's arc.
-Also in-flight for #18's horizon: **#249** (release-check 3b scoping), **#250**
-(6.9/S6 NO-FLIP decision), **#251** (SEC4 Half 3 slice 2 scoping).
+Re-tally: **#242 impl, #241 design note, #243 operator-answers record, #244 impl,
+#246 impl (corpus + frozen test), #251 design note (SEC4 Half 3 slice 2 scoping),
+#245 impl (SEC4 Half 3 slice 1 registry).** HEAD `5447700`.
+
+In-flight for #18's horizon: **#249** (release-check 3b scoping), **#250**
+(6.9/S6 NO-FLIP decision) — both still open at the time of this pass.
 
 Method (rule 14): every consequential claim re-checked against `git show`, a read
 of the merged code, `/usr/bin/grep` over `runtime/` excluding `tests/`, targeted
@@ -39,11 +45,23 @@ and `python3 -m runtime.smoke`.
 
 ## 0. Situational awareness
 
-- `python3 -m runtime.smoke` → **exit 0 at `070dc65`** (`sqlite_task_lifecycle`
+- `python3 -m runtime.smoke` → **exit 0 at `5447700`** (`sqlite_task_lifecycle`
   ok, WAL / foreign_keys=1 / busy_timeout=5000).
 - Each arc PR merged with green CI + an independent review-evidence file
-  (`nava` on #243; `vame` on #242; `luve` on #246; #244 carries
-  `pr-244-review-evidence.md`).
+  (`nava` on #243; `vame` on #242; `luve` on #246 and #245; `nava` on #251;
+  #244 carries `pr-244-review-evidence.md`).
+- **#245 / #251 light re-verify (folded in per the anchor-accounting fix):**
+  `#245` — `/usr/bin/grep -rln "authorized_operators" runtime/` now returns
+  `runtime/cli.py`, `runtime/state/authorized_operator_storage.py`,
+  `runtime/state/schema.sql` (the standing "→ NOTHING" check flips — see carried
+  check 4); `python3 -m unittest tests.test_authorized_operator_storage` → 18
+  tests OK; CLI wiring present (`maps operator list`, `is_authorized_operator`
+  gate on `skill approve` at `cli.py:570`, genesis via `GENESIS_AUTHORIZER` at
+  `cli.py:608`). `#251` — design note only
+  (`work/notes/2026-09-01-sec4-half3-slice2-scoping.md`, 10.5 KB), no runtime
+  change; recommends increment 2a (widen the operator gate to
+  `activate`/`retire`/`supersede`), defers 2b/2d/2e, flags 2c (fail-closed
+  cutover) as an operator decision. No status flip.
 - **Scoreboard recounted** from `work/roadmaps/CAPABILITY_CHECKLIST.md` §7
   (6.1–6.35, Status column, parsed `awk -F'|' '{print $2, $4}'`):
   - **DONE 16** — 6.1, 6.2, 6.3, 6.6, 6.7, 6.8, 6.13, 6.14, 6.15, 6.18, 6.23,
@@ -71,7 +89,7 @@ answer per item. Per-item disposition:
 |---|---|---|
 | **Ask #1** — first `--enforce-canonical-run` pass | **AUTHORIZED**, one pass; target/timing pinned by coordinator; **`.maps/` does not exist in this checkout** → control-plane DB + `--harness-project-id` setup is a coordinator prerequisite *before* any enforced pass; no impl/review agent runs it autonomously | **Not yet — correctly.** `ls .maps` → absent. `git log --all --grep='enforce-canonical-run\|recovery-tick' 6ea81b2..` → **no arc commit ran an enforced pass.** The prerequisite (control-plane setup) has **no owner assigned yet** — see §2.3. |
 | **`flow release-check` batch** (#234 §6) | new append-only `release_checks` table; persist evaluator `report_ref`s; `composite==BLOCKED` **advisory**; any party may run | **DONE — #244.** `runtime/state/release_check.py` mixin + `release_checks` table (schema.sql, `id`-keyed, `(task_id, review_id, id)` index, no-update/no-delete triggers) + `runtime/flow_release_check.py` + `maps flow release-check`. `composite = BLOCKED` iff an aggregate is `FAIL`, records no verdict, does not gate `record_review`. Matches the answer exactly. 6.21 stays IN PROGRESS. |
-| **SEC4 B1** `authorized_operators` | opt-in real check, one site, **default off**; no rows → disabled (fail-open); genesis at `maps init`; separate `maps operator add` for later rows | **In-flight — #245** (luve APPROVE, merge pending). `authorized_operators` + `authorized_operator_revocations` tables, `AuthorizedOperatorStorageMixin`, `maps operator add|revoke|list`, genesis via `maps init --operator`, opt-in-by-data check on `maps skill approve`. Matches the answer. |
+| **SEC4 B1** `authorized_operators` | opt-in real check, one site, **default off**; no rows → disabled (fail-open); genesis at `maps init`; separate `maps operator add` for later rows | **DONE — #245** (`5447700`, merged during this pass; luve APPROVE). `authorized_operators` + `authorized_operator_revocations` tables (append-only, no-update/no-delete triggers), `AuthorizedOperatorStorageMixin`, `maps operator add|revoke|list`, genesis via `maps init --operator` (`GENESIS` sentinel), opt-in-by-data check on `maps skill approve` (inert while the registry is empty). Verified at code level — matches the answer exactly. **#251** (`6b8e703`) scopes slice 2 (widen the gate to `activate`/`retire`/`supersede`). |
 | **Ask #2** — env-evidence-writer authority ratification | **YES**; no Q4 fallback slice | **DONE — no runtime change needed** (RESOLVED per PR #207; see memory `project_env_evidence_writer_authority_redecision`). |
 | **Ask #3** — kill zombie pid 3874 | **AUTHORIZED**; operator runs `kill 3874` | **DONE.** `ps -o pid,etime,cmd -p 3874` → **"NOT RUNNING"** (dead; was ~41 h at #16). |
 | Infra #2 / #3 — worktree + stale-branch cleanup | **not in the answered batch** — still pending operator | still open (44 classifier-blocked `git worktree remove` / `git branch -D` + 5 stale remote branches). |
@@ -98,8 +116,8 @@ work:
 
 | Candidate | Blocked on? | Ready? |
 |---|---|---|
-| **SEC4 Half 3 slice 1** (`authorized_operators`) | nothing — operator answered | **#245, done, merge-pending** |
-| **SEC4 Half 3 slice 2** (widen the operator gate to `activate`/`retire`/`supersede`) | nothing — no schema, no operator decision | **#251 scoping done; 1 clean impl slice next** |
+| **SEC4 Half 3 slice 1** (`authorized_operators`) | nothing — operator answered | **#245 merged (`5447700`)** |
+| **SEC4 Half 3 slice 2** (widen the operator gate to `activate`/`retire`/`supersede`) | nothing — no schema, no operator decision | **#251 scoping merged (`6b8e703`); 1 clean impl slice next** |
 | **`flow release-check` 3b** (composite==BLOCKED → hard approval gate) | authority-model change → needs the operator's nod on the gate itself | **#249 scoping in-flight** — surfaces the operator decision |
 | **SEC4 `filesystem-write:<path>` → `output_paths` enforcement** (#238 §4) | nothing | needs a small design note, then impl |
 | **Ask #1 first enforced pass** — unblocks 6.4/6.5/6.16/6.22 + H5/E4/L6 (**7 rows**) | **the control-plane-setup prerequisite** (`.maps/` DB + `--harness-project-id` per `docs/CONTROL_PLANE_SETUP.md`) — a coordinator task, plus a final operator timing nod | **not started; no owner assigned** |
@@ -114,15 +132,15 @@ is now a **single concrete coordinator task** (`.maps/` control-plane setup),
 not an open-ended operator decision. That is a qualitatively better position
 than #16.
 
-### Carried check 4 — the standing "`/usr/bin/grep -rn authorized_operators runtime/` → NOTHING" check. **STILL NOTHING on `main` — but only because #245 is not merged yet.**
+### Carried check 4 — the standing "`/usr/bin/grep -rn authorized_operators runtime/` → NOTHING" check. **FLIPPED — it now finds the storage module + schema + CLI (#245 merged `5447700` during this pass).**
 
-`/usr/bin/grep -rn "authorized_operators" runtime/` on `origin/main` `070dc65`
-→ **0 hits** (unchanged since #13/#14/#15/#16). The table + mixin exist on the
-**#245 branch** (`origin/worktree-sec4-half3` `d86c6f2`:
-`runtime/state/authorized_operator_storage.py` + `schema.sql`). **Check #18
-MUST re-run this on `main`** — once #245 merges it flips to "finds the storage
-module + schema + the `maps operator` CLI dispatch"; the standing check text
-should be updated then, not now.
+`/usr/bin/grep -rln "authorized_operators" runtime/` on `origin/main` `5447700`
+→ `runtime/cli.py`, `runtime/state/authorized_operator_storage.py`,
+`runtime/state/schema.sql` (was 0 hits for checks #13–#16). **The standing check
+is retired.** Its replacement for #18+: verify SEC4 Half 3 **slice 1 AND slice
+2** — `is_authorized_operator` is consulted on `maps skill approve` (slice 1,
+merged) and, once #251's slice-2 impl lands, on `activate`/`retire`/`supersede`
+too.
 
 ### Carried check 5 — merge-authority stall (memory `project_merge_authority_stall_session19`). **RECURRING. Recommend a rule-20 durable countermeasure.**
 
@@ -186,10 +204,11 @@ boundary tests it will supersede") was adopted.
    16/13/6 scoreboard was, as #16 argued, "a project waiting on an operator" —
    and the operator has now answered.
 
-2. **Two of the answered decisions are already implemented** — #244 (`flow
-   release-check` + `release_checks` table, exactly per the accepted answer) and
-   #245 (SEC4 B1 `authorized_operators`, opt-in default-off, in-flight). The
-   answer-to-impl latency was one session.
+2. **Two of the answered decisions are already implemented and merged** — #244
+   (`flow release-check` + `release_checks` table, exactly per the accepted
+   answer) and #245 (`5447700`, SEC4 B1 `authorized_operators`, opt-in
+   default-off; #251 already scopes slice 2). The answer-to-impl-to-merge latency
+   was one session.
 
 3. **The security-cluster blocker changed shape** — from "an open-ended operator
    decision" to "one concrete coordinator prerequisite task": establish the
@@ -216,7 +235,7 @@ exhausted"* — the batch is answered; that condition is not met). Reasoning:
 1. **The #16 REPRIORITIZE worked.** The work order it set — dispatch the last
    ask-independent slices, escalate the operator batch as blocking — produced
    #242 (granularity impl), a merged operator-answers record, #244, and the
-   in-flight #245/#249/#250/#251. The roadmap is executing again.
+   merged #245/#251 and in-flight #249/#250. The roadmap is executing again.
 
 2. **The dispatchable runway is restored** (§1 carried check 3): SEC4 Half 3
    slice 2 (#251 → impl), the #238 §4 `filesystem-write:<path>`→`output_paths`
@@ -241,10 +260,10 @@ exhausted"* — the batch is answered; that condition is not met). Reasoning:
 - **Lane 1 — Ask #1 control-plane prerequisite** (highest leverage, 7 rows,
   unowned). Coordinator-run per the #243 answer's explicit "coordinator runs the
   operator workflow" clause.
-- **Lane 2 — SEC4 Half 3 slice 2 impl** (per #251, after #245 merges).
+- **Lane 2 — SEC4 Half 3 slice 2 impl** (per #251, now merged — ready).
 - **Lane 3 — #238 §4 `filesystem-write:<path>` → `output_paths` design note**,
   then impl.
-- Merge queue: land #245, then #249/#250/#251 as they clear review.
+- Merge queue: #245 + #251 landed during this pass; #249 / #250 still to clear.
 
 ## 4. Tenth-Seat / §7 duty (`TENTH_SEAT_REVIEW.md` §2 Trigger 2, §7)
 
@@ -303,26 +322,28 @@ operator decision (it touches the authority model).
 ## 6. Recorded for the next pass (check #18)
 
 - **Arc anchor for #18:** the squash commit of *this* PR. `git log --oneline
-  --grep='Roadmap trajectory check' main | head -1` then `<that>..HEAD`.
-- `python3 -m runtime.smoke` exit 0 at `070dc65`.
+  --grep='Roadmap trajectory check' main | head -1` then `<that>..HEAD`. **This
+  PR's arc already folds in #245 (`5447700`) and #251 (`6b8e703`)** (they merged
+  during the pass — see the arc-derivation note); #18 does not owe them again.
+- `python3 -m runtime.smoke` exit 0 at `5447700`.
 - Scoreboard: 16 / 13 / 6 — **tenth** consecutive pass. Tenth-Seat Trigger 2
   armed, **did not fire** (§4 — substantive findings). Re-arms for #18: a
   genuinely clean #18 fires it — flag @soda BEFORE dispatching a Tenth-Seat
   sub-agent, then write `work/reviews/trajectory-18-minority-report.md`.
 - **Next 3 (verify at #18):**
-  1. **Did #245 merge?** — then re-run `/usr/bin/grep -rn "authorized_operators"
-     runtime/` on `main` (the standing check flips from NOTHING to
-     module+schema+CLI). Update the standing check text.
+  1. **SEC4 Half 3** — #245 (slice 1) + #251 (slice 2 scoping) are merged.
+     Verify: did the **#251 slice-2 impl** land (widen the `is_authorized_operator`
+     gate to `activate`/`retire`/`supersede`)? It is friction-entry-6's first
+     real test — did it trip a CI-red `NonGoalTests` boundary assertion or update
+     the superseded boundary in-PR? Confirm no status flip on 6.10.
   2. **Ask #1 control-plane lane** — did a coordinator stand up `.maps/` +
      `--harness-project-id` and run one `maps recovery-tick
      --enforce-canonical-run` pass? If yes: verify **6.4 / 6.5 / 6.16 / 6.22 +
      H5 / E4 / L6 (7 rows)** HARD against real evidence before any status flip.
      If still unowned/unstarted: say so plainly — it is now the single
      highest-leverage unblocked task.
-  3. **Did #249 / #250 / #251 land, and #251's slice-2 impl?** — #250 must keep
-     6.9 IN PROGRESS (NO FLIP); #249 surfaces the release-check-3b operator
-     decision; #251 impl is friction-entry-6's first real test (no CI-red
-     boundary-test trip).
+  3. **Did #249 / #250 land?** — #250 must keep 6.9 IN PROGRESS (NO FLIP); #249
+     surfaces the release-check-3b operator decision.
 - Merge-authority rule-20 rec (§1.5): check whether it was added to the next
   decision batch and answered.
 - Zombie pid 3874: **dead** (Ask #3 done). Its 4 worktree locks are now safe to
@@ -346,18 +367,19 @@ Method (rule 14): no claim from a PR title/body/review summary; re-verify agains
 `tests/`, targeted `unittest` modules (session-17 contention protocol — full
 suite is CI's). `python3 -m runtime.smoke` must exit 0.
 
-Specifically check: (a) **#245 merged?** → re-run `/usr/bin/grep -rn
-"authorized_operators" runtime/` on `main`; it should now find the storage
-module + schema + `maps operator` CLI. Update the standing "→ NOTHING" check
-text. (b) **Ask #1 control-plane lane** — did a coordinator establish `.maps/` +
+Specifically check: (a) **SEC4 Half 3** — #245 (slice 1) + #251 (slice 2
+scoping) merged during check #17 and are folded into #17's arc (do not re-owe
+them). Did the **#251 slice-2 impl** land (widen the `is_authorized_operator`
+gate to `activate`/`retire`/`supersede`)? It is friction-entry-6's first real
+test — did it trip a CI-red `NonGoalTests` boundary assertion, or update the
+superseded boundary in the same PR? Confirm no 6.10 status flip. (b) **Ask #1
+control-plane lane** — did a coordinator establish `.maps/` +
 `--harness-project-id` and run ONE `maps recovery-tick --enforce-canonical-run`
 pass? If yes → verify 6.4/6.5/6.16/6.22 + H5/E4/L6 (7 rows) HARD before any flip.
 If still unowned → say so plainly (highest-leverage unblocked task). Confirm no
 impl/review agent ran an enforced pass autonomously. (c) Did #249 (release-check
-3b scoping), #250 (6.9/S6 NO-FLIP), #251 (SEC4 Half 3 slice 2 scoping + impl)
-land? #250 must keep 6.9 IN PROGRESS. #251's slice-2 impl PR is friction-entry-6's
-first real test — did it trip a CI-red `NonGoalTests` boundary assertion, or was
-the superseded boundary updated in the same PR? (d) Re-derive 16/13/6.
+3b scoping) and #250 (6.9/S6 NO-FLIP) land? #250 must keep 6.9 IN PROGRESS.
+(d) Re-derive 16/13/6.
 **Trigger 2 re-armed** (#16 found something, #17 found something) — a genuinely
 clean #18 fires it: flag @soda BEFORE dispatching a Tenth-Seat sub-agent, then
 write `work/reviews/trajectory-18-minority-report.md`. (e) Friction entry 5
