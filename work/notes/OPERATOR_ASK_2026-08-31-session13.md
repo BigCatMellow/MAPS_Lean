@@ -2,6 +2,82 @@
 
 ---
 
+## SESSION 17 (`luve`), 2026-09-01 — OPERATOR ANSWERED
+
+The operator was given the trajectory-check-#16 §3b decision batch (Ask #1, the
+`flow release-check` batch, SEC4 B1 trust-root, Ask #2, Ask #3) with a
+recommended answer per item and instructed: **"Go ahead and do all those
+things."** The recommended answers are therefore **accepted**. Recorded here as
+the canonical answer; the coordinator dispatches the now-unblocked impl work.
+
+### Ask #1 — first enforced `--enforce-canonical-run` pass — **AUTHORIZED**
+
+One enforced pass is authorized. **Target/timing still to be pinned with the
+operator by the coordinator.** The obvious candidate is the MAPS_Lean checkout
+(`--repo-root ~/Projects/MAPS_Lean`) — but **`.maps/` does not yet exist in this
+dev checkout**, so there is no control-plane DB here today. Establishing the
+control-plane DB path and registering the `--harness-project-id` (per
+`docs/CONTROL_PLANE_SETUP.md`) is part of the coordinator's target-pinning step,
+**before** any enforced pass. Only once a control plane with real run manifests
+exists does the `LEASE_EXPIRED`-on-first-run → remediate-per-§5 (claim-recovery
+under the manifest's original worker id) narrative apply. The coordinator runs
+the operator workflow — no impl/review agent runs `maps recovery-tick
+--enforce-canonical-run` autonomously. Unblocks **6.4 / 6.5 / 6.16 / 6.22 +
+H5 / E4 / L6** (verify each hard before any status flip).
+
+### `flow release-check` batch (#234 §6) — **RECOMMENDED ANSWERS ACCEPTED**
+
+1. **Summary sink** → a new append-only `release_checks` table keyed by
+   `(task_id, review_id)` (acquisition report ref + smoke report ref +
+   composite state + optional operator-ack ref). This is a **`schema.sql`
+   change** — the impl slice carries it.
+2. **Evaluator report persistence** → persist the `report_ref` of
+   `evaluate_acquisition_evidence` / `evaluate_benchmark_results` plus the input
+   evidence refs in the `release_checks` row.
+3. **`composite == BLOCKED`** → **advisory** to start (the reviewer sees
+   `BLOCKED` and chooses the verdict). The approval-blocking variant (3b) is a
+   later hardening slice with its own callout — not this one.
+4. **Who may run `flow release-check`** → any of the releasing party / reviewer
+   / operator (it records no verdict; low-authority while advisory-only).
+
+### SEC4 B1 — `authorized_operators` trust root — **RECOMMENDED ANSWERS ACCEPTED**
+
+- Keep the structural `--actor` / `decided_by` field; add an **opt-in** real
+  identity check at exactly one site, **default off**.
+- A repo with **no `authorized_operators` rows** → identity checks are
+  effectively disabled (fail-open on absence, so the default-off path needs no
+  bootstrap to function).
+- Bootstrap (genesis operator) → a `maps init`-time step (Q B2) — the first
+  `authorized_operators` row is written at init when the check is opted in;
+  scope a separate opt-in `maps operator add` for later rows.
+- Unblocks **SEC4 Half 3**.
+
+### Ask #2 — env-evidence-writer authority ratification — **YES**
+
+Accepted: *"a task's `environment` contract is sufficient operator authority for
+that task's runs to become quick-tier-executable under an explicit
+`--repo-root`"* — same authority class as `spec_ref` / `max_age_seconds` /
+`required_for_routing`. No runtime change; the Q4 `--trusted-evidence-recorder`
+fallback slice is **not** needed.
+
+### Ask #3 / Infra #1 — kill zombie pid 3874 — **DONE**
+
+Operator ran `kill 3874` (session 17). Confirmed dead (`ps -p 3874` → gone).
+It was a session-8 `claude` orphan, ~1d 17h CPU, PPID 3868, running a stale
+session-8 orchestration prompt (referenced long-merged PRs #173/#174/#178/#179).
+Its 4 worktree locks (`agent-a633de15fc2a5afd0` / `agent-ab5f53cc65eae08e5` /
+`agent-abbdc8e8498cbe3a8` / `agent-ace9b0d006a4789c9`) are now safe to release
+as part of Infra #2.
+
+### Infra #2 / #3 — worktree + stale-branch cleanup — still pending the operator
+
+Not in the answered batch. Infra #2 (44 classifier-blocked `git worktree remove`
+/ `git branch -D`) and Infra #3 (5 stale remote branches) remain: either add a
+Bash permission rule, or the operator runs the audited `remove.sh` /
+`gh api -X DELETE` set.
+
+---
+
 ## SESSION 16 (`rozo`), 2026-09-01 — still-open + infra asks
 
 - **Ask #1** (first `--enforce-canonical-run` pass) — STILL OPEN. 3rd session
