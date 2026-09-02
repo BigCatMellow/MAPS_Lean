@@ -1,0 +1,402 @@
+{
+    "version": "exp-a-skill-routing-v2",
+    "description": "EXP-A/EXP-B frozen corpus v2 (roadmap 00-MASTER-MAPS-CAPABILITY-ROADMAP.md 6.9 'Routing evaluation must include' + work/notes/2026-09-01-6.9-frozen-selection-eval-scoping.md 4). Expands v1's 12 cases to 25 with >=4 deliberate cases in each of 6.9's six categories: direct matches, paraphrases, vocabulary shifts, overlapping Skills (MULTI_SKILL + AMBIGUOUS), hard negatives, no-Skill. Each case carries both a human-readable `task` (SkillSelectionCorpus schema) and the literal `task_type`/`project_id`/`output_paths` fixture fields that runtime/context_builder.py::_select_skills actually tokenizes (regex [a-z0-9]+, tokens of length >=3) into task signals; only the fixture fields drive the real selector under test. The candidate descriptions are deliberately concept-word-controlled so each token overlap is intentional. PARAPHRASE and VOCABULARY_SHIFT cases are genuine intent rewordings, not Skill-name synonyms -- a pure token-intersection selector is expected to MISS several of them (documented, not tuned away). AMBIGUOUS cases expect an AMBIGUOUS outcome the S6 selector never produces, so they are always non-exact: they document that S6 has no disambiguation, and the eval reports the miss rather than failing.",
+    "candidates": [
+        {
+            "name": "incident-response-playbook",
+            "description": "Runbook for triage of an active production outage: assessing customer impact, coordinating a service rollback, building the incident timeline, and driving root-cause analysis during a live disruption."
+        },
+        {
+            "name": "secrets-rotation",
+            "description": "Procedure for rotation of leaked or expiring credentials, signing keys, bearer tokens, and TLS certificates across running services with zero downtime."
+        },
+        {
+            "name": "api-contract-review",
+            "description": "Checklist for reviewing a proposed change to a public HTTP interface: backward compatibility, semantic versioning, deprecation windows, and breaking-change detection before a contract release."
+        },
+        {
+            "name": "load-test-planning",
+            "description": "Guide for designing a performance and capacity test against a service before a traffic-sensitive launch: workload modelling, ramp profiles, and throughput targets."
+        },
+        {
+            "name": "changelog-authoring",
+            "description": "Guidance for writing a clear customer-facing release note that summarizes a version's user-visible behaviour changes and upgrade steps."
+        },
+        {
+            "name": "data-migration-runbook",
+            "description": "Steps for executing a schema or storage migration on a live database: dual-write windows, backfill batching, cutover, and rollback safety."
+        },
+        {
+            "name": "dependency-upgrade-review",
+            "description": "Process for evaluating a third-party library or framework version bump: transitive changes, advisory checks, lockfile diff, and regression surface."
+        }
+    ],
+    "cases": [
+        {
+            "id": "EXPB-D01",
+            "category": "DIRECT",
+            "task": "Triage the active payments production outage and start the incident timeline.",
+            "task_type": "production_outage_triage",
+            "project_id": "payments-disruption",
+            "output_paths": [
+                "docs/incident-timeline.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "incident-response-playbook"
+            ],
+            "note": "Tokens production/outage/triage/disruption/incident/timeline overlap only incident-response-playbook."
+        },
+        {
+            "id": "EXPB-D02",
+            "category": "DIRECT",
+            "task": "Perform the scheduled rotation of the auth platform's signing keys.",
+            "task_type": "credential_rotation",
+            "project_id": "auth-signing",
+            "output_paths": [
+                "scripts/rotate_signing_keys.sh"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "secrets-rotation"
+            ],
+            "note": "Tokens rotation/signing/keys overlap only secrets-rotation ('keys' and 'signing' appear in no other description)."
+        },
+        {
+            "id": "EXPB-D03",
+            "category": "DIRECT",
+            "task": "Review the proposed billing HTTP interface change for backward compatibility before merge.",
+            "task_type": "interface_change_check",
+            "project_id": "billing-contract",
+            "output_paths": [
+                "runtime/http/openapi.yaml"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "api-contract-review"
+            ],
+            "note": "Tokens http/interface/review/contract overlap only api-contract-review."
+        },
+        {
+            "id": "EXPB-D04",
+            "category": "DIRECT",
+            "task": "Design the capacity test for the checkout service ahead of the holiday spike.",
+            "task_type": "capacity_test_planning",
+            "project_id": "checkout-throughput",
+            "output_paths": [
+                "docs/load-profile.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "load-test-planning"
+            ],
+            "note": "Tokens capacity/test/planning/throughput/load overlap only load-test-planning."
+        },
+        {
+            "id": "EXPB-D05",
+            "category": "DIRECT",
+            "task": "Execute the orders-table schema migration with a backfill and cutover step.",
+            "task_type": "schema_migration",
+            "project_id": "orders-backfill",
+            "output_paths": [
+                "ops/cutover_plan.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "data-migration-runbook"
+            ],
+            "note": "Tokens schema/migration/backfill/cutover overlap only data-migration-runbook."
+        },
+        {
+            "id": "EXPB-P01",
+            "category": "PARAPHRASE",
+            "task": "We're moving the orders table onto the new column layout; plan the phased copy-over and the switch so nothing is lost mid-flight.",
+            "task_type": "schema_backfill_cutover",
+            "project_id": "orders-database",
+            "output_paths": [
+                "ops/migration_backfill_plan.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "data-migration-runbook"
+            ],
+            "note": "Reworded intent of a data-migration task. Fixture tokens carry unique concept words backfill/cutover/schema/database/migration from the Skill description."
+        },
+        {
+            "id": "EXPB-P02",
+            "category": "PARAPHRASE",
+            "task": "Before the marketing push, confirm the checkout path holds up under roughly ten times the normal request rate and size the ramp.",
+            "task_type": "throughput_capacity_check",
+            "project_id": "checkout-workload-sizing",
+            "output_paths": [
+                "perf/capacity_targets.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "load-test-planning"
+            ],
+            "note": "Reworded load-test-planning intent. Unique concept tokens throughput/capacity/workload/targets overlap the description; 'service' (shared) not relied on."
+        },
+        {
+            "id": "EXPB-P03",
+            "category": "PARAPHRASE",
+            "task": "A security advisory landed for a package three levels down in our tree; check what pulling in the fix drags along and whether anything regresses.",
+            "task_type": "transitive_dependency_advisory",
+            "project_id": "web-lockfile-bump",
+            "output_paths": [
+                "deps/transitive_surface.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "dependency-upgrade-review"
+            ],
+            "note": "Reworded dependency-upgrade-review intent. Unique concept tokens transitive/dependency/advisory/lockfile/bump/surface overlap the description; shared 'upgrade' kept out."
+        },
+        {
+            "id": "EXPB-P04",
+            "category": "PARAPHRASE",
+            "task": "Our edge TLS certs and the service-account keys behind them lapse next week; swap them all out with no traffic interruption.",
+            "task_type": "expiring_tls_credentials",
+            "project_id": "gateway-signing-keys",
+            "output_paths": [
+                "ops/rotate_bearer_material.sh"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "secrets-rotation"
+            ],
+            "note": "Reworded secrets-rotation intent. Unique concept tokens expiring/tls/credentials/signing/keys/bearer overlap the description; prose avoids literal 'rotation'."
+        },
+        {
+            "id": "EXPB-V01",
+            "category": "VOCABULARY_SHIFT",
+            "task": "The signing material behind our edge proxy needs cycling before it lapses; renew every service's without a maintenance window.",
+            "task_type": "credential_renewal_cycle",
+            "project_id": "edge-proxy-handshake-material",
+            "output_paths": [
+                "ops/refresh_pinned_material.py"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "secrets-rotation"
+            ],
+            "note": "Human reads 'credential renewal / cycling signing material' as secrets-rotation. Selector gets renewal/credential(singular)/cycle/material/refresh/handshake/proxy -> zero intersection -> ABSTAIN. Documented vocabulary gap."
+        },
+        {
+            "id": "EXPB-V02",
+            "category": "VOCABULARY_SHIFT",
+            "task": "The storefront is throwing 500s for a chunk of users; work out who is affected and get the running account of events going.",
+            "task_type": "sitewide_brownout",
+            "project_id": "checkout-degradation",
+            "output_paths": [
+                "docs/blast_radius_notes.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "incident-response-playbook"
+            ],
+            "note": "Incident-response-playbook intent phrased with brownout/degradation/blast radius. No token overlap -> ABSTAIN."
+        },
+        {
+            "id": "EXPB-V03",
+            "category": "VOCABULARY_SHIFT",
+            "task": "Someone changed the shape of the invoices endpoint payload; make sure existing callers will not choke on it before this ships.",
+            "task_type": "endpoint_signature_comparison",
+            "project_id": "billing-gateway-openapi",
+            "output_paths": [
+                "spec/payload_shape_audit.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "api-contract-review"
+            ],
+            "note": "Human reads 'endpoint payload shape comparison' as api-contract-review. Selector gets endpoint/signature/comparison/payload/shape/openapi/audit -> zero intersection -> ABSTAIN."
+        },
+        {
+            "id": "EXPB-V04",
+            "category": "VOCABULARY_SHIFT",
+            "task": "Before we open signups to everyone, confirm the onboarding path can absorb a big rush of new users without falling over.",
+            "task_type": "readiness_surge_soak",
+            "project_id": "signup-flow-headroom",
+            "output_paths": [
+                "perf/spike_tolerance_writeup.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "load-test-planning"
+            ],
+            "note": "Load-test-planning intent phrased as surge/soak/headroom/spike tolerance. No token overlap -> ABSTAIN."
+        },
+        {
+            "id": "EXPB-M01",
+            "category": "MULTI_SKILL",
+            "task": "Credentials leaked during a live outage: run the incident response and rotate the exposed keys.",
+            "task_type": "incident_response",
+            "project_id": "leaked-credentials-outage",
+            "output_paths": [
+                "docs/incident-report.md",
+                "scripts/rotate_keys.sh"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "incident-response-playbook",
+                "secrets-rotation"
+            ],
+            "note": "incident/response/outage overlap incident-response-playbook; leaked/credentials/keys overlap secrets-rotation. Both must be selected."
+        },
+        {
+            "id": "EXPB-M02",
+            "category": "MULTI_SKILL",
+            "task": "A migration cutover caused a live incident; drive the response and the migration rollback together.",
+            "task_type": "incident_response",
+            "project_id": "migration-cutover",
+            "output_paths": [
+                "docs/incident-timeline.md",
+                "ops/rollback_after_cutover.md"
+            ],
+            "expected_outcome": "SELECT",
+            "expected_skills": [
+                "data-migration-runbook",
+                "incident-response-playbook"
+            ],
+            "note": "incident/response/timeline/rollback overlap incident-response-playbook; migration/cutover/rollback overlap data-migration-runbook. Both must be selected."
+        },
+        {
+            "id": "EXPB-A01",
+            "category": "AMBIGUOUS",
+            "task": "A library version bump is going out; decide what documentation and review it needs.",
+            "task_type": "version_bump_review",
+            "project_id": "library-version",
+            "output_paths": [
+                "docs/version-notes.md"
+            ],
+            "expected_outcome": "AMBIGUOUS",
+            "expected_skills": [
+                "api-contract-review",
+                "changelog-authoring",
+                "dependency-upgrade-review"
+            ],
+            "note": "'version' is a shared token across api-contract-review, changelog-authoring, and dependency-upgrade-review; 'library'/'bump' also hit dependency-upgrade-review, 'notes' also hits changelog-authoring. S6 has no AMBIGUOUS outcome so this case is always non-exact -- it documents that limitation and the eval reports the ambiguity miss."
+        },
+        {
+            "id": "EXPB-A02",
+            "category": "AMBIGUOUS",
+            "task": "Write the rollback runbook for the service; it's unclear whether this is an outage response or a migration concern.",
+            "task_type": "rollback_planning",
+            "project_id": "rollback-target",
+            "output_paths": [
+                "docs/rollback-runbook.md"
+            ],
+            "expected_outcome": "AMBIGUOUS",
+            "expected_skills": [
+                "data-migration-runbook",
+                "incident-response-playbook"
+            ],
+            "note": "'rollback'/'service' overlap incident-response-playbook; 'rollback'/'runbook' overlap data-migration-runbook. Genuinely ambiguous from the task text; S6 cannot express AMBIGUOUS so this is a documented miss."
+        },
+        {
+            "id": "EXPB-H01",
+            "category": "HARD_NEGATIVE",
+            "task": "Load a test fixture into the frontend component before the unit run.",
+            "task_type": "frontend_test_fixture",
+            "project_id": "ui-load-state",
+            "output_paths": [
+                "web/src/loadFixture.ts"
+            ],
+            "expected_outcome": "ABSTAIN",
+            "expected_skills": [],
+            "note": "'load'/'test' accidentally overlap load-test-planning, but this is unit-test fixture loading, not capacity testing -- the correct answer is ABSTAIN. A pure token selector is expected to false-activate here (documented)."
+        },
+        {
+            "id": "EXPB-H02",
+            "category": "HARD_NEGATIVE",
+            "task": "Set up log-file rotation to reclaim disk space on the workers.",
+            "task_type": "log_rotation_cleanup",
+            "project_id": "disk-space",
+            "output_paths": [
+                "ops/logrotate.conf"
+            ],
+            "expected_outcome": "ABSTAIN",
+            "expected_skills": [],
+            "note": "'rotation' accidentally overlaps secrets-rotation; logrotate is not credential rotation -- ABSTAIN is correct. Expected false-activation for a token selector."
+        },
+        {
+            "id": "EXPB-H03",
+            "category": "HARD_NEGATIVE",
+            "task": "Tune the API gateway's rate limiter to shed load under pressure.",
+            "task_type": "rate_limit_tuning",
+            "project_id": "api-gateway",
+            "output_paths": [
+                "runtime/api/limiter.py"
+            ],
+            "expected_outcome": "ABSTAIN",
+            "expected_skills": [],
+            "note": "'api' accidentally overlaps api-contract-review; rate limiting is an operational tuning task, not a contract review -- ABSTAIN. Expected false-activation for a token selector."
+        },
+        {
+            "id": "EXPB-H04",
+            "category": "HARD_NEGATIVE",
+            "task": "Draft the release checklist for the in-person product launch event.",
+            "task_type": "launch_event_checklist",
+            "project_id": "product-release",
+            "output_paths": [
+                "docs/launch-checklist.md"
+            ],
+            "expected_outcome": "ABSTAIN",
+            "expected_skills": [],
+            "note": "'release' accidentally overlaps changelog-authoring and 'launch' overlaps load-test-planning; a marketing launch event is neither a changelog nor a load test -- ABSTAIN. Expected false-activation for a token selector."
+        },
+        {
+            "id": "EXPB-N01",
+            "category": "NO_SKILL",
+            "task": "Refactor the vector math library for numerical stability.",
+            "task_type": "numerical_refactor",
+            "project_id": "linalg-utils",
+            "output_paths": [
+                "lib/vectors.py"
+            ],
+            "expected_outcome": "ABSTAIN",
+            "expected_skills": [],
+            "note": "No candidate covers numerical computing; no token overlap. ABSTAIN is exact."
+        },
+        {
+            "id": "EXPB-N02",
+            "category": "NO_SKILL",
+            "task": "Schedule the quarterly engineering team offsite.",
+            "task_type": "offsite_scheduling",
+            "project_id": "people-ops",
+            "output_paths": [
+                "docs/offsite-agenda.md"
+            ],
+            "expected_outcome": "ABSTAIN",
+            "expected_skills": [],
+            "note": "No candidate covers event scheduling; no token overlap. ABSTAIN is exact."
+        },
+        {
+            "id": "EXPB-N03",
+            "category": "NO_SKILL",
+            "task": "Sweep the ranking model's learning-rate hyperparameter.",
+            "task_type": "hyperparameter_tuning",
+            "project_id": "ranking-model",
+            "output_paths": [
+                "ml/train_config.yaml"
+            ],
+            "expected_outcome": "ABSTAIN",
+            "expected_skills": [],
+            "note": "No candidate covers ML training; no token overlap. ABSTAIN is exact."
+        },
+        {
+            "id": "EXPB-N04",
+            "category": "NO_SKILL",
+            "task": "Design the new customer onboarding email sequence.",
+            "task_type": "onboarding_email_design",
+            "project_id": "lifecycle-marketing",
+            "output_paths": [
+                "content/emails/welcome.html"
+            ],
+            "expected_outcome": "ABSTAIN",
+            "expected_skills": [],
+            "note": "No candidate covers marketing email design; no token overlap. ABSTAIN is exact."
+        }
+    ]
+}
