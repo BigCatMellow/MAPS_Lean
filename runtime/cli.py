@@ -122,6 +122,56 @@ def build_parser() -> argparse.ArgumentParser:
     run_record.add_argument('task_id')
     run_record.add_argument('run_id')
 
+    run = sub.add_parser(
+        'run',
+        help='run/session lineage records (identity evidence, not orchestration)',
+    )
+    run_sub = run.add_subparsers(dest='run_command', required=True)
+    run_bind = run_sub.add_parser(
+        'bind-session',
+        help=(
+            'record the first run/session lineage link so a canonical-run pass '
+            'can route a resume through the guarded HarnessService'
+        ),
+        description=(
+            'Thin wrapper over store.record_run_session_link. Records the durable '
+            "binding between an already-running provider session and a run; it is "
+            'identity evidence, not orchestration (it launches nothing). Self-gates '
+            "to the run's live ACTIVE claimant -- no operator check. --session-id "
+            "is the provider adapter's own session_id field (for hcom, its "
+            "`session_id`), NOT the display session name passed to "
+            '`maps recovery-tick --binding W=<name>`; the two identifiers must '
+            'both point at the same session.'
+        ),
+    )
+    run_bind.add_argument(
+        'run_id',
+        help='run_id from `maps flow start` output (run_manifest.run_id)',
+    )
+    run_bind.add_argument(
+        '--worker-id', required=True,
+        help='the immutable run worker (the same --worker-id used for `maps flow start`)',
+    )
+    run_bind.add_argument(
+        '--session-id', required=True,
+        help=(
+            'provider session_id -- the adapter identifier (hcom `session_id`), '
+            'NOT the display name used by `maps recovery-tick --binding`'
+        ),
+    )
+    run_bind.add_argument(
+        '--adapter', default='hcom',
+        help='provider adapter id (default: hcom -- the only routable adapter)',
+    )
+    run_bind.add_argument(
+        '--evidence-ref', required=True,
+        help='non-empty evidence ref, e.g. hcom:attach:<session>',
+    )
+    run_bind.add_argument(
+        '--created-by', default='maps-run-bind-session',
+        help='actor recorded on the lineage link (default: maps-run-bind-session)',
+    )
+
     freeze_case = sub.add_parser(
         'freeze-case',
         help='emit a deterministic frozen regression case from an exact Run Record',
@@ -527,6 +577,22 @@ def _dispatch_operator(store, args) -> int:
     raise AssertionError(args.operator_command)
 
 
+def _dispatch_run(store, args) -> int:
+    if args.run_command == 'bind-session':
+        # Direct guarded store write -- no HarnessService, no adapter. The store
+        # method self-gates to the run's live ACTIVE claimant (RUN_NOT_OWNED /
+        # LEASE_EXPIRED), so the CLI adds no authority check of its own.
+        return _emit(store.record_run_session_link(
+            args.run_id,
+            args.worker_id,
+            adapter_id=args.adapter,
+            session_id=args.session_id,
+            evidence_ref=args.evidence_ref,
+            created_by=args.created_by,
+        ))
+    raise AssertionError(args.run_command)
+
+
 def _dispatch_skill(store, args) -> int:
     from runtime.skills.lifecycle import SkillLifecycleState
 
@@ -618,6 +684,8 @@ def main(argv: list[str] | None = None) -> int:
         return _emit(payload)
     if args.command == 'operator':
         return _dispatch_operator(store, args)
+    if args.command == 'run':
+        return _dispatch_run(store, args)
     if args.command == 'create':
         return _emit(store.create_task(
             task_id=args.task_id,
