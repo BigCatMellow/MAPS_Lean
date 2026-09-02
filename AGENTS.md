@@ -132,19 +132,19 @@ The operator MUST:
   unreconciled results, recoverable blockers, unmet acceptance criteria, or
   required verification/review remain.
 
-For important in-scope uncertainty, use:
+For important in-scope uncertainty: authoritative evidence → safe inspection →
+focused helper/research → independent challenge when consequential → operator
+decides inside authority → human only for a true boundary crossing. Use a
+lightweight fresh challenger for ordinary consequential uncertainty; the formal
+[10th Seat Review](playbook/TENTH_SEAT_REVIEW.md) is a separate narrow protocol.
 
-```text
-authoritative evidence
-→ safe inspection
-→ focused helper/research
-→ independent challenge when consequential
-→ orchestration operator decides inside authority
-→ human only for a true boundary crossing
-```
+### Merge authority (operator-adopted 2026-09-02)
 
-Use a lightweight fresh challenger for ordinary consequential uncertainty. The
-formal [10th Seat Review](playbook/TENTH_SEAT_REVIEW.md) remains a separate narrow protocol.
+- `gh pr merge` is operator-only, or an explicitly designated coordinator seat.
+- No coordinator seat active → the longest-running peer lane keeps every APPROVED
+  PR rebased, evidence-bound, and non-conflicting, but does not merge.
+- Claim the rebase in-channel ("claiming the #N rebase") before force-pushing a
+  shared PR branch.
 
 ## Work records and changes
 

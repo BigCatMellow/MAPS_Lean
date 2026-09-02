@@ -25,7 +25,10 @@ PILOT_SKILL = ROOT / ".claude" / "skills" / "pilot" / "SKILL.md"
 # reusable method (bounded advisory durable-record relationship audit) that
 # does not belong to an existing concept owner.
 PLAYBOOK_SURFACE_BUDGET = 24
-AGENTS_BYTE_BUDGET = 10_000
+# Raised 10_000 -> 10_400 for the operator-adopted merge-authority rule
+# (PR #266, decision batch 2026-09-02 item 2): a genuinely new global rule,
+# which the anti-sprawl invariant says belongs in AGENTS.md itself.
+AGENTS_BYTE_BUDGET = 10_400
 ROOT_README_BYTE_BUDGET = 4_000
 FIRST_RUN_BYTE_BUDGET = 3_000
 

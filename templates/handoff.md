@@ -24,6 +24,12 @@ Separate evidence from assumptions.
 
 - <decision, scope boundary, non-goal, authority limit, or important convention>
 
+## Merge authority for this handoff
+
+- Coordinator/merge seat: <name, or "none active — merge-prep fallback to
+  longest-running peer lane per AGENTS.md; `gh pr merge` stays operator-only">
+- APPROVED PRs awaiting merge: <none or #Ns, with rebase/evidence state>
+
 ## Current blocker / risk
 
 - <none or specific blocker/risk>
