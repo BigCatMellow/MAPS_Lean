@@ -918,6 +918,101 @@ class SelectSkillsMatchStrengthGateTests(unittest.TestCase):
             )
             self.assertEqual(selected, [])
 
+    def test_stopword_set_is_load_bearing(self):
+        # A Skill described entirely in routing-stopword words, matched by a
+        # task made of the same words. Coverage is ~1.0 (clears the coverage
+        # arm) and strength would be >= 2.0 if the stopwords counted -- only
+        # the stopword set (0 weight, cannot anchor) keeps it out.
+        with tempfile.TemporaryDirectory() as name:
+            tmp = Path(name)
+            root = tmp / "skills-src"
+            root.mkdir()
+            d = root / "checklist-review-guide"
+            d.mkdir()
+            (d / "SKILL.md").write_text(
+                "---\nname: checklist-review-guide\n"
+                "description: Review checklist and change notes guide for the process.\n"
+                "---\nBody.\n",
+                encoding="utf-8",
+            )
+            catalog = build_skill_catalog(
+                [SkillCatalogSource(source_id="local", root=root, kind=SkillSourceKind.LOCAL)]
+            )
+            selected, _ = _select_skills(
+                catalog,
+                {"task_type": "review_checklist_change", "project_id": "process-notes"},
+            )
+            self.assertEqual(selected, [])
+
+    def test_stopwords_contribute_zero_to_match_strength(self):
+        # A Skill with a real df=1 anchor ("sprocket") plus several stopword
+        # tokens. Matched on {sprocket, review, checklist, change}: coverage is
+        # 4/9 < 0.5, and the stopwords contribute 0 -> strength 1.0 < floor ->
+        # rejected. If the stopwords counted (1.0 each) strength would be 4.0
+        # and the Skill would surface -- pins that the strength sum zeroes them.
+        with tempfile.TemporaryDirectory() as name:
+            tmp = Path(name)
+            root = tmp / "skills-src"
+            root.mkdir()
+            d = root / "sprocket-tuning"
+            d.mkdir()
+            (d / "SKILL.md").write_text(
+                "---\nname: sprocket-tuning\n"
+                "description: Sprocket tuning review checklist change notes guide.\n"
+                "---\nBody.\n",
+                encoding="utf-8",
+            )
+            catalog = build_skill_catalog(
+                [SkillCatalogSource(source_id="local", root=root, kind=SkillSourceKind.LOCAL)]
+            )
+            selected, _ = _select_skills(
+                catalog,
+                {
+                    "task_type": "sprocket_review_checklist_change",
+                    "project_id": "alpha-beta-gamma-delta-epsilon",
+                },
+            )
+            self.assertEqual(selected, [])
+
+    def test_anchor_admits_a_df_two_token_not_only_df_one(self):
+        # `_SKILL_ANCHOR_MAX_SKILL_COUNT` is 2, not 1: a match whose only
+        # non-stopword token is shared by exactly two Skills still counts as an
+        # anchor. Two Skills share "telemetry pipeline"; a task matching one of
+        # them on {telemetry, pipeline, ingestion} (ingestion df=1) clears the
+        # gate -- and would still clear it if the token were df=2, which this
+        # pins by also asserting the df=2 pair alone (no df=1 corroborator)
+        # via coverage.
+        with tempfile.TemporaryDirectory() as name:
+            tmp = Path(name)
+            root = tmp / "skills-src"
+            root.mkdir()
+
+            def _s(dirn, desc):
+                p = root / dirn
+                p.mkdir()
+                (p / "SKILL.md").write_text(
+                    f"---\nname: {dirn}\ndescription: {desc}\n---\nBody.\n",
+                    encoding="utf-8",
+                )
+
+            _s("telemetry-pipeline-a", "Telemetry pipeline retention and rollup tuning.")
+            _s("telemetry-pipeline-b", "Telemetry pipeline sampling and cardinality budgets.")
+            catalog = build_skill_catalog(
+                [SkillCatalogSource(source_id="local", root=root, kind=SkillSourceKind.LOCAL)]
+            )
+            # Task tokens {telemetry, pipeline} only -- both df=2 (weight 0.5
+            # each -> strength 1.0, below the strength floor), coverage 2/2=1.0
+            # clears the coverage arm, and the df=2 tokens satisfy the anchor
+            # (MAX=2). If MAX were 1 there would be no anchor and this would be
+            # rejected.
+            selected, _ = _select_skills(
+                catalog, {"task_type": "telemetry_pipeline"}
+            )
+            self.assertEqual(
+                sorted(s["name"] for s in selected),
+                ["telemetry-pipeline-a", "telemetry-pipeline-b"],
+            )
+
 
 class CoverageNoteConsistencyTests(unittest.TestCase):
     """Part A of the invariant-prose-drift rule-20 safeguard
