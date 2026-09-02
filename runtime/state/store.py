@@ -11,6 +11,7 @@ from .operational_learning_storage import OperationalLessonStorageMixin
 from .outcomes import OutcomeMixin
 from .policy import PolicyStateMixin
 from .readiness import ReadinessMixin
+from .release_check import ReleaseCheckMixin
 from .review import ReviewMixin
 from .review_binding import ReviewBindingMixin
 from .run_lineage import RunSessionLineageMixin
@@ -35,6 +36,7 @@ class TaskStore(
     ExecutionMixin,
     ReviewBindingMixin,
     ReviewMixin,
+    ReleaseCheckMixin,
     OutcomeMixin,
     ObservabilityMixin,
     BaseStore,
