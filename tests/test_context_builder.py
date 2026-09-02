@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from runtime.cli import main as cli_main
-from runtime.context_builder import build_context_plan
+from runtime.context_builder import _select_skills, build_context_plan
 from runtime.skills import (
     SkillCatalog,
     SkillCatalogSource,
@@ -821,6 +821,197 @@ class ContextBuilderTests(unittest.TestCase):
         plan = build_context_plan(self.store, task_id, repo_root=self.root)
         self.assertIn("skills", plan)
         self.assertEqual(plan["skills"], [])
+
+
+class SelectSkillsMatchStrengthGateTests(unittest.TestCase):
+    """6.9/S6 selector-quality gate (`work/notes/2026-09-02-6.9-s6-selector-quality-results.md`).
+
+    `_select_skills` surfaces a Skill only when the match has an *anchor*
+    (>=1 matched non-stopword token identifying few Skills) AND clears either
+    the strength floor (sum of `1/df` weights) or the coverage floor
+    (fraction of the task's signal tokens matched). These synthetic-catalog
+    cases pin the three arms directly (the frozen EXP-A/B corpora exercise the
+    aggregate but leave individual arms mutation-survivable).
+    """
+
+    def _catalog(self, tmp: Path):
+        root = tmp / "skills-src"
+        root.mkdir()
+
+        def _skill(directory, name, description):
+            d = root / directory
+            d.mkdir()
+            (d / "SKILL.md").write_text(
+                f"---\nname: {name}\ndescription: {description}\n---\nBody.\n",
+                encoding="utf-8",
+            )
+
+        # Three Skills that all share the words "quarterly forecasting" -> those
+        # tokens have document-frequency 3 (weak, and not an anchor).
+        _skill("revenue-forecast", "revenue-forecast",
+               "Quarterly forecasting of recognised revenue and deferred balances.")
+        _skill("headcount-forecast", "headcount-forecast",
+               "Quarterly forecasting of hiring plan and attrition for staffing.")
+        _skill("capacity-forecast", "capacity-forecast",
+               "Quarterly forecasting of infrastructure demand and spend.")
+        # One Skill with a unique anchor word ("sprocket", df 1) but also the
+        # shared "quarterly forecasting" phrase (so those stay df>=3).
+        _skill("widget-calibration", "widget-calibration",
+               "Quarterly forecasting aside, a procedure for calibrating a "
+               "widget gizmo against a reference sprocket.")
+        return build_skill_catalog(
+            [SkillCatalogSource(source_id="local", root=root, kind=SkillSourceKind.LOCAL)]
+        )
+
+    def test_anchorless_high_coverage_match_is_rejected(self):
+        with tempfile.TemporaryDirectory() as name:
+            catalog = self._catalog(Path(name))
+            # signal tokens: {quarterly, forecasting, review} -- "review" is a
+            # routing stopword, the other two are df=3 (no anchor). Coverage
+            # against each forecast Skill is 2/3 (clears the coverage floor),
+            # so only the missing anchor keeps them out.
+            selected, _ = _select_skills(
+                catalog,
+                {"task_type": "quarterly_forecasting_review", "project_id": "fin"},
+            )
+            self.assertEqual(selected, [])
+
+    def test_weak_shared_tokens_do_not_combine_to_clear_the_strength_floor(self):
+        with tempfile.TemporaryDirectory() as name:
+            catalog = self._catalog(Path(name))
+            # Two df=3 tokens (weight ~0.33 each -> strength ~0.66) plus enough
+            # non-matching signal that coverage stays below the floor.
+            selected, _ = _select_skills(
+                catalog,
+                {
+                    "task_type": "quarterly_forecasting_dashboard_export",
+                    "project_id": "analytics-portal-team",
+                    "output_paths": ["reports/summary_layout.md"],
+                },
+            )
+            self.assertEqual(selected, [])
+
+    def test_distinctive_multi_token_match_is_surfaced(self):
+        with tempfile.TemporaryDirectory() as name:
+            catalog = self._catalog(Path(name))
+            selected, _ = _select_skills(
+                catalog,
+                {"task_type": "widget_calibration", "project_id": "gizmo-x"},
+            )
+            self.assertEqual([s["name"] for s in selected], ["widget-calibration"])
+
+    def test_df_weighting_is_load_bearing(self):
+        # widget-calibration is matched on one anchor ("sprocket", df=1) plus
+        # two df>=3 shared tokens ("quarterly", "forecasting"). Under `1/df`
+        # weighting the strength is ~1.5 (< floor) and coverage is < 0.5, so it
+        # stays out. If every non-stopword token counted 1.0 it would be
+        # surfaced -- this pins that the weighting matters.
+        with tempfile.TemporaryDirectory() as name:
+            catalog = self._catalog(Path(name))
+            selected, _ = _select_skills(
+                catalog,
+                {
+                    "task_type": "sprocket_quarterly_forecasting_alignment",
+                    "project_id": "ops-board-team",
+                    "output_paths": ["docs/rollout_grid.md"],
+                },
+            )
+            self.assertEqual(selected, [])
+
+    def test_stopword_set_is_load_bearing(self):
+        # A Skill described entirely in routing-stopword words, matched by a
+        # task made of the same words. Coverage is ~1.0 (clears the coverage
+        # arm) and strength would be >= 2.0 if the stopwords counted -- only
+        # the stopword set (0 weight, cannot anchor) keeps it out.
+        with tempfile.TemporaryDirectory() as name:
+            tmp = Path(name)
+            root = tmp / "skills-src"
+            root.mkdir()
+            d = root / "checklist-review-guide"
+            d.mkdir()
+            (d / "SKILL.md").write_text(
+                "---\nname: checklist-review-guide\n"
+                "description: Review checklist and change notes guide for the process.\n"
+                "---\nBody.\n",
+                encoding="utf-8",
+            )
+            catalog = build_skill_catalog(
+                [SkillCatalogSource(source_id="local", root=root, kind=SkillSourceKind.LOCAL)]
+            )
+            selected, _ = _select_skills(
+                catalog,
+                {"task_type": "review_checklist_change", "project_id": "process-notes"},
+            )
+            self.assertEqual(selected, [])
+
+    def test_stopwords_contribute_zero_to_match_strength(self):
+        # A Skill with a real df=1 anchor ("sprocket") plus several stopword
+        # tokens. Matched on {sprocket, review, checklist, change}: coverage is
+        # 4/9 < 0.5, and the stopwords contribute 0 -> strength 1.0 < floor ->
+        # rejected. If the stopwords counted (1.0 each) strength would be 4.0
+        # and the Skill would surface -- pins that the strength sum zeroes them.
+        with tempfile.TemporaryDirectory() as name:
+            tmp = Path(name)
+            root = tmp / "skills-src"
+            root.mkdir()
+            d = root / "sprocket-tuning"
+            d.mkdir()
+            (d / "SKILL.md").write_text(
+                "---\nname: sprocket-tuning\n"
+                "description: Sprocket tuning review checklist change notes guide.\n"
+                "---\nBody.\n",
+                encoding="utf-8",
+            )
+            catalog = build_skill_catalog(
+                [SkillCatalogSource(source_id="local", root=root, kind=SkillSourceKind.LOCAL)]
+            )
+            selected, _ = _select_skills(
+                catalog,
+                {
+                    "task_type": "sprocket_review_checklist_change",
+                    "project_id": "alpha-beta-gamma-delta-epsilon",
+                },
+            )
+            self.assertEqual(selected, [])
+
+    def test_anchor_admits_a_df_two_token_not_only_df_one(self):
+        # `_SKILL_ANCHOR_MAX_SKILL_COUNT` is 2, not 1: a match whose only
+        # non-stopword token is shared by exactly two Skills still counts as an
+        # anchor. Two Skills share "telemetry pipeline"; a task matching one of
+        # them on {telemetry, pipeline, ingestion} (ingestion df=1) clears the
+        # gate -- and would still clear it if the token were df=2, which this
+        # pins by also asserting the df=2 pair alone (no df=1 corroborator)
+        # via coverage.
+        with tempfile.TemporaryDirectory() as name:
+            tmp = Path(name)
+            root = tmp / "skills-src"
+            root.mkdir()
+
+            def _s(dirn, desc):
+                p = root / dirn
+                p.mkdir()
+                (p / "SKILL.md").write_text(
+                    f"---\nname: {dirn}\ndescription: {desc}\n---\nBody.\n",
+                    encoding="utf-8",
+                )
+
+            _s("telemetry-pipeline-a", "Telemetry pipeline retention and rollup tuning.")
+            _s("telemetry-pipeline-b", "Telemetry pipeline sampling and cardinality budgets.")
+            catalog = build_skill_catalog(
+                [SkillCatalogSource(source_id="local", root=root, kind=SkillSourceKind.LOCAL)]
+            )
+            # Task tokens {telemetry, pipeline} only -- both df=2 (weight 0.5
+            # each -> strength 1.0, below the strength floor), coverage 2/2=1.0
+            # clears the coverage arm, and the df=2 tokens satisfy the anchor
+            # (MAX=2). If MAX were 1 there would be no anchor and this would be
+            # rejected.
+            selected, _ = _select_skills(
+                catalog, {"task_type": "telemetry_pipeline"}
+            )
+            self.assertEqual(
+                sorted(s["name"] for s in selected),
+                ["telemetry-pipeline-a", "telemetry-pipeline-b"],
+            )
 
 
 class CoverageNoteConsistencyTests(unittest.TestCase):

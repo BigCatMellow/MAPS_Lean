@@ -14,15 +14,23 @@ Evaluation-only. This module does not modify `runtime/context_builder.py`,
 harness (`runtime.skills.evaluation.evaluate_skill_selection`), building a real
 `SkillCatalog` from on-disk `SKILL.md` files — nothing under test is a stub.
 
-The assertions pin the *observed* behaviour of the current token-intersection
-selector on this frozen corpus. Several cases are deliberately expected to be
-non-exact and that is recorded, not tuned away:
-  * AMBIGUOUS cases — S6 has no `AMBIGUOUS` outcome, so these are always
-    `ambiguity_misses`; they document that the selector cannot disambiguate.
-  * HARD_NEGATIVE cases — the any-token-overlap rule false-activates on an
-    accidental shared word; these are `false_activation_cases`.
-  * VOCABULARY_SHIFT cases — literal-token matching cannot see a synonym shift;
-    these are `missed_activation_cases` (or wrong-skill selections).
+The assertions pin the *observed* behaviour of the selector on this frozen
+corpus. Updated alongside the 6.9/S6 selector-quality change (design note
+`work/notes/2026-09-02-6.9-s6-selector-quality-scoping.md`, results note
+`work/notes/2026-09-02-6.9-s6-selector-quality-results.md`): `_select_skills`
+now applies a match-strength gate instead of "any shared token selects", which
+closed the HARD_NEGATIVE category:
+  * HARD_NEGATIVE cases — an incidental single generic-word overlap no longer
+    surfaces a Skill; every case now `ABSTAIN`s (`false_activation_cases` 4 → 0).
+  * VOCABULARY_SHIFT cases — still `missed_activation_cases`. Literal-token
+    matching cannot see a synonym shift, and V01's post-normalisation match
+    (one distinctive token) is lexically indistinguishable from the
+    hard-negatives the strength gate rejects — closing it needs the semantic
+    work roadmap 6.33 gates, out of scope here.
+  * AMBIGUOUS cases — still `ambiguity_misses`. S6 has no `AMBIGUOUS` outcome,
+    and A01/A02 are not score-ties (the token evidence favours one candidate),
+    so a confidence/margin rule cannot separate them from a genuine
+    MULTI_SKILL tie without regressing that category.
 If a future `_select_skills` change alters this balance, this frozen corpus is
 what catches it — update the assertions only alongside a deliberate, reviewed
 selector change.
@@ -181,21 +189,28 @@ class ExpBSkillRoutingBenchmarkTests(unittest.TestCase):
                     f"{case.case_id}: S6 cannot produce AMBIGUOUS, so exact must be False",
                 )
 
-        # Every HARD_NEGATIVE case false-activates (accidental token overlap).
+        # Every HARD_NEGATIVE case now ABSTAINs — the 6.9/S6 match-strength gate
+        # rejects an incidental single generic-word overlap (was: every case
+        # false-activated under "any shared token selects").
         for case in self.corpus.cases:
             if case.category.value == "HARD_NEGATIVE":
                 self.assertEqual(
                     by_case[case.case_id].predicted_outcome,
-                    SkillSelectionOutcome.SELECT,
-                    f"{case.case_id}: documented hard-negative false activation",
+                    SkillSelectionOutcome.ABSTAIN,
+                    f"{case.case_id}: 6.9/S6 gate must reject the hard negative",
                 )
 
-        # Documented aggregate balance of the current selector on this frozen
-        # corpus (see the corpus notes + the results write-up).
-        self.assertEqual(report.exact_cases, 15)
+        # Documented aggregate balance of the selector on this frozen corpus
+        # after the 6.9/S6 selector-quality change (results note
+        # work/notes/2026-09-02-6.9-s6-selector-quality-results.md): exact
+        # 15 → 19, false activations 4 → 0, precision 0.68 → 1.0, recall
+        # unchanged at 0.76. VOCABULARY_SHIFT (4 misses) and AMBIGUOUS (2
+        # misses) are unchanged — documented §6.33-class residuals.
+        self.assertEqual(report.exact_cases, 19)
         self.assertEqual(report.missed_activation_cases, 4)
-        self.assertEqual(report.false_activation_cases, 4)
+        self.assertEqual(report.false_activation_cases, 0)
         self.assertEqual(report.ambiguity_misses, 2)
+        self.assertEqual(report.selection_precision, 1.0)
 
 
 if __name__ == "__main__":

@@ -187,34 +187,38 @@ class ExpASkillRoutingBenchmarkTests(unittest.TestCase):
         self.assertEqual(report.total_cases, 12)
         self.assertEqual(report.corpus_sha256, self.corpus.sha256)
 
-        # Documented, expected imperfections of the real selector on this
-        # corpus (see corpus notes on EXPA-007 and EXPA-008):
+        # Updated alongside the 6.9/S6 selector-quality change (results note
+        # work/notes/2026-09-02-6.9-s6-selector-quality-results.md): the
+        # match-strength gate that closed EXP-B's HARD_NEGATIVE category also
+        # closes EXPA-008 here -- a marketing-launch task no longer
+        # false-activates `changelog-authoring` on the lone word "release"
+        # (false_activation 1 -> 0, exact 10 -> 11). EXPA-007 (VOCABULARY_SHIFT)
+        # is unchanged: literal-token matching still cannot see the synonym
+        # shift, and its post-gate signal is indistinguishable from a hard
+        # negative -- a roadmap-6.33-class residual.
         self.assertEqual(report.missed_activation_cases, 1)
-        self.assertEqual(report.false_activation_cases, 1)
-        self.assertEqual(report.exact_cases, 10)
-        self.assertEqual(report.exact_rate, 10 / 12)
+        self.assertEqual(report.false_activation_cases, 0)
+        self.assertEqual(report.exact_cases, 11)
+        self.assertEqual(report.exact_rate, 11 / 12)
 
         by_case = {result.case_id: result for result in report.case_results}
         self.assertEqual(
             by_case["EXPA-007"].predicted_outcome, SkillSelectionOutcome.ABSTAIN
         )
         self.assertFalse(by_case["EXPA-007"].exact)
+        # EXPA-008 (HARD_NEGATIVE) now correctly ABSTAINs -> exact.
         self.assertEqual(
-            by_case["EXPA-008"].predicted_outcome, SkillSelectionOutcome.SELECT
+            by_case["EXPA-008"].predicted_outcome, SkillSelectionOutcome.ABSTAIN
         )
-        self.assertEqual(
-            by_case["EXPA-008"].predicted_skills, ("changelog-authoring",)
-        )
-        self.assertFalse(by_case["EXPA-008"].exact)
+        self.assertTrue(by_case["EXPA-008"].exact)
 
-        # Every other case is exact.
+        # EXPA-007 is now the only non-exact case.
         for case_id, result in by_case.items():
-            if case_id in {"EXPA-007", "EXPA-008"}:
+            if case_id == "EXPA-007":
                 continue
             self.assertTrue(result.exact, f"{case_id} expected to be exact: {result}")
 
-        self.assertGreater(report.selection_precision, 0.0)
-        self.assertLess(report.selection_precision, 1.0)
+        self.assertEqual(report.selection_precision, 1.0)
         self.assertGreater(report.selection_recall, 0.0)
         self.assertLess(report.selection_recall, 1.0)
 
