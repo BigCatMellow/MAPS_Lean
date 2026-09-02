@@ -182,6 +182,10 @@ Entry format:
   lanes) + this trajectory lane used scoped tooling throughout; the #255
   deadlock trace followed specific call sites via `/usr/bin/grep` + `sed -n`,
   not a dump. Stays open.
+- 2026-09-02 follow-up (trajectory check #19, `vame`): **no recurrence — 8th
+  consecutive arc.** The `03b6a34..3a4b3a4` window (#257–#260: a scoping note,
+  two code impl PRs I reviewed pre-merge, the selector-quality impl) + this
+  trajectory lane used scoped tooling throughout. Stays open.
 
 ## 2026-09-01 — stale slice-boundary NonGoalTests assertions
 - class: recurring-stall
@@ -229,6 +233,16 @@ Entry format:
   it supersedes ("the per-category structural asserts … change intentionally";
   "`test_exp_a` v1 pins may shift — update alongside, note it"). Both impl PRs
   are #19's test of the dispatch discipline. Stays open.
+- 2026-09-02 follow-up (trajectory check #19, `vame`): **the discipline HELD on
+  both real tests.** #259 (SEC4 slice 2a — a scope-expanding CLI change) rewrote
+  `test_seeded_registry_does_not_gate_activate` into 4 tests in the same PR, per
+  the #251 §3 Stop-condition it named. #260 (selector match-strength gate)
+  flipped `test_exp_b_skill_routing`'s HARD_NEGATIVE structural asserts + updated
+  `test_exp_a` v1 pins alongside the selector change, in-PR. Neither tripped a
+  CI-red boundary assert. `verified:` upgraded to **END-TO-END (×4 — CI caught 2
+  pre-discipline; discipline held on #259 + #260)**. Stays open (a 3rd
+  post-discipline occurrence with a CI-red trip would re-open the mechanical
+  safeguard discussion).
 
 ## 2026-09-02 — agent edited the shared coordinator checkout instead of its own worktree
 - class: process-gap
@@ -259,3 +273,11 @@ Entry format:
 - follow-up: check #19 verifies (a) #253 item 2 (incl. this extension) was
   answered, (b) no 5th coordination-hygiene incident in the #18→#19 arc. If a
   5th lands, the mechanical backstop (dirty-tree merge-prep refusal) gets scoped.
+- 2026-09-02 follow-up (trajectory check #19, `vame`): (a) #253 item 2 **still
+  unanswered** (the whole operator batch is). (b) **No 5th incident.** mika
+  (session-20 coordinator) drained the 3-PR merge queue running merge-prep from
+  the coordinator checkout as merge-prep-only (rebase + evidence commit), and
+  the 3 cross-assigned review-evidence commits (committer ≠ author ≠ reviewer)
+  were each done in the committer's own worktree — the exact shape the
+  countermeasure prescribes, applied by convention before adoption. Countermeasure
+  stays folded into #253 item 2 (pending the operator). Stays open.
