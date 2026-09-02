@@ -317,17 +317,81 @@ class OperatorRegistryCliTests(_SkillCliMixin, unittest.TestCase):
         self.assertEqual(code, 0, payload)
         self.assertEqual(payload['task']['to_state'], 'APPROVED')
 
-    def test_seeded_registry_does_not_gate_activate(self):
+    # SEC4 Half 3 slice 2 (2a): the opt-in gate now covers every `maps skill`
+    # lifecycle-transition verb, not just `approve`.
+
+    def _seed_and_init(self):
         self.seed('reg-skill')
         self.run_maps('init', '--operator', 'alice', '--operator-decision-ref', 'd:1')
+
+    def test_seeded_registry_gates_activate(self):
+        self._seed_and_init()
+        # activate with no --actor while the registry is seeded -> blocked,
+        # nothing recorded (the empty-string actor is not authorized).
+        code, payload = self.run_cli(
+            'activate', 'bundled:reg-skill', '--decision-ref', 'd:b'
+        )
+        self.assertEqual(code, 2, payload)
+        self.assertEqual(payload['code'], 'UNAUTHORIZED_ACTOR')
+        _, show = self.run_cli('show', 'bundled:reg-skill')
+        self.assertEqual(show['decisions'], [])
+        # an unauthorized --actor is also blocked
+        code, payload = self.run_cli(
+            'activate', 'bundled:reg-skill', '--actor', 'mallory', '--decision-ref', 'd:b'
+        )
+        self.assertEqual((code, payload['code']), (2, 'UNAUTHORIZED_ACTOR'))
+        # an authorized --actor: gate passes, transition proceeds as before
         self.assertEqual(
             self.run_cli('approve', 'bundled:reg-skill',
                          '--actor', 'alice', '--decision-ref', 'd:a')[0], 0)
+        code, payload = self.run_cli(
+            'activate', 'bundled:reg-skill', '--actor', 'alice', '--decision-ref', 'd:b'
+        )
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload['task']['to_state'], 'ACTIVE')
+
+    def test_seeded_registry_gates_retire_and_supersede(self):
+        self._seed_and_init()
+        for verb in ('retire', 'supersede'):
+            code, payload = self.run_cli(
+                verb, 'bundled:reg-skill', '--actor', 'mallory', '--decision-ref', 'd:x'
+            )
+            self.assertEqual((code, payload['code']), (2, 'UNAUTHORIZED_ACTOR'), verb)
+            code, payload = self.run_cli(
+                verb, 'bundled:reg-skill', '--decision-ref', 'd:x'
+            )
+            self.assertEqual((code, payload['code']), (2, 'UNAUTHORIZED_ACTOR'), verb)
+        _, show = self.run_cli('show', 'bundled:reg-skill')
+        self.assertEqual(show['decisions'], [])
+
+    def test_seeded_registry_authorized_actor_can_retire(self):
+        self._seed_and_init()
+        for verb, ref in (('approve', 'd:a'), ('activate', 'd:v')):
+            self.assertEqual(
+                self.run_cli(verb, 'bundled:reg-skill',
+                             '--actor', 'alice', '--decision-ref', ref)[0], 0, verb)
+        code, payload = self.run_cli(
+            'retire', 'bundled:reg-skill', '--actor', 'alice', '--decision-ref', 'd:r'
+        )
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload['task']['to_state'], 'RETIRED')
+
+    def test_empty_registry_gates_no_skill_verb(self):
+        self.seed('reg-skill')  # no `init --operator` -> registry empty
+        self.assertEqual(
+            self.run_cli('approve', 'bundled:reg-skill',
+                         '--actor', 'whoever', '--decision-ref', 'd:a')[0], 0)
+        # activate / retire with NO --actor still work while the registry is empty
         code, payload = self.run_cli(
             'activate', 'bundled:reg-skill', '--decision-ref', 'd:b'
         )
         self.assertEqual(code, 0, payload)
         self.assertEqual(payload['task']['to_state'], 'ACTIVE')
+        code, payload = self.run_cli(
+            'retire', 'bundled:reg-skill', '--decision-ref', 'd:c'
+        )
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload['task']['to_state'], 'RETIRED')
 
 
 if __name__ == '__main__':

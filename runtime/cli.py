@@ -488,12 +488,16 @@ def build_parser() -> argparse.ArgumentParser:
             required=True,
             help='commit / PR / decision-doc reference for this transition',
         )
-        if verb == 'approve':
-            verb_parser.add_argument(
-                '--actor',
-                required=True,
-                help='operator identity recorded as decided_by',
-            )
+        # `--actor` is mandatory only for `approve` (the *->APPROVED edges are
+        # the ones runtime.skills.lifecycle marks actor-required). For the other
+        # three verbs it stays optional at argparse; SEC4 Half 3 slice 2 (2a)
+        # enforces its presence + authorization in _dispatch_skill, but only
+        # once the authorized-operator registry is seeded.
+        verb_parser.add_argument(
+            '--actor',
+            required=(verb == 'approve'),
+            help='operator identity recorded as decided_by',
+        )
 
     return parser
 
@@ -628,17 +632,23 @@ def _dispatch_skill(store, args) -> int:
         })
 
     # SEC4 Half 3 (opt-in-by-data): once the authorized-operator registry is
-    # seeded, `maps skill approve` requires --actor to be a currently authorized
-    # operator. While the registry is empty the check is inert (byte-identical
-    # to pre-registry behavior). CLI-side per design Q B3 -- the store method
-    # stays a faithful recorder of the claimed actor.
-    if args.skill_command == 'approve' and store.has_authorized_operator_registry():
-        if not store.is_authorized_operator(getattr(args, 'actor', None) or ''):
+    # seeded, every `maps skill` lifecycle-transition verb -- approve, activate,
+    # retire, supersede (control reaches here only for those four; list/show
+    # returned above) -- requires --actor to be a currently authorized operator.
+    # While the registry is empty the check is inert (byte-identical to
+    # pre-registry behavior). CLI-side per design Q B3 -- the store method stays
+    # a faithful recorder of the claimed actor. `--actor` stays optional at
+    # argparse for activate/retire/supersede; its presence is enforced here
+    # only when the registry is seeded, so the empty-registry path and its
+    # error surface are unchanged.
+    if store.has_authorized_operator_registry():
+        actor = getattr(args, 'actor', None)
+        if not store.is_authorized_operator(actor or ''):
             return _emit(MutationResult(
                 False,
                 'UNAUTHORIZED_ACTOR',
-                f'{getattr(args, "actor", None)!r} is not a currently authorized '
-                'operator (maps operator list)',
+                f'{actor!r} is not a currently authorized operator '
+                '(maps operator list)',
             ))
 
     # approve / activate / retire / supersede: map the verb to its target
