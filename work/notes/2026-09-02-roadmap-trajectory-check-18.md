@@ -168,10 +168,18 @@ check-17 note + friction lines).
   Recorded in memory `feedback_concurrent_rebase_race_pr245`. This is the third
   coordination-gap incident in the session-17→19 arc and it is exactly what
   #253 item 2(c) ("claim the rebase in-channel first") addresses.
-- **Also reported by @soda (not independently verified here):** a stray
-  `CAPABILITY_CHECKLIST.md` edit appeared in the coordinator checkout this
-  session. If real, that is a fourth coordination-hygiene signal and should get
-  its own `FRICTION_LOG.md` entry — flagged to @soda to confirm + capture.
+- **Fourth coordination-hygiene incident this arc — CONFIRMED by @soda
+  (#81938).** A stray uncommitted edit to the `CAPABILITY_CHECKLIST.md` 6.10 row
+  ("…covers all `maps skill` lifecycle verbs … Half 3 slice 2 increment 2a…")
+  was found in the **coordinator checkout** `~/Projects/MAPS_Lean` working tree
+  (not a worktree) — `luve`'s SEC4 slice-2a checklist evidence, authored in the
+  wrong checkout. `soda` stashed it, confirmed the clause belongs on the
+  slice-2a branch, dropped the stash. No contamination (caught pre-merge), but a
+  stray edit in the shared checkout can be swept into an unrelated PR by a
+  merge-prep `git add -A`. **Captured as FRICTION_LOG.md entry 7** in this PR;
+  proposed rule-20 countermeasure (extends #253 item 2): *agents NEVER edit
+  files in the coordinator checkout — only in their own worktree; the
+  coordinator's working tree is merge-prep-only.*
 
 ### Carried check 5 — friction entries 5 / 6 + `feedback_stale_slice_boundary_nongoal_test`.
 
@@ -302,8 +310,8 @@ substantive finding present.
 
 ## 5. Friction-log consumption
 
-Log walked in full (6 entries; no new capture entries this pass — but see
-carried check 4 on the possible stray-checklist-edit entry, flagged to @soda).
+Log walked in full (6 existing entries; **entry 7 added this pass** — the
+confirmed stray coordinator-checkout edit, carried check 4).
 
 | # | Entry | `verified:` | Disposition |
 |---|-------|-------------|-------------|
@@ -313,10 +321,12 @@ carried check 4 on the possible stray-checklist-edit entry, flagged to @soda).
 | 4 | triage loop procedure-only | VERIFIED | **Closed.** Consumption duty discharged for a 9th consecutive pass (#10–#18). |
 | 5 | orchestrator tool-use burned ~30–40k context | n/a (behavioral), `countermeasure: none yet` | **Consumed — 7th consecutive no-recurrence arc; stays open.** Follow-up line appended. |
 | 6 | stale slice-boundary `NonGoalTests` assertions | `END-TO-END (twice — CI caught both)` | **Consumed — the #251 slice-2a impl (first real test) has not landed yet; carries to #19. The #254 selector-quality dispatch applies the discipline (names the superseded boundary).** Follow-up line appended. |
+| **7 (NEW)** | agent edited the shared coordinator checkout instead of its own worktree | confirmed 2026-09-02 (soda observed + stashed + dropped); countermeasure NOT yet adopted | **Added this pass.** 4th coordination-hygiene signal in the arc (5h stall → #245 rebase race → this). Countermeasure folded into #253 item 2: *agents never edit the coordinator checkout, only their own worktree; coordinator tree is merge-prep-only.* Mechanical backstop (dirty-tree merge-prep refusal) if a 5th lands. |
 
-**Escalated:** the possible stray `CAPABILITY_CHECKLIST.md` edit in the
-coordinator checkout (carried check 4) — @soda to confirm and, if real, add a
-`FRICTION_LOG.md` entry (coordination-hygiene, 4th signal in the arc).
+**Escalated to the operator batch:** #253 item 2 (merge-authority rule-20) is
+extended by entry 7's clause — the coordinator checkout is merge-prep-only,
+never an authoring surface. @soda to fold the extension into how item 2 is put
+to the operator.
 
 ## 6. Recorded for the next pass (check #19)
 
@@ -351,8 +361,10 @@ coordinator checkout (carried check 4) — @soda to confirm and, if real, add a
      `NonGoalTests` assert or update the boundary in-PR?). #254 impl must not
      regress DIRECT/PARAPHRASE/MULTI_SKILL/NO_SKILL from 1.00; no 6.9/S6/L4
      status flip (a separate gate step decides DONE).
-- Merge-authority (#253 item 2): check whether the operator adopted it +
-  whether the stray-checklist-edit friction entry was captured.
+- Merge-authority (#253 item 2, now extended by friction entry 7's
+  coordinator-checkout-is-merge-prep-only clause): check whether the operator
+  adopted it, and whether a **5th** coordination-hygiene incident landed in the
+  #18→#19 arc (if so, the dirty-tree merge-prep-refusal backstop gets scoped).
 - `authorized_operators`: present (standing grep check retired). Verify slice 2a
   landed and 6.10 evidence text updated (s/`approve`-only/all lifecycle verbs/),
   no status flip.

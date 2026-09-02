@@ -229,3 +229,33 @@ Entry format:
   it supersedes ("the per-category structural asserts … change intentionally";
   "`test_exp_a` v1 pins may shift — update alongside, note it"). Both impl PRs
   are #19's test of the dispatch discipline. Stays open.
+
+## 2026-09-02 — agent edited the shared coordinator checkout instead of its own worktree
+- class: process-gap
+- signal: 4th coordination-hygiene signal in the `6ea81b2..d8568a3` arc (after
+  the 5h+ merge-queue stall / no coordinator seat; the concurrent #245 rebase
+  race; and now this). `soda` found an uncommitted modification to the
+  `CAPABILITY_CHECKLIST.md` 6.10 row ("…covers all `maps skill` lifecycle verbs
+  (approve/activate/retire/supersede, Half 3 slice 2 increment 2a)…") sitting in
+  the **coordinator checkout** `~/Projects/MAPS_Lean` working tree — NOT a
+  worktree. It was `luve`'s SEC4 Half 3 slice-2a checklist evidence, written to
+  the wrong checkout. `soda` stashed it, confirmed with `luve` that the clause
+  belongs on the slice-2a branch, then dropped the stash. No harm done (caught
+  before it contaminated a merge), but a stray edit in the shared checkout can
+  be picked up by the next `git add -A` during merge-prep and land in an
+  unrelated PR.
+- countermeasure (rule-20, proposed — pending operator adoption via #253 item 2,
+  which this extends): **agents NEVER edit files in the coordinator checkout
+  (`~/Projects/MAPS_Lean`), only in their own `.claude/worktrees/<name>/`
+  worktree. The coordinator's working tree is merge-prep-only** (rebase, evidence
+  binding, `gh pr merge`) — never an authoring surface. Add to `AGENTS.md` +
+  the session-handoff template alongside the #252 §1.5 merge-prep rule. This is
+  a process rule, no machinery (rule 13). A mechanical backstop worth
+  considering if it recurs: a pre-merge `git status --porcelain` check in the
+  coordinator checkout that refuses merge-prep while the tree is dirty.
+- verified: the specific incident is confirmed (soda observed + stashed + dropped
+  the edit 2026-09-02). The countermeasure is NOT yet adopted — it is folded
+  into #253 item 2's operator decision.
+- follow-up: check #19 verifies (a) #253 item 2 (incl. this extension) was
+  answered, (b) no 5th coordination-hygiene incident in the #18→#19 arc. If a
+  5th lands, the mechanical backstop (dirty-tree merge-prep refusal) gets scoped.
