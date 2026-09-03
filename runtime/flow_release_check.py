@@ -55,7 +55,13 @@ def flow_release_check(
        state. ``composite == "BLOCKED"`` iff step 2 or step 3 is ``FAIL``; every
        other combination is ``READY_FOR_OPERATOR_VERDICT`` (the operator/reviewer
        weighs any ``UNKNOWN`` / ``INCOMPLETE`` gap). ``BLOCKED`` is **advisory**
-       — this flow records no review verdict and does not gate ``record_review``.
+       — this flow records no review verdict — *unless* the latest
+       ``release_checks`` row is un-acknowledged (empty ``operator_ack_ref``),
+       in which case ``record_review`` APPROVED is hard-blocked for the
+       ``OPERATOR_VISIBLE_RELEASE_CHECK`` task
+       (``RELEASE_CHECK_COMPOSITE_BLOCKED``; a non-empty ``operator_ack_ref``
+       is the recorded override). Approving such a task with no
+       ``release_checks`` row is likewise refused (``RELEASE_CHECK_REQUIRED``).
 
     Stop boundary — **before the review verdict.** The caller then runs
     ``maps flow review-record`` with the summary in hand.
