@@ -410,6 +410,17 @@ Entry format:
 - follow-up: Part B impl PR (option C) + independent review. Also open: hcom upstream
   changelog unreachable from this env (compiled binary) — confirm no `--stopped --json`
   support lands that would let Part B simplify.
+- 2026-09-03 update (item 5 / option C impl, `impl/item5-optionC-events-stopped-records`):
+  **Part B landed.** `HcomAdapter._stopped_records_from_events()` rebuilds stopped-session
+  records from `hcom events` (JSONL; `--json` is the default, not a flag — Step-0 finding)
+  and merges them under the alive list in the non-JSON `--stopped` fallback. `name → session_id`
+  comes from the most recent `status` event for that name carrying non-null `data.session`;
+  stop signal from a `life action:stopped` or `status new_status:inactive`. Lookback
+  `_STOPPED_EVENTS_LOOKBACK = 2000` events (~6h at observed rate, < read_events cap 5000).
+  Frozen regression test `tests/test_hcom_adapter.py::...::test_list_sessions_include_stopped_reconstructs_from_events`.
+  Residual gap: a session that started+stopped entirely outside the lookback window still
+  yields an unresolved `run_id` (same as Part A, smaller exposure). See
+  `work/notes/2026-09-03-item5-optionC-impl.md`.
 
 ## 2026-09-03 — cross-agent scratchpad / fresh-clone contamination
 - class: process-gap
@@ -443,3 +454,14 @@ Entry format:
 - verified: n/a (behavioral) — recipe updated 2026-09-03.
 - follow-up: if a future `maps` subcommand needs the same isolation, consider a
   `scripts/` wrapper that scrubs `HCOM_*` before exec.
+- 2026-09-03 update (item 5 / option C impl, `impl/item5-optionC-events-stopped-records`):
+  **Part B landed.** `HcomAdapter._stopped_records_from_events()` rebuilds stopped-session
+  records from `hcom events` (JSONL; `--json` is the default, not a flag — Step-0 finding)
+  and merges them under the alive list in the non-JSON `--stopped` fallback. `name → session_id`
+  comes from the most recent `status` event for that name carrying non-null `data.session`;
+  stop signal from a `life action:stopped` or `status new_status:inactive`. Lookback
+  `_STOPPED_EVENTS_LOOKBACK = 2000` events (~6h at observed rate, < read_events cap 5000).
+  Frozen regression test `tests/test_hcom_adapter.py::...::test_list_sessions_include_stopped_reconstructs_from_events`.
+  Residual gap: a session that started+stopped entirely outside the lookback window still
+  yields an unresolved `run_id` (same as Part A, smaller exposure). See
+  `work/notes/2026-09-03-item5-optionC-impl.md`.

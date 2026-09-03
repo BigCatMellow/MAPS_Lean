@@ -61,4 +61,8 @@ Because Part B changes which hcom command recovery relies on and restores lineag
 - Frozen regression test added in this PR (see Part A). A `MAPS_FROZEN_REGRESSION_CASE` (`runtime/evaluation/regression_case.py`) was considered per `playbook/REPAIR_AND_LEARNING.md` but is not applicable: that flow requires a portable Run Record (`run-record <task_id> <run_id>`), and this defect aborts before any run/incident state is written, so no Run Record exists. The unit-level frozen regression test is the durable countermeasure artifact instead; this note is its reference.
 - Documented constraint: **`HcomAdapter` must never depend on `hcom list --stopped` honoring `--json`** -- it does not, by hcom's design. Any future stopped-session need goes through `hcom events --json` (Part B) or the alive-only + absent-is-not-live pattern.
 - Friction log entry: `work/coordination/FRICTION_LOG.md` 2026-09-03 (class `tool-gap`).
-- Follow-up: Part B impl PR (option C) + independent review. Tracked from the friction entry.
+- Follow-up: Part B impl PR (option C) — **LANDED** on branch
+  `impl/item5-optionC-events-stopped-records` (`HcomAdapter._stopped_records_from_events`,
+  merged under the alive list in the non-JSON `--stopped` fallback). Impl + Step-0
+  findings: `work/notes/2026-09-03-item5-optionC-impl.md`. Independent review pending
+  (two-phase). Tracked from the friction entry.

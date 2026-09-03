@@ -44,6 +44,21 @@ elif args[:2] == ["list", "--json"]:
 elif args and args[0] == "events":
     if os.environ.get("HCOM_FAKE_BAD_EVENTS") == "1":
         print("not json")
+    elif os.environ.get("HCOM_FAKE_EVENTS") == "stopped":
+        # Real hcom shapes (Step-0 probe 2026-09-03): a top-level session
+        # stamps `data.session` on every status transition; its exit is a
+        # `life action:stopped` (name, no session) paired with a
+        # `status new_status:inactive` (name + session). `still-here` has a
+        # status event carrying its session but no stop signal -> not emitted.
+        # `ghost` stopped but never had an in-window status event with a
+        # session -> emitted without session_id. A subagent `exit:idle`
+        # (session:null, agent_id only) must not become a record.
+        print(json.dumps({"id": 1, "ts": "2026-09-03T12:00:00", "type": "status", "instance": "nava-worker-1", "data": {"status": "listening", "new_status": "listening", "new_context": "", "session": "sess-nava-uuid"}}))
+        print(json.dumps({"id": 2, "ts": "2026-09-03T12:05:00", "type": "status", "instance": "still-here", "data": {"status": "active", "new_status": "active", "session": "sess-still-uuid"}}))
+        print(json.dumps({"id": 3, "ts": "2026-09-03T12:10:00", "type": "status", "instance": "nava-worker-1", "data": {"status": "inactive", "new_status": "inactive", "new_context": "exit:clear", "session": "sess-nava-uuid"}}))
+        print(json.dumps({"id": 4, "ts": "2026-09-03T12:10:01", "type": "life", "instance": "nava-worker-1", "data": {"action": "stopped", "by": "session", "reason": "exit:clear"}}))
+        print(json.dumps({"id": 5, "ts": "2026-09-03T12:11:00", "type": "life", "instance": "ghost", "data": {"action": "stopped", "by": "session", "reason": "exit:timeout"}}))
+        print(json.dumps({"id": 6, "ts": "2026-09-03T12:12:00", "type": "status", "instance": "sub_general_purpose_1", "data": {"status": "inactive", "new_status": "inactive", "new_context": "exit:idle", "session": None, "agent_id": "a1b2c3"}}))
     else:
         print(json.dumps({"id": 1, "ts": "2026-08-14T20:00:00", "type": "message", "instance": "x", "data": {"from": "a", "intent": "inform", "text": "hello"}}))
         print(json.dumps({"id": 2, "ts": "2026-08-14T20:00:01", "type": "status", "instance": "x", "data": {"status": "active"}}))
@@ -99,14 +114,69 @@ class HcomAdapterTests(unittest.TestCase):
                 os.environ["HCOM_FAKE_STOPPED_TEXT"] = mode
                 self.addCleanup(os.environ.pop, "HCOM_FAKE_STOPPED_TEXT", None)
                 sessions = self.adapter.list_sessions(include_stopped=True)
-                # Alive-only fallback payload -- never raises.
+                # No stop signals in the default events fake -> alive-only
+                # payload, never raises.
                 self.assertEqual(
                     sorted(item["name"] for item in sessions),
                     ["claude-1", "codex-1"],
                 )
-                recent = [c["args"] for c in self.calls()][-2:]
-                self.assertEqual(recent[0], ["list", "--json", "--stopped", "--all"])
-                self.assertEqual(recent[1], ["list", "--json"])
+                # The `--stopped --all` probe still fires first, then the
+                # alive-only fallback, then the events-derived reconstruction
+                # (option C). Assert order without pinning it to the tail.
+                seq = [c["args"] for c in self.calls()]
+                i_stopped = seq.index(["list", "--json", "--stopped", "--all"])
+                i_alive = seq.index(["list", "--json"], i_stopped + 1)
+                i_events = next(
+                    n for n, c in enumerate(seq) if n > i_alive and c[0] == "events"
+                )
+                self.assertLess(i_stopped, i_alive)
+                self.assertLess(i_alive, i_events)
+
+    def test_list_sessions_include_stopped_reconstructs_from_events(self):
+        # FROZEN REGRESSION CASE -- 2026-09-03 item 5 / option C. On an hcom
+        # build that ignores `--json` for `list --stopped` (real non-JSON text),
+        # list_sessions(include_stopped=True) must return the alive list PLUS
+        # synthetic stopped records rebuilt from `hcom events`, each carrying the
+        # hcom `session_id` when events expose it -- so the
+        # session_id -> run_id reverse lookup keeps working for silent stops.
+        os.environ["HCOM_FAKE_STOPPED_TEXT"] = "nonempty"
+        os.environ["HCOM_FAKE_EVENTS"] = "stopped"
+        self.addCleanup(os.environ.pop, "HCOM_FAKE_STOPPED_TEXT", None)
+        self.addCleanup(os.environ.pop, "HCOM_FAKE_EVENTS", None)
+
+        sessions = self.adapter.list_sessions(include_stopped=True)
+        by_name = {item["name"]: item for item in sessions}
+
+        # No exception; alive records still present and unchanged.
+        self.assertEqual(by_name["claude-1"]["session_id"], "s1")
+        self.assertEqual(by_name["codex-1"]["status"], "listening")
+
+        # Stopped top-level session reconstructed with its session_id.
+        self.assertIn("nava-worker-1", by_name)
+        nava = by_name["nava-worker-1"]
+        self.assertEqual(nava["session_id"], "sess-nava-uuid")
+        self.assertEqual(nava["status"], "inactive")
+        self.assertEqual(nava["stop_reason"], "exit:clear")
+        self.assertIs(nava["process_bound"], False)
+
+        # A live session seen in events is NOT turned into a stopped record.
+        self.assertNotIn("still-here", by_name)
+        # A subagent exit:idle (session:null) is dropped.
+        self.assertNotIn("sub_general_purpose_1", by_name)
+        # A stopped top-level session with no in-window session event still
+        # appears (name only) -- run_id will resolve to None, the documented gap.
+        self.assertIn("ghost", by_name)
+        self.assertNotIn("session_id", by_name["ghost"])
+
+        # The events-derived record reads as not-live for the supervisor.
+        from runtime.recovery.supervisor import session_is_live
+
+        self.assertFalse(session_is_live(nava))
+
+        call_args = [c["args"] for c in self.calls()]
+        self.assertIn(["list", "--json", "--stopped", "--all"], call_args)
+        self.assertIn(["list", "--json"], call_args)
+        self.assertTrue(any(c[0] == "events" for c in call_args))
 
     def test_list_sessions_include_stopped_nonjson_fallback_logs_once(self):
         os.environ["HCOM_FAKE_STOPPED_TEXT"] = "nonempty"
