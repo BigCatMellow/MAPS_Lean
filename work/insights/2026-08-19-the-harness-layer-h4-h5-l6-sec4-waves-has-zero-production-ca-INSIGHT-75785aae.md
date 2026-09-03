@@ -23,3 +23,7 @@ Before adding more Harness surface area (a hypothetical H6/L7 wave), check wheth
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+## Disposition 2026-09-03 (Emergence pass, tuba)
+
+**STALE.** Resolved. `runtime/recovery/production.py::build_canonical_harness_service` is the production composition root (`HcomHarnessAdapter` -> `HookRegistry()` -> `register_canonical_run_guards` -> `HarnessService`) since 2026-08-30; first real production exercise was the `--enforce-canonical-run` pass in PR #277 (`a4f2dc8`), 2026-09-03. The interface-first risk this insight named (contract validated only by tests) held up: no reshaping was needed when a real caller was wired. Kept as history; no re-open.
