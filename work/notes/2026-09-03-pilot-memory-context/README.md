@@ -10,11 +10,28 @@ This packet exists because the discussion produced several distinct forward-rele
 
 | Question | Note |
 | --- | --- |
+| How should notes like these be created, split, connected into the Spiderweb, and linked for GitHub/Obsidian use? | [Authoring Conversation-Derived Note Packets](AUTHORING.md) |
 | How should Pilot make durable project memory so a fresh chat can continue without the old conversation? | [Durable Project Memory](durable-project-memory.md) |
 | What did the MAPS_L instruction/context review conclude about `AGENTS.md`, wording, routing, context packets, and evaluation? | [AI Instruction and Context Architecture](ai-instruction-context-architecture.md) |
 | Where was MAPS_L in implementation, what active-agent collision risk was found, and what changed by 2026-09-03? | [Implementation and Collision State](implementation-and-collision-state.md) |
 | What procedure is missing for turning conversations like this into durable, multi-topic repository notes? | [Conversation Capture Procedure Gap](conversation-capture-procedure-gap.md) |
 | How should these findings be re-entered later for review and implementation without trusting this packet as live state? | [Implementation / Re-entry Plan](implementation-reentry-plan.md) |
+
+## Authoring / Spiderweb rule
+
+For future notes derived from conversations, start with [AUTHORING.md](AUTHORING.md). It explains:
+
+- when a multi-topic note packet is justified;
+- how to split by future meaning/owner rather than conversation chronology;
+- the suggested topic-note shape;
+- the Spiderweb principle that **nothing durable should be an island**;
+- meaningful relationship labels such as `Derived from`, `Depends on`, `Superseded by`, `Implemented by`, `Evidence`, and `Revisit trigger`;
+- why canonical repository edges should use standard relative Markdown links;
+- how Obsidian-style `[[wikilinks]]` fit as optional/derived wiki behavior rather than the sole canonical link format;
+- why backlinks should normally be derived rather than maintained manually; and
+- how `tools/digital_fungus.py` can check broken links, orphan candidates, and route cost.
+
+Repository-wide ownership remains with [`playbook/INFORMATION_LIFECYCLE.md`](../../../playbook/INFORMATION_LIFECYCLE.md), [`work/README.md`](../../README.md), and [`AGENTS.md`](../../../AGENTS.md). The local authoring guide does not override them.
 
 ## Related durable items
 
