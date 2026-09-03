@@ -1,7 +1,7 @@
 reviewer: independent-review-agent (session 23, PR #267)
-head_sha: 1c216cb7f0921c2ca0f76270f21d25b94b9e15d4
+head_sha: 3f0c109005f2299c8904fb92305442e1aa64bf46
 independent: true
-summary: Independent review of 6.21 slice 3b (composite==BLOCKED hard-blocks OPERATOR_VISIBLE_RELEASE_CHECK approval) — diff, spec conformance, 5 own mutations, adversarial fail-closed analysis. APPROVE. No blocking findings; one non-blocking stale operator-facing string (flow_release_check.py next_step.reason).
+summary: Independent review of 6.21 slice 3b (composite==BLOCKED hard-blocks OPERATOR_VISIBLE_RELEASE_CHECK approval) — diff, spec conformance, 5 own mutations, adversarial fail-closed analysis. APPROVE. No blocking findings. The one non-blocking finding (stale next_step.reason string, Finding 10) was fixed by the impl agent in 3f0c109 and re-reviewed (Finding 12).
 
 ## Findings
 
@@ -30,6 +30,8 @@ summary: Independent review of 6.21 slice 3b (composite==BLOCKED hard-blocks OPE
 9. **No other fixtures affected.** `grep -rn OPERATOR_VISIBLE_RELEASE_CHECK tests/` → hits only in `tests/test_flow_release_check.py`. No pre-existing `record_review(APPROVED)` fixture elsewhere uses that review type, so nothing needed a "record a READY check first" fix. PASS.
 
 10. **NON-BLOCKING — stale operator-facing string.** `runtime/flow_release_check.py:222` still emits, in `next_step.reason`, `"composite={composite_state} (BLOCKED is advisory this slice — it does not gate record_review)"`, and `tests/test_flow_release_check.py:267` still asserts `"BLOCKED is advisory"` on that string. After this PR the statement is false for an un-acked BLOCKED row. Spec §3 scoped `flow_release_check.py` to "docstring clause only", so this is within the stated file boundary, but it leaves misleading guidance in the live flow output. Recommend a follow-up one-line correction. Not blocking — the gate itself is correct and lives in the store hook, not the flow.
+
+12. **Finding 10 string fix reviewed (delta `1c216cb..3f0c109`, trailing commit `3f0c109`).** 2-line change: `runtime/flow_release_check.py` `next_step.reason` now reads `"composite={composite_state} (an un-acknowledged BLOCKED composite hard-blocks record_review APPROVED — a non-empty operator_ack_ref on the latest release check is the override)"`, and `tests/test_flow_release_check.py:268` (`test_mismatched_artifact_ref_blocks`) now asserts `"hard-blocks record_review APPROVED"` instead of `"BLOCKED is advisory"`. The new string is accurate for the shipped gate and the test asserts the new string. Verified: `python3 -m unittest tests.test_flow_release_check.FlowReleaseCheckTests.{test_mismatched_artifact_ref_blocks,test_unacked_blocked_composite_refuses_review_approval,test_acked_blocked_composite_allows_review_approval}` → 3 passed; CI `test` on `3f0c109` GREEN (run 33700071016). Finding 10 resolved; no new issue. This evidence file re-pointed to `head_sha 3f0c109`.
 
 11. **OBSERVATION (pre-existing, not introduced here).** The `operator_ack_ref` override carries no operator-identity enforcement — any caller of `maps flow release-check --operator-ack-ref <ref>` sets it. This is a property of #244 that spec §3′(b) explicitly accepts as the recorded, append-only, auditable escape hatch ("no `--force`, no config flag"). Noted for completeness; nothing for this PR to change.
 
@@ -66,4 +68,4 @@ Observed failure counts across the 6 gate tests: M-A 2, M-B 3, M-C 3, M-D 2, M-E
 
 ## Disposition
 
-**APPROVE.** The gate is the exact ~8-line check scoped in §3, positioned and wired as specified, with the two refusal codes, correct sub-decision resolution (a=refuse, b=ack-overrides, c=deferred), an inverted advisory test plus five new tests that each exercise their named behaviour, comment/docstring/checklist updates only, no DDL, no CLI change, no status flip. All five independent mutations are caught; adversarial analysis finds no path for an un-acked BLOCKED release check to reach APPROVED. The single non-blocking finding (stale "BLOCKED is advisory ... does not gate record_review" string in `flow_release_check.py:222` / its test assertion) is within the spec's stated file boundary for this slice and should be cleaned up in a follow-up.
+**APPROVE.** The gate is the exact ~8-line check scoped in §3, positioned and wired as specified, with the two refusal codes, correct sub-decision resolution (a=refuse, b=ack-overrides, c=deferred), an inverted advisory test plus five new tests that each exercise their named behaviour, comment/docstring/checklist updates only, no DDL, no CLI change, no status flip. All five independent mutations are caught; adversarial analysis finds no path for an un-acked BLOCKED release check to reach APPROVED. The one non-blocking finding (stale `next_step.reason` string) was fixed by the impl agent in `3f0c109` and re-reviewed (Finding 12); this evidence file is pointed at that head. CI `test` on PR #267 is green at `3f0c109`.
