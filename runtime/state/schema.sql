@@ -845,9 +845,13 @@ END;
 -- `evaluate_acquisition_evidence`), the release-path-smoke aggregate (from
 -- `evaluate_benchmark_results`), the composite state, and the full summary
 -- snapshot. The flow records no verdict; `composite_state = 'BLOCKED'` is
--- advisory input to `maps flow review-record`, not an approval gate (that is a
--- later hardening slice). Re-running the check appends a new row; the latest by
--- id is current.
+-- advisory input to `maps flow review-record` *unless* the latest row is
+-- un-acknowledged (empty `operator_ack_ref`), in which case it hard-blocks
+-- `record_review` APPROVED for the OPERATOR_VISIBLE_RELEASE_CHECK task
+-- (6.21 slice 3b, `RELEASE_CHECK_COMPOSITE_BLOCKED`); a non-empty
+-- `operator_ack_ref` is the recorded override. An approval with no
+-- `release_checks` row at all is likewise refused (`RELEASE_CHECK_REQUIRED`).
+-- Re-running the check appends a new row; the latest by id is current.
 CREATE TABLE IF NOT EXISTS release_checks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task_id TEXT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,

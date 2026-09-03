@@ -592,6 +592,28 @@ class ReviewBindingMixin:
                     "REVIEW_REDERIVATION_MISMATCH",
                     "rederived artifact/evidence refs differ from the bound review subject",
                 )
+
+        # 6.21 slice 3b — operator-visible release check is an approval gate.
+        # Reached only for OPERATOR_VISIBLE_RELEASE_CHECK tasks, after every
+        # bound-subject / run / criterion / rederivation check above.
+        if str(task["review_required"]).upper() == "OPERATOR_VISIBLE_RELEASE_CHECK":
+            row = conn.execute(
+                "SELECT composite_state, operator_ack_ref FROM release_checks "
+                "WHERE task_id = ? AND review_id = ? ORDER BY id DESC LIMIT 1",
+                (task["task_id"], review["id"]),
+            ).fetchone()
+            if row is None:
+                return (
+                    "RELEASE_CHECK_REQUIRED",
+                    "OPERATOR_VISIBLE_RELEASE_CHECK approval requires a recorded release check",
+                )
+            if row["composite_state"] == "BLOCKED" and not (
+                row["operator_ack_ref"] or ""
+            ).strip():
+                return (
+                    "RELEASE_CHECK_COMPOSITE_BLOCKED",
+                    "release check composite is BLOCKED and not operator-acknowledged",
+                )
         return None
 
     def trace_task(self, task_id: str) -> dict[str, Any] | None:

@@ -264,10 +264,13 @@ class FlowReleaseCheckTests(unittest.TestCase):
         self.assertTrue(result["ok"], result)  # the flow assembled fine
         self.assertEqual(result["summary"]["artifact_identity"]["state"], "FAIL")
         self.assertEqual(result["summary"]["composite"], "BLOCKED")
-        self.assertIn("BLOCKED is advisory", result["next_step"]["reason"])
+        self.assertIn(
+            "hard-blocks record_review APPROVED", result["next_step"]["reason"]
+        )
 
-    def test_blocked_composite_does_not_prevent_review_approval(self):
-        """BLOCKED is advisory this slice — record_review is unchanged."""
+    def test_unacked_blocked_composite_refuses_review_approval(self):
+        """6.21 slice 3b — an un-acknowledged BLOCKED composite hard-blocks
+        record_review APPROVED for an OPERATOR_VISIBLE_RELEASE_CHECK task."""
         task_id = self._ready_for_review()
         review_id = self._bind_review_subject(task_id)
 
@@ -279,22 +282,158 @@ class FlowReleaseCheckTests(unittest.TestCase):
         )
         self.assertEqual(blocked["summary"]["composite"], "BLOCKED")
 
-        # The reviewer can still record APPROVED (weighing the BLOCKED summary).
         approved = flow_review_record(
             self.store,
             task_id,
             reviewer_id="reviewer-b",
             verdict="APPROVED",
-            summary="release check BLOCKED but override justified",
+            summary="release check BLOCKED, no ack",
             rederived_artifact_refs=[],
         )
-        self.assertTrue(approved["ok"], approved)
-        self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
-        # the release check row is still there, unchanged
+        self.assertFalse(approved["ok"], approved)
+        self.assertEqual(
+            approved["step_result"]["code"], "RELEASE_CHECK_COMPOSITE_BLOCKED"
+        )
+        self.assertEqual(self.store.get_task(task_id)["status"], "READY_FOR_REVIEW")
         self.assertEqual(
             self.store.latest_release_check(task_id, review_id)["composite_state"],
             "BLOCKED",
         )
+
+    def test_acked_blocked_composite_allows_review_approval(self):
+        """A non-empty operator_ack_ref on the latest row is the recorded override."""
+        task_id = self._ready_for_review()
+        review_id = self._bind_review_subject(task_id)
+
+        blocked = flow_release_check(
+            self.store,
+            task_id,
+            recorded_by="releaser",
+            evidence={"acquisition": _acquisition_bundle(observed_ref=SHA_B)},
+            operator_ack_ref="operator-note:2026-09-02-override",
+        )
+        self.assertEqual(blocked["summary"]["composite"], "BLOCKED")
+
+        approved = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer-b",
+            verdict="APPROVED",
+            summary="release check BLOCKED but operator-acknowledged",
+            rederived_artifact_refs=[],
+        )
+        self.assertTrue(approved["ok"], approved)
+        self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
+        self.assertEqual(
+            self.store.latest_release_check(task_id, review_id)["composite_state"],
+            "BLOCKED",
+        )
+
+    def test_no_release_check_row_refuses_review_approval(self):
+        """No release_checks row for an OPERATOR_VISIBLE_RELEASE_CHECK task
+        refuses APPROVED — the check is mandatory for this review type."""
+        task_id = self._ready_for_review()
+        self._bind_review_subject(task_id)
+
+        approved = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer-b",
+            verdict="APPROVED",
+            summary="no release check recorded",
+            rederived_artifact_refs=[],
+        )
+        self.assertFalse(approved["ok"], approved)
+        self.assertEqual(approved["step_result"]["code"], "RELEASE_CHECK_REQUIRED")
+        self.assertEqual(self.store.get_task(task_id)["status"], "READY_FOR_REVIEW")
+
+    def test_ready_release_check_allows_review_approval(self):
+        task_id = self._ready_for_review()
+        self._bind_review_subject(task_id)
+
+        check = flow_release_check(
+            self.store,
+            task_id,
+            recorded_by="releaser",
+            evidence={"acquisition": _acquisition_bundle(observed_ref=SHA_A)},
+        )
+        self.assertEqual(check["summary"]["composite"], "READY_FOR_OPERATOR_VERDICT")
+
+        approved = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer-b",
+            verdict="APPROVED",
+            summary="release check ready",
+            rederived_artifact_refs=[],
+        )
+        self.assertTrue(approved["ok"], approved)
+        self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
+
+    def test_rerun_blocked_to_ready_unblocks_review_approval(self):
+        task_id = self._ready_for_review()
+        self._bind_review_subject(task_id)
+
+        first = flow_release_check(
+            self.store,
+            task_id,
+            recorded_by="releaser",
+            evidence={"acquisition": _acquisition_bundle(observed_ref=SHA_B)},
+        )
+        self.assertEqual(first["summary"]["composite"], "BLOCKED")
+
+        blocked = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer-b",
+            verdict="APPROVED",
+            summary="still blocked",
+            rederived_artifact_refs=[],
+        )
+        self.assertFalse(blocked["ok"], blocked)
+        self.assertEqual(
+            blocked["step_result"]["code"], "RELEASE_CHECK_COMPOSITE_BLOCKED"
+        )
+
+        second = flow_release_check(
+            self.store,
+            task_id,
+            recorded_by="releaser",
+            evidence={"acquisition": _acquisition_bundle(observed_ref=SHA_A)},
+        )
+        self.assertEqual(second["summary"]["composite"], "READY_FOR_OPERATOR_VERDICT")
+
+        approved = flow_review_record(
+            self.store,
+            task_id,
+            reviewer_id="reviewer-b",
+            verdict="APPROVED",
+            summary="re-run is ready",
+            rederived_artifact_refs=[],
+        )
+        self.assertTrue(approved["ok"], approved)
+        self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
+
+    def test_gate_does_not_fire_for_non_release_review_types(self):
+        """The 3b gate is scoped to OPERATOR_VISIBLE_RELEASE_CHECK — other
+        review types approve with no release_checks row."""
+        for review_type in ("INDEPENDENT_REVIEW", "OWNER_CHECK"):
+            with self.subTest(review_type=review_type):
+                task_id = f"REL-ISO-{review_type}"
+                self._ready_for_review(
+                    task_id=task_id, review_required=review_type
+                )
+                self.assertTrue(self.store.claim_review(task_id, "reviewer-b").ok)
+                approved = flow_review_record(
+                    self.store,
+                    task_id,
+                    reviewer_id="reviewer-b",
+                    verdict="APPROVED",
+                    summary="approved without a release check",
+                    rederived_artifact_refs=[],
+                )
+                self.assertTrue(approved["ok"], approved)
+                self.assertEqual(self.store.get_task(task_id)["status"], "DONE")
 
     def test_rerun_appends_a_new_row(self):
         task_id = self._ready_for_review()
