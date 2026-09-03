@@ -412,7 +412,7 @@ Entry format:
   support lands that would let Part B simplify.
 
 ## 2026-09-03 — cross-agent scratchpad / fresh-clone contamination
-- class: race-condition
+- class: process-gap
 - signal: session 24 — 3 concurrently-dispatched agents reported fresh clones
   landing dirty on branch `impl/roadmap-trajectory-check-20` with foreign staged
   files and a stray `main` tip (= #269's head `b52acd1`); the #269 reviewer's
