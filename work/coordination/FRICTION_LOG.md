@@ -192,6 +192,15 @@ Entry format:
   `/usr/bin/grep` / `awk` / `sed -n` line ranges / `Read` offset+limit; the one
   large `CAPABILITY_CHECKLIST.md` dump was redirected to a saved file by the
   harness, not re-read into context. Stays open (behavioral).
+- 2026-09-03 follow-up (trajectory check #21): **CLOSED — 10th consecutive
+  no-recurrence arc.** The #269–#276 lanes + this trajectory lane used scoped
+  `git show` / `git show --stat` / `/usr/bin/grep` / `sed -n` line ranges /
+  `Read` offset+limit throughout — no 100KB+ dumps, no whole-doc re-reads. Per
+  `playbook/ROADMAP_TRAJECTORY_CHECK.md` (a behavioral watch-if-it-recurs entry
+  with 3 clean arcs is CLOSED, not carried further), this is closed 7 arcs past
+  that threshold. A future recurrence is a fresh entry (with the
+  scratchpad-orientation-digest countermeasure this entry sketches), not a
+  re-open.
 
 ## 2026-09-01 — stale slice-boundary NonGoalTests assertions
 - class: recurring-stall
@@ -254,6 +263,15 @@ Entry format:
   slice; #267 (`runtime/state/review_binding.py`) added no `NonGoalTests`
   substring risk and updated its own `flow_release_check` advisory string + the
   matching test assertion in-PR. No CI-red boundary trip. Stays open.
+- 2026-09-03 follow-up (trajectory check #21): **no clean test case this arc.**
+  None of #269–#276 was a scope-expanding `_select_skills` / `context_builder`
+  slice. #276 loosened its *own* option-D `test_list_sessions_include_stopped_
+  survives_nonjson_stopped_output` call-sequence assertion in the same PR
+  (tail-pinned → index-ordered; a justified contract change — an `events` call
+  now follows the alive fallback; behavioural asserts unchanged). No CI-red
+  boundary trip. Discipline holding (2nd post-discipline arc with no trip).
+  Stays open (close: 3 clean post-discipline arcs, or a 3rd CI-red trip
+  re-opens the mechanical-safeguard discussion).
 
 ## 2026-09-03 — coordinator merge marks treated as merge authorization (recurrence)
 - class: recurring-stall
@@ -289,6 +307,15 @@ Entry format:
 - follow-up: trajectory check verifies (a) the runner-side gate was actually
   adopted by `gule`, (b) no 3rd occurrence of a coordinator-mark-only merge. A
   3rd occurrence with the gate in place is an operator escalation, not a 4th fix.
+- 2026-09-03 follow-up (trajectory check #21): **UNVERIFIED — pass 1 of ≤3; no
+  3rd occurrence.** All five arc merges (#269/#272/#274/#275/#276) ran through
+  the `gule` merge-runner seat under Mode A (session-26 handoff: `gule` merges
+  only on an explicit operator PR-number instruction; coordinator marks alone
+  insufficient). No coordinator-mark-only merge occurred this arc. The gate's
+  *refusal* behaviour cannot be verified from a clone — needs a live observation
+  of `gule` blocking or quoting an operator authorization. Stays UNVERIFIED,
+  pass 1 of the N=3 ladder; not an escalation this pass. #22/#23 close it or it
+  auto-escalates at #24.
 
 ## 2026-09-02 — agent edited the shared coordinator checkout instead of its own worktree
 - class: process-gap
@@ -421,6 +448,16 @@ Entry format:
   Residual gap: a session that started+stopped entirely outside the lookback window still
   yields an unresolved `run_id` (same as Part A, smaller exposure). See
   `work/notes/2026-09-03-item5-optionC-impl.md`.
+- 2026-09-03 follow-up (trajectory check #21): **CLOSED.** Part A merged (PR #269,
+  `a6ad820`) + Part B / option C merged (PR #276, `9a884c2`), both with
+  independent review (`work/reviews/pr-269-review-evidence.md` /
+  `pr-276-review-evidence.md`, `independent: true`). `maps recovery-tick` abort
+  cleared; `tests.test_hcom_adapter` + `tests.test_recovery_supervisor` +
+  `tests.test_harness_hcom_adapter` = 90 OK re-run at `f2e57b9`. Residual
+  (session started+stopped outside the 2000-event lookback → unresolved
+  `run_id`) documented and accepted. The remaining item-5 step — the enforced
+  `--enforce-canonical-run` pass — is tracked on `CAPABILITY_CHECKLIST.md`
+  H5/6.16, not this entry.
 
 ## 2026-09-03 — cross-agent scratchpad / fresh-clone contamination
 - class: process-gap
@@ -441,6 +478,12 @@ Entry format:
 - verified: n/a (behavioral, root cause unresolved).
 - follow-up: if contamination recurs with unique-path discipline in place,
   investigate `mktemp` / worktree path allocation for concurrent agents.
+- 2026-09-03 follow-up (trajectory check #21): **pass 1; no recurrence.** First
+  trajectory pass since this landed (#275). This trajectory lane cloned to a
+  unique `/tmp/traj21-$$/MAPS_Lean` path per the dispatch discipline and the
+  clone landed clean — `git rev-parse origin/main` matched HEAD, no foreign
+  staged files, no stray `main` tip. Positive data point vs. the session-24
+  observation. Stays open (behavioral, root cause unresolved).
 
 ## 2026-09-03 — coordinator hcom env leaks into `maps recovery-tick`
 - class: tool-gap
@@ -454,6 +497,16 @@ Entry format:
 - verified: n/a (behavioral) — recipe updated 2026-09-03.
 - follow-up: if a future `maps` subcommand needs the same isolation, consider a
   `scripts/` wrapper that scrubs `HCOM_*` before exec.
+- 2026-09-03 follow-up (trajectory check #21): **pass 1; no recurrence.** First
+  trajectory pass since this landed (#275). Countermeasure = `env -i` in the
+  item-5 run recipe. Per the #21 dispatch brief the session-26 enforced pass ran
+  with "0 incidents" — consistent with the recipe isolating the tick from the
+  caller's `HCOM_*` env — but no direct in-repo evidence (the enforced-pass
+  results PR was not open at check #21). Stays open (behavioral). #22 confirms
+  against the results PR that the tick observed the target routable state.
+  (Note: the "2026-09-03 update … Part B landed" paragraph below is a
+  copy-paste artefact from the hcom-`list --stopped` entry — it does not
+  describe this env-leak entry; left as-is under the append-only rule.)
 - 2026-09-03 update (item 5 / option C impl, `impl/item5-optionC-events-stopped-records`):
   **Part B landed.** `HcomAdapter._stopped_records_from_events()` rebuilds stopped-session
   records from `hcom events` (JSONL; `--json` is the default, not a flag — Step-0 finding)
