@@ -49,15 +49,19 @@ dispatched as "#202–#207" but actually owed "#194–#207".
 
 Every trajectory-check pass must skim
 [`work/coordination/FRICTION_LOG.md`](../work/coordination/FRICTION_LOG.md) for
-entries with `verified: UNVERIFIED` or `countermeasure: none yet`. For each such
-entry, do one of:
+entries with `verified: UNVERIFIED` or `countermeasure: none yet`.
 
-- **close it** — confirm the countermeasure is live and append a dated
-  `follow-up` line saying how it was verified;
-- **verify it against real system state** — check the named file/mechanism
-  actually exists and behaves as claimed, then record the result; or
-- **escalate it** — surface it as in-scope trajectory work or an operator
-  decision.
+Every `verified: UNVERIFIED` or `countermeasure: none yet` entry MUST reach a
+disposition **this pass**: CLOSED (per the close definition), or an explicit
+escalation recorded as an operator-decision item or in-scope trajectory work. An
+entry that has been `UNVERIFIED` across **N = 3** consecutive trajectory passes
+without a disposition is **automatically an operator-escalation item** — the pass
+names it in its operator section and does not record a clean result until it is
+listed. A behavioral "watch-if-it-recurs" entry with 3 clean arcs is CLOSED, not
+carried a 4th time.
+
+The close definition, severity classification, and recurrence ladder are owned by
+[`REPAIR_AND_LEARNING.md`](REPAIR_AND_LEARNING.md) §"Triage procedure (mandatory)".
 
 Record in the trajectory note that the log was reviewed and what was found
 (even "nothing open"). This is the consumption half of the continuous-improvement

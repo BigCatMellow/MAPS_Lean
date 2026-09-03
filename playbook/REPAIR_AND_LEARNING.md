@@ -3,6 +3,104 @@
 Fix what is mechanical. Propose what is structural. Prevent the next
 occurrence, not only this one.
 
+This is the **triage / continuous-improvement core standard**: the mandatory loop
+that captures every friction signal, classifies it, escalates a recurrence to an
+*enforced* countermeasure (not another instruction), and closes it only when the
+countermeasure is verified live. `AGENTS.md` invariant 13 and the friction-capture
+sentence in "Work records and changes" point here.
+[`work/coordination/FRICTION_LOG.md`](../work/coordination/FRICTION_LOG.md) is the
+capture surface; [`ROADMAP_TRAJECTORY_CHECK.md`](ROADMAP_TRAJECTORY_CHECK.md) is
+the consumption venue.
+
+## Triage procedure (mandatory)
+
+### Mandatory capture — a `FRICTION_LOG` entry is REQUIRED when any of these occurs
+
+- a **run or command failed** in a way that cost rework or blocked progress (not
+  an expected non-zero exit that the workflow handles);
+- a **dispatched worker stalled** or had to be re-dispatched / re-prompted;
+- a **wrong assumption was discovered** — recorded state, a doc claim, or a plan
+  step turned out not to match reality and work had to change;
+- a **tool or environment gap** — a capability the work needed was missing,
+  broken, or behaved differently than documented;
+- an **operator expressed friction** — a request, complaint, or "this is clunky",
+  even if small;
+- a **review caught a class of defect** (not a single typo) — the reviewer
+  identifies a pattern the process should have prevented.
+
+The entry is appended **before the fix PR opens, not after**.
+
+### Explicitly NOT in scope (do not create entries for)
+
+- one-off typos, formatting slips, and cosmetic fixes with no rework cost;
+- expected negative results (a test that is supposed to fail failing; a probe
+  that correctly returns "not found");
+- normal design iteration inside a task (revising your own draft);
+- routine merge-conflict resolution with no lost work;
+- anything already captured — append a follow-up to the existing entry instead.
+
+Rule of thumb: **if it cost rework, surprised someone, or the operator mentioned
+it, it is in scope.** If in doubt, a one-line entry is cheap; a missed recurrence
+is not.
+
+### The loop
+
+```text
+capture → classify severity → recurrence check → 1st: fix + record
+                                              → Nth: mechanical safeguard + why prior fix failed
+                                              → verify the countermeasure live → close
+```
+
+1. **Capture.** Append one `FRICTION_LOG.md` entry in the existing format the
+   moment a trigger fires. Concrete `signal`; `countermeasure: none yet` is a
+   valid initial value.
+2. **Classify severity.** Reuse the [Repair triage](#repair-triage) table
+   verbatim — Cosmetic / Drift / Blocking / Structural. Drift-or-worse also gets
+   a repair record ([`templates/repair-record.md`](../templates/repair-record.md));
+   Structural routes to a decision path. No new severity vocabulary.
+3. **Recurrence check.** Is this the **1st** occurrence of this *pattern*, or the
+   **Nth**? "Same pattern" = same failure mode / same root-cause class, not
+   necessarily the same file or symptom. Search `FRICTION_LOG.md` + `work/notes/`
+   repair records before deciding.
+4a. **1st occurrence → fix + record.** Apply the mechanical repair if authorized;
+    propose/escalate if structural. Record the fix in the entry's `countermeasure`
+    field. A prompt instruction, a doc line, or a convention **is an acceptable
+    1st-occurrence fix.**
+4b. **Nth occurrence → the prior fix was insufficient.** Per invariant 13, a
+    second instruction is not allowed. Add an **enforced safeguard**: a test, a
+    template field, a hook, a CI check, a script the trajectory pass runs, a
+    schema constraint — something that fails or blocks mechanically when the
+    pattern recurs. In the entry, **state explicitly why the previous fix did not
+    hold**. If no mechanical safeguard is feasible, that is an **operator
+    escalation**, not a third instruction.
+5. **Verify the countermeasure live.** `verified:` moves off `UNVERIFIED` only
+   when the countermeasure has been **observed working against real system
+   state** — the test exists and is red on the failure / green on the fix; the
+   template line is in the committed template; the script flags a real overdue
+   entry; the hook actually blocked a real write. "Written down and merged" is
+   **not** verified. A countermeasure that inherently needs a future event to
+   observe stays `UNVERIFIED` with a named observation condition and is checked at
+   the next trajectory pass.
+6. **Close.** An entry is **CLOSED** when **all** of:
+   - `countermeasure` names a concrete durable mechanism (or the entry is a pure
+     operator-preference record with no fix needed, marked as such);
+   - `verified:` records how + when it was confirmed live (not `UNVERIFIED`);
+   - `follow-up` is `none` OR every follow-up item has its own dated disposition;
+   - for a behavioral / "watch if it recurs" entry: **N = 3** consecutive clean
+     trajectory arcs have passed with no recurrence. After 3, the entry is CLOSED
+     with a "no recurrence in 3 arcs" line and stops consuming pass attention. A
+     later recurrence opens a **new** entry that links back.
+   A trajectory pass appends `**CLOSED — <how>**` as the final follow-up line.
+   Closed entries are never deleted (append-only file).
+
+### Relationship to operational lessons
+
+A triaged recurrence is a candidate operational lesson
+(`runtime/operational_learning.py`) **only when its lesson generalizes** beyond
+its own fix; the promotion path is [`EMERGENCE.md`](EMERGENCE.md). A triaged item
+whose fix is entirely local closes in `FRICTION_LOG` and stops there. No
+duplication of the promotion mechanics here.
+
 ## Repair triage
 
 | Severity | Meaning | Action |

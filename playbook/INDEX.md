@@ -52,7 +52,7 @@ Use only when the specific concern is active.
 | Establish facts or evaluate a workflow/document/usability path | [RESEARCH.md](RESEARCH.md) | Evidence gathering/evaluation; no implementation authority by itself. |
 | Track downside, reversibility, and mitigations | [RISK_AND_CHANGE.md](RISK_AND_CHANGE.md) | Risk analysis; does not create a separate approval system. |
 | Capture a worthwhile discovery without expanding current scope | [EMERGENCE.md](EMERGENCE.md) | Discovery capture only. |
-| Repair drift and learn from repeated failures | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | Repair/learning loop; findings do not silently become global policy. |
+| Repair drift and run the mandatory triage loop: capture → severity → recurrence → mechanical countermeasure → live-verified close | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | The triage / continuous-improvement core standard; findings do not silently become global policy. |
 | Classify information as authority, task context, fact, Skill, flow, tool, or example | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Information type, not lifecycle status or authority creation. |
 | Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Active/retired/archive lifecycle plus routing maintenance; not information classification. |
 | Continue across sessions | [Current state](../state/CURRENT.md) and [handoff template](../templates/handoff.md) | Continuation state/evidence only; does not expand task authority. |

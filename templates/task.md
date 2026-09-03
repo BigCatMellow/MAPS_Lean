@@ -119,6 +119,7 @@ mandatory AGI requirement passes.
 
 - Completed: <what is verified true now>
 - Not completed: <remaining work or `none`>
+- Triage capture: <FRICTION_LOG entries appended this task (ids/dates), or `none — no §2 trigger fired`>
 - Reproduction package: <manual instructions + source inputs + verification path, plus automation unless `automation N/A — reason`; whole-gate `N/A — reason` only for genuinely one-off work>
 - Current blocker: <none or exact blocker>
 - Next eligible roadmap task: <task ID/path or `roadmap complete`>

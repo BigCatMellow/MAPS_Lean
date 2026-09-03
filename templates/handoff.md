@@ -54,10 +54,19 @@ Separate evidence from assumptions.
 
 ## Before finalizing / self-clearing
 
-- Append this session's friction/request items (errors, stalls, tool-gaps,
-  operator asks) to
+- Append this session's friction signals to
   [`work/coordination/FRICTION_LOG.md`](../work/coordination/FRICTION_LOG.md) —
-  one entry each, with a `countermeasure` and a `verified:` field.
+  one entry each, with a `countermeasure` and a `verified:` field. A
+  `FRICTION_LOG` entry is REQUIRED for any of: a run/command that failed with
+  rework cost; a dispatched worker that stalled or had to be re-dispatched; a
+  wrong assumption discovered (recorded state / doc / plan did not match
+  reality); a tool or environment gap; operator-expressed friction; a
+  review-caught defect *class*. See
+  [Repair and Learning](../playbook/REPAIR_AND_LEARNING.md) §"Triage procedure
+  (mandatory)" for the full trigger taxonomy and not-in-scope list.
+- If any captured signal is the **Nth** occurrence of a known pattern, the entry
+  MUST name a mechanical safeguard or an operator escalation — not a second
+  instruction — and record why the first fix did not hold (invariant 13).
 
 If responsibility is actually transferring, ensure the receiving worker has a
 valid task/ownership record; a handoff note alone does not grant authority.

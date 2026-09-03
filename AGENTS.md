@@ -75,6 +75,10 @@ it. If routine work needs several overlapping methods, consolidate.
     complete the [Operational independence gate](playbook/TASK_LIFECYCLE.md#operational-independence-gate) when triggered.
 12. **One owner, independent review.** Each active task has one accountable
     owner; no owner approves their own substantive work.
+13. **A repeat failure earns an enforced countermeasure.** First occurrence: fix
+    and record it. Second occurrence of the same pattern: the fix was
+    insufficient — add a mechanical safeguard (test, template field, hook, or
+    check), not another instruction, and record why the first fix did not hold.
 
 ## Scope-level authorization
 
@@ -153,6 +157,13 @@ For multi-agent, risky, or durable work, create `work/tasks/<short-name>.md` fro
 change boundary, inherited authority, acceptance criteria, verification, review,
 and stop/escalation conditions. A consequential task must be `AGI READY` under
 [the AGI standard](playbook/AGI_STANDARD.md) before execution.
+
+Every session captures its friction signals — failed runs, worker stalls, wrong
+assumptions found, tool/environment gaps, operator-expressed friction, a
+review-caught defect class — to
+[`work/coordination/FRICTION_LOG.md`](work/coordination/FRICTION_LOG.md) before
+handoff. The mandatory triage loop that classifies, escalates, and closes them is
+[Repair and Learning](playbook/REPAIR_AND_LEARNING.md).
 
 Inside approved authority, amend/re-shape a task when new dependencies or output
 paths are discovered, re-run readiness where needed, and continue. Do not reset

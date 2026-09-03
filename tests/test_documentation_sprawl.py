@@ -28,7 +28,12 @@ PLAYBOOK_SURFACE_BUDGET = 24
 # Raised 10_000 -> 10_400 for the operator-adopted merge-authority rule
 # (PR #266, decision batch 2026-09-02 item 2): a genuinely new global rule,
 # which the anti-sprawl invariant says belongs in AGENTS.md itself.
-AGENTS_BYTE_BUDGET = 10_400
+# Raised 10_400 -> 11_200 for the triage / continuous-improvement core standard
+# (triage slice 1, design note 2026-09-03-triage-core-standard-design.md §5.1):
+# invariant 13 (repeat-failure -> enforced countermeasure, rule 20 promoted) +
+# the one-sentence mandatory friction-capture rule in "Work records and changes".
+# Both are genuine new global rules the anti-sprawl invariant places in AGENTS.md.
+AGENTS_BYTE_BUDGET = 11_200
 ROOT_README_BYTE_BUDGET = 4_000
 FIRST_RUN_BYTE_BUDGET = 3_000
 
@@ -218,6 +223,11 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("TASK_LIFECYCLE.md#operational-independence-gate", task)
         self.assertIn("OIG-NA-WHOLE", task)
         self.assertIn("OIG-NA-AUTO", task)
+
+        # Mandatory triage-capture field (triage core standard slice 1, design
+        # note 2026-09-03 §5.2): the completion/handoff block must keep a visible,
+        # reviewable "did you capture friction?" line so it cannot silently vanish.
+        self.assertIn("- Triage capture:", task)
 
     def test_na_escape_hatch_cannot_silently_become_permissive(self):
         """OIG-NA-AUTO must keep a mandatory manual fallback when automation is N/A."""
