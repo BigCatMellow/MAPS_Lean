@@ -1,9 +1,9 @@
 # PR #270 review evidence
 
 reviewer: independent-review-agent (session 23, PR #270)
-head_sha: 8b654f2e854e40aaa2f6dc9ec45578cd07269d22
+head_sha: 0c256c089cea0fb12fb87af041d00633662ba095
 independent: true
-summary: APPROVE — diff is genuinely note-only (1 new file, +466, zero applied changes to AGENTS.md/playbook/templates/tests/FRICTION_LOG) and the design is sound. One load-bearing quantitative estimate (§5.1/§7.2 AGENTS.md byte delta) is understated by ~290 bytes and must be re-measured before slice-1 implementation; it does not block merging a design note.
+summary: APPROVE — diff is genuinely note-only (zero applied changes to AGENTS.md/playbook/templates/tests/FRICTION_LOG) and the design is sound. Re-bound to 0c256c0 after the design agent applied all four flagged corrections (see Addendum); all findings from the first pass are now resolved in the note.
 
 ## Method
 
@@ -143,3 +143,27 @@ proportionality. Factual claims about the current system are accurate except:
 None of these block merging the design note. They are inputs the operator needs when
 answering §7 and when the slice-1 implementation PR is written (which itself needs
 independent review, per the note's own resume prompt).
+
+## Addendum — re-bind to 0c256c0 (design-agent corrections)
+
+Second pass on `git diff 8b654f2..0c256c0` (commit `0c256c0` "Design note corrections",
+touching only `work/notes/2026-09-03-triage-core-standard-design.md`, +53/−15 — still
+note-only; `test_documentation_sprawl` 22 OK). All four first-pass findings are resolved
+in the note:
+
+1. **Finding 3 (byte math)** — §5.1 / §7.2 now state "invariant 13 = 311 B + capture
+   sentence = 407 B = 718 B → post-change ≈ 11007 B", explicitly note that 10800 and
+   11000 both fail the test, and recommend `AGENTS_BYTE_BUDGET` → 11200 (≈193 B headroom),
+   with a documented terser-trim alternative. Independently re-verified against the note's
+   own proposed ```markdown``` blocks: invariant 13 = 311 B, capture sentence = 407 B,
+   sum 718 B — exact match.
+2. **Finding 5 (PR #187 base)** — new header bullet cites PR #187 as the merged base of
+   all four consolidated pieces and adds the stale-branch prune note
+   (`origin/agent/stalled-work-triage-protocol`, `origin/chore/friction-log-triage-loop-20260831`).
+3. **Finding (§7 gap)** — new §7.8 "Ratify the §2 mandatory-capture policy" surfaces the
+   trigger taxonomy, the NOT-in-scope list, and the "capture before the fix PR opens"
+   timing rule as an explicit operator call with a recommendation.
+4. **Finding 4 (count)** — §1.3 corrected to "**six** consecutive … follow-up lines
+   (trajectory checks #14–#19, the last reporting an **8th** consecutive clean arc)".
+
+Disposition unchanged: **APPROVE.** No open findings on the delta.
