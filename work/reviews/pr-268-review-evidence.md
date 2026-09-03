@@ -1,7 +1,7 @@
 reviewer: independent-review-agent (session 23, PR #268)
-head_sha: a2acc1e576dd99e7f89d3baa40deb1fc9e133f41
+head_sha: 261636a5317dc3005423b9a2655f907a8ef55e8b
 independent: true
-summary: APPROVE — the 6.9/S6 DONE flip rests on a valid §17.3 operator sign-off (decision batch item 4, "OPERATOR ANSWERED", merged via #265) and every flipped clause is literally true against EXP-B re-run here + #264/#260. Two non-blocking findings on duplicated status prose.
+summary: APPROVE — the 6.9/S6 DONE flip rests on a valid §17.3 operator sign-off (decision batch item 4, "OPERATOR ANSWERED", merged via #265) and every flipped clause is literally true against EXP-B re-run here + #264/#260. Both initial non-blocking findings applied by the impl agent and re-verified at head 261636a.
 
 ## Findings
 
@@ -28,6 +28,11 @@ summary: APPROVE — the 6.9/S6 DONE flip rests on a valid §17.3 operator sign-
 11. **DEC-002 — conforms.** `DEC-002` is the correct number (only `DEC-001` pre-exists in `work/decisions/`). Matches `templates/decision.md` required sections (Date, Owner, Status, Related task/roadmap, Source/evidence, Supersedes, Decision, Rationale, Consequences); Status `DECIDED` is a valid template value. Correctly states the decision, the operator authorization (verbatim quote + answered-table entry), evidence (5 merged notes), containment (6.22 trust-gate `admit_memory_evidence()` + SEC4 quarantine lifecycle downstream of selection), and the explicit §6.33 deferral ("This decision does **not** change §6.33's status").
 
 12. **Honesty check — NOT inflated.** DEC-002 L45-47 and the checklist clause both state "The selector is **not** asserted correct on all routing … blind on pure synonym shift (VOCABULARY_SHIFT 0.00) and unable to label fine-grained ambiguity (AMBIGUOUS 0.00)". Master roadmap Status block L186-189 states "Vocabulary-shift and fine-grained-ambiguity routing score 0.00 and are explicitly deferred to §6.33". No clause overstates the selector as "correct routing". The flip reads as characterized, not status-inflated.
+
+13. **ADDENDUM (head 261636a) — both non-blocking findings applied and verified.** `git diff a2acc1e..261636a` = exactly the two findings, nothing else (3 roadmap files):
+   - Finding 8: `CAPABILITY_CHECKLIST.md` 6.9 cell — stale "Still IN PROGRESS — content is pull-not-push, an optional body byte-budget ceiling (§4) is unmet" replaced with "Content is pull-not-push, which is roadmap-conformant; the optional body byte-budget ceiling from the slice-2 design §4 remains a possible future refinement and is not a §6.9 promotion criterion." Accurate — matches roadmap §6.9 (execution level = "only if needed") and the slice-2 design note. The 6.9 status cell value stays `DONE` (unchanged).
+   - Finding 10: the standalone "Status: **DONE (2026-09-03)**" blocks in `00-MASTER-MAPS-CAPABILITY-ROADMAP.md` §6.9 and `02-procedural-knowledge-and-skills.md` S6 reduced to pure pointers — "tracked in `work/roadmaps/CAPABILITY_CHECKLIST.md` (rows S6, 6.9), the sole status-truth surface" + a rationale pointer to DEC-002. No status *value* is restated in either file now. Single mutable status truth restored (checklist only).
+   `python3 -m unittest tests.test_documentation_sprawl` → **Ran 22 tests, OK** at this head. No new status-truth duplication introduced. Disposition unchanged: **APPROVE**.
 
 ## Verification
 
