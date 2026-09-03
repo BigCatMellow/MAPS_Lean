@@ -679,7 +679,15 @@ Exit gate: malicious/unsafe example Skills are caught or mechanically constraine
 
 Load selected Skills progressively with selection reasons and trust labels.
 
-Exit gate: unrelated Skills demonstrably stay out of context.
+Exit gate: unrelated Skills demonstrably stay out of context. **(MET 2026-09-03
+— EXP-B post-#260: `false_activation_cases` 0, HARD_NEGATIVE 1.00, NO_SKILL
+1.00; `tests/test_context_builder.py` asserts unrelated-Skill exclusion
+directly.)**
+
+Status: tracked in `work/roadmaps/CAPABILITY_CHECKLIST.md` (rows S6 / 6.9);
+promotion rationale (operator §17.3 sign-off, decision batch item 4, with
+VOCABULARY_SHIFT + AMBIGUOUS deferred to §6.33) in
+`work/decisions/DEC-002-6.9-s6-promotion-to-done-17.3-signoff.md`.
 
 ## S7 — Capability Packs experiment
 

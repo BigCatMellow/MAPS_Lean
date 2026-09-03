@@ -707,6 +707,15 @@ execution
 
 Do not rely on fuzzy Skill selection without a frozen selection evaluation.
 
+### Status
+
+Tracked in `work/roadmaps/CAPABILITY_CHECKLIST.md` (rows S6, 6.9), the sole
+status-truth surface. Promotion rationale — operator §17.3 sign-off, decision
+batch item 4 (2026-09-02), accepting explicit-first routing as characterized by
+EXP-B with vocabulary-shift and fine-grained-ambiguity routing deferred to
+§6.33 (semantic retrieval / query expansion, `EVIDENCE-GATED`) — is recorded in
+`work/decisions/DEC-002-6.9-s6-promotion-to-done-17.3-signoff.md`.
+
 ---
 
 ## 6.10 Skill provenance, trust and quarantine — `P1/P2`

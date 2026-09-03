@@ -166,6 +166,14 @@ status-truth anti-pattern.
 concludes (a) needs semantic retrieval — which would be a separate
 EVIDENCE-GATED roadmap item, not a 6.9 slice. gela is scoping (a) now.
 
+> **2026-09-03 audit note:** this body recommendation "(a)" is **superseded by
+> #264** (`work/notes/2026-09-02-6.9-s6-promotion-gate-rerun.md`) — route (a) is
+> blocked on §6.33 and route (b) is the sole remaining route. The operator's
+> "proceed with recommended answers" (see the OPERATOR ANSWERED section above)
+> therefore resolves to **YES-promote** per the post-#264 re-framing, as
+> recorded in the answer table. Executed by
+> `work/decisions/DEC-002-6.9-s6-promotion-to-done-17.3-signoff.md`.
+
 **Unblocks:** a concrete 6.9/S6 DONE route.
 
 **Blocking?** **No** — but the operator should know (b) is on the table so a
