@@ -8,6 +8,14 @@
   `templates/{task,handoff,repair-record,agi-check}.md`, `tests/test_documentation_sprawl.py`.
 - Operator's private rule 20 ("a repeat failure earns a durable *mechanical* countermeasure")
   is cited throughout as "rule 20"; it is not yet in `AGENTS.md`.
+- **Builds on PR #187** — the four merged pieces this note consolidates (the
+  `FRICTION_LOG.md` structure + capture-before-handoff rule, `REPAIR_AND_LEARNING.md`
+  §"Operator-friction and request capture", the `ROADMAP_TRAJECTORY_CHECK.md`
+  friction-log consumption duty, and the `agent/stalled-work-triage-protocol` triage
+  section in `work/coordination/README.md`) all landed together in PR #187. This note
+  proposes the enforcement layer that PR #187 deliberately left as convention.
+- Housekeeping (not part of this PR): `origin/agent/stalled-work-triage-protocol` and
+  `origin/chore/friction-log-triage-loop-20260831` are stale merged branches — prune.
 - Review: verification-only (design note; changes nothing executable).
 
 ---
@@ -46,8 +54,9 @@ Concrete evidence that convention-only is not holding:
 
 3. **"Verified live" is aspirational; entries do not close.**
    `FRICTION_LOG.md` "2026-08-31 — orchestrator tool-use burned ~30-40k context" carries
-   **eight** consecutive "no recurrence — Nth consecutive arc" follow-up lines
-   (trajectory checks #14–#19) and is still open. Either it should have a real close
+   **six** consecutive "no recurrence — Nth consecutive arc" follow-up lines
+   (trajectory checks #14–#19, the last reporting an **8th** consecutive clean arc)
+   and is still open. Either it should have a real close
    condition ("N clean arcs → closed") or it is pure ceremony. Separately,
    `FRICTION_LOG.md` "2026-09-02 — agent edited the shared coordinator checkout" has a
    proposed rule-20 countermeasure that has sat **unadopted for the whole #253 operator
@@ -213,10 +222,13 @@ repair-and-learning with enforcement. Choosing this would need `PLAYBOOK_SURFACE
 
 ### 5.1 `AGENTS.md` — promote rule 20 into a hard invariant + one pointer
 
-`AGENTS.md` is at **10289 / 10400 bytes** (`AGENTS_BYTE_BUDGET`). The additions below are
-~430 bytes over budget, so this needs a deliberate budget raise (precedent: the test's own
+`AGENTS.md` is at **10289 / 10400 bytes** (`AGENTS_BYTE_BUDGET`). Measured exactly, the two
+additions below are **invariant 13 = 311 B + capture sentence = 407 B = 718 B**, so post-change
+`AGENTS.md` ≈ **11007 B**. This needs a deliberate budget raise (precedent: the test's own
 comment records a 10000 → 10400 raise for the merge-authority rule). **Recommend
-`AGENTS_BYTE_BUDGET` → 10800.** (Operator decision §7.2.)
+`AGENTS_BYTE_BUDGET` → 11200** (≈193 B real headroom after the change). A terser wording
+of both additions (§7.2) saves only ~80 B (post ≈ 10927, still needs ≈11100) — not worth
+the loss of the "record why the first fix did not hold" clause. (Operator decision §7.2.)
 
 **Add invariant 13** (the sprawl invariant itself says "new global rules belong here"; the
 merge-authority rule set the precedent):
@@ -366,18 +378,26 @@ Proposed invariant 13:
 
 Plus the one-sentence capture rule in "Work records and changes" (§5.1).
 **Recommended: adopt as written.** It is rule 20 compressed to invariant register and
-matches the existing numbered style. Alternative: shorten to a single sentence without the
-"record why" clause to save ~90 bytes — not recommended, the "why the first fix failed"
-step is the part that was skipped in the 2026-08-18 recurrence.
+matches the existing numbered style. The terser trim option (and its byte cost) is in
+§7.2 — not recommended, since it drops the "record why the first fix failed" step that
+was exactly the part skipped in the 2026-08-18 recurrence.
 
-### 7.2 — Raise `AGENTS_BYTE_BUDGET` 10400 → 10800?
+### 7.2 — Raise `AGENTS_BYTE_BUDGET` 10400 → 11200?
 
-**Recommended: yes.** The additions are a genuine new global rule (the sprawl invariant
-says those belong in `AGENTS.md`) plus a pointer; precedent is the merge-authority raise
-recorded in the test comment. 10800 leaves ~80 bytes headroom after the change — tight;
-**11000** if the operator wants room for the next rule without another raise. Reject =
-the rule 20 invariant cannot land in `AGENTS.md` and stays convention-only, which defeats
-the point of this note.
+Measured: invariant 13 = 311 B, capture sentence = 407 B, total 718 B → post-change
+`AGENTS.md` ≈ **11007 B**. So 10800 and 11000 both **fail the test**.
+
+**Recommended: raise to 11200** (≈193 B headroom). The additions are a genuine new global
+rule (the sprawl invariant says those belong in `AGENTS.md`) plus a pointer; precedent is
+the merge-authority raise recorded in the test comment.
+
+Trim alternative: terser wording of both additions (invariant 13 ≈ 285 B, sentence ≈ 353 B,
+total 638 B → post ≈ 10927 B) → raise to **11000** (≈73 B headroom, tight) or **11100**
+(≈173 B). Saves ~80 B at the cost of the "record why the first fix did not hold" clause —
+**not recommended**, that clause is the step skipped in the 2026-08-18 recurrence.
+
+Reject any raise = the rule 20 invariant cannot land in `AGENTS.md` and stays
+convention-only, which defeats the point of this note.
 
 ### 7.3 — New `playbook/TRIAGE_STANDARD.md`, or fold into `REPAIR_AND_LEARNING.md`?
 
@@ -415,6 +435,24 @@ new file.
 Out of repo scope, but flagged: once invariant 13 is in `AGENTS.md`, the operator may want
 to trim rule 20 in their private CLAUDE.md to a pointer to avoid duplicate truth
 (invariant 6). **Recommended: operator's call; not part of any repo PR.**
+
+### 7.8 — Ratify the §2 mandatory-capture policy
+
+§2 is presented as settled but is substantive new policy and needs an explicit operator
+call:
+
+- the **mandatory-capture trigger taxonomy** (failed run/command with rework cost;
+  dispatched-worker stall; wrong assumption discovered; tool/environment gap;
+  operator-expressed friction; review-caught defect *class*);
+- the **NOT-in-scope list** (one-off typos/cosmetic; expected negative results; normal
+  in-task design iteration; routine merge-conflict resolution; already-captured →
+  follow-up);
+- the **timing rule**: the entry is appended *before* the fix PR opens, not after.
+
+**Recommended: adopt as written.** The taxonomy is deliberately broad-but-bounded; the
+timing rule is the specific fix for this session's near-miss (§1.1). If the operator wants
+capture to be lighter-touch, the lever is narrowing the taxonomy here, not weakening the
+enforcement wiring.
 
 ---
 
