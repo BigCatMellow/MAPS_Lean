@@ -684,12 +684,9 @@ Exit gate: unrelated Skills demonstrably stay out of context. **(MET 2026-09-03
 1.00; `tests/test_context_builder.py` asserts unrelated-Skill exclusion
 directly.)**
 
-Status: **DONE (2026-09-03)** — promoted by operator §17.3 sign-off (decision
-batch item 4, 2026-09-02). Explicit-first Skill routing accepted as
-characterized: EXP-B 1.00 on DIRECT / PARAPHRASE / MULTI_SKILL / NO_SKILL /
-HARD_NEGATIVE, 0 false activation, f1 0.867; VOCABULARY_SHIFT + AMBIGUOUS are
-§6.33-class residuals (not lexically closeable) and deferred to §6.33. See
-`work/roadmaps/CAPABILITY_CHECKLIST.md` (S6 / 6.9 rows) and
+Status: tracked in `work/roadmaps/CAPABILITY_CHECKLIST.md` (rows S6 / 6.9);
+promotion rationale (operator §17.3 sign-off, decision batch item 4, with
+VOCABULARY_SHIFT + AMBIGUOUS deferred to §6.33) in
 `work/decisions/DEC-002-6.9-s6-promotion-to-done-17.3-signoff.md`.
 
 ## S7 — Capability Packs experiment
