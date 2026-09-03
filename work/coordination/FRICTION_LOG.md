@@ -410,3 +410,36 @@ Entry format:
 - follow-up: Part B impl PR (option C) + independent review. Also open: hcom upstream
   changelog unreachable from this env (compiled binary) — confirm no `--stopped --json`
   support lands that would let Part B simplify.
+
+## 2026-09-03 — cross-agent scratchpad / fresh-clone contamination
+- class: race-condition
+- signal: session 24 — 3 concurrently-dispatched agents reported fresh clones
+  landing dirty on branch `impl/roadmap-trajectory-check-20` with foreign staged
+  files and a stray `main` tip (= #269's head `b52acd1`); the #269 reviewer's
+  clone was clean. All deliverables were CI-verified via clean re-derivation, so
+  no bad artifact shipped. Root cause UNKNOWN — likely a shared `mktemp` /
+  scratchpad path collision or a `git worktree` / `git clone --reference` leak
+  between concurrent agents.
+- countermeasure: dispatch discipline — every impl/review brief tells the agent
+  to `git clone` (or worktree) into a unique `/tmp/<tag>-$$/MAPS_Lean` path and
+  never touch `~/Projects/MAPS_Lean`; keep ≤2 parallel impl agents until the root
+  cause is found. Session 25 ran hiro/hola/lozo under this discipline with no
+  contamination observed. Not yet a mechanical safeguard (rule 20) — a 3rd
+  occurrence under the discipline scopes an investigation into the clone/worktree
+  path allocation.
+- verified: n/a (behavioral, root cause unresolved).
+- follow-up: if contamination recurs with unique-path discipline in place,
+  investigate `mktemp` / worktree path allocation for concurrent agents.
+
+## 2026-09-03 — coordinator hcom env leaks into `maps recovery-tick`
+- class: tool-gap
+- signal: running `maps recovery-tick` from the coordinator's own hcom session
+  inherits `HCOM_RELAY` / `HCOM_INSTANCE_NAME` / etc. from the coordinator's
+  environment, so the tick observes the coordinator's hcom context instead of the
+  target routable state.
+- countermeasure: the item-5 run recipe (session-24 handoff §"Item 5 run recipe")
+  invokes the tick under `env -i` with only the explicitly-needed vars, isolating
+  it from the caller's hcom environment.
+- verified: n/a (behavioral) — recipe updated 2026-09-03.
+- follow-up: if a future `maps` subcommand needs the same isolation, consider a
+  `scripts/` wrapper that scrubs `HCOM_*` before exec.
