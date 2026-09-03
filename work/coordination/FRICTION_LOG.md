@@ -186,6 +186,12 @@ Entry format:
   consecutive arc.** The `03b6a34..3a4b3a4` window (#257–#260: a scoping note,
   two code impl PRs I reviewed pre-merge, the selector-quality impl) + this
   trajectory lane used scoped tooling throughout. Stays open.
+- 2026-09-03 follow-up (trajectory check #20): **no recurrence — 9th consecutive
+  arc.** The #263–#268 lanes (5 doc/status PRs + the #267 `review_binding.py`
+  slice) + this trajectory lane used scoped `git show` / `git show --stat` /
+  `/usr/bin/grep` / `awk` / `sed -n` line ranges / `Read` offset+limit; the one
+  large `CAPABILITY_CHECKLIST.md` dump was redirected to a saved file by the
+  harness, not re-read into context. Stays open (behavioral).
 
 ## 2026-09-01 — stale slice-boundary NonGoalTests assertions
 - class: recurring-stall
@@ -243,6 +249,11 @@ Entry format:
   pre-discipline; discipline held on #259 + #260)**. Stays open (a 3rd
   post-discipline occurrence with a CI-red trip would re-open the mechanical
   safeguard discussion).
+- 2026-09-03 follow-up (trajectory check #20): **no clean test case this arc.**
+  None of #263–#268 was a scope-expanding `_select_skills` / `context_builder`
+  slice; #267 (`runtime/state/review_binding.py`) added no `NonGoalTests`
+  substring risk and updated its own `flow_release_check` advisory string + the
+  matching test assertion in-PR. No CI-red boundary trip. Stays open.
 
 ## 2026-09-03 — coordinator merge marks treated as merge authorization (recurrence)
 - class: recurring-stall
@@ -316,3 +327,57 @@ Entry format:
   were each done in the committer's own worktree — the exact shape the
   countermeasure prescribes, applied by convention before adoption. Countermeasure
   stays folded into #253 item 2 (pending the operator). Stays open.
+- 2026-09-03 follow-up (trajectory check #20): **CLOSED — countermeasure adopted.**
+  #266 (`3dfc922`; decision batch item 2, operator-answered via #265) landed the
+  merge-authority rule into `AGENTS.md` (`### Merge authority (operator-adopted
+  2026-09-02)` — `gh pr merge` operator-only; no coordinator seat → longest-running
+  peer lane keeps every APPROVED PR rebased + evidence-bound but does not merge;
+  claim the rebase in-channel) + a "Merge authority for this handoff" block in
+  `templates/handoff.md`. This is the operator adoption the entry was folded into.
+  No coordination-hygiene incident in the #19→#20 arc — all six arc merges were
+  operator-account squash-merges. The mechanical backstop (dirty-tree merge-prep
+  refusal) stays a "if a 5th lands" item.
+
+## 2026-09-03 — fix commit lands on top of review-evidence; evidence re-bound to new head
+- class: process-gap
+- signal: trajectory check #20 arc — twice, an independent reviewer's non-blocking
+  nit was applied by the impl agent *after* the review-evidence file was
+  committed, forcing a re-bind. #267 (`5a0f7c5`): the `flow_release_check`
+  `next_step.reason` advisory string was fixed in `3f0c109` and the evidence
+  updated to that head. #268 (`828d5e7`): a stale IN-PROGRESS sentence was
+  dropped + status blocks reduced to pointers in `261636a`, evidence re-bound.
+  Both contained (delta re-reviewed in-PR, no escaped defect), but the round-trip
+  is now a recurring shape on doc/prose PRs.
+- countermeasure: dispatch discipline (rule 19 shape) — a review dispatch for a
+  prose/status PR should expect and bundle the "reviewer's own nits applied by
+  the impl agent, then evidence re-bound to the new head" round-trip as part of
+  the review lane, not treat the first evidence commit as final. Not machinery
+  (rule 13). A 3rd occurrence with an *escaped* stale bind (evidence not updated
+  to the fixed head) re-opens for a mechanical check (`review-evidence.yml`
+  head_sha match).
+- verified: both occurrences confirmed 2026-09-03 — `git show 5a0f7c5 -s` /
+  `git show 828d5e7 -s` show the fix commit + the evidence re-bind commit; the
+  `pr-267` / `pr-268` review-evidence `head_sha:` fields match the final heads.
+- follow-up: check #21 notes whether a 3rd occurrence lands and whether the
+  evidence stayed bound to the correct head.
+
+## 2026-09-03 — dispatched worker stalls on its own full `unittest` suite
+- class: recurring-stall
+- signal: several test modules run ~7–8 s per test (`test_flow_release_check`,
+  `test_context_builder`, the `test_exp_b_skill_routing` batteries) — a single
+  module is 3+ min and `python3 -m unittest discover -s tests` is well over a
+  short foreground cap. A dispatched worker that runs the full suite foreground
+  without a raised timeout stalls; running it backgrounded then reading a
+  buffered-empty output file looks like a hang. Multiple "run tests" stalls
+  across recent arcs trace to this.
+- countermeasure: dispatch discipline (rule 19 / rule 20) — every test dispatch
+  states "run the named modules as a blocking foreground call; the full suite is
+  CI's (`runtime-stack-tests.yml`, 15-min budget) — if you must run it locally,
+  raise the timeout and expect buffered output". Trajectory check #20 applied
+  this (named modules foreground, full suite delegated). A mechanical option if
+  it recurs: a `scripts/` wrapper that shards the suite and streams per-module
+  timing.
+- verified: n/a (behavioral) — the per-test cost is real (observed 2026-09-03:
+  4 gate tests in `test_flow_release_check` took 30 s).
+- follow-up: if a worker stalls on the full suite again after this discipline is
+  in the dispatch, scope the sharding wrapper.
