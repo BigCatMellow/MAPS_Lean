@@ -24,6 +24,15 @@ if args == ["--version"]:
     print("hcom fake-1.0")
 elif args == ["status"]:
     print("ok")
+elif args[:2] == ["list", "--json"] and "--stopped" in args:
+    # hcom 0.7.25 ignores --json for --stopped: it always emits human text.
+    mode = os.environ.get("HCOM_FAKE_STOPPED_TEXT", "nonempty")
+    if mode == "empty":
+        print("No recently stopped agents (last 60m)")
+    else:
+        print("Stopped agents (all, showing 2):\n")
+        print("  nava-worker-1 (claude tag:maps-lean) 2h ago  [idle by:subagent]  ~/Projects/MAPS_Lean")
+        print("  codex-1 (codex) 5h ago  [timeout by:subagent]  ~/Projects/MAPS_Lean")
 elif args[:2] == ["list", "--json"]:
     print(json.dumps([
         {"name": "claude-1", "session_id": "s1", "status": "active", "tool": "claude"},
@@ -75,6 +84,26 @@ class HcomAdapterTests(unittest.TestCase):
         call = self.calls()[-1]
         self.assertEqual(call["args"], ["list", "--json"])
         self.assertEqual(call["hcom_dir"], str(self.hcom_dir.resolve()))
+
+    def test_list_sessions_include_stopped_survives_nonjson_stopped_output(self):
+        # FROZEN REGRESSION CASE -- 2026-09-03 BLOCKING defect: hcom 0.7.25
+        # ignores `--json` for `list --stopped` and returns human-formatted
+        # text, which used to raise HcomProtocolError and abort
+        # `maps recovery-tick` before it could reach the supervisor.
+        # The adapter must now degrade to the alive-only listing, not explode.
+        for mode in ("nonempty", "empty"):
+            with self.subTest(stopped_output=mode):
+                os.environ["HCOM_FAKE_STOPPED_TEXT"] = mode
+                self.addCleanup(os.environ.pop, "HCOM_FAKE_STOPPED_TEXT", None)
+                sessions = self.adapter.list_sessions(include_stopped=True)
+                # Alive-only fallback payload -- never raises.
+                self.assertEqual(
+                    sorted(item["name"] for item in sessions),
+                    ["claude-1", "codex-1"],
+                )
+                recent = [c["args"] for c in self.calls()][-2:]
+                self.assertEqual(recent[0], ["list", "--json", "--stopped", "--all"])
+                self.assertEqual(recent[1], ["list", "--json"])
 
     def test_events_parse_json_lines_and_are_bounded(self):
         events = self.adapter.read_events(last=25, intent="inform", agent="claude-1")

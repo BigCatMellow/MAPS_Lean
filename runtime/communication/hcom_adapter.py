@@ -124,18 +124,43 @@ class HcomAdapter:
     def status(self) -> HcomCommandResult:
         return self._run(("status",))
 
+    @staticmethod
+    def _parse_session_list(stdout: str) -> list[dict[str, Any]]:
+        try:
+            payload = json.loads(stdout or "[]")
+        except json.JSONDecodeError as exc:
+            raise HcomProtocolError("hcom list --json returned invalid JSON") from exc
+        if not isinstance(payload, list) or not all(isinstance(item, dict) for item in payload):
+            raise HcomProtocolError("hcom list --json did not return a JSON array of objects")
+        return payload
+
     def list_sessions(self, *, include_stopped: bool = False) -> list[dict[str, Any]]:
         args = ["list", "--json"]
         if include_stopped:
             args.extend(("--stopped", "--all"))
         result = self._run(args)
         try:
-            payload = json.loads(result.stdout or "[]")
-        except json.JSONDecodeError as exc:
-            raise HcomProtocolError("hcom list --json returned invalid JSON") from exc
-        if not isinstance(payload, list) or not all(isinstance(item, dict) for item in payload):
-            raise HcomProtocolError("hcom list --json did not return a JSON array of objects")
-        return payload
+            return self._parse_session_list(result.stdout)
+        except HcomProtocolError:
+            if not include_stopped:
+                raise
+            # hcom does not honor `--json` for `list --stopped` -- confirmed
+            # hcom 0.7.25, where `--json` is documented only for the
+            # alive-only and single-agent forms and `--stopped` always emits
+            # human-formatted text ("No recently stopped agents (last 60m)"
+            # / "Stopped agents (all, showing N): ..."). Aborting here made
+            # `maps recovery-tick` unable to reach the supervisor at all
+            # (RecoverySupervisor.observe_silent_stops / tick both call this
+            # unconditionally). Degrade to the contractual alive-only listing:
+            # a stopped session then reads as absent, and session_is_live({})
+            # is already False, so silent-stop *detection* is preserved.
+            # KNOWN LIMITATION: the stopped session's `session_id` is lost, so
+            # RecoverySupervisor._resolve_run_id() and HcomSessionAdapter's
+            # session_id reverse lookup degrade to "not found" (run_id lineage
+            # unresolved for the incident). The non-degraded fix is tracked in
+            # work/notes/2026-09-03-hcom-list-stopped-nonjson-repair.md.
+            fallback = self._run(["list", "--json"])
+            return self._parse_session_list(fallback.stdout)
 
     def read_events(
         self,
