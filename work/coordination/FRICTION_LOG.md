@@ -381,3 +381,32 @@ Entry format:
   4 gate tests in `test_flow_release_check` took 30 s).
 - follow-up: if a worker stalls on the full suite again after this discipline is
   in the dispatch, scope the sharding wrapper.
+
+## 2026-09-03 — hcom 0.7.25 `list --stopped` ignores `--json`, blocking `maps recovery-tick`
+- class: tool-gap
+- signal: enforced canonical-run pass (operator decision batch item 5) aborted with
+  `{"ok": false, "error": "HcomProtocolError: hcom list --json returned invalid JSON", ...}`
+  (exit 2), nothing written. `HcomAdapter.list_sessions(include_stopped=True)` runs
+  `hcom list --json --stopped --all`; hcom 0.7.25 ignores `--json` for `--stopped` and
+  always emits human text (`No recently stopped agents (last 60m)` / `Stopped agents
+  (all, showing N): ...`). `json.loads` explodes. Because `RecoverySupervisor.observe_silent_stops`
+  and `tick` (and `HcomSessionAdapter._session_records`) call it unconditionally, ALL of
+  `maps recovery-tick` — not just `--enforce-canonical-run` — is dead against hcom 0.7.25.
+  `hcom list --help` shows `--json` is intentionally absent from the `--stopped` subcommand,
+  so no hcom version fixes this.
+- countermeasure: repair record `work/notes/2026-09-03-hcom-list-stopped-nonjson-repair.md`
+  (severity BLOCKING) + this PR. Part A (folded in): `list_sessions` falls back to
+  alive-only `hcom list --json` when the `--stopped` output is not JSON — detection preserved
+  (absent == not-live), `session_id`→`run_id` lineage degrades to unresolved (documented).
+  Frozen regression test `tests/test_hcom_adapter.py::...::test_list_sessions_include_stopped_survives_nonjson_stopped_output`
+  feeds hcom's real `--stopped` text (empty + non-empty) and asserts it no longer raises.
+  Part B (design-only, follow-up impl + review): option C — rebuild stopped-session records
+  from `hcom events --json` to restore lineage without depending on `--stopped --json`.
+- verified: defect reproduced 2026-09-03 in a fresh clone against installed `hcom 0.7.25`
+  (`/home/home/.local/bin/hcom`): `hcom list --json --stopped --all` → human text (exit 0);
+  `hcom list --json` → `[]` (exit 0). Part A regression test + `tests/test_hcom_adapter.py`
+  `tests/test_recovery_supervisor.py` `tests/test_harness_hcom_adapter.py` green (87 passed).
+  Full suite: see PR. `recovery-tick` / `--enforce-*` NOT re-run (stop condition).
+- follow-up: Part B impl PR (option C) + independent review. Also open: hcom upstream
+  changelog unreachable from this env (compiled binary) — confirm no `--stopped --json`
+  support lands that would let Part B simplify.
