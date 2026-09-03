@@ -23,3 +23,7 @@ At the next trajectory check, decide whether RnS's invocation gap needs its own 
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+## Disposition 2026-09-03 (Emergence pass, tuba)
+
+**STALE.** Resolved. `runtime/recovery/production.py::run_recovery_tick` constructs a `RecoverySupervisor` and calls `tick()` since PR #165 (reachable as `maps recovery-tick`, piggybacked on `maps claim`). The observation was accurate for its date; the invocation gap it named is closed. Later chain: #258/#261 lineage bootstrap, #269/#276 adapter defect, #277 first `--enforce-canonical-run` pass. Kept as history; no re-open.

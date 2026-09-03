@@ -23,3 +23,7 @@ Check whether any repair record or incident note in work/notes/ already document
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+## Disposition 2026-09-03 (Emergence pass, tuba)
+
+**PROMOTED / SUPERSEDED.** Landed. `playbook/WORKTREE_ISOLATION.md` is now the standing method and AGENTS.md carries the worktree convention; dispatch briefs routinely require a unique clone/worktree path. The idea is implemented — this record is superseded by that playbook. (Note: stale-worktree *accumulation* is a new, distinct problem — see the 2026-09-03 Emergence pass insight on worktree pollution — not a reason to re-open this record.)
