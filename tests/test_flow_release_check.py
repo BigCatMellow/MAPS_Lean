@@ -264,7 +264,9 @@ class FlowReleaseCheckTests(unittest.TestCase):
         self.assertTrue(result["ok"], result)  # the flow assembled fine
         self.assertEqual(result["summary"]["artifact_identity"]["state"], "FAIL")
         self.assertEqual(result["summary"]["composite"], "BLOCKED")
-        self.assertIn("BLOCKED is advisory", result["next_step"]["reason"])
+        self.assertIn(
+            "hard-blocks record_review APPROVED", result["next_step"]["reason"]
+        )
 
     def test_unacked_blocked_composite_refuses_review_approval(self):
         """6.21 slice 3b — an un-acknowledged BLOCKED composite hard-blocks

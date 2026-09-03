@@ -219,8 +219,9 @@ def flow_release_check(
                 "release-smoke evidence for the operator-visible review and "
                 "records no verdict; the releasing party / reviewer / operator "
                 "runs maps flow review-record with this summary in hand. "
-                f"composite={composite_state} (BLOCKED is advisory this slice — "
-                "it does not gate record_review)"
+                f"composite={composite_state} (an un-acknowledged BLOCKED "
+                "composite hard-blocks record_review APPROVED — a non-empty "
+                "operator_ack_ref on the latest release check is the override)"
             ),
         },
     }
