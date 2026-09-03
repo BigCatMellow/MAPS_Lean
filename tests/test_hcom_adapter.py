@@ -34,10 +34,13 @@ elif args[:2] == ["list", "--json"] and "--stopped" in args:
         print("  nava-worker-1 (claude tag:maps-lean) 2h ago  [idle by:subagent]  ~/Projects/MAPS_Lean")
         print("  codex-1 (codex) 5h ago  [timeout by:subagent]  ~/Projects/MAPS_Lean")
 elif args[:2] == ["list", "--json"]:
-    print(json.dumps([
-        {"name": "claude-1", "session_id": "s1", "status": "active", "tool": "claude"},
-        {"name": "codex-1", "session_id": "s2", "status": "listening", "tool": "codex"}
-    ]))
+    if os.environ.get("HCOM_FAKE_BAD_LIST") == "1":
+        print("not json")
+    else:
+        print(json.dumps([
+            {"name": "claude-1", "session_id": "s1", "status": "active", "tool": "claude"},
+            {"name": "codex-1", "session_id": "s2", "status": "listening", "tool": "codex"}
+        ]))
 elif args and args[0] == "events":
     if os.environ.get("HCOM_FAKE_BAD_EVENTS") == "1":
         print("not json")
@@ -104,6 +107,26 @@ class HcomAdapterTests(unittest.TestCase):
                 recent = [c["args"] for c in self.calls()][-2:]
                 self.assertEqual(recent[0], ["list", "--json", "--stopped", "--all"])
                 self.assertEqual(recent[1], ["list", "--json"])
+
+    def test_list_sessions_include_stopped_nonjson_fallback_logs_once(self):
+        os.environ["HCOM_FAKE_STOPPED_TEXT"] = "nonempty"
+        self.addCleanup(os.environ.pop, "HCOM_FAKE_STOPPED_TEXT", None)
+        with self.assertLogs("runtime.communication.hcom_adapter", level="WARNING") as ctx:
+            self.adapter.list_sessions(include_stopped=True)
+            # Second degraded pass on the same adapter: no additional warning.
+            self.adapter.list_sessions(include_stopped=True)
+        self.assertEqual(len(ctx.records), 1)
+        self.assertIn("non-JSON", ctx.records[0].getMessage())
+
+    def test_list_sessions_alive_only_still_fails_closed_on_bad_json(self):
+        # M1 mutation guard: the `if not include_stopped: raise` short-circuit
+        # must keep the alive-only path fail-closed on invalid JSON.
+        os.environ["HCOM_FAKE_BAD_LIST"] = "1"
+        self.addCleanup(os.environ.pop, "HCOM_FAKE_BAD_LIST", None)
+        with self.assertRaises(HcomProtocolError):
+            self.adapter.list_sessions()
+        with self.assertRaises(HcomProtocolError):
+            self.adapter.list_sessions(include_stopped=True)
 
     def test_events_parse_json_lines_and_are_bounded(self):
         events = self.adapter.read_events(last=25, intent="inform", agent="claude-1")

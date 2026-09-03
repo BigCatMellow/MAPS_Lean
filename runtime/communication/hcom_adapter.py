@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 import json
+import logging
 import os
 from pathlib import Path
 import re
 import subprocess
 from typing import Any, Iterable
+
+_LOGGER = logging.getLogger(__name__)
 
 _NAME = re.compile(r"^[A-Za-z0-9_.:@-]+$")
 _TOOL = re.compile(r"^[A-Za-z0-9_-]+$")
@@ -63,6 +66,7 @@ class HcomAdapter:
         self.hcom_dir = Path(hcom_dir).resolve()
         self.executable = str(executable)
         self.timeout_seconds = float(timeout_seconds)
+        self._warned_stopped_nonjson = False
 
     def environment(self) -> dict[str, str]:
         env = os.environ.copy()
@@ -139,28 +143,41 @@ class HcomAdapter:
         if include_stopped:
             args.extend(("--stopped", "--all"))
         result = self._run(args)
-        try:
-            return self._parse_session_list(result.stdout)
-        except HcomProtocolError:
-            if not include_stopped:
-                raise
-            # hcom does not honor `--json` for `list --stopped` -- confirmed
-            # hcom 0.7.25, where `--json` is documented only for the
-            # alive-only and single-agent forms and `--stopped` always emits
-            # human-formatted text ("No recently stopped agents (last 60m)"
-            # / "Stopped agents (all, showing N): ..."). Aborting here made
-            # `maps recovery-tick` unable to reach the supervisor at all
-            # (RecoverySupervisor.observe_silent_stops / tick both call this
-            # unconditionally). Degrade to the contractual alive-only listing:
-            # a stopped session then reads as absent, and session_is_live({})
-            # is already False, so silent-stop *detection* is preserved.
-            # KNOWN LIMITATION: the stopped session's `session_id` is lost, so
-            # RecoverySupervisor._resolve_run_id() and HcomSessionAdapter's
-            # session_id reverse lookup degrade to "not found" (run_id lineage
-            # unresolved for the incident). The non-degraded fix is tracked in
-            # work/notes/2026-09-03-hcom-list-stopped-nonjson-repair.md.
-            fallback = self._run(["list", "--json"])
-            return self._parse_session_list(fallback.stdout)
+        if include_stopped:
+            try:
+                json.loads(result.stdout or "[]")
+            except json.JSONDecodeError:
+                # hcom does not honor `--json` for `list --stopped` -- confirmed
+                # hcom 0.7.25, where `--json` is documented only for the
+                # alive-only and single-agent forms and `--stopped` always emits
+                # human-formatted text ("No recently stopped agents (last 60m)"
+                # / "Stopped agents (all, showing N): ..."). Aborting here made
+                # `maps recovery-tick` unable to reach the supervisor at all
+                # (RecoverySupervisor.observe_silent_stops / tick both call this
+                # unconditionally). Degrade to the contractual alive-only
+                # listing: a stopped session then reads as absent, and
+                # session_is_live({}) is already False, so silent-stop
+                # *detection* is preserved.
+                #
+                # The catch is deliberately narrowed to JSONDecodeError (the
+                # non-JSON human-text case). A structurally valid JSON payload
+                # that fails `_parse_session_list`'s type check -- e.g. a
+                # hypothetically `--json`-honoring hcom emitting a malformed
+                # typed array -- still raises, surfacing that bug rather than
+                # masking it behind the fallback.
+                if not self._warned_stopped_nonjson:
+                    _LOGGER.warning(
+                        "hcom `list --stopped` returned non-JSON output; falling "
+                        "back to the alive-only session list. Stopped-session "
+                        "lineage (hcom session_id -> run_id) is unavailable for "
+                        "recovery passes against this hcom build -- incidents may "
+                        "open with an unresolved run_id. See "
+                        "work/notes/2026-09-03-hcom-list-stopped-nonjson-repair.md."
+                    )
+                    self._warned_stopped_nonjson = True
+                fallback = self._run(["list", "--json"])
+                return self._parse_session_list(fallback.stdout)
+        return self._parse_session_list(result.stdout)
 
     def read_events(
         self,
