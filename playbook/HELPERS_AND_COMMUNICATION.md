@@ -23,6 +23,16 @@ The orchestration operator remains accountable for integration, scope, review
 routing, and the next action. A helper cannot self-promote into the parent owner,
 final reviewer, or authority source.
 
+### Standing dispatch triage clause
+
+Every impl/review dispatch brief carries this clause verbatim (in addition to the
+AGI-ready shape of rule 19 / [`AGI_STANDARD.md`](AGI_STANDARD.md)):
+
+> **Triage capture:** if anything fails, stalls, surprises you, or the environment is
+> missing something you need, append a `FRICTION_LOG.md` entry before you report back.
+> Run test suites as a blocking foreground call — never background-and-wait on your
+> own tests.
+
 ## Internal-first question resolution
 
 Human escalation is not the default response to uncertainty.

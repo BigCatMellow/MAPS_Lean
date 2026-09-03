@@ -244,6 +244,41 @@ Entry format:
   post-discipline occurrence with a CI-red trip would re-open the mechanical
   safeguard discussion).
 
+## 2026-09-03 — coordinator merge marks treated as merge authorization (recurrence)
+- class: recurring-stall
+- signal: 2nd occurrence of the same pattern — a coordinator/peer lane's own
+  "APPROVED / ready to merge" marks being acted on as merge authorization without
+  an explicit operator line. Occurrence 1 (session 24, #270): the OPCMD merge
+  retry loop merged #270 one turn *before* an operator HOLD landed — the retry
+  raced an authority-ambiguous merge (memory
+  `feedback_opcmd_hold_lost_to_retry_race`). Occurrence 2 (session 25): the
+  merge-authority rule (invariant / `AGENTS.md` §"Merge authority", PR #266) was
+  in place and still did not stop a coordinator-mark-only merge being queued —
+  the rule says "operator-only or a designated coordinator seat" but nothing
+  mechanically checks that a specific operator authorization exists for the
+  specific PR before the merge runs.
+- countermeasure: **mechanical safeguard (invariant 13 / rule 20).** The
+  merge-runner seat (`gule`) independently requires an explicit operator line
+  naming it as the merge seat *or* naming a specific PR number to merge;
+  coordinator marks ("APPROVED", "ready", "merge it") alone are insufficient and
+  the merge-runner enforces this by refusing to run `gh pr merge` until it can
+  quote the operator authorization (message id + PR number) in-channel. This is
+  an actor-side gate on the runner, not another line in `AGENTS.md`.
+  Why the 1st fix did not hold: PR #266 added a *prose rule* ("`gh pr merge` is
+  operator-only, or an explicitly designated coordinator seat") — an instruction.
+  Invariant 13 is explicit that the 2nd occurrence of a pattern does not get a
+  second instruction; the retry loop and the coordinator seat both read the prose
+  as already satisfied by their own role and merged anyway. The enforced version
+  moves the check into the runner's pre-merge step where it blocks mechanically.
+- verified: UNVERIFIED — the runner-side gate is described here and in the
+  session-25 handoff; not yet observed refusing a real coordinator-mark-only
+  merge. Observation condition: next merge cycle, `gule` blocks or quotes the
+  operator authorization before `gh pr merge`. Checked at the next trajectory
+  pass.
+- follow-up: trajectory check verifies (a) the runner-side gate was actually
+  adopted by `gule`, (b) no 3rd occurrence of a coordinator-mark-only merge. A
+  3rd occurrence with the gate in place is an operator escalation, not a 4th fix.
+
 ## 2026-09-02 — agent edited the shared coordinator checkout instead of its own worktree
 - class: process-gap
 - signal: 4th coordination-hygiene signal in the `6ea81b2..d8568a3` arc (after
