@@ -707,6 +707,20 @@ execution
 
 Do not rely on fuzzy Skill selection without a frozen selection evaluation.
 
+### Status
+
+**DONE (2026-09-03)** — promoted by operator §17.3 sign-off (decision batch
+item 4, 2026-09-02). The frozen selection evaluation exists (EXP-B, sha256
+`2cff0e40…4565`, real `_select_skills` through real `evaluate_skill_selection`,
+≥4 cases per category). Explicit-first routing is accepted as characterized:
+1.00 on direct / paraphrase / overlapping / hard-negative / no-Skill, 0 false
+activation, f1 0.867. Vocabulary-shift and fine-grained-ambiguity routing score
+0.00 and are explicitly deferred to §6.33 (semantic retrieval / query
+expansion, `EVIDENCE-GATED`) — not lexically closeable per PR #260's scoring
+simulation and PR #264's independent gate re-run. Status truth:
+`work/roadmaps/CAPABILITY_CHECKLIST.md` (rows S6, 6.9). Sign-off record:
+`work/decisions/DEC-002-6.9-s6-promotion-to-done-17.3-signoff.md`.
+
 ---
 
 ## 6.10 Skill provenance, trust and quarantine — `P1/P2`
