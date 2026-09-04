@@ -19,11 +19,21 @@ Entry format:
 ```
 ## <YYYY-MM-DD> — <short title>
 - class: operator-request | recurring-stall | tool-gap | drift | process-gap
+- opened: <YYYY-MM-DD>   # machine-readable capture-date anchor (usually = the header date)
 - signal: <what broke / was asked / was clunky — 1-3 lines, concrete>
 - countermeasure: <the durable fix — file/mechanism — or "none yet">
 - verified: <how + date it was confirmed live, or UNVERIFIED>
 - follow-up: <open items, or "none">
 ```
+
+`opened:` is the machine-readable date anchor read by
+[`tools/triage_status.py`](../../tools/triage_status.py) (the advisory triage
+backstop a trajectory pass runs). The **pass anchor** is the set of
+`trajectory check #<n>` references a pass leaves in its dated follow-up lines
+(each follow-up begins
+`- <YYYY-MM-DD> follow-up (trajectory check #<n>...): ...`). Legacy entries
+without an `opened:` line fall back to the header date; append the field only to
+new entries, never backfill past ones.
 
 ## 2026-08-31 — self-clear resume prompt silently dropped
 - class: recurring-stall

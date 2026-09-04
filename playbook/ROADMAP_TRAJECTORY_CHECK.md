@@ -60,6 +60,20 @@ names it in its operator section and does not record a clean result until it is
 listed. A behavioral "watch-if-it-recurs" entry with 3 clean arcs is CLOSED, not
 carried a 4th time.
 
+Run the advisory backstop and address everything it flags:
+
+```text
+python3 tools/triage_status.py --root .
+```
+
+It is read-only and never edits the log. It lists every unresolved entry, and
+separately the **OVERDUE** subset (`UNVERIFIED` / `none yet` across ≥ N = 3
+trajectory passes, or past its age bound) — those go in this pass's operator
+section, and the pass does not record a clean result until they are listed. It
+also flags Drift+ repair records under `work/notes/` with no countermeasure or
+regression case. The mechanical run is the backstop for the staleness bound
+above; skipping it means the bound is only remembered.
+
 The close definition, severity classification, and recurrence ladder are owned by
 [`REPAIR_AND_LEARNING.md`](REPAIR_AND_LEARNING.md) §"Triage procedure (mandatory)".
 

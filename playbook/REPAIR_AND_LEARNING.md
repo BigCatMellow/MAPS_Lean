@@ -53,7 +53,8 @@ capture → classify severity → recurrence check → 1st: fix + record
 
 1. **Capture.** Append one `FRICTION_LOG.md` entry in the existing format the
    moment a trigger fires. Concrete `signal`; `countermeasure: none yet` is a
-   valid initial value.
+   valid initial value; set `opened:` to today's date (the machine-readable
+   anchor [`tools/triage_status.py`](../tools/triage_status.py) reads).
 2. **Classify severity.** Reuse the [Repair triage](#repair-triage) table
    verbatim — Cosmetic / Drift / Blocking / Structural. Drift-or-worse also gets
    a repair record ([`templates/repair-record.md`](../templates/repair-record.md));
