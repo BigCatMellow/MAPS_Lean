@@ -23,10 +23,13 @@ is no need to pipe to ``tail`` for readability
 
 It is advisory. CI ``test`` remains the gate.
 
-Each shard imports ``WARMUP_IMPORTS`` before loading its module, to reproduce an
-import side effect that full alphabetical discovery provides and per-module
-isolation otherwise loses (a latent circular import -- see that constant's
-comment). The real fix is a separate PR.
+``WARMUP_IMPORTS`` is kept as an extension point for a shard that legitimately
+needs an import-order warmup; it is empty by default. The runtime/environment
+<-> runtime/state circular import that used to require ``("runtime.state",)``
+here was fixed at its root (see ``work/coordination/FRICTION_LOG.md``,
+2026-09-04 entry) -- ``redact_sensitive_text`` moved to the dependency-free
+``runtime/text_redaction.py``, so no warmup is needed for the
+``test_environment_*`` modules any more.
 
 Usage
 -----
@@ -62,20 +65,14 @@ FAIL = "FAIL"
 ERROR = "ERROR"
 TIMEOUT = "TIMEOUT"
 
-# Each shard runs its module in its own subprocess, in isolation. That isolation
-# exposes a latent circular import (runtime/environment/__init__.py <->
-# runtime/state/environment.py) that the full alphabetical `unittest discover -s
-# tests` masks -- under discover, an earlier module imports `runtime.state`
-# fully before any test_environment_* module is loaded, so the cycle resolves.
-# Importing `runtime.state` first reproduces that ordering and makes the four
-# test_environment_* modules pass in isolation too. Kept unconditional for
-# determinism; only a genuinely-absent module is swallowed (ModuleNotFoundError)
-# -- a present-but-broken warmup module raises ImportError and fails the shard
-# loudly rather than masquerading as the known cycle.
-# See work/coordination/FRICTION_LOG.md (2026-09-04 circular-import entry) and
-# work/notes/2026-09-04-monitor-stall-mechanical-safeguard-design.md ("Known
-# limitation"). The real fix -- breaking the cycle -- is a separate PR.
-WARMUP_IMPORTS = ("runtime.state",)
+# Each shard runs its module in its own subprocess, in isolation. This used to
+# need `("runtime.state",)` here to mask a latent circular import between
+# runtime/environment and runtime/state (see work/coordination/FRICTION_LOG.md,
+# 2026-09-04 entry) -- that cycle is now fixed at its root, so no warmup import
+# is required. Left as an extension point: a present-but-broken warmup module
+# still raises ImportError and fails the shard loudly (only a genuinely-absent
+# module is swallowed via ModuleNotFoundError).
+WARMUP_IMPORTS = ()
 
 # Prelude injected into every shard subprocess: best-effort warmup, then run the
 # named module via unittest and exit with its status code.
