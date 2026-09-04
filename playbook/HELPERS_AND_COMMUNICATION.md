@@ -30,8 +30,9 @@ AGI-ready shape of rule 19 / [`AGI_STANDARD.md`](AGI_STANDARD.md)):
 
 > **Triage capture:** if anything fails, stalls, surprises you, or the environment is
 > missing something you need, append a `FRICTION_LOG.md` entry before you report back.
-> Run test suites as a blocking foreground call — never background-and-wait on your
-> own tests.
+> Local full-suite check = `python scripts/run_tests_sharded.py` foreground (it
+> streams per-module progress and is self-bounding); never background it, never
+> `Monitor` it. CI `test` is the gate — the local run is optional.
 
 ## Internal-first question resolution
 
