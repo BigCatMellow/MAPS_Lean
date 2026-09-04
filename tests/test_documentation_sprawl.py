@@ -229,6 +229,19 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         # reviewable "did you capture friction?" line so it cannot silently vanish.
         self.assertIn("- Triage capture:", task)
 
+    def test_trajectory_check_runs_the_triage_status_backstop(self):
+        """Triage slice 2 (design note 2026-09-03 §5.5): the trajectory-check
+        pass must mechanically run ``tools/triage_status.py`` so the staleness
+        bound is not merely a remembered instruction."""
+
+        trajectory = (PLAYBOOK / "ROADMAP_TRAJECTORY_CHECK.md").read_text(encoding="utf-8")
+        self.assertIn("python3 tools/triage_status.py --root .", trajectory)
+        self.assertIn("OVERDUE", trajectory)
+        # The friction log documents the machine-readable anchor the tool reads.
+        friction_fmt = (WORK / "coordination" / "FRICTION_LOG.md").read_text(encoding="utf-8")
+        self.assertIn("- opened:", friction_fmt)
+        self.assertIn("tools/triage_status.py", friction_fmt)
+
     def test_na_escape_hatch_cannot_silently_become_permissive(self):
         """OIG-NA-AUTO must keep a mandatory manual fallback when automation is N/A."""
 
