@@ -418,6 +418,21 @@ new entries, never backfill past ones.
   4 gate tests in `test_flow_release_check` took 30 s).
 - follow-up: if a worker stalls on the full suite again after this discipline is
   in the dispatch, scope the sharding wrapper.
+- 2026-09-04 follow-up (trajectory check #22): **recurred 2× in session 27,
+  discipline already in place → rule-20 mechanical-safeguard now scoped-needed.**
+  Implementers `rovu` and `buro` both backgrounded the local `unittest` suite
+  and sat on a Monitor/wait-loop instead of finishing; coordinator `mimi`
+  intervened both times. Every impl brief already forbids this. This converges
+  with `work/notes/2026-08-18-stalled-dispatched-worker-repair.md` Prevention §1
+  (deferred "mechanical timeout/heartbeat for dispatched background workers"),
+  which `tools/triage_status.py` also flags as a Drift+ record missing a
+  countermeasure. Per rule 20 the fix is now an actual safeguard — a
+  sharding/streaming test wrapper (`scripts/`) keeping per-module runs under a
+  foreground cap, and/or a dispatched-worker heartbeat check — not another
+  instruction. Named in `work/notes/2026-09-04-roadmap-trajectory-check-22.md`
+  §7 item 2 as a countermeasure-needed operator/coordinator item.
+  `countermeasure:` is now "scoped-needed (rule 20)", not just dispatch
+  discipline.
 
 ## 2026-09-03 — hcom 0.7.25 `list --stopped` ignores `--json`, blocking `maps recovery-tick`
 - class: tool-gap
