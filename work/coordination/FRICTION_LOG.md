@@ -565,3 +565,33 @@ new entries, never backfill past ones.
 - follow-up: none. The per-PR enrichment is O(open PRs) extra `gh` calls; if the
   open-PR count ever gets large enough for that to matter, batch it — not a
   concern at current volume.
+
+## 2026-09-04 — circular import runtime/environment <-> runtime/state/environment
+- class: drift
+- opened: 2026-09-04
+- signal: while implementing `scripts/run_tests_sharded.py` (the dispatched-worker
+  full-suite stall safeguard, `work/notes/2026-09-04-monitor-stall-mechanical-safeguard-design.md`),
+  running each test module in its own subprocess made the four `test_environment_*`
+  modules (`fingerprint`, `fingerprint_safety`, `spec`, `validation`) ERROR with
+  `ImportError: cannot import name 'EnvironmentFingerprint' from partially
+  initialized module 'runtime.environment' (circular import)`. Chain:
+  `runtime/environment/__init__.py` -> `.fingerprint` -> `.spec` ->
+  `runtime.state.observability` -> `runtime/state/__init__.py` -> `.store` ->
+  `.environment` -> back to `runtime.environment`. Full `unittest discover -s
+  tests` masks it: an earlier alphabetical module imports `runtime.state` fully
+  first, so the cycle resolves. Even `discover -s tests -p "test_environment_*"`
+  fails — only the full 96-module run saves it. CI `semantic-eval-tests.yml`
+  already runs single modules via `python -m unittest tests.<mod>`, so isolated
+  runs are a supported mode that this latent cycle can break.
+- countermeasure: `run_tests_sharded.py` imports `WARMUP_IMPORTS =
+  ("runtime.state",)` in every shard subprocess before loading the module
+  (unconditional, `ImportError` swallowed). Documented as a module constant with
+  a pointer here + to the design note "Known limitation" section.
+- verified: reproduced 2026-09-04 via per-module `python -m unittest tests.test_environment_spec`
+  (ERROR) vs. the same module through the runner with the warmup (PASS); all four
+  modules PASS through the runner, 8+2 tests in `tests/test_run_tests_sharded.py`
+  green.
+- follow-up: **the warmup is a workaround, not the fix.** A separate PR should
+  break the cycle (deferred import in `runtime/state/environment.py` or a shared
+  lower-level module) and then `WARMUP_IMPORTS` can shrink to `()`. Not done here
+  — the impl brief's MUST-NOT list forbids touching existing source.

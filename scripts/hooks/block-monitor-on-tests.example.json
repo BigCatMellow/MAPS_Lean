@@ -1,0 +1,31 @@
+{
+  "_comment": [
+    "Local-machine safeguard for the dispatched-worker full-suite stall.",
+    "See work/notes/2026-09-04-monitor-stall-mechanical-safeguard-design.md sec 3.2",
+    "and work/coordination/FRICTION_LOG.md (2026-09-03).",
+    "",
+    "This file is a TEMPLATE. It cannot live in enforced form in the repo because",
+    ".claude/settings.local.json is git-ignored local config. Paste the 'hooks'",
+    "block below into your own .claude/settings.local.json (merge with any hooks",
+    "you already have). It denies backgrounding or Monitoring a test-suite run so",
+    "there is no path back to the stall; the intended command is a blocking",
+    "foreground `python scripts/run_tests_sharded.py`, which streams per-module",
+    "progress and is self-bounding.",
+    "",
+    "The matcher fires on Monitor, and on Bash calls that request run_in_background,",
+    "when the command text mentions unittest / pytest / run_tests_sharded."
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Monitor|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json,sys,re; d=json.load(sys.stdin); ti=d.get('tool_input',{}); tn=d.get('tool_name',''); cmd=ti.get('command','') or ti.get('shellCommand','') or json.dumps(ti); bg=bool(ti.get('run_in_background')); hit=re.search(r'unittest|pytest|run_tests_sharded|-m[ ]+unittest', cmd); block=(tn=='Monitor' and hit) or (tn=='Bash' and bg and hit); print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','permissionDecision':'deny','permissionDecisionReason':'Run the test suite as a blocking foreground `python scripts/run_tests_sharded.py` -- do not background it or Monitor it (FRICTION_LOG 2026-09-03).'}}) if block else '{}')\""
+          }
+        ]
+      }
+    ]
+  }
+}
