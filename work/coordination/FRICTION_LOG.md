@@ -531,6 +531,7 @@ new entries, never backfill past ones.
 
 ## 2026-09-03 — coordination_housekeeping.py fully non-functional (gh GraphQL node-budget)
 - class: tool-gap
+- opened: 2026-09-03
 - signal: `python3 scripts/coordination_housekeeping.py BigCatMellow/MAPS_Lean`
   raised `CalledProcessError` on its very first `gh pr list` call — the bulk
   `--json` set included `comments,commits`, and those sub-connections × `--limit
