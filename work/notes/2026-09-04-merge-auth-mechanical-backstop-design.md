@@ -96,6 +96,13 @@ Steps, in order, each a hard stop on failure:
 6. **Merge.** Only now: `gh pr merge <N> --squash` (pass-through of `--merge-arg`).
    On `--dry-run`, stop before this step and print what would run.
 
+**Boundary.** The gate catches an authz message that explicitly contradicts the merge
+(`don't merge #<N>`, standalone HOLD/STOP/abort) and any post-authz HOLD from an operator
+identity; it does **not** parse soft natural-language deferral (`"#42 stays for later"`,
+`"maybe hold off on 42"`). `--authz` must be chosen as an actual merge instruction for
+`--pr <N>` — the gate confirms an authorization exists and is not retracted, it does not
+infer intent from prose.
+
 ### 3.2 What "designated coordinator seat" becomes
 
 #266's "or an explicitly designated coordinator seat" clause is the softest part of the
