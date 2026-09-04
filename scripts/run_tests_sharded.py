@@ -30,6 +30,9 @@ comment). The real fix is a separate PR.
 
 Usage
 -----
+Run from the repo root (it discovers ``tests/`` relative to the cwd and exits 2
+if it cannot find it).
+
     python scripts/run_tests_sharded.py [-k PATTERN] [--timeout-per-module SEC]
                                         [--jobs N] [--tests-dir DIR]
 
@@ -66,7 +69,9 @@ TIMEOUT = "TIMEOUT"
 # fully before any test_environment_* module is loaded, so the cycle resolves.
 # Importing `runtime.state` first reproduces that ordering and makes the four
 # test_environment_* modules pass in isolation too. Kept unconditional for
-# determinism; harmless where the package is absent (ImportError swallowed).
+# determinism; only a genuinely-absent module is swallowed (ModuleNotFoundError)
+# -- a present-but-broken warmup module raises ImportError and fails the shard
+# loudly rather than masquerading as the known cycle.
 # See work/coordination/FRICTION_LOG.md (2026-09-04 circular-import entry) and
 # work/notes/2026-09-04-monitor-stall-mechanical-safeguard-design.md ("Known
 # limitation"). The real fix -- breaking the cycle -- is a separate PR.
@@ -79,7 +84,7 @@ _SHARD_PRELUDE = (
     "for _m in {warmups!r}:\n"
     "    try:\n"
     "        __import__(_m)\n"
-    "    except ImportError:\n"
+    "    except ModuleNotFoundError:\n"
     "        pass\n"
     "import unittest\n"
     "unittest.main(module=None, argv=['run_tests_sharded', {module!r}, '-v'])\n"
@@ -91,10 +96,18 @@ def _shard_cmd(module: str) -> list[str]:
     return [sys.executable, "-c", code]
 
 
+_emit_lock = threading.Lock()
+
+
 def _emit(line: str) -> None:
-    """Write one line to stdout and flush immediately (never buffer to end)."""
-    sys.stdout.write(line + "\n")
-    sys.stdout.flush()
+    """Write one line to stdout and flush immediately (never buffer to end).
+
+    Locked so a heartbeat thread and a result line cannot interleave mid-flush
+    under ``--jobs > 1``.
+    """
+    with _emit_lock:
+        sys.stdout.write(line + "\n")
+        sys.stdout.flush()
 
 
 def discover_modules(tests_dir: Path, patterns: list[str]) -> list[str]:
