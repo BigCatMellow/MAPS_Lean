@@ -26,6 +26,12 @@ IGNORED_DIRS = {
     "__pycache__",
     "node_modules",
 }
+# Local git worktrees are throwaway copies of the tree, not canonical
+# artifacts -- same class as the HISTORICAL_PREFIXES exclusions. An in-place
+# scan of a checkout with active worktrees otherwise floods with orphan
+# candidates / broken links / duplicate-stable-IDs from the copies. Opt back
+# in with --include-worktrees.
+WORKTREE_PREFIX = ".claude/worktrees/"
 ROOT_ANCHORS = {
     "AGENTS.md",
     "README.md",
@@ -103,13 +109,22 @@ def _is_historical(rel: str) -> bool:
     return any(rel == prefix.rstrip("/") or rel.startswith(prefix) for prefix in HISTORICAL_PREFIXES)
 
 
-def iter_markdown_files(root: Path, *, include_historical: bool = False) -> list[Path]:
+def iter_markdown_files(
+    root: Path,
+    *,
+    include_historical: bool = False,
+    include_worktrees: bool = False,
+) -> list[Path]:
     files: list[Path] = []
     for path in root.rglob("*.md"):
         rel_path = path.relative_to(root)
         if any(part in IGNORED_DIRS for part in rel_path.parts):
             continue
         rel = rel_path.as_posix()
+        if not include_worktrees and (
+            rel == WORKTREE_PREFIX.rstrip("/") or rel.startswith(WORKTREE_PREFIX)
+        ):
+            continue
         if not include_historical and _is_historical(rel):
             continue
         if path.is_file():
@@ -174,10 +189,15 @@ def scan_repository(
     include_historical: bool = False,
     as_of: date | None = None,
     include_thin: bool = True,
+    include_worktrees: bool = False,
 ) -> ScanResult:
     root = root.resolve()
     as_of = as_of or date.today()
-    paths = iter_markdown_files(root, include_historical=include_historical)
+    paths = iter_markdown_files(
+        root,
+        include_historical=include_historical,
+        include_worktrees=include_worktrees,
+    )
     path_map = {path.resolve(): path.relative_to(root).as_posix() for path in paths}
 
     artifacts: dict[str, Artifact] = {}
@@ -362,6 +382,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--root", type=Path, default=REPO_ROOT)
     parser.add_argument("--include-historical", action="store_true")
+    parser.add_argument(
+        "--include-worktrees",
+        action="store_true",
+        help="also scan .claude/worktrees/ (excluded by default as throwaway copies)",
+    )
     parser.add_argument("--json", action="store_true", dest="json_output")
     parser.add_argument("--no-thin", action="store_true")
     parser.add_argument("--as-of", type=date.fromisoformat, default=None)
@@ -380,6 +405,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         include_historical=args.include_historical,
         as_of=args.as_of,
         include_thin=not args.no_thin,
+        include_worktrees=args.include_worktrees,
     )
     if args.json_output:
         print(json.dumps(result.to_dict(), indent=2, sort_keys=True))

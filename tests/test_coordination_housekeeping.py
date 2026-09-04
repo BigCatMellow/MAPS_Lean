@@ -159,5 +159,70 @@ class RetargetOrphanedBasesTests(unittest.TestCase):
         self.assertEqual(retargeted, [])
 
 
+class OpenPrsQueryTests(unittest.TestCase):
+    def test_bulk_query_omits_comments_and_commits_and_enriches_per_pr(self):
+        calls: list[tuple] = []
+
+        def fake_gh_json(*args):
+            calls.append(args)
+            if args[:2] == ("pr", "list"):
+                return [{"number": 7}]
+            # per-PR enrichment
+            return {
+                "comments": [{"body": "hi"}],
+                "commits": [{"oid": "abc"}],
+            }
+
+        original = housekeeping.gh_json
+        housekeeping.gh_json = fake_gh_json
+        try:
+            prs = housekeeping.open_prs("owner/repo")
+        finally:
+            housekeeping.gh_json = original
+
+        list_call = next(c for c in calls if c[:2] == ("pr", "list"))
+        fields = list_call[list_call.index("--json") + 1]
+        self.assertNotIn("comments", fields)
+        self.assertNotIn("commits", fields)
+        self.assertTrue(any(c[:2] == ("pr", "view") for c in calls))
+        self.assertEqual(prs[0]["comments"], [{"body": "hi"}])
+        self.assertEqual(prs[0]["commits"], [{"oid": "abc"}])
+
+
+class WorktreeReportTests(unittest.TestCase):
+    _PORCELAIN = (
+        "worktree /repo\nHEAD aaa\nbranch refs/heads/main\n\n"
+        "worktree /repo/.claude/worktrees/live\nHEAD bbb\nbranch refs/heads/feat\n\n"
+        "worktree /tmp/claude-dead/wt\nHEAD ccc\ndetached\nprunable gitdir file points to non-existent location\n"
+    )
+
+    def test_parse_worktree_list(self):
+        entries = housekeeping.parse_worktree_list(self._PORCELAIN)
+        self.assertEqual(len(entries), 3)
+        self.assertEqual(entries[0]["branch"], "main")
+        self.assertIsNone(entries[2]["branch"])
+        self.assertTrue(entries[2]["missing"])
+
+    def test_annotate_flags_stale_and_gone(self):
+        from datetime import datetime, timezone
+
+        now = datetime(2026, 9, 3, tzinfo=timezone.utc)
+        ages = {
+            "/repo": "2026-09-03T00:00:00+00:00",
+            "/repo/.claude/worktrees/live": "2026-07-01T00:00:00+00:00",
+        }
+        rows = housekeeping.annotate_worktrees(
+            housekeeping.parse_worktree_list(self._PORCELAIN),
+            ages.get,
+            now,
+            stale_days=14,
+        )
+        by_path = {r["path"]: r for r in rows}
+        self.assertFalse(by_path["/repo"]["stale"])
+        self.assertTrue(by_path["/repo/.claude/worktrees/live"]["stale"])
+        self.assertTrue(by_path["/tmp/claude-dead/wt"]["gone"])
+        self.assertFalse(by_path["/tmp/claude-dead/wt"]["stale"])
+
+
 if __name__ == "__main__":
     unittest.main()

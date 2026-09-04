@@ -23,3 +23,5 @@ Add to scripts/coordination_housekeeping.py (or a new scripts/worktree_housekeep
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+- 2026-09-03: promoted → PR "coordination tooling fixes" (branch `fix/coordination-tooling`), bundled from the 2026-09-03 E/I Emergence pass. Append-only disposition; the "Not promoted." line above is the original capture state.

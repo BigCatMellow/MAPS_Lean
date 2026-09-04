@@ -40,6 +40,17 @@ import sys
 from datetime import datetime, timezone
 
 HANDOFF_MARKER = "MAPS HANDOFF"
+
+# Fields safe to request in the bulk `gh pr list` query. `comments` and
+# `commits` are deliberately excluded: as sub-connections multiplied by
+# --limit they blow gh's GraphQL node budget ("exceeds maximum limit of
+# 500,000") and the whole call fails. They are fetched per-PR instead
+# (see `_attach_pr_details`).
+BULK_PR_FIELDS = (
+    "number,title,body,baseRefName,headRefName,headRefOid,isDraft,mergeable,"
+    "mergeStateStatus,statusCheckRollup"
+)
+STALE_WORKTREE_DAYS = 14
 WIP_MARKERS = ("wip", "work in progress", "do not merge", "draft:", "[skip promote]")
 
 
@@ -58,8 +69,24 @@ def gh(*args: str) -> None:
     subprocess.run(["gh", *args], check=True)
 
 
+def _attach_pr_details(repo: str, pr: dict) -> None:
+    """Fetch the per-PR ``comments``/``commits`` that the bulk list query
+    cannot carry (node-budget), and merge them onto ``pr`` in place."""
+    detail = gh_json(
+        "pr",
+        "view",
+        str(pr["number"]),
+        "--repo",
+        repo,
+        "--json",
+        "comments,commits",
+    )
+    pr["comments"] = detail.get("comments") or []
+    pr["commits"] = detail.get("commits") or []
+
+
 def open_prs(repo: str) -> list[dict]:
-    return gh_json(
+    prs = gh_json(
         "pr",
         "list",
         "--repo",
@@ -67,11 +94,13 @@ def open_prs(repo: str) -> list[dict]:
         "--state",
         "open",
         "--json",
-        "number,title,body,baseRefName,headRefName,headRefOid,isDraft,mergeable,"
-        "mergeStateStatus,statusCheckRollup,comments,commits",
+        BULK_PR_FIELDS,
         "--limit",
         "200",
     )
+    for pr in prs:
+        _attach_pr_details(repo, pr)
+    return prs
 
 
 def looks_wip(pr: dict) -> bool:
@@ -237,12 +266,121 @@ def retarget_orphaned_bases(repo: str, prs: list[dict], dry_run: bool) -> list[i
     return retargeted
 
 
+def parse_worktree_list(porcelain: str) -> list[dict]:
+    """Parse ``git worktree list --porcelain`` into a list of entries."""
+    entries: list[dict] = []
+    cur: dict = {}
+    for line in porcelain.splitlines():
+        if not line.strip():
+            if cur:
+                entries.append(cur)
+                cur = {}
+            continue
+        key, _, val = line.partition(" ")
+        if key == "worktree":
+            cur = {"path": val}
+        elif key == "HEAD":
+            cur["head"] = val
+        elif key == "branch":
+            cur["branch"] = val.replace("refs/heads/", "")
+        elif key == "detached":
+            cur["branch"] = None
+        elif key == "bare":
+            cur["bare"] = True
+        elif key == "prunable":
+            cur["missing"] = True
+            cur["prunable_reason"] = val
+    if cur:
+        entries.append(cur)
+    return entries
+
+
+def annotate_worktrees(
+    entries: list[dict], age_lookup, now: datetime, stale_days: int
+) -> list[dict]:
+    """Add ``age_days`` / ``stale`` / ``gone`` to each worktree entry.
+
+    ``age_lookup`` maps a worktree path to its last-commit ISO timestamp
+    (or None). Pure: does no I/O itself."""
+    rows: list[dict] = []
+    for entry in entries:
+        if entry.get("missing"):
+            rows.append({**entry, "age_days": None, "stale": False, "gone": True})
+            continue
+        iso = age_lookup(entry["path"])
+        age_days = (now - _parse_ts(iso)).days if iso else None
+        rows.append(
+            {
+                **entry,
+                "age_days": age_days,
+                "stale": age_days is not None and age_days >= stale_days,
+                "gone": False,
+            }
+        )
+    return rows
+
+
+def _worktree_last_commit_iso(path: str) -> str | None:
+    try:
+        out = subprocess.run(
+            ["git", "-C", path, "log", "-1", "--format=%cI"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        return out or None
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+
+def report_stale_worktrees(apply: bool = False, stale_days: int = STALE_WORKTREE_DAYS) -> int:
+    porcelain = subprocess.run(
+        ["git", "worktree", "list", "--porcelain"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    rows = annotate_worktrees(
+        parse_worktree_list(porcelain),
+        _worktree_last_commit_iso,
+        datetime.now(timezone.utc),
+        stale_days,
+    )
+    for row in rows:
+        if row.get("bare"):
+            continue
+        flag = "GONE " if row["gone"] else ("STALE" if row["stale"] else "ok   ")
+        branch = row.get("branch") or "(detached)"
+        print(f"[{flag}] age_days={row['age_days']!s:>4} branch={branch} {row['path']}")
+    gone = [r["path"] for r in rows if r["gone"]]
+    stale = [r["path"] for r in rows if r["stale"]]
+    print(f"\nregistrations with a missing dir (safe to prune): {gone}")
+    print(f"live worktrees stale >= {stale_days}d (operator review): {stale}")
+    if apply:
+        print("\napply: running 'git worktree prune -v' (removes missing-dir registrations only)")
+        subprocess.run(["git", "worktree", "prune", "-v"], check=True)
+    else:
+        print("\nreport-only. Re-run with --apply to run 'git worktree prune'.")
+        print("Live worktree dirs are never removed and no branch is ever deleted.")
+    return 0
+
+
 def main() -> int:
-    if len(sys.argv) < 2:
-        print("usage: coordination_housekeeping.py <owner/repo> [--apply]", file=sys.stderr)
+    args = sys.argv[1:]
+    if "--stale-worktrees" in args:
+        stale_days = STALE_WORKTREE_DAYS
+        if "--stale-days" in args:
+            stale_days = int(args[args.index("--stale-days") + 1])
+        return report_stale_worktrees(apply="--apply" in args, stale_days=stale_days)
+    if not args:
+        print(
+            "usage: coordination_housekeeping.py <owner/repo> [--apply]\n"
+            "       coordination_housekeeping.py --stale-worktrees [--stale-days N] [--apply]",
+            file=sys.stderr,
+        )
         return 2
-    repo = sys.argv[1]
-    dry_run = "--apply" not in sys.argv[2:]
+    repo = args[0]
+    dry_run = "--apply" not in args[1:]
 
     prs = open_prs(repo)
     print(f"open PRs: {len(prs)} (dry_run={dry_run})")
