@@ -313,26 +313,131 @@ class OpcmdMergeGateTest(unittest.TestCase):
         self.assertEqual(rc, 0, err)
 
 
+# --- dormancy check (F2, PR #287 review) ---
+#
+# The earlier version walked every prose .md and flagged any file mentioning
+# scripts/opcmd_merge.py near the words python/subprocess -- so the review-evidence
+# file's own summary line tripped it, and so would any trajectory note / handoff /
+# friction entry. Narrowed to files that could *actually invoke* the script.
+
+_INVOCATION_MARKERS = (
+    "subprocess",
+    "check_call",
+    "check_output",
+    "Popen",
+    "os.system",
+    "run(",
+    "import opcmd_merge",
+    "from opcmd_merge",
+)
+
+
+def _is_executable_repo_file(path):
+    """True if `path` is code/CI/shell that could shell out to the script.
+
+    Excludes `work/` wholesale (review evidence, notes, handoffs, friction log)
+    and every `*.md` (all prose) -- they name the script without running it.
+    """
+    if ".git" in path.parts or "work" in path.parts:
+        return False
+    if path.suffix == ".md":
+        return False
+    if path.name in {"opcmd_merge.py", "test_opcmd_merge.py"}:
+        return False
+    parts = path.parts
+    if path.suffix == ".py" and any(
+        p in parts for p in ("scripts", "runtime", "tests", "tools")
+    ):
+        return True
+    if path.suffix in {".yml", ".yaml"} and ".github" in parts:
+        return True
+    if path.suffix == ".sh":
+        return True
+    return False
+
+
+def _dormancy_hits(named_texts):
+    """named_texts: iterable of (name, text) or (name, text, is_shell).
+
+    A shell script naming the script IS an invocation (shell files don't discuss
+    it in prose); a Python/YAML line counts only with an explicit invocation
+    marker (subprocess/Popen/import/...).
+    """
+    hits = []
+    for item in named_texts:
+        name, text = item[0], item[1]
+        is_shell = item[2] if len(item) > 2 else str(name).endswith(".sh")
+        for line in text.splitlines():
+            if "opcmd_merge" not in line:
+                continue
+            if is_shell or any(m in line for m in _INVOCATION_MARKERS):
+                hits.append(f"{name}: {line.strip()}")
+    return hits
+
+
+def _walk_repo_dormancy_hits(root):
+    named_texts = []
+    for path in root.rglob("*"):
+        if not path.is_file() or not _is_executable_repo_file(path):
+            continue
+        try:
+            named_texts.append(
+                (str(path.relative_to(root)), path.read_text(encoding="utf-8", errors="ignore"))
+            )
+        except OSError:
+            continue
+    return _dormancy_hits(named_texts)
+
+
 class DormancyTest(unittest.TestCase):
-    def test_no_repo_file_invokes_the_script(self):
-        hits = []
-        for path in _ROOT.rglob("*"):
-            if not path.is_file() or path.suffix not in {".py", ".yml", ".yaml", ".sh", ".md"}:
-                continue
-            if path.name in {"opcmd_merge.py", "test_opcmd_merge.py"}:
-                continue
-            if ".git" in path.parts:
-                continue
-            try:
-                text = path.read_text(encoding="utf-8", errors="ignore")
-            except OSError:
-                continue
-            if "opcmd_merge" in text and "scripts/opcmd_merge.py" in text and "design" not in path.name:
-                # a design-note mention is fine; an invocation is not
-                for line in text.splitlines():
-                    if "opcmd_merge.py" in line and ("python" in line or "subprocess" in line or "run(" in line):
-                        hits.append(f"{path}: {line.strip()}")
-        self.assertEqual(hits, [], f"script must stay dormant; found: {hits}")
+    def test_no_executable_repo_file_invokes_the_script(self):
+        self.assertEqual(
+            _walk_repo_dormancy_hits(_ROOT), [], "script must stay dormant"
+        )
+
+    def test_prose_mention_in_work_dir_does_not_trip_the_walk(self):
+        # F2: a real work/reviews/-style .md naming the script next to the word
+        # "subprocess" must not be seen as an invocation by the actual walk.
+        import os, uuid
+
+        rel = pathlib.Path("work") / "reviews" / f"_fixture-{uuid.uuid4().hex}.md"
+        fpath = _ROOT / rel
+        fpath.parent.mkdir(parents=True, exist_ok=True)
+        fpath.write_text(
+            "reviewer: sana\nsummary: touched scripts/opcmd_merge.py; tests mock "
+            "the hcom/gh subprocess runner; python -m unittest green\n",
+            encoding="utf-8",
+        )
+        self.addCleanup(lambda: fpath.exists() and os.remove(fpath))
+        self.assertEqual(_walk_repo_dormancy_hits(_ROOT), [])
+
+    def test_work_and_md_paths_are_excluded(self):
+        self.assertFalse(_is_executable_repo_file(_ROOT / "work" / "reviews" / "pr-287-review-evidence.md"))
+        self.assertFalse(_is_executable_repo_file(_ROOT / "work" / "notes" / "x.md"))
+        self.assertFalse(_is_executable_repo_file(_ROOT / "README.md"))
+
+    def test_real_invocation_would_trip_the_walk(self):
+        # a fixture .py under scripts/ that shells out to the script SHOULD be caught
+        import os, uuid
+
+        rel = pathlib.Path("scripts") / f"_fixture_caller_{uuid.uuid4().hex}.py"
+        fpath = _ROOT / rel
+        fpath.write_text(
+            'import subprocess\nsubprocess.run(["python", "scripts/opcmd_merge.py", "--pr", "1"])\n',
+            encoding="utf-8",
+        )
+        self.addCleanup(lambda: fpath.exists() and os.remove(fpath))
+        hits = _walk_repo_dormancy_hits(_ROOT)
+        self.assertTrue(hits, "a real subprocess invocation must be detected")
+        self.assertIn(str(rel), hits[0])
+
+    def test_import_of_the_module_would_trip(self):
+        self.assertTrue(_dormancy_hits([("tests/x.py", "from opcmd_merge import gate\n")]))
+
+    def test_shell_script_naming_the_script_trips(self):
+        self.assertTrue(
+            _dormancy_hits([("scripts/x.sh", "python scripts/opcmd_merge.py --pr 1\n")])
+        )
 
 
 if __name__ == "__main__":
