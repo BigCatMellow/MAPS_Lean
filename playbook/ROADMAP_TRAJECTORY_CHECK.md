@@ -82,6 +82,40 @@ Record in the trajectory note that the log was reviewed and what was found
 ("triage") loop; capture is owned by
 [`REPAIR_AND_LEARNING.md`](REPAIR_AND_LEARNING.md).
 
+## Emergence pass (every pass)
+
+Every trajectory-check pass runs a short E/I pass
+([`EMERGENCE.md`](EMERGENCE.md) Phase 1 + Consumption):
+
+1. **Imagine.** Spend a bounded slice on `EMERGENCE.md` Phase 1's prompts against
+   this arc. File anything worth keeping via `scripts/emergence.py capture`. Zero
+   new records is a valid outcome and is recorded as such — but a pass that finds
+   *nothing* worth imagining about, arc after arc, is itself a
+   [`TENTH_SEAT_REVIEW.md`](TENTH_SEAT_REVIEW.md) §7 signal.
+2. **Sweep.** Walk `work/insights/` + `work/ideas/`. For every open record, the
+   pass writes a proposed disposition + one-line rationale into the trajectory
+   note:
+   - **promote** — name the artifact it should become (`work/tasks/<name>.md`
+     contract, `DEC-NNN`, or a specific roadmap item + line). The pass does not
+     create the artifact or authorize the work; it recommends. Operator /
+     coordinator disposes per the `EMERGENCE.md` Phase 3 authority split.
+   - **stale** — append a dated disposition line to the record's `## Promotion`
+     section; observation preserved as history.
+   - **kill** — superseded / tried-and-rejected / no longer useful; say by what.
+   - **incubate** — stays open; the pass records the reason it is not yet ripe.
+   A record marked **incubate** across **N = 3** consecutive passes with no
+   movement is an operator-escalation item, named in the operator section; the
+   pass does not record a clean result until it is listed. (Same ladder as
+   friction-log consumption.)
+3. Record in the trajectory note that the pass ran and what it produced / swept
+   (even "0 imagined, backlog all current").
+
+Capture discipline and the phase model are owned by
+[`EMERGENCE.md`](EMERGENCE.md). This is the consumption half, mirroring
+friction-log consumption above. Nothing here grants the Emergence pass authority
+to create tasks, open DECs, or edit the roadmap on its own — it produces
+recommendations in the trajectory note; the operator or coordinator disposes.
+
 ## Roadmap/status truth rule
 
 Keep **one canonical live status view per program**. Do not accumulate parallel
@@ -123,6 +157,11 @@ ROADMAP_TRAJECTORY_CHECK.md  → is the roadmap still right given current eviden
 ```
 
 All three are orchestration methods. None is a routine human approval gate.
+
+Two consumption duties ride on the trajectory-check cadence:
+[`REPAIR_AND_LEARNING.md`](REPAIR_AND_LEARNING.md) friction-log consumption is
+the *corrective* loop (fix what broke); [`EMERGENCE.md`](EMERGENCE.md) §"Emergence
+pass" is its *generative* counterpart (elicit and route what could be better).
 
 When a pass finds nothing substantive after passes that found something,
 [`TENTH_SEAT_REVIEW.md`](TENTH_SEAT_REVIEW.md) Trigger 2 activates and its §7

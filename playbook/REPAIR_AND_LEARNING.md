@@ -100,7 +100,10 @@ A triaged recurrence is a candidate operational lesson
 (`runtime/operational_learning.py`) **only when its lesson generalizes** beyond
 its own fix; the promotion path is [`EMERGENCE.md`](EMERGENCE.md). A triaged item
 whose fix is entirely local closes in `FRICTION_LOG` and stops there. No
-duplication of the promotion mechanics here.
+duplication of the promotion mechanics here. When a friction entry's lesson does
+generalize, the trajectory pass also files a `work/insights/` record
+([`EMERGENCE.md`](EMERGENCE.md) Phase 2) so it enters the Emergence sweep, not
+only the `FRICTION_LOG` close.
 
 ## Repair triage
 
