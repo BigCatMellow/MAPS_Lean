@@ -9,3 +9,6 @@
 # not durable project records.
 /.maps/state/
 /.hcom/
+
+# OPCMD merge gate runtime ledger (scripts/opcmd_merge.py, dormant)
+work/coordination/merge-ledger.jsonl
