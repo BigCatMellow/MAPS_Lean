@@ -125,9 +125,13 @@ class ShardedRunnerTest(unittest.TestCase):
                                 capture_output=True, text=True, timeout=30)
             self.assertEqual(cp.returncode, 0, cp.stdout + cp.stderr)
 
-    def test_warmup_imports_declared(self):
+    def test_warmup_imports_empty_by_default(self):
+        # The runtime.environment <-> runtime.state circular import that used
+        # to require a "runtime.state" warmup was fixed at its root (see
+        # work/coordination/FRICTION_LOG.md, 2026-09-04 entry); the extension
+        # point stays available but is empty unless a future shard needs it.
         rts = _load_runner()
-        self.assertIn("runtime.state", rts.WARMUP_IMPORTS)
+        self.assertEqual(rts.WARMUP_IMPORTS, ())
 
 
 if __name__ == "__main__":
