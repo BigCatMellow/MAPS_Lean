@@ -113,6 +113,22 @@ class SpiderwebAuditTests(unittest.TestCase):
             self.assertIn(("work/notes/current.md", "HISTORICAL_ONLY"), codes)
             self.assertNotIn(("work/notes/current.md", "ORPHAN_CANDIDATE"), codes)
 
+    def test_worktree_copies_are_excluded_by_default(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            self._write(root, "work/notes/real.md", "# Real\n")
+            self._write(
+                root,
+                ".claude/worktrees/wt-a/work/notes/real.md",
+                "# Real copy\n",
+            )
+            default = spiderweb.scan_repository(root, include_thin=False)
+            with_wt = spiderweb.scan_repository(
+                root, include_thin=False, include_worktrees=True
+            )
+            self.assertEqual(default.files_scanned, 1)
+            self.assertEqual(with_wt.files_scanned, 2)
+
     def test_historical_files_are_opt_in(self):
         with tempfile.TemporaryDirectory() as td:
             root = pathlib.Path(td)

@@ -528,3 +528,25 @@ new entries, never backfill past ones.
   Residual gap: a session that started+stopped entirely outside the lookback window still
   yields an unresolved `run_id` (same as Part A, smaller exposure). See
   `work/notes/2026-09-03-item5-optionC-impl.md`.
+
+## 2026-09-03 — coordination_housekeeping.py fully non-functional (gh GraphQL node-budget)
+- class: tool-gap
+- opened: 2026-09-03
+- signal: `python3 scripts/coordination_housekeeping.py BigCatMellow/MAPS_Lean`
+  raised `CalledProcessError` on its very first `gh pr list` call — the bulk
+  `--json` set included `comments,commits`, and those sub-connections × `--limit
+  200` exceed gh's GraphQL node budget ("exceeds maximum limit of 500,000"). The
+  script has been dead since it was written; no trajectory pass or coordinator
+  caught it, so a "mechanical safety net that runs without an agent tab" was in
+  fact never running. A safety net that always crashes is worse than none —
+  it looks present.
+- countermeasure: PR "coordination tooling fixes" (branch `fix/coordination-tooling`)
+  drops `comments`/`commits` from the bulk query (`BULK_PR_FIELDS`) and fetches
+  them per-PR via `_attach_pr_details` (`gh pr view <n> --json comments,commits`).
+  Regression test `tests/test_coordination_housekeeping.py::OpenPrsQueryTests`
+  asserts the bulk field set never re-adds those two connections.
+- verified: `python3 scripts/coordination_housekeeping.py BigCatMellow/MAPS_Lean`
+  exits 0 and prints a report, 2026-09-03 (against the live repo, 1 open PR).
+- follow-up: none. The per-PR enrichment is O(open PRs) extra `gh` calls; if the
+  open-PR count ever gets large enough for that to matter, batch it — not a
+  concern at current volume.

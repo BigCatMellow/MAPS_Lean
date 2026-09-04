@@ -23,3 +23,5 @@ Split the gh pr list --json field set (fetch comments/commits in a second call, 
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+- 2026-09-03: promoted → PR "coordination tooling fixes" (branch `fix/coordination-tooling`), bundled from the 2026-09-03 E/I Emergence pass. Append-only disposition; the "Not promoted." line above is the original capture state.
