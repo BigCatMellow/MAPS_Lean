@@ -3,7 +3,7 @@
 - Date: 2026-09-04
 - Owner: Operator (accountable); session-27 coordinator dispatched the framing,
   session-28 coordinator (`muzo`) filled the recommendation
-- Status: `PROPOSED`
+- Status: `ADOPTED` (2026-09-04, session 31)
 - Decision class: Roadmap exit-criterion / status-truth
 - Related task/roadmap: `work/roadmaps/CAPABILITY_CHECKLIST.md` rows 6.4, 6.5,
   6.16, 6.22, H5, E4, L6; `work/notes/2026-09-02-ask1-control-plane-runbook.md`
@@ -97,14 +97,19 @@ follow-up — do not hold the cluster hostage to a third attempt.
 
 ## Operator authorization
 
-`<pending>` — needs an operator GO to:
+**GO — 2026-09-04, session 31.** Operator authorized both:
 1. adopt **(B)** as the cluster exit-criterion path; and
-2. authorize the controlled real-stall exercise itself (spawn a throwaway real
-   hcom session and let it stall unattended — this is intentionally outside the
-   normal babysat mode).
-Until (1) is decided, the 7 rows stay IN PROGRESS and no status flips.
+2. the controlled real-stall exercise itself (spawn a throwaway real hcom
+   session and let it stall unattended — intentionally outside the normal
+   babysat mode).
+
 `INSIGHT-651d8c62` + `INSIGHT-102296b5` are promoted into this DEC by trajectory
-check #22's Emergence-pass sweep.
+check #22's Emergence-pass sweep. Mitigation from the Recommendation section
+applies as designed: dedicated throwaway tagged session, explicitly not
+babysat/watched by the coordinator, shortened `--lease-seconds`, single bounded
+window; fallback to (A)-with-caveat after 2 failed attempts, do not hold the
+cluster hostage to a third. Exercise dispatch: see
+`work/tasks/dec003-b-real-stall-exercise.md`.
 
 ## Consequences
 
