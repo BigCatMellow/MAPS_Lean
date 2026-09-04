@@ -97,7 +97,9 @@ follow-up — do not hold the cluster hostage to a third attempt.
 
 ## Operator authorization
 
-**GO — 2026-09-04, session 31.** Operator authorized both:
+**GO — 2026-09-04, session 31. Authorized directly to the session-31
+coordinator outside hcom (not a quotable hcom message id) — confirmed with
+the operator 2026-09-04.** Operator authorized both:
 1. adopt **(B)** as the cluster exit-criterion path; and
 2. the controlled real-stall exercise itself (spawn a throwaway real hcom
    session and let it stall unattended — intentionally outside the normal
