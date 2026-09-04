@@ -56,11 +56,18 @@ class FakeRunner:
     def __call__(self, cmd):
         self.calls.append(list(cmd))
         if cmd[:2] == ["hcom", "events"]:
-            sql = cmd[cmd.index("--sql") + 1]
-            if sql.startswith("id="):
-                events = [self.authz_event] if self.authz_event else []
-            elif sql.startswith("id >") or sql.startswith("id>"):
-                events = self.post_authz_events
+            if "--sql" in cmd:
+                sql = cmd[cmd.index("--sql") + 1]
+                if sql.startswith("id="):
+                    events = [self.authz_event] if self.authz_event else []
+                elif sql.startswith("id >") or sql.startswith("id>"):
+                    events = self.post_authz_events
+                else:
+                    events = []
+            elif "--last" in cmd:
+                # liveness check: newest message event
+                pool = [e for e in ([self.authz_event] + self.post_authz_events) if e]
+                events = [max(pool, key=lambda e: e["id"])] if pool else []
             else:
                 events = []
             return 0, "\n".join(json.dumps(e) for e in events) + "\n", ""
@@ -142,6 +149,83 @@ class OpcmdMergeGateTest(unittest.TestCase):
         self.assertEqual(rc, 2)
         self.assertIn("does not name #42", err)
         self.assertNotIn("gh pr merge 42", out)
+
+    # F1: a prohibiting authz message must NOT pass, even though #N is present.
+    def test_authz_pure_prohibition_refused(self):  # CASE B
+        runner = FakeRunner(
+            authz_event=_msg_event(540, "bigboss", "do not merge #42 yet")
+        )
+        rc, out, err = self._run_main(
+            ["--pr", "42", "--authz", "540", "--dry-run"], runner
+        )
+        self.assertEqual(rc, 2)
+        self.assertIn("not to merge", err)
+        self.assertNotIn("gh pr merge 42", out)
+        self.assertFalse(runner.merge_invoked)
+
+    def test_authz_mixed_authorize_and_prohibit_refused(self):  # CASE A
+        runner = FakeRunner(
+            authz_event=_msg_event(
+                541, "bigboss", "merge #40 now. do not merge #42, it needs a rebase"
+            )
+        )
+        rc, out, err = self._run_main(
+            ["--pr", "42", "--authz", "541", "--dry-run"], runner
+        )
+        self.assertEqual(rc, 2)
+        self.assertFalse(runner.merge_invoked)
+        # ...but the same message DOES authorize #40
+        runner40 = FakeRunner(authz_event=runner.authz_event)
+        rc2, out2, err2 = self._run_main(
+            ["--pr", "40", "--authz", "541", "--dry-run"], runner40
+        )
+        self.assertEqual(rc2, 0, err2)
+        self.assertIn("gh pr merge 40 --squash", out2)
+
+    def test_authz_with_hold_token_refused(self):
+        runner = FakeRunner(
+            authz_event=_msg_event(542, "bigboss", "merge #42 -- wait, HOLD")
+        )
+        rc, out, err = self._run_main(
+            ["--pr", "42", "--authz", "542", "--dry-run"], runner
+        )
+        self.assertEqual(rc, 2)
+
+    # O4: real hcom ts is naive (no Z, no offset) -- exercise that path.
+    def test_naive_timestamp_stale_batch_designation_refused(self):
+        naive_old = (
+            dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=30)
+        ).replace(tzinfo=None, microsecond=0).isoformat()  # e.g. "2026-09-02T20:07:31"
+        self.assertNotIn("+", naive_old)
+        runner = FakeRunner(
+            authz_event=_msg_event(
+                543, "bigboss", "you are the merge seat for the batch", ts=naive_old
+            )
+        )
+        rc, out, err = self._run_main(
+            ["--pr", "7", "--authz", "543", "--dry-run"], runner
+        )
+        self.assertEqual(rc, 2)
+        self.assertIn("stale", err)
+
+    def test_liveness_check_stale_stream_refused(self):
+        # newest message in the stream is older than the authz id -> wrong store
+        runner = FakeRunner(authz_event=_msg_event(600, "bigboss", "merge #42"))
+        # override: liveness returns an older event
+        old_ev = _msg_event(10, "bigboss", "something old")
+        orig = runner.__call__
+
+        def patched(cmd):
+            if cmd[:2] == ["hcom", "events"] and "--last" in cmd:
+                runner.calls.append(list(cmd))
+                return 0, json.dumps(old_ev) + "\n", ""
+            return orig(cmd)
+
+        rc, out, err = self._run_main(
+            ["--pr", "42", "--authz", "600", "--dry-run"], patched
+        )
+        self.assertEqual(rc, 3)
+        self.assertIn("wrong store", err)
 
     # --- supporting behavior ---
 

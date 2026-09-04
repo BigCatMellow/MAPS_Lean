@@ -79,6 +79,13 @@ Steps, in order, each a hard stop on failure:
    merge seat for a batch (`"merge the queue"`, `"you are the merge seat"`) AND be
    dated within the current session window (staleness bound, e.g. 12h). Fail closed
    on ambiguity.
+   - **3b. Authz-message negation check** (added after PR #287 review finding F1).
+     Presence of `#<N>` is not the same as *authorization* of `<N>`. The authz
+     message itself is scanned for `"don't merge #<N>"` (PR-specific) and for
+     standalone HOLD/STOP/abort tokens; either voids the message as an
+     authorization. A PR-specific prohibition of `#<N>` does **not** void the
+     message for a *different* PR it authorizes in the same breath
+     (`"merge #40 now, do not merge #42"` still authorizes `#40`).
 4. **Freshness / HOLD check.** Re-scan messages *after* the authz message for a HOLD /
    STOP / "don't merge #<N>" from any operator-authority identity. If found, refuse.
    (This directly closes Occurrence 1 — the retry-races-a-HOLD case.)
@@ -103,15 +110,18 @@ impl PR ships the script and leaves `AGENTS.md` for a follow-up operator-adopted
 
 Two options; recommend **A**:
 
-- **A (ledger file).** Script appends to `work/coordination/merge-ledger.jsonl`, committed
-  as part of no PR (it is a runtime log, `.gitignore` it) OR posted by the runner to
-  hcom verbatim from the script's stdout. Lowest friction, machine-checkable later.
+- **A (ledger file).** Script appends to `work/coordination/merge-ledger.jsonl`. This file
+  is **`.gitignore`d** — it is a local runtime log, never committed. It gives the runner's
+  own machine a machine-readable local history; it is **not** the cross-clone audit trail.
 - **B (in-channel only).** Script prints the quote block; runner pastes it into hcom
-  before reporting the merge. No file. Simpler, but nothing to audit at a trajectory pass.
+  before reporting the merge.
 
-Either way the script's stdout MUST contain the `authz_id` + excerpt so a trajectory
-pass can verify "the gate quoted a real operator authorization" from the hcom transcript
-alone — the exact observation condition the FRICTION_LOG entry names.
+The impl ships **both halves of A**: it writes the local ledger *and* prints the same
+JSON line (with `authz_id` + excerpt) to stdout for the runner to paste into hcom. Because
+the ledger is `.gitignore`d, **the durable audit trail a trajectory pass reads from a fresh
+clone is the hcom transcript** (the pasted stdout block), not a committed file — the exact
+observation condition the FRICTION_LOG entry names. A future CI-side `merge-authz.yml`
+(§5) would be the committed-artifact audit if one is ever wanted.
 
 ## 5. Invariant-13 tension (actor-side gate)
 
@@ -124,8 +134,10 @@ which invariant 13 flags as weaker than an independent gate. Why this is accepta
   past, unlike the prose rule.
 - A truly independent gate would be server-side branch protection keyed to an operator
   identity — not available on this repo's GitHub plan for the "who invoked" question.
-- The ledger (§4) makes every merge **retroactively auditable** by an independent party
-  (the trajectory pass), which restores most of the independence invariant 13 wants.
+- The stdout authz block the runner pastes into hcom (§4) makes every merge
+  **retroactively auditable** by an independent party (the trajectory pass) from the
+  transcript alone, which restores most of the independence invariant 13 wants. (The
+  `.gitignore`d local ledger is a convenience copy, not the audit trail.)
 
 This is the same shape as `check_review_evidence.py` (an actor-side check that CI then
 re-runs independently via `review-evidence.yml`). Follow-up worth considering if the gate

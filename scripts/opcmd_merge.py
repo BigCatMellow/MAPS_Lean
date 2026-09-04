@@ -58,6 +58,17 @@ _HOLD_PATTERNS = (
     r"\babort\b",
 )
 
+# Tokens that void the *authz message itself* (§3.1 step 3b). Tighter than
+# _HOLD_PATTERNS: a bare "do not merge" needs a PR target to matter and is
+# handled by _dont_merge_pr_re, so it is NOT here -- otherwise "merge #40 now,
+# do not merge #42" could not authorize #40.
+_AUTHZ_VOIDING_PATTERNS = (
+    r"\bHOLD\b",
+    r"\bSTOP\b",
+    r"\babort\b",
+    r"\bhold\s+the\s+merge\b",
+)
+
 LEDGER_PATH = os.path.join("work", "coordination", "merge-ledger.jsonl")
 
 
@@ -98,6 +109,42 @@ def _hcom_events_json(sql):
         except json.JSONDecodeError:
             continue
     return events
+
+
+def _assert_hcom_live(authz_id):
+    """O1: positive liveness assertion for step 4. ``hcom events --sql "id > N"``
+    returning empty is only trustworthy if hcom is actually readable and pointed
+    at the right store. resolve_authz already proved a read works this run; here
+    we additionally confirm the newest message event has ``id >= authz_id`` -- if
+    the whole stream looks older than the authz message we quoted, the query is
+    talking to the wrong db and a post-authz HOLD could be silently invisible."""
+    rc, out, err = run_command(
+        ["hcom", "events", "--type", "message", "--all", "--last", "1"]
+    )
+    if rc != 0:
+        raise EnvError(f"hcom liveness check failed (rc={rc}): {err.strip()}")
+    newest = None
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith("{"):
+            try:
+                newest = json.loads(line)
+            except json.JSONDecodeError:
+                pass
+    if newest is None:
+        raise EnvError(
+            "hcom liveness check returned no message events; refusing (cannot "
+            "verify absence of a post-authz HOLD)"
+        )
+    try:
+        newest_id = int(newest.get("id"))
+    except (TypeError, ValueError):
+        return
+    if newest_id < int(authz_id):
+        raise EnvError(
+            f"hcom's newest message id ({newest_id}) is older than the authz "
+            f"message ({authz_id}); the HOLD scan is querying the wrong store"
+        )
 
 
 def _parse_ts(raw):
@@ -146,7 +193,11 @@ def _names_pr(text, pr):
     """True if text references PR <pr> in a merge-intent context."""
     if re.search(rf"#\s*{pr}\b", text):
         return True
-    # bare number, but only near a merge verb to avoid matching unrelated digits
+    # Bare number, but only within 40 chars of a merge verb, to avoid matching
+    # unrelated digits. O2: for a low <pr> (single/double digit) this window is
+    # loose in the fail-open direction; real PR numbers are 3+ digits (~#287) so
+    # `\b287\b` is specific. A prohibiting "don't merge #<N>" is caught earlier by
+    # check_authz_not_prohibiting regardless of how <pr> matched here.
     if re.search(
         rf"\bmerg\w*\b[^.\n]{{0,40}}\b{pr}\b|\b{pr}\b[^.\n]{{0,40}}\bmerg\w*\b",
         text,
@@ -185,9 +236,36 @@ def check_scope(msg, pr):
     )
 
 
+def _dont_merge_pr_re(pr):
+    return re.compile(rf"do\w*\s*n[o']?t\s+merge\s+#?\s*{pr}\b", re.IGNORECASE)
+
+
+def check_authz_not_prohibiting(msg, pr):
+    """Between steps 3 and 4: the authz message itself must not prohibit merging
+    this PR. `_names_pr` only checks that ``#<N>`` is *present*, not that it is in
+    an authorizing context -- so an authz that says "don't merge #N" (alone, or
+    alongside "merge #M") would otherwise pass. Fail closed on any HOLD/STOP token
+    or an explicit "don't merge #<N>" in the authz text."""
+    text = msg.get("text") or ""
+    if _dont_merge_pr_re(pr).search(text):
+        raise GateError(
+            f"authz message (id={msg.get('id')}) explicitly says not to merge "
+            f"#{pr}: {text!r}"
+        )
+    for pat in _AUTHZ_VOIDING_PATTERNS:
+        m = re.search(pat, text, re.IGNORECASE)
+        if m:
+            raise GateError(
+                f"authz message (id={msg.get('id')}) contains a HOLD/STOP token "
+                f"({m.group(0)!r}); refusing to treat it as a merge authorization: "
+                f"{text!r}"
+            )
+
+
 def check_no_hold(authz_id, pr):
     """Step 4: refuse if any operator posted a HOLD/STOP after the authz message."""
     events = _hcom_events_json(f"id > {int(authz_id)}")
+    _assert_hcom_live(authz_id)
     for ev in events:
         if ev.get("type") != "message":
             continue
@@ -240,6 +318,7 @@ def gate(pr, authz_id, caller, merge_args, dry_run, ledger_path=LEDGER_PATH):
     msg = resolve_authz(authz_id)              # 1
     check_sender(msg)                          # 2
     scope = check_scope(msg, pr)               # 3
+    check_authz_not_prohibiting(msg, pr)       # 3b: authz must not itself say "don't merge #N"
     check_no_hold(authz_id, pr)                # 4
 
     entry = {
