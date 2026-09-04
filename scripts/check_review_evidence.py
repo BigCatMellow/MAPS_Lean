@@ -28,6 +28,15 @@ first commit reached that changes anything else -- the actual reviewed
 code state. A merge commit is never walked past. If a "would-be evidence"
 commit also touches other files, it is NOT treated as evidence-only, so it
 can't be used to sneak unreviewed changes in under an old head_sha.
+
+Expected consequence, not a bug: because the walk-back stops at every merge
+commit, each main-sync merge (or rebase) on a long-lived PR branch produces
+a fresh reviewed-code head and therefore requires a fresh review-evidence
+commit bound to it. That rebind churn (see
+work/notes/2026-08-18-review-evidence-resync-classifier-friction.md and
+INSIGHT-29a10ad4) is the price of the safety property above -- do NOT
+"fix" it by loosening the walk-back to cross merge commits, which would
+reopen exactly the hole this docstring describes.
 """
 
 from __future__ import annotations

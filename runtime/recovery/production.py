@@ -392,7 +392,9 @@ def build_canonical_harness_service(
     `CanonicalRunGuard` never returns `ALLOW` and denies on absent evidence, so callers
     must treat composing it as opt-in / default-off (design §2c): its first
     production exposure converts currently-working resumes into `resume_denied`
-    (most likely via `LEASE_EXPIRED`) and, on repeat, into
+    (the guard veto carries `guard_code="LEASE_EXPIRED"` as an annotation; the
+    resulting `OperationResult.code` is `HOOK_DENIED` -- see the #276 trace in
+    work/notes/2026-09-03-roadmap-trajectory-check-21.md §2) and, on repeat, into
     `failed`/`retry_budget_exhausted`.
     """
     adapter = HcomHarnessAdapter(
