@@ -9,7 +9,7 @@ import re
 from types import MappingProxyType
 from typing import Any, Mapping
 
-from runtime.state.observability import redact_sensitive_text
+from runtime.text_redaction import redact_sensitive_text
 
 
 class EnvironmentSpecError(ValueError):

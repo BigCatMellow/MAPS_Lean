@@ -640,3 +640,23 @@ new entries, never backfill past ones.
   break the cycle (deferred import in `runtime/state/environment.py` or a shared
   lower-level module) and then `WARMUP_IMPORTS` can shrink to `()`. Not done here
   — the impl brief's MUST-NOT list forbids touching existing source.
+- 2026-09-04 (fix, PR TBD on open): root cause fixed. `redact_sensitive_text`
+  (and its regexes) moved out of `runtime/state/observability.py` into a new
+  dependency-free leaf module `runtime/text_redaction.py` (stdlib-only, no
+  import from either `runtime.state` or `runtime.environment`).
+  `runtime/environment/spec.py` now imports it from there instead of from
+  `runtime.state.observability`, so importing `runtime.environment.spec` no
+  longer forces `runtime/state/__init__.py`'s full import chain.
+  `runtime/state/observability.py` re-exports `redact_sensitive_text` from the
+  new module so every existing caller (`runtime/environment/validation.py`,
+  `runtime/evaluation/regression_case.py`, `runtime/operational_learning.py`,
+  `runtime/recovery/production.py`, `runtime/skills/gate.py`,
+  `runtime/state/environment.py`, `runtime/state/outcomes.py`) keeps working
+  unchanged, and `redact_sensitive_text` itself is byte-for-byte identical.
+  New regression test `tests/test_environment_state_import_isolation.py`
+  imports `runtime.environment.spec` (and runs
+  `tests.test_environment_spec`) in a fresh subprocess with no warmup import,
+  and would have failed before this fix (verified by temporarily reverting
+  the source change and re-running it). `scripts/run_tests_sharded.py`'s
+  `WARMUP_IMPORTS` shrunk back to `()`; its docstring/comment updated to say
+  the cycle is fixed rather than pointing at this entry as an open follow-up.
