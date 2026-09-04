@@ -1,7 +1,8 @@
 # DEC-003: Harness-enforcement cluster (6.4 / 6.5 / 6.16 / 6.22 / H5 / E4 / L6) — resolve the exit criterion
 
-- Date: 2026-09-<DD>
-- Owner: Operator (accountable); session-27 coordinator dispatched the framing
+- Date: 2026-09-04
+- Owner: Operator (accountable); session-27 coordinator dispatched the framing,
+  session-28 coordinator (`muzo`) filled the recommendation
 - Status: `PROPOSED`
 - Decision class: Roadmap exit-criterion / status-truth
 - Related task/roadmap: `work/roadmaps/CAPABILITY_CHECKLIST.md` rows 6.4, 6.5,
@@ -47,19 +48,63 @@ that.
   Requires the option-B lineage-bootstrap wiring first (scoped in
   `2026-09-02-lineage-bootstrap-wiring-scoping.md`; = NEXT WORK §2). Strongest
   evidence; a few days of work.
+  **Update 2026-09-04:** the cited precondition — the option-B lineage-bootstrap
+  wiring — is **already merged and exercised**: `maps run bind-session` verb
+  (#258, `runtime/cli.py:131`), synthetic exercise on a fresh `.maps/` (#261,
+  `work/notes/2026-09-02-lineage-bootstrap-exercise.md`), checklist evidence on
+  H5 / 6.16 / 6.22 (#263). "A few days of work" is stale — what remains under (B)
+  is a bounded (hours) controlled real-stall exercise, not new wiring.
 - **(C) Hold the rows IN PROGRESS indefinitely** and stop treating the enforced
   pass as imminent — re-scope the cluster's DONE definition at a later phase
   boundary.
 
 ## Recommendation
 
-<coordinator fills — suggest (B) if the option-B wiring is confirmed near-term
-(it is currently NEXT WORK §2 and the #22 STOP-condition), else (A) with the
-caveat and a tracked follow-up for (B).>
+**(B) — run the controlled real-stall exercise.** Filled by session-28
+coordinator `muzo` 2026-09-04.
+
+Reasoning:
+
+1. **The decision rule points at (B).** The framing rule was "(B) if the
+   option-B wiring is confirmed near-term, else (A)". The wiring is not merely
+   near-term — it is **merged and exercised** (#258 verb, #261 synthetic
+   exercise, #263 evidence). The gating dependency that made (B) expensive across
+   passes #8–#21 is discharged. `git log --oneline --all | grep -i bind-session`
+   and `runtime/cli.py:131` / `:585` confirm the verb; `check_review_evidence.py`
+   passed on all three PRs.
+2. **What remains under (B) is bounded, not open-ended.** A throwaway real hcom
+   session, bound via `maps run bind-session`, lease left to expire with no
+   babysitting, then one `recovery-tick --enforce-canonical-run` to capture a
+   routable `resume_denied`. Hours, not days. The runbook §8 option-B path and
+   the #277 option-A pass recipe are both already written.
+3. **(A) permanently bakes a load-bearing caveat into 7 security-cluster rows.**
+   Anyone later relying on "harness enforcement is proven" inherits "…proven by
+   instantiation, not by a live routable denial". For a security cluster that is
+   weak evidence to close on when the strong evidence is now a few hours away.
+4. **(C) abandons a criterion that has just become reachable.** The "one step
+   away" distortion that (C) is meant to end is genuinely resolved once (B)
+   runs once; holding IN PROGRESS indefinitely trades a solvable problem for a
+   permanent one.
+
+Residual risk and mitigation (the real reason this needs operator sign-off):
+option (B) deliberately runs against the grain of the babysat operating mode —
+it requires a genuinely-unattended live session that stalls. Mitigation for the
+exercise design: a dedicated throwaway tagged session explicitly excluded from
+`limit_watcher` / coordinator babysitting, a shortened lease TTL, a single
+bounded window. **Fallback:** if two controlled attempts cannot produce a
+routable `resume_denied`, fall back to (A)-with-caveat and keep (B) as a tracked
+follow-up — do not hold the cluster hostage to a third attempt.
 
 ## Operator authorization
 
-<pending>
+`<pending>` — needs an operator GO to:
+1. adopt **(B)** as the cluster exit-criterion path; and
+2. authorize the controlled real-stall exercise itself (spawn a throwaway real
+   hcom session and let it stall unattended — this is intentionally outside the
+   normal babysat mode).
+Until (1) is decided, the 7 rows stay IN PROGRESS and no status flips.
+`INSIGHT-651d8c62` + `INSIGHT-102296b5` are promoted into this DEC by trajectory
+check #22's Emergence-pass sweep.
 
 ## Consequences
 
