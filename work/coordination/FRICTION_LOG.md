@@ -326,6 +326,22 @@ new entries, never backfill past ones.
   of `gule` blocking or quoting an operator authorization. Stays UNVERIFIED,
   pass 1 of the N=3 ladder; not an escalation this pass. #22/#23 close it or it
   auto-escalates at #24.
+- 2026-09-04 follow-up (trajectory check #23): **N=3 reached — automatic
+  operator-escalation, per `ROADMAP_TRAJECTORY_CHECK.md`'s ladder (pass 2 was
+  recorded in check #22's own note §3.1 but never appended here as a dated
+  line — corrected now).** (i) No 3rd occurrence of a coordinator-mark-only
+  merge this arc (#286/#287/#288 all ordinary `BigCatMellow`-account squash
+  merges). (ii) `gule` was NOT observed enforcing the gate — structurally
+  cannot be: the gate itself (`scripts/opcmd_merge.py`) shipped **dormant**
+  in this same arc's PR #287 (411 lines, 18/18 tests, re-run here). "Built and
+  tested" is not "adopted and live" — 4 operator decisions are still pending
+  per `work/notes/2026-09-04-merge-auth-mechanical-backstop-design.md` §6
+  (mandatory-path adoption, identity allowlist, `AGENTS.md` reword,
+  ledger-vs-in-channel). Disposition: does NOT close on "built + dormant"
+  alone — that would let the entry close without ever answering its own
+  verification question. Named as an operator-escalation item in
+  `work/notes/2026-09-04-roadmap-trajectory-check-23.md` §7 item 1. Next pass
+  looks for a live gate-refusal/enforcement observation post-adoption.
 
 ## 2026-09-02 — agent edited the shared coordinator checkout instead of its own worktree
 - class: process-gap
@@ -433,6 +449,17 @@ new entries, never backfill past ones.
   §7 item 2 as a countermeasure-needed operator/coordinator item.
   `countermeasure:` is now "scoped-needed (rule 20)", not just dispatch
   discipline.
+- 2026-09-04 follow-up (trajectory check #23): **countermeasure SHIPPED —
+  PR #288.** `scripts/run_tests_sharded.py` (per-module subprocess shards,
+  streamed heartbeat output, self-bounding, exit codes trustworthy) +
+  `scripts/hooks/block-monitor-on-tests.example.json` (dormant Monitor-block
+  hook template) merged this arc, independently reviewed (`pr-288-review-
+  evidence.md`, sana, 6/6 focus areas verified empirically). Re-ran
+  `tests.test_run_tests_sharded` here: 10/10 OK. `countermeasure:` moves from
+  "scoped-needed (rule 20)" to **"shipped (PR #288), adoption pending"** — the
+  hook template is not yet wired into a live hook config and no dispatched
+  worker has used the runner under real stall pressure yet. Not a full CLOSE.
+  #24 checks for a first real observed use.
 
 ## 2026-09-03 — hcom 0.7.25 `list --stopped` ignores `--json`, blocking `maps recovery-tick`
 - class: tool-gap
@@ -509,6 +536,14 @@ new entries, never backfill past ones.
   clone landed clean — `git rev-parse origin/main` matched HEAD, no foreign
   staged files, no stray `main` tip. Positive data point vs. the session-24
   observation. Stays open (behavioral, root cause unresolved).
+- 2026-09-04 follow-up (trajectory check #23): **CLOSED — 3rd consecutive
+  clean pass (pass 2 was recorded in check #22's own note §3.3 prose but
+  never appended here as a dated line — corrected now).** This lane's clone
+  (`/tmp/traj23-$$/MAPS_Lean`) landed clean: `git rev-parse origin/main` ==
+  `HEAD` == `2bcf251`, `git status --porcelain` empty, no foreign staged
+  files, no stray `main` tip. 3 clean arcs in a row (#21, #22, #23) per the
+  method's "3 clean arcs = closed, not carried a 4th time." A future
+  recurrence is a fresh entry, not a re-open.
 
 ## 2026-09-03 — coordinator hcom env leaks into `maps recovery-tick`
 - class: tool-gap
@@ -543,6 +578,16 @@ new entries, never backfill past ones.
   Residual gap: a session that started+stopped entirely outside the lookback window still
   yields an unresolved `run_id` (same as Part A, smaller exposure). See
   `work/notes/2026-09-03-item5-optionC-impl.md`.
+- 2026-09-04 follow-up (trajectory check #23): **CLOSED — "no exposure" close,
+  3rd pass with zero triggering condition (pass 2 recorded in check #22's own
+  note prose, never appended here — corrected now).** No `maps recovery-tick`
+  / enforced pass ran in any of #21, #22, or #23's arcs, so the leak condition
+  never had an opportunity to fire or not-fire this window — this is a "no
+  exposure" close per the method's 3-clean-arcs rule, not a "verified fixed
+  under load" close. Flagged explicitly so it isn't misread as stronger
+  evidence than it is. If a `recovery-tick` run happens before the next
+  trajectory pass, take the opportunity to get one real positive-exposure
+  verification of the `env -i` recipe.
 
 ## 2026-09-03 — coordination_housekeeping.py fully non-functional (gh GraphQL node-budget)
 - class: tool-gap
