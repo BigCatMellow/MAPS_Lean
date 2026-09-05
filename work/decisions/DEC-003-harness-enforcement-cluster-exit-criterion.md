@@ -121,3 +121,34 @@ cluster hostage to a third. Exercise dispatch: see
   frozen as a regression case.
 - **C:** the cluster stops distorting every trajectory pass's "one step away"
   framing.
+
+## Result — 2026-09-05, option B exercise SUCCESS (attempt 1 of the 2-attempt budget)
+
+**A real, routable `resume_denied` was captured.** `dec003-oauth-hila`, dispatched
+by coordinator `mizo`, spawned a genuinely-live throwaway hcom session
+(untagged, name `zora`), bound it via `maps run bind-session` to a real
+`flow start` run manifest (`RUN-7249d47f13e646f2aabc04f3e7e12bee`, task
+`DEC003B-A2-3`, 90s lease), killed its process to simulate a real stall, waited
+past both the lease expiry and the incident's `resume_after` (~900s,
+non-configurable `silent_stop_probe_delay_seconds`), then ran
+`recovery-tick --enforce-canonical-run` a third time. Result:
+`{"action": "resume_denied", "harness_resume": {"attempted": true,
+"code": "HOOK_DENIED", "ok": false}}` — `CanonicalRunGuard`'s documented
+`guard_code="LEASE_EXPIRED"` veto, exactly as this DEC's Recommendation
+pictured, confirmed against source (`runtime/recovery/production.py:392-397`),
+not inferred.
+
+Frozen as regression case
+`CASE-378fb326d2aceaa0cd3ceeb5ce314f8dba541a234a7331d86e6d31f24663e5c9`
+(`work/regression-cases/`). Full verbatim transcript, plus two real
+(unfixed, out-of-scope) mechanical bugs found along the way — `recovery-tick
+--hcom-dir` silently overriding shell `HCOM_DIR`, and a tag-prefix/bare-name
+mismatch between `hcom list --json` and the events-derived stopped-session
+reconstruction that strands `run_id: null` for any *tagged* agent — are in
+`work/notes/2026-09-05-dec003-b-attempt2-real-run-results.md`.
+
+**Outcome: the 7-row cluster (6.4 / 6.5 / 6.16 / 6.22 / H5 / E4 / L6) flips
+per option B**, citing this Result section, the results note above, and the
+frozen case id. The (A)-with-caveat fallback was not needed — this was the
+exercise's first counted attempt (the 2026-09-04 OAuth-wall episode was an
+environment precondition failure, not a counted attempt).
