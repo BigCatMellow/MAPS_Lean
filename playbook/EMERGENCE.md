@@ -29,6 +29,49 @@ against the work of the arc (or the project as a whole):
 - What did we decide once, long ago, that nobody has re-examined against current
   reality?
 
+### Cross-root synthesis
+
+Do not restrict emergence to one arc or to the nearest obvious idea family.
+When compact, trustworthy source summaries are available, deliberately compare
+observations and ideas from **different project roots, arcs, branches, domains,
+or idea families** to look for relationships that local work may not reveal.
+
+Ask:
+
+- Do two apparently separate problems share the same underlying mechanism or
+  cause?
+- Does a method, constraint, or solution from one root transfer to another?
+- Do assumptions or findings from separate roots contradict, constrain, or
+  qualify one another?
+- Can useful fragments from separate roots compose into a capability neither
+  contains alone?
+- Does one root already contain a latent dependency, missing capability, or
+  unused asset that matters to another?
+- Does a structurally distant root suggest an alternative frame that changes
+  how another problem should be understood?
+
+Do not equate resemblance with synthesis. A cross-root candidate is worth
+**Capture** only when it can name:
+
+```text
+source A + source B (or more)
+connection type / linking mechanism
+new implication that is not merely restating either source
+why the implication may matter
+smallest discriminating test or falsifier
+```
+
+Shared vocabulary, theme, or superficial analogy is insufficient. It is valid
+for a pass to conclude `NO MATERIAL CROSS-ROOT SYNTHESIS FOUND`.
+
+Where the search space is large, inspect compact summaries/indexes first and
+expand source detail only for promising candidates. Include some bounded
+structurally distant comparisons rather than relying only on nearest semantic
+neighbors; otherwise the pass will mostly rediscover obvious relationships.
+Do not create durable graph links merely because a candidate connection was
+noticed — preserve only links that change understanding, retrieval, evaluation,
+or action.
+
 Speculation is explicitly allowed here. Get candidates onto the table first;
 judge them in Capture.
 
