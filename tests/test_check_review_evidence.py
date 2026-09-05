@@ -219,6 +219,67 @@ class CheckReviewEvidenceTests(unittest.TestCase):
             self.assertFalse(ok)
             self.assertIn("does not match", msg)
 
+    def test_stale_ancestor_head_sha_with_zero_diff_passes_via_revalidation(self):
+        # A rebase/merge that changes nothing (e.g. an empty commit standing
+        # in for a mechanical, content-free rebase) should let a stale but
+        # ancestor head_sha revalidate rather than force a full re-review.
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            old_head = _init_repo(root)
+            subprocess.run(
+                ["git", "commit", "-q", "--allow-empty", "-m", "zero-diff rebase stand-in"],
+                cwd=root,
+                check=True,
+            )
+            new_head = subprocess.run(
+                ["git", "rev-parse", "HEAD"], cwd=root, check=True, capture_output=True, text=True
+            ).stdout.strip()
+            self.assertNotEqual(old_head, new_head)
+
+            reviews = root / "work" / "reviews"
+            reviews.mkdir(parents=True)
+            (reviews / "pr-99-review-evidence.md").write_text(
+                f"reviewer: SENTINEL-A\n"
+                f"head_sha: {old_head}\n"
+                f"independent: true\n"
+                f"summary: reviewed before the zero-diff rebase\n",
+                encoding="utf-8",
+            )
+            ok, msg = crv.check("99", root)
+            self.assertTrue(ok, msg)
+            self.assertIn("revalidated", msg)
+
+    def test_stale_ancestor_head_sha_with_any_diff_still_fails(self):
+        # Same shape as above, but the "rebase" also carries a real content
+        # change (one unrelated file). Revalidation must not paper over it.
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            old_head = _init_repo(root)
+            (root / "unrelated.txt").write_text("new content", encoding="utf-8")
+            subprocess.run(["git", "add", "unrelated.txt"], cwd=root, check=True)
+            subprocess.run(
+                ["git", "commit", "-q", "-m", "rebase that actually changed something"],
+                cwd=root,
+                check=True,
+            )
+            new_head = subprocess.run(
+                ["git", "rev-parse", "HEAD"], cwd=root, check=True, capture_output=True, text=True
+            ).stdout.strip()
+            self.assertNotEqual(old_head, new_head)
+
+            reviews = root / "work" / "reviews"
+            reviews.mkdir(parents=True)
+            (reviews / "pr-99-review-evidence.md").write_text(
+                f"reviewer: SENTINEL-A\n"
+                f"head_sha: {old_head}\n"
+                f"independent: true\n"
+                f"summary: stale, and something actually changed\n",
+                encoding="utf-8",
+            )
+            ok, msg = crv.check("99", root)
+            self.assertFalse(ok)
+            self.assertIn("does not match", msg)
+
     def test_empty_reviewer_fails(self):
         with tempfile.TemporaryDirectory() as td:
             root = pathlib.Path(td)
