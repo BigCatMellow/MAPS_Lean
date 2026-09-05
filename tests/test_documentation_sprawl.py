@@ -32,8 +32,12 @@ PLAYBOOK_SURFACE_BUDGET = 24
 # (triage slice 1, design note 2026-09-03-triage-core-standard-design.md §5.1):
 # invariant 13 (repeat-failure -> enforced countermeasure, rule 20 promoted) +
 # the one-sentence mandatory friction-capture rule in "Work records and changes".
-# Both are genuine new global rules the anti-sprawl invariant places in AGENTS.md.
-AGENTS_BYTE_BUDGET = 11_200
+# Raised 11_200 -> 13_000 (operator-approved, PR #294): the merge-authority
+# gate wording (mandatory opcmd_merge.py gate, persistent ledger — operator
+# decision 2026-09-04) pushed AGENTS.md to 12_020 bytes. This is a budget
+# increase to accommodate operator-approved content, not a loosening of the
+# anti-sprawl check's intent; headroom left for small future edits.
+AGENTS_BYTE_BUDGET = 13_000
 ROOT_README_BYTE_BUDGET = 4_000
 FIRST_RUN_BYTE_BUDGET = 3_000
 

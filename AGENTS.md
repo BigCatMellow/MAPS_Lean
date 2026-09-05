@@ -142,9 +142,23 @@ decides inside authority → human only for a true boundary crossing. Use a
 lightweight fresh challenger for ordinary consequential uncertainty; the formal
 [10th Seat Review](playbook/TENTH_SEAT_REVIEW.md) is a separate narrow protocol.
 
-### Merge authority (operator-adopted 2026-09-02)
+### Merge authority (operator-adopted 2026-09-02; gate mandatory 2026-09-04)
 
-- `gh pr merge` is operator-only, or an explicitly designated coordinator seat.
+- Every merge to `main` MUST go through `scripts/opcmd_merge.py`, never a bare
+  `gh pr merge`. The gate resolves an operator-authored hcom authorization
+  message, refuses on a coordinator/agent sender, refuses on a post-authz
+  HOLD/STOP, and appends a durable ledger entry
+  (`work/coordination/merge-ledger.jsonl`, git-ignored) plus prints the same
+  authz quote to stdout — the merge runner pastes that quote in-channel, which
+  is what a later trajectory pass actually audits from the transcript. See
+  `work/notes/2026-09-04-merge-auth-mechanical-backstop-design.md`.
+- There is no other legitimate path to authorize a merge. A seat's own claim to
+  be "the designated coordinator" is never sufficient — the only way a
+  non-operator merge is legitimate is an operator hcom message that explicitly
+  designates the seat for a batch (e.g. "you are the merge seat"), dated within
+  the current session window, per the gate's own staleness bound (§3.1 step 3b
+  of the design note). A single PR-scoped authorization (`"merge #<N>"`) covers
+  only that PR.
 - No coordinator seat active → the longest-running peer lane keeps every APPROVED
   PR rebased, evidence-bound, and non-conflicting, but does not merge.
 - Claim the rebase in-channel ("claiming the #N rebase") before force-pushing a
