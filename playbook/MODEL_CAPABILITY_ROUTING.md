@@ -94,6 +94,12 @@ Worker class and reasoning effort are different routing choices.
 Independent review should generally use equal or greater reasoning effort than
 the implementation it reviews.
 
+## Revalidation review tier (zero-diff re-review)
+
+A PR whose branch was rebased/merged onto a newer `main` purely for strict-branch-protection freshness — where the diff over the paths the reviewer actually reviewed is empty against the prior reviewed head — does not need a full from-scratch independent review. It needs a **revalidation**: confirm (1) the new head is a descendant of the previously-reviewed head (`git merge-base --is-ancestor <old_head_sha> <new_head>`), and (2) the diff over the reviewed paths between them is empty (`git diff <old_head_sha>..<new_head> -- <reviewed paths>` produces no output). If both hold, the reviewer may re-certify with a one-line revalidation note citing the two checks and the two commit shas, instead of re-running the full review. If either check fails — even a single line changed under a reviewed path — fall back to a full review; revalidation is never a substitute for judgment when anything actually moved.
+
+This does not apply to a genuine review round (Phase 1 findings, author fixes) — only to a mechanical rebase/merge with zero net effect on what was reviewed. Pairs with `scripts/check_review_evidence.py`'s matching tree-equality tolerance for a stale `head_sha`.
+
 ## Routing rule
 
 ```text

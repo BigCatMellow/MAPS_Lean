@@ -37,6 +37,16 @@ work/notes/2026-08-18-review-evidence-resync-classifier-friction.md and
 INSIGHT-29a10ad4) is the price of the safety property above -- do NOT
 "fix" it by loosening the walk-back to cross merge commits, which would
 reopen exactly the hole this docstring describes.
+
+Additive revalidation exception (does NOT touch the walk-back above): if
+the evidence's head_sha does not equal the resolved reviewed-code head,
+it can still pass if (a) head_sha is an ancestor of the reviewed-code head
+and (b) the diff between head_sha and the reviewed-code head is empty --
+i.e. literally nothing changed between what was reviewed and now, so there
+is no unreviewed content to sneak in. This is unlike the walk-back hole,
+which was about evidence-only commits masking real changes; a zero-diff
+ancestor has no room to hide anything. See
+playbook/MODEL_CAPABILITY_ROUTING.md's "Revalidation review tier" section.
 """
 
 from __future__ import annotations
@@ -93,6 +103,25 @@ def _reviewed_code_head(repo_root: Path, start: str) -> str:
         return current
 
 
+def _is_ancestor(repo_root: Path, ancestor: str, descendant: str) -> bool:
+    result = subprocess.run(
+        ["git", "-C", str(repo_root), "merge-base", "--is-ancestor", ancestor, descendant],
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
+def _diff_is_empty(repo_root: Path, old: str, new: str) -> bool:
+    result = subprocess.run(
+        ["git", "-C", str(repo_root), "diff", "--name-only", old, new],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip() == ""
+
+
 def _parse_evidence(text: str) -> dict[str, str]:
     fields: dict[str, str] = {}
     for line in text.splitlines():
@@ -123,6 +152,15 @@ def check(pr_number: str, repo_root: Path) -> tuple[bool, str]:
     reviewed_head = _reviewed_code_head(repo_root, actual_head)
     claimed_head = fields["head_sha"].strip()
     if claimed_head != reviewed_head:
+        if _is_ancestor(repo_root, claimed_head, reviewed_head) and _diff_is_empty(
+            repo_root, claimed_head, reviewed_head
+        ):
+            return True, (
+                f"review-evidence OK for {evidence_path}: revalidated by "
+                f"tree-equality (head_sha {claimed_head} is an ancestor of "
+                f"reviewed code head {reviewed_head} with an empty diff "
+                f"between them -- nothing changed since the reviewed state)"
+            )
         return False, (
             f"review-evidence head_sha ({claimed_head!r}) does not match "
             f"the reviewed code state ({reviewed_head!r}, resolved from "
