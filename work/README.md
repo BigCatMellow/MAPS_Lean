@@ -26,6 +26,7 @@ in [`AGENTS.md`](../AGENTS.md). Reusable procedures belong in the
 | Candidate ideas | [`ideas/`](ideas/) | Discovery backlog; not active work merely because it exists. |
 | Reusable observations | [`insights/`](insights/) | Evidence/learning; follow current disposition links before acting. |
 | Design/working notes | [`notes/`](notes/) | Supporting context only; prefer current owner documents. |
+| Frozen regression cases | [`regression-cases/`](regression-cases/) | Evidence artifacts per [`playbook/REPAIR_AND_LEARNING.md`](../playbook/REPAIR_AND_LEARNING.md); not authority on its own. |
 | Context packets / imported context | [`context/`](context/) | Bounded context, not global authority. |
 
 ## Relationship rule

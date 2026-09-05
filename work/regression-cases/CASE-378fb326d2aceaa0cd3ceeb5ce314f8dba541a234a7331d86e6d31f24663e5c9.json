@@ -1,0 +1,338 @@
+{
+  "case_id": "CASE-378fb326d2aceaa0cd3ceeb5ce314f8dba541a234a7331d86e6d31f24663e5c9",
+  "case_kind": "MAPS_FROZEN_REGRESSION_CASE",
+  "case_version": 1,
+  "content_sha256": "378fb326d2aceaa0cd3ceeb5ce314f8dba541a234a7331d86e6d31f24663e5c9",
+  "expected_properties": [
+    "canonical-run-guard-denies-expired-lease-resume",
+    "silent-stop-incident-opens-on-live-to-dead-transition"
+  ],
+  "frozen_by": "hila",
+  "incident_category": "RECOVERY_FAILURE",
+  "promotion": {
+    "automatic": false,
+    "reason": "frozen cases are evaluation evidence only; passing a case cannot self-authorize a harness/policy/routing change"
+  },
+  "sanitized_fixture": "{\n  \"description\": \"DEC-003 option B real-stall exercise: a genuinely live hcom session, bound via maps run bind-session to a real run_manifest with EXPLICIT run_session_links lineage, whose provider process is killed (SIGKILL) while its task claim is ACTIVE. Two recovery-tick passes later (baseline observed alive, then transition observed not-alive, opening a silent_stop incident), a third recovery-tick --enforce-canonical-run pass run after the task's lease has expired and past the incident's resume_after window attempts a harness-routed resume and is denied by CanonicalRunGuard.\",\n  \"preconditions\": {\n    \"task_status_at_incident\": \"ACTIVE\",\n    \"task_lease_expired\": true,\n    \"run_session_lineage_state\": \"EXPLICIT\",\n    \"session_liveness_transition_observed\": \"live->not-live\"\n  },\n  \"recovery_tick_result\": {\n    \"action\": \"resume_denied\",\n    \"harness_resume\": {\n      \"attempted\": true,\n      \"code\": \"HOOK_DENIED\",\n      \"ok\": false,\n      \"summary\": \"Deterministic Hook denied the operation.\"\n    },\n    \"guard_code_annotation\": \"LEASE_EXPIRED\",\n    \"resume_validation\": {\n      \"attempted\": false,\n      \"reason\": \"no_spec_bound\"\n    },\n    \"incident_state_after\": \"denied\",\n    \"canonical_denials\": 1\n  },\n  \"expected_properties\": {\n    \"canonical-run-guard-denies-expired-lease-resume\": \"recovery-tick --enforce-canonical-run must produce action=resume_denied with harness_resume.code=HOOK_DENIED (guard_code LEASE_EXPIRED) for a real live-then-stopped session whose task lease has expired, not a no-op/absent result\",\n    \"silent-stop-incident-opens-on-live-to-dead-transition\": \"observe_silent_stops must open a scheduled incident only on the tick that observes a live->not-live transition for a bound session, never on the first (baseline) tick\"\n  }\n}",
+  "source_run_record": {
+    "completion": {
+      "criterion_evidence": {
+        "claims": [],
+        "join_state": "VERIFIED",
+        "omitted_other_run_claims": 0,
+        "omitted_task_unbound_claims": 0,
+        "reason": "only criterion claims explicitly bound to the selected run and verdicts for those claims are included",
+        "verdicts": []
+      },
+      "reviews": {
+        "items": [],
+        "join_state": "UNKNOWN",
+        "reason": "reviews are task-level unless an immutable review subject explicitly binds them to a run"
+      },
+      "submission": null
+    },
+    "content_sha256": "c2a1c255df41c79f332d94689ee9d5acca413cf2cbdf8090de41db523ba9ac30",
+    "context": {
+      "content_included": false,
+      "reason": "Run Record preserves path/hash references, not file contents",
+      "refs": []
+    },
+    "coverage": {
+      "canonical_task_db": {
+        "included": true,
+        "sources": [
+          "SQLite task state"
+        ],
+        "state": "VERIFIED"
+      },
+      "communication": {
+        "included": false,
+        "reason": "current canonical trace cannot safely join hcom communication to this run",
+        "sources": [
+          "hcom"
+        ],
+        "state": "UNKNOWN"
+      },
+      "context_refs": {
+        "included": true,
+        "reason": "immutable run context path/hash references are included",
+        "state": "VERIFIED"
+      },
+      "environment": {
+        "included": false,
+        "reason": "the source trace exposes run environment evidence, but the selected run has no recorded observations",
+        "source_available": true,
+        "state": "MISSING"
+      },
+      "harness_configuration": {
+        "included": false,
+        "reason": "current run manifest does not bind harness/hook configuration identity",
+        "state": "MISSING"
+      },
+      "harness_operation_trajectory": {
+        "included": false,
+        "reason": "Run Record v1 has no canonical operation/result trajectory source",
+        "state": "MISSING"
+      },
+      "review_subject": {
+        "included": true,
+        "reason": "review subjects are exposed by the source trace, but none proves a binding to the selected run",
+        "state": "UNKNOWN"
+      },
+      "session_helper_recovery_lineage": {
+        "included": false,
+        "reason": "durable cross-source lineage is not yet complete",
+        "sources": [
+          "hcom",
+          "helper subsystem",
+          "recovery state"
+        ],
+        "state": "UNKNOWN"
+      },
+      "skills": {
+        "included": false,
+        "reason": "current run manifest does not bind selected Skill identities/hashes",
+        "state": "MISSING"
+      },
+      "worktree_identity": {
+        "included": false,
+        "reason": "the selected run is explicitly missing Git worktree identity",
+        "source_available": true,
+        "state": "MISSING"
+      }
+    },
+    "environment": [],
+    "outcomes": {
+      "run_bound": [],
+      "task_unbound": []
+    },
+    "record_id": "RR-c2a1c255df41c79f332d94689ee9d5acca413cf2cbdf8090de41db523ba9ac30",
+    "record_kind": "MAPS_PORTABLE_RUN_RECORD",
+    "record_version": 1,
+    "replay": {
+      "complete": false,
+      "reason": "Run Record v1 preserves observable canonical evidence but lacks complete provider/session/helper/recovery and operation trajectory sources"
+    },
+    "run": {
+      "base_revision": null,
+      "created_at": "2026-09-05T02:54:59Z",
+      "created_by": "maps-flow-start",
+      "forbidden_scope": [],
+      "helper_lineage": [],
+      "readable_scope": [
+        "."
+      ],
+      "recovery_lineage": [],
+      "run_id": "RUN-7249d47f13e646f2aabc04f3e7e12bee",
+      "runtime_limits": {},
+      "session_id": null,
+      "session_lineage": {
+        "chain_complete": true,
+        "current": {
+          "adapter_id": "hcom",
+          "created_at": "2026-09-05T02:55:05Z",
+          "created_by": "maps-run-bind-session",
+          "evidence_ref": "hcom:attach:67a76380-959e-4c5a-975b-fdf7801eceb7",
+          "link_id": 3,
+          "project_id": "maps-lean",
+          "relation": "ATTACH",
+          "replaces_link_id": null,
+          "run_id": "RUN-7249d47f13e646f2aabc04f3e7e12bee",
+          "session_id": "67a76380-959e-4c5a-975b-fdf7801eceb7"
+        },
+        "history": [
+          {
+            "adapter_id": "hcom",
+            "created_at": "2026-09-05T02:55:05Z",
+            "created_by": "maps-run-bind-session",
+            "evidence_ref": "hcom:attach:67a76380-959e-4c5a-975b-fdf7801eceb7",
+            "link_id": 3,
+            "project_id": "maps-lean",
+            "relation": "ATTACH",
+            "replaces_link_id": null,
+            "run_id": "RUN-7249d47f13e646f2aabc04f3e7e12bee",
+            "session_id": "67a76380-959e-4c5a-975b-fdf7801eceb7"
+          }
+        ],
+        "legacy_manifest_session_id": null,
+        "project_id": "maps-lean",
+        "run_id": "RUN-7249d47f13e646f2aabc04f3e7e12bee",
+        "state": "EXPLICIT"
+      },
+      "task_id": "DEC003B-A2-3",
+      "task_revision": "e4ae14ab86b85806dcd397338810e5195783789bc06911c9ec182991bf0a1155",
+      "worker_id": "hila-worker-3",
+      "worktree": null,
+      "writable_scope": [
+        "work/scratch-dec003b-a2-3"
+      ]
+    },
+    "task": {
+      "agi_status": "AGI READY",
+      "attempt": 1,
+      "contract_counts": {
+        "acceptance_criteria": 2,
+        "dependencies": 0,
+        "inputs": 1,
+        "non_goals": 0,
+        "output_paths": 1,
+        "sources": 4,
+        "stop_conditions": 2
+      },
+      "max_attempts": 3,
+      "owner": "hila",
+      "policy": {
+        "approved_at": null,
+        "approved_by_present": false,
+        "broad_architecture": false,
+        "destructive_action": false,
+        "external_side_effect": false,
+        "paid_execution": true,
+        "requires_operator_approval": false,
+        "security_sensitive": false
+      },
+      "project_id": "maps-lean",
+      "review_required": "INDEPENDENT_REVIEW",
+      "risk": "MEDIUM",
+      "status": "ACTIVE",
+      "task_id": "DEC003B-A2-3",
+      "task_revision": "e4ae14ab86b85806dcd397338810e5195783789bc06911c9ec182991bf0a1155",
+      "task_type": "RESEARCH",
+      "text": {
+        "decision_authority": {
+          "characters": 71,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "escalation": {
+          "characters": 122,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "evidence_expected": {
+          "characters": 41,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "outcome": {
+          "characters": 108,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "title": {
+          "characters": 65,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "verification": {
+          "characters": 133,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        }
+      }
+    },
+    "timeline": {
+      "events": [
+        {
+          "actor": null,
+          "created_at": "2026-09-05T02:54:39Z",
+          "event_type": "TASK_CREATED",
+          "id": 25,
+          "summary": {
+            "characters": 29,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": null,
+          "created_at": "2026-09-05T02:54:53Z",
+          "event_type": "TASK_POLICY_UPDATED",
+          "id": 26,
+          "summary": {
+            "characters": 65,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": null,
+          "created_at": "2026-09-05T02:54:53Z",
+          "event_type": "TASK_CONTRACT_UPDATED",
+          "id": 27,
+          "summary": {
+            "characters": 39,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "hila",
+          "created_at": "2026-09-05T02:54:53Z",
+          "event_type": "TASK_PROMOTED_READY",
+          "id": 28,
+          "summary": {
+            "characters": 15,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "hila-worker-3",
+          "created_at": "2026-09-05T02:54:59Z",
+          "event_type": "TASK_CLAIMED",
+          "id": 29,
+          "summary": {
+            "characters": 24,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "maps-flow-start",
+          "created_at": "2026-09-05T02:54:59Z",
+          "event_type": "RUN_MANIFEST_CREATED",
+          "id": 30,
+          "summary": {
+            "characters": 59,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "maps-run-bind-session",
+          "created_at": "2026-09-05T02:55:05Z",
+          "event_type": "RUN_SESSION_ATTACHED",
+          "id": 31,
+          "summary": {
+            "characters": 97,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        }
+      ],
+      "join_state": "UNKNOWN",
+      "reason": "task_events are task-level and not all events carry run_id"
+    }
+  },
+  "source_run_record_id": "RR-c2a1c255df41c79f332d94689ee9d5acca413cf2cbdf8090de41db523ba9ac30",
+  "source_run_record_sha256": "c2a1c255df41c79f332d94689ee9d5acca413cf2cbdf8090de41db523ba9ac30",
+  "tags": [
+    "dec-003",
+    "option-b",
+    "real-stall-exercise"
+  ]
+}
