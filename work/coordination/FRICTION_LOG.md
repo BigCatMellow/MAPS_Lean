@@ -342,6 +342,18 @@ new entries, never backfill past ones.
   verification question. Named as an operator-escalation item in
   `work/notes/2026-09-04-roadmap-trajectory-check-23.md` §7 item 1. Next pass
   looks for a live gate-refusal/enforcement observation post-adoption.
+- 2026-09-05 follow-up (trajectory check #24): **Still UNVERIFIED — status
+  update, not a new escalation.** No 3rd occurrence of a coordinator-mark-only
+  merge this arc (#291/#292/#293/#295 all ordinary `BigCatMellow`-account
+  squash merges); `gule` still not observed enforcing the gate — no PR in
+  this arc adopted `scripts/opcmd_merge.py` as a required path. New fact this
+  pass: per the session-31 handoff, the operator has answered 2 of the 4
+  pending adoption decisions (mandatory-path = YES, ledger = persistent)
+  directly to the session-31 coordinator, outside hcom — not yet a
+  quotable/mechanical record, and not yet landed here or in `AGENTS.md`
+  (`#294`, the PR meant to land it, is still DRAFT as of this pass —
+  `gh pr view 294` confirms). Next pass checks whether `#294` merged and
+  whether a live gate-refusal observation is now possible.
 
 ## 2026-09-02 — agent edited the shared coordinator checkout instead of its own worktree
 - class: process-gap
