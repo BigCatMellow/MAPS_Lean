@@ -354,6 +354,22 @@ new entries, never backfill past ones.
   (`#294`, the PR meant to land it, is still DRAFT as of this pass —
   `gh pr view 294` confirms). Next pass checks whether `#294` merged and
   whether a live gate-refusal observation is now possible.
+- 2026-09-05 follow-up (trajectory check #25): **CLOSED — live
+  gate-refusal-path observation confirmed, PR #298, 2026-09-05.** `#294`
+  merged this arc, landing the mandatory-path decision in `AGENTS.md`. The
+  coordinator checkout's git-ignored `work/coordination/merge-ledger.jsonl`
+  (read-only spot-check, not committed, not written to) contains one entry:
+  `{"authz_from": "bigboss", "authz_id": 89280, "caller": "gule", "pr": 298,
+  "scope": "batch-designation", "ts": "2026-09-05T11:14:38.935537+00:00", ...}`
+  — timestamped 3 seconds before PR #298's actual `mergedAt`
+  (`2026-09-05T11:14:41Z`, confirmed via `gh pr view 298`). The gate resolved
+  a real operator authorization naming the merge seat for a batch and only
+  then invoked the merge. Countermeasure is concrete and durable
+  (`scripts/opcmd_merge.py`, mandatory per `AGENTS.md`); verified live with a
+  dated mechanism; no 3rd occurrence of a coordinator-mark-only merge
+  observed. Per `REPAIR_AND_LEARNING.md`'s close definition, all conditions
+  are met. A later coordinator-mark-only merge opens a **new** entry linking
+  back here, not a reopen of this one.
 
 ## 2026-09-02 — agent edited the shared coordinator checkout instead of its own worktree
 - class: process-gap
