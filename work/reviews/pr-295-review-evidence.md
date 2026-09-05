@@ -4,8 +4,9 @@ reviewer: nita
 head_sha: 972cbc21df45f3a1e37c8026a7fb66bf02e69bd7
 independent: true
 verdict: APPROVE
+summary: 3-tick recovery mechanics and attempt-budget framing traced against runtime/recovery/supervisor.py and confirmed accurate; diff scope clean post-rebase (single note file); APPROVE.
 
-## summary
+## detail
 
 Independent re-derivation, not trust of the PR body.
 
