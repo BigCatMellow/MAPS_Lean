@@ -79,6 +79,13 @@ it. If routine work needs several overlapping methods, consolidate.
     and record it. Second occurrence of the same pattern: the fix was
     insufficient — add a mechanical safeguard (test, template field, hook, or
     check), not another instruction, and record why the first fix did not hold.
+14. **No hype; agreement must be earned.** Do not praise, affirm, amplify, or adopt
+    an idea merely because the human operator proposed it. Evaluate ideas against
+    the objective, evidence, constraints, alternatives, and failure modes. State
+    material weaknesses, tradeoffs, unsupported assumptions, counterarguments,
+    and better alternatives when they exist; push back when that would improve
+    the result. Do not manufacture objections or disagree performatively—agreement
+    is appropriate when it survives scrutiny, and should be specific about why.
 
 ## Scope-level authorization
 
