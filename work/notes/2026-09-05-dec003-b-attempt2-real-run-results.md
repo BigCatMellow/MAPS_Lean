@@ -1,5 +1,16 @@
 # DEC-003 option B — real-stall exercise — attempt 2 (real run) — SUCCESS
 
+**Correction (2026-09-05, post-review by `bona`):** the SUCCESS claim below
+about the `resume_denied` capture itself stands. But the capture only
+exercises `HarnessService.resume()` on a lease-expiry path — it does not
+close 6.4 (no `.stop()` call, so `BEFORE_DESTRUCTIVE_ACTION` never fired),
+6.16 (no `--require-canonical-run` worktree-bound run, so
+`RUN_WORKTREE_MISMATCH` was not exercised), or 6.22 (no `.send()` call, so
+`MemoryProvenanceGuard`'s `BEFORE_SEND` callback never fired). Those 3 rows
+were walked back from DONE to IN PROGRESS in `CAPABILITY_CHECKLIST.md`; only
+6.5/H5/E4/L6 are genuinely closed by this evidence. See those rows for the
+corrected gap language.
+
 **Status: SUCCESS.** A real, routable `resume_denied` was captured from
 `recovery-tick --enforce-canonical-run` against a genuinely-live hcom session
 that stalled unattended past its lease, closing DEC-003's strong-evidence path
