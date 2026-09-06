@@ -1,0 +1,347 @@
+{
+  "case_id": "CASE-db2717314e8ec548dcac167e88a27c2282dd1be66ef6b0a8023de5931456e813",
+  "case_kind": "MAPS_FROZEN_REGRESSION_CASE",
+  "case_version": 1,
+  "content_sha256": "db2717314e8ec548dcac167e88a27c2282dd1be66ef6b0a8023de5931456e813",
+  "expected_properties": [
+    "canonical-run-guard-denies-unreadable-worktree-resume",
+    "canonical-run-guard-denies-worktree-mismatch-resume",
+    "worktree-bound-run-manifest-requires-base-revision"
+  ],
+  "frozen_by": "zara",
+  "incident_category": "RECOVERY_FAILURE",
+  "promotion": {
+    "automatic": false,
+    "reason": "frozen cases are evaluation evidence only; passing a case cannot self-authorize a harness/policy/routing change"
+  },
+  "sanitized_fixture": "DEC-003 row 6.16 (Git worktree isolation) exercise: a genuinely-live untagged hcom session (`hale`) was bound via `maps run bind-session` to a run manifest created by `maps flow start --require-worktree-binding --base-revision <HEAD>`, which froze a concrete Git worktree identity (repo_root/git_common_dir/git_dir/worktree_private_dir) into `run_manifest.worktree`. The session process was SIGTERM-killed while the task claim was ACTIVE and its lease still live. recovery-tick pass 1 observed alive (baseline); pass 2 observed the live->not-live transition and opened silent_stop incident RNS-712cbdd544aa with a resolved run_id and resume_after = +900s. After resume_after, `recovery-tick --enforce-canonical-run --harness-project-id maps-lean --repo-root <PATH>` was run with PATH set to (a) a linked `git worktree add` checkout of the same repo at the same HEAD, and (b) a non-git directory. Both produced action `resume_denied` with `harness_resume: {attempted: true, code: \"HOOK_DENIED\"}`; the incident parked in state `denied` (canonical_denials incremented, transient retry ladder untouched). A direct reproduction of `CanonicalRunGuard.__call__` against the identical TaskStore + run manifest + execution binding (operation=\"resume\") pinned the guard_code: repo_root = linked worktree -> RUN_WORKTREE_MISMATCH (\"Run is bound to a different Git worktree than the one continuing it.\"); repo_root = non-git dir -> RUN_WORKTREE_UNAVAILABLE (\"Current Git worktree identity could not be read for a worktree-bound run.\"); repo_root = the original bound clone -> `_require_bound_worktree` returns None (worktree seam passes; any denial there is a downstream session-lineage check, not the worktree seam). First real production-path exposure of `_require_bound_worktree` / RUN_WORKTREE_MISMATCH / RUN_WORKTREE_UNAVAILABLE.",
+  "source_run_record": {
+    "completion": {
+      "criterion_evidence": {
+        "claims": [],
+        "join_state": "VERIFIED",
+        "omitted_other_run_claims": 0,
+        "omitted_task_unbound_claims": 0,
+        "reason": "only criterion claims explicitly bound to the selected run and verdicts for those claims are included",
+        "verdicts": []
+      },
+      "reviews": {
+        "items": [],
+        "join_state": "UNKNOWN",
+        "reason": "reviews are task-level unless an immutable review subject explicitly binds them to a run"
+      },
+      "submission": null
+    },
+    "content_sha256": "05193bd6f1d9d11924b601269af8bb1fab8e5c0aa76d6c3c7937059cb23c2aa2",
+    "context": {
+      "content_included": false,
+      "reason": "Run Record preserves path/hash references, not file contents",
+      "refs": []
+    },
+    "coverage": {
+      "canonical_task_db": {
+        "included": true,
+        "sources": [
+          "SQLite task state"
+        ],
+        "state": "VERIFIED"
+      },
+      "communication": {
+        "included": false,
+        "reason": "current canonical trace cannot safely join hcom communication to this run",
+        "sources": [
+          "hcom"
+        ],
+        "state": "UNKNOWN"
+      },
+      "context_refs": {
+        "included": true,
+        "reason": "immutable run context path/hash references are included",
+        "state": "VERIFIED"
+      },
+      "environment": {
+        "included": false,
+        "reason": "the source trace exposes run environment evidence, but the selected run has no recorded observations",
+        "source_available": true,
+        "state": "MISSING"
+      },
+      "harness_configuration": {
+        "included": false,
+        "reason": "current run manifest does not bind harness/hook configuration identity",
+        "state": "MISSING"
+      },
+      "harness_operation_trajectory": {
+        "included": false,
+        "reason": "Run Record v1 has no canonical operation/result trajectory source",
+        "state": "MISSING"
+      },
+      "review_subject": {
+        "included": true,
+        "reason": "review subjects are exposed by the source trace, but none proves a binding to the selected run",
+        "state": "UNKNOWN"
+      },
+      "session_helper_recovery_lineage": {
+        "included": false,
+        "reason": "durable cross-source lineage is not yet complete",
+        "sources": [
+          "hcom",
+          "helper subsystem",
+          "recovery state"
+        ],
+        "state": "UNKNOWN"
+      },
+      "skills": {
+        "included": false,
+        "reason": "current run manifest does not bind selected Skill identities/hashes",
+        "state": "MISSING"
+      },
+      "worktree_identity": {
+        "included": true,
+        "reason": "the selected run includes immutable Git worktree identity",
+        "source_available": true,
+        "state": "VERIFIED"
+      }
+    },
+    "environment": [],
+    "outcomes": {
+      "run_bound": [],
+      "task_unbound": []
+    },
+    "record_id": "RR-05193bd6f1d9d11924b601269af8bb1fab8e5c0aa76d6c3c7937059cb23c2aa2",
+    "record_kind": "MAPS_PORTABLE_RUN_RECORD",
+    "record_version": 1,
+    "replay": {
+      "complete": false,
+      "reason": "Run Record v1 preserves observable canonical evidence but lacks complete provider/session/helper/recovery and operation trajectory sources"
+    },
+    "run": {
+      "base_revision": "c958cf6ba099edf2363e0d66b40f10c2c1174425",
+      "created_at": "2026-09-06T03:16:11Z",
+      "created_by": "maps-flow-start",
+      "forbidden_scope": [],
+      "helper_lineage": [],
+      "readable_scope": [
+        "."
+      ],
+      "recovery_lineage": [],
+      "run_id": "RUN-650b25de0e674a28bfd74859cc4efaed",
+      "runtime_limits": {},
+      "session_id": null,
+      "session_lineage": {
+        "chain_complete": true,
+        "current": {
+          "adapter_id": "hcom",
+          "created_at": "2026-09-06T03:16:23Z",
+          "created_by": "maps-run-bind-session",
+          "evidence_ref": "hcom:attach:ab3bea42-ab07-41a5-b448-c75af8b2d90e",
+          "link_id": 1,
+          "project_id": "maps-lean",
+          "relation": "ATTACH",
+          "replaces_link_id": null,
+          "run_id": "RUN-650b25de0e674a28bfd74859cc4efaed",
+          "session_id": "ab3bea42-ab07-41a5-b448-c75af8b2d90e"
+        },
+        "history": [
+          {
+            "adapter_id": "hcom",
+            "created_at": "2026-09-06T03:16:23Z",
+            "created_by": "maps-run-bind-session",
+            "evidence_ref": "hcom:attach:ab3bea42-ab07-41a5-b448-c75af8b2d90e",
+            "link_id": 1,
+            "project_id": "maps-lean",
+            "relation": "ATTACH",
+            "replaces_link_id": null,
+            "run_id": "RUN-650b25de0e674a28bfd74859cc4efaed",
+            "session_id": "ab3bea42-ab07-41a5-b448-c75af8b2d90e"
+          }
+        ],
+        "legacy_manifest_session_id": null,
+        "project_id": "maps-lean",
+        "run_id": "RUN-650b25de0e674a28bfd74859cc4efaed",
+        "state": "EXPLICIT"
+      },
+      "task_id": "DEC003-616-2",
+      "task_revision": "af2d00198929f2549a87c699a75ae38188c329baf1127fe60e3ab85616095174",
+      "worker_id": "zara-worker-2",
+      "worktree": {
+        "bound_at": "2026-09-06T03:16:11Z",
+        "git_common_dir": "/tmp/dec003-616-103001/.git",
+        "git_dir": "/tmp/dec003-616-103001/.git",
+        "head_revision": "c958cf6ba099edf2363e0d66b40f10c2c1174425",
+        "repo_root": "/tmp/dec003-616-103001",
+        "run_id": "RUN-650b25de0e674a28bfd74859cc4efaed",
+        "worktree_private_dir": "/tmp/dec003-616-103001/.git"
+      },
+      "writable_scope": [
+        "work/scratch-dec003-616-2"
+      ]
+    },
+    "task": {
+      "agi_status": "AGI READY",
+      "attempt": 1,
+      "contract_counts": {
+        "acceptance_criteria": 4,
+        "dependencies": 0,
+        "inputs": 3,
+        "non_goals": 3,
+        "output_paths": 1,
+        "sources": 2,
+        "stop_conditions": 1
+      },
+      "max_attempts": 3,
+      "owner": "zara",
+      "policy": {
+        "approved_at": null,
+        "approved_by_present": false,
+        "broad_architecture": false,
+        "destructive_action": false,
+        "external_side_effect": false,
+        "paid_execution": true,
+        "requires_operator_approval": false,
+        "security_sensitive": false
+      },
+      "project_id": "maps-lean",
+      "review_required": "INDEPENDENT_REVIEW",
+      "risk": "MEDIUM",
+      "status": "ACTIVE",
+      "task_id": "DEC003-616-2",
+      "task_revision": "af2d00198929f2549a87c699a75ae38188c329baf1127fe60e3ab85616095174",
+      "task_type": "RESEARCH",
+      "text": {
+        "decision_authority": {
+          "characters": 49,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "escalation": {
+          "characters": 23,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "evidence_expected": {
+          "characters": 26,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "outcome": {
+          "characters": 92,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "title": {
+          "characters": 62,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "verification": {
+          "characters": 46,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        }
+      }
+    },
+    "timeline": {
+      "events": [
+        {
+          "actor": null,
+          "created_at": "2026-09-06T03:16:10Z",
+          "event_type": "TASK_CREATED",
+          "id": 10,
+          "summary": {
+            "characters": 29,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": null,
+          "created_at": "2026-09-06T03:16:10Z",
+          "event_type": "TASK_POLICY_UPDATED",
+          "id": 11,
+          "summary": {
+            "characters": 65,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": null,
+          "created_at": "2026-09-06T03:16:10Z",
+          "event_type": "TASK_CONTRACT_UPDATED",
+          "id": 12,
+          "summary": {
+            "characters": 39,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "zara",
+          "created_at": "2026-09-06T03:16:11Z",
+          "event_type": "TASK_PROMOTED_READY",
+          "id": 13,
+          "summary": {
+            "characters": 15,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "zara-worker-2",
+          "created_at": "2026-09-06T03:16:11Z",
+          "event_type": "TASK_CLAIMED",
+          "id": 14,
+          "summary": {
+            "characters": 24,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "maps-flow-start",
+          "created_at": "2026-09-06T03:16:11Z",
+          "event_type": "RUN_MANIFEST_CREATED",
+          "id": 15,
+          "summary": {
+            "characters": 59,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "maps-run-bind-session",
+          "created_at": "2026-09-06T03:16:23Z",
+          "event_type": "RUN_SESSION_ATTACHED",
+          "id": 16,
+          "summary": {
+            "characters": 97,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        }
+      ],
+      "join_state": "UNKNOWN",
+      "reason": "task_events are task-level and not all events carry run_id"
+    }
+  },
+  "source_run_record_id": "RR-05193bd6f1d9d11924b601269af8bb1fab8e5c0aa76d6c3c7937059cb23c2aa2",
+  "source_run_record_sha256": "05193bd6f1d9d11924b601269af8bb1fab8e5c0aa76d6c3c7937059cb23c2aa2",
+  "tags": [
+    "dec-003",
+    "row-6.16",
+    "worktree-binding"
+  ]
+}
