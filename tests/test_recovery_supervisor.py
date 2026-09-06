@@ -1017,6 +1017,214 @@ class RecoveryHarnessResumeCallSiteTests(unittest.TestCase):
             self.assertNotIn(forbidden, text)
 
 
+class FakeHarnessServiceStop(FakeHarnessServiceResume):
+    """resume(...) fake extended with a stop(binding, session_ref, reason) method."""
+
+    def __init__(
+        self,
+        *,
+        resume_result=None,
+        stop_result=None,
+        stop_raises=False,
+    ):
+        super().__init__(result=resume_result)
+        self.stop_result = stop_result
+        self.stop_raises = stop_raises
+        self.stop_calls = []
+
+    def stop(self, binding, session_ref, reason):
+        self.stop_calls.append((binding, session_ref, reason))
+        if self.stop_raises:
+            raise RuntimeError("simulated harness stop failure")
+        if self.stop_result is not None:
+            return self.stop_result
+        return OperationResult.success(
+            "SESSION_STOPPED", "hcom stop request completed.", mutated=True
+        )
+
+
+class RecoveryHarnessStopCallSiteTests(RecoveryHarnessResumeCallSiteTests):
+    """Opt-in, default-off HarnessService.stop() call on the
+    canonical_denial_persistent terminal promotion.
+
+    Per work/notes/2026-09-06-harness-stop-callsite-design.md §3: a single
+    bounded, fail-closed .stop() for the binding this tick already resolved for
+    the resume attempt, gated behind terminate_on_canonical_denial (default
+    False). Reuses the resume-call-site scaffolding (real TaskStore lineage).
+    """
+
+    DENIAL = OperationResult.failure(
+        "HOOK_DENIED", "LEASE_EXPIRED: claim lease has expired"
+    )
+
+    def _drive_to_persistent_denial(self, harness, *, terminate):
+        """Run _MAX ticks so the 3rd promotes to canonical_denial_persistent.
+        Returns the final tick's actions list."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+            terminate_on_canonical_denial=terminate,
+        )
+        actions = None
+        for i in range(3):
+            actions = sup.tick(now=self.now + timedelta(seconds=600 * i))
+        self.final_incident = self.recovery_store.load()["incidents"][
+            actions[0]["incident_id"]
+        ]
+        return actions
+
+    def test_flag_off_persistent_denial_makes_no_stop_call(self):
+        """Default (flag off): byte-identical to before -- no .stop(), and the
+        audit-only harness_stop key is None on the terminal action."""
+        harness = FakeHarnessServiceStop(resume_result=self.DENIAL)
+        actions = self._drive_to_persistent_denial(harness, terminate=False)
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(actions[0]["reason"], "canonical_denial_persistent")
+        self.assertEqual(harness.stop_calls, [])
+        self.assertIsNone(actions[0]["harness_stop"])
+        self.assertEqual(self.final_incident["state"], "failed")
+        self.assertEqual(
+            self.final_incident["last_error"], "canonical_denial_persistent"
+        )
+
+    def test_flag_off_is_default(self):
+        """Not passing the kwarg at all is the same as passing False."""
+        harness = FakeHarnessServiceStop(resume_result=self.DENIAL)
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+        )
+        for i in range(3):
+            actions = sup.tick(now=self.now + timedelta(seconds=600 * i))
+        self.assertEqual(actions[0]["reason"], "canonical_denial_persistent")
+        self.assertEqual(harness.stop_calls, [])
+
+    def test_flag_on_persistent_denial_calls_stop_once(self):
+        """Flag on + resolvable binding: exactly one .stop() on the 3rd
+        consecutive denial, with the same binding/session_ref the resume path
+        resolved and the fixed recovery reason. Incident still ends failed."""
+        harness = FakeHarnessServiceStop(resume_result=self.DENIAL)
+        actions = self._drive_to_persistent_denial(harness, terminate=True)
+        self.assertEqual(len(harness.stop_calls), 1)
+        binding, session_ref, reason = harness.stop_calls[0]
+        self.assertEqual(reason, "recovery:canonical_denial_persistent")
+        # Same identity the resume attempts used.
+        self.assertEqual(binding.session_id, "sess-1")
+        self.assertEqual(session_ref.session_id, "sess-1")
+        self.assertEqual(session_ref.adapter, "hcom")
+        self.assertEqual(binding, harness.calls[-1][0])
+        self.assertEqual(session_ref, harness.calls[-1][1])
+        self.assertEqual(
+            actions[0]["harness_stop"],
+            {
+                "attempted": True,
+                "ok": True,
+                "code": "SESSION_STOPPED",
+                "summary": "hcom stop request completed.",
+            },
+        )
+        # Terminal outcome unchanged.
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(actions[0]["reason"], "canonical_denial_persistent")
+        self.assertEqual(self.final_incident["state"], "failed")
+
+    def test_flag_on_no_stop_before_the_ceiling(self):
+        """The two non-terminal denials before the ceiling never call .stop()
+        and never carry a harness_stop key."""
+        harness = FakeHarnessServiceStop(resume_result=self.DENIAL)
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+            terminate_on_canonical_denial=True,
+        )
+        for i in range(2):
+            actions = sup.tick(now=self.now + timedelta(seconds=600 * i))
+            self.assertEqual(actions[0]["action"], "resume_denied")
+            self.assertNotIn("harness_stop", actions[0])
+        self.assertEqual(harness.stop_calls, [])
+
+    def test_flag_on_stop_vetoed_by_guard_leaves_incident_failed(self):
+        """A guard veto of the stop (HOOK_DENIED / APPROVAL_REQUIRED) is itself
+        a fail-closed outcome: recorded, not retried, incident state untouched."""
+        veto = OperationResult.failure(
+            "HOOK_DENIED", "operator approval required to terminate this session"
+        )
+        harness = FakeHarnessServiceStop(
+            resume_result=self.DENIAL, stop_result=veto
+        )
+        actions = self._drive_to_persistent_denial(harness, terminate=True)
+        self.assertEqual(len(harness.stop_calls), 1)
+        self.assertEqual(
+            actions[0]["harness_stop"],
+            {
+                "attempted": True,
+                "ok": False,
+                "code": "HOOK_DENIED",
+                "summary": "operator approval required to terminate this session",
+            },
+        )
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(self.final_incident["state"], "failed")
+        self.assertEqual(
+            self.final_incident["last_error"], "canonical_denial_persistent"
+        )
+
+    def test_flag_on_stop_raising_is_caught(self):
+        """.stop() raising does not crash the tick; recorded as HARNESS_CALL_ERROR."""
+        harness = FakeHarnessServiceStop(
+            resume_result=self.DENIAL, stop_raises=True
+        )
+        actions = self._drive_to_persistent_denial(harness, terminate=True)
+        self.assertEqual(
+            actions[0]["harness_stop"],
+            {
+                "attempted": True,
+                "ok": False,
+                "code": "HARNESS_CALL_ERROR",
+                "summary": "simulated harness stop failure",
+            },
+        )
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(self.final_incident["state"], "failed")
+
+    def test_maybe_terminate_helper_fail_closed_paths(self):
+        """Direct helper coverage for the defensively-asserted paths that
+        tick()'s canonical-denial branch cannot reach today."""
+        harness = FakeHarnessServiceStop()
+        sup = self.supervisor(
+            sessions=[], harness_service=harness, terminate_on_canonical_denial=True
+        )
+        # Unresolvable binding -> no stop attempted, reason surfaced.
+        self.assertEqual(
+            sup._maybe_terminate_denied_session(None, None, "task_missing"),
+            {"attempted": False, "reason": "task_missing"},
+        )
+        self.assertEqual(harness.stop_calls, [])
+
+        # Flag off -> None (byte-identical contract).
+        sup_off = self.supervisor(
+            sessions=[], harness_service=harness, terminate_on_canonical_denial=False
+        )
+        self.assertIsNone(
+            sup_off._maybe_terminate_denied_session(None, None, "whatever")
+        )
+
+        # Flag on but no harness service at all.
+        sup_no_svc = self.supervisor(
+            sessions=[], terminate_on_canonical_denial=True
+        )
+        self.assertEqual(
+            sup_no_svc._maybe_terminate_denied_session(None, None, ""),
+            {"attempted": False, "reason": "no_harness_service"},
+        )
+
+
 class RecordingValidator:
     """Minimal `resume_validator` stand-in: records run_ids, returns a fixed dict."""
 

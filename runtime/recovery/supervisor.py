@@ -99,6 +99,7 @@ class RecoverySupervisor:
         harness_service: Any | None = None,
         resume_validator: Any | None = None,
         validation_blocks_resume: bool = False,
+        terminate_on_canonical_denial: bool = False,
     ):
         self.task_reader = task_reader
         self.hcom = hcom
@@ -156,6 +157,30 @@ class RecoverySupervisor:
         # `maps recovery-tick --enforce-validation` (which itself requires
         # `--repo-root`, since no validator is constructed without it).
         self._validation_blocks_resume = bool(validation_blocks_resume)
+        # Opt-in destructive-termination of a session whose resume an installed
+        # CANONICAL_RUN Hook has denied `_MAX_CONSECUTIVE_CANONICAL_DENIALS`
+        # times in a row. Default False: when False, tick() never calls
+        # `harness_service.stop()` and the `canonical_denial_persistent`
+        # promotion is byte-identical to before this flag existed (the incident
+        # still ends `failed` / `canonical_denial_persistent`; only the new
+        # audit-only `harness_stop` action key -- always None when the flag is
+        # off -- is added). When True, and only on that terminal promotion, a
+        # single bounded `HarnessService.stop(binding, session_ref, reason)` is
+        # routed for the binding this tick already resolved for the resume
+        # attempt, firing BEFORE_DESTRUCTIVE_ACTION -> DestructiveExternalAction
+        # Guard -> SESSION_STOPPING -> adapter.stop(). Fail-closed
+        # (_maybe_terminate_denied_session): a session that cannot be positively
+        # and canonically identified is never terminated, and any stop failure
+        # (guard veto, binding-integrity mismatch, raised exception) is recorded
+        # but never changes the incident outcome. Arming it is a strictly larger
+        # authority grant than arming a resume-denial, so it stays a separate
+        # opt-in from `validation_blocks_resume` / canonical-run enforcement.
+        # Composed only via runtime/recovery/production.py from an explicit
+        # `maps recovery-tick --terminate-denied-sessions` (which itself
+        # requires `--enforce-canonical-run`, since there is no HarnessService
+        # to route a stop through otherwise). See
+        # work/notes/2026-09-06-harness-stop-callsite-design.md §3.
+        self._terminate_on_canonical_denial = bool(terminate_on_canonical_denial)
         if not backoff_seconds or any(value <= 0 for value in backoff_seconds):
             raise ValueError("backoff_seconds must contain positive values")
 
@@ -270,6 +295,66 @@ class RecoverySupervisor:
             return binding, session_ref, ""
         except Exception:  # noqa: BLE001 - binding construction must never break recovery
             return None, None, "binding_lookup_error"
+
+    def _maybe_terminate_denied_session(
+        self,
+        binding: ExecutionBinding | None,
+        session_ref: SessionRef | None,
+        binding_reason: str,
+    ) -> dict[str, Any] | None:
+        """Route one bounded, opt-in `HarnessService.stop()` for a persistently
+        canonical-denied session. Audit-only: the return value is recorded on
+        the terminal action dict under `harness_stop` and read by nothing.
+
+        Returns None when `terminate_on_canonical_denial` is False -- the flag's
+        "byte-identical when off" contract: no call is made and the caller
+        records `harness_stop=None`.
+
+        Fail-closed (design note §3c): never terminate a session that cannot be
+        positively and canonically identified, and never let an inability-to-
+        stop change the incident outcome (the caller has already set
+        state="failed" / "canonical_denial_persistent" regardless of what this
+        returns):
+
+        - no HarnessService                 -> {"attempted": False, "reason": "no_harness_service"}
+        - binding / session_ref unresolved  -> {"attempted": False, "reason": <binding_reason>}
+          (cannot happen on the canonical-denial branch today -- that branch is
+          only reachable when both were built -- but asserted defensively; no
+          direct `hcom stop` path is invented here)
+        - stop() returns a non-ok result    -> the result recorded verbatim, no
+          retry within the tick, incident state untouched. A guard veto of the
+          stop is itself a fail-closed outcome (session left parked, matching
+          today's behavior).
+        - stop() raises                     -> caught, recorded as HARNESS_CALL_ERROR
+        """
+        if not self._terminate_on_canonical_denial:
+            return None
+        if self.harness_service is None:
+            return {"attempted": False, "reason": "no_harness_service"}
+        if binding is None or session_ref is None:
+            return {
+                "attempted": False,
+                "reason": binding_reason or "binding_unresolved",
+            }
+        # Fixed, closed-vocabulary provenance string constructed at this code
+        # path -- never inferred from the denial. Passed straight through
+        # HarnessService.stop() to adapter.stop(binding, reason).
+        reason = "recovery:canonical_denial_persistent"
+        try:
+            result = self.harness_service.stop(binding, session_ref, reason)
+        except Exception as exc:  # noqa: BLE001 - service failure must not crash the tick
+            return {
+                "attempted": True,
+                "ok": False,
+                "code": "HARNESS_CALL_ERROR",
+                "summary": str(exc),
+            }
+        return {
+            "attempted": True,
+            "ok": bool(result.ok),
+            "code": str(result.code),
+            "summary": str(result.summary),
+        }
 
     @staticmethod
     def _open_incident_for(state: dict[str, Any], task_id: str, session_name: str) -> bool:
@@ -593,6 +678,15 @@ class RecoverySupervisor:
                 if denials >= _MAX_CONSECUTIVE_CANONICAL_DENIALS:
                     incident["state"] = "failed"
                     incident["last_error"] = "canonical_denial_persistent"
+                    # Opt-in, default-off. `binding` / `session_ref` /
+                    # `binding_reason` are the pair this tick already resolved
+                    # for the resume attempt above -- this branch is only
+                    # reachable when that resolution succeeded, so no second
+                    # `_resolve_harness_binding` call is made. The incident
+                    # state is already terminal above; this never changes it.
+                    harness_stop = self._maybe_terminate_denied_session(
+                        binding, session_ref, binding_reason
+                    )
                     actions.append(
                         {
                             "incident_id": incident_id,
@@ -602,6 +696,7 @@ class RecoverySupervisor:
                             "error": "canonical_denial_persistent",
                             "environment_evidence": evidence,
                             "harness_resume": harness_resume,
+                            "harness_stop": harness_stop,
                             "resume_validation": resume_validation,
                         }
                     )

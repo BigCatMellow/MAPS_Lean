@@ -289,6 +289,23 @@ def build_parser() -> argparse.ArgumentParser:
             'Advisory recording is unchanged without this flag'
         ),
     )
+    # Opt-in destructive termination of a persistently canonical-denied session
+    # (design note work/notes/2026-09-06-harness-stop-callsite-design.md §3).
+    # Default-off and deliberately a separate flag from --enforce-canonical-run:
+    # arming a destructive HarnessService.stop() is a strictly larger authority
+    # grant than arming a resume-denial. Fires only on the
+    # canonical_denial_persistent terminal promotion, fail-closed. Requires
+    # --enforce-canonical-run (there is no HarnessService to route a stop
+    # through otherwise). Never on the claim-piggybacked pass.
+    recovery_tick.add_argument(
+        '--terminate-denied-sessions',
+        action='store_true',
+        help=(
+            'on the canonical_denial_persistent terminal promotion, route one '
+            'bounded fail-closed HarnessService.stop() for the denied session; '
+            'requires --enforce-canonical-run, default off'
+        ),
+    )
 
     heartbeat = sub.add_parser('heartbeat', help='renew the active claim lease')
     heartbeat.add_argument('task_id')
@@ -811,6 +828,12 @@ def main(argv: list[str] | None = None) -> int:
                 'enforce without a validator, and it is never inferred from '
                 'the current directory)'
             )
+        if args.terminate_denied_sessions and not args.enforce_canonical_run:
+            parser.error(
+                '--terminate-denied-sessions requires --enforce-canonical-run '
+                '(there is no HarnessService to route a stop through without '
+                'it, so the flag would be a silent no-op)'
+            )
         return _emit(run_recovery_tick_isolated(
             store,
             bindings=bindings,
@@ -820,6 +843,7 @@ def main(argv: list[str] | None = None) -> int:
             validation_repo_root=args.repo_root,
             harness_project_id=harness_project_id,
             enforce_validation=args.enforce_validation,
+            terminate_denied_sessions=args.terminate_denied_sessions,
         ))
     if args.command == 'heartbeat':
         return _emit(store.heartbeat(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))
