@@ -199,6 +199,17 @@ class ExecutionIntegrityMixin:
             return MutationResult(False, "INVALID_RUN", "repo_root must be a directory")
 
         worktree_identity: dict[str, str] | None = None
+        if require_worktree_binding and base_revision is None:
+            # Worktree identity is only collected/bound on the `base_revision is
+            # not None` path below, so `require_worktree_binding` alone would be a
+            # silent no-op (run succeeds with `worktree: null`). Fail loudly and
+            # name the missing companion flag instead.
+            return MutationResult(
+                False,
+                "WORKTREE_BINDING_REQUIRES_BASE_REVISION",
+                "require_worktree_binding needs base_revision "
+                "(pass --base-revision) to bind a Git worktree identity",
+            )
         if base_revision is not None:
             try:
                 worktree_identity = collect_git_worktree_identity(root)
