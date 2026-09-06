@@ -363,11 +363,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         help='runtime limit as KEY=INT; repeat for multiple limits',
     )
-    flow_start.add_argument('--base-revision')
+    flow_start.add_argument(
+        '--base-revision',
+        help='Git revision to bind the run to; required companion of '
+        '--require-worktree-binding (worktree identity is only collected on '
+        'this path)',
+    )
     flow_start.add_argument(
         '--require-worktree-binding',
         action='store_true',
-        help='fail run creation unless repo-root has readable Git worktree identity',
+        help='fail run creation unless a readable Git worktree identity is '
+        'bound; requires --base-revision (run creation fails with '
+        'WORKTREE_BINDING_REQUIRES_BASE_REVISION if passed alone)',
     )
     flow_review_start = flow_sub.add_parser(
         'review-start',
