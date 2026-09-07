@@ -225,13 +225,12 @@ def register_memory_provenance_guards(
 
     Mirrors the SEC3 destructive-guard registration helper.
     `build_canonical_harness_service` (`runtime/recovery/production.py`) is the
-    one production caller. `HarnessService.send()` already fires
-    `HookEvent.BEFORE_SEND`; composing this guard changes no live behavior
-    because `HarnessService.send()` has no production caller yet (design
-    Q1c / §7). (The stale-caller CI check is suppressed on the closing line:
-    the bare name `send` also matches unrelated adapter/backend `.send`
-    methods, which are not callers of *this* method.)
-    """  # noqa: stale-caller-check
+    one production caller of this registration helper. `HarnessService.send()`
+    already fires `HookEvent.BEFORE_SEND`, and as of PR #310 that send path has
+    its first production caller: the `maps run send-context --deliver-context`
+    CLI verb (`runtime/cli.py::_dispatch_send_context`). Composing this guard
+    therefore gates a live send path (design Q1c / §7).
+    """
 
     if type(guard) is not MemoryProvenanceGuard:
         raise TypeError("guard must be an exact MemoryProvenanceGuard")

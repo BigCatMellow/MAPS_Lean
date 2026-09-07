@@ -5,6 +5,7 @@ from typing import Any, Mapping
 
 from runtime.communication import HcomAdapter, HcomError
 from runtime.harness import ExecutionBinding, SessionRef
+from runtime.harness.binding_resolution import resolve_harness_binding
 from .store import RecoveryStore, parse_time
 
 LIVE_STATUSES = {"active", "listening", "waiting", "blocked"}
@@ -235,66 +236,15 @@ class RecoverySupervisor:
     ) -> tuple[ExecutionBinding | None, SessionRef | None, str]:
         """Construct the ExecutionBinding/SessionRef for a harness-routed resume.
 
-        Reuses exactly the incident/session/run lineage relationship already
-        used for _advisory_environment_evidence -- no new lineage-resolution
-        machinery. Returns (None, None, reason) whenever any part of that
-        lineage is missing or ambiguous; callers must treat that as "the
-        harness path cannot be constructed for this incident" and fall back
-        to the pre-existing direct hcom resume behavior (see tick()). Never
-        raises: any lookup failure is reported as a reason string.
+        Thin delegator to the shared
+        ``runtime.harness.binding_resolution.resolve_harness_binding`` -- the
+        one lineage-resolution path, also used by the ``maps run send-context``
+        context-delivery call site (rule 12). Behaviour is unchanged: returns
+        ``(None, None, reason)`` whenever any part of the lineage is missing or
+        ambiguous; callers fall back to the pre-existing direct hcom resume
+        behaviour (see tick()). Never raises.
         """
-        run_id = incident.get("run_id")
-        if not run_id:
-            return None, None, "no_run_id_bound"
-        try:
-            run_id = str(run_id)
-            task_id = str(incident.get("task_id", ""))
-            worker_id = str(incident.get("worker_id", ""))
-            task = self.task_reader.get_task(task_id)
-            if task is None:
-                return None, None, "task_missing"
-            project_id = str(task.get("project_id") or "").strip()
-            compute_task_revision = getattr(self.task_reader, "compute_task_revision", None)
-            task_revision = (
-                str(compute_task_revision(task_id) or "").strip()
-                if compute_task_revision is not None
-                else ""
-            )
-            if not project_id or not task_revision:
-                return None, None, "task_binding_incomplete"
-
-            resolve_run_session = getattr(self.task_reader, "resolve_run_session", None)
-            if resolve_run_session is None:
-                return None, None, "no_lineage_resolver"
-            lineage = resolve_run_session(run_id)
-            if not isinstance(lineage, Mapping) or lineage.get("state") != "EXPLICIT":
-                return None, None, "session_not_durably_bound"
-            current = lineage.get("current")
-            if not isinstance(current, Mapping):
-                return None, None, "session_not_durably_bound"
-            adapter_session_id = str(current.get("session_id") or "").strip()
-            adapter_id = str(current.get("adapter_id") or "").strip()
-            if not adapter_session_id or adapter_id != "hcom":
-                return None, None, "session_not_durably_bound"
-
-            binding = ExecutionBinding(
-                task_id=task_id,
-                run_id=run_id,
-                worker_id=worker_id,
-                task_revision=task_revision,
-                project_id=project_id,
-                session_id=adapter_session_id,
-            )
-            session_ref = SessionRef(
-                session_id=adapter_session_id,
-                worker_id=worker_id,
-                adapter="hcom",
-                project_id=project_id,
-                remote_ref=session_name,
-            )
-            return binding, session_ref, ""
-        except Exception:  # noqa: BLE001 - binding construction must never break recovery
-            return None, None, "binding_lookup_error"
+        return resolve_harness_binding(self.task_reader, incident, session_name)
 
     def _maybe_terminate_denied_session(
         self,
