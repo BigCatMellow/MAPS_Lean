@@ -41,11 +41,18 @@ def main(argv: list[str] | None = None) -> int:
     create.add_argument("--read", action="append", default=["."])
     create.add_argument("--write", action="append")
     create.add_argument("--forbid", action="append", default=[])
-    create.add_argument("--base-revision")
+    create.add_argument(
+        "--base-revision",
+        help="Git revision to bind the run to; required companion of "
+        "--require-worktree-binding (worktree identity is only collected on "
+        "this path)",
+    )
     create.add_argument(
         "--require-worktree-binding",
         action="store_true",
-        help="fail run creation unless --repo has readable Git worktree identity",
+        help="fail run creation unless a readable Git worktree identity is "
+        "bound; requires --base-revision (run creation fails with "
+        "WORKTREE_BINDING_REQUIRES_BASE_REVISION if passed alone)",
     )
     create.add_argument("--runtime-seconds", type=int)
     create.add_argument("--max-tool-failures", type=int)
