@@ -1,4 +1,6 @@
-reviewer: toto
-head_sha: aeba6a47ac05ae00e2e55d77e5a221d722ea06be
+reviewer: reval-neso
+head_sha: 4ef966b32aa3a56b713ab4621ce3b58d0574370f
 independent: true
-summary: Independent review, no prior involvement with PR #314, its implementer nako, #308 reviewer vima, or #308 author kato. Delta vs base branch rwb-base-revision-fix is exactly one file, runtime/integrity/cli.py (+9/-2), changing only two help= strings on the run-create subparser with no argparse structural or logic change. Verified run-create routes through TaskStore.create_run_manifest -> runtime/state/integrity.py::create_run_manifest, which returns WORKTREE_BINDING_REQUIRES_BASE_REVISION when require_worktree_binding is passed without base_revision, so the new help text is accurate; wording is verbatim-identical to #308's runtime/cli.py flow-start help. No test asserts the old help text (grep clean; the one WORKTREE_BINDING_REQUIRES_BASE_REVISION test hit asserts unchanged error-code behavior). py_compile OK, run-create --help renders correctly, full unittest suite green. APPROVE. #314 MUST merge after #308.
+verdict: APPROVE
+summary: |
+  Zero-diff revalidation after rebase onto main 9d73a6d: PR's reviewed file (runtime/integrity/cli.py blob 2a11767) byte-identical to approved state aeba6a47ac05ae00e2e55d77e5a221d722ea06be (scoped OLD..NEW diff empty; no other merged PR touched runtime/integrity/cli.py; #308, which #314 mirrors, is merged at 7aefd62); original APPROVE by toto stands.
