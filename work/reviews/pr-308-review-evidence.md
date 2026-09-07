@@ -1,9 +1,9 @@
 # PR #308 review evidence
 
-reviewer: maps-lean-vima
-head_sha: 728ab26eca1080f8d2c88d2225f844e083654b5f
+reviewer: reval-neso
+head_sha: cc90de7c4bd58fbc393e202b0a87d1565376594b
 independent: true
-summary: APPROVE — --require-worktree-binding now fails loud (WORKTREE_BINDING_REQUIRES_BASE_REVISION, no run persisted) without --base-revision; boundary clean, full suite green (1292 OK), all acceptance criteria met.
+summary: Zero-diff revalidation after rebase onto main 17a6679. PR #308 touches runtime/cli.py which merged PR #306 also touched, so a naive OLD..NEW diff on cli.py is non-empty by design. Verified instead: (1) #308's own patch content lines are byte-identical pre/post rebase for runtime/cli.py, runtime/state/integrity.py, tests/test_execution_integrity.py (cli.py hunk-header line numbers shifted only from #306's earlier additions above the hunk; no +/- content line changed); (2) file end-state at rebased head is byte-identical to approved state 728ab26eca1080f8d2c88d2225f844e083654b5f for integrity.py, the test file, and work/tasks/require-worktree-binding-needs-base-revision.md; cli.py end-state legitimately carries #306's merged lines plus #308's own unchanged hunk. Task-doc conflict with #304 (new-file vs existing) resolved by taking #308's reviewed content, which matches byte-for-byte. Original APPROVE by maps-lean-vima stands.
 
 ## Non-involvement
 
