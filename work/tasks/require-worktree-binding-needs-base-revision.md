@@ -1,6 +1,6 @@
 # Task: `--require-worktree-binding` is inert without `--base-revision`
 
-- Status: `READY`
+- Status: `DONE`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: unassigned
@@ -85,21 +85,21 @@
 
 ## Acceptance criteria
 
-- [ ] `maps flow start --require-worktree-binding` **without** `--base-revision`
-      no longer silently returns `FLOW_STARTED` with `worktree: null`: it
-      either (a) collects and binds a real worktree identity, or (b) fails run
-      creation with an explicit, greppable code/message naming the missing
+- [x] `maps flow start --require-worktree-binding` **without** `--base-revision`
+      no longer silently returns `FLOW_STARTED` with `worktree: null`:
+      end state (b) — fails run creation with
+      `WORKTREE_BINDING_REQUIRES_BASE_REVISION` naming the missing
       `--base-revision` dependency.
-- [ ] `maps flow start --require-worktree-binding --base-revision <sha>`
+- [x] `maps flow start --require-worktree-binding --base-revision <sha>`
       behavior is unchanged (still binds `run_manifest.worktree`).
-- [ ] `maps flow start` **without** `--require-worktree-binding` behavior is
+- [x] `maps flow start` **without** `--require-worktree-binding` behavior is
       unchanged for both `base_revision` present and absent.
-- [ ] The `--require-worktree-binding` (and, if relevant, `--base-revision`)
-      `--help` text accurately describes the flag's real effect and any
-      companion-flag requirement.
-- [ ] Regression test covers: flag-standalone (new loud behavior),
+- [x] The `--require-worktree-binding` and `--base-revision` `--help` text
+      accurately describes the flag's real effect and the companion-flag
+      requirement.
+- [x] Regression test covers: flag-standalone (new loud behavior),
       flag+base-revision (binds), no-flag (unchanged).
-- [ ] No change to `CanonicalRunGuard`, `verify_git_run()` payloads, or any
+- [x] No change to `CanonicalRunGuard`, `verify_git_run()` payloads, or any
       harness lifecycle outcome.
 
 ## Verification and evidence
@@ -165,7 +165,20 @@ compatibility break.
 
 ## Completion / handoff
 
-- Not started. Created 2026-09-06 from PR #303's Finding 0 as a downstream
-  spin-out; the PR #303 exercise itself did not fix this (change boundary).
-- Next action: assign an implementer independent of the PR #303 author
-  (`zara`) and reviewer (`luna`).
+- Created 2026-09-06 from PR #303's Finding 0 as a downstream spin-out; the
+  PR #303 exercise itself did not fix this (change boundary).
+- 2026-09-06 (`kato`, implementer independent of `zara`/`luna`): end state
+  **(b) fail loud** implemented. `create_run_manifest` now returns
+  `WORKTREE_BINDING_REQUIRES_BASE_REVISION` when `require_worktree_binding`
+  is set and `base_revision is None`, before the existing gated block — no
+  run is persisted. `flow start` `--help` for `--require-worktree-binding`
+  and `--base-revision` rewritten to state the companion-flag requirement
+  and the failure code. Regression tests added in
+  `tests/test_execution_integrity.py`
+  (`test_require_worktree_binding_without_base_revision_fails_loud`,
+  `test_no_worktree_flag_without_base_revision_still_succeeds_unbound`);
+  flag+base-revision binding stays covered by
+  `test_required_worktree_binding_accepts_git_repo`. No behavior-dependent
+  callers found (grep of repo + `work/`: only review-evidence / task docs).
+  No change to `CanonicalRunGuard`, `verify_git_run()` payloads, or harness
+  lifecycle. Full `unittest discover -s tests` green.
