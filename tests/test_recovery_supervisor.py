@@ -516,6 +516,104 @@ class RecoveryRunIdResolutionTests(unittest.TestCase):
         self.assertEqual(incident["task_id"], task_id)
         self.assertIsNone(incident["run_id"])
 
+    def test_tagged_agent_binds_run_id_despite_prefix_vs_bare_name_mismatch(self):
+        # DEC-003 known-bug 2: the recovery binding holds the tag-prefixed
+        # display name (`maps-lean-leta`) while the option-C synthetic stopped
+        # record, rebuilt from the bare-only events stream, is keyed `leta`.
+        # Resolution must still bind the exact run_id, not record run_id: null.
+        task_id, run_id = self.make_active_run(worker="worker-1", session_id="sess-1")
+        sup = self.supervisor(
+            sessions=[
+                {
+                    "name": "maps-lean-leta",
+                    "base_name": "leta",
+                    "tag": "maps-lean",
+                    "session_id": "sess-1",
+                    "status": "active",
+                    "process_bound": True,
+                }
+            ]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "maps-lean-leta"}, now=self.now), []
+        )
+        # Now stopped: option C yields a BARE-named synthetic record.
+        self.hcom.sessions = [
+            {
+                "name": "leta",
+                "base_name": "leta",
+                "session_id": "sess-1",
+                "status": "inactive",
+                "process_bound": False,
+                "stopped": True,
+            }
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "maps-lean-leta"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["task_id"], task_id)
+        self.assertEqual(incident["run_id"], run_id)
+
+    def test_base_name_collision_across_tags_leaves_run_id_unresolved(self):
+        # Two agents share base_name `leta` under different tags and both are
+        # stopped (bare synthetic records). An exact-name match is impossible,
+        # so the base_name fallback must decline (two candidates) rather than
+        # mis-bind -- same outcome as before option C.
+        task_id, _run_id = self.make_active_run(worker="worker-1", session_id="sess-1")
+        sup = self.supervisor(
+            sessions=[
+                {
+                    "name": "maps-lean-leta",
+                    "base_name": "leta",
+                    "session_id": "sess-1",
+                    "status": "active",
+                    "process_bound": True,
+                }
+            ]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "maps-lean-leta"}, now=self.now), []
+        )
+        self.hcom.sessions = [
+            {"name": "leta", "base_name": "leta", "session_id": "sess-1",
+             "status": "inactive", "process_bound": False},
+            {"name": "review-leta", "base_name": "leta", "session_id": "sess-other",
+             "status": "inactive", "process_bound": False},
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "maps-lean-leta"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["task_id"], task_id)
+        self.assertIsNone(incident["run_id"])
+
+    def test_untagged_agent_resolution_unchanged_by_base_name_fallback(self):
+        # Regression: an untagged agent (name == base_name == binding) still
+        # resolves via the exact-name path; the base_name fallback is inert.
+        task_id, run_id = self.make_active_run(worker="worker-1", session_id="sess-1")
+        sup = self.supervisor(
+            sessions=[
+                {"name": "session-1", "base_name": "session-1", "session_id": "sess-1",
+                 "status": "active", "process_bound": True}
+            ]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "session-1"}, now=self.now), []
+        )
+        self.hcom.sessions = [
+            {"name": "session-1", "base_name": "session-1", "session_id": "sess-1",
+             "status": "stopped", "process_bound": False}
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "session-1"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["run_id"], run_id)
+
     def make_active_run_without_link(self, *, worker="worker-1"):
         created = self.task_store.create_task(title="x", project_id="proj-1")
         self.assertTrue(created.ok)

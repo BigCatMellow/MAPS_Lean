@@ -1,6 +1,8 @@
 # Task: tag-prefix vs bare-instance-name mismatch strands `run_id: null` for tagged hcom agents recovered via option C
 
-- Status: `READY`
+- Status: `IN_REVIEW` (impl PR open on branch `impl/dec003-bug2-name-mismatch`,
+  stacked on `investigate/dec003-bug2-name-mismatch` / #309; awaiting independent
+  reviewer + 3-day operator merge hold)
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: unassigned
@@ -255,8 +257,32 @@ only if a behavior change would break an existing passing dispatch flow.
 
 ## Completion / handoff
 
-- Not started. Created 2026-09-06 by `vuro` from a live repro of DEC-003
-  known-bug 2. The bug is **confirmed reproduced** on `main` @ `c958cf6` with
-  current hcom `0.7.25`; see `work/notes/2026-09-06-dec003-bug2-name-mismatch-repro.md`.
-- Next action: assign an implementer independent of `vuro`; on completion the
-  coordinator dispatches an independent reviewer.
+- Created 2026-09-06 by `vuro` from a live repro of DEC-003 known-bug 2. The
+  bug is **confirmed reproduced** on `main` @ `c958cf6` with current hcom
+  `0.7.25`; see `work/notes/2026-09-06-dec003-bug2-name-mismatch-repro.md`.
+- Implemented 2026-09-07 by `vamu` (independent of `vuro`). **Fix B chosen.**
+  Binding-form trace result: `observe_silent_stops`' `bindings` arg is
+  populated *only* from `maps recovery-tick --binding WORKER_ID=SESSION_NAME`
+  (runtime/cli.py `_parse_bindings` → runtime/recovery/production.py
+  `run_recovery_pass(bindings=...)`; no automatic/derived source exists). That
+  CLI takes the operator-visible display name, which is the tag-prefixed
+  `name` for a tagged agent — so bindings hold the **prefixed** form, NOT the
+  bare `base_name`. Escalation trigger not hit; Fix B proceeds.
+  Changes:
+  - `hcom_adapter.py::_stopped_records_from_events` — synthetic records now
+    carry `base_name` (= the bare `instance` string); docstring updated.
+  - `hcom_adapter.py::list_sessions` JSONDecodeError dedup — compares on
+    `name` AND `base_name` against alive records' `name`/`base_name`.
+  - `supervisor.py` — new module helper `_resolve_session_record(records,
+    session_name)`: exact `name` match first, else single-candidate
+    `base_name` fallback (`session_name == base_name` or
+    `session_name.endswith("-" + base_name)`); two matches → `{}` (unresolved,
+    no mis-bind). Both `observe_silent_stops` and `tick` build a
+    `session_records` list and route the `session_name → record` lookup
+    through it. No change to `_resolve_run_id`'s resolver call,
+    `run_session_links`, `HcomSessionAdapter`, `production.py`, or any guard.
+  - Tests: `test_hcom_adapter.py` (tagged dedup, base_name present),
+    `test_recovery_supervisor.py` (tagged run_id binds, base_name collision
+    stays unresolved, untagged unchanged).
+- Next action: coordinator `lira` dispatches an independent reviewer
+  (independent of `vamu` and of `vuro`).

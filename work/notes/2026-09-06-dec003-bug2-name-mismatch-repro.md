@@ -18,7 +18,14 @@ The note's "not confirmed" claim is now confirmed. Both sub-effects observed:
    agent, and
 2. `RecoverySupervisor._resolve_run_id` returns `None` (→ `run_id: null` on the
    silent-stop incident) for a tagged agent reconstructed via option C, even
-   though the events stream *did* carry that agent's `session_id`.
+   though the events stream *did* carry that agent's `session_id`. **This
+   second effect was reached via a *simulated* supervisor lookup** (the driver
+   below, steps 4/5, drives `list_sessions` for real but hand-rolls the
+   `sessions.get(binding_name)` / `_resolve_run_id` step rather than running a
+   full `observe_silent_stops` against a real binding + `run_session_links`
+   row); the name-key miss and the empty `session_id` it produces are
+   verified, the `None` is the direct, unavoidable consequence of that empty
+   `session_id`.
 
 ## The two name strings (captured verbatim)
 
@@ -105,8 +112,13 @@ wrongly prefix default-tag agents.
 - Iterate `bindings.items()` → `(worker_id, session_name)`. A recovery binding
   for a tagged agent is created to match the alive `list --json` name (that is
   the only place the recovery operator/coordinator sees the session), i.e.
-  **prefixed** — confirmed indirectly: live tagged agents currently resolve, so
-  bindings must hold the prefixed form.
+  **prefixed**. This is a *structural* inference from the `--binding
+  WORKER_ID=SESSION_NAME` contract (it takes the operator-visible display
+  name, which is tag-prefixed for a tagged agent), **not** empirical evidence:
+  no tagged agent has actually been recovery-bound, so there is no live
+  "tagged agents currently resolve" case to point at. The implementer
+  confirmed the structural inference by tracing `--binding` / `production.py`
+  (bindings arg is populated only from the `--binding` CLI, verbatim).
 - `sessions.get(session_name, {})` → for a *stopped* tagged agent that is
   `sessions.get("housekeep-zale", {})` → `{}` (the record is under bare key
   `zale`).

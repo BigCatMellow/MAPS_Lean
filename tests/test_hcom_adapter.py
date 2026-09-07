@@ -37,10 +37,18 @@ elif args[:2] == ["list", "--json"]:
     if os.environ.get("HCOM_FAKE_BAD_LIST") == "1":
         print("not json")
     else:
-        print(json.dumps([
+        rows = [
             {"name": "claude-1", "session_id": "s1", "status": "active", "tool": "claude"},
             {"name": "codex-1", "session_id": "s2", "status": "listening", "tool": "codex"}
-        ]))
+        ]
+        if os.environ.get("HCOM_FAKE_TAGGED") == "1":
+            # A tagged agent: alive `list --json` composes the prefixed
+            # `name` and also exposes `base_name` / `tag` as separate keys.
+            rows.append({
+                "name": "maps-lean-leta", "base_name": "leta", "tag": "maps-lean",
+                "session_id": "sL", "status": "active", "tool": "claude",
+            })
+        print(json.dumps(rows))
 elif args and args[0] == "events":
     if os.environ.get("HCOM_FAKE_BAD_EVENTS") == "1":
         print("not json")
@@ -59,6 +67,13 @@ elif args and args[0] == "events":
         print(json.dumps({"id": 4, "ts": "2026-09-03T12:10:01", "type": "life", "instance": "nava-worker-1", "data": {"action": "stopped", "by": "session", "reason": "exit:clear"}}))
         print(json.dumps({"id": 5, "ts": "2026-09-03T12:11:00", "type": "life", "instance": "ghost", "data": {"action": "stopped", "by": "session", "reason": "exit:timeout"}}))
         print(json.dumps({"id": 6, "ts": "2026-09-03T12:12:00", "type": "status", "instance": "sub_general_purpose_1", "data": {"status": "inactive", "new_status": "inactive", "new_context": "exit:idle", "session": None, "agent_id": "a1b2c3"}}))
+    elif os.environ.get("HCOM_FAKE_EVENTS") == "tagged_stop":
+        # A tagged agent -- the events stream carries the BARE instance name
+        # (`leta`), never the tag-prefixed `maps-lean-leta` form the alive
+        # `list --json` uses. DEC-003 known-bug 2.
+        print(json.dumps({"id": 1, "ts": "2026-09-06T12:00:00", "type": "status", "instance": "leta", "data": {"status": "active", "new_status": "active", "session": "sL"}}))
+        print(json.dumps({"id": 2, "ts": "2026-09-06T12:10:00", "type": "status", "instance": "leta", "data": {"status": "inactive", "new_status": "inactive", "new_context": "exit:clear", "session": "sL"}}))
+        print(json.dumps({"id": 3, "ts": "2026-09-06T12:10:01", "type": "life", "instance": "leta", "data": {"action": "stopped", "by": "session", "reason": "exit:clear"}}))
     else:
         print(json.dumps({"id": 1, "ts": "2026-08-14T20:00:00", "type": "message", "instance": "x", "data": {"from": "a", "intent": "inform", "text": "hello"}}))
         print(json.dumps({"id": 2, "ts": "2026-08-14T20:00:01", "type": "status", "instance": "x", "data": {"status": "active"}}))
@@ -177,6 +192,40 @@ class HcomAdapterTests(unittest.TestCase):
         self.assertIn(["list", "--json", "--stopped", "--all"], call_args)
         self.assertIn(["list", "--json"], call_args)
         self.assertTrue(any(c[0] == "events" for c in call_args))
+
+    def test_list_sessions_include_stopped_dedups_tagged_agent_bare_synthetic(self):
+        # DEC-003 known-bug 2: a tagged agent is alive in `list --json` under
+        # its prefixed `name` (`maps-lean-leta`) but the events stream only
+        # carries the bare `leta`. The synthetic stopped record must be
+        # recognised as a duplicate of the alive entry and dropped -- exactly
+        # ONE record for that agent, not two.
+        os.environ["HCOM_FAKE_STOPPED_TEXT"] = "nonempty"
+        os.environ["HCOM_FAKE_EVENTS"] = "tagged_stop"
+        os.environ["HCOM_FAKE_TAGGED"] = "1"
+        for var in ("HCOM_FAKE_STOPPED_TEXT", "HCOM_FAKE_EVENTS", "HCOM_FAKE_TAGGED"):
+            self.addCleanup(os.environ.pop, var, None)
+
+        sessions = self.adapter.list_sessions(include_stopped=True)
+        leta_records = [
+            item
+            for item in sessions
+            if item.get("name") in ("leta", "maps-lean-leta")
+            or item.get("base_name") == "leta"
+        ]
+        self.assertEqual(len(leta_records), 1, leta_records)
+        # The surviving record is the alive one, unchanged.
+        self.assertEqual(leta_records[0]["name"], "maps-lean-leta")
+        self.assertEqual(leta_records[0]["status"], "active")
+
+    def test_stopped_synthetic_records_carry_bare_base_name(self):
+        os.environ["HCOM_FAKE_STOPPED_TEXT"] = "nonempty"
+        os.environ["HCOM_FAKE_EVENTS"] = "stopped"
+        self.addCleanup(os.environ.pop, "HCOM_FAKE_STOPPED_TEXT", None)
+        self.addCleanup(os.environ.pop, "HCOM_FAKE_EVENTS", None)
+        sessions = self.adapter.list_sessions(include_stopped=True)
+        by_name = {item["name"]: item for item in sessions}
+        self.assertEqual(by_name["nava-worker-1"]["base_name"], "nava-worker-1")
+        self.assertEqual(by_name["ghost"]["base_name"], "ghost")
 
     def test_list_sessions_include_stopped_nonjson_fallback_logs_once(self):
         os.environ["HCOM_FAKE_STOPPED_TEXT"] = "nonempty"
