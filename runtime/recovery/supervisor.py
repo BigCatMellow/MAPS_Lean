@@ -69,6 +69,37 @@ def _quick_validation_failed(result: Any) -> bool:
     )
 
 
+def _resolve_session_record(
+    records: list[Mapping[str, Any]], session_name: str
+) -> Mapping[str, Any]:
+    """Find the hcom session record a recovery binding's display name refers to.
+
+    An exact `name` match always wins. Only when there is no exact match does
+    this fall back to a record whose bare `base_name` the display name resolves
+    to -- either `session_name == base_name` (untagged agent) or
+    `session_name` ends with `"-" + base_name` (the tag-prefixed
+    `"<tag>-<base_name>"` display name of a tagged agent whose synthetic
+    stopped record, rebuilt from the bare-only `hcom events` stream, carries
+    only the bare name -- DEC-003 known-bug 2). The fallback applies only when
+    exactly one record matches; two `base_name` collisions across different
+    tags leave the lookup unresolved (returns `{}`), the same outcome as before
+    option C, so no mis-binding is possible. Returns `{}` on a miss, matching
+    the prior ``sessions.get(session_name, {})``.
+    """
+    for record in records:
+        if str(record.get("name") or "").strip() == session_name:
+            return record
+    matches = [
+        record
+        for record in records
+        if (base_name := str(record.get("base_name") or "").strip())
+        and (session_name == base_name or session_name.endswith("-" + base_name))
+    ]
+    if len(matches) == 1:
+        return matches[0]
+    return {}
+
+
 def session_is_live(session: Mapping[str, Any], *, stale_after_seconds: int = 1800) -> bool:
     if str(session.get("status", "")).lower() not in LIVE_STATUSES:
         return False
@@ -328,10 +359,7 @@ class RecoverySupervisor:
         refuses to guess which task the stopped session represented.
         """
         now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
-        sessions = {
-            item.get("name"): item
-            for item in self.hcom.list_sessions(include_stopped=True)
-        }
+        session_records = list(self.hcom.list_sessions(include_stopped=True))
         state = self.store.load()
         detected: list[tuple[str, str, str, dict[str, Any]]] = []
 
@@ -358,7 +386,9 @@ class RecoverySupervisor:
                 continue
             if session_name in state["terminal_sessions"]:
                 continue
-            current = session_is_live(sessions.get(session_name, {}))
+            current = session_is_live(
+                _resolve_session_record(session_records, session_name)
+            )
             previous = bool(state["last_live"].get(session_name, False))
             state["last_live"][session_name] = current
             if previous and not current and not self._open_incident_for(
@@ -369,7 +399,9 @@ class RecoverySupervisor:
         self.store.save(state)
         opened: list[str] = []
         for task_id, worker_id, session_name, task in detected:
-            run_id = self._resolve_run_id(task, sessions.get(session_name, {}))
+            run_id = self._resolve_run_id(
+                task, _resolve_session_record(session_records, session_name)
+            )
             incident = self.store.schedule(
                 task_id=task_id,
                 worker_id=worker_id,
@@ -386,10 +418,7 @@ class RecoverySupervisor:
     def tick(self, *, now: datetime | None = None) -> list[dict[str, Any]]:
         """Process due incidents and return an audit-friendly action list."""
         now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
-        sessions = {
-            item.get("name"): item
-            for item in self.hcom.list_sessions(include_stopped=True)
-        }
+        session_records = list(self.hcom.list_sessions(include_stopped=True))
         state = self.store.load()
         actions: list[dict[str, Any]] = []
 
@@ -453,7 +482,9 @@ class RecoverySupervisor:
                 )
                 continue
 
-            if session_is_live(sessions.get(session_name, {})):
+            if session_is_live(
+                _resolve_session_record(session_records, session_name)
+            ):
                 incident["state"] = "resolved"
                 incident["last_error"] = ""
                 incident["updated_at"] = _time_z(now)

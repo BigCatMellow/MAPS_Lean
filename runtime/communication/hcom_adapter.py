@@ -207,11 +207,26 @@ class HcomAdapter:
                 # read structurally. Never raises -- a failure here degrades to
                 # the Part A alive-only behavior.
                 # work/notes/2026-09-03-item5-optionC-impl.md
-                alive_names = {str(item.get("name") or "") for item in alive}
+                # Dedup on both the tag-prefixed `name` and the bare
+                # `base_name`. hcom's alive `list --json` `name` is
+                # `"<tag>-<base_name>"` for a tagged agent while the
+                # events-derived synthetic record only ever knows the bare
+                # instance string, so a `name`-only comparison never recognised
+                # a tagged agent's synthetic stopped record as a duplicate of
+                # its still-listed alive entry (DEC-003 known-bug 2). Comparing
+                # `base_name` too closes that: drop a synthetic record whose
+                # bare name matches any alive record's `name` or `base_name`.
+                alive_keys = set()
+                for item in alive:
+                    for key in ("name", "base_name"):
+                        value = str(item.get(key) or "").strip()
+                        if value:
+                            alive_keys.add(value)
                 return alive + [
                     record
                     for record in self._stopped_records_from_events()
-                    if str(record.get("name") or "") not in alive_names
+                    if str(record.get("name") or "").strip() not in alive_keys
+                    and str(record.get("base_name") or "").strip() not in alive_keys
                 ]
         return self._parse_session_list(result.stdout)
 
@@ -238,6 +253,12 @@ class HcomAdapter:
         Shape mirrors the alive `hcom list --json` keys the recovery path reads
         (`name`, `session_id`, `status`, `process_bound`, `status_context`)
         plus namespaced advisory extras (`stopped`, `stop_reason`, `stop_ts`).
+        `base_name` is also set, equal to the bare `instance` string: the
+        events stream only ever carries the bare instance name, so this lets
+        the dedup in `list_sessions` and the `session_name -> record` lookup in
+        `RecoverySupervisor` match a tagged agent whose alive `list --json`
+        `name` is the tag-prefixed `"<tag>-<base_name>"` form (DEC-003
+        known-bug 2).
         """
         try:
             events = self.read_events(last=_STOPPED_EVENTS_LOOKBACK)
@@ -303,6 +324,7 @@ class HcomAdapter:
                 continue
             record: dict[str, Any] = {
                 "name": name,
+                "base_name": name,
                 "status": "inactive",
                 "process_bound": False,
                 "status_context": str(stop.get("reason") or "stopped"),
