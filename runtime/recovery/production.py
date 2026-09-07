@@ -432,6 +432,7 @@ def run_recovery_tick(
     validation_repo_root: str | Path | None = None,
     harness_project_id: str | None = None,
     enforce_validation: bool = False,
+    terminate_denied_sessions: bool = False,
 ) -> dict[str, Any]:
     """Run exactly one bounded RnS pass and return an audit-friendly summary.
 
@@ -488,6 +489,18 @@ def run_recovery_tick(
     validator is constructed, so the flag would otherwise be a silent no-op.
     Advisory recording is unchanged when it is False.
 
+    `terminate_denied_sessions` opts this pass in to a single bounded,
+    fail-closed `HarnessService.stop()` call on -- and only on -- the
+    `canonical_denial_persistent` terminal promotion (a session whose resume an
+    installed CANONICAL_RUN Hook has denied `_MAX_CONSECUTIVE_CANONICAL_DENIALS`
+    times in a row). It has **no default** and requires `harness_project_id`:
+    there is no `HarnessService` to route a stop through otherwise, so the flag
+    would be a silent no-op. When False, `tick()` never calls `.stop()` and the
+    promotion is byte-identical to before this flag existed. Arming it is a
+    strictly larger authority grant than arming canonical-run enforcement (a
+    destructive termination vs. a resume denial), so it stays a separate opt-in.
+    See `work/notes/2026-09-06-harness-stop-callsite-design.md` §3.
+
     Raises whatever the underlying supervisor/hcom calls raise. Callers that
     must not fail on a recovery problem should use `run_recovery_tick_isolated`.
     """
@@ -496,6 +509,12 @@ def run_recovery_tick(
             "enforce_validation requires validation_repo_root: the resume-"
             "validation gate has nothing to enforce without a checkout to run "
             "the quick tier in; it is never inferred from the cwd"
+        )
+    if terminate_denied_sessions and harness_project_id is None:
+        raise ValueError(
+            "terminate_denied_sessions requires harness_project_id: there is "
+            "no HarnessService to route a stop through otherwise, so the flag "
+            "would be a silent no-op"
         )
     harness_service = None
     if harness_project_id is not None:
@@ -543,6 +562,7 @@ def run_recovery_tick(
         resume_validator=resume_validator,
         harness_service=harness_service,
         validation_blocks_resume=enforce_validation,
+        terminate_on_canonical_denial=terminate_denied_sessions,
         # environment_reader deliberately omitted -- see module docstring.
         # harness_service is None unless a caller opts in via harness_project_id
         # (default-off; design note §2c) -- when None, tick() uses its existing,
@@ -569,6 +589,7 @@ def run_recovery_tick_isolated(
     validation_repo_root: str | Path | None = None,
     harness_project_id: str | None = None,
     enforce_validation: bool = False,
+    terminate_denied_sessions: bool = False,
 ) -> dict[str, Any]:
     """`run_recovery_tick` with every failure contained in the return value.
 
@@ -589,6 +610,7 @@ def run_recovery_tick_isolated(
             validation_repo_root=validation_repo_root,
             harness_project_id=harness_project_id,
             enforce_validation=enforce_validation,
+            terminate_denied_sessions=terminate_denied_sessions,
         )
     except Exception as exc:  # noqa: BLE001 - deliberate isolation boundary
         return {
