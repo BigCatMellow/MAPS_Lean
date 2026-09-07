@@ -1,9 +1,9 @@
 # PR #307 — independent review evidence
 
-reviewer: maps-lean-rev3-kava (BigCatMellow, no prior involvement in PR #307 or the 6.4 chain — not buna/zeno/nima/lulu/zura)
-head_sha: f1feeded01c00c2c79b34261dbfe78d56c754e1a
+reviewer: reval-neso
+head_sha: ecf230a00ba240a87e512f89abfaf47a64706938
 independent: true
-summary: APPROVE. Design-only note (one new file, work/notes/2026-09-06-harness-send-callsite-design.md, +479). Central finding independently verified: HarnessService.send() has zero production callers on origin/main (c958cf6) and nothing in the orchestration layer delivers memory-derived content today, so — unlike the sibling stop() note (#305) — there is NO bounded call site, and 6.22's exercise needs a real payload assembler + delivery call site + default-off opt-in as its own impl PR. The note honestly scopes that work rather than shrinking it. Boundary clean, test CI green.
+summary: Zero-diff revalidation after rebase onto main 0996f70 — PR's reviewed file (work/notes/2026-09-06-harness-send-callsite-design.md) byte-identical to approved state f1feeded01c00c2c79b34261dbfe78d56c754e1a (blob fe9fa78); original APPROVE by maps-lean-rev3-kava stands.
 
 ## Verdict
 
