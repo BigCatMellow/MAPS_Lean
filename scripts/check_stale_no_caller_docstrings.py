@@ -15,6 +15,19 @@ docstring asserting it has none:
 
 Memory: `feedback_stale_no_production_caller_docstrings`.
 
+Dotted-resolution strengthening (3rd occurrence -- the 1st to slip past this
+guard, found by reviewer `ledo` on PR #310, 2026-09-06). When the backticked
+symbol is dotted (`` `Class.method` `` / `` `Class.method()` ``) the check now
+KEEPS the class: a caller counts only if it is an attribute call `recv.method(
+...)` whose bare-name receiver `recv` plausibly names an instance of `Class`
+(case-insensitive substring either way -- `service` matches `HarnessService`;
+`self`, `adapter`, `backend` do not). Attribute-chain receivers (`self.x`,
+`a.b.c`) are excluded from the dotted match -- the noqa hatch covers the rare
+real caller reachable only that way. Previously the class prefix was dropped,
+so `` `HarnessService.send()` `` resolved to the bare symbol `send` and every
+unrelated `.send(` in `runtime/` counted, forcing a blanket noqa that blinded
+the check to a genuine new caller. Non-dotted claims are unaffected.
+
 What it does (deliberately conservative -- a curated phrase list, one symbol
 per hit, and only a real syntactic call counts):
 
@@ -73,13 +86,18 @@ _BACKTICK_SYMBOL = re.compile(r"`([A-Za-z_][A-Za-z0-9_.]*)(?:\(\))?`")
 _DEF_LINE = re.compile(r"^\s*(?:async\s+)?def\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 
 
-def _symbol_for(lines: list[str], idx: int, phrase: str) -> str | None:
-    """Best-effort symbol the stale phrase (which *begins* on line `idx`) is
-    documenting.
+def _symbol_for(lines: list[str], idx: int, phrase: str) -> tuple[str | None, str | None]:
+    """Best-effort (method, class) the stale phrase (which *begins* on line
+    `idx`) is documenting.
 
     Prefers the closest backticked token that sits *before* the phrase; a
     backtick after the phrase on the same line (e.g. "... has no production
     caller, unlike `OtherThing`") is ignored.
+
+    `class` is non-None only when the winning backticked token is dotted
+    (`` `Class.method` ``) -- callers are then matched against the receiver
+    (see `_callers`). The returned `method` is always the bare final
+    attribute, so failure messages and the recursion exclusion are unchanged.
     """
     first_word = phrase.split()[0]
     for j in range(idx, max(idx - 12, -1), -1):
@@ -98,13 +116,17 @@ def _symbol_for(lines: list[str], idx: int, phrase: str) -> str | None:
         before = [m for m in _BACKTICK_SYMBOL.finditer(line) if m.start() < cut]
         if before:
             # last one before the phrase == closest to it
-            return before[-1].group(1).split(".")[-1]
-    # Fall back to the nearest enclosing `def`.
+            token = before[-1].group(1)
+            parts = token.split(".")
+            if len(parts) >= 2:
+                return parts[-1], parts[-2]
+            return parts[-1], None
+    # Fall back to the nearest enclosing `def` (never a dotted claim).
     for j in range(idx, -1, -1):
         m = _DEF_LINE.match(lines[j])
         if m:
-            return m.group(1)
-    return None
+            return m.group(1), None
+    return None, None
 
 
 def _phrase_line_starts(lines: list[str], phrase: str) -> list[int]:
@@ -167,7 +189,24 @@ def _self_body_ranges(tree: ast.AST, symbol: str) -> list[tuple[int, int]]:
 # not see a call inside the symbol's own defining file. AST fixes both and
 # needs no such regex -- a bare mention, a string literal, or `x = symbol` is
 # simply not a Call node.
-def _callers(symbol: str, runtime_dir: Path) -> list[str]:
+def _receiver_matches_class(func: ast.expr, cls: str) -> bool:
+    """True when `func` is `ast.Attribute` whose receiver is a bare `ast.Name`
+    that plausibly refers to an instance of `cls`.
+
+    Conservative heuristic (no type inference): the receiver id and the class
+    name, both lowercased, must be substrings of one another. So `service`
+    matches `HarnessService`, but `self`, `adapter`, `backend` and any
+    attribute-chain receiver (`self.adapter`, `a.b.c`) do NOT -- those stay the
+    noqa hatch's job.
+    """
+    if not isinstance(func, ast.Attribute) or not isinstance(func.value, ast.Name):
+        return False
+    recv = func.value.id.lower()
+    target = cls.lower()
+    return recv in target or target in recv
+
+
+def _callers(symbol: str, runtime_dir: Path, receiver_class: str | None = None) -> list[str]:
     hits: list[str] = []
     for path, src_lines, tree in _runtime_sources(runtime_dir):
         skip = _self_body_ranges(tree, symbol)
@@ -175,6 +214,10 @@ def _callers(symbol: str, runtime_dir: Path) -> list[str]:
             if not isinstance(node, ast.Call):
                 continue
             if _callee_name(node.func) != symbol:
+                continue
+            if receiver_class is not None and not _receiver_matches_class(
+                node.func, receiver_class
+            ):
                 continue
             if any(lo <= node.lineno <= hi for lo, hi in skip):
                 continue
@@ -199,10 +242,10 @@ def scan(runtime_dir: Path = RUNTIME_DIR, repo_root: Path = REPO_ROOT) -> list[s
                 if any(NOQA in lines[k]
                        for k in range(max(idx - 3, 0), min(idx + 13, len(lines)))):
                     continue
-                symbol = _symbol_for(lines, idx, phrase)
+                symbol, receiver_class = _symbol_for(lines, idx, phrase)
                 if not symbol:
                     continue
-                callers = _callers(symbol, runtime_dir)
+                callers = _callers(symbol, runtime_dir, receiver_class)
                 if not callers:
                     continue
                 rel = path.relative_to(repo_root)

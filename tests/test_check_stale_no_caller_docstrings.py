@@ -259,6 +259,76 @@ class CheckStaleNoCallerTests(unittest.TestCase):
         })
         self.assertEqual(failures, [], failures)
 
+    # --- rule 20, 3rd occurrence: dotted `Class.method` receiver matching ---
+    # PR #310 reviewer `ledo` found the guard blind: `HarnessService.send()`
+    # resolved to bare `send`, matching every `.send(` in runtime/, so a
+    # blanket noqa was required -- which then hid the real first caller.
+
+    _HARNESS_SVC = (
+        'class HarnessService:\n'
+        '    def send(self):\n'
+        '        """`HarnessService.send()` has no production caller."""\n'
+        '        adapter = object()\n'
+        '        return adapter.send()\n'  # in-method-body call, excluded
+    )
+
+    def test_dotted_class_method_real_receiver_caller_fails(self):
+        failures = self._scan({
+            "harness/service.py": self._HARNESS_SVC,
+            "cli.py": (
+                "def _dispatch_send_context(service):\n"
+                "    return service.send()\n"
+            ),
+        })
+        self.assertEqual(len(failures), 1, failures)
+        self.assertIn("`send`", failures[0])
+        self.assertIn("cli.py", failures[0])
+
+    def test_dotted_class_method_unrelated_receivers_pass_without_noqa(self):
+        # self.backend.send / self.adapter.send / in-body adapter.send are all
+        # the wrong receiver -> no spurious failure, and NO noqa present.
+        failures = self._scan({
+            "harness/service.py": self._HARNESS_SVC,
+            "harness/adapters/hcom.py": (
+                "class HcomAdapter:\n"
+                "    def push(self):\n"
+                "        return self.backend.send()\n"
+            ),
+            "harness/contract.py": (
+                "class Contract:\n"
+                "    def relay(self):\n"
+                "        return self.adapter.send()\n"
+            ),
+        })
+        self.assertEqual(failures, [], failures)
+
+    def test_dotted_class_method_attribute_chain_receiver_excluded(self):
+        # `self.svc.send()` is an attribute-chain receiver -> not matched by the
+        # conservative bare-Name heuristic; noqa hatch remains for such cases.
+        failures = self._scan({
+            "harness/service.py": self._HARNESS_SVC,
+            "cli.py": (
+                "class Runner:\n"
+                "    def go(self):\n"
+                "        return self.svc.send()\n"
+            ),
+        })
+        self.assertEqual(failures, [], failures)
+
+    def test_non_dotted_claim_behavior_unchanged_regression(self):
+        # A bare `send` claim (no class) still matches ANY `.send(` caller,
+        # exactly as before this change.
+        failures = self._scan({
+            "state/store.py": (
+                'def send(self):\n'
+                '    """`send()` has no production caller."""\n'
+                '    return 1\n'
+            ),
+            "cli.py": "def go(x):\n    return x.send()\n",
+        })
+        self.assertEqual(len(failures), 1, failures)
+        self.assertIn("`send`", failures[0])
+
     def test_repo_checkout_is_clean(self):
         self.assertEqual(csc.scan(), [], "repo has an unsuppressed stale claim")
 
