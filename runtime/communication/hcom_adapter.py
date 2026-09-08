@@ -76,18 +76,50 @@ class HcomAdapter:
     def __init__(
         self,
         *,
-        hcom_dir: str | Path = ".hcom",
+        hcom_dir: str | Path | None = None,
         executable: str | Path = "hcom",
         timeout_seconds: float = 30.0,
     ):
-        self.hcom_dir = Path(hcom_dir).resolve()
+        # `hcom_dir=None` means "the caller did not name a directory" -- inherit
+        # whatever `HCOM_DIR` the process environment carries (which is how hcom
+        # itself ranks that variable: env vars are its top precedence tier), and
+        # fall back to hcom's own `.hcom` default only when nothing is set. A
+        # concrete value is an explicit operator/caller choice and wins over an
+        # inherited `HCOM_DIR`, warning once on a real (resolved-path) conflict.
+        # See work/notes/2026-09-07-dec003-bug1-hcom-dir-precedence.md (Option C).
+        self._hcom_dir_explicit = hcom_dir is not None
+        self.hcom_dir = Path(hcom_dir).resolve() if hcom_dir is not None else None
         self.executable = str(executable)
         self.timeout_seconds = float(timeout_seconds)
         self._warned_stopped_nonjson = False
+        self._warned_hcom_dir_conflict = False
 
     def environment(self) -> dict[str, str]:
         env = os.environ.copy()
-        env["HCOM_DIR"] = str(self.hcom_dir)
+        if not self._hcom_dir_explicit:
+            # No caller-named directory: leave whatever `os.environ.copy()`
+            # carried (an inherited `HCOM_DIR`, or nothing -- hcom then uses its
+            # own `.hcom` default resolved against the subprocess cwd). This is
+            # byte-for-byte the pre-fix behavior for the default path, where no
+            # `HCOM_DIR` is exported.
+            return env
+        explicit = str(self.hcom_dir)
+        inherited = os.environ.get("HCOM_DIR")
+        if (
+            inherited
+            and not self._warned_hcom_dir_conflict
+            and Path(inherited).resolve() != self.hcom_dir
+        ):
+            _LOGGER.warning(
+                "hcom directory conflict: inherited HCOM_DIR=%s but an explicit "
+                "--hcom-dir/hcom_dir=%s was given; using the explicit value %s. "
+                "Unset HCOM_DIR or drop --hcom-dir to silence this.",
+                inherited,
+                explicit,
+                explicit,
+            )
+            self._warned_hcom_dir_conflict = True
+        env["HCOM_DIR"] = explicit
         return env
 
     def _run(

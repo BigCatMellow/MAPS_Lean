@@ -284,7 +284,15 @@ def build_parser() -> argparse.ArgumentParser:
             'silent stops rather than guessing a binding)'
         ),
     )
-    recovery_tick.add_argument('--hcom-dir', default=DEFAULT_HCOM_DIR)
+    recovery_tick.add_argument(
+        '--hcom-dir',
+        default=DEFAULT_HCOM_DIR,
+        help=(
+            'explicit hcom project directory for this pass; when omitted, an '
+            'exported HCOM_DIR is inherited and `.hcom` is the final fallback '
+            '(precedence: explicit flag > inherited HCOM_DIR > .hcom)'
+        ),
+    )
     recovery_tick.add_argument('--hcom-executable', default=DEFAULT_HCOM_EXECUTABLE)
     recovery_tick.add_argument(
         '--hcom-timeout-seconds',

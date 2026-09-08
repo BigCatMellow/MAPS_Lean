@@ -100,6 +100,14 @@ class HcomAdapterTests(unittest.TestCase):
         self.log = root / "calls.jsonl"
         os.environ["HCOM_FAKE_LOG"] = str(self.log)
         self.addCleanup(os.environ.pop, "HCOM_FAKE_LOG", None)
+        # These cases construct the adapter with an explicit throwaway hcom_dir.
+        # Clear any HCOM_DIR the test runner inherited (an hcom-launched session
+        # always exports one) so the DEC-003 bug-1 warn-once conflict path does
+        # not add noise to unrelated assertLogs blocks; the precedence behavior
+        # itself is covered by HcomDirPrecedenceTests.
+        _saved_hcom_dir = os.environ.pop("HCOM_DIR", None)
+        if _saved_hcom_dir is not None:
+            self.addCleanup(os.environ.__setitem__, "HCOM_DIR", _saved_hcom_dir)
         self.adapter = HcomAdapter(
             executable=self.fake,
             hcom_dir=self.hcom_dir,
@@ -319,6 +327,78 @@ class HcomAdapterTests(unittest.TestCase):
         self.assertNotIn("TaskStore", text)
         self.assertNotIn("maps.db", text)
         self.assertNotIn("shell=True", text)
+
+
+class HcomDirPrecedenceTests(unittest.TestCase):
+    """DEC-003 bug 1, Option C: explicit --hcom-dir > inherited HCOM_DIR > .hcom.
+
+    resolved-path compare, warn-once on a real conflict.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+        self._saved = os.environ.get("HCOM_DIR")
+        self.addCleanup(self._restore_env)
+        os.environ.pop("HCOM_DIR", None)
+
+    def _restore_env(self):
+        if self._saved is None:
+            os.environ.pop("HCOM_DIR", None)
+        else:
+            os.environ["HCOM_DIR"] = self._saved
+
+    def test_default_no_flag_no_env_leaves_hcom_dir_unset(self):
+        # Byte-for-byte the pre-fix default path: hcom resolves `.hcom` against
+        # the subprocess cwd itself; the adapter injects nothing.
+        env = HcomAdapter(executable="hcom").environment()
+        self.assertNotIn("HCOM_DIR", env)
+
+    def test_no_flag_inherits_exported_hcom_dir_untouched(self):
+        os.environ["HCOM_DIR"] = str(self.root / "session-A" / ".hcom")
+        env = HcomAdapter(executable="hcom").environment()
+        self.assertEqual(env["HCOM_DIR"], str(self.root / "session-A" / ".hcom"))
+
+    def test_explicit_flag_with_conflicting_env_warns_once_and_wins(self):
+        os.environ["HCOM_DIR"] = str(self.root / "session-Y" / ".hcom")
+        explicit = self.root / "X" / ".hcom"
+        adapter = HcomAdapter(hcom_dir=explicit, executable="hcom")
+        with self.assertLogs("runtime.communication.hcom_adapter", level="WARNING") as cm:
+            env1 = adapter.environment()
+        self.assertEqual(env1["HCOM_DIR"], str(explicit.resolve()))
+        self.assertEqual(len(cm.output), 1)
+        self.assertIn(str(explicit.resolve()), cm.output[0])
+        self.assertIn(str(self.root / "session-Y" / ".hcom"), cm.output[0])
+        # warn-once: a second call emits nothing new.
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(
+                "runtime.communication.hcom_adapter", level="WARNING"
+            ):
+                adapter.environment()
+
+    def test_explicit_flag_matching_env_by_resolved_path_does_not_warn(self):
+        target = self.root / ".hcom"
+        target.mkdir()
+        os.environ["HCOM_DIR"] = str(target)  # absolute, normalized
+        # Explicit value points at the SAME directory via a non-normalized path.
+        adapter = HcomAdapter(hcom_dir=self.root / "." / ".hcom", executable="hcom")
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(
+                "runtime.communication.hcom_adapter", level="WARNING"
+            ):
+                adapter.environment()
+        self.assertEqual(adapter.environment()["HCOM_DIR"], str(target.resolve()))
+
+    def test_explicit_flag_no_env_sets_it_without_warning(self):
+        explicit = self.root / "X" / ".hcom"
+        adapter = HcomAdapter(hcom_dir=explicit, executable="hcom")
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(
+                "runtime.communication.hcom_adapter", level="WARNING"
+            ):
+                adapter.environment()
+        self.assertEqual(adapter.environment()["HCOM_DIR"], str(explicit.resolve()))
 
 
 if __name__ == "__main__":
