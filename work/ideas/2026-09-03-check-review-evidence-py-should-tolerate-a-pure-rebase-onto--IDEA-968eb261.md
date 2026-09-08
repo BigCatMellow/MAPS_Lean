@@ -23,3 +23,5 @@ Prototype a check_review_evidence.py mode: given head_sha not == HEAD, accept if
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+- 2026-09-07 disposition (trajectory check #26, `traj26-sofa`): **stale — implemented.** `scripts/check_review_evidence.py` revalidation tier (PR #297, merged pre-arc) is this idea. The residual gap — the is-ancestor check never fires on this repo's rebase-based merge-prep — is captured as `IDEA-fe6c0f0f` and promoted by check #26 (diff-equivalence acceptance). Observation preserved as history.

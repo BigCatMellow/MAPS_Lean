@@ -23,3 +23,5 @@ Scope a controlled exercise: launch a real throwaway hcom session bound via maps
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+- 2026-09-07 disposition (trajectory check #26, `traj26-sofa`): **stale — resolved.** `DEC-003` Result section (#298) + the row 6.16 worktree-binding-guard exercise (#303, check #26) answer this directly: the exit criterion was exercisable, not structurally blocked, and 5 of the 7 cluster rows are now DONE (6.5/H5/E4/L6 at #25, 6.16 at #26). 6.4 and 6.22 remain, each with a call site but no exercise yet. Observation preserved as history.
