@@ -1,7 +1,8 @@
 # DEC-003 bug 1 — `HCOM_DIR` (shell) vs `--hcom-dir` (flag) precedence
 
-**Status: operator product-behavior ruling required before any fix.**
-Design/analysis note only. No runtime code, tests, or fix in this change.
+**Status: RESOLVED — operator ruled Option C (relayed 2026-09-07). Fix landed in
+the same PR that carries these note corrections.** Original analysis below is
+kept as the rationale record; §4 recommendation was adopted verbatim.
 
 Source of truth for the bug: `work/notes/2026-09-05-dec003-known-bugs-followup.md`
 ("Bug 1"), plus the code paths below read directly on branch
@@ -85,14 +86,20 @@ Every construction of `HcomAdapter` in `runtime/` (grep `hcom_dir`):
 
 | Call site | `hcom_dir` value | Who sets it | Explicit? |
 |---|---|---|---|
-| `runtime/cli.py:230` | argparse `--hcom-dir`, `default=DEFAULT_HCOM_DIR` (`".hcom"`) | operator types it on `maps recovery-tick`; **argparse fills `.hcom` when omitted** | **cannot tell** — default and explicit `.hcom` look identical |
-| `runtime/cli.py:817` → `run_recovery_tick_isolated(hcom_dir=args.hcom_dir, ...)` | passes the argparse value straight through | operator (or default) | see above |
-| `runtime/cli.py:781` — `claim` piggyback → `run_recovery_tick_isolated(store, hcom_timeout_seconds=...)` | **does not pass `hcom_dir` at all** → `DEFAULT_HCOM_DIR` = `".hcom"` | **automated**, never operator | always default |
-| `runtime/recovery/production.py:355,428,565` (`build_canonical_harness_service`, `run_recovery_tick`, `run_recovery_tick_isolated`) | signature default `DEFAULT_HCOM_DIR = ".hcom"`; forwarded to `HcomAdapter(hcom_dir=...)` at `production.py:402,519,538` | whatever the CLI branch passed | inherits caller |
+| `runtime/cli.py:287` | argparse `--hcom-dir`, `default=DEFAULT_HCOM_DIR` (`".hcom"`) | operator types it on `maps recovery-tick`; **argparse fills `.hcom` when omitted** | **cannot tell** — default and explicit `.hcom` look identical |
+| `runtime/cli.py:1019` → `run_recovery_tick_isolated(hcom_dir=args.hcom_dir, ...)` | passes the argparse value straight through | operator (or default) | see above |
+| `runtime/cli.py` `claim` piggyback → `run_recovery_tick_isolated(store, hcom_timeout_seconds=...)` | **does not pass `hcom_dir` at all** → `DEFAULT_HCOM_DIR` = `".hcom"` | **automated**, never operator | always default |
+| `runtime/recovery/production.py:355,428,585` (`build_canonical_harness_service`, `run_recovery_tick`, `run_recovery_tick_isolated`) | signature default `DEFAULT_HCOM_DIR = ".hcom"`; forwarded to `HcomAdapter(hcom_dir=...)` / a nested composer at `production.py:402,538,557,606` (4 pass-through sites, not 3) | whatever the CLI branch passed | inherits caller |
 | `runtime/smoke.py:111` | `HcomAdapter(hcom_dir=root / ".hcom")` — explicit, disposable temp dir | test/smoke harness | always explicit, always a throwaway path |
 
 `hcom_dir` is then `Path(hcom_dir).resolve()` in `__init__`
 (`hcom_adapter.py:83`), i.e. resolved against the process cwd.
+
+> **Note (gena memo nits, folded in with the Option C fix):** earlier drafts of
+> this section cited `cli.py:230` / `:817` / `:781` and `production.py:...,565`
+> with `402,519,538`; the real pre-fix lines are `cli.py:287` / `:1019`,
+> `production.py` signatures at `355,428,585`, and **four** pass-through sites
+> (`402,538,557,606`), not three.
 
 **Key findings:**
 
@@ -268,11 +275,12 @@ If the operator picks Option C:
     explicit value and an inherited `HCOM_DIR` exist and their
     `Path.resolve()` differs, `_LOGGER.warning(...)` once (new `self._warned_*`
     flag) then use the explicit value.
-- `runtime/cli.py:230`: `--hcom-dir` `default=DEFAULT_HCOM_DIR` → `default=None`.
+- `runtime/cli.py:287`: `--hcom-dir` `default=DEFAULT_HCOM_DIR` → resolves to
+  `None` (the constant itself becomes the sentinel).
 - `runtime/recovery/production.py`: `DEFAULT_HCOM_DIR` semantics → a `None`
   sentinel meaning "inherit/adapter-default"; signatures at lines ~355, ~428,
-  ~565 and the pass-throughs at ~402, ~519, ~538 thread it without
-  substituting `.hcom`.
+  ~585 and the **four** pass-throughs at ~402, ~538, ~557, ~606 thread it
+  without substituting `.hcom`.
 - Leave `runtime/smoke.py:111` as-is (explicit throwaway path — correct under
   every option).
 - Tests: `tests/test_hcom_adapter.py` (the `HCOM_DIR` env assertions + a new

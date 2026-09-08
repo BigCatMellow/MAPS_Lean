@@ -20,20 +20,23 @@ SQLite task state is separate.
 
 ## Project isolation
 
-Every adapter command sets:
+hcom keys its sessions/messages off the `HCOM_DIR` environment variable, so one
+clone's transport state never becomes another clone's. The adapter resolves
+which directory to hand the `hcom` subprocess by this precedence:
 
 ```text
-HCOM_DIR=<configured project-local directory>
+explicit --hcom-dir / HcomAdapter(hcom_dir=...)   (highest)
+  > inherited HCOM_DIR from the process environment
+  > .hcom/ resolved against the subprocess cwd     (lowest)
 ```
 
-Default:
-
-```text
-.hcom/
-```
-
-This prevents one clone's hcom sessions/messages from becoming another clone's
-transport state.
+When a directory is named explicitly *and* a different `HCOM_DIR` is inherited
+(resolved-path compare), the adapter logs one warning naming both and proceeds
+with the explicit value. When nothing is named explicitly, the adapter does not
+touch `HCOM_DIR` at all — an exported value is inherited unchanged and `hcom`'s
+own `.hcom` default applies only when none is set. See
+`work/notes/2026-09-07-dec003-bug1-hcom-dir-precedence.md` (DEC-003 bug 1,
+Option C).
 
 ## Supported operations
 

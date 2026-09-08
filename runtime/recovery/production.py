@@ -136,7 +136,12 @@ from runtime.recovery.store import RecoveryStore
 from runtime.recovery.supervisor import RecoverySupervisor
 
 # Match HcomAdapter's own constructor defaults rather than inventing new ones.
-DEFAULT_HCOM_DIR = ".hcom"
+# `None` is the "caller did not name a directory" sentinel: HcomAdapter then
+# inherits an exported `HCOM_DIR` and falls back to `.hcom` only when nothing is
+# set (DEC-003 bug 1, Option C -- see
+# work/notes/2026-09-07-dec003-bug1-hcom-dir-precedence.md). It is threaded
+# through unchanged; nothing here substitutes `.hcom`.
+DEFAULT_HCOM_DIR: str | None = None
 DEFAULT_HCOM_EXECUTABLE = "hcom"
 # Match RecoveryStore's own constructor default.
 DEFAULT_RECOVERY_STATE_PATH = ".maps/state/recovery.json"
@@ -352,7 +357,7 @@ def build_canonical_harness_service(
     *,
     project_id: str,
     repo_root: str | Path,
-    hcom_dir: str | Path = DEFAULT_HCOM_DIR,
+    hcom_dir: str | Path | None = DEFAULT_HCOM_DIR,
     hcom_executable: str | Path = DEFAULT_HCOM_EXECUTABLE,
     hcom_timeout_seconds: float = DEFAULT_HCOM_TIMEOUT_SECONDS,
 ) -> HarnessService:
@@ -425,7 +430,7 @@ def run_recovery_tick(
     task_reader: Any,
     *,
     bindings: Mapping[str, str] | None = None,
-    hcom_dir: str | Path = DEFAULT_HCOM_DIR,
+    hcom_dir: str | Path | None = DEFAULT_HCOM_DIR,
     hcom_executable: str | Path = DEFAULT_HCOM_EXECUTABLE,
     hcom_timeout_seconds: float = DEFAULT_HCOM_TIMEOUT_SECONDS,
     recovery_state_path: str | Path = DEFAULT_RECOVERY_STATE_PATH,
@@ -582,7 +587,7 @@ def run_recovery_tick_isolated(
     task_reader: Any,
     *,
     bindings: Mapping[str, str] | None = None,
-    hcom_dir: str | Path = DEFAULT_HCOM_DIR,
+    hcom_dir: str | Path | None = DEFAULT_HCOM_DIR,
     hcom_executable: str | Path = DEFAULT_HCOM_EXECUTABLE,
     hcom_timeout_seconds: float = DEFAULT_HCOM_TIMEOUT_SECONDS,
     recovery_state_path: str | Path = DEFAULT_RECOVERY_STATE_PATH,
