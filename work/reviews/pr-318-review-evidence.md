@@ -1,7 +1,7 @@
 # PR #318 — independent review evidence (roadmap trajectory check #26)
 
 reviewer: maps-lean-rev318-dame
-head_sha: 0d3be397473302d9fe0b15efcb400b3c202a1209
+head_sha: 9aa526da116caea78043b8763a0c09c655edbb4f
 independent: true
 verdict: APPROVE
 summary: |
@@ -76,3 +76,12 @@ summary: |
      stated).
 
   Verdict: APPROVE.
+
+  Zero-diff revalidation (maps-lean-reval315-mezu, 2026-09-08): branch was 2 commits
+  behind strict main after #315/#317 merged; merged origin/main into the branch (merge
+  commit 9aa526da116caea78043b8763a0c09c655edbb4f, clean, no conflicts). All reviewed
+  content files — work/notes/2026-09-07-roadmap-trajectory-check-26.md plus the dated
+  dispositions on IDEA-582cc671, IDEA-968eb261, INSIGHT-102296b5, INSIGHT-651d8c62 and
+  work/notes/2026-08-18-stalled-dispatched-worker-repair.md — are byte-identical:
+  `git diff 0d3be39 9aa526d -- <those paths>` is empty. head_sha rebound to the merge
+  commit. Original APPROVE by dame stands.
