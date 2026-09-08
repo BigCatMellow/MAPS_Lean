@@ -1,7 +1,7 @@
 # PR #315 — independent review evidence
 
 reviewer: maps-lean-rev315-bulo
-head_sha: a545b6bf548734bd3421d4bcecc5b3eabd93205f
+head_sha: 4042c0cd5621cc000d9ede4ad03d94f9dfe76497
 independent: true
 verdict: APPROVE
 summary: |
@@ -37,3 +37,11 @@ summary: |
 
   Judgement: split is clean, diff is exactly what it claims, no Change-2 authority
   expansion leaked. APPROVE.
+
+  Zero-diff revalidation (maps-lean-reval315-mezu, 2026-09-08): branch was 16 commits
+  behind strict main; merged origin/main into the branch (merge commit
+  4042c0cd5621cc000d9ede4ad03d94f9dfe76497, clean, no conflicts). The sole reviewed file
+  playbook/EMERGENCE.md is byte-identical — `git diff a545b6b 4042c0c -- playbook/EMERGENCE.md`
+  is empty; none of the 15 merged PRs touched it. `git diff origin/main...HEAD -- playbook/EMERGENCE.md`
+  still the +43-line cross-root-synthesis-only diff, zero Change-2 tokens on `^+` lines.
+  head_sha rebound to the merge commit. Original APPROVE by bulo stands.
