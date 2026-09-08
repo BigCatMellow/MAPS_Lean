@@ -37,10 +37,18 @@ elif args[:2] == ["list", "--json"]:
     if os.environ.get("HCOM_FAKE_BAD_LIST") == "1":
         print("not json")
     else:
-        print(json.dumps([
+        rows = [
             {"name": "claude-1", "session_id": "s1", "status": "active", "tool": "claude"},
             {"name": "codex-1", "session_id": "s2", "status": "listening", "tool": "codex"}
-        ]))
+        ]
+        if os.environ.get("HCOM_FAKE_TAGGED") == "1":
+            # A tagged agent: alive `list --json` composes the prefixed
+            # `name` and also exposes `base_name` / `tag` as separate keys.
+            rows.append({
+                "name": "maps-lean-leta", "base_name": "leta", "tag": "maps-lean",
+                "session_id": "sL", "status": "active", "tool": "claude",
+            })
+        print(json.dumps(rows))
 elif args and args[0] == "events":
     if os.environ.get("HCOM_FAKE_BAD_EVENTS") == "1":
         print("not json")
@@ -59,6 +67,13 @@ elif args and args[0] == "events":
         print(json.dumps({"id": 4, "ts": "2026-09-03T12:10:01", "type": "life", "instance": "nava-worker-1", "data": {"action": "stopped", "by": "session", "reason": "exit:clear"}}))
         print(json.dumps({"id": 5, "ts": "2026-09-03T12:11:00", "type": "life", "instance": "ghost", "data": {"action": "stopped", "by": "session", "reason": "exit:timeout"}}))
         print(json.dumps({"id": 6, "ts": "2026-09-03T12:12:00", "type": "status", "instance": "sub_general_purpose_1", "data": {"status": "inactive", "new_status": "inactive", "new_context": "exit:idle", "session": None, "agent_id": "a1b2c3"}}))
+    elif os.environ.get("HCOM_FAKE_EVENTS") == "tagged_stop":
+        # A tagged agent -- the events stream carries the BARE instance name
+        # (`leta`), never the tag-prefixed `maps-lean-leta` form the alive
+        # `list --json` uses. DEC-003 known-bug 2.
+        print(json.dumps({"id": 1, "ts": "2026-09-06T12:00:00", "type": "status", "instance": "leta", "data": {"status": "active", "new_status": "active", "session": "sL"}}))
+        print(json.dumps({"id": 2, "ts": "2026-09-06T12:10:00", "type": "status", "instance": "leta", "data": {"status": "inactive", "new_status": "inactive", "new_context": "exit:clear", "session": "sL"}}))
+        print(json.dumps({"id": 3, "ts": "2026-09-06T12:10:01", "type": "life", "instance": "leta", "data": {"action": "stopped", "by": "session", "reason": "exit:clear"}}))
     else:
         print(json.dumps({"id": 1, "ts": "2026-08-14T20:00:00", "type": "message", "instance": "x", "data": {"from": "a", "intent": "inform", "text": "hello"}}))
         print(json.dumps({"id": 2, "ts": "2026-08-14T20:00:01", "type": "status", "instance": "x", "data": {"status": "active"}}))
@@ -85,6 +100,14 @@ class HcomAdapterTests(unittest.TestCase):
         self.log = root / "calls.jsonl"
         os.environ["HCOM_FAKE_LOG"] = str(self.log)
         self.addCleanup(os.environ.pop, "HCOM_FAKE_LOG", None)
+        # These cases construct the adapter with an explicit throwaway hcom_dir.
+        # Clear any HCOM_DIR the test runner inherited (an hcom-launched session
+        # always exports one) so the DEC-003 bug-1 warn-once conflict path does
+        # not add noise to unrelated assertLogs blocks; the precedence behavior
+        # itself is covered by HcomDirPrecedenceTests.
+        _saved_hcom_dir = os.environ.pop("HCOM_DIR", None)
+        if _saved_hcom_dir is not None:
+            self.addCleanup(os.environ.__setitem__, "HCOM_DIR", _saved_hcom_dir)
         self.adapter = HcomAdapter(
             executable=self.fake,
             hcom_dir=self.hcom_dir,
@@ -178,6 +201,40 @@ class HcomAdapterTests(unittest.TestCase):
         self.assertIn(["list", "--json"], call_args)
         self.assertTrue(any(c[0] == "events" for c in call_args))
 
+    def test_list_sessions_include_stopped_dedups_tagged_agent_bare_synthetic(self):
+        # DEC-003 known-bug 2: a tagged agent is alive in `list --json` under
+        # its prefixed `name` (`maps-lean-leta`) but the events stream only
+        # carries the bare `leta`. The synthetic stopped record must be
+        # recognised as a duplicate of the alive entry and dropped -- exactly
+        # ONE record for that agent, not two.
+        os.environ["HCOM_FAKE_STOPPED_TEXT"] = "nonempty"
+        os.environ["HCOM_FAKE_EVENTS"] = "tagged_stop"
+        os.environ["HCOM_FAKE_TAGGED"] = "1"
+        for var in ("HCOM_FAKE_STOPPED_TEXT", "HCOM_FAKE_EVENTS", "HCOM_FAKE_TAGGED"):
+            self.addCleanup(os.environ.pop, var, None)
+
+        sessions = self.adapter.list_sessions(include_stopped=True)
+        leta_records = [
+            item
+            for item in sessions
+            if item.get("name") in ("leta", "maps-lean-leta")
+            or item.get("base_name") == "leta"
+        ]
+        self.assertEqual(len(leta_records), 1, leta_records)
+        # The surviving record is the alive one, unchanged.
+        self.assertEqual(leta_records[0]["name"], "maps-lean-leta")
+        self.assertEqual(leta_records[0]["status"], "active")
+
+    def test_stopped_synthetic_records_carry_bare_base_name(self):
+        os.environ["HCOM_FAKE_STOPPED_TEXT"] = "nonempty"
+        os.environ["HCOM_FAKE_EVENTS"] = "stopped"
+        self.addCleanup(os.environ.pop, "HCOM_FAKE_STOPPED_TEXT", None)
+        self.addCleanup(os.environ.pop, "HCOM_FAKE_EVENTS", None)
+        sessions = self.adapter.list_sessions(include_stopped=True)
+        by_name = {item["name"]: item for item in sessions}
+        self.assertEqual(by_name["nava-worker-1"]["base_name"], "nava-worker-1")
+        self.assertEqual(by_name["ghost"]["base_name"], "ghost")
+
     def test_list_sessions_include_stopped_nonjson_fallback_logs_once(self):
         os.environ["HCOM_FAKE_STOPPED_TEXT"] = "nonempty"
         self.addCleanup(os.environ.pop, "HCOM_FAKE_STOPPED_TEXT", None)
@@ -270,6 +327,78 @@ class HcomAdapterTests(unittest.TestCase):
         self.assertNotIn("TaskStore", text)
         self.assertNotIn("maps.db", text)
         self.assertNotIn("shell=True", text)
+
+
+class HcomDirPrecedenceTests(unittest.TestCase):
+    """DEC-003 bug 1, Option C: explicit --hcom-dir > inherited HCOM_DIR > .hcom.
+
+    resolved-path compare, warn-once on a real conflict.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+        self._saved = os.environ.get("HCOM_DIR")
+        self.addCleanup(self._restore_env)
+        os.environ.pop("HCOM_DIR", None)
+
+    def _restore_env(self):
+        if self._saved is None:
+            os.environ.pop("HCOM_DIR", None)
+        else:
+            os.environ["HCOM_DIR"] = self._saved
+
+    def test_default_no_flag_no_env_leaves_hcom_dir_unset(self):
+        # Byte-for-byte the pre-fix default path: hcom resolves `.hcom` against
+        # the subprocess cwd itself; the adapter injects nothing.
+        env = HcomAdapter(executable="hcom").environment()
+        self.assertNotIn("HCOM_DIR", env)
+
+    def test_no_flag_inherits_exported_hcom_dir_untouched(self):
+        os.environ["HCOM_DIR"] = str(self.root / "session-A" / ".hcom")
+        env = HcomAdapter(executable="hcom").environment()
+        self.assertEqual(env["HCOM_DIR"], str(self.root / "session-A" / ".hcom"))
+
+    def test_explicit_flag_with_conflicting_env_warns_once_and_wins(self):
+        os.environ["HCOM_DIR"] = str(self.root / "session-Y" / ".hcom")
+        explicit = self.root / "X" / ".hcom"
+        adapter = HcomAdapter(hcom_dir=explicit, executable="hcom")
+        with self.assertLogs("runtime.communication.hcom_adapter", level="WARNING") as cm:
+            env1 = adapter.environment()
+        self.assertEqual(env1["HCOM_DIR"], str(explicit.resolve()))
+        self.assertEqual(len(cm.output), 1)
+        self.assertIn(str(explicit.resolve()), cm.output[0])
+        self.assertIn(str(self.root / "session-Y" / ".hcom"), cm.output[0])
+        # warn-once: a second call emits nothing new.
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(
+                "runtime.communication.hcom_adapter", level="WARNING"
+            ):
+                adapter.environment()
+
+    def test_explicit_flag_matching_env_by_resolved_path_does_not_warn(self):
+        target = self.root / ".hcom"
+        target.mkdir()
+        os.environ["HCOM_DIR"] = str(target)  # absolute, normalized
+        # Explicit value points at the SAME directory via a non-normalized path.
+        adapter = HcomAdapter(hcom_dir=self.root / "." / ".hcom", executable="hcom")
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(
+                "runtime.communication.hcom_adapter", level="WARNING"
+            ):
+                adapter.environment()
+        self.assertEqual(adapter.environment()["HCOM_DIR"], str(target.resolve()))
+
+    def test_explicit_flag_no_env_sets_it_without_warning(self):
+        explicit = self.root / "X" / ".hcom"
+        adapter = HcomAdapter(hcom_dir=explicit, executable="hcom")
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(
+                "runtime.communication.hcom_adapter", level="WARNING"
+            ):
+                adapter.environment()
+        self.assertEqual(adapter.environment()["HCOM_DIR"], str(explicit.resolve()))
 
 
 if __name__ == "__main__":

@@ -379,9 +379,12 @@ class RecoveryTickCommandTests(CliTestBase):
 
         with mock.patch("runtime.recovery.production.HcomAdapter", factory):
             self.run_cli(["--db", str(self.db), "recovery-tick"])
+        # `hcom_dir=None` is the "caller named no directory" sentinel (DEC-003
+        # bug 1, Option C): HcomAdapter then inherits an exported HCOM_DIR and
+        # falls back to `.hcom` resolved against cwd only when nothing is set.
         self.assertEqual(
             captured,
-            {"hcom_dir": ".hcom", "executable": "hcom", "timeout_seconds": 30.0},
+            {"hcom_dir": None, "executable": "hcom", "timeout_seconds": 30.0},
         )
         # ...and those really are HcomAdapter's own defaults, not new values.
         import inspect
@@ -392,7 +395,7 @@ class RecoveryTickCommandTests(CliTestBase):
             name: parameter.default
             for name, parameter in inspect.signature(HcomAdapter).parameters.items()
         }
-        self.assertEqual(adapter_defaults["hcom_dir"], ".hcom")
+        self.assertIsNone(adapter_defaults["hcom_dir"])
         self.assertEqual(adapter_defaults["executable"], "hcom")
         self.assertEqual(adapter_defaults["timeout_seconds"], 30.0)
 

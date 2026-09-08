@@ -76,18 +76,50 @@ class HcomAdapter:
     def __init__(
         self,
         *,
-        hcom_dir: str | Path = ".hcom",
+        hcom_dir: str | Path | None = None,
         executable: str | Path = "hcom",
         timeout_seconds: float = 30.0,
     ):
-        self.hcom_dir = Path(hcom_dir).resolve()
+        # `hcom_dir=None` means "the caller did not name a directory" -- inherit
+        # whatever `HCOM_DIR` the process environment carries (which is how hcom
+        # itself ranks that variable: env vars are its top precedence tier), and
+        # fall back to hcom's own `.hcom` default only when nothing is set. A
+        # concrete value is an explicit operator/caller choice and wins over an
+        # inherited `HCOM_DIR`, warning once on a real (resolved-path) conflict.
+        # See work/notes/2026-09-07-dec003-bug1-hcom-dir-precedence.md (Option C).
+        self._hcom_dir_explicit = hcom_dir is not None
+        self.hcom_dir = Path(hcom_dir).resolve() if hcom_dir is not None else None
         self.executable = str(executable)
         self.timeout_seconds = float(timeout_seconds)
         self._warned_stopped_nonjson = False
+        self._warned_hcom_dir_conflict = False
 
     def environment(self) -> dict[str, str]:
         env = os.environ.copy()
-        env["HCOM_DIR"] = str(self.hcom_dir)
+        if not self._hcom_dir_explicit:
+            # No caller-named directory: leave whatever `os.environ.copy()`
+            # carried (an inherited `HCOM_DIR`, or nothing -- hcom then uses its
+            # own `.hcom` default resolved against the subprocess cwd). This is
+            # byte-for-byte the pre-fix behavior for the default path, where no
+            # `HCOM_DIR` is exported.
+            return env
+        explicit = str(self.hcom_dir)
+        inherited = os.environ.get("HCOM_DIR")
+        if (
+            inherited
+            and not self._warned_hcom_dir_conflict
+            and Path(inherited).resolve() != self.hcom_dir
+        ):
+            _LOGGER.warning(
+                "hcom directory conflict: inherited HCOM_DIR=%s but an explicit "
+                "--hcom-dir/hcom_dir=%s was given; using the explicit value %s. "
+                "Unset HCOM_DIR or drop --hcom-dir to silence this.",
+                inherited,
+                explicit,
+                explicit,
+            )
+            self._warned_hcom_dir_conflict = True
+        env["HCOM_DIR"] = explicit
         return env
 
     def _run(
@@ -207,11 +239,26 @@ class HcomAdapter:
                 # read structurally. Never raises -- a failure here degrades to
                 # the Part A alive-only behavior.
                 # work/notes/2026-09-03-item5-optionC-impl.md
-                alive_names = {str(item.get("name") or "") for item in alive}
+                # Dedup on both the tag-prefixed `name` and the bare
+                # `base_name`. hcom's alive `list --json` `name` is
+                # `"<tag>-<base_name>"` for a tagged agent while the
+                # events-derived synthetic record only ever knows the bare
+                # instance string, so a `name`-only comparison never recognised
+                # a tagged agent's synthetic stopped record as a duplicate of
+                # its still-listed alive entry (DEC-003 known-bug 2). Comparing
+                # `base_name` too closes that: drop a synthetic record whose
+                # bare name matches any alive record's `name` or `base_name`.
+                alive_keys = set()
+                for item in alive:
+                    for key in ("name", "base_name"):
+                        value = str(item.get(key) or "").strip()
+                        if value:
+                            alive_keys.add(value)
                 return alive + [
                     record
                     for record in self._stopped_records_from_events()
-                    if str(record.get("name") or "") not in alive_names
+                    if str(record.get("name") or "").strip() not in alive_keys
+                    and str(record.get("base_name") or "").strip() not in alive_keys
                 ]
         return self._parse_session_list(result.stdout)
 
@@ -238,6 +285,12 @@ class HcomAdapter:
         Shape mirrors the alive `hcom list --json` keys the recovery path reads
         (`name`, `session_id`, `status`, `process_bound`, `status_context`)
         plus namespaced advisory extras (`stopped`, `stop_reason`, `stop_ts`).
+        `base_name` is also set, equal to the bare `instance` string: the
+        events stream only ever carries the bare instance name, so this lets
+        the dedup in `list_sessions` and the `session_name -> record` lookup in
+        `RecoverySupervisor` match a tagged agent whose alive `list --json`
+        `name` is the tag-prefixed `"<tag>-<base_name>"` form (DEC-003
+        known-bug 2).
         """
         try:
             events = self.read_events(last=_STOPPED_EVENTS_LOOKBACK)
@@ -303,6 +356,7 @@ class HcomAdapter:
                 continue
             record: dict[str, Any] = {
                 "name": name,
+                "base_name": name,
                 "status": "inactive",
                 "process_bound": False,
                 "status_context": str(stop.get("reason") or "stopped"),

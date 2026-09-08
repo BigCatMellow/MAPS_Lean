@@ -516,6 +516,104 @@ class RecoveryRunIdResolutionTests(unittest.TestCase):
         self.assertEqual(incident["task_id"], task_id)
         self.assertIsNone(incident["run_id"])
 
+    def test_tagged_agent_binds_run_id_despite_prefix_vs_bare_name_mismatch(self):
+        # DEC-003 known-bug 2: the recovery binding holds the tag-prefixed
+        # display name (`maps-lean-leta`) while the option-C synthetic stopped
+        # record, rebuilt from the bare-only events stream, is keyed `leta`.
+        # Resolution must still bind the exact run_id, not record run_id: null.
+        task_id, run_id = self.make_active_run(worker="worker-1", session_id="sess-1")
+        sup = self.supervisor(
+            sessions=[
+                {
+                    "name": "maps-lean-leta",
+                    "base_name": "leta",
+                    "tag": "maps-lean",
+                    "session_id": "sess-1",
+                    "status": "active",
+                    "process_bound": True,
+                }
+            ]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "maps-lean-leta"}, now=self.now), []
+        )
+        # Now stopped: option C yields a BARE-named synthetic record.
+        self.hcom.sessions = [
+            {
+                "name": "leta",
+                "base_name": "leta",
+                "session_id": "sess-1",
+                "status": "inactive",
+                "process_bound": False,
+                "stopped": True,
+            }
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "maps-lean-leta"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["task_id"], task_id)
+        self.assertEqual(incident["run_id"], run_id)
+
+    def test_base_name_collision_across_tags_leaves_run_id_unresolved(self):
+        # Two agents share base_name `leta` under different tags and both are
+        # stopped (bare synthetic records). An exact-name match is impossible,
+        # so the base_name fallback must decline (two candidates) rather than
+        # mis-bind -- same outcome as before option C.
+        task_id, _run_id = self.make_active_run(worker="worker-1", session_id="sess-1")
+        sup = self.supervisor(
+            sessions=[
+                {
+                    "name": "maps-lean-leta",
+                    "base_name": "leta",
+                    "session_id": "sess-1",
+                    "status": "active",
+                    "process_bound": True,
+                }
+            ]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "maps-lean-leta"}, now=self.now), []
+        )
+        self.hcom.sessions = [
+            {"name": "leta", "base_name": "leta", "session_id": "sess-1",
+             "status": "inactive", "process_bound": False},
+            {"name": "review-leta", "base_name": "leta", "session_id": "sess-other",
+             "status": "inactive", "process_bound": False},
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "maps-lean-leta"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["task_id"], task_id)
+        self.assertIsNone(incident["run_id"])
+
+    def test_untagged_agent_resolution_unchanged_by_base_name_fallback(self):
+        # Regression: an untagged agent (name == base_name == binding) still
+        # resolves via the exact-name path; the base_name fallback is inert.
+        task_id, run_id = self.make_active_run(worker="worker-1", session_id="sess-1")
+        sup = self.supervisor(
+            sessions=[
+                {"name": "session-1", "base_name": "session-1", "session_id": "sess-1",
+                 "status": "active", "process_bound": True}
+            ]
+        )
+        self.assertEqual(
+            sup.observe_silent_stops({"worker-1": "session-1"}, now=self.now), []
+        )
+        self.hcom.sessions = [
+            {"name": "session-1", "base_name": "session-1", "session_id": "sess-1",
+             "status": "stopped", "process_bound": False}
+        ]
+        opened = sup.observe_silent_stops(
+            {"worker-1": "session-1"}, now=self.now + timedelta(seconds=5)
+        )
+        self.assertEqual(len(opened), 1)
+        incident = self.recovery_store.load()["incidents"][opened[0]]
+        self.assertEqual(incident["run_id"], run_id)
+
     def make_active_run_without_link(self, *, worker="worker-1"):
         created = self.task_store.create_task(title="x", project_id="proj-1")
         self.assertTrue(created.ok)
@@ -1015,6 +1113,214 @@ class RecoveryHarnessResumeCallSiteTests(unittest.TestCase):
             "update_contract(",
         ):
             self.assertNotIn(forbidden, text)
+
+
+class FakeHarnessServiceStop(FakeHarnessServiceResume):
+    """resume(...) fake extended with a stop(binding, session_ref, reason) method."""
+
+    def __init__(
+        self,
+        *,
+        resume_result=None,
+        stop_result=None,
+        stop_raises=False,
+    ):
+        super().__init__(result=resume_result)
+        self.stop_result = stop_result
+        self.stop_raises = stop_raises
+        self.stop_calls = []
+
+    def stop(self, binding, session_ref, reason):
+        self.stop_calls.append((binding, session_ref, reason))
+        if self.stop_raises:
+            raise RuntimeError("simulated harness stop failure")
+        if self.stop_result is not None:
+            return self.stop_result
+        return OperationResult.success(
+            "SESSION_STOPPED", "hcom stop request completed.", mutated=True
+        )
+
+
+class RecoveryHarnessStopCallSiteTests(RecoveryHarnessResumeCallSiteTests):
+    """Opt-in, default-off HarnessService.stop() call on the
+    canonical_denial_persistent terminal promotion.
+
+    Per work/notes/2026-09-06-harness-stop-callsite-design.md §3: a single
+    bounded, fail-closed .stop() for the binding this tick already resolved for
+    the resume attempt, gated behind terminate_on_canonical_denial (default
+    False). Reuses the resume-call-site scaffolding (real TaskStore lineage).
+    """
+
+    DENIAL = OperationResult.failure(
+        "HOOK_DENIED", "LEASE_EXPIRED: claim lease has expired"
+    )
+
+    def _drive_to_persistent_denial(self, harness, *, terminate):
+        """Run _MAX ticks so the 3rd promotes to canonical_denial_persistent.
+        Returns the final tick's actions list."""
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+            terminate_on_canonical_denial=terminate,
+        )
+        actions = None
+        for i in range(3):
+            actions = sup.tick(now=self.now + timedelta(seconds=600 * i))
+        self.final_incident = self.recovery_store.load()["incidents"][
+            actions[0]["incident_id"]
+        ]
+        return actions
+
+    def test_flag_off_persistent_denial_makes_no_stop_call(self):
+        """Default (flag off): byte-identical to before -- no .stop(), and the
+        audit-only harness_stop key is None on the terminal action."""
+        harness = FakeHarnessServiceStop(resume_result=self.DENIAL)
+        actions = self._drive_to_persistent_denial(harness, terminate=False)
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(actions[0]["reason"], "canonical_denial_persistent")
+        self.assertEqual(harness.stop_calls, [])
+        self.assertIsNone(actions[0]["harness_stop"])
+        self.assertEqual(self.final_incident["state"], "failed")
+        self.assertEqual(
+            self.final_incident["last_error"], "canonical_denial_persistent"
+        )
+
+    def test_flag_off_is_default(self):
+        """Not passing the kwarg at all is the same as passing False."""
+        harness = FakeHarnessServiceStop(resume_result=self.DENIAL)
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+        )
+        for i in range(3):
+            actions = sup.tick(now=self.now + timedelta(seconds=600 * i))
+        self.assertEqual(actions[0]["reason"], "canonical_denial_persistent")
+        self.assertEqual(harness.stop_calls, [])
+
+    def test_flag_on_persistent_denial_calls_stop_once(self):
+        """Flag on + resolvable binding: exactly one .stop() on the 3rd
+        consecutive denial, with the same binding/session_ref the resume path
+        resolved and the fixed recovery reason. Incident still ends failed."""
+        harness = FakeHarnessServiceStop(resume_result=self.DENIAL)
+        actions = self._drive_to_persistent_denial(harness, terminate=True)
+        self.assertEqual(len(harness.stop_calls), 1)
+        binding, session_ref, reason = harness.stop_calls[0]
+        self.assertEqual(reason, "recovery:canonical_denial_persistent")
+        # Same identity the resume attempts used.
+        self.assertEqual(binding.session_id, "sess-1")
+        self.assertEqual(session_ref.session_id, "sess-1")
+        self.assertEqual(session_ref.adapter, "hcom")
+        self.assertEqual(binding, harness.calls[-1][0])
+        self.assertEqual(session_ref, harness.calls[-1][1])
+        self.assertEqual(
+            actions[0]["harness_stop"],
+            {
+                "attempted": True,
+                "ok": True,
+                "code": "SESSION_STOPPED",
+                "summary": "hcom stop request completed.",
+            },
+        )
+        # Terminal outcome unchanged.
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(actions[0]["reason"], "canonical_denial_persistent")
+        self.assertEqual(self.final_incident["state"], "failed")
+
+    def test_flag_on_no_stop_before_the_ceiling(self):
+        """The two non-terminal denials before the ceiling never call .stop()
+        and never carry a harness_stop key."""
+        harness = FakeHarnessServiceStop(resume_result=self.DENIAL)
+        task_id, run_id = self.make_bound_run(attach=True)
+        self.schedule_due(task_id=task_id, run_id=run_id)
+        sup = self.supervisor(
+            sessions=[{"name": "session-1", "status": "stopped"}],
+            harness_service=harness,
+            terminate_on_canonical_denial=True,
+        )
+        for i in range(2):
+            actions = sup.tick(now=self.now + timedelta(seconds=600 * i))
+            self.assertEqual(actions[0]["action"], "resume_denied")
+            self.assertNotIn("harness_stop", actions[0])
+        self.assertEqual(harness.stop_calls, [])
+
+    def test_flag_on_stop_vetoed_by_guard_leaves_incident_failed(self):
+        """A guard veto of the stop (HOOK_DENIED / APPROVAL_REQUIRED) is itself
+        a fail-closed outcome: recorded, not retried, incident state untouched."""
+        veto = OperationResult.failure(
+            "HOOK_DENIED", "operator approval required to terminate this session"
+        )
+        harness = FakeHarnessServiceStop(
+            resume_result=self.DENIAL, stop_result=veto
+        )
+        actions = self._drive_to_persistent_denial(harness, terminate=True)
+        self.assertEqual(len(harness.stop_calls), 1)
+        self.assertEqual(
+            actions[0]["harness_stop"],
+            {
+                "attempted": True,
+                "ok": False,
+                "code": "HOOK_DENIED",
+                "summary": "operator approval required to terminate this session",
+            },
+        )
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(self.final_incident["state"], "failed")
+        self.assertEqual(
+            self.final_incident["last_error"], "canonical_denial_persistent"
+        )
+
+    def test_flag_on_stop_raising_is_caught(self):
+        """.stop() raising does not crash the tick; recorded as HARNESS_CALL_ERROR."""
+        harness = FakeHarnessServiceStop(
+            resume_result=self.DENIAL, stop_raises=True
+        )
+        actions = self._drive_to_persistent_denial(harness, terminate=True)
+        self.assertEqual(
+            actions[0]["harness_stop"],
+            {
+                "attempted": True,
+                "ok": False,
+                "code": "HARNESS_CALL_ERROR",
+                "summary": "simulated harness stop failure",
+            },
+        )
+        self.assertEqual(actions[0]["action"], "fail")
+        self.assertEqual(self.final_incident["state"], "failed")
+
+    def test_maybe_terminate_helper_fail_closed_paths(self):
+        """Direct helper coverage for the defensively-asserted paths that
+        tick()'s canonical-denial branch cannot reach today."""
+        harness = FakeHarnessServiceStop()
+        sup = self.supervisor(
+            sessions=[], harness_service=harness, terminate_on_canonical_denial=True
+        )
+        # Unresolvable binding -> no stop attempted, reason surfaced.
+        self.assertEqual(
+            sup._maybe_terminate_denied_session(None, None, "task_missing"),
+            {"attempted": False, "reason": "task_missing"},
+        )
+        self.assertEqual(harness.stop_calls, [])
+
+        # Flag off -> None (byte-identical contract).
+        sup_off = self.supervisor(
+            sessions=[], harness_service=harness, terminate_on_canonical_denial=False
+        )
+        self.assertIsNone(
+            sup_off._maybe_terminate_denied_session(None, None, "whatever")
+        )
+
+        # Flag on but no harness service at all.
+        sup_no_svc = self.supervisor(
+            sessions=[], terminate_on_canonical_denial=True
+        )
+        self.assertEqual(
+            sup_no_svc._maybe_terminate_denied_session(None, None, ""),
+            {"attempted": False, "reason": "no_harness_service"},
+        )
 
 
 class RecordingValidator:

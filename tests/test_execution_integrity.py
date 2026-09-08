@@ -149,6 +149,43 @@ class IntegrityTests(unittest.TestCase):
             [],
         )
 
+    def test_require_worktree_binding_without_base_revision_fails_loud(self):
+        # Regression: `--require-worktree-binding` alone used to be a silent
+        # no-op (run succeeded with `worktree: null`) because the whole
+        # worktree-identity block is gated on `base_revision is not None`.
+        task_id = self.make_active(outputs=["src"])
+        result = self.store.create_run_manifest(
+            task_id,
+            "worker",
+            repo_root=self.repo,
+            created_by="dispatcher",
+            context_paths=["context.md"],
+            readable_paths=["."],
+            writable_paths=["src"],
+            require_worktree_binding=True,
+        )
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.code, "WORKTREE_BINDING_REQUIRES_BASE_REVISION")
+        self.assertIn("base_revision", result.message)
+        self.assertEqual(
+            [
+                run
+                for run in self.store.trace_task(task_id)["runs"]
+                if run["task_id"] == task_id
+            ],
+            [],
+        )
+
+    def test_no_worktree_flag_without_base_revision_still_succeeds_unbound(self):
+        # No `--require-worktree-binding`: absent `base_revision` stays a
+        # legitimate unbound run, unchanged by the loud-failure branch above.
+        task_id = self.make_active()
+        manifest = self.make_run(task_id, writable_paths=["src"])
+
+        self.assertIsNone(manifest["base_revision"])
+        self.assertIsNone(manifest["worktree"])
+
     def test_writable_scope_cannot_exceed_task_outputs(self):
         task_id = self.make_active(outputs=["src"])
         result = self.store.create_run_manifest(

@@ -7,6 +7,11 @@ from pathlib import Path
 import sys
 
 from runtime.context_builder import build_context_plan
+from runtime.context_delivery import (
+    ContextDeliveryRenderError,
+    render_context_send_payload,
+)
+from runtime.harness.binding_resolution import resolve_harness_binding
 from runtime.evaluation import IncidentCategory, RegressionCaseError, freeze_regression_case
 from runtime.flow_handoff import flow_handoff
 from runtime.flow_release_check import flow_release_check
@@ -17,6 +22,7 @@ from runtime.recovery.production import (
     DEFAULT_HCOM_DIR,
     DEFAULT_HCOM_EXECUTABLE,
     DEFAULT_HCOM_TIMEOUT_SECONDS,
+    build_canonical_harness_service,
     run_recovery_tick_isolated,
 )
 from runtime.run_record import RunRecordError, build_run_record
@@ -172,6 +178,57 @@ def build_parser() -> argparse.ArgumentParser:
         help='actor recorded on the lineage link (default: maps-run-bind-session)',
     )
 
+    run_send_context = run_sub.add_parser(
+        'send-context',
+        help=(
+            'assemble a context-delivery send() payload for a bound run; with '
+            '--deliver-context, route it through the guarded HarnessService'
+        ),
+        description=(
+            'Roadmap 6.22 / work/notes/2026-09-06-harness-send-callsite-design.md '
+            "§2. Builds the run's read-only context plan, renders it into a "
+            'deterministic message payload carrying a per-item memory_provenance '
+            'annotation, and -- ONLY with --deliver-context plus '
+            '--enforce-canonical-run and --harness-project-id -- routes exactly '
+            'one HarnessService.send(binding, session_ref, payload) call, firing '
+            'the BEFORE_SEND memory-provenance guard. Without --deliver-context it '
+            'assembles and prints the payload and makes no send() call '
+            '(byte-identical to a dry run; no HarnessService is constructed). '
+            'Fail-closed: an unresolvable run/session binding, a non-ok send() '
+            'result (guard veto included), or a raised harness error is recorded '
+            'and the step reports failure -- never a silent "delivered", never a '
+            'retry, never a direct hcom send fallback.'
+        ),
+    )
+    run_send_context.add_argument(
+        'run_id',
+        help='run_id from `maps flow start` output (run_manifest.run_id)',
+    )
+    run_send_context.add_argument(
+        '--repo-root', default='.',
+        help='checkout the context plan and canonical-run state are built from',
+    )
+    run_send_context.add_argument(
+        '--from-name', default='maps-context-delivery',
+        help='from_name stamped on the send() payload (default: maps-context-delivery)',
+    )
+    run_send_context.add_argument(
+        '--deliver-context', action='store_true',
+        help=(
+            'actually route the send() (default off -- without it the payload '
+            'is only assembled and printed); requires --enforce-canonical-run '
+            'and --harness-project-id'
+        ),
+    )
+    run_send_context.add_argument(
+        '--enforce-canonical-run', action='store_true',
+        help='required with --deliver-context: compose the guarded HarnessService',
+    )
+    run_send_context.add_argument(
+        '--harness-project-id', default=None,
+        help='required with --deliver-context: project the hcom adapter binds to',
+    )
+
     freeze_case = sub.add_parser(
         'freeze-case',
         help='emit a deterministic frozen regression case from an exact Run Record',
@@ -227,7 +284,15 @@ def build_parser() -> argparse.ArgumentParser:
             'silent stops rather than guessing a binding)'
         ),
     )
-    recovery_tick.add_argument('--hcom-dir', default=DEFAULT_HCOM_DIR)
+    recovery_tick.add_argument(
+        '--hcom-dir',
+        default=DEFAULT_HCOM_DIR,
+        help=(
+            'explicit hcom project directory for this pass; when omitted, an '
+            'exported HCOM_DIR is inherited and `.hcom` is the final fallback '
+            '(precedence: explicit flag > inherited HCOM_DIR > .hcom)'
+        ),
+    )
     recovery_tick.add_argument('--hcom-executable', default=DEFAULT_HCOM_EXECUTABLE)
     recovery_tick.add_argument(
         '--hcom-timeout-seconds',
@@ -287,6 +352,23 @@ def build_parser() -> argparse.ArgumentParser:
             'block a resume when the pre-resume quick validation tier concretely '
             'fails (attempted+not-passed); requires --repo-root, default off. '
             'Advisory recording is unchanged without this flag'
+        ),
+    )
+    # Opt-in destructive termination of a persistently canonical-denied session
+    # (design note work/notes/2026-09-06-harness-stop-callsite-design.md §3).
+    # Default-off and deliberately a separate flag from --enforce-canonical-run:
+    # arming a destructive HarnessService.stop() is a strictly larger authority
+    # grant than arming a resume-denial. Fires only on the
+    # canonical_denial_persistent terminal promotion, fail-closed. Requires
+    # --enforce-canonical-run (there is no HarnessService to route a stop
+    # through otherwise). Never on the claim-piggybacked pass.
+    recovery_tick.add_argument(
+        '--terminate-denied-sessions',
+        action='store_true',
+        help=(
+            'on the canonical_denial_persistent terminal promotion, route one '
+            'bounded fail-closed HarnessService.stop() for the denied session; '
+            'requires --enforce-canonical-run, default off'
         ),
     )
 
@@ -363,11 +445,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         help='runtime limit as KEY=INT; repeat for multiple limits',
     )
-    flow_start.add_argument('--base-revision')
+    flow_start.add_argument(
+        '--base-revision',
+        help='Git revision to bind the run to; required companion of '
+        '--require-worktree-binding (worktree identity is only collected on '
+        'this path)',
+    )
     flow_start.add_argument(
         '--require-worktree-binding',
         action='store_true',
-        help='fail run creation unless repo-root has readable Git worktree identity',
+        help='fail run creation unless a readable Git worktree identity is '
+        'bound; requires --base-revision (run creation fails with '
+        'WORKTREE_BINDING_REQUIRES_BASE_REVISION if passed alone)',
     )
     flow_review_start = flow_sub.add_parser(
         'review-start',
@@ -581,7 +670,7 @@ def _dispatch_operator(store, args) -> int:
     raise AssertionError(args.operator_command)
 
 
-def _dispatch_run(store, args) -> int:
+def _dispatch_run(store, args, parser) -> int:
     if args.run_command == 'bind-session':
         # Direct guarded store write -- no HarnessService, no adapter. The store
         # method self-gates to the run's live ACTIVE claimant (RUN_NOT_OWNED /
@@ -594,7 +683,122 @@ def _dispatch_run(store, args) -> int:
             evidence_ref=args.evidence_ref,
             created_by=args.created_by,
         ))
+    if args.run_command == 'send-context':
+        return _dispatch_send_context(store, args, parser)
     raise AssertionError(args.run_command)
+
+
+def _dispatch_send_context(store, args, parser) -> int:
+    """`maps run send-context` -- roadmap 6.22 context-delivery call site.
+
+    Default-off: without --deliver-context this assembles and prints the payload
+    and constructs no HarnessService and makes no send() call. See the
+    subcommand description and
+    work/notes/2026-09-06-harness-send-callsite-design.md §2.
+    """
+    from typing import Mapping as _Mapping
+
+    if args.deliver_context and (
+        not args.enforce_canonical_run or not args.harness_project_id
+    ):
+        parser.error(
+            'run send-context --deliver-context requires --enforce-canonical-run '
+            'and --harness-project-id (there is no guarded HarnessService to '
+            'route send() through otherwise, so the flag would be a silent no-op)'
+        )
+
+    manifest = store.get_run_manifest(args.run_id)
+    if manifest is None:
+        return _emit(MutationResult(
+            False, 'RUN_NOT_FOUND', f'{args.run_id} has no run manifest'
+        ))
+    task_id = str(manifest['task_id'])
+    worker_id = str(manifest['worker_id'])
+
+    try:
+        plan = build_context_plan(store, task_id, repo_root=args.repo_root)
+    except ValueError as exc:
+        return _emit(MutationResult(False, 'INVALID_REPO_ROOT', str(exc)))
+    if plan is None:
+        return _emit(MutationResult(
+            False, 'NOT_FOUND', f'{task_id} does not exist'
+        ))
+
+    try:
+        payload = render_context_send_payload(plan, from_name=args.from_name)
+    except ContextDeliveryRenderError as exc:
+        return _emit(MutationResult(False, 'CONTEXT_RENDER_FAILED', str(exc)))
+
+    if not args.deliver_context:
+        # Default-off path: no HarnessService, no send() call.
+        return _emit({
+            'ok': True,
+            'code': 'CONTEXT_PAYLOAD_ASSEMBLED',
+            'run_id': args.run_id,
+            'task_id': task_id,
+            'delivered': False,
+            'payload': payload,
+        })
+
+    # Armed path: resolve the run/session binding via the one shared helper,
+    # route exactly one guarded send(). Fail-closed on every non-happy branch.
+    session_name = args.run_id
+    lineage = store.resolve_run_session(args.run_id)
+    if isinstance(lineage, _Mapping):
+        current = lineage.get('current')
+        if isinstance(current, _Mapping) and current.get('session_id'):
+            session_name = str(current['session_id'])
+
+    binding, session_ref, reason = resolve_harness_binding(
+        store,
+        {'run_id': args.run_id, 'task_id': task_id, 'worker_id': worker_id},
+        session_name,
+    )
+    if binding is None or session_ref is None:
+        return _emit({
+            'ok': False,
+            'code': 'CONTEXT_DELIVERY_FAILED',
+            'run_id': args.run_id,
+            'task_id': task_id,
+            'context_delivery': {
+                'attempted': False,
+                'reason': reason or 'binding_unresolved',
+            },
+        })
+
+    service = build_canonical_harness_service(
+        store, project_id=args.harness_project_id, repo_root=args.repo_root
+    )
+    try:
+        result = service.send(binding, session_ref, payload)
+    except Exception as exc:  # noqa: BLE001 - harness failure surfaces, never crashes
+        return _emit({
+            'ok': False,
+            'code': 'CONTEXT_DELIVERY_FAILED',
+            'run_id': args.run_id,
+            'task_id': task_id,
+            'context_delivery': {
+                'attempted': True,
+                'ok': False,
+                'code': 'HARNESS_CALL_ERROR',
+                'summary': str(exc),
+            },
+        })
+
+    context_delivery = {
+        'attempted': True,
+        'ok': bool(result.ok),
+        'code': str(result.code),
+        'summary': str(result.summary),
+    }
+    return _emit({
+        'ok': bool(result.ok),
+        'code': 'CONTEXT_DELIVERED' if result.ok else 'CONTEXT_DELIVERY_FAILED',
+        'run_id': args.run_id,
+        'task_id': task_id,
+        'context_delivery': context_delivery,
+        'harness_result': result.to_dict(),
+    })
 
 
 def _dispatch_skill(store, args) -> int:
@@ -695,7 +899,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == 'operator':
         return _dispatch_operator(store, args)
     if args.command == 'run':
-        return _dispatch_run(store, args)
+        return _dispatch_run(store, args, parser)
     if args.command == 'create':
         return _emit(store.create_task(
             task_id=args.task_id,
@@ -811,6 +1015,12 @@ def main(argv: list[str] | None = None) -> int:
                 'enforce without a validator, and it is never inferred from '
                 'the current directory)'
             )
+        if args.terminate_denied_sessions and not args.enforce_canonical_run:
+            parser.error(
+                '--terminate-denied-sessions requires --enforce-canonical-run '
+                '(there is no HarnessService to route a stop through without '
+                'it, so the flag would be a silent no-op)'
+            )
         return _emit(run_recovery_tick_isolated(
             store,
             bindings=bindings,
@@ -820,6 +1030,7 @@ def main(argv: list[str] | None = None) -> int:
             validation_repo_root=args.repo_root,
             harness_project_id=harness_project_id,
             enforce_validation=args.enforce_validation,
+            terminate_denied_sessions=args.terminate_denied_sessions,
         ))
     if args.command == 'heartbeat':
         return _emit(store.heartbeat(args.task_id, args.worker_id, lease_seconds=args.lease_seconds))
