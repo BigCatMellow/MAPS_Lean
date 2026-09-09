@@ -1,89 +1,107 @@
 # Development
 
-> **Live status snapshot, not authority.** GitHub `main` and
-> [`work/roadmaps/CAPABILITY_CHECKLIST.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md)
-> remain canonical. Open PRs and proposals do not change shipped behavior or the
-> canonical capability scoreboard.
+> **Status snapshot, not authority.** GitHub `main`, approved task/roadmap
+> state, and
+> [`CAPABILITY_CHECKLIST.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md)
+> remain canonical. Open PRs and proposals do not change current behavior.
 
-**Last refreshed:** 2026-09-09 ET  
-**Canonical `main`:** `25c7729`  
-**Capability scoreboard:** **19 DONE / 10 IN PROGRESS / 6 NOT STARTED**
+**Last refreshed:** 2026-09-09
 
-For the deeper working view, open the
+**Current canonical `main`:** `18b064c` — later than the capability
+reconciliation only by two Wiki-source commits
+
+**Canonical capability scoreboard:** **19 DONE / 10 IN PROGRESS / 6 NOT
+STARTED**, re-derived at `25c7729` by trajectory check #26
+
+For the deeper maintained view, open the
 [MAPS Lean Live Roadmap](https://docs.google.com/spreadsheets/d/1R8NqxfO1ZVvSl0up20fnTCcmXozXIRKbMWI9DQeDbC8/edit).
+The scheduled `MAPS Lean Daily` process maintains its Development tab; this page
+is a compact published snapshot.
+
+Back to [[Home]].
 
 ## Current focus
 
-MAPS_L is currently closing evidence gaps rather than adding replacement
-implementations for capabilities that already have production call sites.
+The immediate focus is row-specific enforcement evidence. Production call sites
+already exist for both items below, but implementation alone is not closure.
 
-| State | Work | What remains | Source |
+| State | Work | Required next evidence | Constraint |
 | --- | --- | --- | --- |
-| **NEXT** | 6.4 — destructive-action enforcement | Exercise the merged default-off `HarnessService.stop()` production path and capture the first real `BEFORE_DESTRUCTIVE_ACTION` evidence before considering the capability row complete. | [PR #306](https://github.com/BigCatMellow/MAPS_Lean/pull/306) |
-| **NEXT** | 6.22 — context-send / memory provenance | Exercise a real bound `maps run send-context --deliver-context` path and capture `BEFORE_SEND` + memory-provenance guard evidence before considering the capability row complete. | [PR #310](https://github.com/BigCatMellow/MAPS_Lean/pull/310) |
-| **PROPOSED** | Emergence supersession authority | PR #319 proposes allowing Emergence to challenge/redesign/supersede established MAPS_L mechanisms while keeping execution authority elsewhere. This is **not current behavior** until reviewed, authorized, and merged. | [PR #319](https://github.com/BigCatMellow/MAPS_Lean/pull/319) |
-| **DECISION NEEDED** | Trajectory follow-ups | Operator disposition remains useful for recurring insight/idea items surfaced by trajectory check #26, including the diff-equivalence review-revalidation idea. | [PR #318](https://github.com/BigCatMellow/MAPS_Lean/pull/318) |
+| **NEXT** | **6.4 destructive-action enforcement** | exercise the smallest safe real `--terminate-denied-sessions` path that reaches `BEFORE_DESTRUCTIVE_ACTION` | no DONE flip until that Hook's own evidence is reviewed; write/credential guard gaps also remain |
+| **NEXT** | **6.22 send/memory provenance** | exercise one safe bound-run `send-context --deliver-context` path and capture `BEFORE_SEND` plus provenance behavior | the command is default-off and fail-closed; no status flip from the merged caller alone |
+
+Relevant shipped call sites:
+[PR #306](https://github.com/BigCatMellow/MAPS_Lean/pull/306) and
+[PR #310](https://github.com/BigCatMellow/MAPS_Lean/pull/310).
+
+## In review / proposed
+
+| State | Item | Current verified position |
+| --- | --- | --- |
+| **IN REVIEW — NOT CURRENT** | [PR #319](https://github.com/BigCatMellow/MAPS_Lean/pull/319), Emergence mechanism-supersession authority | Its head is not in `main`. The branch now contains independent APPROVE evidence, a Tenth Seat YELLOW report recommending merge, and a recorded narrow/conditional operator substance ruling. Until merged, the Wiki documents this only as a proposal. |
+| **DECISION / DISPOSITION NEEDED** | trajectory-check #26 follow-ups | Recurring insight/idea items still need explicit promote, defer, revise, or kill dispositions; captured ideas do not authorize work by themselves. |
+
+No open PR is counted in the scoreboard above.
 
 ## Recently shipped
 
-- **Roadmap trajectory check #26 — SHIPPED.** Re-derived the canonical
-  scoreboard as **19 / 10 / 6**, confirmed row 6.16 (Git worktree isolation) as
-  DONE, and kept 6.4/6.22 IN PROGRESS because their first real hook exposures
-  remain unproven. [PR #318](https://github.com/BigCatMellow/MAPS_Lean/pull/318)
-- **Cross-root synthesis — SHIPPED.** Emergence can deliberately compare
-  separate roots/arcs/domains for meaningful transfer, contradiction,
-  composition, dependencies, or alternative frames. This did **not** expand
-  Capture/Promote authority. [PR #315](https://github.com/BigCatMellow/MAPS_Lean/pull/315)
-- **HCOM_DIR precedence — SHIPPED.** Explicit `--hcom-dir` now wins over an
-  inherited shell `HCOM_DIR`, which wins over the `.hcom` default; real
-  conflicts warn once. [PR #317](https://github.com/BigCatMellow/MAPS_Lean/pull/317)
-- **Worktree-bound canonical enforcement — SHIPPED.** Real worktree mismatch
-  and unavailable paths were exercised and row 6.16 is canonically DONE.
-  [PR #304](https://github.com/BigCatMellow/MAPS_Lean/pull/304)
-- **Production context-send path — SHIPPED, capability still incomplete.**
-  `maps run send-context` provides a guarded default-off `HarnessService.send()`
-  production route. The call site is shipped; row 6.22 still needs first real
-  exposure evidence. [PR #310](https://github.com/BigCatMellow/MAPS_Lean/pull/310)
-- **Production stop path — SHIPPED, capability still incomplete.** A bounded
-  default-off `HarnessService.stop()` caller exists for persistent canonical
-  denial. Row 6.4 still needs first real hook exposure evidence.
-  [PR #306](https://github.com/BigCatMellow/MAPS_Lean/pull/306)
+- **Wiki Development surface — SHIPPED.** Commits `d042ab2` and `18b064c`
+  added the status page and top-level navigation without changing capability
+  state.
+- **Trajectory check #26 — SHIPPED.** [PR #318](https://github.com/BigCatMellow/MAPS_Lean/pull/318)
+  re-derived **19 / 10 / 6**, confirmed 6.16 DONE, and kept 6.4/6.22 IN
+  PROGRESS pending their own first-exposure evidence.
+- **Cross-root synthesis — SHIPPED.** [PR #315](https://github.com/BigCatMellow/MAPS_Lean/pull/315)
+  added deliberate comparisons across roots/arcs/domains without expanding
+  Capture or Promote authority.
+- **`HCOM_DIR` precedence — SHIPPED.** [PR #317](https://github.com/BigCatMellow/MAPS_Lean/pull/317)
+  established explicit flag > inherited environment > `.hcom`, with a one-time
+  warning on resolved-path conflict.
+- **Tagged hcom session resolution — SHIPPED.** [PR #313](https://github.com/BigCatMellow/MAPS_Lean/pull/313)
+  reconciled display names and `base_name` while refusing ambiguity.
+- **Worktree requirement failure — SHIPPED.** [PR #308](https://github.com/BigCatMellow/MAPS_Lean/pull/308)
+  made `--require-worktree-binding` fail with
+  `WORKTREE_BINDING_REQUIRES_BASE_REVISION` when `--base-revision` is absent;
+  [PR #314](https://github.com/BigCatMellow/MAPS_Lean/pull/314) aligned related
+  help text.
+- **Guarded context-send caller — SHIPPED, capability incomplete.**
+  [PR #310](https://github.com/BigCatMellow/MAPS_Lean/pull/310) added the
+  default-off `HarnessService.send()` route; 6.22 still lacks the live Hook
+  exposure required for DONE.
+- **Guarded stop caller — SHIPPED, capability incomplete.**
+  [PR #306](https://github.com/BigCatMellow/MAPS_Lean/pull/306) added bounded
+  optional session termination after persistent canonical denial; 6.4 still
+  lacks the destructive Hook's own exposure and broader guard work.
 
-## Capability-area snapshot
+## Broad capability areas
 
-| Area | Current read | Development direction |
+| Area | Current read | Main limitation / next direction |
 | --- | --- | --- |
-| **Harness Mechanics** | Advanced / active | Prove remaining real enforcement exposures rather than add duplicate call sites. |
-| **Procedural Knowledge & Skills** | Advanced | S1–S6 are DONE; later semantic retrieval/routing work remains separate from the completed explicit-first routing slice. |
-| **Environment & Reproducibility** | Mixed / in progress | Worktree-bound execution is materially stronger and row 6.16 is DONE; broader environment/deployment automation remains incomplete. |
-| **Agentic Security** | Advanced / active | Canonical resume denial and worktree guards have real evidence; 6.4 and 6.22 remain row-specific evidence gaps. |
-| **Learning & Evaluation** | Active | Trajectory, triage, regression freezing, emergence, and cross-root synthesis are operating; governance expansion in #319 is still proposed. |
-| **Portable Deployment** | Mixed / active | Significant canonical-run/worktree infrastructure exists, but broader portable deployment and durable project-memory work remain incomplete/deferred. |
+| Harness mechanics | advanced, active | finish row-specific destructive Hook evidence |
+| Skills | explicit-first routing DONE; supply-chain controls active | no semantic synonym routing; 6.10 remains incomplete |
+| Environment/worktrees | worktree enforcement DONE; wider environment work mixed | no snapshot/rehydration; some routing/validation evidence still partial |
+| Security | canonical denial and incident corpus demonstrated | 6.4 and 6.22 need distinct Hook exposures; credential broker not started |
+| Flow lifecycle | five verbs implemented | no complete recovery/replacement lifecycle; 6.21 remains IN PROGRESS |
+| Learning/evaluation | trajectory, triage, regression cases, Emergence, and cross-root synthesis operate | research experiments and controlled refinement remain incomplete |
+| Portable deployment | design and preflight planning exist | no real external pilot yet |
 
 ## Likely next sequence
 
-1. Produce the first real **6.4** destructive-action hook exposure.
-2. Produce the first real **6.22** send/memory-provenance hook exposure.
-3. Reconcile the exact capability rows from observed evidence; do not infer DONE
-   from implementation count.
-4. Review/disposition **PR #319** as a governance proposal, keeping proposal
-   authority separate from execution authority.
-5. Select the next capability cluster from merged evidence rather than from an
-   old planned sequence.
+1. Produce and review the first real 6.4 destructive-action Hook exposure.
+2. Produce and review the first real 6.22 send/provenance Hook exposure.
+3. Reconcile only the exact checklist rows supported by those observations.
+4. Finish disposition/merge handling for #319 while keeping it proposal-only
+   until it lands.
+5. Select the next capability increment from the updated checklist and approved
+   roadmap rather than from an older planned order.
 
-## Development surfaces
+## Live development surfaces
 
-- [Live Roadmap — Overview](https://docs.google.com/spreadsheets/d/1R8NqxfO1ZVvSl0up20fnTCcmXozXIRKbMWI9DQeDbC8/edit)
-- [Canonical capability checklist](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md)
-- [Agent-harness capability roadmaps](https://github.com/BigCatMellow/MAPS_Lean/tree/main/work/roadmaps/agent-harness-capabilities)
+- [MAPS Lean Live Roadmap](https://docs.google.com/spreadsheets/d/1R8NqxfO1ZVvSl0up20fnTCcmXozXIRKbMWI9DQeDbC8/edit)
+- [Capability checklist](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md)
+- [Roadmap router](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/README.md)
+- [Agent-harness roadmaps](https://github.com/BigCatMellow/MAPS_Lean/tree/main/work/roadmaps/agent-harness-capabilities)
 - [Open pull requests](https://github.com/BigCatMellow/MAPS_Lean/pulls)
 
-## Status-reading rule
-
-A useful distinction in current MAPS_L development is:
-
-> **Production code may exist while the capability remains IN PROGRESS.**
-
-Several roadmap rows require observed production evidence before they can be
-called DONE. The Development page therefore distinguishes implementation from
-closure and **SHIPPED** behavior from **PROPOSED** behavior.
+Future refreshes should preserve these sections and replace their contents from
+verified current sources; the page should not grow into a second roadmap.

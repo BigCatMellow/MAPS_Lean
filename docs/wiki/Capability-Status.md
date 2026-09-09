@@ -1,123 +1,116 @@
-# Capability Status — How to Tell What Is Real
+# Capability Status
 
-This page does **not** pin a dated subsystem inventory. That was useful during a
-specific audit, but it became stale and could cause a fresh agent to operate on
-old assumptions.
+> **Snapshot, not authority.** The canonical cross-roadmap status source is
+> [`work/roadmaps/CAPABILITY_CHECKLIST.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md).
+> Re-check production code, tests, CI, and merged history before a consequential
+> decision.
 
-Back to [[Home]].
+**Last capability reconciliation:** trajectory check #26 at `25c7729`
 
-## Live capability truth belongs in the repository
+**Current Wiki-audit `main`:** `18b064c` (only later Wiki-source commits)
 
-When deciding whether MAPS_L can actually do something today, use this evidence
-order:
+**Scoreboard:** **19 DONE / 10 IN PROGRESS / 6 NOT STARTED**
 
-```text
-production call path / real behavior
-        ↓
-current tests + CI evidence
-        ↓
-current runtime/source implementation
-        ↓
-CAPABILITY_CHECKLIST status + evidence
-        ↓
-roadmap/design notes
-        ↓
-wiki summaries
-```
+Back to [[Home]]. For near-term development work, see [[Development]].
 
-The canonical cross-roadmap status surface is
-[`work/roadmaps/CAPABILITY_CHECKLIST.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md).
-Re-verify important claims against current code/tests before making a
-consequential decision.
+## How to read a status
 
-Do not use an old commit count, PR number, test count, or wiki snapshot as live
-truth.
+- **DONE** — the capability row's own exit gate is satisfied and reconciled.
+- **IN PROGRESS** — real code/tests or design may exist, but the row's stated
+  exit evidence is incomplete.
+- **NOT STARTED** — the current checklist found no implementation that satisfies
+  the row.
 
----
+These labels apply to the named row, not every possible future version of the
+idea. For example, Git worktree isolation is DONE even though automated
+snapshot/rehydration is a separate NOT STARTED row.
 
-## Three questions for every capability
+## Canonical capability scoreboard
 
-A fresh operator should distinguish:
+| Capability | Status |
+| --- | --- |
+| 6.1 Task truth, ownership and authority | **DONE** |
+| 6.2 Provider-neutral Harness API | **DONE** |
+| 6.3 Normalized ACI results | **DONE** |
+| 6.4 Deterministic Hooks/Interceptors | **IN PROGRESS** |
+| 6.5 Immediate deterministic validation | **DONE** |
+| 6.6 Explicit run/session/helper/recovery lineage | **DONE** |
+| 6.7 Explainable waits | **DONE** |
+| 6.8 Reusable Agent Skills | **DONE** |
+| 6.9 Skill routing and progressive disclosure | **DONE** |
+| 6.10 Skill provenance, trust and quarantine | **IN PROGRESS** |
+| 6.11 Context budgets / progressive context | **IN PROGRESS** |
+| 6.12 Capability Packs | **NOT STARTED** |
+| 6.13 EnvironmentSpec | **DONE** |
+| 6.14 EnvironmentFingerprint and compatibility | **DONE** |
+| 6.15 Harness/compute separation | **DONE** |
+| 6.16 Git worktree isolation | **DONE** |
+| 6.17 Sandboxes/snapshots/rehydration | **NOT STARTED** |
+| 6.18 Revision-bound review/evidence | **DONE** |
+| 6.19 Task-scoped helper continuity | **IN PROGRESS** |
+| 6.20 Advisory NO_PROGRESS detection | **IN PROGRESS** |
+| 6.21 Deterministic `maps flow` lifecycle operations | **IN PROGRESS** |
+| 6.22 Memory trust classes | **IN PROGRESS** |
+| 6.23 Agentic threat model and adversarial regression corpus | **DONE** |
+| 6.24 Least-privilege capability intersection | **IN PROGRESS** |
+| 6.25 Credential broker | **NOT STARTED** |
+| 6.26 Portable Run Records / trajectories | **DONE** |
+| 6.27 Outcome-linked incident taxonomy | **DONE** |
+| 6.28 Frozen regression corpus | **DONE** |
+| 6.29 Three-layer evaluation | **DONE** |
+| 6.30 Operational learning lifecycle | **DONE** |
+| 6.31 Controlled harness refinement | **NOT STARTED** |
+| 6.32 Time-travel / fork debugging | **NOT STARTED** |
+| 6.33 Semantic retrieval / query expansion | **IN PROGRESS — evaluation only** |
+| 6.34 Mission / multi-task goal object | **NOT STARTED** |
+| 6.35 Portable deployment to external projects | **IN PROGRESS** |
 
-1. **Does the method/concept exist?** Documentation or design may answer yes.
-2. **Is there implemented/tested machinery?** Source and tests may answer yes.
-3. **Is it production-wired on the path I need?** Only a real call path or
-   executed behavior answers this.
+## Important IN PROGRESS distinctions
 
-A capability can pass #1 and #2 while still being unusable as an autonomous
-production dependency.
-
-Useful shorthand when auditing:
-
-- **wired** — implemented, tested, and invoked by a real active path;
-- **implemented/tested** — real machinery exists but the needed production path
-  is not proven;
-- **design/scaffold** — documentation, schema, enum/type, or planned mechanism
-  without the required behavior.
-
-These are evidence descriptions, not replacement status labels for the canonical
-checklist.
-
----
-
-## Capability map: what each part is for
-
-| Capability | Use it for | Do not confuse it with |
+| Row | What exists | Why it is not DONE |
 | --- | --- | --- |
-| Operating contract + playbook | stable methods, task shaping, review, routing principles | runtime enforcement |
-| Task/roadmap records | human-readable objective, scope, criteria, decisions, evidence | concurrent mutable task truth |
-| SQLite task state | guarded claims, lifecycle, ownership/review facts | project permission or planning |
-| LangGraph | deterministic route selection/checkpointing from known state | authority, product planning, or parent ownership |
-| hcom | messages/session transport | task truth or authority |
-| RnS | bounded recovery of known active sessions | inventing/reassigning new work |
-| Helpers / agent slots | bounded delegated execution/research/review | parent ownership |
-| Execution integrity | bind consequential runs to exact contract/context/scope/proof | new permission |
-| Model capability routing | choose a competent worker/harness/effort | permission to perform an action |
-| Skills / retrieval / learning mechanisms | focused context or evaluated reusable capability when live | automatic authority or truth promotion |
+| **6.4 Hooks** | Hook registry, canonical-run enforcement, destructive-action guard, and an opt-in production stop caller | `BEFORE_DESTRUCTIVE_ACTION` still lacks its own real exposure; wider write/credential guards are incomplete |
+| **6.10 Skill trust** | provenance catalog, quarantine lifecycle, real flow-start refusal, operator-driven transitions, capability sidecars | third-party/countersign and wider activation/enforcement work remain |
+| **6.11 context budgets** | budget classes and an on-demand Skill-resource surface | budget labels do not generally drive downstream retrieval/loading |
+| **6.19 helper continuity** | exact-match metadata/TTL reuse candidates | no provider health check or automatic helper resume |
+| **6.20 NO_PROGRESS** | read-only advisory from caller-supplied evidence | no provider integration, incident state, or recovery action |
+| **6.21 flows** | five deterministic verbs with explicit stop boundaries | no full recover/replacement-session lifecycle; several steps remain intentionally separate |
+| **6.22 memory trust** | LOAD/WITHHOLD/DENY gate, provenance renderer, guarded production send caller | no first live `BEFORE_SEND`/memory-provenance exercise yet |
+| **6.24 least privilege** | task-policy/Skill-capability intersection and environment-report routing inputs | enforcement is partial; path-level and broader policy mappings remain incomplete |
+| **6.33 semantic retrieval** | an evaluation candidate and tests | explicitly not a production context route |
+| **6.35 portable deployment** | audit and design through first-pilot planning | no real external pilot has been completed |
 
-For component boundaries, use
-[`playbook/CONTROL_PLANE.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/playbook/CONTROL_PLANE.md)
-and the current `runtime/` + `tests/` tree.
+## Evidence order
 
----
-
-## Before depending on a runtime feature
-
-Check all of these when material:
+When a claim matters, use:
 
 ```text
-1. Is the feature present in current main?
-2. Is there a test for the behavior I need?
-3. Is there a real caller/path, not only a unit test?
-4. Does the path preserve MAPS_L authority/ownership invariants?
-5. Is the capability gated, experimental, or evidence-limited by the roadmap?
-6. What happens on failure or missing evidence?
+observed production behavior
+-> current tests and CI
+-> current merged implementation
+-> capability checklist status/evidence
+-> roadmap or design
+-> Wiki summary
 ```
 
-If #3 is unknown, treat “production-wired” as unverified.
+Ask three separate questions:
 
----
+1. Does the method or concept exist?
+2. Does implementation and test machinery exist?
+3. Is the required production path actually wired and exercised?
 
-## Gated work is not an invitation
+Only the evidence required by the row's own exit gate supports a status change.
+A production caller can ship while the wider row remains IN PROGRESS.
 
-`NOT STARTED`, `TRIGGERED`, `EVIDENCE-GATED`, deferred, or explicitly rejected
-work must be interpreted from the **current roadmap/checklist**, not from this
-wiki.
+## Deliberate exclusions from current behavior
 
-An orchestration operator should make forward progress inside the approved
-objective, but initiative does not mean crossing a deliberate gate. If a
-candidate action would create a new objective or cross the approved permission
-envelope, that is a reauthorization boundary.
+- [PR #319](https://github.com/BigCatMellow/MAPS_Lean/pull/319) is not in
+  `main`; established-mechanism supersession authority is not current behavior.
+- Semantic synonym/query-expansion routing is not in production.
+- Capability Packs, credential brokering, snapshots/rehydration, controlled
+  harness refinement, time-travel debugging, and a Mission object are not
+  implemented.
+- Portable deployment has not been proven in a real external target project.
 
----
-
-## For a fresh agent
-
-Unless your task is specifically to develop MAPS_L itself, you usually do not
-need the entire capability inventory. Start with the method-only/orchestrated
-workflow on [[Home]], then inspect runtime capability only if the task actually
-needs the control plane.
-
-The best use of MAPS_L is not “turn on every subsystem.” It is **apply the
-smallest reliable mechanism that removes a real coordination or verification
-failure mode.**
+The checklist contains the row-by-row evidence and is intentionally more
+detailed than this page.
