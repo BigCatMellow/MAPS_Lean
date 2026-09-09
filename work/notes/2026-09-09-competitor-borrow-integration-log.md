@@ -25,7 +25,7 @@ For each candidate mechanism or failure lesson:
 
 ## Collision rule
 
-Before each implementation/test slice, re-read live open PR surfaces. Do not edit files owned by active non-coordinated lanes. As of this first slice, PRs #319–#323 own Emergence, the 6.4 exposure exercise, Wiki reconciliation, Program Steering/roadmap reconciliation, and the dated competitor research import respectively. This slice intentionally touches none of those paths.
+Before each implementation/test slice, re-read live open PR surfaces. Do not edit files owned by active non-coordinated lanes. The active surface grew while this work was running: #319 owns Emergence authority; #320 owns the 6.4 destructive-action exposure; #321 owns Wiki reconciliation; #322 owns Program Steering/roadmap reconciliation; #323 owns the dated competitor research import; #324 owns H4 resume-validation exposure; #325 owns E5 recovery-compatibility design. Borrow-integration slices must stay outside those files unless explicitly coordinated.
 
 ---
 
@@ -64,7 +64,7 @@ Existing `tests/test_state_store.py` already proves:
 
 ### Coverage gap found
 
-The existing recovery test stops after asserting that worker B became the claimant. It does **not** explicitly freeze the competitor-derived stale-owner property:
+The existing recovery test stopped after asserting that worker B became the claimant. It did **not** explicitly freeze the competitor-derived stale-owner property:
 
 ```text
 worker A claim
@@ -76,16 +76,22 @@ worker A claim
 → B remains canonical claimant
 ```
 
-The runtime already appears to satisfy this. Therefore this slice is **test hardening only**, not a runtime change and not evidence that MAPS needs a new fencing-token schema.
+The runtime already satisfied this. Therefore this slice is **test hardening only**, not a runtime change and not evidence that MAPS needs a new fencing-token schema.
 
-### Intended change
+### Change made
 
-Add one focused regression to `tests/test_state_store.py` proving that after takeover:
+PR #326 adds `test_superseded_claimant_cannot_heartbeat_or_submit_after_takeover` to `tests/test_state_store.py`, proving:
 
 - old worker heartbeat returns `NOT_CLAIM_OWNER`;
 - old worker submission returns `NOT_CLAIM_OWNER`;
-- replacement worker remains canonical claimant;
-- replacement worker can still renew its lease and submit.
+- replacement worker remains canonical claimant at attempt 2;
+- replacement worker can renew its lease and submit successfully.
+
+### Verification
+
+- GitHub Runtime stack tests on PR #326 head `6c2df5e6a35ac8375738bc614533b3d4738e7360`: `SUCCESS`.
+- Review-evidence workflow: expected failure because exact-head independent review evidence is not yet present.
+- No `runtime/`, schema, capability-status, or roadmap change.
 
 ### Explicit limitation
 
@@ -93,8 +99,65 @@ This test proves fencing of **MAPS canonical SQLite mutations** through claimant
 
 ### Status
 
-`IN PROGRESS` — test to be added and independently reviewed. No roadmap/checklist status change.
+`IMPLEMENTED / CI PASS — INDEPENDENT REVIEW PENDING` on PR #326. No roadmap/checklist status change.
 
-### Next candidate after this slice
+---
 
-Inspect 6.20 / `tests/test_no_progress.py` against the competitor-derived property `process alive != useful progress != valid ownership`. Add only a discriminating regression if current semantics already implement the property; otherwise route the gap to the existing 6.20 owner.
+## Slice 02 — process liveness is not necessarily useful progress
+
+### Upstream evidence
+
+Gas City, Optio, Restate, Symphony, and the Pilot failure catalogue repeatedly distinguish:
+
+```text
+process/session alive
+!=
+valid ownership
+!=
+useful forward progress
+```
+
+Relevant Pilot evidence is routed through PR #323's `evaluation-and-reliability` and `agent-harness` notes plus the pinned production `TEST_CATALOG.md`.
+
+### Current MAPS_L design
+
+Current owner: capability 6.20 and `runtime/no_progress.py::no_progress_advisory`.
+
+The implementation is deliberately advisory/read-only. It currently treats any of these caller-supplied changes as a progress signal that clears `NO_PROGRESS`:
+
+- heartbeat changed;
+- task status changed;
+- output changed.
+
+This is not an accidental coding shortcut. The original durable task `work/tasks/no-progress-advisory.md` explicitly defines the goal as detecting repeated equivalent activity without **task, artifact, heartbeat, or explicit-wait progress**. Its acceptance criteria likewise require `CLEAR` when a progress signal changes.
+
+### Competitor-derived challenge
+
+The upstream incidents suggest heartbeat/liveness should not automatically be equivalent to *useful* progress. A worker can continue heartbeating while stuck in an unproductive loop.
+
+However, changing `heartbeat_changed` from a progress signal to a liveness-only signal would alter an explicitly accepted 6.20 behavior. That is a design change, not test hardening.
+
+### Disposition
+
+`CHALLENGE / ROUTE — NO CODE CHANGE IN BORROW-INTEGRATION LANE`.
+
+Do not smuggle this change through a regression test. When 6.20 is actively shaped again, the smallest discriminating evaluation should compare at least:
+
+```text
+same activity + same progress key + heartbeat changes only
+```
+
+under:
+
+- current policy: `CLEAR / HEARTBEAT_CHANGED`;
+- candidate policy: heartbeat proves liveness but repeated unchanged work still yields advisory `NO_PROGRESS`.
+
+Use frozen/real stall incidents to evaluate false positives before changing semantics. The advisory-only nature means this can be tested safely, but the owning capability should make the decision.
+
+### Status
+
+`DESIGN ASSUMPTION IDENTIFIED — DEFERRED TO 6.20 OWNER`. No implementation, test, or capability-status change.
+
+### Next candidate
+
+Audit independent-review/effective-runtime evidence against the Taskplane/Optio lesson that a requested reviewer role/model/config is not proof of what process actually performed the review. Prefer test-only strengthening if MAPS already records sufficient lineage; otherwise route the missing evidence field to the existing review/harness owner.
