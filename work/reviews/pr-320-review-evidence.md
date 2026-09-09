@@ -1,5 +1,5 @@
 reviewer: maps-320-review-bozo
-head_sha: 48f84b9889ba2eddfa755af145a11149f4bc0688
+head_sha: 0bb031147b456ff3743bf07bde606a4283ab3039
 independent: true
 verdict: APPROVE
 summary: |
@@ -72,3 +72,14 @@ summary: |
 
   VERDICT: APPROVE. Coordinator should rebase the branch onto current origin/main
   (docs-only, trivial) and rebind this evidence before merge.
+
+  REVALIDATION 2026-09-09 (leto, coordinator; zero-diff tier): branch brought up
+  to date by `git merge origin/main` (merge commit 0bb0311; NOT rebase+force-push,
+  which is classifier-blocked in this env). origin/main added only two wiki-nav
+  commits (d042ab2, 18b064c) since 25c7729. The 3 reviewed files
+  (work/notes/2026-09-09-6.4-destructive-action-first-exposure.md,
+  work/regression-cases/CASE-3da6464c….json, work/roadmaps/CAPABILITY_CHECKLIST.md)
+  are byte-identical to bozo's reviewed head 48f84b9: `git diff 48f84b9 0bb0311 --
+  <those 3 paths>` is empty. bozo's APPROVE stands. head_sha rebound 48f84b9 →
+  0bb0311; reviewer unchanged; one value per key; this evidence commit is the
+  branch tip.
