@@ -1,0 +1,340 @@
+{
+  "case_id": "CASE-3da6464c1565c1b56915c181301cf57ec24c40253e6a2fe426843ee0276ad924",
+  "case_kind": "MAPS_FROZEN_REGRESSION_CASE",
+  "case_version": 1,
+  "content_sha256": "3da6464c1565c1b56915c181301cf57ec24c40253e6a2fe426843ee0276ad924",
+  "expected_properties": [
+    "recovery-stop-fail-closed-outside-task-envelope",
+    "recovery-stop-fires-before-destructive-action-on-canonical-denial-ceiling",
+    "recovery-stop-flag-off-is-byte-identical-minus-harness-stop"
+  ],
+  "frozen_by": "nazi",
+  "incident_category": "RECOVERY_FAILURE",
+  "promotion": {
+    "automatic": false,
+    "reason": "frozen cases are evaluation evidence only; passing a case cannot self-authorize a harness/policy/routing change"
+  },
+  "sanitized_fixture": "{\n  \"description\": \"6.4 destructive-action first-exposure: a real hcom session bound via `maps run bind-session` to an EXPLICIT run/session lineage, killed (SIGTERM) while its task claim was ACTIVE, then left unattended past its lease AND past the silent-stop incident's resume_after window. Five recovery-tick --enforce-canonical-run passes (baseline observed alive, transition observed not-alive opening the incident, then three consecutive resume attempts each denied by CanonicalRunGuard). The third consecutive canonical denial promotes the incident to failed/canonical_denial_persistent; with --terminate-denied-sessions armed, that terminal promotion routes one bounded HarnessService.stop(), firing BEFORE_DESTRUCTIVE_ACTION -> DestructiveExternalActionGuard for the first time in a real pass. The stalled task's policy envelope has destructive_action=false, so the guard DENIES (ACTION_OUTSIDE_TASK_ENVELOPE) -- a fail-closed outcome that leaves the incident terminal state unchanged.\",\n  \"preconditions\": {\n    \"task_status_at_incident\": \"ACTIVE\",\n    \"task_lease_expired\": true,\n    \"run_session_lineage_state\": \"EXPLICIT\",\n    \"session_liveness_transition_observed\": \"live->not-live\",\n    \"consecutive_canonical_denials_before_stop\": 3,\n    \"terminate_denied_sessions_flag\": true,\n    \"stalled_task_policy_destructive_action\": false\n  },\n  \"pass_3_action_dict\": {\n    \"action\": \"fail\",\n    \"attempt\": 0,\n    \"error\": \"canonical_denial_persistent\",\n    \"reason\": \"canonical_denial_persistent\",\n    \"environment_evidence\": null,\n    \"harness_resume\": {\"attempted\": true, \"code\": \"HOOK_DENIED\", \"ok\": false, \"summary\": \"Deterministic Hook denied the operation.\"},\n    \"harness_stop\": {\"attempted\": true, \"code\": \"HOOK_DENIED\", \"ok\": false, \"summary\": \"Deterministic Hook denied the operation.\"},\n    \"resume_validation\": {\"attempted\": false, \"reason\": \"no_spec_bound\"},\n    \"incident_state_after\": \"failed\",\n    \"canonical_denials\": 3\n  },\n  \"before_destructive_action_hook_chain\": {\n    \"event\": \"before_destructive_action\",\n    \"context_destructive\": true,\n    \"context_external\": false,\n    \"invocation\": {\n      \"hook_id\": \"destructive-external-action:before_destructive_action\",\n      \"directive\": \"DENY\",\n      \"reason\": \"Declared destructive action is outside the task's policy envelope.\",\n      \"guard_code\": \"ACTION_OUTSIDE_TASK_ENVELOPE\",\n      \"action_classes\": \"destructive\"\n    },\n    \"chain_permitted\": false\n  },\n  \"control_run_flag_omitted\": {\n    \"pass_3_action_dict_equals_armed_minus\": [\"harness_stop\", \"incident_id\"],\n    \"harness_stop\": null\n  },\n  \"expected_properties\": {\n    \"recovery-stop-fires-before-destructive-action-on-canonical-denial-ceiling\": \"recovery-tick --enforce-canonical-run --terminate-denied-sessions must, on the 3rd consecutive canonical denial (canonical_denial_persistent promotion), call HarnessService.stop() with attempted==true recorded on the action dict's harness_stop key, firing HookEvent.BEFORE_DESTRUCTIVE_ACTION and invoking DestructiveExternalActionGuard -- not a no-op / absent key\",\n    \"recovery-stop-fail-closed-outside-task-envelope\": \"when the stalled task's policy envelope has destructive_action=false, the BEFORE_DESTRUCTIVE_ACTION guard must DENY (guard_code ACTION_OUTSIDE_TASK_ENVELOPE) and the resulting OperationResult.code must be HOOK_DENIED; the incident's terminal failed/canonical_denial_persistent state is unchanged by the denied stop\",\n    \"recovery-stop-flag-off-is-byte-identical-minus-harness-stop\": \"with --terminate-denied-sessions omitted, the canonical_denial_persistent action dict must be identical to the armed run's except that harness_stop is null (no stop() call is made)\"\n  }\n}",
+  "source_run_record": {
+    "completion": {
+      "criterion_evidence": {
+        "claims": [],
+        "join_state": "VERIFIED",
+        "omitted_other_run_claims": 0,
+        "omitted_task_unbound_claims": 0,
+        "reason": "only criterion claims explicitly bound to the selected run and verdicts for those claims are included",
+        "verdicts": []
+      },
+      "reviews": {
+        "items": [],
+        "join_state": "UNKNOWN",
+        "reason": "reviews are task-level unless an immutable review subject explicitly binds them to a run"
+      },
+      "submission": null
+    },
+    "content_sha256": "ef7e11578461efd8ad38d9fa28c95a635e5cc73ad97cf41c0b79ca8346dd8bbe",
+    "context": {
+      "content_included": false,
+      "reason": "Run Record preserves path/hash references, not file contents",
+      "refs": []
+    },
+    "coverage": {
+      "canonical_task_db": {
+        "included": true,
+        "sources": [
+          "SQLite task state"
+        ],
+        "state": "VERIFIED"
+      },
+      "communication": {
+        "included": false,
+        "reason": "current canonical trace cannot safely join hcom communication to this run",
+        "sources": [
+          "hcom"
+        ],
+        "state": "UNKNOWN"
+      },
+      "context_refs": {
+        "included": true,
+        "reason": "immutable run context path/hash references are included",
+        "state": "VERIFIED"
+      },
+      "environment": {
+        "included": false,
+        "reason": "the source trace exposes run environment evidence, but the selected run has no recorded observations",
+        "source_available": true,
+        "state": "MISSING"
+      },
+      "harness_configuration": {
+        "included": false,
+        "reason": "current run manifest does not bind harness/hook configuration identity",
+        "state": "MISSING"
+      },
+      "harness_operation_trajectory": {
+        "included": false,
+        "reason": "Run Record v1 has no canonical operation/result trajectory source",
+        "state": "MISSING"
+      },
+      "review_subject": {
+        "included": true,
+        "reason": "review subjects are exposed by the source trace, but none proves a binding to the selected run",
+        "state": "UNKNOWN"
+      },
+      "session_helper_recovery_lineage": {
+        "included": false,
+        "reason": "durable cross-source lineage is not yet complete",
+        "sources": [
+          "hcom",
+          "helper subsystem",
+          "recovery state"
+        ],
+        "state": "UNKNOWN"
+      },
+      "skills": {
+        "included": false,
+        "reason": "current run manifest does not bind selected Skill identities/hashes",
+        "state": "MISSING"
+      },
+      "worktree_identity": {
+        "included": false,
+        "reason": "the selected run is explicitly missing Git worktree identity",
+        "source_available": true,
+        "state": "MISSING"
+      }
+    },
+    "environment": [],
+    "outcomes": {
+      "run_bound": [],
+      "task_unbound": []
+    },
+    "record_id": "RR-ef7e11578461efd8ad38d9fa28c95a635e5cc73ad97cf41c0b79ca8346dd8bbe",
+    "record_kind": "MAPS_PORTABLE_RUN_RECORD",
+    "record_version": 1,
+    "replay": {
+      "complete": false,
+      "reason": "Run Record v1 preserves observable canonical evidence but lacks complete provider/session/helper/recovery and operation trajectory sources"
+    },
+    "run": {
+      "base_revision": null,
+      "created_at": "2026-09-09T14:53:21Z",
+      "created_by": "maps-flow-start",
+      "forbidden_scope": [],
+      "helper_lineage": [],
+      "readable_scope": [
+        "."
+      ],
+      "recovery_lineage": [],
+      "run_id": "RUN-539fd4ccada648b29555474799e64359",
+      "runtime_limits": {},
+      "session_id": null,
+      "session_lineage": {
+        "chain_complete": true,
+        "current": {
+          "adapter_id": "hcom",
+          "created_at": "2026-09-09T14:53:35Z",
+          "created_by": "maps-run-bind-session",
+          "evidence_ref": "hcom:attach:28c0d760-4ce2-40c4-afe3-97ad77145734",
+          "link_id": 1,
+          "project_id": "maps-lean",
+          "relation": "ATTACH",
+          "replaces_link_id": null,
+          "run_id": "RUN-539fd4ccada648b29555474799e64359",
+          "session_id": "28c0d760-4ce2-40c4-afe3-97ad77145734"
+        },
+        "history": [
+          {
+            "adapter_id": "hcom",
+            "created_at": "2026-09-09T14:53:35Z",
+            "created_by": "maps-run-bind-session",
+            "evidence_ref": "hcom:attach:28c0d760-4ce2-40c4-afe3-97ad77145734",
+            "link_id": 1,
+            "project_id": "maps-lean",
+            "relation": "ATTACH",
+            "replaces_link_id": null,
+            "run_id": "RUN-539fd4ccada648b29555474799e64359",
+            "session_id": "28c0d760-4ce2-40c4-afe3-97ad77145734"
+          }
+        ],
+        "legacy_manifest_session_id": null,
+        "project_id": "maps-lean",
+        "run_id": "RUN-539fd4ccada648b29555474799e64359",
+        "state": "EXPLICIT"
+      },
+      "task_id": "EX64-ARMED",
+      "task_revision": "b23000b74a9232424e615b897897e35fe971d29d4cd416875423628d58f034a7",
+      "worker_id": "ex64-armed-w",
+      "worktree": null,
+      "writable_scope": [
+        "work/scratch-ex64-armed"
+      ]
+    },
+    "task": {
+      "agi_status": "AGI READY",
+      "attempt": 1,
+      "contract_counts": {
+        "acceptance_criteria": 4,
+        "dependencies": 0,
+        "inputs": 3,
+        "non_goals": 0,
+        "output_paths": 1,
+        "sources": 2,
+        "stop_conditions": 3
+      },
+      "max_attempts": 3,
+      "owner": "nazi",
+      "policy": {
+        "approved_at": null,
+        "approved_by_present": false,
+        "broad_architecture": false,
+        "destructive_action": false,
+        "external_side_effect": false,
+        "paid_execution": true,
+        "requires_operator_approval": false,
+        "security_sensitive": false
+      },
+      "project_id": "maps-lean",
+      "review_required": "INDEPENDENT_REVIEW",
+      "risk": "MEDIUM",
+      "status": "ACTIVE",
+      "task_id": "EX64-ARMED",
+      "task_revision": "b23000b74a9232424e615b897897e35fe971d29d4cd416875423628d58f034a7",
+      "task_type": "RESEARCH",
+      "text": {
+        "decision_authority": {
+          "characters": 149,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "escalation": {
+          "characters": 95,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "evidence_expected": {
+          "characters": 196,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "outcome": {
+          "characters": 198,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "title": {
+          "characters": 45,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        },
+        "verification": {
+          "characters": 94,
+          "included": false,
+          "present": true,
+          "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+        }
+      }
+    },
+    "timeline": {
+      "events": [
+        {
+          "actor": "nazi",
+          "created_at": "2026-09-09T14:53:20Z",
+          "event_type": "TASK_CREATED",
+          "id": 1,
+          "summary": {
+            "characters": 29,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": null,
+          "created_at": "2026-09-09T14:53:20Z",
+          "event_type": "TASK_POLICY_UPDATED",
+          "id": 2,
+          "summary": {
+            "characters": 65,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "nazi",
+          "created_at": "2026-09-09T14:53:20Z",
+          "event_type": "TASK_CONTRACT_UPDATED",
+          "id": 3,
+          "summary": {
+            "characters": 39,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "nazi",
+          "created_at": "2026-09-09T14:53:20Z",
+          "event_type": "TASK_PROMOTED_READY",
+          "id": 4,
+          "summary": {
+            "characters": 15,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "ex64-armed-w",
+          "created_at": "2026-09-09T14:53:20Z",
+          "event_type": "TASK_CLAIMED",
+          "id": 5,
+          "summary": {
+            "characters": 23,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "maps-flow-start",
+          "created_at": "2026-09-09T14:53:21Z",
+          "event_type": "RUN_MANIFEST_CREATED",
+          "id": 6,
+          "summary": {
+            "characters": 58,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        },
+        {
+          "actor": "maps-run-bind-session",
+          "created_at": "2026-09-09T14:53:35Z",
+          "event_type": "RUN_SESSION_ATTACHED",
+          "id": 7,
+          "summary": {
+            "characters": 97,
+            "included": false,
+            "present": true,
+            "reason": "free text is omitted from portable Run Record v1 by default; use canonical source evidence or a separately reviewed sanitized fixture"
+          }
+        }
+      ],
+      "join_state": "UNKNOWN",
+      "reason": "task_events are task-level and not all events carry run_id"
+    }
+  },
+  "source_run_record_id": "RR-ef7e11578461efd8ad38d9fa28c95a635e5cc73ad97cf41c0b79ca8346dd8bbe",
+  "source_run_record_sha256": "ef7e11578461efd8ad38d9fa28c95a635e5cc73ad97cf41c0b79ca8346dd8bbe",
+  "tags": [
+    "6.4",
+    "before-destructive-action",
+    "destructive-action",
+    "first-exposure"
+  ]
+}
