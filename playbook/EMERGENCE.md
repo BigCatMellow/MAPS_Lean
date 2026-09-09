@@ -8,6 +8,12 @@ IMAGINE → CAPTURE → PROMOTE
 (diverge)  (converge)  (decide)
 ```
 
+This lifecycle is the **current operating method, not a design ceiling**. Emergence
+may challenge, compare, redesign, or propose replacement of any established
+mechanism — including this emergence lifecycle itself — when evidence suggests a
+better way. Current authority continues to govern execution until deliberately
+changed; being established is not evidence that a mechanism should remain.
+
 ## Phase 1 — Imagine (divergent)
 
 Run at a cadence, not continuously. The trajectory check is the standing anchor
@@ -15,6 +21,10 @@ Run at a cadence, not continuously. The trajectory check is the standing anchor
 pass (every pass)"); an operator may also call one at a phase boundary or on
 demand. This is **not an automated step** and there is no imagination daemon —
 the anchor is the existing cadence, not new machinery.
+
+The cadence itself is also open to improvement. If evidence supports a better
+triggering/search mechanism, capture and test that alternative rather than
+preserving cadence merely because it is current practice.
 
 This phase has **no filing discipline** — the goal is volume and range. Ask,
 against the work of the arc (or the project as a whole):
@@ -28,13 +38,16 @@ against the work of the arc (or the project as a whole):
   disproportionate right now?
 - What did we decide once, long ago, that nobody has re-examined against current
   reality?
+- Which established mechanism survives mainly because it is already established,
+  and what alternative would outperform it on the actual objective?
 
 ### Cross-root synthesis
 
 Do not restrict emergence to one arc or to the nearest obvious idea family.
 When compact, trustworthy source summaries are available, deliberately compare
 observations and ideas from **different project roots, arcs, branches, domains,
-or idea families** to look for relationships that local work may not reveal.
+idea families, or established mechanisms/processes** to look for relationships
+that local work may not reveal.
 
 Ask:
 
@@ -49,6 +62,10 @@ Ask:
   unused asset that matters to another?
 - Does a structurally distant root suggest an alternative frame that changes
   how another problem should be understood?
+- Does another root expose a better mechanism than a process currently treated
+  as standard?
+- Does combining roots suggest changing the emergence/search/evaluation process
+  itself?
 
 Do not equate resemblance with synthesis. A cross-root candidate is worth
 **Capture** only when it can name:
@@ -58,11 +75,12 @@ source A + source B (or more)
 connection type / linking mechanism
 new implication that is not merely restating either source
 why the implication may matter
+current baseline when an established mechanism is challenged
 smallest discriminating test or falsifier
 ```
 
-Shared vocabulary, theme, or superficial analogy is insufficient. It is valid
-for a pass to conclude `NO MATERIAL CROSS-ROOT SYNTHESIS FOUND`.
+Shared vocabulary, theme, superficial analogy, or incumbency is insufficient.
+It is valid for a pass to conclude `NO MATERIAL CROSS-ROOT SYNTHESIS FOUND`.
 
 Where the search space is large, inspect compact summaries/indexes first and
 expand source detail only for promising candidates. Include some bounded
@@ -71,6 +89,11 @@ neighbors; otherwise the pass will mostly rediscover obvious relationships.
 Do not create durable graph links merely because a candidate connection was
 noticed — preserve only links that change understanding, retrieval, evaluation,
 or action.
+
+Established process is a legitimate root of inquiry. If a synthesis appears to
+outperform a current mechanism, compare it against the incumbent rather than
+forcing the new idea to conform. The incumbent may still win; novelty receives
+no automatic preference either.
 
 Speculation is explicitly allowed here. Get candidates onto the table first;
 judge them in Capture.
@@ -88,13 +111,19 @@ its potential value, and the **smallest next test**.
 - **Experiment:** a safe, small test.
 
 Filing is not endorsement. A captured record is a candidate, not a commitment.
+A candidate may explicitly target an existing MAPS_L process for adaptation or
+supersession; current process does not receive immunity from evaluation.
 
 ## Phase 3 — Promote (deliberate)
 
 Promotion turns a captured record into real work: a `work/tasks/` contract, a
 `work/decisions/DEC-NNN` record, or an in-scope line on an existing roadmap
 item. It is never an automated step, and only a promoted item may expand
-implementation scope.
+implementation scope under the current operating model.
+
+Promotion may also authorize work whose purpose is to replace or supersede an
+existing mechanism. Preserve lineage and the reason for replacement; do not
+keep an inferior process solely for continuity.
 
 **Propose vs. dispose.** The Emergence pass
 ([`ROADMAP_TRAJECTORY_CHECK.md`](ROADMAP_TRAJECTORY_CHECK.md) §"Emergence pass
@@ -126,4 +155,5 @@ each open record is **promoted**, marked **stale**, **killed**, or explicitly
 passes with no movement is named in the pass's operator section. This mirrors the
 FRICTION_LOG consumption duty and uses the same N = 3 ladder.
 
-Rule: **imagine widely, file cheaply, promote deliberately, sweep every arc.**
+Rule: **imagine widely, challenge precedent, file cheaply, promote deliberately,
+supersede when earned, sweep every arc.**
