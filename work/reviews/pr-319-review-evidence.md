@@ -1,7 +1,7 @@
 # PR #319 — independent review evidence
 
 reviewer: maps-lean-rev319-mosa
-head_sha: 277370194218f0f20bc0bd81dfa8b7db76f9e872
+head_sha: 89bfdbab9577e600dc1e69c9636e9a5bf396b4f2
 independent: true
 verdict: APPROVE
 summary: |
@@ -99,3 +99,16 @@ summary: |
   review + a Tenth Man pass concluding it is genuinely a good idea). dula's
   minority report (verdict YELLOW, work/reviews/pr-319-minority-report.md) is
   that pass: #319 merges as-claimed, no return to mosa, no 3rd reviewer.
+
+  REVALIDATION 2026-09-09 #2 (liro, coordinator, session 40; zero-diff tier):
+  operator authz #94781 (from=bigboss) explicitly confirms dula's YELLOW clears
+  the good-idea gate — "merge as-is". Branch brought up to date after #320 merged
+  (origin/main 2773701-era → e133a16) by `git merge origin/main` (merge commit
+  89bfdba; NOT rebase+force-push). The 3 reviewed files (playbook/EMERGENCE.md,
+  playbook/INDEX.md, work/notes/2026-09-07-emergence-supersession-authority.md)
+  are byte-identical to mosa's reviewed head 2773701:
+  `git diff 2773701 89bfdba -- <those 3 paths>` is empty. Everything else in the
+  merge is #320's already-merged content + wiki-status commits, none of #319's
+  reviewed surface. mosa's APPROVE + dula's YELLOW stand. head_sha rebound
+  2773701 → 89bfdba; reviewer unchanged; one value per key; this evidence commit
+  is the branch tip.
