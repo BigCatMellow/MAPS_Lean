@@ -1,7 +1,7 @@
 # PR #319 — independent review evidence
 
 reviewer: maps-lean-rev319-mosa
-head_sha: 4ed6ae3264714673f7cad5ca69737856990319e4
+head_sha: 277370194218f0f20bc0bd81dfa8b7db76f9e872
 independent: true
 verdict: APPROVE
 summary: |
@@ -82,3 +82,20 @@ summary: |
   change is contained to 3 doc files, the authority boundary is preserved in the
   wording, the INDEX justification satisfies the "changing a method" checklist,
   and CI (test) is green. Merge remains gated on the operator's substance ruling.
+
+  REVALIDATION 2026-09-09 (zina, note-fix helper; zero-diff tier): mosa's APPROVE
+  and dula's YELLOW stand. The only changes since 4ed6ae3 are (i) dula's
+  minority-report-only commit 25af349 under work/reviews/ and (ii) commit 2773701,
+  a stale-lineage-wording fix to the design note (opening paragraph + "## Stacking"
+  section retitled "## Split history"). No reviewed substantive content changed:
+  playbook/EMERGENCE.md, playbook/INDEX.md, and the note's What-changes /
+  What-does-NOT-change / 5-point-check / Risk sections are byte-identical to the
+  reviewed state. `git diff 4ed6ae3 2773701 -- work/notes/2026-09-07-emergence-supersession-authority.md`
+  shows only the two wording hunks. The "## Stacking" staleness nit raised in this
+  evidence file's NON-BLOCKING NITS is now resolved by 2773701.
+
+  OPERATOR SUBSTANCE RULING: delivered 2026-09-09 via hore — APPROVED NARROW &
+  CONDITIONAL (redesign wording stays proposal-only; merge gate = independent
+  review + a Tenth Man pass concluding it is genuinely a good idea). dula's
+  minority report (verdict YELLOW, work/reviews/pr-319-minority-report.md) is
+  that pass: #319 merges as-claimed, no return to mosa, no 3rd reviewer.
