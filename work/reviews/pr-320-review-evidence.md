@@ -1,5 +1,5 @@
 reviewer: maps-320-review-bozo
-head_sha: 0bb031147b456ff3743bf07bde606a4283ab3039
+head_sha: f2a2bde0f74e10f2bae7adca983a6a4b41dfacad
 independent: true
 verdict: APPROVE
 summary: |
@@ -83,3 +83,14 @@ summary: |
   <those 3 paths>` is empty. bozo's APPROVE stands. head_sha rebound 48f84b9 →
   0bb0311; reviewer unchanged; one value per key; this evidence commit is the
   branch tip.
+
+  REVALIDATION 2026-09-09 #2 (liro, coordinator, session 40; zero-diff tier):
+  origin/main advanced 18b064c → 54869f5 with only three "Refresh Development
+  wiki status" commits (60c0dbf, 2377bf8, 54869f5). Branch brought up to date by
+  `git merge origin/main` (merge commit f2a2bde; NOT rebase+force-push). The 3
+  reviewed files (work/notes/2026-09-09-6.4-destructive-action-first-exposure.md,
+  work/regression-cases/CASE-3da6464c….json, work/roadmaps/CAPABILITY_CHECKLIST.md)
+  are byte-identical to bozo's reviewed head 48f84b9: `git diff 48f84b9 f2a2bde --
+  <those 3 paths>` is empty. bozo's APPROVE stands. head_sha rebound
+  0bb0311 → f2a2bde; reviewer unchanged; one value per key; this evidence commit
+  is the branch tip.
