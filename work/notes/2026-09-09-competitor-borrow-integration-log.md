@@ -158,6 +158,109 @@ Use frozen/real stall incidents to evaluate false positives before changing sema
 
 `DESIGN ASSUMPTION IDENTIFIED — DEFERRED TO 6.20 OWNER`. No implementation, test, or capability-status change.
 
+---
+
+## Slice 03 — resolve filesystem target before scope authorization
+
+### Upstream evidence
+
+DeepSeek Harness and the Pilot sandbox/path-enforcement packet preserve a basic containment rule:
+
+```text
+lexical path inside allowed prefix
+!=
+resolved filesystem target inside allowed boundary
+```
+
+Symlinks must be resolved before authorization or an apparently allowed path can point outside the workspace.
+
+Pinned Pilot reference:
+
+- `BigCatMellow/Pilot_Projects@f6d584465e15b0fcf3cd09fea9e056bc23852e94`
+- `complete-ai-work-system/research/competitive-architecture/production-accelerators/P0-SANDBOX-PATH-ENFORCEMENT.md`
+
+### Current MAPS_L mechanism
+
+`runtime/state/integrity.py::_repo_relative` already does the right thing for run-manifest path scopes:
+
+1. resolve the repository root;
+2. resolve the candidate path;
+3. require the resolved candidate to be `relative_to(root)`;
+4. return `INVALID_SCOPE` through the public `create_run_manifest()` surface if it escapes.
+
+This is useful containment, but it is **run-scope path validation**, not proof of a complete sandbox. It says nothing by itself about network, process, kernel, or credential isolation.
+
+### Coverage gap found
+
+The inspected execution-integrity tests cover lexical `../`/absolute escapes and forbidden/writable overlap, but did not contain a symlink-escape regression.
+
+### Change made
+
+PR #326 now adds `tests/test_scope_symlink_containment.py` with a public-surface regression:
+
+```text
+repo/src/escape -> symlink to ../outside
+writable scope requested as src/escape
+→ resolve target
+→ target is outside repo
+→ INVALID_SCOPE
+→ no run manifest persisted
+```
+
+No runtime code changes.
+
+### Status
+
+`IMPLEMENTED — EXACT-HEAD CI / INDEPENDENT REVIEW PENDING` after the added test. No capability-status change.
+
+---
+
+## Slice 04 — reviewer label/config is not effective reviewer execution identity
+
+### Upstream evidence
+
+Taskplane's reviewer-model propagation failure and Optio's separate review topology reinforce:
+
+```text
+requested reviewer role/model/config
+!=
+proof of the actual process/session/model that performed review
+```
+
+### What MAPS already does well
+
+Current MAPS review evidence is substantially stronger than a role label:
+
+- submission author cannot self-review;
+- continuity-linked replacement identities are disqualified from review;
+- final approval rechecks continuity;
+- high-risk review can require exact revision/artifact binding;
+- task/submission changes after binding reject stale approval;
+- review subjects are SQLite-immutable.
+
+These are already covered in `tests/test_runtime_review_hardening.py` and `tests/test_review_subject_binding.py`.
+
+### Remaining evidence gap found
+
+The canonical `reviews` row currently records `reviewer_id`, verdict/summary, and timestamps. Execution/session lineage exists separately for task runs (`run_manifests`, `run_session_links`), but the reviewed schema inspected in this pass does not mechanically bind a review decision to a reviewer run/session/provider/effective-model identity.
+
+That means the competitor lesson is not a missing unit assertion against an existing field; it points to a potential lineage-model extension.
+
+### Disposition
+
+`GAP / ROUTE — NO SCHEMA OR RUNTIME CHANGE IN BORROW-INTEGRATION LANE`.
+
+Do not add a fake “review session” test when canonical data does not yet represent that fact. The owning review/harness design should decide whether consequential reviews need an optional immutable execution reference, and if so what evidence is authoritative. The smallest future comparison should distinguish:
+
+- human/manual review where `reviewer_id` is the correct identity;
+- agent review requested as role/model X but actually executed in session/runtime Y;
+- continuity-equivalent producer/reviewer executions;
+- missing or ambiguous execution lineage -> fail closed only where policy requires machine-verifiable independence.
+
+### Status
+
+`POTENTIAL LINEAGE GAP IDENTIFIED — ROUTE TO REVIEW/HARNESS OWNER`. No implementation or status change.
+
 ### Next candidate
 
-Audit independent-review/effective-runtime evidence against the Taskplane/Optio lesson that a requested reviewer role/model/config is not proof of what process actually performed the review. Prefer test-only strengthening if MAPS already records sufficient lineage; otherwise route the missing evidence field to the existing review/harness owner.
+Continue looking for **implemented-but-under-tested** invariants outside active PR #319–#325 surfaces. Prefer existing security/integrity behavior (where competitor failures can become cheap regressions) over new durability, budget, memory, or external-effect subsystems.
