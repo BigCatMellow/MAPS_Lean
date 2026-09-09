@@ -1,11 +1,11 @@
 # Emergence may target established mechanisms for redesign / supersession
 
 Design note for the "Change 2" half of the former PR #302. Change 1 (the bounded
-cross-root synthesis pass) ships separately on branch
-`emergence/cross-root-synthesis-c1only` and carries no authority change. This
-note is the companion justification the original PR was missing, per
-`playbook/INDEX.md` §"Adding or changing a method". Operator approved splitting
-this change out and requiring this doc (relayed 2026-09-07).
+cross-root synthesis pass) merged separately as PR #315 on 2026-09-08 and
+carried no authority change. This note is the Change-2 companion justification
+the original PR was missing, per `playbook/INDEX.md` §"Adding or changing a
+method"; #319 is the Change-2 PR, rebuilt on `main` after #315 merged. Operator
+approved splitting this change out and requiring this doc (relayed 2026-09-07).
 
 ## What changes
 
@@ -96,9 +96,13 @@ is applied to the *scope expansion*:
 - **Reversibility:** fully reversible by reverting the doc hunks; no code, no
   data, no state migration.
 
-## Stacking
+## Split history
 
-The EMERGENCE.md hunks in this PR sit on top of the Change-1 cross-root
-synthesis section. This PR is stacked on the Change-1 PR (#302 head, branch
-`emergence/cross-root-synthesis-c1only`). Land Change 1 first, then rebase this
-PR onto main so its diff reduces to the Change-2 hunks only.
+The former PR #302 was split into two: Change 1 (cross-root synthesis) and
+Change 2 (this authority change). Change 1 merged as PR #315 (branch
+`emergence/cross-root-synthesis-c1only`) on 2026-09-08. Change 2 was originally
+opened as PR #316 stacked on the Change-1 branch; rather than rebase+force-push
+(classifier-blocked in this environment), #316 was closed and rebuilt as PR #319
+by cherry-picking its two Change-2 commits onto `main` after #315 merged. The
+EMERGENCE.md hunks now sit directly on the merged Change-1 cross-root synthesis
+section, and the #319 diff is already reduced to the Change-2 hunks only.
