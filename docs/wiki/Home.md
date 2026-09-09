@@ -6,8 +6,9 @@ verification, recovery, and durable evidence. It does not replace agent
 judgment, and it is not tied to one model, provider, terminal, or user
 interface.
 
-This Wiki is an orientation and explanation layer. It is **not** a source of
-authority or live task state. For work in this repository, current
+This Wiki is the **orientation surface for a fresh agent** and an explanation
+layer. It is **not an authority store** or a source of live task state. For work
+in this repository, current
 [`AGENTS.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/AGENTS.md),
 approved roadmap/task scope, runtime state, merged code/tests, and current
 GitHub evidence take precedence.
@@ -24,7 +25,7 @@ GitHub evidence take precedence.
 The normal repository reading budget is:
 
 ```text
-AGENTS.md + approved roadmap/task + one relevant playbook method
+target authority + approved roadmap/task + one relevant MAPS_L method
 ```
 
 Do not read the whole Wiki or repository as a prerequisite.
@@ -46,8 +47,8 @@ orchestration operator recovers truth and selects bounded work
 ```
 
 The operator owns the parent outcome. A worker owns only its bounded task.
-Delegation does not transfer parent ownership, and a completed child task does
-not mean the larger project is complete.
+**Delegation transfers execution, never ownership.** A finished child task is a
+reconciliation point, not proof that the larger project is complete.
 
 ## Operating depths
 

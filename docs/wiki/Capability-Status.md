@@ -1,5 +1,9 @@
 # Capability Status
 
+This page does pin a dated subsystem inventory so readers can understand the
+reconciled snapshot below. It must always be checked against live evidence and
+the current roadmap/checklist before it drives a consequential decision.
+
 > **Snapshot, not authority.** The canonical cross-roadmap status source is
 > [`work/roadmaps/CAPABILITY_CHECKLIST.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md).
 > Re-check production code, tests, CI, and merged history before a consequential
@@ -12,6 +16,10 @@
 **Scoreboard:** **19 DONE / 10 IN PROGRESS / 6 NOT STARTED**
 
 Back to [[Home]]. For near-term development work, see [[Development]].
+
+The decisive evidence is a **production call path / real behavior** and a real
+caller/path, not only a unit test. A passing test or merged helper can prove that
+machinery exists without proving that the capability row's exit gate is done.
 
 ## How to read a status
 
