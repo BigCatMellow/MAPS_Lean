@@ -1,5 +1,5 @@
 reviewer: zuna
-head_sha: 6a8280bc23165b37b4d58f310901c75cdd25baf0
+head_sha: e6628f4d3c9dcfc8cfec669f367b376ad3eda150
 independent: true
 verdict: APPROVE
 summary: |
@@ -61,3 +61,17 @@ summary: |
   evidence, which is internally consistent with the branch's supervisor.py.
 
   Verdict: APPROVE.
+
+  REVALIDATION 2026-09-09 (liro, coordinator, session 40; zero-diff tier):
+  operator authz #94781 (from=bigboss) names #324. After #320 (e133a16) and #319
+  (69d6497) merged, branch brought up to date by `git merge origin/main` (merge
+  commit e6628f4; NOT rebase+force-push). #324's actual reviewed content is
+  byte-identical to zuna's reviewed head 6a8280b:
+  `git diff 6a8280b e6628f4 -- work/notes/2026-09-09-h4-validation-gate-first-exposure.md
+  work/regression-cases/CASE-559ff1df...json` is empty. The only
+  CAPABILITY_CHECKLIST.md change 6a8280b..e6628f4 is #320's already-independently-
+  reviewed row-6.4 addition (a disjoint checklist row; clean auto-merge); #324's
+  H4 row is untouched. runtime/ and tests/ are byte-identical to main (gate code
+  unchanged). zuna's APPROVE stands. head_sha rebound 6a8280b → e6628f4 (equal to
+  the reviewed-code head — the walk-back stops at this merge commit); reviewer
+  unchanged; one value per key; this evidence commit is the branch tip.
