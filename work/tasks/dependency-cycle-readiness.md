@@ -1,6 +1,6 @@
 # Task: dependency-cycle readiness rejection
 
-- Status: `ACTIVE`
+- Status: `READY_FOR_REVIEW`
 - AGI status: `AGI READY`
 - Type: `IMPLEMENTATION`
 - Owner: orchestration operator
@@ -28,7 +28,7 @@ MAPS_L already:
 - blocks dependencies that are not `DONE`;
 - treats a `DONE` dependency as satisfied.
 
-It does not explicitly detect a multi-task reachable cycle. For example `A -> B -> A` leaves both tasks dependency-blocked rather than identifying an unresolvable graph error.
+It did not explicitly detect a multi-task reachable cycle. For example `A -> B -> A` left both tasks dependency-blocked rather than identifying an unresolvable graph error.
 
 ## Change boundary
 
@@ -45,31 +45,34 @@ MUST NOT CHANGE:
 - capability/checklist status;
 - active PR #319–#327 files.
 
-## Required semantics
+## Implemented semantics
 
-1. Detect a cycle reachable from the task being validated through dependencies that are not already `DONE`.
-2. Report the cycle deterministically in task-id order traversal.
+1. Readiness now detects one deterministic cycle reachable from the task through dependencies that are not already `DONE`.
+2. Dependency traversal is ordered by task id so the returned cycle is stable for the same graph.
 3. A reachable cycle is a shaping error (`AGI FAIL — NEEDS_SHAPING`), not an ordinary temporary dependency wait.
-4. Preserve existing direct-self wording (`task cannot depend on itself`).
-5. Preserve existing behavior for:
+4. Existing direct-self wording remains `task cannot depend on itself`; the generic cycle detector is skipped for that case so the reason is not duplicated.
+5. Existing behavior is preserved for:
    - missing dependency -> dependency blocker;
    - acyclic unfinished dependency -> `AGI FAIL — BLOCKED_ON_DEPENDENCY` when no other shaping error exists;
-   - `DONE` dependency -> satisfied; do not traverse its historical dependency graph.
-6. No task state mutation beyond the existing `promote_ready()` rejection path.
+   - `DONE` dependency -> satisfied; traversal terminates there and ignores its historical downstream graph.
+6. No task state mutation was added beyond the existing `promote_ready()` rejection path.
 
 ## Acceptance criteria
 
-- [ ] `A -> B -> A` is rejected with one deterministic cycle reason.
-- [ ] `A -> B -> C -> B` is rejected for A with the reachable `B -> C -> B` cycle.
-- [ ] acyclic unfinished dependency remains `BLOCKED_ON_DEPENDENCY`, not `NEEDS_SHAPING`.
-- [ ] direct self-dependency keeps its existing reason and is not duplicated by cycle output.
-- [ ] no schema/authority/lifecycle expansion.
-- [ ] relevant CI passes and independent review is requested.
+- [x] `A -> B -> A` is rejected with one deterministic cycle reason.
+- [x] `A -> B -> C -> B` is rejected for A with the reachable `B -> C -> B` cycle.
+- [x] acyclic unfinished dependency remains `BLOCKED_ON_DEPENDENCY`, not `NEEDS_SHAPING`.
+- [x] direct self-dependency keeps its existing reason and is not duplicated by cycle output.
+- [x] missing dependency behavior is unchanged.
+- [x] `DONE` dependency terminates traversal and remains satisfied.
+- [x] no schema/authority/lifecycle expansion.
+- [ ] repository CI passes.
+- [ ] independent review completed.
 
 ## Verification
 
-Focused dependency-cycle readiness tests plus repository CI.
+Focused tests added in `tests/test_dependency_cycle_readiness.py`; repository CI will run on the PR head.
 
 ## Stop / escalate
 
-Stop if cycle handling requires changing dependency persistence, auto-breaking cycles, mutating other tasks, or introducing a scheduler/backlog subsystem. This task only diagnoses the existing graph during readiness validation.
+No stop boundary was crossed. The change diagnoses the existing dependency graph only; it does not auto-break cycles, mutate other tasks, or introduce scheduler/backlog infrastructure.
