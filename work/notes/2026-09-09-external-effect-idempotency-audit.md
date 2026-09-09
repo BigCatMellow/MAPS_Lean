@@ -1,6 +1,6 @@
 # External-effect idempotency audit — 2026-09-09
 
-Status: `DESIGN GAP IDENTIFIED — NO RUNTIME CHANGE`
+Status: `DESIGN GAP IDENTIFIED — CHARACTERIZATION ADDED, NO RUNTIME CHANGE`
 
 Parent process: PR #326 / `work/notes/2026-09-09-competitor-borrow-integration-log.md`.
 
@@ -106,9 +106,31 @@ They do not by themselves answer:
 
 Capability/authority and idempotency/reconciliation must remain separate.
 
+## Characterization added on PR #327
+
+`tests/test_recovery_external_effect_ambiguity.py` now freezes the exact current seam without changing its expectation:
+
+```text
+real canonical task/run/session binding
+→ HarnessService-like resume returns failure
+   code=PROVIDER_TIMEOUT
+   mutated=true
+   operation_id=op-ambiguous-resume-1
+   retry=UNKNOWN
+→ RecoverySupervisor records only attempted/ok/code/summary
+→ operation_id is absent from harness_resume
+→ retry is absent from harness_resume
+→ direct hcom.resume() is called once in the same tick
+→ outward recovery action is resume
+```
+
+This is deliberately a **characterization test**, not an endorsement of the behavior. Its purpose is to give the owning Harness/Recovery design a concrete, executable decision case before changing policy or adding a general operation ledger.
+
+If the future owner decides `UNKNOWN` must block immediate repeat, this test should be deliberately changed or replaced as part of that design change rather than silently preserved as permanent desired behavior.
+
 ## Disposition
 
-`REAL DESIGN GAP — ROUTE TO HARNESS / RECOVERY; DO NOT PATCH IN RESEARCH LANE`.
+`REAL DESIGN GAP — ROUTE TO HARNESS / RECOVERY; DO NOT PATCH POLICY IN RESEARCH LANE`.
 
 No runtime, schema, or status change in this PR.
 
@@ -123,22 +145,23 @@ A proper solution must answer these questions together rather than add a cosmeti
 7. **Reconciliation:** what observation can prove effect applied/not applied before another attempt?
 8. **External-effect class:** which operations are naturally idempotent, compensatable, queryable, or non-reconcilable?
 
-## Smallest future proof
+## Smallest future proof after characterization
 
-Before designing a general operation ledger, freeze one narrow failure reproduction around the existing recovery seam:
+Do **not** start with a general operation ledger.
+
+The characterization test now establishes the current behavior. The next bounded owner decision is only:
 
 ```text
-fake HarnessService.resume returns:
-  ok = false
-  retry = UNKNOWN
-  mutated = true or outcome ambiguous
-
-observe whether RecoverySupervisor performs a second direct resume call
+for recovery resume specifically,
+should an attempted harness operation with retry=UNKNOWN
+permit an immediate direct fallback in the same tick?
 ```
 
-This should be an **evaluation/regression characterization first**, not immediately a changed expectation. It gives the owning recovery/harness task a concrete failing scenario to decide against without pretending the desired fix is already settled.
+If **yes**, the owner must state what evidence makes that second attempt acceptable for this operation class.
 
-If the owner decides UNKNOWN must block immediate fallback, the next implementation slice should be narrowly limited to recovery `resume` before generalizing operation identity across every adapter action.
+If **no**, the narrowest implementation is to preserve the ambiguity metadata and stop immediate fallback for this seam before generalizing operation identity across every adapter action.
+
+Only after that decision should MAPS design durable pre-dispatch operation identity, provider propagation, receipts, or reconciliation across broader external-effect classes.
 
 ## What not to import blindly
 
@@ -148,4 +171,4 @@ Do not copy Noriq/Restate/Temporal/Stripe schemas wholesale. MAPS_L already has 
 
 MAPS_L already names operation results and retry uncertainty honestly, which is useful groundwork. It does **not** yet provide durable pre-dispatch logical operation identity or ambiguity-aware external-effect reconciliation. The current recovery fallback can perform another resume attempt after a harness result whose retry safety is unknown.
 
-This is a concrete gap surfaced by the borrow-before-build process and should be handled by the existing harness/recovery owners, not by creating a parallel execution system.
+PR #327 now makes that exact behavior executable and reviewable rather than leaving it as prose-only analysis. This remains a routed Harness/Recovery design gap, not a runtime-policy change.
