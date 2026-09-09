@@ -261,6 +261,50 @@ Do not add a fake “review session” test when canonical data does not yet rep
 
 `POTENTIAL LINEAGE GAP IDENTIFIED — ROUTE TO REVIEW/HARNESS OWNER`. No implementation or status change.
 
+---
+
+## Slice 05 — edited Skill content must not inherit prior approval
+
+### Upstream / standards evidence
+
+The broader supply-chain research (SLSA / in-toto / TUF) and public Skill-system failures reinforce a simple identity rule:
+
+```text
+approved artifact identity
+!=
+future bytes at the same path/name
+```
+
+Changing executable/procedural content must produce a new reviewable identity rather than silently inheriting the old trust decision.
+
+### Current MAPS_L mechanism
+
+MAPS already uses content-addressed Skill subjects. `catalog_key` includes source identity, Skill identity, and the content SHA-256. Lifecycle approval is stored against that immutable catalog key rather than the path/name alone.
+
+### Existing regression coverage
+
+This invariant is already explicitly frozen in `tests/test_skill_lifecycle_storage.py::SkillLifecycleContentAddressingTests::test_editing_a_skill_creates_a_new_unapproved_subject`:
+
+1. original Skill is recorded, APPROVED, then ACTIVE;
+2. the same Skill path/id is edited;
+3. edited bytes create a different `catalog_key`;
+4. edited subject initially has no lifecycle state;
+5. after assessment it begins at VALIDATED, not APPROVED/ACTIVE;
+6. the old ACTIVE subject remains separate;
+7. the new subject has no inherited lifecycle decisions.
+
+`tests/test_skills_catalog.py` also freezes content-derived catalog identity and refuses activation through a stale catalog entry after on-disk hash drift.
+
+### Disposition
+
+`ALREADY SATISFIED — NO DUPLICATE TEST / NO CODE CHANGE`.
+
+Competitor/supply-chain evidence strengthens confidence in the existing MAPS design but does not justify another test merely to restate the same property. If Skill signing/attestations are later added, they should bind to this existing content identity rather than replacing it.
+
+### Status
+
+`VERIFIED EXISTING COVERAGE`. No task, implementation, or capability-status change.
+
 ### Next candidate
 
-Continue looking for **implemented-but-under-tested** invariants outside active PR #319–#325 surfaces. Prefer existing security/integrity behavior (where competitor failures can become cheap regressions) over new durability, budget, memory, or external-effect subsystems.
+Audit external-effect operation identity and ambiguous-result handling. This is expected to be a **design/evidence gap** rather than a cheap regression, so do not create runtime/schema work unless current MAPS already exposes an operation/receipt abstraction that can be hardened without collision.
