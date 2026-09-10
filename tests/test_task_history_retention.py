@@ -87,7 +87,12 @@ class TaskHistoryRetentionTests(unittest.TestCase):
         ]
         self.assertEqual(
             event_types,
-            ["TASK_CREATED", "TASK_CONTRACT_UPDATED", "AGI_READY", "TASK_CLAIMED"],
+            [
+                "TASK_CREATED",
+                "TASK_CONTRACT_UPDATED",
+                "TASK_PROMOTED_READY",
+                "TASK_CLAIMED",
+            ],
         )
 
 
