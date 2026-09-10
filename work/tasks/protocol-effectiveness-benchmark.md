@@ -75,6 +75,7 @@
 - Standard/Full requires independent generic structured Arm C before MAPS-specific claims.
 - Holdout retirement is exposure-based.
 - Runtime E2E/regression criteria are not Experiment P primary criteria.
+- Original review's B1–B3 and M1–M12 are addressed in the corrected package; this is an owner claim pending fresh independent verification, not approval.
 
 ## Completion / handoff
 
