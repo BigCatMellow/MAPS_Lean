@@ -32,4 +32,31 @@ The `work/coordination/README.md` addition (PR #95) is the durable countermeasur
 
 While investigating this repair, a related documentation gap surfaced: `Authority-1`, `Storage-0`, `Conflict-0`, `Injection-0`/`Injection-1`, and `Lifecycle-1` (coined in `work/notes/2026-08-17-operational-learning-authority-design.md`) are ad hoc labels with no tie back to `work/roadmaps/05-learning-and-evaluation.md`'s own documented phase list, where this work is actually **L5** ("Operational-learning lifecycle"). Not fixed retroactively here (low value relative to churn); worth using the sub-roadmap's own prefix (e.g. `L5a`/`L5b`/`L5c`) rather than inventing a new ad hoc scheme the next time this area is touched.
 
+## Regression case
+
+The mechanical countermeasure for the "dispatched worker silently idle" failure
+mode is the self-bounding sharded local test runner, `scripts/run_tests_sharded.py`
+(PR #288, `2bcf251`), designed in
+`work/notes/2026-09-04-monitor-stall-mechanical-safeguard-design.md`. It bounds
+each worker's blocking test op and, combined with the push-before-test /
+foreground-pytest dispatch discipline (memory
+`feedback_subagent_monitor_polling_stall`), ensures partial progress survives even
+if the worker's turn is never resumed.
+
+Regression coverage: **`tests/test_run_tests_sharded.py`** exercises the runner's
+shard bounding and timeout behaviour — the guard that prevents a dispatched worker
+from blocking indefinitely on its own full suite. The triage-response
+countermeasure (check live GitHub evidence when a worker is overdue) lives in
+`work/coordination/README.md` "Stalled-work triage" (PR #95) and is reinforced by
+CLAUDE.md rule 19 (AGI-ready dispatch: every brief states its verification command
+as a blocking foreground call) and rule 20 (repeat failure earns a mechanical
+safeguard).
+
+**2026-09-10 operator closure (`goldenjanitors@gmail.com`, via `bigboss`):** §1 is
+confirmed adequately discharged. This record is **CLOSED**. The
+`triage_status.py` substring-scan weakness noted in the 2026-09-09 line below is a
+real but separate tooling gap (roadmap-trajectory-check-27 §3/§4); it is not a
+reason to keep this repair open now that a genuine `## Regression case` pointer
+exists.
+
 - 2026-09-09 disposition (trajectory check #27, `nena`): **no change — remains substantively discharged per the 2026-09-07 line above.** `tools/triage_status.py --root .` **no longer lists this record** as of this note's edits — but only because `parse_repair_note`'s naive substring scan (`has_regression_case = "regression" in text.lower()`) matches the word "regression" in *this very disposition text*. That is a **false negative, not a genuine resolution**: this record still has no `## Regression case` section and no machine-readable countermeasure field, and the in-prose §1 disposition (Monitor-stall countermeasure, PR #288 + `scripts/run_tests_sharded.py`) remains invisible to any structured check. The record still owes a real regression-case pointer or an explicit operator closure. Recorded as a tooling-gap / masking-risk finding in `work/notes/2026-09-09-roadmap-trajectory-check-27.md` §3 and §4 item 4. Candidate bounded fix (not this pass): teach `triage_status.py` to recognise a dated `disposition (trajectory check #N)` line, or add the `## Regression case` heading pointing at the #288 shard-runner tests. §2 (EMERGENCE capture of the dispatched-worker-liveness pattern) is now partly served by memory `feedback_subagent_monitor_polling_stall` + the friction entry `2026-09-03 — dispatched worker stalls on its own full unittest suite`; no separate `insights/` artifact still owed. Operator confirmation that §1 is adequately discharged would let a future pass stop carrying this line.
