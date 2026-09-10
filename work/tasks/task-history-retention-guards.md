@@ -30,7 +30,8 @@ create canonical task
   - `runtime/state/schema.sql` — add exactly the three approved retention/immutability triggers;
   - `tests/test_task_history_retention.py` — focused direct-SQL and normal-lifecycle regressions;
   - this task record;
-  - mandatory friction capture if this session produces a qualifying friction signal;
+  - mandatory `work/coordination/FRICTION_LOG.md` capture if this session produces a qualifying friction signal;
+  - the corresponding `work/notes/` repair record when Repair and Learning requires one;
   - PR metadata and later independent review evidence.
 - MUST NOT CHANGE:
   - task lifecycle vocabulary;
@@ -65,8 +66,11 @@ The explicit parent-task trigger owns the normal retention rule. Event triggers 
 
 ## Verification
 
-- Focused: `python -m unittest tests.test_task_history_retention -v`.
-- Full: repository `Runtime stack tests` on the exact implementation head.
+- Focused target: `python -m unittest tests.test_task_history_retention -v`.
+- Runtime stack #1650 on implementation head `91d31bb80389bf40fc49712587a03c04b8ebe13c` found one test-expectation drift: policy shaping legitimately appends `TASK_POLICY_UPDATED`; all three retention-guard assertions themselves passed.
+- The test-only correction produced head `977a6a6be7f6ec7491246e2e9d477fb721204e34`; exact-head Runtime stack #1651 passed.
+- The drift and repair are recorded in [`2026-09-10-task-history-event-sequence-assumption-repair.md`](../notes/2026-09-10-task-history-event-sequence-assumption-repair.md) and the mandatory friction log.
+- Final review head must receive its own exact-head Runtime stack pass after the durable repair/friction records are committed; #1651 is supporting evidence, not permission to reuse stale CI.
 - Independent review: required because this changes database-enforced retention/immutability behavior.
 - Reviewer must inspect the exact implementation delta and verify the parent task trigger—not incidental child cascade failure—causes direct task-delete rejection.
 
@@ -77,5 +81,6 @@ Stop if the guards break an accepted normal runtime lifecycle path, reveal a rea
 ## Completion / handoff
 
 - Implementation: bounded three-trigger enforcement plus focused regressions.
+- Process evidence: one DRIFT repair record + append-only friction capture produced because the new exact event-sequence test initially omitted a canonical shaping-hook event.
 - Merge authority: not granted by this task.
 - Next gate: exact-head Runtime CI + fresh independent implementation review.
