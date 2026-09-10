@@ -78,8 +78,8 @@ Target-project instructions that are part of the task environment (for example `
 For Experiment P:
 
 - A/B/C receive the same history-free target-task snapshot after the common scrub policy;
-- any file that would expose the tested protocol bundle is removed from **all** target snapshots and recorded in the scrub manifest;
-- a task whose requested subject is one of those scrubbed treatment files is ineligible for Experiment P;
+- any file that is part of, substantially describes, or would expose the tested protocol is removed from **all** target snapshots and recorded in the scrub manifest unless the case is declared ineligible for Experiment P;
+- a task whose requested subject is one of those scrubbed treatment/protocol-description files is ineligible for Experiment P;
 - the common `neutral_bootstrap_text` is delivered to A/B/C through the same system/instruction channel and position;
 - B and C receive their treatment text through the same injection channel and position;
 - target-project instructions unrelated to the tested treatment remain byte-identical across arms;
@@ -339,6 +339,8 @@ h5_consistency_rule = H5_CONSISTENCY_V1
 cost_guardrail = UNSET
 latency_guardrail = UNSET
 human_burden_guardrail = UNSET
+headline_secondary_endpoints = UNSET (small fixed set)
+headline_secondary_tradeoff_thresholds = UNSET (metric => benefit direction/threshold + harm direction/threshold)
 run_budget = UNSET
 pair_time_window = UNSET
 human_response_policy_version = UNSET
@@ -350,7 +352,6 @@ blinding_guess_accuracy_ceiling = UNSET
 blinding_confidence_level = 0.95
 blinding_guesser_capability = >= semantic evaluator
 normalization_audit_sample_size_per_arm = UNSET
-headline_secondary_endpoints = UNSET (small fixed set)
 case_secret_canary_rule = CANARY_UNREACHABLE_V1
 ```
 
@@ -362,7 +363,7 @@ After any arm-level scored Smoke outcome exists, none of the following may chang
 
 - practical margin;
 - safety/S3/S4 rules;
-- tradeoff/verdict rules;
+- tradeoff/verdict rules or headline-secondary thresholds;
 - headline secondaries;
 - run budgets;
 - human-response policy;
