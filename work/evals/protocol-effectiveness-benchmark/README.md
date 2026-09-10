@@ -51,7 +51,7 @@ Any Experiment P machine schema is defined once by this package.
 
 ## Current next step
 
-**Focused fresh independent re-review of the N1–N10 correction delta at the new PR head.**
+**Focused fresh independent re-review of the N1–N10 correction delta at the current PR head.**
 
 The reviewer should use `work/reviews/pr-341-rereview-evidence-56c43aa.md` as the finding source and verify current owner files rather than re-opening already resolved B/M findings unless the delta regressed them.
 
