@@ -1,10 +1,16 @@
 ### MAPS_L Wiki
 
-- [[Agent Start Here|Home]]
+- [[Home]]
 - [[Development]]
-- [[First Task Walkthrough]]
+- [[What MAPS_L Is]]
+- [[Task, Run and Flow Lifecycle]]
+- [[Execution, Recovery and Worktrees]]
+- [[Context, Memory, Skills and Capabilities]]
+- [[Review, Authority and Merge Safety]]
+- [[Emergence, Triage and Learning]]
+- [[Operator and Developer Tools]]
 - [[Capability Status]]
+- [[First Task Walkthrough]]
 
-The wiki is orientation/navigation only. Live authority and execution truth
-remain in the target project and the
-[MAPS_Lean repository](https://github.com/BigCatMellow/MAPS_Lean).
+Wiki = orientation. Repository `main`, canonical state, and approved evidence
+remain authoritative.

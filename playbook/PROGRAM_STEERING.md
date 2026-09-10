@@ -43,6 +43,43 @@ state. If yes, shape that bounded work and continue.
 Human reauthorization is required only when the proposed next work would create
 a materially new objective/scope outside the approved roadmap.
 
+### Borrow before build for reusable mechanisms
+
+When the candidate task would **create or materially change a reusable/general
+mechanism**, inspect relevant prior art before shaping custom implementation.
+This is an evidence-quality check, not another approval gate.
+
+Examples that normally trigger it:
+
+- ownership/lease/fencing/retry/recovery semantics;
+- scheduling/backpressure;
+- context/memory/retrieval;
+- provider/runtime abstraction;
+- approval/reviewer/identity/credential authority;
+- budget/resource enforcement;
+- external-effect/idempotency behavior;
+- sandbox/containment;
+- protocol/tool interoperability;
+- artifact/supply-chain provenance.
+
+Use the shortest useful route:
+
+1. recover the existing MAPS owner and current implementation/tests;
+2. inspect already-routed MAPS research and, when available, relevant external or
+   Pilot evidence such as exact source/tests/fix history;
+3. state whether the task should `reuse`, `adapt`, `evaluate`, or `build custom`;
+4. carry forward the known failure cases and the smallest discriminating test;
+5. then shape the task normally under AGI/task authority.
+
+Skip this step for routine local bug fixes, review/revalidation, documentation of
+already-established behavior, straightforward application of an accepted
+mechanism, or when the current owner already contains the needed evidence and no
+design choice is being reopened.
+
+Prior art never creates task authority and does not require importing another
+system's architecture. If the evidence does not justify changing the current MAPS
+mechanism, keep the current owner and continue.
+
 ## 3. Drift smells
 
 - **Easiest over most valuable.** Comfortable work over higher-value eligible
