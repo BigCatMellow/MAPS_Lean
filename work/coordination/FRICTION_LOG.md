@@ -688,3 +688,19 @@ new entries, never backfill past ones.
   the source change and re-running it). `scripts/run_tests_sharded.py`'s
   `WARMUP_IMPORTS` shrunk back to `()`; its docstring/comment updated to say
   the cycle is fixed rather than pointing at this entry as an open follow-up.
+
+## 2026-09-10 — exact task-event sequence assumption drifted from shaping hooks
+- class: drift
+- opened: 2026-09-10
+- signal: PR #339 Runtime stack #1650 failed because the new retention regression
+  asserted an incomplete normal event sequence. The assertion first used the
+  wrong READY event name during drafting, then still omitted the policy shaping
+  hook's `TASK_POLICY_UPDATED` event. The three retention guards themselves
+  passed; only the exact-sequence expectation was wrong.
+- countermeasure: corrected `tests/test_task_history_retention.py` after source-
+  binding the lifecycle event vocabulary and active contract-shaping hooks;
+  repair evidence is `work/notes/2026-09-10-task-history-event-sequence-assumption-repair.md`.
+- verified: Runtime stack #1651 passed on repaired head
+  `977a6a6be7f6ec7491246e2e9d477fb721204e34` on 2026-09-10.
+- follow-up: none; first occurrence. If the same root-cause class recurs, add a
+  mechanical source/vocabulary safeguard rather than another instruction.
