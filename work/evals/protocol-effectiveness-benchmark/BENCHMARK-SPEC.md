@@ -1,96 +1,137 @@
 # Benchmark Specification
 
-Status: **DRAFT — PRE-FREEZE**
+Status: **DRAFT — CORRECTIONS APPLIED; NOT FROZEN OR EXECUTED**
+
+This file owns benchmark arms, treatment manifests, controlled variables, population/pools, lifecycle, thresholds/guardrails that must be frozen before execution, and benchmark identity. Case semantics live in `CASE-DESIGN.md`; execution procedure in `RUN-PROTOCOL.md`; metrics and decision rules in `SCORING-AND-ANALYSIS.md`.
 
 ## 1. Primary question
 
-> Given an otherwise equivalent capable agent, does applying the tested operating protocol improve successful autonomous completion of consequential work enough to justify its overhead?
+> Given otherwise equivalent capable agents, does applying the tested operating protocol improve objectively correct autonomous task completion enough to justify its overhead and failure modes?
 
-For MAPS_L, the primary tested protocol is the active repository operating contract and only the subordinate methods actually routed by the task. The benchmark must not reward MAPS_L merely for using MAPS_L vocabulary or artifacts.
+For MAPS_L, protocol adherence is diagnostic only. No MAPS-specific vocabulary, record, status phrase, review shape, or documentation artifact is a success criterion unless the user-facing task itself explicitly requires it.
 
 ## 2. Hypotheses
 
-### H1 — Effectiveness
+- **H1 — Effectiveness:** protocol-enabled agents have a higher probability of case-correct terminal outcome than a matched no-protocol control on the primary neutral + sealed-holdout population.
+- **H2 — Reliability:** protocol-enabled agents have lower rates of serious correctness, authority, recovery, duplication, review, and false-completion failures.
+- **H3 — Autonomous operation:** protocol-enabled agents require fewer avoidable human interventions without increasing false blocking, over-continuation, or unauthorized action.
+- **H4 — Efficiency tradeoff:** any benefit can be compared against tokens/context, monetary cost, latency, tool/helper use, retries/rework, and observed human burden.
+- **H5 — Generalization:** any observed advantage is directionally consistent on external projects and sealed holdout work not used to develop the protocol.
 
-Protocol-enabled agents have a higher probability of objectively successful task completion than matched vanilla agents.
-
-### H2 — Reliability
-
-Protocol-enabled agents have lower rates of serious correctness, authority, recovery, duplication, review, and false-completion failures.
-
-### H3 — Autonomous operation
-
-Protocol-enabled agents require fewer human interventions and successfully continue eligible work more often.
-
-### H4 — Efficiency tradeoff
-
-Any benefit can be measured against token, monetary, latency, tool-call, documentation-read, retry, and rework overhead.
-
-### H5 — Generalization
-
-Any observed advantage persists on neutral external projects and sealed cases that were not used to develop the protocol.
-
-These are empirical claims. A valid result may reject any or all of them.
+Known MAPS_L regression cases are **not** part of H1 or H5 inference.
 
 ## 3. What is not being tested
 
-The primary benchmark does not ask:
+The primary benchmark does not ask whether an agent:
 
-- whether an agent can recite MAPS_L rules;
-- whether a run produces MAPS-shaped documents;
-- whether a reviewer prefers the style of MAPS output;
-- whether more planning, more agents, more messages, or more files imply better work;
-- whether the full MAPS_L runtime is superior when the intended experiment is only about protocol instructions.
+- recites MAPS_L rules;
+- creates MAPS-shaped records;
+- uses more planning, helpers, reviews, messages, or files;
+- emits `DONE / Changed / Verified` or other MAPS-specific status text;
+- follows an existing MAPS runtime regression property;
+- looks more organized to a reviewer.
 
-Protocol adherence may be recorded to explain results, but it is not part of the primary success score.
+Those may be post-outcome diagnostics only.
 
-## 4. Comparison arms
+## 4. Treatment surface manifest
+
+Experiment P is invalid unless a frozen **Treatment Surface Manifest** exists before any scored run.
+
+The manifest must contain:
+
+```text
+manifest_version
+tested_protocol_name
+tested_protocol_immutable_ref
+protocol_bundle_hash
+protocol_bundle_paths_or_text
+injection_channel
+neutral_bootstrap_text
+generic_control_text_and_hash
+target_instruction_policy
+auto_loaded_instruction_inventory
+task_snapshot_scrub_manifest
+protocol_artifact_write_policy
+network_policy
+live_update_policy
+```
+
+### 4.1 Fixed treatment bundle
+
+Arm B receives one exact, immutable, offline protocol bundle for the entire batch. Case authors may not choose a MAPS method per case after seeing the case/trap. If the protocol itself routes among included methods, that routing is agent behavior.
+
+The bundle may include MAPS_L `AGENTS.md` and subordinate methods selected for the **benchmark release as a whole**, but it must be hashed/pinned before cases execute and may not fetch mutable `main` or other live protocol text during a run.
+
+### 4.2 Target-repository instructions
+
+Target-project instructions that are part of the task environment (for example `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.cursor*`, `.github/copilot-instructions.md`, or equivalents) must be inventoried before the run.
+
+For Experiment P:
+
+- both arms receive the same target-task snapshot;
+- any instruction file that would auto-load the tested MAPS treatment is removed from **both** task snapshots and recorded in the scrub manifest;
+- Arm B receives the tested MAPS bundle only through the frozen treatment injection channel;
+- target-project instructions unrelated to the tested treatment remain identical across arms and retain their normal precedence;
+- any unresolved conflict between the tested protocol and target-project instructions is itself case-visible only when that conflict is intentionally part of the fixture.
+
+This avoids giving Vanilla MAPS_L simply because the target repository is MAPS_L.
+
+### 4.3 Protocol artifact writes
+
+Every case predeclares target writable paths identically for all arms. Process artifacts that are not part of the requested product must use a separate experiment-sidecar workspace available equally to all arms.
+
+Writing protocol-specific task records, friction logs, review evidence, or similar files into a foreign target repository is **not automatically permitted**. If outside the case's writable scope, it is graded like any other scope violation.
+
+### 4.4 Live-update behavior
+
+Experiment P does not require MAPS/SIMULATION_DESIGN-style live reasoning updates. Any bounded progress-update contract must be identical across arms and frozen in the common task fixture. Private chain-of-thought is never required.
+
+## 5. Comparison arms
 
 ### A — VANILLA
 
 Receives:
 
-- exact task fixture;
-- normal model/system safety and platform instructions;
-- same tool capabilities as treatment;
-- same environment, repository snapshot, permissions, limits, and human-response policy.
+- the exact task-facing fixture;
+- ordinary platform/model safety instructions;
+- the same target-project instructions after the common scrub policy;
+- the same tools/capabilities, environment, permissions, limits, and human-response policy;
+- the neutral output/status contract from `CASE-DESIGN.md`.
 
-Does **not** receive MAPS_L project operating instructions or MAPS-specific task methods unless the case itself naturally contains MAPS_L as subject matter.
+Does not receive the tested protocol bundle.
 
 ### B — PROTOCOL
 
-Receives the identical experimental environment plus the tested MAPS_L protocol/configuration.
+Receives the identical experimental substrate plus the frozen treatment bundle from the Treatment Surface Manifest.
 
-### Optional C — GENERIC STRUCTURED CONTROL
+### C — GENERIC STRUCTURED CONTROL
 
-Added after the A/B design is stable. Receives the same environment plus a short, competent generic workflow such as:
+Mandatory for **Standard and Full** tiers before making a MAPS-specific contribution claim.
 
-```text
-understand the objective
-inspect relevant evidence
-identify constraints
-plan proportionally
-execute
-verify
-review important risks
-report result and unresolved issues
-```
+C receives the identical substrate plus a frozen, competent generic workflow that may include proportional planning, evidence inspection, self-verification, risk review, and optional helper use, but no MAPS-specific concepts or artifacts.
 
-Purpose: distinguish "structured instructions help" from "MAPS_L-specific mechanisms help."
+Requirements:
 
-## 5. Two distinct experiments
+- C is frozen before any comparative A/B outcome is observed for that benchmark release;
+- C is authored or approved by an independent party without a MAPS_L development stake;
+- instruction lengths/context costs for A, B, and C are disclosed;
+- **B − C** is the MAPS-specific estimate;
+- **B − A** alone supports only “MAPS_L versus no-protocol control.”
 
-Do not collapse these into one result.
+## 6. Two experiments
+
+Keep these separate.
 
 ### Experiment P — Protocol effect
 
 ```text
-same harness/runtime capabilities
-A: no MAPS_L protocol
-B: MAPS_L protocol
+same task substrate + same harness/tool capability
+A: no tested protocol
+B: frozen tested protocol
+C: frozen generic structured control (Standard/Full)
 ```
 
-Answers: **Do the instructions/operating methods themselves help?**
+Answers whether the protocol instructions/operating methods help.
 
 ### Experiment S — Full-system effect
 
@@ -99,198 +140,246 @@ A: capable vanilla agent environment
 B: complete MAPS_L runtime/harness/protocol system
 ```
 
-Answers: **Does the complete product help in realistic use?**
+Runtime-mechanism regression cases, MAPS portable Run Records, `runtime/evaluation/evaluator.py`, and existing MAPS_L end-to-end runtime properties belong here or in their existing regression suite. Experiment S has weaker mechanism attribution because runtime, persistence, orchestration, and tooling may differ.
 
-Run Experiment P first. Experiment S adds runtime, persistence, orchestration, and tooling differences and therefore has weaker mechanism attribution.
+Run P before using S to make protocol-level causal claims.
 
-## 6. Controlled variables
+## 7. Controlled variables
 
-For a matched A/B pair, freeze and record:
+For every paired block, freeze and record:
 
 | Variable | Rule |
 | --- | --- |
-| model/provider | exact same model/version/provider |
-| reasoning/effort | same setting |
-| temperature/sampling | same configured policy; seed where supported |
-| context window | same effective limit |
+| model/provider/version | exact same within compared arms |
+| reasoning/effort | same |
+| sampling/seed policy | same; seed where supported |
+| context limit | same effective limit |
 | tools | same available capabilities |
-| helper/subagent capability | same availability and limits |
-| repository/project | same clean starting revision |
-| filesystem | equivalent clean copy |
-| network | same availability |
+| helpers/subagents | same capability and hard limits |
+| target project | same task snapshot after common scrub |
+| filesystem | equivalent isolated copy |
+| network | same policy; no live protocol fetch |
 | credentials/permissions | same experimental authority |
-| task wording | byte-identical fixture where feasible |
-| hidden acceptance contract | identical |
-| run budget | identical time/cost/step/attempt limits |
-| human response policy | identical |
-| failure injections | identical deterministic schedule or counterbalanced schedule |
-| evaluator | same frozen evaluator stack |
+| task wording | byte-identical across arms |
+| hidden checks | identical |
+| run budget | identical |
+| human-response policy | identical |
+| failure injection | identical or counterbalanced |
+| evaluator stack | same frozen stack |
+| artifact write scope | identical |
+| execution time window | paired/interleaved within frozen bound |
 
-A protocol may cause the treatment agent to *choose* different tools, helpers, files, or reviews. That is part of the treatment effect. The capability to make those choices must be equivalent across arms.
+A protocol may cause different choices. Capability availability itself may not differ.
 
-## 7. Unit of comparison
+## 8. Unit of comparison
 
-The primary unit is a **paired case execution**:
+The primary unit remains the **paired case block**:
 
 ```text
-same case + same frozen starting state
-→ one A run
-→ one B run
+same case + same frozen start
+→ matched A/B(/C) fresh executions
+→ repetitions nested within case
 ```
 
-Repeated executions form a case block. Analysis should preserve pairing rather than treating all runs as unrelated observations.
+Preserve pairing in analysis.
 
-## 8. Corpus architecture
+## 9. Primary target population and corpus architecture
 
-Recommended starting composition:
+The primary endpoint is defined only on **neutral standard + sealed holdout** cases. `KNOWN_REGRESSION` is a separate diagnostic stratum and never contributes to H1/H5 headline effectiveness.
 
-| Pool | Share | Purpose |
-| --- | ---: | --- |
-| neutral ordinary tasks | ~50% | real usefulness and ceremony cost |
-| known regression/historical failures | ~25% | targeted reliability |
-| sealed novel/challenge tasks | ~25% | generalization / anti-overfit |
+The primary population must be chosen independently of MAPS_L invariants. For the first release, freeze balance using work characteristics rather than protocol failure categories:
 
-At least one third of neutral/holdout work should come from projects not designed around MAPS_L terminology or repository conventions.
+### Complexity strata
 
-The percentages are targets, not immutable scientific constants. Freeze the actual mix before execution and disclose it.
+- 25% straightforward / bounded
+- 50% routine consequential / medium complexity
+- 25% complex, long-horizon, interrupted, or multi-party
 
-## 9. Internal vs external validity
+### Domain strata
 
-### Internal validity
+Target roughly balanced coverage across:
 
-The A/B difference should be attributable primarily to protocol exposure. Protect it with matched environments, immutable fixtures, randomized order, fixed graders, and sealed analysis rules.
+- software/code;
+- automation/data;
+- research/document/evidence work;
+- configuration/operations.
 
-### External validity
+### Project-origin stratum
 
-Results should transfer beyond MAPS_L's own repository. Include several project/task domains and report results by domain rather than only as an aggregate.
+At least **50% of primary cases** must come from projects not designed around MAPS_L terminology or conventions.
 
-Suggested domains:
+### Terminal-class stratum
 
-- software bug fix;
-- multi-file implementation/refactor;
-- automation/data transformation;
-- research/evidence synthesis;
-- documentation/configuration maintenance;
-- multi-step project orchestration;
-- interrupted/recovery work;
-- review/verification task.
+Freeze the `PROCEED` versus genuine `BLOCK` share before execution. Every true-blocker case must have a near-identical resolvable counterweight (“false-blocker twin”) in the same release where feasible.
 
-## 10. Benchmark contamination and overfitting
+### Stress phenomena
 
-Known MAPS_L incidents are legitimate **regression evidence**, but not a sufficient effectiveness corpus. A protocol designed in response to those incidents can overfit them.
+Authority, recovery, review, context pressure, interruption, etc. are **labels/overlays**, not the basis for primary weighting. Stress and counterweight results are reported separately.
 
-Use three pools:
+Actual weights must be independently reviewed and frozen against the declared target work population before execution. Report both the predeclared primary weighting and a clean-vs-stress sensitivity analysis.
 
-- **DEV/REGRESSION** — visible and reusable during development;
-- **FROZEN STANDARD** — versioned comparison set;
-- **SEALED HOLDOUT** — unavailable to protocol developers until a designated evaluation.
+## 10. Evidence pools
 
-After a holdout is exposed and directly informs a protocol change, retire it from holdout status and preserve it as regression evidence.
+Use:
 
-## 11. Hidden objective contract
+- **DEV / REGRESSION** — exposed, reusable, may guide changes; excluded from H1/H5.
+- **FROZEN STANDARD** — protocol-neutral primary cases frozen for versioned comparisons.
+- **SEALED HOLDOUT** — primary cases unavailable to anyone who can influence the tested protocol until the designated confirmatory look.
 
-Every case must be created with its success and failure conditions before either arm runs.
+Runtime-mechanism regression artifacts are not converted directly into Experiment P cases. A real incident may enter P only if independently re-authored as a protocol-neutral agent task whose outcome can be exhibited by all arms.
 
-The hidden contract may contain:
+## 11. Holdout firewall
 
-- exact behavioral tests;
-- expected output properties;
-- forbidden mutations/actions;
-- required evidence;
-- seeded defects;
-- correct blocker conditions;
-- acceptable alternative implementations;
-- severity mapping;
-- allowed uncertainty states.
+Holdout retirement is exposure-based, not intent-based.
 
-Do not expose hidden answer-key material to the executing agents.
+If anyone who can influence the tested protocol sees holdout content, hidden contract, or per-case trajectory, that case is retired from pristine holdout status after that evaluation whether or not they claim it informed a change.
 
-## 12. Evidence hierarchy
+Before sealing:
 
-Prefer grading in this order:
+- store the holdout bundle outside any run-reachable repository/workspace;
+- record a cryptographic hash of the sealed bundle;
+- freeze the allowed number of confirmatory looks for that holdout release;
+- disclose case-builder identity/role and whether builders were exposed to MAPS_L;
+- ensure task snapshots available to executing agents exclude benchmark directories such as `work/evals/`;
+- deny run-time network access to the live MAPS_L repository when it could expose benchmark/protocol material; Arm B uses the pinned offline treatment bundle.
 
-1. deterministic mechanical checks;
+Detailed divergence analysis exposes a holdout. After the designated evaluation, exposed cases may become DEV/regression evidence and the sealed pool must be replenished for future confirmation.
+
+Repeated MAPS version selection against the same holdout is prohibited beyond the frozen look count.
+
+## 12. Hidden contract boundary
+
+`CASE-DESIGN.md` owns hidden-contract semantics. The governing rule is:
+
+> **Hidden does not mean additional.**
+
+Any requirement capable of changing terminal outcome must be derivable from the task-facing fixture, stated scope/permissions, or ordinary correctness of the requested product. Hidden material may define **checks**, not secret MAPS-favoring requirements.
+
+## 13. Evidence hierarchy and evaluator separation
+
+Prefer:
+
+1. deterministic objective checks;
 2. direct artifact/state inspection;
-3. bounded semantic evaluator against a frozen rubric;
-4. second independent evaluator for ambiguous cases;
-5. human adjudication for evaluator disagreement or critical-severity findings.
+3. normalized, blinded semantic evaluation only for unresolved properties;
+4. independent second evaluation;
+5. blinded/non-contributor adjudication for critical or headline-affecting disputes.
 
-Private chain-of-thought is never required. Observable actions and outputs are sufficient.
+`RUN-PROTOCOL.md` owns execution/blinding details.
 
-## 13. Anti-MAPS bias check
+## 14. Benchmark tiers
 
-Before freeze, an independent reviewer should ask of every metric and case:
+- **SMOKE:** 12 primary cases × 2 repetitions × A/B. Harness/grader validation only; **no directional effectiveness verdict**.
+- **STANDARD:** recommended 48 primary cases × 3 repetitions × A/B/C. Supports controlled estimates, but equivalence or subgroup claims may remain underpowered.
+- **FULL / CLAIM-GRADE:** case count is determined by the frozen precision/power target before execution. If the intended claim is equivalence within ±5 percentage points, expect substantially more than 60 cases; the required count must be computed and frozen rather than assumed.
 
-- Could Vanilla succeed without producing MAPS-shaped artifacts?
-- Is a MAPS behavior being scored because it is intrinsically useful, or only because MAPS says to do it?
-- Does the case include a plausible path where less process is better?
-- Would the same success contract make sense if the tested protocol had another name?
-- Are known MAPS strengths overrepresented?
-- Are protocol weaknesses such as ceremony, navigation cost, over-review, false blocking, and latency directly testable?
+Known-regression runs are additional diagnostics and do not count toward primary-case totals.
 
-Any criterion that cannot survive this review should be rewritten or removed before freeze.
+## 15. Pre-execution threshold manifest
 
-## 14. Benchmark sizes
+Before the **first scored A/B run, including Smoke**, freeze all values below. `UNSET` blocks execution.
 
-Recommended operating tiers:
+```text
+primary_effect_margin_pp = UNSET
+better_confidence_level = 0.95
+equivalence_confidence_level = 0.90
+s3_guardrail = UNSET
+s4_guardrail = arm-exclusive adjudicated S4 => BETTER ineligible
+cost_guardrail = UNSET
+latency_guardrail = UNSET
+human_burden_guardrail = UNSET
+run_budget = UNSET
+pair_time_window = UNSET
+human_response_policy_version = UNSET
+invalid_pair_rerun_policy = UNSET
+holdout_confirmatory_look_count = UNSET
+blinding_check_rule = exact binomial test against 0.5 at alpha 0.05
+headline_secondary_endpoints = UNSET (small fixed set)
+```
 
-| Tier | Cases | Repetitions/arm/case | Total A/B executions |
-| --- | ---: | ---: | ---: |
-| smoke | 12 | 2 | 48 |
-| standard | 36 | 3 | 216 |
-| full/release | 60+ | 5 | 600+ |
+Values may be populated only before execution and must be independently reviewed. Smoke may inform later sample size only through arm-blind pooled variability/operational evidence, not observed arm deltas.
 
-These counts are pragmatic starting points, not claims of universal statistical power. Before a high-stakes public claim, conduct a power/precision analysis using the observed variance and target effect size.
+Any post-result benchmark defect decision must be made blind to arm where possible. If a scored case is dropped or re-versioned after outcomes exist, report results under both the original and corrected benchmark versions.
 
-## 15. Version identity
+## 16. Human-response policy owner
 
-Every executable benchmark release should freeze:
+The exact response policy is frozen in the threshold manifest. The neutral default for Experiment P is:
+
+- non-boundary clarification/check-in → fixed reply: **“Proceed within the stated scope using your best judgment.”**
+- seeded human-only boundary/preference question → predefined case answer;
+- asking a question never by itself terminates the run;
+- avoidable questions are logged as human-burden events;
+- cases where asking is the correct behavior are required in the corpus.
+
+`RUN-PROTOCOL.md` specifies logging and delivery.
+
+## 17. Version identity
+
+Every executable release freezes:
 
 ```text
 benchmark_version
+treatment_surface_manifest_hash
+threshold_manifest_hash
 corpus_hash
 case hashes
-protocol/configuration immutable ref
+holdout_bundle_hash
 model/provider/version/settings
 runner version
-rubric/evaluator version
+evaluator/normalizer/adjudication versions
 analysis version
-run-budget policy
-human-response policy
+randomization plan
 ```
 
-Never silently edit a frozen release. Corrections become a new benchmark version with explicit compatibility notes.
+Never silently edit a frozen release. Corrections create a new version with compatibility notes.
 
-## 16. Promotion firewall
+## 18. Promotion firewall
 
-Benchmark evidence may support a change; it may not automatically authorize one.
+Benchmark evidence never self-authorizes a MAPS_L change:
 
 ```text
 frozen benchmark
-→ executed results
-→ comparative analysis
-→ failure/mechanism analysis
-→ proposed protocol/runtime change
-→ required review/authority path
+→ results
+→ comparative/failure analysis
+→ proposed change
+→ normal authority/review
 → implementation
-→ regression verification
+→ DEV/regression verification
+→ later fresh holdout
 ```
 
-Do not modify the benchmark because a result is inconvenient. Do not modify the protocol mid-run.
+Do not modify the protocol mid-batch.
 
-## 17. First validation gate
+## 19. Required pre-corpus review
 
-Before execution, independently verify:
+Before corpus construction begins, an independent reviewer must approve:
 
-- case mix and project diversity;
+- treatment-surface definition and no control contamination;
+- hidden-contract neutrality;
+- primary-population independence from MAPS_L theory;
+- mandatory C plan for Standard/Full;
+- holdout firewall;
+- case/counterweight architecture;
+- concept ownership/no duplicated normative rules;
+- current status accurately says **not executed**.
+
+No corpus construction begins until the verdict is `APPROVED FOR CORPUS CONSTRUCTION`.
+
+## 20. Required pre-run freeze review
+
+After corpus construction but before any scored run, independently verify:
+
+- exact case/population weights and hashes;
 - treatment/control capability parity;
-- hidden-answer leakage absence;
-- evaluator blinding and order counterbalancing;
-- severity definitions;
-- metric definitions;
-- equivalence/tradeoff thresholds;
-- run limits;
-- holdout sealing;
-- immutable source/configuration refs;
+- threshold/guardrail values;
+- human-response policy;
+- run budgets;
+- evaluator normalization/blinding;
+- S4 rule;
+- invalid/UNKNOWN policy;
+- holdout seal/look count;
+- immutable model/configuration refs;
 - report schema;
-- status accurately says **not yet executed**.
+- status accuracy.
+
+No model/evaluator execution or benchmark spending occurs before this gate.
