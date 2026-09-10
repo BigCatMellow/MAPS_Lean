@@ -23,3 +23,9 @@ Audit the FRICTION_LOG: how many entries closed via behavioral-N=3 vs via a real
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+- disposition (trajectory check #27, 2026-09-10): **KEEP** — operator
+  (`goldenjanitors@gmail.com`, via `bigboss`). The observed tension between
+  the behavioral-close path and rule 20 is real and worth keeping on the
+  register, but no promotion to a task and no kill. Clears the N=3
+  auto-escalation; carry as a live insight, not an operator-escalation item.

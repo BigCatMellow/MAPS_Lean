@@ -23,3 +23,9 @@ At #22, measure: how many of passes #12-#21 changed a trajectory action or caugh
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+- disposition (trajectory check #27, 2026-09-10): **KEEP** — operator
+  (`goldenjanitors@gmail.com`, via `bigboss`). The trajectory-check-cadence
+  observation stays on the register as a live insight; no promotion to a
+  task and no kill. Clears the N=3 auto-escalation; carry forward, not an
+  operator-escalation item.
