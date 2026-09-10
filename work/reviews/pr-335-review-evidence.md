@@ -27,3 +27,22 @@ BROAD_EXIT=0
 ```
 
 (python3 -m unittest cross-check of the 3 new ambiguity tests also green: Ran 3 tests ... OK.)
+
+---
+
+reviewer: ChatGPT GPT-5.6 Sol / SENTINEL-FRESH-PR335
+head_sha: 6a8dc8953a388b0c86170c8953a7493f7fe54b23
+independent: true
+summary: APPROVE — fresh independent review bound to exact code head 6a8dc8953a388b0c86170c8953a7493f7fe54b23. Verified the bounded supervisor predicate suppresses same-tick direct fallback only for returned non-success retry=UNKNOWN results outside the explicit pre-dispatch compatibility set; CANONICAL_GUARD_REQUIRED continues to fall through to direct resume, canonical denials retain their dedicated no-fallback/separate-budget path, unresolved harness binding and raw HarnessService.resume exceptions retain direct-fallback behavior, and the ambiguous result still consumes one ordinary attempt and returns to probing/backoff. Verified the next tick checks session liveness before due/retry and resolves a now-live session without a second resume. Recovery evidence preserves mutated, operation_id, and retry only for the ambiguous case; OperationResult defines operation_id as an opaque correlation identifier and the task/decision/audit explicitly do not claim durable logical intent/idempotency identity. The production regression composes real HarnessService + registered CanonicalRunGuard + HcomHarnessAdapter and makes the fake backend record the resume dispatch before raising HcomError, which HcomHarnessAdapter normalizes to TRANSPORT_ERROR with retry=UNKNOWN. Exact base-to-code-head diff changes only supervisor.py, the focused ambiguity test, task, and decision; no ledger, schema, provider/idempotency protocol, capability, E5 policy, authority, new recovery state, or broader retry architecture is introduced. GitHub Actions Runtime stack tests run 1641 / job 102711106769 is completed success at exact head_sha 6a8dc8953a388b0c86170c8953a7493f7fe54b23, including compile, lint, security analysis, dependency consistency, active tests, smoke, and installer validation. No blocking defect found.
+
+## Fresh independent verification details
+
+- UNKNOWN suppression: `ambiguous_external_outcome = (not result.ok and result.retry == RetryDisposition.UNKNOWN and code not in _PRE_DISPATCH_RESULT_CODES)`; that branch sets `action="resume_failed"`, `resolved=True`, skips `self.hcom.resume(...)`, then executes ordinary `attempt += 1`, `state="probing"`, and backoff scheduling.
+- Compatibility isolation: `_PRE_DISPATCH_RESULT_CODES` includes `HOOK_DENIED`, `APPROVAL_REQUIRED`, and `CANONICAL_GUARD_REQUIRED`; the first two are handled before the ambiguous branch and the last is allowed to fall through. Other production pre-dispatch service/binding errors are emitted with `retry=UNSAFE`, so they do not satisfy the UNKNOWN predicate.
+- Canonical-denial / binding / exception preservation: the production delta does not alter `_resolve_harness_binding`, the canonical-denial accounting branch, or the `except Exception` path; exact-head recovery-supervisor tests covering missing canonical guard direct fallback and harness-call exception direct fallback are part of the successful Runtime stack run.
+- Ambiguity evidence: `mutated`, `operation_id`, and `retry` are projected only when the UNKNOWN/non-pre-dispatch predicate is true. `runtime/harness/types.py::new_operation_id` calls it an opaque operation correlation identifier; the predecessor audit explicitly states it is not durable logical intent identity.
+- Re-observation: `tick()` reads the current session list once at tick start and checks `session_is_live(...)` before due-at evaluation or any resume. The focused regression changes the next tick's observed session to active/process-bound and proves resolution with exactly one harness resume total and zero direct resumes.
+- Real transport path: the focused test uses production `HarnessService`, `HookRegistry`, `CanonicalRunGuard`, and `HcomHarnessAdapter`. `_FakeHcom.resume` appends the call and then raises `HcomError`; adapter `_provider_failure` maps it to `TRANSPORT_ERROR` and `RetryDisposition.UNKNOWN`, which reaches the supervisor predicate.
+- Exact-head CI: Runtime stack tests workflow run 1641 / run id 34425953377 / job 102711106769 reports `head_sha=6a8dc8953a388b0c86170c8953a7493f7fe54b23` and `conclusion=success`.
+
+Verdict: APPROVED.
