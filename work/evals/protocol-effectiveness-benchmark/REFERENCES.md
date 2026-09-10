@@ -2,127 +2,74 @@
 
 Status: supporting references for the draft benchmark specification.
 
-The benchmark design should remain understandable and executable from its own frozen specification. These references explain the design lineage; they are not runtime authority.
+These sources explain design lineage. They do not define Experiment P outcome criteria or prove MAPS_L effectiveness.
 
 ## MAPS_L internal owners
 
-### Repository operating contract
-
-- [`../../../AGENTS.md`](../../../AGENTS.md)
-  - Evidence outranks prose.
-  - Capability does not create permission.
-  - Do not silently expand scope.
-  - Do not idle while authorized actionable work remains.
-  - Do not manufacture work after success.
-  - Independent review where required.
-  - No process for process's sake.
-
-### Agent-grade task readiness
-
-- [`../../../playbook/AGI_STANDARD.md`](../../../playbook/AGI_STANDARD.md)
-  - Fresh-Agent, No-Guess, Scope, Authority, Completion, Failure, and Continuation tests.
-  - Useful benchmark dimensions, but not success points simply because MAPS_L defines them.
-
-### Task lifecycle
-
-- [`../../../playbook/TASK_LIFECYCLE.md`](../../../playbook/TASK_LIFECYCLE.md)
-  - Shaping, execution, verification, recovery, continuation, independent review, and operational independence.
-
-### Simulation design
-
-- [`../../../playbook/SIMULATION_DESIGN.md`](../../../playbook/SIMULATION_DESIGN.md)
-  - Existing reusable owner for controlled role/task scenarios, observable route choice, controlled traps, and precise failure classes.
-
-### Checks and balances
-
-- [`../../../docs/CHECKS_AND_BALANCES.md`](../../../docs/CHECKS_AND_BALANCES.md)
-  - Risk-proportional verification and independent review expectations.
-
-### Repair and learning
-
-- [`../../../playbook/REPAIR_AND_LEARNING.md`](../../../playbook/REPAIR_AND_LEARNING.md)
-  - Existing failure capture, recurrence, mechanical countermeasure, live verification, and frozen regression-case path.
-
-### Existing frozen end-to-end benchmark
-
-- [`../maps-end-to-end-benchmark-v1.json`](../maps-end-to-end-benchmark-v1.json)
-  - Existing Layer-2 controlled and Layer-3 real-world outcome scenarios.
-  - Preserves `PASS`, `FAIL`, `UNKNOWN`, and `NOT_RUN`.
-  - Explicitly avoids collapsing blocker, quality, friction, cost, and outcome into one weighted score.
-  - The protocol-effectiveness benchmark should reuse rather than duplicate these scenarios when they fit.
-
-### Existing deterministic evaluation runtime
-
-- [`../../../runtime/evaluation/evaluator.py`](../../../runtime/evaluation/evaluator.py)
-  - Same-corpus baseline/candidate comparison.
-  - Immutable configuration references.
-  - Frozen case identity.
-  - Cost and latency measurements.
-  - No automatic promotion from score.
-
-- [`../../../runtime/evaluation/regression_case.py`](../../../runtime/evaluation/regression_case.py)
-  - Frozen incident/regression representation.
-  - Sanitized portable fixtures.
-  - Incident categories and expected properties.
-  - Explicit non-automatic promotion.
+- [`../../../AGENTS.md`](../../../AGENTS.md) — repository operating contract. Its invariants motivate hypotheses/stress labels but must not become hidden success requirements.
+- [`../../../playbook/AGI_STANDARD.md`](../../../playbook/AGI_STANDARD.md) — MAPS task-readiness method. AGI compliance is diagnostic only in Experiment P.
+- [`../../../playbook/TASK_LIFECYCLE.md`](../../../playbook/TASK_LIFECYCLE.md) — MAPS lifecycle method. Its records/states are not P success points.
+- [`../../../playbook/SIMULATION_DESIGN.md`](../../../playbook/SIMULATION_DESIGN.md) — reusable MAPS simulation method. Its mandatory live updates, route reporting, and observability failure classes are **not imported into Experiment P primary grading**.
+- [`../../../docs/CHECKS_AND_BALANCES.md`](../../../docs/CHECKS_AND_BALANCES.md) — MAPS risk/review method; useful for MAPS-side diagnostics, not a control-arm requirement unless the common task fixture requires equivalent behavior.
+- [`../../../playbook/REPAIR_AND_LEARNING.md`](../../../playbook/REPAIR_AND_LEARNING.md) — owner for post-result repair/regression promotion.
+- [`../maps-end-to-end-benchmark-v1.json`](../maps-end-to-end-benchmark-v1.json) — existing MAPS end-to-end/runtime protocol. Its MAPS-shaped properties (`orientation.authority_loaded`, recovery/review binding, etc.) are **not reused as Experiment P primary properties**. They remain separate diagnostics/Experiment S evidence.
+- [`../../../runtime/evaluation/evaluator.py`](../../../runtime/evaluation/evaluator.py) — deterministic MAPS frozen-regression comparator. It is not the Experiment P scorer: its one-result-per-case, portable Run Record provenance, limited measurement schema, and property-regression semantics do not represent A/B/C × repetitions.
+- [`../../../runtime/evaluation/regression_case.py`](../../../runtime/evaluation/regression_case.py) — MAPS runtime regression representation. Existing runtime-mechanism cases remain outside P unless independently re-authored as protocol-neutral agent tasks.
 
 ## External evaluation references
 
-These sources motivate general evaluation-design choices. They do not make MAPS_L-specific claims.
+External sources motivate methodology only.
 
 ### Holistic Evaluation of Language Models (HELM)
 
-Percy Liang et al., 2022, arXiv:2211.09110
-
+Percy Liang et al., 2022, arXiv:2211.09110  
 https://arxiv.org/abs/2211.09110
 
-Relevant design lesson: use standardized scenarios and multiple metrics so accuracy does not hide efficiency, robustness, calibration, or other tradeoffs.
+Lesson: standardized scenarios and multiple metrics help prevent one accuracy number from hiding robustness, calibration, efficiency, or other tradeoffs.
 
 ### Do More Agents Help? Controlled and Protocol-Aligned Evaluation of LLM Agent Workflows
 
-Yuhang Fu et al., 2026, arXiv:2606.05670
-
+Yuhang Fu et al., 2026, arXiv:2606.05670  
 https://arxiv.org/abs/2606.05670
 
-Relevant design lesson: when comparing agent workflows, normalize benchmark loading, tool access, answer contracts, accounting, and trajectory logging so workflow differences are interpretable rather than confounded by unequal substrates.
+Lesson: normalize task loading, tool access, answer contracts, accounting, and trajectory logging so workflow comparisons are not substrate comparisons.
 
 ### Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge
 
-Lin Shi et al., 2024, arXiv:2406.07791
-
+Lin Shi et al., 2024, arXiv:2406.07791  
 https://arxiv.org/abs/2406.07791
 
-Relevant design lesson: pairwise LLM evaluators can exhibit position bias. Anonymize conditions, counterbalance presentation order, prefer objective/absolute scoring first, and measure evaluator stability.
+Lesson: evaluator position/order and presentation can bias pairwise judgments; use objective scoring first, counterbalance, and measure blinding/stability.
 
 ### NLP Evaluation in trouble: On the Need to Measure LLM Data Contamination for each Benchmark
 
-Oscar Sainz et al., Findings of EMNLP 2023.
-
+Oscar Sainz et al., Findings of EMNLP 2023  
 https://aclanthology.org/2023.findings-emnlp.722/
 
-Relevant design lesson: exposure to benchmark material can inflate apparent capability. For a protocol-development project, the analogous risk is repeatedly tuning the protocol to a known benchmark. Preserve fresh holdouts and disclose exposure.
+Lesson: exposure can inflate benchmark performance; protocol-development benchmarks need explicit holdout exposure accounting.
 
 ### LLM Benchmark Datasets Should Be Contamination-Resistant
 
-Ali Al-Lawati et al., 2026, arXiv:2605.19999
-
+Ali Al-Lawati et al., 2026, arXiv:2605.19999  
 https://arxiv.org/abs/2605.19999
 
-Relevant design lesson: public, repeatedly exposed benchmarks face contamination/generalization problems; sealed or refreshed challenge material helps distinguish genuine generalization from benchmark familiarity.
+Lesson: repeatedly exposed public benchmarks are vulnerable to overfitting; sealed/refreshed challenge material improves generalization evidence.
 
-## Statistical references/principles
+## Statistical principles
 
-The benchmark uses standard paired-experiment principles rather than prescribing one universal test:
+The benchmark uses standard paired-experiment principles:
 
-- analyze matched A/B case outcomes as paired data;
-- report effect magnitude and uncertainty, not only p-values;
-- account for repeated runs nested within the same case;
-- predeclare the smallest practically meaningful difference;
-- permit `INCONCLUSIVE` when precision is insufficient;
-- separate confirmatory analysis from exploratory subgroup/ablation analysis.
+- preserve matched case blocks;
+- account for repetitions nested within case;
+- report effect magnitude plus uncertainty;
+- predeclare practical margin, guardrails, and analysis before the first scored run;
+- treat equivalence as requiring evidence, not failure to reject difference;
+- keep critical failures visible even when rare;
+- separate confirmatory endpoints from exploratory subgroups;
+- permit `INCONCLUSIVE`.
 
-The exact confirmatory method should be frozen with the executable benchmark release after the case count, repetition structure, and target precision are known.
+The exact frozen implementation belongs to the benchmark release, not this references file.
 
 ## Reference-use rule
 
-External papers support benchmark methodology, not MAPS_L effectiveness. The effectiveness claim must come from the actual controlled results.
+No external or internal reference may substitute for controlled outcome evidence. A MAPS document can motivate what to test; it cannot define “MAPS wins.”
