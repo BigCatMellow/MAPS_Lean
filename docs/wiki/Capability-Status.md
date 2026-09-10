@@ -11,7 +11,8 @@ the current roadmap/checklist before it drives a consequential decision.
 
 **Last capability reconciliation:** trajectory check #26 at `25c7729`
 
-**Current Wiki-audit `main`:** `18b064c` (only later Wiki-source commits)
+**Current Wiki-audit `main`:** `378468c` (includes #319/#320/#324/#325 and the
+merge-train wiki-status commits)
 
 **Scoreboard:** **19 DONE / 10 IN PROGRESS / 6 NOT STARTED**
 
@@ -77,7 +78,7 @@ snapshot/rehydration is a separate NOT STARTED row.
 
 | Row | What exists | Why it is not DONE |
 | --- | --- | --- |
-| **6.4 Hooks** | Hook registry, canonical-run enforcement, destructive-action guard, and an opt-in production stop caller | `BEFORE_DESTRUCTIVE_ACTION` still lacks its own real exposure; wider write/credential guards are incomplete |
+| **6.4 Hooks** | Hook registry, canonical-run enforcement, destructive-action guard, an opt-in production stop caller, and a first real `BEFORE_DESTRUCTIVE_ACTION` firing (PR #320, merged) | the single exercise does not close the row; wider write/credential guards are incomplete |
 | **6.10 Skill trust** | provenance catalog, quarantine lifecycle, real flow-start refusal, operator-driven transitions, capability sidecars | third-party/countersign and wider activation/enforcement work remain |
 | **6.11 context budgets** | budget classes and an on-demand Skill-resource surface | budget labels do not generally drive downstream retrieval/loading |
 | **6.19 helper continuity** | exact-match metadata/TTL reuse candidates | no provider health check or automatic helper resume |
@@ -112,8 +113,6 @@ A production caller can ship while the wider row remains IN PROGRESS.
 
 ## Deliberate exclusions from current behavior
 
-- [PR #319](https://github.com/BigCatMellow/MAPS_Lean/pull/319) is not in
-  `main`; established-mechanism supersession authority is not current behavior.
 - Semantic synonym/query-expansion routing is not in production.
 - Capability Packs, credential brokering, snapshots/rehydration, controlled
   harness refinement, time-travel debugging, and a Mission object are not

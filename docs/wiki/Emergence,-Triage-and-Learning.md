@@ -71,17 +71,16 @@ promising candidates.
 Cross-root synthesis is current behavior from merged PR #315. It did not expand
 Capture or Promote authority.
 
-## Established-mechanism supersession is not current behavior
+## Established-mechanism supersession authority is current behavior
 
-[PR #319](https://github.com/BigCatMellow/MAPS_Lean/pull/319) proposes allowing
-Emergence to explicitly challenge, redesign, or propose replacement of an
-established MAPS_L mechanism while retaining the existing authority gates.
+[PR #319](https://github.com/BigCatMellow/MAPS_Lean/pull/319) is **merged**
+(commit `69d6497`, 2026-09-09). Emergence may now explicitly challenge,
+redesign, or propose replacement of an established MAPS_L mechanism while the
+existing authority gates are retained: proposal authority stays distinct from
+execution/merge authority.
 
-As of this page's reconciliation, #319 has independent review, a Tenth Seat
-minority report, and a recorded narrow/conditional operator substance ruling,
-but its head is **not merged into `main`**. It is therefore **IN REVIEW / NOT
-CURRENT** and is deliberately excluded from the description of implemented
-Emergence behavior above.
+#319 carried independent review, a Tenth Seat minority report, and a recorded
+narrow/conditional operator substance ruling before it landed.
 
 ## Mandatory friction capture
 
