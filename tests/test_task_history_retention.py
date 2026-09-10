@@ -89,6 +89,7 @@ class TaskHistoryRetentionTests(unittest.TestCase):
             event_types,
             [
                 "TASK_CREATED",
+                "TASK_POLICY_UPDATED",
                 "TASK_CONTRACT_UPDATED",
                 "TASK_PROMOTED_READY",
                 "TASK_CLAIMED",
