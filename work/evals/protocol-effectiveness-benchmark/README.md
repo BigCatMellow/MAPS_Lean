@@ -10,9 +10,9 @@ This package is protocol-neutral at the grading boundary. MAPS_L is a treatment 
 
 ## Owner / current gate
 
-Parent work: PR #341 and the benchmark specification task/review evidence for this branch.
+Parent work: [`../../tasks/protocol-effectiveness-benchmark.md`](../../tasks/protocol-effectiveness-benchmark.md) on PR #341.
 
-Latest independent review at the original head `465d97300cf021840fb1fe0434656ff3772d1db4` returned **MAJOR CORRECTIONS REQUIRED**. Its corrections are applied on this branch. No corpus may be constructed until a **fresh independent reviewer at the new head** returns:
+The independent review at the original head `465d97300cf021840fb1fe0434656ff3772d1db4` returned **MAJOR CORRECTIONS REQUIRED**. Its corrections are applied on this branch. No corpus may be constructed until a **fresh independent reviewer at the corrected head** returns:
 
 `APPROVED FOR CORPUS CONSTRUCTION`
 
@@ -28,7 +28,6 @@ One concept, one owner:
 - [`SCORING-AND-ANALYSIS.md`](SCORING-AND-ANALYSIS.md) — metrics, paired inference, exact verdict rules, subgroups, ablations, failure divergence.
 - [`REPORT-TEMPLATE.md`](REPORT-TEMPLATE.md) — reusable report shape.
 - [`REFERENCES.md`](REFERENCES.md) — provenance/methodology only; not runtime authority.
-- [`../../tasks/protocol-effectiveness-benchmark.md`](../../tasks/protocol-effectiveness-benchmark.md) — bounded owning task/current gate.
 - [`../../reviews/pr-341-review-evidence.md`](../../reviews/pr-341-review-evidence.md) — independent review evidence for the original PR head.
 
 Do not restate normative rules in this README; follow the owning file above.
