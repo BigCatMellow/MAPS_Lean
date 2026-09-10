@@ -1,121 +1,79 @@
 # Protocol Effectiveness Benchmark
 
-Status: **DRAFT SPECIFICATION — NOT EXECUTED**
+Status: **CORRECTIONS APPLIED — AWAITING FRESH INDEPENDENT RE-REVIEW; NOT EXECUTED**
 
-This folder defines a reusable controlled benchmark for answering a narrow causal question:
+Primary question:
 
-> Given otherwise equivalent capable agents, does applying an operating protocol such as MAPS_L improve successful autonomous completion of consequential work enough to justify its cost and complexity?
+> Given otherwise equivalent capable agents, does applying an operating protocol such as MAPS_L improve objectively correct autonomous task completion enough to justify its cost, complexity, and failure modes?
 
-The benchmark is intentionally **protocol-neutral**. MAPS_L is one treatment configuration, not part of the grading definition. Protocol adherence is diagnostic evidence; it is not itself a success metric.
+This package is protocol-neutral at the grading boundary. MAPS_L is a treatment configuration. Protocol adherence is diagnostic only.
 
-## Why this exists
+## Owner / current gate
 
-MAPS_L claims value beyond final-answer quality: task truth, bounded authority, orchestration, evidence use, verification, recovery, review independence, continuation, and durable operability. A final-artifact-only comparison would miss much of that value. Conversely, a MAPS-specific compliance test could reward ceremony without proving better outcomes.
+Parent work: PR #341 and the benchmark specification task/review evidence for this branch.
 
-This benchmark therefore separates four questions:
+Latest independent review at the original head `465d97300cf021840fb1fe0434656ff3772d1db4` returned **MAJOR CORRECTIONS REQUIRED**. Its corrections are applied on this branch. No corpus may be constructed until a **fresh independent reviewer at the new head** returns:
 
-1. **Effectiveness** — does the protocol complete more work correctly?
-2. **Safety/reliability** — does it reduce serious mistakes, false success, unauthorized action, or unrecovered failure?
-3. **Efficiency** — what does any improvement cost in tokens, money, latency, tool calls, files read, retries, and human intervention?
-4. **Diagnosis** — which mechanisms help or hurt, on which kinds of work, and why?
+`APPROVED FOR CORPUS CONSTRUCTION`
 
-## Package
+No scored benchmark, model/evaluator spending, threshold freeze based on outcomes, runtime change, or protocol promotion has occurred.
 
-- [`BENCHMARK-SPEC.md`](BENCHMARK-SPEC.md) — hypotheses, comparison arms, controls, corpus architecture, portability, validity, and benchmark lifecycle.
-- [`CASE-DESIGN.md`](CASE-DESIGN.md) — case families, neutral/regression/holdout mix, hidden contracts, traps, severity, and case-construction rules.
-- [`RUN-PROTOCOL.md`](RUN-PROTOCOL.md) — exact execution, randomization, blinding, repetitions, observable trajectory capture, and evaluator procedure.
-- [`SCORING-AND-ANALYSIS.md`](SCORING-AND-ANALYSIS.md) — metrics, paired analysis, uncertainty, equivalence, tradeoff rules, ablations, and interpretation.
-- [`REPORT-TEMPLATE.md`](REPORT-TEMPLATE.md) — standard result report and failure-analysis format.
-- [`REFERENCES.md`](REFERENCES.md) — internal MAPS_L owners and external evaluation references.
+## Package ownership
+
+One concept, one owner:
+
+- [`BENCHMARK-SPEC.md`](BENCHMARK-SPEC.md) — arms, Treatment Surface Manifest, controls, target population/pools, holdout lifecycle, thresholds/guardrails, version identity.
+- [`CASE-DESIGN.md`](CASE-DESIGN.md) — case schema, neutral output contract, hidden checks, families/counterweights, terminal truth table, severity.
+- [`RUN-PROTOCOL.md`](RUN-PROTOCOL.md) — execution, parity/isolation, human responses, logging, normalization/blinding, invalidation, reruns.
+- [`SCORING-AND-ANALYSIS.md`](SCORING-AND-ANALYSIS.md) — metrics, paired inference, exact verdict rules, subgroups, ablations, failure divergence.
+- [`REPORT-TEMPLATE.md`](REPORT-TEMPLATE.md) — reusable report shape.
+- [`REFERENCES.md`](REFERENCES.md) — provenance/methodology only; not runtime authority.
+- [`../../tasks/protocol-effectiveness-benchmark.md`](../../tasks/protocol-effectiveness-benchmark.md) — bounded owning task/current gate.
+- [`../../reviews/pr-341-review-evidence.md`](../../reviews/pr-341-review-evidence.md) — independent review evidence for the original PR head.
+
+Do not restate normative rules in this README; follow the owning file above.
 
 ## Relationship to existing MAPS_L evaluation
 
-This package does **not** supersede the existing evaluation owners.
+This package does **not** supersede existing owners, but Experiment P has a strict boundary:
 
-- [`../../../playbook/SIMULATION_DESIGN.md`](../../../playbook/SIMULATION_DESIGN.md) remains the reusable method for controlled agent simulations.
-- [`../maps-end-to-end-benchmark-v1.json`](../maps-end-to-end-benchmark-v1.json) remains the existing frozen MAPS end-to-end scenario protocol.
-- [`../../../runtime/evaluation/evaluator.py`](../../../runtime/evaluation/evaluator.py) remains the deterministic frozen-case evaluator/comparator.
-- [`../../../runtime/evaluation/regression_case.py`](../../../runtime/evaluation/regression_case.py) remains the frozen regression-case representation.
-- [`../../../playbook/REPAIR_AND_LEARNING.md`](../../../playbook/REPAIR_AND_LEARNING.md) remains the owner for converting real failures into repairs and regression protection.
+- [`../../../playbook/SIMULATION_DESIGN.md`](../../../playbook/SIMULATION_DESIGN.md) remains a MAPS_L simulation method. Its required live updates, route/document reporting, and observability failure classes are **not** Experiment P primary-outcome requirements.
+- [`../maps-end-to-end-benchmark-v1.json`](../maps-end-to-end-benchmark-v1.json) remains a frozen MAPS end-to-end/runtime evidence protocol. Its MAPS-shaped properties are **diagnostic or Experiment S material**, not Experiment P primary criteria.
+- [`../../../runtime/evaluation/evaluator.py`](../../../runtime/evaluation/evaluator.py) and [`../../../runtime/evaluation/regression_case.py`](../../../runtime/evaluation/regression_case.py) remain runtime regression machinery. They are **not the Experiment P scorer** and must not force P into portable MAPS Run Record or one-result-per-case semantics.
+- [`../../../playbook/REPAIR_AND_LEARNING.md`](../../../playbook/REPAIR_AND_LEARNING.md) remains the owner for turning real failures into repairs/regression protection after results exist.
 
-The protocol-effectiveness benchmark sits **above** those mechanisms. It defines how to compare a protocol-enabled agent to a matched control, while reusing existing MAPS_L evidence and evaluation machinery where appropriate.
+Any machine schema needed for Experiment P must be defined once by this package rather than silently extending the runtime evaluator format.
 
-## Core experimental shape
+## Experimental shape
 
-Primary comparison:
+- **A — Vanilla:** matched substrate, no tested protocol.
+- **B — Protocol:** same substrate plus one frozen offline MAPS_L treatment bundle.
+- **C — Generic structured control:** mandatory for Standard/Full before any MAPS-specific contribution claim.
+- **Experiment P:** isolates protocol effect.
+- **Experiment S:** separately measures the complete MAPS_L system.
 
-```text
-A — VANILLA
-same model + tools + environment + task + limits
-without MAPS_L operating protocol
+Known MAPS regression cases are separate diagnostics, not part of the primary H1/H5 endpoint.
 
-B — PROTOCOL
-same model + tools + environment + task + limits
-with MAPS_L operating protocol
-```
+## Anti-bias commitments
 
-Later validation may add:
+The benchmark must be able to show MAPS_L is better, worse, equivalent, inconclusive, or a tradeoff.
 
-```text
-C — GENERIC STRUCTURED AGENT
-same capabilities plus a competent generic
-understand → inspect → plan → execute → test → review → report checklist
-without MAPS_L-specific mechanisms
-```
+In particular:
 
-The benchmark should first isolate **protocol effects**. A separate system-level experiment may later compare a vanilla agent environment against the complete MAPS_L runtime/harness. Mixing those questions initially would make causal attribution weak.
+- hidden contracts contain checks, not unstated process requirements;
+- primary population weights are defined from target work characteristics, not MAPS invariants;
+- true blockers have resolvable counterweights;
+- cases include asking-is-correct, over-continuation, ceremony, context-pressure, foreign-repo artifact-write, instruction-conflict, and review/helper-harm cases;
+- external projects are at least half of the primary population;
+- evaluator evidence is normalized to reduce treatment-identifying process vocabulary;
+- holdouts retire on exposure and have a frozen look count;
+- Smoke cannot issue a directional verdict;
+- threshold/guardrail values must be frozen before the first scored run;
+- arm-exclusive adjudicated S4 failures prevent a clean BETTER label;
+- no result is erased by post-hoc benchmark edits.
 
-## Anti-bias rules
+## Current next step
 
-1. Freeze task fixtures, hidden acceptance contracts, metrics, evaluator prompts, stopping rules, and analysis rules **before** observing comparative outcomes.
-2. Do not build the corpus only from MAPS_L's known historical failures.
-3. Use a mix of ordinary neutral work, known regression cases, and sealed novel holdouts.
-4. Include unrelated external projects so MAPS_L is tested outside repositories designed around MAPS terminology.
-5. Keep the evaluator blind to treatment identity where feasible.
-6. Prefer mechanical/objective checks over subjective judgment.
-7. Do not require private chain-of-thought; use observable actions, artifacts, state transitions, and bounded decision explanations.
-8. Preserve `UNKNOWN` / `NOT_RUN`; never force ambiguous evidence into PASS or FAIL.
-9. Report effectiveness, serious failure, and efficiency separately. Do not hide tradeoffs in one weighted score.
-10. Never change a frozen benchmark in place to make a candidate look better. Version it.
+**Fresh independent re-review at the corrected PR head.**
 
-## Development firewall
-
-Maintain three evidence pools:
-
-```text
-DEV / REGRESSION SET
-known to developers; used continuously; may guide fixes
-
-FROZEN STANDARD SET
-versioned; supports historical score comparisons
-
-SEALED HOLDOUT SET
-not inspected during development; opened only at designated evaluation points
-```
-
-Once a holdout case has been inspected in detail and a protocol change is made specifically in response to it, the case is no longer a valid holdout. Promote it to regression coverage and replenish the sealed pool.
-
-## Intended result states
-
-A benchmark run may conclude:
-
-- `BETTER`
-- `WORSE`
-- `EQUIVALENT`
-- `INCONCLUSIVE`
-- `TRADEOFF`
-
-These meanings are defined before execution in [`SCORING-AND-ANALYSIS.md`](SCORING-AND-ANALYSIS.md). `TRADEOFF` is deliberate: a protocol can improve success while becoming unacceptably slower, more expensive, or more dangerous in another dimension.
-
-## Current gate
-
-This folder is specification only. No benchmark execution, model/API spending, corpus freeze, threshold freeze, MAPS_L protocol modification, or promotion decision is implied by adding it.
-
-Before the first comparative run:
-
-1. independently review this specification for MAPS-favoring assumptions;
-2. build and review the initial neutral case corpus;
-3. freeze evaluator/model/version/settings and run limits;
-4. freeze scoring and practical-equivalence thresholds;
-5. seal the holdout subset;
-6. then run the smallest smoke comparison.
+That reviewer must verify B1–B3 and M1–M12 from the recorded review are actually resolved and that the corrections did not introduce a new MAPS-favoring path. Only then may corpus construction begin.
