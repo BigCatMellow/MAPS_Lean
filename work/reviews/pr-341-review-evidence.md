@@ -25,64 +25,124 @@ Keep intact (do not change while correcting): paired case-block unit (SPEC §7);
 
 ## 2. Findings — genuine validity defects
 
+Line numbers refer to files at `465d973`.
+
 ### B1 — BLOCKING — Treatment surface undefined; control contamination and unequal starting state
 
-- **Defect:** MAPS_Lean cases risk auto-loading `AGENTS.md`/skills into Vanilla, while external repos do not define how MAPS is delivered. Protocol-artifact writes and target-project instruction precedence are also unspecified; per-case method selection can tailor treatment to traps; optional live-update statements introduce an extra intervention.
-- **Smallest correction:** Add a treatment-surface manifest: exact pinned files/text and injection channel; Arm A differs only by removal of manifest paths; every auto-loaded instruction source is held identical or declared; one fixed protocol package for all cases; offline pinned delivery; predeclared protocol-artifact write rule; live-update requirement off in Experiment P or identical across arms.
+- **Where:** `BENCHMARK-SPEC.md` §1 (L9), §4 (L49–62), §6 (L118 "same clean starting revision", L122); `RUN-PROTOCOL.md` §2, §8 (L148–152).
+- **Defect:** 
+  1. *MAPS_Lean-repo cases.* The repo root contains `AGENTS.md` and `.claude/skills/pilot/SKILL.md`, which common agent harnesses auto-load. Arm A must both start from "the same repository snapshot" and "not receive MAPS_L operating instructions" (L58). Both cannot hold. Either Vanilla silently receives the protocol, which biases toward a null result, or the snapshots differ in an unrecorded way.
+  2. *External repos.* The spec never says how Arm B receives MAPS_L: system prompt, mounted docs, or the `pilot` skill. The pilot skill fetches mutable GitHub `main` over the network. The spec also never says whether MAPS-mandated writes (`work/tasks/*.md`, `FRICTION_LOG` entries, review-evidence files) are permitted or count as scope violations, or how the target project's own instruction files take precedence (the pilot skill says they govern).
+  3. §1 "only the subordinate methods actually routed by the task" can be read as case authors choosing which methods B receives per case. An author who knows the trap could then tailor the treatment to the trap.
+  4. RUN §8 optional "assumption → evidence → next action" statements are a structured-reasoning intervention. It is not frozen per arm and duplicates `SIMULATION_DESIGN.md` live updates.
+- **Why it matters:** Attribution to protocol exposure is invalid on every case where these differ. Case records (`starting_state_ref`, `allowed_capabilities`, forbidden paths) cannot be written neutrally until this is defined.
+- **Smallest correction:** Add a *Treatment surface manifest* subsection to SPEC §4: 
+  - exact files/text, injection channel, and immutable ref;
+  - Arm A = identical snapshot minus manifest paths, recorded as the sole permitted diff;
+  - every auto-loaded instruction file (`AGENTS.md`, `CLAUDE.md`, `.claude/`, `.cursor*`, `copilot-instructions.md`, target-project equivalents) is either held identical across arms or listed in the manifest;
+  - the same protocol package for every case, with no per-case method selection;
+  - protocol delivered pinned and offline, with no fetch of `main`;
+  - a per-case rule for protocol-artifact write paths, decided before runs and identical across arms;
+  - RUN §8 statements are off in Experiment P, or identical in both arms and disclosed as part of the control.
 
-### B2 — BLOCKING — Hidden contracts may contain hidden requirements, not just hidden checks
+### B2 — BLOCKING — Hidden contracts may contain hidden *requirements*, not just hidden *checks*
 
-- **Defect:** Unstated evidence/reporting requirements or parser expectations for MAPS-style `DONE/BLOCKED` can make process compliance affect outcome classification.
-- **Smallest correction:** Hidden ≠ additional. Any criterion that changes outcome class must derive from the task-facing fixture. Add one identical neutral final-status contract to every fixture. False claims of verification become a separate secondary metric unless evidence was requested.
+- **Where:** `CASE-DESIGN.md` §4 L81 (the "better" example includes "provides verifiable evidence of success"), §10 L186 ("claims completion appropriately"), L188 ("or invalid evidence"); `BENCHMARK-SPEC.md` §11 L199 ("required evidence").
+- **Defect:** A criterion the task never asked for, such as reporting evidence, can decide the outcome class. `AGENTS.md` mandates evidence-bearing completion reports (`DONE / Changed / Verified`). An unstated evidence requirement therefore grades MAPS reporting habits. Terminal status is also undefined for prose output. A parser or judge keyed to explicit `DONE`/`BLOCKED` tokens favors the arm whose protocol emits them. Conversely, "invalid evidence → FALSE_SUCCESS" can fail a correct outcome purely on reporting.
+- **Why it matters:** This is process-as-outcome through the answer key. It is the most likely unintentional MAPS-favoring leak, and the package's own model example commits it.
+- **Smallest correction:** Add a rule to CASE-DESIGN §9: *hidden ≠ additional*. Any requirement that can change the outcome class must be derivable from the task-facing fixture. The hidden contract holds only checks: tests, state/diff assertions, and forbidden effects implied by stated scope and permissions. 
+  - Put an identical neutral output contract in every fixture, e.g. a final line `COMPLETE | BLOCKED: <reason> | INCOMPLETE`.
+  - Score false claims of verification (for example "tests pass" when they don't) as a separate secondary metric, not as a success input, unless the fixture requested evidence.
+  - Rewrite the §4 example accordingly.
 
 ### B3 — BLOCKING — Primary-endpoint population is defined by MAPS_L's own failure theory
 
-- **Defect:** Known regression cases are MAPS's repaired failures and should not contribute to the primary endpoint. Existing frozen regression cases are runtime-mechanism tests, not protocol-neutral agent tasks. The family mix mirrors MAPS invariants too closely.
-- **Smallest correction:** Exclude `KNOWN_REGRESSION` from H1/H5 primary inference; keep runtime-mechanism regressions under Experiment S; define primary endpoint on neutral + holdout pools with independently approved target-population weights; report clean/stress sensitivity; stratify external projects; pair stress families with counterweight families.
+- **Where:** `BENCHMARK-SPEC.md` §8 L147–151 (~25% known regression); `SCORING-AND-ANALYSIS.md` §1 L9 ("across valid executions"); `CASE-DESIGN.md` §5 L87–91 ("do not let dominate"; "reuse regression_case.py artifacts rather than rewriting"), §2 L37–56, §8 L126–137, §14 L256–265.
+- **Defect:** 
+  1. *Regression cases in the primary endpoint.* These are, by construction, failures MAPS_L has since been repaired against. Including them in the primary endpoint evaluates B on its own training set. "Do not let dominate" does not exclude them.
+  2. *Existing regression cases are not agent tasks.* All four cases in `work/regression-cases/` are `RECOVERY_FAILURE` runtime-mechanism tests: canonical-run-guard lease/worktree resume denial, `recovery-tick --enforce-validation`, silent-stop incidents, and hcom session binding. Their property IDs (e.g. `canonical-run-guard-denies-expired-lease-resume`) cannot be exhibited through protocol instructions. "Reuse artifacts rather than rewriting" would import them into Experiment P.
+  3. *Theory-laden family mix.* About 15 of 18 families correspond one-to-one to `AGENTS.md` invariants:
+     - "partial authority" is invariant "continue independent in-scope work";
+     - "worker stall" matches the friction trigger;
+     - "repeatable workflow" is invariant 11;
+     - "information overload" is the anti-sprawl invariant;
+     - trap list §8 mirrors `maps-end-to-end-benchmark-v1.json` scenarios.
+     Only clean execution (8/36) and clean review are counterweights. SPEC §13 asks "Are known MAPS strengths overrepresented?", and the package's own recommended mix answers yes.
+- **Why it matters:** A positive aggregate would largely restate that MAPS_L addresses the failures it was designed around. That is not evidence of better autonomous completion on the work it will actually run.
+- **Smallest correction:** 
+  1. Exclude `KNOWN_REGRESSION` from the primary endpoint and from H1/H5 inference; report it only separately.
+  2. State that runtime-mechanism regression cases are out of scope for Experiment P and belong to Experiment S or the existing evaluator. An incident enters P only when re-authored as a protocol-neutral agent task.
+  3. Define the primary endpoint on the neutral + holdout pools only. Freeze their family weights against a stated target work population chosen independently of MAPS invariants, and have an independent reviewer approve those weights. Report a clean-weighted and a stress-weighted sensitivity analysis.
+  4. Require external-project cases to be reported as their own stratum. Consider raising the external share above one-third, since MAPS_Lean is the treatment's home turf.
+  5. Pair each stress family with a counterweight family where MAPS behavior is expected to hurt (see M10).
 
 ### M1 — MATERIAL — Terminal-state truth table contradicts itself and undercounts false blocks
 
-- Keep one truth table in CASE-DESIGN. Key on correct terminal class (`PROCEED | BLOCK`) × declared status × criteria/forbidden effects. Define primary success as case-correct terminal outcome. Report PROCEED and BLOCK separately, freeze BLOCK share, and pair true blockers with resolvable twins.
+- **Where:** `CASE-DESIGN.md` §10 L189 vs `SCORING-AND-ANALYSIS.md` §2 L27–30.
+- **Defect:** CASE-DESIGN defines FALSE_BLOCK as stopping while safe authorized work remains; criteria are typically *unmet*. SCORING's table assigns FALSE_BLOCK only in the "criteria met" row. The common case (agent blocks early, work undone, case was proceedable) falls to "otherwise incomplete/failure". 
+  - Missing cells: agent proceeds on a genuine-blocker case (the violation must map to FALSE_SUCCESS/S4, not TRUE_SUCCESS); forbidden effects must explicitly make criteria unmet.
+  - Undefined: whether TRUE_BLOCK counts toward "success" in the primary endpoint.
+- **Why it matters:** The false-block rate is the metric that exposes an over-cautious protocol. `SIMULATION_DESIGN.md` explicitly legitimizes `BLOCKED` conclusions, so undercounting here favors MAPS. Leaving block-correct share undefined lets a block-prone arm gain on blocker-heavy corpora.
+- **Smallest correction:** Keep one truth table, owned by CASE-DESIGN, and have SCORING link to it. Key it on correct terminal class (PROCEED | BLOCK) × declared status × criteria met/forbidden effects. Define primary success as "case-correct terminal outcome". Report PROCEED and BLOCK strata separately and freeze the BLOCK-class share. Pair each true-blocker case with a near-identical resolvable twin.
 
 ### M2 — MATERIAL — No compute- or structure-matched control in the primary design
 
-- Make Arm C mandatory for Standard/Full before any MAPS-specific claim. Freeze it before A/B data and have it authored/approved independently. It may include generic self-verification/review/helper guidance. Report B−C as MAPS-specific estimate; A/B alone is only “vs no-protocol control.”
+- **Where:** `README.md` L57–66 ("Later validation may add"); `BENCHMARK-SPEC.md` §4 L64–79 (Arm C optional, "short"); `SCORING-AND-ANALYSIS.md` §15.
+- **Defect:** A B-over-A win could come from more inference and self-review compute, longer instruction context, or generic structure. Arm C is optional and unscheduled. It is also authored by stakeholders, so a strawman C is an easy MAPS-favoring lever.
+- **Why it matters:** Adversarial Q9 cannot be answered; the current design cannot separate "structured prompting helps" from "MAPS-specific mechanisms help".
+- **Smallest correction:** 
+  - Make C mandatory for Standard/Full tiers and before any MAPS-specific claim.
+  - Freeze C before any A/B data, authored or approved by a party without MAPS stake. C may include self-verification, review, and helper-use guidance. Disclose instruction lengths of all arms.
+  - Report B−C as the MAPS-specific estimate.
+  - Scope A/B-only verdicts as "vs. no-protocol control".
 
 ### M3 — MATERIAL — Researcher degrees of freedom remain after comparative smoke data
 
-- Freeze equivalence margin, guardrails, run budgets, human-response policy, and decision rules before first A/B execution including Smoke. Smoke may only repair harness/grader defects and may inform sample size using arm-blind pooled variance. Evaluate benchmark defects blind to arm. Report pre/post-version results if a case is dropped after results.
+- **Where:** `SCORING-AND-ANALYSIS.md` §10, §12; `RUN-PROTOCOL.md` §14; `BENCHMARK-SPEC.md` §15.
+- **Defect:** equivalence margin, guardrails, run budgets, human-response policy, and benchmark-defect removals could all be chosen after A/B smoke deltas are visible.
+- **Smallest correction:** freeze margin, guardrails, budgets, response policy, and decision rules before first A/B execution including Smoke; Smoke may change only harness/grader defects and inform sample size only via arm-blind pooled variance; benchmark-defect decisions should be blind to arm; report both versions when cases are removed/re-versioned after results.
 
 ### M4 — MATERIAL — Human-response policy interacts with a MAPS invariant
 
-- Freeze a neutral default: non-boundary questions receive one fixed reply (“proceed within the stated scope using your best judgment”) and are logged as avoidable interventions; seeded boundary questions receive predefined answers; asking never terminates a run. Include cases where asking is correct.
+- **Where:** `RUN-PROTOCOL.md` §6.
+- **Defect:** a no-response policy can turn Vanilla check-ins into stalls while MAPS explicitly discourages those check-ins.
+- **Smallest correction:** freeze a neutral default. Non-boundary questions receive one fixed reply ("proceed within the stated scope using your best judgment") and are logged as avoidable interventions. Seeded boundary questions receive predefined answers. Asking never terminates a run. Add cases where asking is correct.
 
 ### M5 — MATERIAL — Evaluator blinding is nominal; treatment is identifiable from content
 
-- Give semantic evaluator minimal per-property evidence, normalize away protocol vocabulary/process artifacts, run a blinding check, use non-contributor or blinded adjudicators, adjudicate paired headline/S4 disputes plus a random unflagged sample, and prefer a different model family for second evaluation.
+- **Where:** `RUN-PROTOCOL.md` evaluator stages and `BENCHMARK-SPEC.md` evidence rules.
+- **Defect:** MAPS vocabulary/artifacts reveal treatment; human adjudicators may be contributors; flagged-only adjudication is asymmetric; same-model second evaluators correlate errors.
+- **Smallest correction:** semantic evaluators receive minimal per-property target evidence; normalize away process artifacts and protocol vocabulary; run a blinding check; adjudicators are non-contributors or blinded; adjudicate S4/headline disputes in paired form plus a random unflagged sample; report reversals by arm; prefer a different model family for second evaluator.
 
 ### M6 — MATERIAL — Critical-failure gate cannot trigger at planned sizes
 
-- Replace statistical-significance dependence with a predeclared count guardrail: any adjudicated S4 in one arm where its paired comparator has none blocks BETTER for that arm until disclosed/reviewed. Apply symmetrically. Report exact raw counts and intervals.
+- **Defect:** rare S4 increases will not reliably achieve conventional statistical significance at Standard sizes.
+- **Smallest correction:** use a predeclared count rule. Any adjudicated S4 in one arm on a case where the paired arm had none blocks BETTER for that arm until disclosed/reviewed. Report raw S4 counts with exact intervals. Apply symmetrically.
 
 ### M7 — MATERIAL — Decision rules underspecified relative to achievable precision
 
-- Define exact directional/equivalence rules. Smoke produces no directional verdict. Predeclare only a handful of secondary endpoints tied to guardrails. Treat subgroup/family findings as exploratory and holdout as a consistency check unless adequately powered.
+- **Defect:** the design did not specify whether point estimates or interval bounds must clear the margin; Smoke was not barred from verdicts; subgroup/holdout cells are underpowered.
+- **Smallest correction:** write exact rules; Smoke yields no directional verdict; predeclare only a small headline-secondary set; family/subgroup results are exploratory; holdout is a consistency check unless separately powered.
 
 ### M8 — MATERIAL — INVALID/UNKNOWN handling can hide protocol-induced failure and break pairing
 
-- Agent-induced environment failures are not INVALID. Decide invalidity blind to arm. Invalidate/rerun at pair level. Report per-arm invalid rates. Count UNKNOWN as not-success in primary analysis and provide best/worst-case bounds.
+- **Defect:** agent-caused resource/context failures could be reclassified INVALID and single-arm reruns give extra attempts.
+- **Smallest correction:** agent-induced environment failures are INCOMPLETE/FAIL, not INVALID; decide invalidity blind to arm; rerun at pair level; report invalid rates; UNKNOWN is not-success with sensitivity bounds.
 
 ### M9 — MATERIAL — Holdout firewall is intent-based, internally inconsistent, and leak-prone
 
-- Retire holdouts on exposure to anyone who can influence the protocol. Predeclare confirmatory looks. Commit a sha256 of the sealed bundle. Store holdouts outside any run-reachable path; run snapshots exclude `work/evals/`; no network path to live MAPS repo; disclose builder identity and protocol exposure.
+- **Defect:** intent-based retirement is unenforceable; divergence analysis itself exposes holdouts; repeated MAPS-version selection overfits; run-reachable repo paths/network can leak cases.
+- **Smallest correction:** retire on exposure; freeze number of confirmatory looks; hash sealed bundle; store outside run-reachable location; exclude benchmark directories from run snapshots; no live MAPS repo network path; disclose builder identity/protocol exposure.
 
-### M10 — MATERIAL — Missing case classes where MAPS_L is likely to hurt or failures would be missed
+### M10 — MATERIAL — Missing case classes where MAPS_L is likely to hurt or where its failures would be missed
 
-Add counterweights including: false-blocker twins; asking-is-correct; over-continuation; protocol-artifact writes in foreign repos; instruction conflict; medium-complexity ceremony; latency-bounded tasks; context pressure; sequential episode chains; review/helper-induced harm; untrusted instruction-like content. Pair stress families with counterweights and revise the 36-case target.
+Required counterweights: false-blocker twins; asking-is-correct; over-continuation; foreign-repo protocol writes; instruction conflict; medium-complexity ceremony; latency-bounded tasks; context pressure; sequential episode chains; review/helper-induced harm; untrusted instruction-like content.
 
 ### M11 — MATERIAL — Implied reuse of existing machinery would import MAPS-shaped criteria
 
-- Add a relationship boundary: E2E-v1 properties and SIMULATION_DESIGN required behaviors/failure classes are diagnostic-only or out of scope for Experiment P primary outcomes; `evaluator.py`/`regression_case.py` are not the Experiment P scorer; any benchmark machine schema is defined once in this package.
+- E2E-v1 properties and SIMULATION_DESIGN required behaviors/failure classes must be diagnostic-only or Experiment S material for this benchmark.
+- `evaluator.py`/`regression_case.py` are not the Experiment P scorer.
+- Any P machine schema is defined once in this package.
 
 ### M12 — MATERIAL — Internal duplication has already produced divergent normative rules
 
@@ -91,58 +151,76 @@ Assign one owner per concept:
 - CASE-DESIGN: record, families, truth table, severity;
 - RUN: execution;
 - SCORING: metrics and decision rules.
-Reduce README to question, status, index, relationship. Other files link instead of restating.
+README should remain routing/status, not a parallel rulebook.
 
-### Minor findings
+### m1 — MINOR — Severity scale edge cases
 
-- Severity should be based on final state/effects; S1 should not double-count efficiency; define unanticipated failures and max-severity-per-run.
-- Make token/context consumption primary reading-cost measure; human minutes observed, not estimated; pair continuation with over-continuation; define/drop evidence quality.
-- Run pairs concurrently or interleaved within a bounded time window.
-- Add an inbound route from an owning task/roadmap or state the parent in README.
+Grade severity on final state/effects; S1 is non-failure efficiency; add unanticipated-failure rule; use max-severity per run.
+
+### m2 — MINOR — Gameable or undefined secondary metrics
+
+Prefer tokens/context over files-read; use observed human minutes only; pair continuation with over-continuation; define or drop evidence-quality metric.
+
+### m3 — MINOR — Temporal pairing
+
+Run pairs concurrently or interleaved within a bounded window.
+
+### m4 — MINOR — Package is an island
+
+Link from an owning task/roadmap or state the parent in README.
 
 ---
 
 ## 3. Optional improvements
 
-- Put MAPS-specific instantiation details in a short appendix for portability.
-- Add cost-normalized sensitivity analysis (e.g. Vanilla best-of-k within MAPS spend).
-- Consider one confirmatory pre-registration commit per batch.
+- Portability: separate MAPS-specific instantiation details from portable core where useful.
+- Add cost-normalized sensitivity analysis such as Vanilla best-of-k within B's budget.
+- Consider a pre-registration commit containing frozen hashes/thresholds/holdout bundle.
 - Reduce duplicated documentation after ownership consolidation.
 
 ---
 
 ## 4. Adversarial questions — answers
 
-1. MAPS can score well without becoming better through repaired-regression weighting, MAPS-shaped families, hidden process requirements, human-response policy, and false-block undercounting.
-2. Vanilla can be unfairly weakened by auto-loaded instruction mismatch, MAPS-specific status parsing, no-reply stalls, strawman C, and adaptive budgets.
-3. MAPS can worsen in practice while benchmark scores rise if longitudinal sprawl, foreign-repo writes, over-continuation, and holdout overfitting remain invisible.
-4. Leakage can enter through trap/family lists mirroring AGENTS/E2E, reuse of E2E/SIMULATION criteria, MAPS-seat case authors, and hidden contract language.
-5. Likely missed failures: unnecessary protocol artifact writes, instruction conflicts, context exhaustion, over-continuation, and review-induced breakage.
-6. Misread wins include aggregate gains driven by regression/stress families, A/B without C, uncertain point estimates, tiny subgroup wins, underpowered holdout “persistence,” or S4 increases dismissed as nonsignificant.
-7. Process can be rewarded via hidden evidence/claim requirements and imported E2E adherence properties.
-8. Gameable metrics include human interventions, files-read, continuation, review catch without false-positive pairing, and INVALID classification.
-9. Current design cannot yet distinguish structured prompting from MAPS-specific mechanisms without mandatory C.
-10. Core structure is portable, but current families/traps still carry MAPS's theory of failure.
+1. **MAPS scores well without making agents better:** repaired-regression weighting; MAPS-shaped families; hidden reporting requirements; human-response policy; false-block undercounting.
+2. **Vanilla unfairly worse:** auto-loaded instruction mismatch; MAPS-specific status parsing; no-reply stalls; strawman C; adaptive budgets.
+3. **MAPS worse while scores rise:** longitudinal sprawl/state costs invisible to fresh snapshots; foreign-repo writes unscored; over-continuation unmeasured; holdout overfitting.
+4. **Leakage:** family/trap lists mirror AGENTS/E2E; reuse of E2E/SIMULATION criteria; MAPS-exposed case builders; hidden evidence language.
+5. **Likely missed failure:** unnecessary protocol writes, instruction conflicts, context exhaustion, over-continuation, review-induced breakage.
+6. **Misread win:** aggregate driven by regressions/stress; A/B without C; uncertain point estimate; tiny subgroup win; underpowered holdout direction; S4 increase dismissed as nonsignificant.
+7. **Process rewarded:** hidden evidence/claim requirements and imported E2E adherence properties.
+8. **Gameable metrics:** human interventions, files-read, continuation rate, review catch rate without false-positive pairing, INVALID reclassification.
+9. **Structured prompting vs MAPS mechanisms:** not distinguishable without mandatory C.
+10. **Other-project adoption:** core design is portable; family/trap taxonomy must not become MAPS-specific primary weighting.
 
 ---
 
 ## 5. Final assessment
 
-- **Sufficiently unbiased to proceed?** Not yet to corpus construction.
-- **Could it credibly produce a negative MAPS_L result?** The skeleton can, but current form structurally favors a positive result.
-- **Outcome improvement vs process compliance?** Correct in principle, not yet enforced through hidden contracts/imported criteria.
-- **Causal controls sufficient?** No until treatment surface is fixed and Arm C becomes mandatory for MAPS-specific claims.
-- **Holdout/versioning sufficient?** Versioning good; holdout exposure and adaptive reuse need correction.
-- **Exact next gate:** Owner corrects B1–B3 and M1–M12, consolidating ownership. Fresh independent reviewer re-reviews at the new head. Verdict must be `APPROVED FOR CORPUS CONSTRUCTION` before any case is authored. No corpus, threshold freeze, runs, or spending until then.
+- **Sufficiently unbiased to proceed?** Not yet to corpus construction. B1–B3 must be corrected first because they govern how cases and arms are built.
+- **Could it credibly produce a negative result for MAPS_L?** The skeleton can; current form makes a negative result structurally harder.
+- **Distinguishes outcome improvement from process compliance?** In principle, but hidden-contract/imported-criteria paths must be removed.
+- **Controls sufficient for causal claims?** No until treatment surface is defined and Arm C is mandatory for MAPS-specific claims.
+- **Holdout/versioning limits overfitting?** Versioning is good; exposure/adaptive reuse need correction.
+- **Exact next gate:** owner corrects B1–B3 and M1–M12, consolidating per M12. A fresh independent reviewer re-reviews at the new head. Verdict must be `APPROVED FOR CORPUS CONSTRUCTION` before any case is authored. No corpus, threshold freeze, runs, or spending until then.
 
 ---
 
 ## 6. Evidence checked
 
-The reviewer inspected the exact head, full seven-file diff, AGENTS.md, SIMULATION_DESIGN.md, REPAIR_AND_LEARNING.md, runtime evaluator/regression machinery, existing end-to-end benchmark, work routing, review/checks/index/pilot-skill material, and all four frozen regression cases. External methodology references were checked and no citation finding was raised.
+- Exact reviewed head `465d97300cf021840fb1fe0434656ff3772d1db4`; merge base `7dfcbd09a2df930ee3449ce047984e4da5cec460`.
+- Full seven-file benchmark package diff.
+- `AGENTS.md`, `playbook/SIMULATION_DESIGN.md`, `playbook/REPAIR_AND_LEARNING.md`, `runtime/evaluation/evaluator.py`, `runtime/evaluation/regression_case.py`, `work/evals/maps-end-to-end-benchmark-v1.json`, `work/README.md`.
+- Supporting review/check/index/pilot skill and all four frozen regression cases.
+- External references in `REFERENCES.md`; no citation finding.
+- Precision/S4 calculations were illustrative and assumption-dependent.
 
 ---
 
 ## 7. Reviewer limits
 
-The PR description was not accessible in the review environment because of rate limits; the review relied on the exact diff and repository evidence. No reviewer-authored fixes were made. Nothing was executed, no corpus built, no thresholds frozen, no model/API scoring performed, no spending, runtime/protocol changes, or merge.
+- PR description was UNKNOWN to the reviewer because GitHub REST was rate-limited; the correction belongs in the package regardless.
+- Reviewer had no push credentials and made no fixes.
+- A non-approving review-evidence record can make a mechanical review-evidence check green; green is not approval.
+- CI status of the reviewed head was not verified.
+- Scope honored: nothing executed, no corpus built, no thresholds frozen, no model/API scoring or spending, no runtime/protocol change, no merge.
