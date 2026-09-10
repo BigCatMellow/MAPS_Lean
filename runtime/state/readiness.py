@@ -43,6 +43,61 @@ class ReadinessMixin:
             or right_path in left_path.parents
         )
 
+    def _dependency_cycle_conn(
+        self,
+        conn: sqlite3.Connection,
+        task_id: str,
+    ) -> tuple[str, ...] | None:
+        """Return one deterministic reachable unfinished dependency cycle.
+
+        DONE tasks terminate traversal because readiness already treats them as
+        satisfied; their historical dependency graph cannot block this task.
+        Missing dependency rows are handled by the existing blocker logic.
+        """
+
+        visited: set[str] = set()
+        path: list[str] = []
+        path_index: dict[str, int] = {}
+
+        def visit(node: str) -> tuple[str, ...] | None:
+            if node in path_index:
+                start = path_index[node]
+                return tuple(path[start:] + [node])
+            if node in visited:
+                return None
+
+            row = conn.execute(
+                "SELECT status FROM tasks WHERE task_id = ?", (node,)
+            ).fetchone()
+            if row is None or row["status"] == "DONE":
+                return None
+
+            path_index[node] = len(path)
+            path.append(node)
+            dependencies = conn.execute(
+                """
+                SELECT d.depends_on, t.status
+                FROM task_dependencies AS d
+                LEFT JOIN tasks AS t ON t.task_id = d.depends_on
+                WHERE d.task_id = ?
+                ORDER BY d.depends_on
+                """,
+                (node,),
+            ).fetchall()
+            for dependency in dependencies:
+                if dependency["status"] is None or dependency["status"] == "DONE":
+                    continue
+                cycle = visit(str(dependency["depends_on"]))
+                if cycle is not None:
+                    return cycle
+
+            path.pop()
+            path_index.pop(node, None)
+            visited.add(node)
+            return None
+
+        return visit(task_id)
+
     def validate_ready(self, task_id: str) -> ValidationResult:
         with closing(self._connect()) as conn:
             return self._validate_ready_conn(conn, task_id)
@@ -106,8 +161,15 @@ class ReadinessMixin:
         dependencies = self._values(
             conn, "task_dependencies", "depends_on", task_id
         )
-        if task_id in dependencies:
+        has_self_dependency = task_id in dependencies
+        if has_self_dependency:
             reasons.append("task cannot depend on itself")
+        else:
+            dependency_cycle = self._dependency_cycle_conn(conn, task_id)
+            if dependency_cycle is not None:
+                reasons.append(
+                    "dependency cycle detected: " + " -> ".join(dependency_cycle)
+                )
 
         environment = conn.execute(
             """
