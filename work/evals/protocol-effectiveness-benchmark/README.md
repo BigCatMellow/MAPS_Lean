@@ -19,7 +19,7 @@ Review evidence:
 
 N1–N10 are now owner-applied on this branch. That is **not approval**.
 
-Corpus construction remains closed until a focused fresh independent reviewer at the new corrected head returns:
+Corpus construction remains closed until a focused fresh independent reviewer at the current corrected head returns:
 
 `APPROVED FOR CORPUS CONSTRUCTION`
 
