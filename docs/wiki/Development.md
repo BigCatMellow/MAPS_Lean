@@ -26,7 +26,7 @@ Close evidence gaps before starting another broad capability arc:
 | **MERGED — row still IN PROGRESS** | H4 — immediate validation | PR #324 (merged) proved a real failing quick-tier validation can park recovery before resume while preserving attempt budget. H4 remains IN PROGRESS for normal/full tiers and per-spec enforcement. | [#324](https://github.com/BigCatMellow/MAPS_Lean/pull/324) |
 | **MERGED — current behavior** | Emergence supersession authority | PR #319 is merged (commit `69d6497`, 2026-09-09). Emergence may now explicitly challenge/redesign/propose replacement of established mechanisms; proposal authority stays distinct from execution/merge authority. | [#319](https://github.com/BigCatMellow/MAPS_Lean/pull/319) |
 | **IN REVIEW** | Borrow-before-build / reliability wave | PRs #322–#330 add reconciliation, research, regressions, design audits and bounded runtime hardening. All checked heads are runtime-green; #322/#323/#326/#327/#328/#329/#330 still fail the repository review-evidence gate. None changes the canonical capability score while open. | [Open PRs](https://github.com/BigCatMellow/MAPS_Lean/pulls) |
-| **BLOCKED** | Full Wiki reconciliation | PR #321 is runtime-green but review-evidence-red and currently non-mergeable against newer canonical Wiki source. It must preserve this Development snapshot when reconciled. | [#321](https://github.com/BigCatMellow/MAPS_Lean/pull/321) |
+| **IN FINAL REVIEW** | Full Wiki reconciliation | PR #321 is runtime-green and now rebased onto current canonical Wiki source (#319/#320/#324/#325 folded in); it is in final independent re-review ahead of merge. It preserves this Development snapshot. | [#321](https://github.com/BigCatMellow/MAPS_Lean/pull/321) |
 | **MERGED — design-only** | E5 recovery compatibility | PR #325 (merged) is a Stage-0 design note. It identifies the enforcement seam but keeps enforcement withheld; the next evidence step is an advisory production exposure, not Stage-3 implementation. | [#325](https://github.com/BigCatMellow/MAPS_Lean/pull/325) |
 
 ## Operator decisions / blockers
@@ -56,7 +56,7 @@ Close evidence gaps before starting another broad capability arc:
 | **Procedural Knowledge & Skills** | Advanced | S1–S6 are DONE; external research may strengthen later work but does not change current status. |
 | **Environment & Reproducibility** | Mixed / active | 6.16 is DONE; H4 exposure advanced; E5 remains advisory/evidence-gated. |
 | **Agentic Security** | Advanced / active | Real resume and destructive-action guard evidence exist; 6.22 remains the clearest unexercised hook path. |
-| **Learning & Evaluation** | Active / review | Cross-root synthesis is shipped; supersession authority is proposed; competitor evidence is being routed through existing owners. |
+| **Learning & Evaluation** | Active / review | Cross-root synthesis is shipped; Emergence mechanism-supersession authority is merged (#319); competitor evidence is being routed through existing owners. |
 | **Portable Deployment** | Mixed / active | Canonical-run/worktree infrastructure is strong; later external-pilot work remains proposed/evidence-gated. |
 
 ## Likely next sequence
