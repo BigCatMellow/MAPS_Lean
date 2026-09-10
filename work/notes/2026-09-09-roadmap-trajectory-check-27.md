@@ -36,9 +36,12 @@ minority reports below (§7 of this note).
   - **5 wiki commits** — `d042ab2`, `18b064c`, `60c0dbf`, `2377bf8`, `54869f5`
     (add a live Development status wiki page + nav + 3 same-day refreshes;
     `git show --stat` each → `docs/wiki/**` only).
-  - `git log --oneline 25c7729..origin/main | grep -cE '\(#[0-9]+\)$'` → **8**
-    (the 7 PRs + `d042ab2`'s `(#…)`-less line does not match; two of the wiki
-    commits carry no PR suffix). Coverage below is all 7 PRs, checked
+  - `git log --oneline 25c7729..origin/main | grep -cE '\(#[0-9]+\)$'` → **7**
+    (exactly the 7 arc PRs; **none of the 5 wiki commits carries a `(#N)`
+    suffix**, so none matches). **No PR was dropped** — the count equals the
+    enumerated arc-PR list above one-for-one; the check-#11 "a PR silently
+    vanished from the arc" failure mode did not occur. Coverage below is all 7
+    PRs, checked
     individually against `git show` / merged code / `/usr/bin/grep` / targeted
     foreground `unittest` — never a PR title/body/review summary alone (rule 14).
 - `git diff --stat 25c7729..origin/main` (non-doc filter): **nothing** outside
@@ -220,11 +223,24 @@ Walked `work/coordination/FRICTION_LOG.md` in full + ran
 `python3 tools/triage_status.py --root .`:
 
 ```
+# Triage status (advisory - read-only)
+
 FRICTION_LOG: 15 entries - 7 closed, 8 open (0 unresolved).
 
-## Drift+ repair records missing a countermeasure or regression case
-- work/notes/2026-08-18-stalled-dispatched-worker-repair.md (severity DRIFT)
+Nothing open. The triage loop is current.
 ```
+
+**The 2026-08-18 record no longer appears in this report.** Earlier passes
+(#23–#26) saw it flagged under "Drift+ repair records missing a countermeasure
+or regression case". Its absence at HEAD is a **false negative, not a genuine
+resolution.** `tools/triage_status.py::parse_repair_note` does a naive substring
+scan — `has_regression_case = "regression" in text.lower()`. `nena`'s own
+2026-09-09 disposition line appended to that record contains the word
+"regression" (e.g. "missing a countermeasure or regression case", "add the
+`## Regression case` heading"), so the substring check now passes **by
+coincidence of the disposition prose**, not because the record's structure
+changed. The record **still has no `## Regression case` section and no
+machine-readable countermeasure field** — it is not genuinely resolved.
 
 - **0 unresolved, 0 OVERDUE.** The 8 "open" entries are behavioral
   "watch-if-it-recurs" items with a countermeasure named (not `none yet`) and a
@@ -237,16 +253,22 @@ FRICTION_LOG: 15 entries - 7 closed, 8 open (0 unresolved).
 - The 2026-09-03 "coordination_housekeeping.py fully non-functional" entry was
   addressed by **PR #283** ("coordination tooling fixes", MERGED pre-arc at
   check #22) — its `countermeasure:` names that branch; not carried as open.
-- **`tools/triage_status.py` re-flags
-  `work/notes/2026-08-18-stalled-dispatched-worker-repair.md` for the 5th
-  consecutive pass (#23–#27)** despite check #26's in-prose §1 disposition
-  ("discharged in substance by the session-24/25 Monitor-stall countermeasure,
-  PR #288 + `scripts/run_tests_sharded.py`"). The script keys on the absence of
-  a `## Regression case` heading / machine-readable countermeasure field and
-  cannot see the dated disposition line. **Minor tooling-gap finding** (§4
-  below). A `2026-09-09 disposition (trajectory check #27, nena)` line was
-  appended to that record in this PR confirming no change + naming the tooling
-  gap.
+- **`tools/triage_status.py` now reports "Nothing open" for
+  `work/notes/2026-08-18-stalled-dispatched-worker-repair.md` — but only by
+  keyword coincidence, not because the record was resolved.** Check #26's
+  in-prose §1 disposition ("discharged in substance by the session-24/25
+  Monitor-stall countermeasure, PR #288 + `scripts/run_tests_sharded.py`")
+  remains prose the script cannot parse. What changed at HEAD is that `nena`'s
+  own 2026-09-09 disposition text contains the substring "regression", which
+  the script's `has_regression_case = "regression" in text.lower()` scan
+  accepts. The record still genuinely lacks a `## Regression case` section and a
+  machine-readable countermeasure field. So the substring-scan is now satisfied
+  by coincidence (**masking risk**), the underlying disposition mechanism is
+  still not machine-readable (§4 item 4), and this remains **operator-decision
+  item 3** (§6) — this pass does **not** record it as resolved. A
+  `2026-09-09 disposition (trajectory check #27, nena)` line was appended to
+  that record in this PR confirming no substantive change + naming the false
+  negative.
 - **This pass's dated review line:** recorded here (§3) + the repair-record
   pointer line appended in the same PR, per check #26 §8's instruction.
 
@@ -272,13 +294,22 @@ FRICTION_LOG: 15 entries - 7 closed, 8 open (0 unresolved).
    also still open). Recorded as an **operator / coordinator disposition item**
    — this pass does **not** open the task (dispatch boundary). Not yet an
    escalation (1 arc since promotion).
-4. **`triage_status.py` disposition mechanism is not machine-readable.** A
-   Drift+ repair record that a trajectory pass has substantively discharged
-   in prose re-flags every subsequent pass. Candidate bounded fix (not this
-   pass): recognise a dated `disposition (trajectory check #N)` line, **or**
-   the operator confirms `2026-08-18-stalled-dispatched-worker-repair.md` §1 is
-   adequately discharged so the record can carry a `## Regression case` pointer
-   to the #288 shard-runner tests. Captured nowhere else → noted here.
+4. **`triage_status.py` disposition mechanism is not machine-readable — and at
+   HEAD is now silently satisfied by coincidence.** `parse_repair_note` decides
+   `has_regression_case` by a bare `"regression" in text.lower()` substring
+   scan. That check now passes for
+   `2026-08-18-stalled-dispatched-worker-repair.md` **only because its own
+   2026-09-09 disposition prose uses the word "regression"** — the record still
+   has no `## Regression case` section and no machine-readable countermeasure
+   field. The script has flipped from over-reporting (5 passes, #23–#27 quoted
+   above in earlier drafts) to a **false negative / masking risk** without the
+   record's substance changing. Candidate bounded fix (not this pass, and
+   outside this PR's boundary): teach `triage_status.py` to recognise a dated
+   `disposition (trajectory check #N)` line as an explicit disposition, **or**
+   the operator confirms
+   `2026-08-18-stalled-dispatched-worker-repair.md` §1 is adequately discharged
+   so the record can carry a real `## Regression case` pointer to the #288
+   shard-runner tests. Still open — operator-decision item 3 (§6).
 5. **INSIGHT-45727354 / INSIGHT-68a53a28 still have no operator disposition**
    (2nd trajectory pass since 2026-09-03 capture; #26 flagged them). Named in
    §6 operator section. Not yet at the N=3 auto-escalation bound.
@@ -348,12 +379,19 @@ so the pass does not record a clean result without listing them:
    coordinator either open the bounded task
    (`scripts/check_review_evidence.py` rebase-safe diff-equivalence acceptance,
    folding in `INSIGHT-29a10ad4`) or record why it is deferred.
-3. **`2026-08-18-stalled-dispatched-worker-repair.md`** — `triage_status.py` has
-   flagged it for **5 consecutive passes**. Substantively discharged per #26.
-   Recommend the operator confirm §1 is adequately discharged (so a
-   `## Regression case` pointer to PR #288's `tests/test_run_tests_sharded.py`
-   can be added and the record stops re-flagging), **or** direct the bounded
-   `triage_status.py` fix in §4 item 4.
+3. **`2026-08-18-stalled-dispatched-worker-repair.md`** — `triage_status.py`
+   flagged it for 4 consecutive passes (#23–#26); at HEAD it **no longer
+   appears in the report**, but only because the substring scan
+   (`"regression" in text.lower()`) matches the word "regression" in the
+   record's own 2026-09-09 disposition prose — a **false negative**, not a
+   genuine resolution. The record still has no `## Regression case` section and
+   no machine-readable countermeasure field, so the underlying disposition
+   mechanism is still not machine-readable and this pass does **not** treat the
+   record as resolved. Recommend the operator either (a) make
+   `triage_status.py` recognise a dated `disposition (trajectory check #N)`
+   line, (b) confirm §1 is adequately discharged so a real `## Regression case`
+   pointer to PR #288's `tests/test_run_tests_sharded.py` can be added, or
+   (c) add that pointer directly. Until one of those lands this stays open.
 4. **PRs #326–#330** (`BigCatMellow` "harden invariants" wave) are **OPEN, not
    merged**, pending an operator ownership call. **Not part of arc #27** and not
    evaluated here — noted only so the next pass knows they predate its anchor.
@@ -408,9 +446,14 @@ No §7 alarm.
 - **`INSIGHT-ab696436`** — incubate pass 2; a 3rd stale "blocked on X where X is
   merged" occurrence promotes it. #325's `BLOCKED_ON_OPERATOR_DECISION #1` is a
   real gate, not an occurrence.
-- **`triage_status.py`** re-flags `2026-08-18-stalled-dispatched-worker-repair.md`
-  (now 6 passes at #28) — either the bounded script fix or the operator
-  confirmation in §6 item 3 should land first.
+- **`triage_status.py`** no longer lists
+  `2026-08-18-stalled-dispatched-worker-repair.md` — but only because its
+  substring scan now matches "regression" in that record's own disposition
+  prose (**false negative / masking risk**, not a resolution; §4 item 4). The
+  record still owes a real `## Regression case` pointer or an explicit operator
+  closure. Operator-decision item 3 (§6) is still open — either the bounded
+  script fix (recognise a dated `disposition (trajectory check #N)` line) or
+  the operator confirmation should land before #28 records this area clean.
 - **E4 / 6.5** — reconciliation annotation added this pass; both DONE, no action
   owed. Do not re-litigate the advisory-only wording in their history.
 - **PRs #326–#330** — were OPEN at #27; check their disposition.
