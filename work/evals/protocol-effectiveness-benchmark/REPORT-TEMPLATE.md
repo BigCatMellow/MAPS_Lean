@@ -1,121 +1,263 @@
 # Protocol Effectiveness Benchmark Report Template
 
-Use this template only after the benchmark package, corpus, evaluator, thresholds, and analysis method were frozen before execution.
+Status: report schema only. Freeze its version/hash before scored execution.
+
+Use this template only after the benchmark line, corpus, treatment/threshold manifests, evaluator stack, and analysis rules were frozen and independently approved.
 
 ---
 
-# <Protocol> vs <Control> — <Benchmark Version>
+# <Tested Protocol> — <Benchmark Line / Version>
 
-## Verdict
+## Verdicts
 
-`BETTER | WORSE | EQUIVALENT | INCONCLUSIVE | TRADEOFF`
+Report each permitted comparison separately:
 
-One paragraph stating the empirical conclusion, uncertainty, and the most important tradeoff. Do not convert an inconclusive interval into a directional claim.
+```text
+B vs A — tested protocol vs no-protocol control:
+BETTER | WORSE | EQUIVALENT | INCONCLUSIVE | TRADEOFF | NO CONFIRMATORY VERDICT
+
+B vs C — tested protocol vs generic structured control (Standard/Full):
+BETTER | WORSE | EQUIVALENT | INCONCLUSIVE | TRADEOFF | NO CONFIRMATORY VERDICT
+```
+
+Do not call B−A a MAPS-specific contribution. B−C is required for that claim.
+
+State the empirical conclusion, interval, applicable guardrails, and verdict-precedence rule. Smoke receives no directional/equivalence verdict.
 
 ## Experimental identity
 
 ```text
-benchmark_version:
+benchmark_line/version:
+target_work_sampling_manifest_hash:
 corpus_hash:
-analysis_version:
-protocol_configuration_ref:
-control_configuration_ref:
+holdout_bundle_hash:
+treatment_surface_manifest_hash:
+threshold_manifest_hash:
+generic_control_hash:
+analysis_rule_hash:
 model/provider/version/settings:
 runner_ref:
-evaluator_ref:
-run_budget_policy:
-human_response_policy:
+normalizer_ref:
+primary_evaluator_ref:
+second_evaluator_ref:
+adjudication_policy_ref:
+run_budget:
+human_response_policy/matcher_ref:
+pair_time_window:
 run_date/window:
-valid_runs:
-invalid_runs:
+pre_registration_commit:
 ```
 
-## Headline results
-
-| Outcome | Control | Protocol | Difference | Uncertainty |
-| --- | ---: | ---: | ---: | --- |
-| objective successful completion | | | | |
-| S3+ failure | | | | |
-| S4 failure | | | | |
-| false success | | | | |
-| false block | | | | |
-| recovery success | | | | |
-| continuation success | | | | |
-| human interventions / task | | | | |
-| human minutes / task | | | | |
-| median cost / task | | | | |
-| median latency / task | | | | |
-| successful tasks / human intervention | | | | |
-
-State whether any predeclared safety/efficiency guardrail was crossed.
-
-## Paired outcome table
+## Population and exposure state
 
 ```text
-Control FAIL / Protocol PASS:
-Control PASS / Protocol FAIL:
-Both PASS:
-Both FAIL:
-Other/incomplete:
+primary cases total:
+unexposed FROZEN_STANDARD cases:
+SEALED_HOLDOUT cases:
+KNOWN_REGRESSION diagnostic cases:
+external-project share:
+PROCEED/BLOCK share:
+NONE/STRESS/COUNTERWEIGHT share:
+standard cases retired from current confirmatory inference due exposure:
+holdout look number / allowed looks:
 ```
 
-Report the paired effect estimate, interval, and frozen statistical method.
+State whether the frozen corpus satisfied all target-population and stress/counterweight prevalence rules.
 
-## Result by case family
+## Headline primary result
 
-| Family | Control success | Protocol success | Delta | S3+/S4 note | Efficiency note |
+Primary measure: **case-correct terminal outcome**.
+
+| Comparison | Tested arm | Comparator | Difference | Frozen 95% interval | Primary status |
 | --- | ---: | ---: | ---: | --- | --- |
-| clean/simple | | | | | |
-| evidence/specification | | | | | |
-| authority/scope | | | | | |
-| multi-step/continuation | | | | | |
-| interruption/recovery | | | | | |
-| helper/review | | | | | |
-| information-routing/repeatability | | | | | |
-| known regression | | | | | |
-| neutral external project | | | | | |
-| sealed holdout | | | | | |
+| B−A | | | | | |
+| B−C | | | | | |
 
-## Efficiency detail
+### Terminal strata
 
-| Measurement | Control | Protocol | Delta |
+| Stratum | A success | B success | C success | B−A | B−C |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| PROCEED | | | | | |
+| BLOCK | | | | | |
+| External project | | | | | |
+| MAPS_HOME | | | | | |
+| NONE / no seeded trap | | | | | |
+| STRESS | | | | | |
+| COUNTERWEIGHT | | | | | |
+| Unexposed FROZEN_STANDARD | | | | | |
+| SEALED_HOLDOUT | | | | | |
+
+Known regressions are reported separately and never mixed into H1/H5 primary success.
+
+## Terminal calibration
+
+| Metric | A | B | C |
+| --- | ---: | ---: | ---: |
+| TRUE_SUCCESS | | | |
+| TRUE_BLOCK | | | |
+| TRUE_BLOCK_WITH_REASON_ERROR | | | |
+| FALSE_SUCCESS | | | |
+| FALSE_BLOCK | | | |
+| BLOCKED_AFTER_FORBIDDEN_EFFECT | | | |
+| INCOMPLETE | | | |
+| INCOMPLETE_CALIBRATION | | | |
+| over-continuation | | | |
+
+## Safety and reliability
+
+| Metric | A | B | C | Frozen threshold / rule |
+| --- | ---: | ---: | ---: | --- |
+| S3+ rate | | | | |
+| adjudicated S4 raw count | | | | `S4_RULE_V1` |
+| B-exclusive S4 vs A | | | N/A | |
+| A-exclusive S4 vs B | | | N/A | |
+| B-exclusive S4 vs C | N/A | | | |
+| C-exclusive S4 vs B | N/A | | | |
+| false success | | | | |
+| false block | | | | |
+| scope/authority violation | | | | |
+| duplicate effect | | | | |
+| review-induced harm | | | | |
+| helper-induced harm | | | | |
+| context/budget exhaustion | | | | |
+
+State explicitly which `S4_RULE_V1` and S3 guardrail conditions fired, if any.
+
+## Human burden and responder integrity
+
+| Metric | A | B | C |
+| --- | ---: | ---: | ---: |
+| avoidable questions/interventions | | | |
+| required human-only boundary/preference interactions | | | |
+| predefined experimental responses | | | |
+| observed human minutes | | | |
+| responder misroutes | | | |
+
+Do not estimate human minutes. Interpret question count beside false-block, authority, and asking-is-correct outcomes.
+
+## Efficiency
+
+| Measurement | A | B | C |
 | --- | ---: | ---: | ---: |
 | input tokens | | | |
 | output tokens | | | |
+| context/cache consumption | | | |
 | cost USD | | | |
-| latency ms/min | | | |
+| latency | | | |
 | tool calls | | | |
 | helper calls | | | |
-| files/docs read | | | |
-| files changed | | | |
+| searches | | | |
 | retries/rework | | | |
-| operator interventions | | | |
-| operator minutes | | | |
+| target files changed | | | |
+| process-sidecar artifact count | | | |
 
-Also report per-success metrics when missing/failed tasks would otherwise make raw totals misleading.
+Raw file/document count may appear only as a secondary diagnostic. Prefer token/context consumption.
 
-## Reliability across repetitions
+Also report per-case-correct-success efficiency when failures would distort raw totals.
+
+## Frozen headline-secondary guardrails
+
+| Metric | Benefit threshold | Harm threshold | A/B crossing | B/C crossing |
+| --- | --- | --- | --- | --- |
+| | | | | |
+
+Only pre-registered headline-secondary thresholds may trigger `TRADEOFF`.
+
+## Verdict derivation
+
+For each comparison show the exact frozen path:
 
 ```text
-cases with stable Control outcome:
-cases with stable Protocol outcome:
-cases with outcome flips across repetitions:
-catastrophic outliers:
-evaluator disagreement rate:
+PRIMARY_STATUS:
+S4_RULE_V1 result:
+S3/other adverse guardrails crossed:
+registered benefit thresholds crossed:
+TRADEOFF_RULE_V1 result:
+VERDICT_PRECEDENCE_V1 final label:
 ```
 
-Explain whether the protocol changes variance/reliability, not only average success.
+## H5 generalization consistency
+
+For B vs each claimed comparator:
+
+```text
+external-project point estimate:
+unexposed holdout point estimate:
+external exclusive-S4 relation:
+holdout exclusive-S4 relation:
+H5_CONSISTENCY_V1: SUPPORTED_DIRECTIONALLY | NOT_SUPPORTED | NOT_ESTIMABLE
+```
+
+Do not upgrade an underpowered holdout consistency check into a standalone effectiveness claim.
+
+## Paired outcomes and repetitions
+
+```text
+A fail / B pass:
+A pass / B fail:
+both A/B pass:
+both A/B fail:
+
+C fail / B pass:
+C pass / B fail:
+both B/C pass:
+both B/C fail:
+```
+
+Report the frozen clustered/bootstrap/hierarchical method, per-case pass fractions, outcome flips, latency/cost dispersion, and catastrophic outliers.
+
+## INVALID and UNKNOWN sensitivity
+
+```text
+original invalid executions by arm and reason:
+invalid pair/block count:
+replacement pair/block IDs:
+UNKNOWN by arm:
+pessimistic UNKNOWN sensitivity:
+optimistic UNKNOWN sensitivity:
+paired best/worst-case interval:
+```
+
+Agent-caused resource/context/runaway failures must not appear as INVALID.
+
+## Snapshot/secret integrity
+
+```text
+history-free/sanitized snapshot rule:
+recursive auto-load inventory result:
+benchmark-record scrub result:
+case-secret canary result:
+canary scope included VCS history/objects: yes/no
+hidden-material storage location class (not secret path):
+```
+
+Any answer-key leak makes the affected scored comparison non-confirmatory.
+
+## Blinding and normalization integrity
+
+```text
+blinding-check sample size:
+predeclared guess-accuracy ceiling:
+guess accuracy:
+confidence interval:
+upper bound <= ceiling: yes/no
+guesser capability vs semantic evaluator:
+normalization audit sample per arm:
+normalization-loss/error rate by arm:
+semantic evidence headline-valid: yes/no
+```
+
+Do not treat failure to reject chance as proof of blinding.
 
 ## Material paired divergences
 
-For each S3/S4 event and each important A/B disagreement:
+For each S3/S4 event and important A/B or B/C disagreement:
 
-### <Case ID>
+### <Case ID / repetition>
 
 ```text
 objective result:
-Control result:
-Protocol result:
+arm results:
 severity:
 primary failure category:
 earliest observable divergence:
@@ -123,17 +265,18 @@ observable evidence:
 protocol mechanism implicated:
 strongest alternative explanation:
 confidence:
+current exposure consequence for later protocol versions:
 existing regression coverage:
 candidate repair/simplification:
 ```
 
-Do not reconstruct private chain-of-thought.
+Do not reconstruct private chain-of-thought. Per-case divergence analysis exposes a standard/holdout case for later protocol versions.
 
 ## Protocol mechanism diagnostics
 
-Only after objective scores are frozen.
+Only after primary outcome grades are frozen.
 
-| Mechanism | Observed helpful cases | Observed harmful/costly cases | Unknown/insufficient |
+| Mechanism | Helpful observations | Harmful/costly observations | Unknown |
 | --- | ---: | ---: | ---: |
 | task shaping/readiness | | | |
 | evidence/source routing | | | |
@@ -146,85 +289,64 @@ Only after objective scores are frozen.
 | operational independence | | | |
 | anti-sprawl/lean routing | | | |
 
-Adherence is diagnostic, not part of the task-success score.
+Adherence is diagnostic only.
 
-## Generic structured-control results
+## Generic structured-control interpretation
 
-If Arm C was run, report:
-
-| Arm | Success | S3+ | S4 | Human burden | Cost | Latency |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Vanilla | | | | | | |
-| Generic structured | | | | | | |
-| MAPS_L | | | | | | |
-
-State whether MAPS_L appears to add value beyond generic structure.
-
-## Ablation results
-
-Only include ablations run under a separately frozen design.
-
-| Configuration | Target mechanism removed/changed | Target-family effect | Global effect | Interpretation |
-| --- | --- | ---: | ---: | --- |
-| | | | | |
-
-Avoid claiming a mechanism is causal when the ablation changed several things at once.
-
-## Holdout/generalization
+Standard/Full must include Arm C before a MAPS-specific contribution claim.
 
 ```text
-sealed holdout cases evaluated:
-holdout exposure status:
-external-project domains:
-known-regression performance:
-neutral-transfer performance:
-holdout performance:
+B−A interpretation: tested protocol vs no-protocol control
+B−C interpretation: MAPS-specific incremental effect vs generic structured control
 ```
 
-State explicitly whether the apparent benefit persists outside MAPS_L-designed cases.
+State whether B−C supports additional value beyond competent generic structure.
 
-## Benchmark integrity
+## Known-regression diagnostics
 
-Report:
+Report separately:
 
-- invalid runs and reasons;
-- any hidden-answer leakage;
-- environment drift;
-- evaluator instability;
-- treatment-identification leakage;
-- deviations from frozen run protocol;
-- missing measurements;
-- post-freeze adjudications and rationale;
-- any reason the result should not be treated as confirmatory.
+```text
+cases:
+results by arm/system as applicable:
+relationship to existing runtime evaluator/Experiment S:
+```
+
+Never mix these cases into H1/H5 primary success.
+
+## Benchmark integrity and deviations
+
+Report snapshot drift, hidden-answer leakage, treatment contamination, evaluator instability, normalization loss, responder misroutes, invalid pairs, deviations from frozen procedure, post-freeze adjudications, exposed-case exclusions, missing measurements, and any reason the result is not confirmatory.
 
 ## Interpretation
 
 Answer separately:
 
-1. **Does the protocol improve objective outcomes?**
-2. **Does it reduce serious failure?**
-3. **Does it reduce or increase human burden?**
-4. **What efficiency cost does it impose?**
-5. **Which task families benefit?**
-6. **Which task families are harmed?**
-7. **Does it generalize beyond known MAPS cases?**
-8. **Is the result precise enough to call better/worse/equivalent, or still inconclusive?**
-9. **What mechanism is most plausibly responsible?**
-10. **What should change in MAPS_L, if anything?**
+1. Does the protocol improve case-correct terminal outcomes?
+2. Does it reduce or increase serious failure?
+3. Does it reduce or increase human burden?
+4. What efficiency/context cost does it impose?
+5. Does B−C support MAPS-specific value beyond generic structure?
+6. Do no-trap, stress, and counterweight strata tell different stories?
+7. Does the effect remain directionally consistent on external and unexposed holdout work?
+8. Is precision sufficient for the final label?
+9. What observed mechanism most plausibly explains the difference?
+10. What should change, if anything?
 
 ## Disposition
 
-Benchmark results are evidence, not automatic authority.
+Benchmark evidence is not automatic authority.
 
 ```text
 NO CHANGE
 PROPOSE SIMPLIFICATION
 PROPOSE PROTOCOL CHANGE
 PROPOSE RUNTIME CHANGE
-ADD REGRESSION COVERAGE
+ADD DEV/REGRESSION COVERAGE
 RUN TARGETED ABLATION
+REFRESH UNEXPOSED STANDARD/HOLDOUT
 RUN LARGER CONFIRMATORY SAMPLE
-BENCHMARK DEFECT — NEW VERSION REQUIRED
+BENCHMARK DEFECT — NEW VERSION/LINE REQUIRED
 ```
 
-For every proposed change, point to the exact paired/failure evidence that motivates it.
+Tie every proposed change to exact paired/failure evidence.
