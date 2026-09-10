@@ -39,7 +39,7 @@
 - [x] N1 snapshot/history/hidden-secret leakage rules are corrected in owning files.
 - [x] N2 treatment/holdout/standard exposure lifecycle is corrected.
 - [x] N3 Smoke→Standard re-freeze path is closed for a benchmark line.
-- [x] N4 S4/tradeoff/verdict/H5 logic is made deterministic through frozen rule IDs.
+- [x] N4 S4/tradeoff/verdict/H5 logic is deterministic through frozen rule IDs and thresholds.
 - [x] N5 target population and stress/counterweight prevalence bounds are explicit.
 - [x] N6–N9 terminal parsing, treatment-surface edges, human-response routing, and blinding-power rules are corrected.
 - [x] N10 report schema and duplicated normative summaries are corrected.
@@ -81,7 +81,7 @@
 - Treatment bundle is frozen before case authoring; MAPS_HOME run snapshots are history-free/sanitized with secret-canary verification.
 - Standard cases retire from later confirmatory inference after exposure to protocol modifiers.
 - A benchmark line carries one Arm-C text and one Threshold Manifest from Smoke through Standard/Full.
-- S4/tradeoff/verdict/H5 rules are referenced by frozen deterministic rule IDs.
+- S4/tradeoff/verdict/H5 rules are referenced by frozen deterministic rule IDs; tradeoff-changing secondary thresholds are predeclared.
 - Primary overlay prevalence is bounded: no-trap floor, stress ceiling, counterweight floor.
 - Experiment P remains outcome-scored; MAPS runtime/E2E criteria remain outside its primary scorer.
 
