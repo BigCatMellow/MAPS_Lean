@@ -4,8 +4,10 @@ A concrete MAPS_L execution path for a fresh agent. This page is intentionally
 portable: use it whether the target is MAPS_Lean itself or another project using
 MAPS_L methods.
 
-Back to [[Home]]. For runtime maturity and live-state rules, see
-[[Capability Status]].
+Back to [[Home]]. For the current executable lifecycle, see
+[[Task, Run and Flow Lifecycle]]. For recovery and worktree behavior, see
+[[Execution, Recovery and Worktrees]]. Check [[Capability Status]] before
+depending on a runtime feature.
 
 ---
 
@@ -117,6 +119,11 @@ Use when concurrent/resumable work needs durable machine coordination. Then the
 active runtime can supply task claims/lifecycle, routing, communication,
 recovery, and execution-integrity state. Verify the needed capability is
 actually wired before depending on it; see [[Capability Status]].
+
+The current `maps flow` commands are bounded compositions, not a one-command
+autonomous lifecycle. In particular, `flow start` stops before provider/session
+launch, `flow handoff` stops before the replacement claim, and `flow
+release-check` stops before the verdict. See [[Task, Run and Flow Lifecycle]].
 
 ---
 
