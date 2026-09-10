@@ -136,6 +136,62 @@ class TaskStoreTests(unittest.TestCase):
         self.assertEqual(task['owner'], 'owner-a')
         self.assertEqual(task['attempt'], 2)
 
+    def test_superseded_claimant_cannot_heartbeat_or_submit_after_takeover(self):
+        """Borrowed invariant: a stale executor must not mutate after recovery."""
+        tid = self.create_shaped()
+        self.assertTrue(self.store.promote_ready(tid).ok)
+        now = datetime(2026, 8, 14, 12, tzinfo=timezone.utc)
+
+        first = self.store.claim_task(tid, 'worker-a', now=now, lease_seconds=30)
+        self.assertTrue(first.ok, first)
+        recovered = self.store.claim_task(
+            tid,
+            'worker-b',
+            now=now + timedelta(seconds=31),
+            lease_seconds=30,
+        )
+        self.assertTrue(recovered.ok, recovered)
+        self.assertEqual(recovered.code, 'RECOVERED')
+
+        stale_heartbeat = self.store.heartbeat(
+            tid,
+            'worker-a',
+            now=now + timedelta(seconds=32),
+            lease_seconds=30,
+        )
+        self.assertFalse(stale_heartbeat.ok)
+        self.assertEqual(stale_heartbeat.code, 'NOT_CLAIM_OWNER')
+
+        stale_submit = self.store.submit_task(
+            tid,
+            'worker-a',
+            'stale worker says done',
+            now=now + timedelta(seconds=32),
+        )
+        self.assertFalse(stale_submit.ok)
+        self.assertEqual(stale_submit.code, 'NOT_CLAIM_OWNER')
+
+        task = self.store.get_task(tid)
+        self.assertEqual(task['status'], 'ACTIVE')
+        self.assertEqual(task['claimed_by'], 'worker-b')
+        self.assertEqual(task['attempt'], 2)
+
+        replacement_heartbeat = self.store.heartbeat(
+            tid,
+            'worker-b',
+            now=now + timedelta(seconds=32),
+            lease_seconds=30,
+        )
+        self.assertTrue(replacement_heartbeat.ok, replacement_heartbeat)
+        replacement_submit = self.store.submit_task(
+            tid,
+            'worker-b',
+            'replacement worker verified the task',
+            now=now + timedelta(seconds=33),
+        )
+        self.assertTrue(replacement_submit.ok, replacement_submit)
+        self.assertEqual(self.store.get_submission(tid)['author_id'], 'worker-b')
+
     def test_explicit_numeric_id_advances_auto_allocator(self):
         explicit = self.store.create_task(task_id='TASK-0042')
         self.assertTrue(explicit.ok)
