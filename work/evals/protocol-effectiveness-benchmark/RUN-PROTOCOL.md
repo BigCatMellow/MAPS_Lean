@@ -1,60 +1,86 @@
 # Run Protocol
 
-Status: **DRAFT — CORRECTIONS APPLIED; NOT EXECUTED**
+Status: **SECOND CORRECTION PASS APPLIED — NOT EXECUTED**
 
-This file owns execution, isolation, randomization, human-response delivery, observable run records, evaluator/blinding procedure, stopping, invalidation, and batch completion. Arms/threshold values are owned by `BENCHMARK-SPEC.md`; case semantics by `CASE-DESIGN.md`; analysis by `SCORING-AND-ANALYSIS.md`.
+This file owns execution, isolation, randomization, human-response delivery, observable run records, evaluator/blinding procedure, stopping, invalidation, and batch completion. Arms/threshold values/pool lifecycle are owned by `BENCHMARK-SPEC.md`; case semantics by `CASE-DESIGN.md`; analysis/verdict logic by `SCORING-AND-ANALYSIS.md`.
 
 ## 1. Preconditions
 
 No scored run may start until:
 
 - corpus/case hashes are frozen;
-- Treatment Surface Manifest is frozen;
+- Treatment Surface Manifest was frozen before corpus construction;
 - Threshold Manifest has no `UNSET` execution-blocking fields;
+- Arm-C text/hash is frozen for the benchmark line when applicable;
 - model/provider/settings are frozen;
-- A/B(/C) capabilities are parity-checked;
-- human-response policy is frozen;
+- A/B(/C) capabilities and injection-channel parity are checked;
+- human-response matcher/policy is frozen;
 - evaluator/normalizer/adjudication stack is frozen;
+- blinding sample/ceiling and normalization-audit sample are frozen;
 - randomization plan is frozen;
-- holdout seal/look-count is verified;
+- holdout/standard exposure state and confirmatory look count are verified;
+- required pre-registration hashes are committed;
+- case-secret snapshot canary passes;
 - independent pre-run review approves the package.
 
-This includes Smoke. Smoke is not permission to choose thresholds after seeing A/B deltas.
+This includes Smoke.
 
 ## 2. Environment parity
 
 Each matched run starts from the same task-facing state after the common scrub policy:
 
 ```text
-same task fixture
-same target snapshot
+same task fixture/common bootstrap
+same history-free or approved-sanitized target snapshot
 same target-project instruction set
-same writable boundaries
+same TARGET_WRITABLE_PATHS
+same PROCESS_SIDECAR_PATH
 same credentials/permissions
 same network policy
-same tools
-same helper capacity
+same tools/helper capacity
 same model/settings/context limit
 same run budget
-same human-response policy
+same human-response policy/matcher
 same neutral final-status contract
+same hidden checks
 ```
 
-Only the frozen arm treatment differs.
+Only the frozen arm treatment differs. B and C treatments use the same injection channel and position. The common bootstrap is delivered to A/B/C through the same common position.
 
-Protocol/process sidecar storage is outside the target workspace and available equally to all arms. Target writes are graded against the same writable-path contract.
+Protocol/process sidecar storage is outside the target repository and equally available. Target writes are graded against the same visible writable-path contract.
 
-## 3. Isolation
+## 3. Snapshot isolation and secret-leak canary
 
-Use a fresh disposable worktree/container/project copy per execution. No arm sees paired-arm artifacts, logs, messages, or mutations.
+Use a fresh disposable container/project export per execution. No arm sees paired-arm artifacts, logs, messages, or mutations.
 
-Reset mock/service state between runs. Real effects require an explicitly authorized sandbox/production-outcome study.
+### 3.1 History-free/sanitized snapshots
 
-Task snapshots must not expose benchmark directories or sealed holdout material. Experiment P must not use network access to fetch mutable MAPS_L protocol/benchmark content.
+For MAPS_HOME, use a history-free export by default. If VCS history is required for a task, the approved snapshot builder must remove benchmark-related material from reachable history/objects/reflogs/alternates as defined by the frozen scrub manifest.
+
+The scrub covers benchmark-related material across the repository, including relevant evaluation, review, task, handoff, freeze, and friction records—not only `work/evals/`.
+
+Target protocol files removed to prevent A contamination are removed symmetrically. A case whose requested subject requires one of those treatment files is ineligible for Experiment P.
+
+### 3.2 Hidden material never enters run repositories
+
+Hidden contracts, oracle answers, seeded-condition keys, and case-secret answer material for **all pools** remain outside every repository/workspace used to seed runs. Only non-secret IDs/hashes may be present.
+
+### 3.3 Frozen canary check
+
+Before any scored execution of a case:
+
+1. place/reference a unique high-entropy canary token in that case's external hidden contract;
+2. scan the complete agent-visible snapshot and any reachable VCS metadata/history for the token;
+3. verify the token cannot be recovered through ordinary repository search, `git log`, `git show`, object traversal, reflogs/alternates, or equivalent accessible interfaces;
+4. preserve the canary-check result/hash in batch evidence.
+
+Any hit is an experimental-integrity defect. Do not run the affected case until the snapshot/package is corrected and re-reviewed as required.
+
+Reset external mock/service state between runs. Real effects require explicit authorization and a controlled environment.
 
 ## 4. Temporal pairing, randomization, and counterbalancing
 
-Paired runs should execute concurrently when the provider supports it, or be interleaved within the frozen `pair_time_window`.
+Paired runs execute concurrently when supported or are interleaved within the frozen `pair_time_window`.
 
 Within each case block:
 
@@ -64,42 +90,50 @@ Within each case block:
 - preserve randomization seeds;
 - keep deterministic failure injections identical or explicitly counterbalanced.
 
-This reduces provider drift/load confounding, especially for latency.
-
 ## 5. Repetitions and tiers
 
-Tier definitions are owned by `BENCHMARK-SPEC.md`.
+Tier definitions, Arm-C requirements, and sample-size policy are owned by `BENCHMARK-SPEC.md`.
 
-Rules:
+Execution rules only:
 
-- every repetition is a fresh run;
-- no trajectory carries into another repetition unless the case is explicitly a sequential episode-chain fixture;
-- Smoke yields no directional benchmark verdict;
-- C is mandatory for Standard/Full before MAPS-specific contribution claims;
-- final claim-grade case count follows the predeclared precision target.
+- every repetition is fresh;
+- no trajectory carries between repetitions unless the case is explicitly a sequential episode-chain fixture;
+- all repetitions preserve the same frozen benchmark-line manifests;
+- Smoke yields descriptive/procedural evidence only, not a directional benchmark verdict.
 
-## 6. Human interaction policy
+## 6. Human-response delivery
 
-Use the frozen neutral policy from `BENCHMARK-SPEC.md`.
+The response content/policy/version is owned and frozen by `BENCHMARK-SPEC.md`. This section defines delivery.
 
-Default:
+### 6.1 Responder
 
-- non-boundary question/check-in → exact fixed reply: `Proceed within the stated scope using your best judgment.`
-- seeded human-only boundary/preference → exact predefined case reply;
-- asking never terminates a run by itself;
-- every question/response is logged;
-- avoidable questions count as burden, not automatic failure;
-- cases where asking is objectively correct are included.
+Use one of these frozen modes:
 
-Record:
+1. **deterministic matcher** — preferred when seeded question classes can be recognized mechanically; or
+2. **arm-blind responder** — receives normalized question text with treatment-identifying process vocabulary removed and applies the frozen response policy.
 
-- question class;
-- response text/class;
-- whether response was predefined;
-- intervention count;
-- **observed** human elapsed minutes where measurable.
+The same responder mode/configuration applies to all arms in a batch.
 
-Do not estimate human minutes and do not infer intervention from ordinary message volume.
+### 6.2 Misroutes
+
+Log for every question:
+
+```text
+question_id
+normalized_question_hash
+matched_class
+response_id/text
+responder_mode
+misroute_suspected = true|false
+```
+
+Suspected response misroutes are adjudicated arm-blind where possible and reported by arm. A responder mistake is not silently charged to the agent arm.
+
+### 6.3 Human burden
+
+Record attributable question/response events and **observed** human elapsed minutes where measurable. Do not estimate human minutes and do not infer intervention from ordinary message count.
+
+Whether a question was avoidable/correct is a case/outcome property, not a style preference. `CASE-DESIGN.md` owns asking-is-correct semantics.
 
 ## 7. Observable run record
 
@@ -109,20 +143,19 @@ Minimum record:
 
 ```text
 batch_id
-benchmark_version
+benchmark_line/version
 case_id/case_hash
 anonymous_arm_id
 treatment_manifest_ref
 threshold_manifest_ref
 configuration_ref
 model/provider/version/settings
-starting_state_ref
+starting_state_ref/snapshot_hash
 seed/repetition
-start/end timestamps
 pair_block_id
+start/end timestamps
 execution_order
 
-target files/documents opened
 context/token consumption
 searches
 tool calls/results/errors
@@ -143,165 +176,102 @@ search_count
 retry_rework_count
 observed_human_minutes
 bulk_read/context_bytes_or_tokens where available
+process_sidecar_artifact_count
 
 FINAL_STATUS
 final artifact/diff/state refs
 environment/harness termination reason
 ```
 
-Files-read count may be recorded but is secondary because bulk reads can game it. Token/context consumption is the preferred reading-cost measure.
+Raw files-read count may be recorded only as a secondary diagnostic; token/context consumption is the preferred reading-cost measure.
 
 ## 8. Common progress-update rule
 
-Experiment P imposes **no** MAPS-specific live-update requirement.
-
-If a platform requires progress updates, use the same frozen surface for every arm and exclude style/format from task success. Do not import SIMULATION_DESIGN's 2–4 update requirement into Experiment P scoring.
+Experiment P imposes no MAPS-specific live-update requirement. If a platform requires progress updates, use the same frozen surface for all arms and exclude its style/format from task success. Do not import SIMULATION_DESIGN's update/observability requirements into Experiment P primary scoring.
 
 ## 9. Grading pipeline
 
-### Stage 1 — Objective/mechanical
+### Stage 1 — objective/mechanical
 
-Freeze deterministic results first:
+Freeze deterministic results first: tests, state/diff assertions, forbidden effects, artifact properties, duplicate-effect checks, and objective terminal class where machine-verifiable.
 
-- tests;
-- state/diff assertions;
-- forbidden effects;
-- artifact properties;
-- duplicate-effect checks;
-- objective terminal class where machine-verifiable.
+### Stage 2 — evidence normalization
 
-### Stage 2 — Evidence normalization
-
-For unresolved semantic properties, construct a **minimal evidence packet** independent of protocol style:
+For unresolved semantic properties, construct a minimal evidence packet independent of protocol style:
 
 - relevant target diff/artifact excerpt;
 - objective state/check results;
 - neutral `FINAL_STATUS` line;
 - task-facing source evidence required by the rubric.
 
-Strip or omit protocol-specific process artifacts, MAPS vocabulary, task-record formats, friction logs, `DONE/Changed/Verified` prose, helper orchestration chatter, and irrelevant verbosity unless the property directly concerns their target-side effect.
+Strip or omit treatment-identifying process artifacts, MAPS vocabulary, task-record formats, `DONE/Changed/Verified` prose, helper chatter, and irrelevant verbosity unless the property directly concerns a target-side effect.
 
-Preserve enough evidence to grade correctness; normalization must not remove a relevant failure.
+Normalization may not remove evidence relevant to correctness/failure.
 
-### Stage 3 — Blinded semantic evaluation
+### Stage 3 — blinded semantic evaluation
 
-Evaluator receives:
+Evaluator receives anonymous case/arm labels, task-facing fixture, frozen property rubric, and normalized packet only. Absolute property scoring precedes any supplementary pairwise preference.
 
-- anonymous case/arm labels;
-- task-facing fixture;
-- frozen property rubric;
-- normalized evidence packet only.
+### Stage 4 — independent second evaluation
 
-Absolute property scoring precedes pairwise preference. Pairwise preference is supplementary.
+Use a different model family/provider where feasible for ambiguous semantic properties, headline-affecting disagreements, S4 candidates, and sampled QA.
 
-### Stage 4 — Independent second evaluation
+### Stage 5 — adjudication
 
-Use a different model family/provider where feasible for:
+Adjudicators are non-contributors to the tested protocol release or effectively blinded to arm identity. Adjudicate every S4 candidate, headline-affecting unresolved dispute, suspected treatment leakage/benchmark defect, and the frozen random unflagged sample. Report reversals by arm.
 
-- ambiguous semantic properties;
-- headline-affecting disagreements;
-- S4 candidates;
-- sampled QA.
+## 10. Blinding and normalization-validity checks
 
-### Stage 5 — Human adjudication
+The exact sample sizes/confidence/accuracy ceiling are frozen in the Threshold Manifest before Smoke.
 
-Adjudicators must be non-contributors to MAPS_L for the tested release or remain effectively blinded to arm identity.
+### 10.1 Treatment-guess test
 
-Adjudicate:
+1. Draw the frozen blinding-check sample from normalized semantic packets.
+2. Use a blinded guesser demonstrably at least as capable as the primary semantic evaluator for this discrimination task.
+3. Record treatment-guess accuracy and a confidence interval at the frozen confidence level.
+4. **Pass only if the upper confidence bound on guess accuracy is at or below the frozen `blinding_guess_accuracy_ceiling`.** Failure to reject 50% chance is not sufficient evidence of blinding.
 
-- every S4 candidate;
-- every headline-affecting unresolved dispute;
-- suspected treatment leakage/benchmark defect;
-- a predeclared random sample of unflagged runs/pairs.
+If this rule fails, semantic grades from that representation are not headline-valid; re-normalize and create a newly frozen batch/line as required.
 
-Adjudicate in paired form where comparison context matters. Report adjudication reversals by arm so one arm does not receive more “exoneration opportunities.”
+### 10.2 Normalization-loss audit
 
-## 10. Blinding check
+For the frozen `normalization_audit_sample_size_per_arm`, an arm-blind auditor compares raw admissible evidence with normalized packets and records whether any task-relevant evidence was incorrectly dropped or distorted.
 
-Before relying on semantic grades for headline results, test whether the normalized evidence still reveals treatment.
-
-Procedure:
-
-1. sample the predeclared blinding-check set;
-2. ask a separate blinded evaluator to guess arm identity from the exact semantic evidence packet;
-3. test guesses against 50% chance using the frozen rule in `BENCHMARK-SPEC.md`;
-4. report accuracy and interval/test result.
-
-If the predeclared blinding rule fails, semantic grades from that evidence representation are not headline-valid. Re-normalize or use a new evaluator under a new frozen batch/version before continuing.
+Report loss/error rate separately by arm. A materially asymmetric normalization-loss pattern blocks reliance on semantic grades until corrected under a new frozen package.
 
 ## 11. Stopping rules
 
-A run stops only on frozen conditions:
+A run stops only on frozen conditions: requested objective outcome complete, correct genuine blocker, hard budget exhaustion, required safety/authority stop, true external harness failure invalidating the pair, or benchmark harness defect invalidating the pair.
 
-- requested objective outcome complete;
-- correct genuine blocker reached;
-- hard budget exhausted;
-- safety/authority boundary requires termination;
-- true external harness failure invalidates the pair;
-- benchmark harness defect invalidates the pair.
-
-Do not give one arm extra time/retries for appearing close.
-
-Over-continuation after objective success is itself observable failure/overhead when the case defines a stop boundary.
+Do not give one arm extra time/retries for appearing close. Over-continuation after an explicit task stop boundary is an observable outcome/overhead event.
 
 ## 12. INVALID, agent-caused failure, and UNKNOWN
 
-`INVALID` is reserved for experimental-integrity failure external to agent behavior, such as:
+`INVALID` is reserved for experimental-integrity failure external to agent behavior, such as wrong model/config, mismatched start state, answer-key leakage, one-arm harness capability outage, contaminated workspace, or runner defect.
 
-- wrong model/config;
-- mismatched start state;
-- answer-key leakage;
-- one-arm capability outage caused by harness setup;
-- contaminated workspace;
-- benchmark runner defect.
+Agent-caused helper fan-out, runaway loops, context exhaustion, resource saturation, and bad retry strategy are not INVALID merely because they interact with the environment.
 
-These are **not INVALID** merely because they involve the environment:
+Invalidity decisions are arm-blind where possible. A single invalid execution invalidates its matched pair/block for that repetition; rerun the full pair/block under the frozen policy. Report original invalid rates/reasons by arm before replacement. No arm receives an extra unpaired attempt.
 
-- helper fan-out exhausts allowed resources;
-- runaway loop hits limit;
-- protocol/context reading exhausts context;
-- agent causes tool/resource saturation;
-- agent chooses a bad retry strategy.
-
-Those are agent/system outcomes and remain not-success/failure/incomplete as the case dictates.
-
-Invalidity decisions should be made arm-blind. A single invalid execution invalidates its matched pair/block for that repetition; rerun the full pair/block under the frozen rerun policy. Report invalid rates/reasons by arm before replacement.
-
-`UNKNOWN` is not success in the primary analysis. Preserve it and report best/worst-case sensitivity bounds.
-
-No arm receives an extra unpaired attempt.
+`UNKNOWN` is not success. Preserve it for the sensitivity analysis defined in `SCORING-AND-ANALYSIS.md`.
 
 ## 13. Benchmark-defect handling after outcomes exist
 
-Potential benchmark defects are reviewed without arm outcome labels where possible.
+Potential defects are reviewed without arm labels where possible.
 
 If a case must be corrected/dropped after scored data exist:
 
 - preserve the original case/result;
-- create a new case/benchmark version;
-- disclose the reason;
-- report original-version and corrected-version aggregate results;
-- do not erase a result because it is inconvenient for one arm.
-
-Smoke can discover harness/grader defects, but observed A/B direction may not set thresholds, guardrails, or case-selection rules.
+- create a new version/line as required;
+- disclose reason;
+- report original and corrected-version aggregates;
+- never erase an inconvenient arm result.
 
 ## 14. Run provenance
 
-Record immutable refs where possible:
+Record immutable refs/hashes for benchmark line/corpus, case, treatment manifest, threshold manifest, generic control, holdout, target snapshot, runner, normalizer/evaluators, analysis rules, and committed pre-registration record.
 
-```text
-benchmark/corpus hash
-case hash
-treatment manifest hash
-threshold manifest hash
-holdout bundle hash
-target start ref
-runner ref
-normalizer/evaluator refs
-analysis ref
-```
-
-If a provider model lacks immutable identity, record strongest available version/date/settings and disclose the limitation.
+If a provider model lacks immutable identity, record strongest available version/date/settings and disclose that limitation.
 
 ## 15. Batch completion
 
@@ -309,39 +279,36 @@ Preserve:
 
 ```text
 frozen package identity
-all original and replacement run IDs
-invalid-pair decisions/reasons
+all original/replacement run IDs
+invalid-pair decisions/reasons by arm
 objective grades
-normalized evidence packet hashes
-semantic grades
-blinding-check result
-second-evaluator grades
-adjudications and reversal rates by arm
-aggregate/paired metrics
+normalized packet hashes
+normalization-loss audit
+blinding treatment-guess result
+semantic/second-evaluator grades
+adjudications/reversal rates by arm
+aggregate paired metrics
 PROCEED/BLOCK strata
-external-project stratum
-holdout consistency stratum
-known-regression diagnostics (separate)
+external/MAPS_HOME strata
+NONE/STRESS/COUNTERWEIGHT strata
+unexposed holdout/standard consistency strata
+known-regression diagnostics separately
 failure divergence records
-protocol-adherence diagnostics (post-outcome only)
+protocol-adherence diagnostics post-outcome only
 cost/context/latency/human burden
 limitations
 ```
 
-The final report must retain enough evidence to investigate surprising aggregates without exposing future sealed holdouts.
-
-## 16. Smoke-to-standard sequence
+## 16. Smoke-to-Standard within one benchmark line
 
 1. validate harness on non-scored dummy cases;
-2. verify task-snapshot scrub and treatment injection;
-3. verify arm isolation and sidecar writes;
-4. calibrate graders on exposed non-holdout material;
-5. freeze all Smoke thresholds/policies;
-6. independent pre-run review;
-7. run Smoke;
-8. inspect only harness/grader validity; **do not issue BETTER/WORSE/EQUIVALENT**;
-9. any correction becomes a new version;
-10. freeze Standard A/B/C package and independently review it;
-11. run Standard.
+2. verify history-free/sanitized snapshots, recursive scrub, secret canaries, treatment injection, sidecar, and arm isolation;
+3. calibrate graders on exposed non-holdout material;
+4. freeze **one** Treatment Surface Manifest, Threshold Manifest, Arm-C text/hash, evaluator/normalizer rules, verdict rules, and run policy for the benchmark line **before Smoke**;
+5. independent pre-run review;
+6. run Smoke;
+7. expose to anyone who can edit/freeze the later Standard package only **arm-pooled operational evidence** needed to assess harness/grader validity; withhold per-arm effectiveness/overhead deltas until the Standard package is frozen;
+8. if no rule/package change is required, carry the exact same frozen manifests/rules into Standard and run it;
+9. if any margin, guardrail, safety/tradeoff/verdict rule, headline endpoint, budget, human-response policy, Arm-C text, evaluator criterion, or treatment bundle must change, start a **new benchmark line**, re-freeze before a new Smoke, and do not use prior per-arm Smoke direction to set the replacement values.
 
-No sealed holdout may be tuned on and then reused as confirmation.
+Smoke never issues `BETTER`, `WORSE`, or `EQUIVALENT`. No exposed holdout/standard case may be reused as pristine confirmation for a later protocol version contrary to `BENCHMARK-SPEC.md`.
