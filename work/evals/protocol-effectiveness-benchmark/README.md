@@ -17,7 +17,7 @@ Review evidence:
 - [`../../reviews/pr-341-review-evidence.md`](../../reviews/pr-341-review-evidence.md) — original review at `465d97300cf021840fb1fe0434656ff3772d1db4`: `MAJOR CORRECTIONS REQUIRED`.
 - [`../../reviews/pr-341-rereview-evidence-56c43aa.md`](../../reviews/pr-341-rereview-evidence-56c43aa.md) — fresh re-review at `56c43aa9c176a98b733c32cfb53b182b3c034b9f`: `MINOR CORRECTIONS REQUIRED`; no blocking defect remained; N1–N10 required bounded text corrections.
 
-Those N1–N10 corrections are now owner-applied on this branch. That is **not approval**.
+N1–N10 are now owner-applied on this branch. That is **not approval**.
 
 Corpus construction remains closed until a focused fresh independent reviewer at the new corrected head returns:
 
@@ -52,5 +52,7 @@ Any Experiment P machine schema is defined once by this package.
 ## Current next step
 
 **Focused fresh independent re-review of the N1–N10 correction delta at the new PR head.**
+
+The reviewer should use `work/reviews/pr-341-rereview-evidence-56c43aa.md` as the finding source and verify current owner files rather than re-opening already resolved B/M findings unless the delta regressed them.
 
 Only an `APPROVED FOR CORPUS CONSTRUCTION` verdict opens corpus construction.
