@@ -1,6 +1,6 @@
 # Benchmark Specification
 
-Status: **FOURTH CORRECTION PASS APPLIED — AWAITING FOCUSED RE-REVIEW; NOT FROZEN OR EXECUTED**
+Status: **FIFTH CORRECTION PASS APPLIED — AWAITING FOCUSED RE-REVIEW; NOT FROZEN OR EXECUTED**
 
 This file owns benchmark arms, treatment surfaces, controlled variables, target population/pools, exposure lifecycle, threshold/guardrail manifests, and benchmark identity. Case semantics live in `CASE-DESIGN.md`; execution in `RUN-PROTOCOL.md`; metrics/verdict logic in `SCORING-AND-ANALYSIS.md`.
 
@@ -204,20 +204,24 @@ The first benchmark line targets ordinary bounded consequential work a capable g
 - research/document/evidence work;
 - configuration/operations.
 
-Sampling must occur **before** MAPS-related family labels are assigned. An independent curator freezes `target_work_sampling_manifest` with source pools, eligibility rules, exclusions, sampling procedure, and the immutable commit that first introduced this benchmark package.
+Sampling must occur **before** MAPS-related family labels are assigned. An independent curator freezes `target_work_sampling_manifest` with source pools, eligibility rules, exclusions, sampling procedure, the immutable commit that first introduced this benchmark package, and a **sampling reference model/provider version** plus its **latest documented training-data cutoff**. If that model/provider publishes no usable cutoff, the manifest records the cutoff as `UNKNOWN`; corpus builders may not infer one.
 
 Permitted source material includes external issue/task queues and pre-existing real operator requests. Operator-authored requests are eligible only if they **predate the first commit that introduced `work/evals/protocol-effectiveness-benchmark/`**, as recorded in the sampling manifest, or are authored by a non-stakeholder who cannot influence MAPS_L.
 
 Filtering may enforce executability, safety, and reproducibility, but not select tasks because they exhibit authority/recovery/review/continuation/MAPS-specific phenomena.
 
-For every external case, record the resolution/fix date and its relation to the strongest documented training-data cutoff available for the frozen model/provider version:
+For every external case, record the resolution/fix date and its relation to the sampling manifest's pinned reference cutoff:
 
 ```text
 resolution_date
-model_training_cutoff_relation = POST_CUTOFF | PRE_OR_WITHIN_CUTOFF | UNKNOWN
+sampling_reference_model_provider_version
+sampling_reference_training_cutoff = <documented date> | UNKNOWN
+sampling_model_training_cutoff_relation = POST_CUTOFF | PRE_OR_WITHIN_CUTOFF | UNKNOWN
 ```
 
 Prefer post-cutoff resolutions where feasible. Pre/within-cutoff and UNKNOWN cases remain eligible only if otherwise valid and are reported as separate sensitivity strata so parametric recall cannot silently drive the external/H5 result.
+
+At the pre-run freeze, after the actual execution `model/provider/version/settings` is frozen, recompute the cutoff relation deterministically from the same `resolution_date` using that executed model/provider version's latest documented cutoff (or `UNKNOWN` if none is documented). Record and report both the sampling-reference relation and the execution-model relation. A changed execution relation may change sensitivity interpretation but may not retroactively change case inclusion, overlay labels, or sampling weights.
 
 ### 7.2 Primary population
 
@@ -247,8 +251,10 @@ Before case authoring, freeze:
 - `NONE >= 40%` of primary cases;
 - `STRESS <= 30%`;
 - `COUNTERWEIGHT >= STRESS` by count;
-- any seeded condition matching a `CASE-DESIGN.md` §6.2 stress/diagnostic family **must** be labeled `STRESS` unless it independently satisfies the stricter COUNTERWEIGHT rule;
-- a MAPS-favored seeded phenomenon counts as STRESS even when embedded in ordinary work;
+- every primary case records hidden `seeded_stress_families[]`;
+- any seeded condition matching a `CASE-DESIGN.md` §6.2 stress/diagnostic family **must** be labeled `STRESS` unless its reviewed COUNTERWEIGHT harm path can plausibly worsen the **primary case-correct outcome** on that same case through `FALSE_BLOCK`, `INCOMPLETE`, `FALSE_SUCCESS`, or a forbidden effect;
+- a cost-, latency-, context-, or human-burden-only harm path does **not** move a seeded §6.2 case out of `STRESS`;
+- a MAPS-favored seeded phenomenon counts as STRESS even when embedded in ordinary work unless the primary-outcome counterweight exception immediately above is satisfied;
 - a COUNTERWEIGHT must create a plausible condition where a named MAPS tendency can be unnecessary or harmful; it cannot merely be an easier stress case.
 
 For every `COUNTERWEIGHT`, the hidden case record must include:
@@ -261,6 +267,8 @@ counterweight_harm_path
 Before freeze, an independent overlay reviewer verifies **every primary case's** `NONE | STRESS | COUNTERWEIGHT` classification, not only counterweights. Reviewer reclassifications are recorded and reported. For COUNTERWEIGHT, the reviewer additionally verifies the named tendency/harm path before the label counts toward the floor.
 
 Sequential episode chains and untrusted-instruction-shaped-content cases are **harm-detection families only**; they are not automatically COUNTERWEIGHT and receive overlay class only after this test.
+
+The frozen corpus and final report disclose the share of primary cases with non-empty `seeded_stress_families[]` independently of overlay class, so seeded MAPS-favored conditions cannot disappear statistically by relabeling.
 
 Family labels are diagnostic and never become primary sampling weights.
 
@@ -453,8 +461,8 @@ Before any case/holdout authoring, an independent reviewer must approve:
 - treatment bundle/surface freeze;
 - control contamination prevention;
 - **Arm C independence, competence floor, frozen text/hash, and A/B/C instruction-length/context-cost disclosure**;
-- target-work sampling method and operator-request cutoff;
-- overlay prevalence plus independent `NONE | STRESS | COUNTERWEIGHT` review;
+- target-work sampling method, operator-request cutoff, and pinned sampling-reference model/provider/cutoff;
+- overlay prevalence plus independent `NONE | STRESS | COUNTERWEIGHT` review, including seeded-stress primary-outcome counterweight rule;
 - exposure/holdout lifecycle;
 - hidden-material, retrieval/network, run-visible-metadata, and parametric-recall controls;
 - human-response constraints;
@@ -465,6 +473,6 @@ Required verdict: `APPROVED FOR CORPUS CONSTRUCTION`.
 
 ### Pre-run gate
 
-After corpus construction and before any scored run, independently verify actual manifests/hashes, case weights, network/retrieval allowlists, enabled-tool firewall tests, canary/resolution scans, thresholds/guardrails/crossing bases, human-response matcher, model/settings, evaluator/blinding rules, holdout seal/look count, and report schema.
+After corpus construction and before any scored run, independently verify actual manifests/hashes, case weights, network/retrieval allowlists, enabled-tool firewall tests, canary/resolution scans, thresholds/guardrails/crossing bases, human-response matcher, executed model/settings and recomputed training-cutoff relation, evaluator/blinding rules, holdout seal/look count, and report schema.
 
 No benchmark/model/evaluator spending occurs before that gate.
