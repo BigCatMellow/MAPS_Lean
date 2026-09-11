@@ -64,7 +64,7 @@
 ## Conditional execution rules
 
 - Environment / target: GitHub documentation branch for PR #341.
-- Ordered procedure: preserve r4 review → apply targeted G1–G10 owner corrections → install mechanical anchor backstop and friction record → update PR/task status → focused independent re-review.
+- Ordered procedure: preserve r4 review → apply targeted G1–G10 owner corrections → install mechanical anchor backstop and capture the friction signal → update PR/task status → focused independent re-review.
 - Failure branches: if focused re-review finds a remaining validity defect, correct only that defect and repeat review before corpus work. Any future repeat regression extends the mechanical anchor set rather than relying on another prose reminder.
 - Rollback / recovery: branch/commit history.
 - Security / privacy controls: no actual case secrets/holdout contents introduced; future storage/isolation rules only.
@@ -101,9 +101,9 @@
 ## Completion / handoff
 
 - Completed: G1–G10 targeted owner corrections prepared; r4 review preserved; mechanical regression safeguard installed.
-- Not completed: focused fresh independent verification at current head; corpus construction.
-- Triage capture: repeated fix-pass regression recorded in `work/coordination/FRICTION_LOG.md`; anchor safeguard is the countermeasure.
+- Not completed: focused fresh independent verification at current head; corpus construction; canonical `FRICTION_LOG.md` append.
+- Triage capture: repeat-regression signal is durably captured in temporary carrier `work/coordination/FRICTION-PR341-REVIEW-REGRESSION.md` because this connector exposes whole-file replacement but no safe append operation for the large append-only canonical log. The carrier contains the exact entry that still needs canonical append; it explicitly does not claim to replace `FRICTION_LOG.md`.
 - Reproduction package: package owner files + PR/review history + `RESOLVED-FINDING-ANCHORS.json` + anchor-check script/CI step.
-- Current blocker: focused fresh independent re-review.
+- Current blocker: focused fresh independent re-review; canonical friction-log append remains an administrative repository-rule cleanup, not permission to build/run the benchmark.
 - Next eligible roadmap task: corpus construction only after `APPROVED FOR CORPUS CONSTRUCTION`.
 - Human action required: none unless execution/spending is later requested.
