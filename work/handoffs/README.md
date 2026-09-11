@@ -59,10 +59,13 @@ elsewhere is not a durable continuation pointer.
    older handoff becomes operationally relevant, review it, assign or confirm an
    ID, add its receipt, and register it before continuing.
 
-For a **GitHub-thread-only** handoff, leave the review acknowledgment and durable
-continuation pointer on that same issue/PR thread under the shared coordination
-headings. Do not create a repository commit solely to mirror volatile GitHub
-coordination into this file.
+For a **GitHub-thread-only** handoff, keep its complete lifecycle receipt on the
+same source issue/PR thread under the shared coordination headings rather than
+creating a status-only repository commit. Record review acknowledgment and the
+durable continuation pointer there. When the handoff reaches a terminal state,
+record `CLOSED` with final-result evidence or `SUPERSEDED` with the replacement
+pointer on that same source thread. Closing or merging the issue/PR does **not**
+by itself establish handoff closure or supersession.
 
 Agents checking a durable handoff should open this register first. Directory-wide
 handoff search is a fallback for legacy recovery, not the normal start path.
