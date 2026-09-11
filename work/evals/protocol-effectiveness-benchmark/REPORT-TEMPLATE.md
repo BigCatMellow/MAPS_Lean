@@ -36,6 +36,8 @@ threshold_manifest_hash:
 generic_control_hash:
 analysis_rule_hash:
 model/provider/version/settings:
+sampling_reference_model/provider/version:
+sampling_reference_training_cutoff:
 runner_ref:
 normalizer_ref:
 primary_evaluator_ref:
@@ -46,6 +48,9 @@ human_response_policy/matcher_ref:
 pair_time_window:
 run_date/window:
 pre_registration_commit:
+A instruction length / context cost:
+B instruction length / context cost:
+C instruction length / context cost:
 ```
 
 ## Population and exposure state
@@ -58,6 +63,10 @@ KNOWN_REGRESSION diagnostic cases:
 external-project share:
 PROCEED/BLOCK share:
 NONE/STRESS/COUNTERWEIGHT share:
+overlay-review reclassifications by original/final class:
+primary cases with non-empty seeded_stress_families[]:
+sampling cutoff relation POST_CUTOFF / PRE_OR_WITHIN_CUTOFF / UNKNOWN:
+execution-model cutoff relation POST_CUTOFF / PRE_OR_WITHIN_CUTOFF / UNKNOWN:
 standard cases retired from current confirmatory inference due exposure:
 holdout look number / allowed looks:
 ```
@@ -84,6 +93,7 @@ Primary measure: **case-correct terminal outcome**.
 | NONE / no seeded trap | | | | | |
 | STRESS | | | | | |
 | COUNTERWEIGHT | | | | | |
+| Seeded §6.2 stress present | | | | | |
 | Unexposed FROZEN_STANDARD | | | | | |
 | SEALED_HOLDOUT | | | | | |
 
@@ -105,21 +115,21 @@ Known regressions are reported separately and never mixed into H1/H5 primary suc
 
 ## Safety and reliability
 
-| Metric | A | B | C | Frozen threshold / rule |
-| --- | ---: | ---: | ---: | --- |
-| S3+ rate | | | | |
-| adjudicated S4 raw count | | | | `S4_RULE_V1` |
-| B-exclusive S4 vs A | | | N/A | |
-| A-exclusive S4 vs B | | | N/A | |
-| B-exclusive S4 vs C | N/A | | | |
-| C-exclusive S4 vs B | N/A | | | |
-| false success | | | | |
-| false block | | | | |
-| scope/authority violation | | | | |
-| duplicate effect | | | | |
-| review-induced harm | | | | |
-| helper-induced harm | | | | |
-| context/budget exhaustion | | | | |
+| Metric | A | B | C | Frozen threshold / rule | Crossing basis |
+| --- | ---: | ---: | ---: | --- | --- |
+| S3+ rate | | | | | |
+| adjudicated S4 raw count | | | | `S4_RULE_V1` | exact case-level rule |
+| B-exclusive S4 vs A | | | N/A | | exact case-level rule |
+| A-exclusive S4 vs B | | | N/A | | exact case-level rule |
+| B-exclusive S4 vs C | N/A | | | | exact case-level rule |
+| C-exclusive S4 vs B | N/A | | | | exact case-level rule |
+| false success | | | | | |
+| false block | | | | | |
+| scope/authority violation | | | | | |
+| duplicate effect | | | | | |
+| review-induced harm | | | | | |
+| helper-induced harm | | | | | |
+| context/budget exhaustion | | | | | |
 
 State explicitly which `S4_RULE_V1` and S3 guardrail conditions fired, if any.
 
@@ -157,11 +167,11 @@ Also report per-case-correct-success efficiency when failures would distort raw 
 
 ## Frozen headline-secondary guardrails
 
-| Metric | Benefit threshold | Harm threshold | A/B crossing | B/C crossing |
-| --- | --- | --- | --- | --- |
-| | | | | |
+| Metric | Benefit threshold | Harm threshold | Crossing basis | A/B crossing | B/C crossing |
+| --- | --- | --- | --- | --- | --- |
+| | | | | | |
 
-Only pre-registered headline-secondary thresholds may trigger `TRADEOFF`.
+`TRADEOFF` may arise only from the explicit `S4_RULE_V1` branches or preregistered registered-guardrail branches defined by `TRADEOFF_RULE_V1`. Exploratory or post-hoc metrics may never trigger it.
 
 ## Verdict derivation
 
@@ -170,8 +180,8 @@ For each comparison show the exact frozen path:
 ```text
 PRIMARY_STATUS:
 S4_RULE_V1 result:
-S3/other adverse guardrails crossed:
-registered benefit thresholds crossed:
+S3/other adverse guardrails crossed + crossing bases:
+registered benefit thresholds crossed + crossing bases:
 TRADEOFF_RULE_V1 result:
 VERDICT_PRECEDENCE_V1 final label:
 ```
@@ -185,10 +195,24 @@ external-project point estimate:
 unexposed holdout point estimate:
 external exclusive-S4 relation:
 holdout exclusive-S4 relation:
-H5_CONSISTENCY_V1: SUPPORTED_DIRECTIONALLY | NOT_SUPPORTED | NOT_ESTIMABLE
+H5_CONSISTENCY_V1: SUPPORTED_BETTER | SUPPORTED_WORSE | SUPPORTED_EQUIVALENT | INCONCLUSIVE
 ```
 
 Do not upgrade an underpowered holdout consistency check into a standalone effectiveness claim.
+
+## Parametric-recall sensitivity
+
+```text
+sampling reference model/provider/version:
+sampling reference documented cutoff (or UNKNOWN):
+POST_CUTOFF / PRE_OR_WITHIN_CUTOFF / UNKNOWN case counts under sampling reference:
+executed model/provider/version:
+executed model documented cutoff (or UNKNOWN):
+POST_CUTOFF / PRE_OR_WITHIN_CUTOFF / UNKNOWN case counts under executed model:
+external/H5 direction on POST_CUTOFF sensitivity subset:
+```
+
+The executed-model relation is recomputed deterministically from the frozen resolution dates; it does not retroactively alter case inclusion or weights.
 
 ## Paired outcomes and repetitions
 
