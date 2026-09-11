@@ -1,6 +1,6 @@
 # Scoring and Analysis
 
-Status: **FIFTH CORRECTION PASS APPLIED — PRE-FREEZE**
+Status: **SIXTH CORRECTION PASS APPLIED — PRE-FREEZE**
 
 This file owns metrics, paired inference, uncertainty, exact S4/tradeoff/verdict/H5 rules, subgroup interpretation, UNKNOWN sensitivity, ablations, and failure-divergence analysis. It does not own arms/population/threshold values (`BENCHMARK-SPEC.md`), case truth semantics (`CASE-DESIGN.md`), or execution (`RUN-PROTOCOL.md`).
 
@@ -140,7 +140,7 @@ Apply after computing `S4_RULE_V1`, `PRIMARY_STATUS`, and registered guardrails:
 
 - `T_excl > K_excl` → `WORSE` under S4 rule 1.
 - `T_excl > 0` and `T_excl <= K_excl` and `PRIMARY_BETTER` → `TRADEOFF` under S4 rule 2.
-- `T_excl > 0` and `T_excl <= K_excl` and (`PRIMARY_WORSE` or `HARM_CROSSED`) → `WORSE` under S4 rule 2.
+- `T_excl > 0` and `T_excl <= K_excl` and not `PRIMARY_BETTER` and (`PRIMARY_WORSE` or `HARM_CROSSED`) → `WORSE` under S4 rule 2.
 - `T_excl > 0` and `T_excl <= K_excl` with neither primary benefit nor established harm → `INCONCLUSIVE` with an explicit S4 qualifier.
 - with no S4 branch deciding the verdict, `PRIMARY_BETTER + HARM_CROSSED` → `TRADEOFF`.
 - with no S4 branch deciding the verdict, (`PRIMARY_EQUIVALENT` or `PRIMARY_INCONCLUSIVE`) + `HARM_CROSSED` → `WORSE`.
@@ -188,12 +188,14 @@ Let `Nmin = h5_min_valid_cases_per_stratum` from the Threshold Manifest. Evaluat
 
 If either stratum has fewer than `Nmin` valid cases, H5 = `INCONCLUSIVE`.
 
+A directional H5 support label is permitted only when it matches the aggregate `VERDICT_PRECEDENCE_V1` label: `SUPPORTED_BETTER` requires aggregate `BETTER`, `SUPPORTED_WORSE` requires aggregate `WORSE`, and `SUPPORTED_EQUIVALENT` requires aggregate `EQUIVALENT`. Otherwise H5 = `INCONCLUSIVE`.
+
 For a `BETTER` generalization claim, require all:
 
 1. `D_external > 0`;
 2. `D_holdout > 0`;
 3. neither stratum's 95% interval extends to or below `-M` (no stratum contains evidence compatible with practical harm beyond the margin);
-4. no stratum triggers an S4 net-excess or registered harm rule against the tested arm.
+4. **no S4 rule (rule 1 or rule 2) or registered harm threshold fires against the tested arm within either stratum**.
 
 For a `WORSE` generalization claim, mirror the direction:
 
