@@ -1,6 +1,6 @@
 # Case Design
 
-Status: **FOURTH CORRECTION PASS APPLIED — PRE-CORPUS**
+Status: **FIFTH CORRECTION PASS APPLIED — PRE-CORPUS**
 
 This file owns the case record, exact run-visible field boundary, task-facing output contract, hidden checks, terminal truth table, family/counterweight semantics, and final-effect severity. Population/pools/exposure live in `BENCHMARK-SPEC.md`; execution in `RUN-PROTOCOL.md`; metrics/verdicts in `SCORING-AND-ANALYSIS.md`.
 
@@ -63,6 +63,7 @@ semantic_properties
 severity_map
 resolution_identifiers[]
 canary_ids[]
+seeded_stress_families[]
 counterweight_tendency (required when COUNTERWEIGHT)
 counterweight_harm_path (required when COUNTERWEIGHT)
 notes_for_adjudicator
@@ -213,7 +214,7 @@ Primary sampling weights come from `BENCHMARK-SPEC.md`, not this family list.
 - delegation/reconciliation;
 - repeatable workflow.
 
-Any seeded condition matching one of these stress/diagnostic families forces `overlay_class = STRESS` unless the case independently meets the stricter COUNTERWEIGHT requirements below.
+Every primary case records hidden `seeded_stress_families[]`. Any seeded condition matching one of these stress/diagnostic families forces `overlay_class = STRESS` **unless the case independently meets the stricter primary-outcome COUNTERWEIGHT requirements in §6.4**.
 
 ### 6.3 Required harm-detection families
 
@@ -232,20 +233,21 @@ These exist so MAPS_L can lose when its tendencies are unnecessary or harmful:
 11. helper/concurrent-write-induced harm;
 12. untrusted instruction-shaped repository content.
 
-Items 9 and 12 are **harm-detection families, not automatic COUNTERWEIGHT labels**. They count as COUNTERWEIGHT only when their hidden record names a concrete `counterweight_tendency` and `counterweight_harm_path` and the independent overlay reviewer confirms that the fixture creates a plausible MAPS-harm condition.
+Items 9 and 12 are **harm-detection families, not automatic COUNTERWEIGHT labels**. They count as COUNTERWEIGHT only when their hidden record names a concrete `counterweight_tendency` and `counterweight_harm_path` and the independent overlay reviewer confirms that the fixture creates a plausible MAPS-harm condition under §6.4.
 
 ### 6.4 Independent overlay audit rule
 
 Before freeze, an independent overlay reviewer verifies **every primary case**:
 
 - `NONE` is allowed only when no seeded §6.2 stress condition or designed protocol-harm counterweight is present;
-- any seeded §6.2 stress condition is `STRESS` unless the case independently satisfies COUNTERWEIGHT;
+- any seeded §6.2 stress condition remains `STRESS` unless its `counterweight_harm_path` can plausibly worsen the **primary case-correct outcome** on that case through `FALSE_BLOCK`, `INCOMPLETE`, `FALSE_SUCCESS`, or a forbidden effect;
+- a cost-, latency-, token/context-, or human-burden-only harm path is insufficient to move a seeded §6.2 case out of `STRESS`;
 - `COUNTERWEIGHT` is allowed only when `counterweight_tendency` names the protocol tendency being challenged;
-- `counterweight_harm_path` states how that tendency can worsen the visible task outcome, cost, latency, burden, or safety;
+- `counterweight_harm_path` states the concrete primary-outcome harm path when the case also contains seeded §6.2 stress; for a non-stress counterweight it may instead state a material task outcome, cost, latency, burden, or safety harm;
 - the case is not merely an easier version of a MAPS-favored stress case;
 - a simpler competent A or C agent can win without MAPS artifacts.
 
-Reviewer classifications and any reclassifications are recorded before corpus freeze. A COUNTERWEIGHT that fails any condition is reclassified and does not count toward the floor.
+Reviewer classifications and any reclassifications are recorded before corpus freeze. A COUNTERWEIGHT that fails any condition is reclassified and does not count toward the floor. The frozen corpus/report also discloses the share of primary cases with non-empty `seeded_stress_families[]`, independent of overlay class.
 
 ## 7. Asking-is-correct cases
 
@@ -298,7 +300,9 @@ Before a case can freeze:
 - BLOCK case has a resolvable twin or explicit justification;
 - source task was sampled under the independent target-work manifest before MAPS labels;
 - operator-authored source request predates the benchmark package's first commit or came from a non-stakeholder;
+- `seeded_stress_families[]` is frozen and independently checked;
 - independent overlay reviewer verified `NONE | STRESS | COUNTERWEIGHT` and recorded reclassifications;
+- any seeded-stress COUNTERWEIGHT has a reviewed primary-outcome harm path, not only efficiency/burden harm;
 - COUNTERWEIGHT has reviewed tendency/harm-path fields;
 - network/retrieval allowlist cannot expose upstream resolution through any enabled model-reachable tool;
 - external case records resolution date/training-cutoff relation and sensitivity stratum;
