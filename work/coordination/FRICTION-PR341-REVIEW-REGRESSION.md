@@ -5,37 +5,37 @@ Status: **PENDING CANONICAL FRICTION_LOG APPEND**
 Date: 2026-09-11
 Class: process-gap
 
-This record exists only because the current GitHub connector exposes whole-file replacement but no safe append operation for the large append-only `work/coordination/FRICTION_LOG.md`. It is not a competing friction log. The same entry must be appended verbatim to `FRICTION_LOG.md` when an append-capable path is available; then this temporary carrier can be removed under normal review.
+This record exists because the current GitHub connector does not provide a safe append operation for the large append-only `work/coordination/FRICTION_LOG.md`. It is a temporary carrier, not a competing friction log. The canonical entry still needs to be appended when an append-capable path is available.
 
 ## Entry to append
 
 ```text
-## 2026-09-11 — PR #341 fix passes repeatedly regressed resolved benchmark protections
+## 2026-09-11 — PR #341 correction passes repeatedly regressed resolved benchmark protections
 - class: process-gap
 - opened: 2026-09-11
-- signal: independent r3/r4/r5 review caught repeated correction-pass regressions:
-  M4 regressed at r3; M2/N5/N7 regressed at r4 after owner-file rewrites; and
-  M6/N4/F4 regressed at r5 when an S4 determinism edit preserved the section
-  headings but changed accepted verdict semantics in favor of the tested arm.
-  Prose-only preservation instructions did not hold, and the first mechanical
-  anchor version still missed semantic rewrites because several anchors were
-  headings or single weak substrings.
-- countermeasure: mechanical safeguard required by AGENTS.md invariant 13 —
+- signal: independent reviews repeatedly found correction-pass regressions or
+  safeguard gaps. M4 regressed at r3; M2/N5/N7 regressed at r4; M6/N4/F4
+  regressed at r5 when S4 semantics changed while headings remained; r6 then
+  showed the v2 semantic-anchor safeguard still had false negatives on the
+  exact H1 S4 surface, the SPEC copy of H2, H5 non-retroactivity, and the G3
+  run-visible-field block. Prose preservation and broad/heading anchors were
+  insufficient.
+- countermeasure: AGENTS.md invariant-13 mechanical safeguard upgraded again.
   `work/evals/protocol-effectiveness-benchmark/RESOLVED-FINDING-ANCHORS.json`
-  now pins every resolved B/M/N/F/G/H finding ID to one or more rule-bearing
-  semantic clauses; `scripts/check_protocol_effectiveness_benchmark_anchors.py`
-  hard-codes the complete expected finding-ID set and fails when an ID, owner,
-  or required semantic clause disappears; the existing
-  `.github/workflows/review-evidence.yml` runs the check on every PR revision.
-  The S4 rule body, harm->WORSE path, seeded-stress primary-harm requirement,
-  full instruction-precedence sentence, report labels, and cutoff-reference
-  rules are explicitly pinned rather than relying on headings.
-- verified: UNVERIFIED — the deletion-oriented v1 safeguard passed CI but did
-  not catch the r5 semantic rewrite. Verify the strengthened v2 safeguard by a
-  passing anchor-check CI step on the corrected head and a fresh independent
-  re-review that confirms H1-H5 plus the bounded B/M/N/F/G regression set.
-- follow-up: close after the strengthened anchor check passes and the fresh
-  reviewer approves the correction gate. Any future repeat regression extends
-  the semantic anchors/check or adds a more structural check; do not add another
-  preservation instruction in place of machinery.
+  v3 pins the complete 49-finding B/M/N/F/G/H set to 100+ rule-bearing clauses,
+  including complete multi-line surfaces where necessary.
+  `scripts/check_protocol_effectiveness_benchmark_anchors.py` independently
+  hard-codes the 49 finding IDs and minimum anchor counts for historically
+  vulnerable findings, so a future edit cannot silently weaken a critical
+  finding back to one heading/prefix while keeping CI green.
+  The pinned surfaces include full S4 rule-2/rule-3 classification, all relevant
+  TRADEOFF/preference branches, comparator no-rescue clauses, SPEC+CASE seeded
+  stress primary-outcome conditions, the exact G3 run-visible block, report
+  vocabulary, instruction precedence, and cutoff non-retroactivity.
+- verified: UNVERIFIED — require a passing v3 anchor-check CI step plus a fresh
+  independent re-review that repeats the r6 mutation probes/S4 enumeration and
+  confirms I1-I4 plus bounded B/M/N/F/G/H regression status.
+- follow-up: if another known semantic regression escapes this machinery, add
+  structural validation for that rule surface rather than another prose-only
+  preservation instruction.
 ```
