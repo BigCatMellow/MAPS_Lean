@@ -1,24 +1,24 @@
 # Run Protocol
 
-Status: **THIRD CORRECTION PASS APPLIED — NOT EXECUTED**
+Status: **FOURTH CORRECTION PASS APPLIED — NOT EXECUTED**
 
 This file owns execution, isolation, parity, randomization, human-response delivery, observable run records, leakage checks, normalization/blinding, invalidation/reruns, and batch completion. Arms/pools/threshold values and Smoke information policy live in `BENCHMARK-SPEC.md`; case truth semantics in `CASE-DESIGN.md`; verdict logic in `SCORING-AND-ANALYSIS.md`.
 
 ## 1. Preconditions
 
-No scored run, including Smoke, may start until all applicable items are frozen and independently approved:
+No scored run, including Smoke, may start until all items below are frozen and independently approved:
 
 - benchmark line/version;
 - corpus/case hashes;
 - Treatment Surface Manifest;
-- Threshold Manifest with no execution-critical `UNSET` values;
+- Threshold Manifest with **every listed field set; any `UNSET` blocks execution**;
 - target-work sampling manifest;
 - model/provider/settings;
 - A/B(/C) capability-parity evidence;
 - human-response matcher/policy;
 - evaluator/normalizer/adjudication stack;
 - randomization plan;
-- per-case network allowlists;
+- per-case network/retrieval allowlists;
 - hidden-material canary/resolution-identifier records;
 - holdout seal/look count;
 - pre-run review.
@@ -35,7 +35,7 @@ same neutral bootstrap
 same TARGET_WRITABLE_PATHS
 same PROCESS_SIDECAR_PATH capability
 same credentials/permissions
-same per-case network allowlist
+same per-case network/retrieval allowlist
 same tools/helper capacity
 same model/settings/context limit
 same run budget
@@ -55,11 +55,12 @@ Use a fresh disposable target workspace/image per execution.
 Before every execution, except inside an explicitly declared sequential episode-chain case:
 
 - clear process sidecar contents;
-- clear harness/session memory and case-local caches;
+- clear harness/session memory and **all non-chain caches**;
 - disable or reset persistent agent state;
 - ensure no paired/prior run artifact is visible;
 - reset mock/service state;
-- verify harness/user/global instruction files, installed skills/profiles, memory, and MCP/config injection sources are empty or byte-identical across arms except the declared treatment.
+- verify harness/user/global instruction files, installed skills/profiles, memory, MCP/config injection sources, process environment variables, shell rc/profile files, global VCS configuration/hooks, runner-injected metadata, and mounted reusable state are empty or byte-identical across arms except the declared treatment;
+- verify agent-visible environment variables and runner metadata contain no arm identity, case labels, hidden case metadata, answer-bearing provenance, or resolution identifiers.
 
 No arm sees logs, artifacts, messages, hidden contracts, or mutations from another run.
 
@@ -80,7 +81,11 @@ harness home/config
 user/global instruction directories
 installed skill/profile material
 MCP/resource configuration visible to the agent
-persistent/session memory and caches
+persistent/session memory and all non-chain caches
+process environment variables
+shell startup files and global VCS config/hooks
+runner-injected metadata and mounted reusable state
+enabled model/provider-hosted retrieval/tool configuration
 ```
 
 ### 4.2 Canary lifecycle
@@ -93,15 +98,15 @@ Before each scored run, scan the **fully assembled environment** for:
 - frozen case-distinctive resolution identifiers;
 - known hidden-contract/oracle path names where that check does not reveal them to the executing agent.
 
-The scan includes ordinary file search and all accessible VCS/object-history mechanisms. A canary or forbidden resolution hit blocks the run before execution and invalidates the snapshot package until repaired and independently rechecked.
+The scan includes ordinary file search, process environment/runner metadata, shell/global VCS state, mounted reusable state, and all accessible VCS/object-history mechanisms. A canary or forbidden resolution hit blocks the run before execution and invalidates the snapshot package until repaired and independently rechecked.
 
-### 4.3 External/network leakage gate
+### 4.3 External/network/retrieval leakage gate
 
-Network defaults to deny-all. For a network-enabled case, enforce exactly the frozen per-case allowlist.
+Network/retrieval defaults to deny-all across every model-reachable channel. For an externally enabled case, enforce exactly the frozen per-case allowlist from `BENCHMARK-SPEC.md` §4.5.
 
-Before execution, verify that the allowlist cannot reach the target project's upstream/forks, resolved issue/PR threads, post-snapshot releases/package versions, or other frozen resolution sources identified by the case. If required task access cannot be separated from answer-bearing sources, the case is ineligible.
+Before execution, verify that the allowlist cannot reach the target project's upstream/forks, resolved issue/PR threads, post-snapshot releases/package versions, search/index/cache reproductions, or other frozen resolution sources identified by the case. If required task access cannot be separated from answer-bearing sources, the case is ineligible.
 
-Network-denial/allowlist behavior is mechanically tested before the first scored repetition.
+The mechanical preflight must **exercise every enabled external-access tool/channel**, including provider-hosted or server-side web search/fetch/retrieval/code-execution routes and remote MCP/resource tools. A container/sandbox egress test alone is not sufficient. Any route that can reach a forbidden resolution source fails the case package before execution.
 
 ## 5. Temporal pairing, randomization, and repetitions
 
@@ -141,7 +146,7 @@ Equivalent question classes receive equivalent replies across arms.
 
 Log question text/class, matcher decision, delivered response, arm-blind responder identity where relevant, and whether the response matched the frozen table.
 
-If adjudication determines a responder/matcher misroute **materially affected the task outcome**, mark the matched pair/repetition `INVALID` and rerun the entire pair under `invalid_pair_rerun_policy`.
+If adjudication determines a responder/matcher misroute **materially affected the task outcome**, mark the matched A/B(/C) block for that repetition `INVALID` and rerun the **entire matched block** under `invalid_pair_rerun_policy`. No arm is rerun alone.
 
 A non-outcome-affecting misroute is logged as experimental-friction evidence only and does not change task success.
 
@@ -201,8 +206,8 @@ A run stops only on frozen conditions:
 - correct genuine blocker reached;
 - hard budget exhausted;
 - safety/authority boundary requires termination;
-- true external harness failure invalidates the pair;
-- benchmark runner defect invalidates the pair.
+- true external harness failure invalidates the matched block;
+- benchmark runner defect invalidates the matched block.
 
 Do not grant extra time/retries because one arm appears close. A question is not a stop condition; the responder returns under §6.
 
@@ -275,7 +280,7 @@ Adjudicators are non-contributors to the tested MAPS_L release or effectively bl
 
 Agent-caused exhaustion is not INVALID, including helper fan-out, loops, context exhaustion from protocol reading, resource saturation, or poor retry strategy.
 
-Invalidity decisions are arm-blind where possible. A single invalid execution invalidates its matched pair for that repetition; rerun the full pair under the frozen policy. Report invalid counts/reasons by arm before replacement.
+Invalidity decisions are arm-blind where possible. A single invalid execution invalidates its matched A/B(/C) block for that repetition; rerun the full block under the frozen policy. **No arm receives an unpaired extra attempt.** Report invalid counts/reasons by arm before replacement.
 
 `UNKNOWN` is not success in primary analysis and remains visible for sensitivity bounds.
 
@@ -293,15 +298,16 @@ Execution sequence:
 
 1. validate harness on unscored dummy material;
 2. verify snapshot scrub/treatment injection/global-auto-load parity;
-3. verify leakage canaries/resolution identifiers/network allowlists;
-4. verify arm isolation/sidecar and harness-memory reset;
+3. verify leakage canaries/resolution identifiers/network-retrieval allowlists and exercise every enabled external-access tool;
+4. verify arm isolation/sidecar, environment, shell/global-VCS state, and harness-memory/cache reset;
 5. calibrate graders on exposed non-holdout material;
 6. freeze and independently review the benchmark line under SPEC §12;
 7. run Smoke;
-8. expose only arm-pooled operational evidence to benchmark editors as permitted by SPEC §12;
-9. repair only under the benchmark-line/version rules in SPEC §12;
-10. freeze/verify Standard execution package without releasing prohibited per-arm Smoke deltas;
-11. run Standard.
+8. expose only **arm-masked** operational evidence to benchmark editors as permitted by SPEC §12; aggregate evidence must be unlinkable to arm and run-level evidence must be normalized/masked;
+9. treat anyone given unmasked arm-identifiable run-level Smoke material as exposed to per-arm deltas for SPEC §12 eligibility;
+10. repair only under the benchmark-line/version rules in SPEC §12;
+11. freeze/verify Standard execution package without releasing prohibited per-arm Smoke deltas;
+12. run Standard.
 
 Smoke never produces `BETTER`, `WORSE`, or `EQUIVALENT`.
 
@@ -312,8 +318,8 @@ Preserve:
 ```text
 frozen identities/hashes
 all original/replacement run IDs
-snapshot/network leakage checks
-invalid-pair decisions/reasons
+snapshot/network/retrieval leakage checks
+invalid-block decisions/reasons
 objective grades
 normalized packet hashes
 blinding-identification result
@@ -323,6 +329,7 @@ adjudications/reversals by arm
 aggregate/paired metrics
 PROCEED/BLOCK strata
 external/home strata
+external resolution-date/training-cutoff sensitivity strata
 NONE/STRESS/COUNTERWEIGHT strata
 holdout/unexposed status
 known-regression diagnostics separately
