@@ -1,6 +1,6 @@
 # Protocol Effectiveness Benchmark
 
-Status: **EIGHTH CORRECTION PASS APPLIED — AWAITING FOCUSED J3 RE-REVIEW; NOT EXECUTED**
+Status: **DESIGN APPROVED — PRE-AUTHORING FREEZE PACKAGE ACTIVE; NOT EXECUTED**
 
 Primary question:
 
@@ -8,53 +8,53 @@ Primary question:
 
 MAPS_L is a treatment configuration, not the grading definition. Protocol adherence is diagnostic only.
 
-## Owner / current gate
+## Current gate
 
-Parent work: [`../../tasks/protocol-effectiveness-benchmark.md`](../../tasks/protocol-effectiveness-benchmark.md) on PR #341.
+The pre-corpus design gate was independently approved at exact head `369bccaf68b258c70eb6efec0c9f70115c8014cb`:
 
-Review evidence:
+- [`../../reviews/pr-341-rereview-evidence-369bcca.md`](../../reviews/pr-341-rereview-evidence-369bcca.md) — r9: `APPROVED FOR CORPUS CONSTRUCTION`.
+- J3/v5 safeguard resolved; I2–I4 and all B/M/N/F/G/H owner findings remain resolved.
+- 512-state S4 verification carried forward: 0 ambiguous, 0 unhandled, 0 semantic mismatches.
 
-- [`../../reviews/pr-341-review-evidence.md`](../../reviews/pr-341-review-evidence.md) — original: `MAJOR CORRECTIONS REQUIRED`.
-- [`../../reviews/pr-341-rereview-evidence-56c43aa.md`](../../reviews/pr-341-rereview-evidence-56c43aa.md) — r2: `MINOR CORRECTIONS REQUIRED`.
-- [`../../reviews/pr-341-rereview-evidence-dcc064b.md`](../../reviews/pr-341-rereview-evidence-dcc064b.md) — r3: `MINOR CORRECTIONS REQUIRED`.
-- [`../../reviews/pr-341-rereview-evidence-7ec7e1d.md`](../../reviews/pr-341-rereview-evidence-7ec7e1d.md) — r4: `MINOR CORRECTIONS REQUIRED`.
-- [`../../reviews/pr-341-rereview-evidence-0aee65b.md`](../../reviews/pr-341-rereview-evidence-0aee65b.md) — r5: `MINOR CORRECTIONS REQUIRED`.
-- [`../../reviews/pr-341-rereview-evidence-8b9efd9.md`](../../reviews/pr-341-rereview-evidence-8b9efd9.md) — r6: `MINOR CORRECTIONS REQUIRED`.
-- [`../../reviews/pr-341-rereview-evidence-5f1ef8e.md`](../../reviews/pr-341-rereview-evidence-5f1ef8e.md) — r7: `MINOR CORRECTIONS REQUIRED`.
-- [`../../reviews/pr-341-rereview-evidence-fd2408f.md`](../../reviews/pr-341-rereview-evidence-fd2408f.md) — r8 at `fd2408fda31d574554bf345cde6319fe8313bd90`: `MINOR CORRECTIONS REQUIRED`; I2–I4 and all B/M/N/F/G/H owner findings still resolved; J3 is the only gate-holding residual; J2/J4 are optional.
+The five normative owner documents remain frozen by the v5 whole-document safeguard:
 
-J3 is now owner-corrected on this branch. That is an **owner claim, not approval**.
+- [`BENCHMARK-SPEC.md`](BENCHMARK-SPEC.md)
+- [`CASE-DESIGN.md`](CASE-DESIGN.md)
+- [`RUN-PROTOCOL.md`](RUN-PROTOCOL.md)
+- [`SCORING-AND-ANALYSIS.md`](SCORING-AND-ANALYSIS.md)
+- [`REPORT-TEMPLATE.md`](REPORT-TEMPLATE.md)
 
-The invariant-13 backstop is now v5:
+This README is navigation/status only. It does not redefine those owners.
 
-- [`RESOLVED-FINDING-ANCHORS.json`](RESOLVED-FINDING-ANCHORS.json) remains the human-reviewable 49-finding map;
-- [`../../../scripts/check_protocol_effectiveness_benchmark_anchors.py`](../../../scripts/check_protocol_effectiveness_benchmark_anchors.py) independently pins the complete finding-ID → owner-path map, normalized whole-document hashes for SPEC/CASE/RUN/SCORING/REPORT, 13 localized rule-section hashes, pinned-heading uniqueness, anchor-quality/minimum-count rules, and canonical report vocabulary;
-- an additive contradiction anywhere in a normative owner document now changes its normalized whole-document digest and cannot pass merely by retaining the accepted sentence or section;
-- the `review-evidence` workflow runs the checker on each PR revision.
+## Pre-authoring freeze package
 
-Nothing has been executed: no corpus/holdout authored or frozen, no scored candidate/evaluator/model calls, no benchmark spending, and no MAPS_L runtime/protocol behavior changes.
+Current non-secret instantiation work is under [`pre-corpus/`](pre-corpus/):
 
-## Package ownership
+- `TREATMENT-SURFACE-MANIFEST.md` — candidate tested ref, bundle surface, common bootstrap, injection/parity policy.
+- `GENERIC-CONTROL.md` — candidate competent Arm C text; requires independent authorship/approval.
+- `TARGET-WORK-SAMPLING-MANIFEST.md` — deterministic sampling method; concrete pools/reference model must be frozen by an independent curator before selection.
+- `CUSTODY-AND-EXPOSURE-PLAN.md` — access-based custody boundary for primary/holdout material.
 
-One concept, one owner:
+Parent task: [`../../tasks/protocol-effectiveness-benchmark.md`](../../tasks/protocol-effectiveness-benchmark.md).
+Corpus child task: [`../../tasks/protocol-effectiveness-corpus-construction.md`](../../tasks/protocol-effectiveness-corpus-construction.md).
 
-- [`BENCHMARK-SPEC.md`](BENCHMARK-SPEC.md) — arms, treatment surface, controls, target population/pools, exposure lifecycle, hidden-material/retrieval firewall, thresholds/guardrails, Smoke firewall, version identity.
-- [`CASE-DESIGN.md`](CASE-DESIGN.md) — case schema/run-visible boundary, task-facing contract/parser, hidden checks, overlay/counterweight semantics, terminal truth table, severity.
-- [`RUN-PROTOCOL.md`](RUN-PROTOCOL.md) — execution, parity/isolation, environment/tool leakage checks, human-response delivery, normalization/blinding, invalidation/reruns.
-- [`SCORING-AND-ANALYSIS.md`](SCORING-AND-ANALYSIS.md) — metrics, paired inference, S4/tradeoff/verdict/H5 rules, sensitivity and divergence analysis.
-- [`REPORT-TEMPLATE.md`](REPORT-TEMPLATE.md) — reusable report schema only.
-- [`REFERENCES.md`](REFERENCES.md) — provenance/methodology only; non-normative.
+## Critical custody boundary
 
-This README is navigation/status only. Follow the owning file rather than treating summaries here as normative rules.
+No selected `FROZEN_STANDARD` or `SEALED_HOLDOUT` case identity/content may be created in this repository or a user-visible MAPS_L-owner chat. The approved exposure rule is access-based: anyone able to modify MAPS_L or a successor must not have access to pristine primary case content before its permitted look.
 
-## Eighth-pass correction focus
+The current repository/user context therefore cannot serve as the independent corpus custodian. An eligible curator/custodian with access-controlled storage is required before case selection/authoring.
 
-J3 only: r8 proved v4 still allowed additive contradictions when moved outside the 13 pinned spans. v5 pins the full normalized normative owner documents while retaining localized section pins for diagnostics and requires every pinned heading to occur exactly once.
+## What remains prohibited
 
-The normative owner documents themselves were not edited in this pass. I2–I4 and B/M/N/F/G/H therefore carry forward only subject to fresh verification that those owner blobs remain identical.
+Nothing has been executed. No A/B/C candidate runs, Smoke, Standard, benchmark evaluator/model/API calls, spending, MAPS_L runtime/protocol changes, promotion, or merge are authorized by the design approval.
 
-## Current next step
+## Exact next phase
 
-**Fresh focused independent re-review of J3 at the exact current PR head.** It must rerun v5, independently recompute the five owner-document hashes from the accepted r7/r8 blobs, repeat r8 probe 9b plus representative out-of-span/duplicate-heading/additive variants, and confirm the normative owner blobs are unchanged.
+1. finish/freeze the non-secret treatment/Arm-C/sampling/custody package;
+2. obtain independent pre-authoring freeze verification;
+3. assign an eligible independent curator/custodian;
+4. construct the unexposed primary corpus and sealed holdout outside MAPS_L-owner access;
+5. return only hashes/counts/non-secret aggregate freeze evidence;
+6. perform a fresh independent corpus/pre-freeze review.
 
-Only `APPROVED FOR CORPUS CONSTRUCTION` opens bounded corpus construction followed by independent corpus/freeze review. Benchmark execution remains prohibited.
+Benchmark execution remains a later, separate pre-run gate.
