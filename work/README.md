@@ -8,6 +8,11 @@ Live PR/CI/review/ownership facts belong on GitHub. Repository-wide rules belong
 in [`AGENTS.md`](../AGENTS.md). Reusable procedures belong in the
 [playbook index](../playbook/INDEX.md).
 
+The one narrow handoff-lifecycle index is
+[`handoffs/README.md`](handoffs/README.md). It tracks whether durable handoff
+files were reviewed and where their work continued; it must not copy volatile
+PR/CI/review/ownership state from GitHub.
+
 ## Fast route
 
 | Need | Go to | Read rule |
@@ -16,7 +21,7 @@ in [`AGENTS.md`](../AGENTS.md). Reusable procedures belong in the
 | Program roadmap / capability planning | [`roadmaps/README.md`](roadmaps/README.md) | Use this router before opening a large roadmap. |
 | Exact task contract | [`tasks/`](tasks/) | Prefer the task path supplied by roadmap/PR/handoff; do not scan the directory by default. |
 | Durable decision/rationale | [`decisions/`](decisions/) | Follow a link from the task/roadmap when possible. |
-| Cross-session continuation | [`handoffs/`](handoffs/) | Prefer the handoff linked by the active task or [`state/CURRENT.md`](../state/CURRENT.md). |
+| Cross-session continuation | [`handoffs/README.md`](handoffs/README.md) → named handoff | Check the register first; directory-wide search is only for legacy recovery. |
 | Independent review evidence | [`reviews/`](reviews/) | Open the review linked by the task/PR; do not treat old reviews as current disposition. |
 | Review-queue records | [`review_queue/`](review_queue/) | Coordination aid only; live GitHub remains current. |
 | Research / source investigation | [`research/`](research/) | Open from the task/research brief that owns the question. |
