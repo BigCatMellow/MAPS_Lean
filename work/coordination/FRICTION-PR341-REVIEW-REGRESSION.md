@@ -15,27 +15,26 @@ This record exists because the current GitHub connector does not provide a safe 
 - opened: 2026-09-11
 - signal: independent reviews repeatedly found correction-pass regressions or
   safeguard gaps. M4 regressed at r3; M2/N5/N7 regressed at r4; M6/N4/F4
-  regressed at r5 when S4 semantics changed while headings remained; r6 then
-  showed the v2 semantic-anchor safeguard still had false negatives on the
-  exact H1 S4 surface, the SPEC copy of H2, H5 non-retroactivity, and the G3
-  run-visible-field block. Prose preservation and broad/heading anchors were
-  insufficient.
-- countermeasure: AGENTS.md invariant-13 mechanical safeguard upgraded again.
-  `work/evals/protocol-effectiveness-benchmark/RESOLVED-FINDING-ANCHORS.json`
-  v3 pins the complete 49-finding B/M/N/F/G/H set to 100+ rule-bearing clauses,
-  including complete multi-line surfaces where necessary.
-  `scripts/check_protocol_effectiveness_benchmark_anchors.py` independently
-  hard-codes the 49 finding IDs and minimum anchor counts for historically
-  vulnerable findings, so a future edit cannot silently weaken a critical
-  finding back to one heading/prefix while keeping CI green.
-  The pinned surfaces include full S4 rule-2/rule-3 classification, all relevant
-  TRADEOFF/preference branches, comparator no-rescue clauses, SPEC+CASE seeded
-  stress primary-outcome conditions, the exact G3 run-visible block, report
-  vocabulary, instruction precedence, and cutoff non-retroactivity.
-- verified: UNVERIFIED — require a passing v3 anchor-check CI step plus a fresh
-  independent re-review that repeats the r6 mutation probes/S4 enumeration and
-  confirms I1-I4 plus bounded B/M/N/F/G/H regression status.
-- follow-up: if another known semantic regression escapes this machinery, add
-  structural validation for that rule surface rather than another prose-only
-  preservation instruction.
+  regressed at r5 while headings survived; r6 showed the v2 anchor safeguard
+  still missed exact H1/H2/G3/H5 rewrites; r7 then showed v3 still missed the
+  comparator no-shield mutation plus report-vocabulary additions and could be
+  weakened by duplicate/trivial anchors or owner-path retargeting. Prose and
+  sentence-presence checks alone were insufficient.
+- countermeasure: AGENTS.md invariant-13 safeguard upgraded to v4.
+  `RESOLVED-FINDING-ANCHORS.json` remains the human-reviewable 49-finding map,
+  is now line-reviewable, restores the exact comparator no-shield anchor, and
+  uses unique non-trivial anchors. `check_protocol_effectiveness_benchmark_anchors.py`
+  independently hard-codes the complete finding-ID -> owner-path map, minimum
+  unique-anchor counts, forbidden report vocabulary, exact five-verdict lines,
+  and normalized hashes for 13 historically vulnerable whole rule sections:
+  SCORING §4/§8/§9/§10; CASE §1/§2/§6.4; SPEC §4.2/§7.4/§9.1/§12; REPORT
+  Verdicts and Terminal calibration. A coordinated manifest edit therefore
+  cannot authorize an owner retarget or additive exception without changing the
+  checker itself and triggering review.
+- verified: UNVERIFIED — require the v4 checker to pass CI at the corrected head
+  and a fresh independent review to rerun r7 probes 1-9 (including 2b and
+  8a-8c), additive variants, the 512-state S4 enumeration, and bounded
+  B/M/N/F/G/H regression verification.
+- follow-up: if another known semantic regression escapes v4, replace or extend
+  the affected structural pin rather than adding another prose preservation rule.
 ```
