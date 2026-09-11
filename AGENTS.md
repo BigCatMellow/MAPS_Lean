@@ -86,19 +86,13 @@ it. If routine work needs several overlapping methods, consolidate.
     and better alternatives when they exist; push back when that would improve
     the result. Do not manufacture objections or disagree performatively—agreement
     is appropriate when it survives scrutiny, and should be specific about why.
-15. **Close handoff loops.** A handoff is not addressed merely because another
-    agent/session read it. For every new forward-looking durable handoff file,
-    use [`work/handoffs/README.md`](work/handoffs/README.md): assign a stable
-    handoff ID, add the lifecycle receipt, and register it. The receiving
-    agent/session must durably record review before claiming the handoff was
-    handled. When substantive successor work begins, mark it `CONTINUED` and
-    point `Continued at` to a durable task/work document, issue, PR, commit, or
-    repository path; when finished or replaced, use `CLOSED` or `SUPERSEDED`
-    with final/replacement evidence. Keep the handoff receipt and register in
-    agreement. Do not bulk-guess legacy lifecycle states. For a GitHub-thread-only
-    coordination handoff, record the same review acknowledgment and durable
-    continuation pointer on that source thread rather than creating a status-only
-    repository commit; live GitHub coordination remains authoritative there.
+15. **Close handoff loops.** Durable handoffs use
+    [`work/handoffs/README.md`](work/handoffs/README.md): create/register an ID +
+    receipt; receiver records `Reviewed`; successor work sets `CONTINUED` + a
+    durable `Continued at`; finish with `CLOSED`/`SUPERSEDED`. Keep handoff and
+    register synchronized; legacy stays `UNTRIAGED` until checked. Thread-only
+    handoffs record the same receipt/pointer on the source GitHub thread; do not
+    create status-only commits.
 
 ## Scope-level authorization
 
