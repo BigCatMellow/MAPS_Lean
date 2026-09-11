@@ -1,82 +1,75 @@
-# PR #340 — handoff lifecycle infrastructure — independent review evidence
+# PR #340 — handoff lifecycle corrections — independent re-verification evidence
 
-reviewer: SENTINEL-PR340-FRESH
-head_sha: 6bc6ac9cfd577a303e8b24d20995f8afaa78ddfc
+reviewer: SENTINEL-CORRECTION-VERIFY-340
+head_sha: 92fc74e672bf7a04e1cf1d8a043d9c8c2c64eadd
 independent: true
-summary: CHANGES REQUIRED. The durable-file lifecycle/register design is substantially sound, but the exact reviewed head violates the enforced root AGENTS.md size budget and the GitHub-thread-only lane does not explicitly require terminal CLOSED/SUPERSEDED lifecycle receipts.
+summary: APPROVE WITH NON-BLOCKING NOTES. Both prior blockers are corrected at the exact reviewed implementation head; current main has advanced by one non-overlapping Wiki-status commit, so latest-main synchronization remains a separate pre-merge integration step.
 
 ## Review subject
 
 - PR: `#340 — Track durable handoff acknowledgment and continuation`
-- Reviewed implementation head: `6bc6ac9cfd577a303e8b24d20995f8afaa78ddfc`
-- Base inspected for this feature-head review: `7dfcbd09a2df930ee3449ce047984e4da5cec460`
-- Review layer: fresh independent feature/protocol review
-- This file is a trailing review-evidence artifact only. The commit that adds this file is **not** the implementation head reviewed above.
+- Implementation reviewed: `92fc74e672bf7a04e1cf1d8a043d9c8c2c64eadd`
+- Original independently reviewed implementation: `6bc6ac9cfd577a303e8b24d20995f8afaa78ddfc`
+- Prior independent-review evidence commit: `056be241582c0d67690d133507978524fd4cbefc`
+- Base attached to the reviewed implementation: `7dfcbd09a2df930ee3449ce047984e4da5cec460`
+- Review layer: fresh bounded correction re-verification of prior F-01 and F-02 only.
+- This file is trailing **review evidence only**. The later commit that records this evidence is not the implementation reviewed; the implementation reviewed remains `92fc74e672bf7a04e1cf1d8a043d9c8c2c64eadd`.
 
-## Scope and method
+## Scope and independence
 
-Read and followed root `AGENTS.md`, relevant `work/coordination/` instructions including the SENTINEL review contract and GitHub asynchronous-work rules, the exact PR diff, the new handoff register, handoff template, work navigation, `state/CURRENT.md`, the seeded legacy handoff, review-evidence enforcement, documentation-sprawl guard, and exact-head workflow results.
+Read and followed root `AGENTS.md`, `work/coordination/README.md`, `work/coordination/GITHUB_ASYNC_WORK_PULL.md`, the current SENTINEL contract, the prior review evidence, the correction delta, exact-head validation evidence, and live PR/base/head state.
 
-No substantive implementation was modified. Historical handoff reconciliation was not performed.
+No substantive implementation was authored, repaired, rebased, synchronized, or merged in this review. Historical handoff reconciliation, September 10 dispositions, Phase 4/5 work, Pilot PR #10, the handoff-reconciliation PR, and unrelated runtime/recovery/benchmark work were not touched.
 
-## Blocking findings
+The correction delta from `6bc6ac9cfd577a303e8b24d20995f8afaa78ddfc` to `92fc74e672bf7a04e1cf1d8a043d9c8c2c64eadd` contains exactly three paths: substantive correction changes in `AGENTS.md` and `work/handoffs/README.md`, plus the prior `work/reviews/pr-340-review-evidence.md` review artifact. The prior evidence commit is review evidence, not implementation.
 
-### B1 — root AGENTS.md exceeds the enforced size budget
+## F-01 — root AGENTS.md size budget
 
-Location: `AGENTS.md`; enforced by `tests/test_documentation_sprawl.py`.
+**PASS.** At implementation head `92fc74e672bf7a04e1cf1d8a043d9c8c2c64eadd`, root `AGENTS.md` is 12,856 bytes. `tests/test_documentation_sprawl.py` enforces `AGENTS_BYTE_BUDGET = 13_000`, so the corrected root is 144 bytes below the enforced maximum.
 
-At reviewed head `6bc6ac9cfd577a303e8b24d20995f8afaa78ddfc`, root `AGENTS.md` is 13,072 bytes while `MAX_AGENTS_MD_BYTES` is 13,000. The exact-head Runtime stack tests fail at `DocumentationSprawlGuardTests.test_always_read_entry_surfaces_have_explicit_size_budgets` with 1351 tests run, 1 failure, 5 skipped.
+The compaction preserves the lifecycle invariant rather than deleting it. Root invariant 15 still routes agents to `work/handoffs/README.md`, requires durable handoffs to be registered, requires review/continuation/terminal receipt state, requires the register to stay synchronized, and keeps thread-only receipts on their source GitHub thread.
 
-Concrete failure: the proposed canonical always-read instruction surface violates a repository-enforced invariant at the exact reviewed head.
+The exact implementation-head Runtime stack test workflow completed successfully. Its active-test step runs `python -m unittest discover -s tests -v`, which includes the documentation-sprawl guard that caught the original 13,072-byte failure.
 
-Smallest sufficient correction: compact the root instruction surface by at least 72 bytes, preferably with margin, without weakening the handoff invariant; then rerun exact-head checks.
+## F-02 — terminal semantics for GitHub-thread-only handoffs
 
-### B2 — thread-only handoffs lack an explicit terminal lifecycle requirement
+**PASS.** The corrected rule keeps the complete thread-only lifecycle receipt on the same source issue/PR thread instead of creating a status-only repository commit. It explicitly requires terminal receipts and separates handoff lifecycle from issue/PR state.
 
-Location: `work/handoffs/README.md`, section `GitHub-thread-only handoffs`, plus the related root invariant.
+| Required adversarial case | Corrected behavior |
+| --- | --- |
+| 1. A thread-only handoff is acknowledged but no work begins. | Remains acknowledgment only; acknowledgment does not establish continuation. |
+| 2. Work begins and is durably continued. | Record the durable continuation pointer on the same source issue/PR thread. |
+| 3. Work completes. | Record `CLOSED` with final-result evidence on that same source thread. |
+| 4. Another handoff replaces it. | Record `SUPERSEDED` with the replacement pointer on that same source thread. |
+| 5. Source PR merges without lifecycle evidence. | Merge alone does **not** establish handoff closure or supersession. |
+| 6. Source issue closes without lifecycle evidence. | Closure alone does **not** establish handoff closure or supersession. |
 
-The durable-file protocol explicitly requires `CLOSED` with final evidence or `SUPERSEDED` with a replacement pointer. The thread-only rule explicitly says to leave review acknowledgment and durable continuation on the source issue/PR thread, but does not explicitly require the same terminal lifecycle transition there.
+This also respects MAPS_L's existing volatile-coordination rule: thread-only lifecycle receipts stay on GitHub and must not create a repository status-only commit merely to mirror changing coordination state.
 
-Concrete failure: A leaves a thread-only handoff; B records review and continuation, later completes or supersedes the work, but records no terminal handoff receipt. B can appear compliant with the stated thread-only rule. A later session sees a stale continuation receipt and must either keep treating the handoff as non-terminal or infer lifecycle closure from issue/PR merge/closure state. The latter would conflate work state with handoff lifecycle.
+## CI and review-evidence behavior at the implementation head
 
-Smallest sufficient correction: require thread-only handoffs to record `CLOSED` with final evidence or `SUPERSEDED` with a replacement pointer on the same source thread, and state that issue/PR merge or closure alone does not establish lifecycle closure.
+Exact implementation head: `92fc74e672bf7a04e1cf1d8a043d9c8c2c64eadd`.
 
-## Verified strengths / non-blocking observations
+- Runtime stack tests: **PASS**.
+- `review-evidence`: **EXPECTED FAIL BEFORE THIS RE-REVIEW**. The stale-docstring and coverage-note checks passed; only the exact-head evidence check failed because the then-current evidence file still named the earlier reviewed implementation `6bc6ac9cfd577a303e8b24d20995f8afaa78ddfc`.
+- That stale-evidence failure is therefore the intended fail-closed review gate, not an implementation defect.
 
-- `OPEN`, `ACKNOWLEDGED`, `CONTINUED`, `CLOSED`, `SUPERSEDED`, and legacy-only `UNTRIAGED` have distinct operational meanings for durable-file handoffs.
-- Receipt is not continuation; continuation is not completion; `CONTINUED` requires a durable continuation pointer; terminal states require evidence/replacement pointers.
-- Workstream state is explicitly separate from handoff lifecycle, avoiding overclaim from blocked/partial/ready state.
-- `work/handoffs/README.md` is narrow: it does not mirror PR heads, CI, reviews, ownership, blockers, runtime status, or roadmap state.
-- Register/handoff disagreement is explicitly a coordination defect requiring evidence-based repair before the handoff can be claimed handled.
-- `work/README.md` provides a direct route to the register before broad directory search.
-- Seeding the existing `state/CURRENT.md` pointer as `UNTRIAGED` preserves historical uncertainty and is conservative.
-- `templates/handoff.md` captures the minimum forward-looking lifecycle receipt without copying volatile GitHub state. `Continued at` is somewhat overloaded for terminal/replacement evidence, but surrounding instructions make this non-blocking.
-- Race safety is supplied by existing coordination ownership/claim rules rather than by the lifecycle register itself; under the repository's current coordination contract this is acceptable.
+This evidence update is intentionally a trailing `work/reviews/`-only commit. Under `scripts/check_review_evidence.py`, trailing review-evidence-only commits are walked past so `head_sha` remains bound to the actual reviewed code state above.
 
-## Adversarial cases
+## Live base/head status at verdict freeze
 
-| Case | Result |
-|---|---|
-| A creates; B acknowledges but does no work | Safe: remains `ACKNOWLEDGED`; receipt does not imply continuation. |
-| B starts work; C resumes later | Safe for durable-file lane: `CONTINUED` requires a durable pointer C can follow. |
-| Two sessions race to continue | Safe only in combination with existing ownership/claim rules; lifecycle disagreement is detectable and must be repaired. |
-| Durable-file handoff is superseded | Safe: `SUPERSEDED` requires replacement pointer. |
-| PR-thread-only handoff is continued, then terminates | **Blocking gap:** terminal thread receipt is not explicitly required. |
-| Register conflicts with handoff | Safe: explicit coordination defect; check evidence and synchronize before claiming handled. |
-| Handoff points to merged/closed PR but lacks lifecycle receipt | Must not infer lifecycle terminality from PR state; durable-file protocol remains conservative. |
-| Historical handoff state unknowable | Safe: `UNTRIAGED`, no guessing. |
-| Work finishes but lifecycle record remains open/continued | Protocol violation remains discoverable; durable-file rules require terminal update. |
-| Agent sees GitHub merge and infers lifecycle closure | Not justified by the lifecycle/work-state separation; thread-only rules need the explicit terminal clarification in B2. |
+At verdict freeze, PR #340 still pointed exactly to implementation head `92fc74e672bf7a04e1cf1d8a043d9c8c2c64eadd` and was open/mergeable.
 
-## Validation
+Current `main` had advanced from the PR's attached base `7dfcbd09a2df930ee3449ce047984e4da5cec460` to `344b4aea0f455f70cec131bf5868167befe876bf`. The intervening main commit changes only `docs/wiki/Development.md`, so the divergence does not materially affect F-01 or F-02 and does not invalidate this bounded correction verdict.
 
-Exact reviewed head: `6bc6ac9cfd577a303e8b24d20995f8afaa78ddfc`.
+The PR is nevertheless one commit behind current `main`. MAPS_L's accepted-main anti-regression rule requires a final integration candidate to move forward onto latest accepted `main`; therefore synchronization and the repository's resulting fresh integration proof/review remain a separate pre-merge gate. This reviewer did not perform that synchronization.
 
-- Runtime stack tests: **FAIL** at root `AGENTS.md` size guard (13,072 > 13,000).
-- Review-evidence workflow at the implementation head: failed because the required PR #340 evidence artifact was not yet present. This trailing evidence-only commit is the allowed repository mechanism for satisfying that artifact requirement while keeping `head_sha` bound to the reviewed implementation state.
+## Formal GitHub review
+
+The connected GitHub account owns PR #340, so GitHub rejected an `APPROVE` review. A formal `COMMENTED` review was submitted instead, anchored to implementation head `92fc74e672bf7a04e1cf1d8a043d9c8c2c64eadd`, carrying the real verdict below.
 
 ## Verdict
 
-**CHANGES REQUIRED**.
+**APPROVE WITH NON-BLOCKING NOTES**.
 
-Both blocking findings are narrow corrections. The underlying durable-file lifecycle/register model does not require redesign.
+Both prior blockers are resolved at the exact corrected implementation head. The only note is the separate latest-main integration freshness requirement described above; it is not a remaining F-01/F-02 implementation defect.
