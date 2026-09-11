@@ -1,12 +1,13 @@
-"""Fail closed if a resolved PR #341 benchmark finding loses its owner clause.
+"""Fail closed if a resolved PR #341 benchmark finding loses its owner clauses.
 
 AGENTS.md invariant 13 requires a mechanical safeguard after a repeated failure
-pattern. PR #341 correction passes twice regressed previously resolved review
-findings, so this check pins every resolved B/M/N/F/G finding to an owning file
-and a required textual anchor in the benchmark package.
+pattern. PR #341 correction passes repeatedly regressed previously resolved
+review findings, including an r5 semantic rewrite that preserved section
+headings. This check therefore pins every resolved B/M/N/F/G/H finding to an
+owning file and one or more required rule-bearing textual anchors.
 
 The manifest is deliberately data-driven so reviewers can inspect the mapping.
-This script hard-codes the complete finding-ID set reached by the r4 review so a
+This script hard-codes the complete finding-ID set reached by the r5 review so a
 future edit cannot silently "fix" the check by deleting a manifest entry.
 """
 
@@ -23,6 +24,7 @@ EXPECTED_IDS = {
     *(f"N{i}" for i in range(1, 11)),
     *(f"F{i}" for i in range(1, 10)),
     *(f"G{i}" for i in range(1, 11)),
+    *(f"H{i}" for i in range(1, 6)),
 }
 
 MANIFEST_REL = Path("work/evals/protocol-effectiveness-benchmark/RESOLVED-FINDING-ANCHORS.json")
@@ -42,16 +44,22 @@ def check(repo_root: Path) -> tuple[bool, str]:
     if not isinstance(findings, list):
         return False, "finding-anchor manifest 'findings' must be a list"
 
-    seen: dict[str, dict[str, str]] = {}
+    seen: dict[str, dict[str, object]] = {}
     duplicates: list[str] = []
     for entry in findings:
         if not isinstance(entry, dict):
             return False, f"finding entry must be an object, got {entry!r}"
         finding_id = entry.get("id")
         owner_file = entry.get("owner_file")
-        anchor = entry.get("anchor")
-        if not all(isinstance(value, str) and value for value in (finding_id, owner_file, anchor)):
-            return False, f"finding entry needs non-empty id/owner_file/anchor: {entry!r}"
+        anchors = entry.get("anchors")
+        if not isinstance(finding_id, str) or not finding_id:
+            return False, f"finding entry needs non-empty string id: {entry!r}"
+        if not isinstance(owner_file, str) or not owner_file:
+            return False, f"finding entry needs non-empty string owner_file: {entry!r}"
+        if not isinstance(anchors, list) or not anchors:
+            return False, f"finding entry needs non-empty anchors list: {entry!r}"
+        if not all(isinstance(anchor, str) and anchor for anchor in anchors):
+            return False, f"finding anchors must all be non-empty strings: {entry!r}"
         if finding_id in seen:
             duplicates.append(finding_id)
         seen[finding_id] = entry
@@ -70,7 +78,7 @@ def check(repo_root: Path) -> tuple[bool, str]:
     failures: list[str] = []
     for finding_id in sorted(EXPECTED_IDS):
         entry = seen[finding_id]
-        owner_rel = Path(entry["owner_file"])
+        owner_rel = Path(str(entry["owner_file"]))
         if owner_rel.is_absolute() or ".." in owner_rel.parts:
             failures.append(f"{finding_id}: unsafe owner path {owner_rel}")
             continue
@@ -79,10 +87,12 @@ def check(repo_root: Path) -> tuple[bool, str]:
             failures.append(f"{finding_id}: owner file missing: {owner_rel}")
             continue
         text = owner_path.read_text(encoding="utf-8")
-        if entry["anchor"] not in text:
-            failures.append(
-                f"{finding_id}: required anchor missing from {owner_rel}: {entry['anchor']!r}"
-            )
+        for anchor in entry["anchors"]:
+            assert isinstance(anchor, str)
+            if anchor not in text:
+                failures.append(
+                    f"{finding_id}: required semantic anchor missing from {owner_rel}: {anchor!r}"
+                )
 
     if failures:
         return False, "resolved-finding anchor regression:\n- " + "\n- ".join(failures)
