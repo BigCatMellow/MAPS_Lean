@@ -1,6 +1,6 @@
 # Protocol Effectiveness Benchmark
 
-Status: **SIXTH CORRECTION PASS APPLIED — AWAITING FOCUSED I1–I4 RE-REVIEW; NOT EXECUTED**
+Status: **SEVENTH CORRECTION PASS APPLIED — AWAITING FOCUSED J1 RE-REVIEW; NOT EXECUTED**
 
 Primary question:
 
@@ -19,14 +19,15 @@ Review evidence:
 - [`../../reviews/pr-341-rereview-evidence-dcc064b.md`](../../reviews/pr-341-rereview-evidence-dcc064b.md) — r3: `MINOR CORRECTIONS REQUIRED`.
 - [`../../reviews/pr-341-rereview-evidence-7ec7e1d.md`](../../reviews/pr-341-rereview-evidence-7ec7e1d.md) — r4: `MINOR CORRECTIONS REQUIRED`.
 - [`../../reviews/pr-341-rereview-evidence-0aee65b.md`](../../reviews/pr-341-rereview-evidence-0aee65b.md) — r5: `MINOR CORRECTIONS REQUIRED`.
-- [`../../reviews/pr-341-rereview-evidence-8b9efd9.md`](../../reviews/pr-341-rereview-evidence-8b9efd9.md) — r6 at `8b9efd95f2cd48843f5eb38273a94eec55a49b58`: `MINOR CORRECTIONS REQUIRED`; H1/H2/H5 resolved, no B/M/N/F/G regression, I1–I4 remaining.
+- [`../../reviews/pr-341-rereview-evidence-8b9efd9.md`](../../reviews/pr-341-rereview-evidence-8b9efd9.md) — r6: `MINOR CORRECTIONS REQUIRED`.
+- [`../../reviews/pr-341-rereview-evidence-5f1ef8e.md`](../../reviews/pr-341-rereview-evidence-5f1ef8e.md) — r7 at `5f1ef8e090b62c8393113ddb211399646d381c84`: `MINOR CORRECTIONS REQUIRED`; I2–I4 resolved, no B/M/N/F/G/H owner-document regression, J1 is the only gate-holding residual; J2 is optional/NIT.
 
-I1–I4 are now owner-corrected on this branch. That is an **owner claim, not approval**.
+J1 is now owner-corrected on this branch. That is an **owner claim, not approval**. J2 was deliberately left unchanged because it is optional and another semantic edit would add risk without opening the gate.
 
-The invariant-13 backstop is now v3:
+The invariant-13 backstop is now v4:
 
-- [`RESOLVED-FINDING-ANCHORS.json`](RESOLVED-FINDING-ANCHORS.json) pins all 49 resolved B/M/N/F/G/H findings to rule-bearing semantic clauses, including complete multi-line surfaces where needed;
-- [`../../../scripts/check_protocol_effectiveness_benchmark_anchors.py`](../../../scripts/check_protocol_effectiveness_benchmark_anchors.py) independently hard-codes the 49-ID set and minimum anchor counts for historically vulnerable findings;
+- [`RESOLVED-FINDING-ANCHORS.json`](RESOLVED-FINDING-ANCHORS.json) is a line-reviewable 49-finding map with the exact comparator no-shield protection restored;
+- [`../../../scripts/check_protocol_effectiveness_benchmark_anchors.py`](../../../scripts/check_protocol_effectiveness_benchmark_anchors.py) independently hard-codes the complete finding-ID → owner-path map, rejects duplicate/trivial anchors, enforces minimum unique-anchor counts, pins 13 historically vulnerable whole rule sections by normalized content hash, and directly checks canonical report vocabulary;
 - the `review-evidence` workflow runs the checker on each PR revision.
 
 Nothing has been executed: no corpus/holdout authored or frozen, no scored candidate/evaluator/model calls, no benchmark spending, and no MAPS_L runtime/protocol behavior changes.
@@ -44,15 +45,14 @@ One concept, one owner:
 
 This README is navigation/status only. Follow the owning file rather than treating summaries here as normative rules.
 
-## Sixth-pass correction focus
+## Seventh-pass correction focus
 
-- I1: exact known semantic surfaces are pinned rather than headings/prefixes; the checker also enforces minimum anchor counts on vulnerable findings.
-- I2: S4 `PRIMARY_BETTER` and harm no longer double-match competing TRADEOFF/WORSE bullets.
-- I3: H5 support must match the aggregate verdict and H5 BETTER excludes tested-arm S4 rule firings or registered harm in either supporting stratum.
-- I4: report vocabulary now uses only owner-defined verdict/terminal classes, with confirmatory status and forbidden-effect subsets reported separately.
+J1 only: the v3 sentence-presence safeguard was insufficient against additive semantic exceptions, manifest-coordinated owner retargeting, duplicate/trivial anchors, and report-vocabulary additions. v4 adds script-owned structural pins around the independently accepted owner sections without changing those owner semantics.
+
+I2–I4 remain independently resolved from r7. J2 remains optional and was not changed.
 
 ## Current next step
 
-**Fresh focused independent re-review of I1–I4 at the exact current PR head.** It must rerun the semantic-anchor checker and mutation probes, rerun the S4 branch/enumeration test, verify H5/report alignment, and perform a bounded B/M/N/F/G/H regression check.
+**Fresh focused independent re-review of J1 at the exact current PR head.** It must rerun the v4 safeguard, r7 mutation probes 1–9 including 2b and 8a–8c plus additive variants, rerun the 512-state S4 enumeration, and perform a bounded B/M/N/F/G/H regression check.
 
 Only `APPROVED FOR CORPUS CONSTRUCTION` opens bounded corpus construction followed by independent corpus/freeze review. Benchmark execution remains prohibited.
