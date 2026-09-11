@@ -35,8 +35,20 @@ run_limits_ref
 network_allowlist_ref
 failure_injection_public_ref (optional)
 resolution_date (external cases)
-model_training_cutoff_relation = POST_CUTOFF | PRE_OR_WITHIN_CUTOFF | UNKNOWN (external cases)
+sampling_reference_model_provider_version (external cases)
+sampling_reference_training_cutoff = <documented date> | UNKNOWN (external cases)
+sampling_model_training_cutoff_relation = POST_CUTOFF | PRE_OR_WITHIN_CUTOFF | UNKNOWN (external cases)
 ```
+
+At the pre-run freeze, benchmark execution metadata additionally records for each external case:
+
+```text
+execution_model_provider_version
+execution_model_training_cutoff = <documented date> | UNKNOWN
+execution_model_training_cutoff_relation = POST_CUTOFF | PRE_OR_WITHIN_CUTOFF | UNKNOWN
+```
+
+The execution relation is recomputed deterministically from the frozen `resolution_date`; it does not retroactively change case inclusion, overlay class, or sampling weight.
 
 The **exact agent run-visible set** is:
 
@@ -49,7 +61,7 @@ allowed_capabilities
 run_limits_ref
 ```
 
-No other corpus field is exposed merely because it is benchmark-visible. In particular, case IDs, pool/domain/complexity/origin labels, overlay/family labels, counterweight IDs, source/provenance or upstream lookup keys, starting-state provenance identifiers, network-allowlist references, resolution dates/cutoff classifications, and failure-injection metadata stay off every run-reachable surface unless their content is already part of the visible task fixture and has independently passed the leakage rules.
+No other corpus or execution-metadata field is exposed merely because it is benchmark-visible. In particular, case IDs, pool/domain/complexity/origin labels, overlay/family labels, counterweight IDs, source/provenance or upstream lookup keys, starting-state provenance identifiers, network-allowlist references, resolution dates/cutoff classifications, and failure-injection metadata stay off every run-reachable surface unless their content is already part of the visible task fixture and has independently passed the leakage rules.
 
 Hidden companion fields:
 
@@ -305,7 +317,7 @@ Before a case can freeze:
 - any seeded-stress COUNTERWEIGHT has a reviewed primary-outcome harm path, not only efficiency/burden harm;
 - COUNTERWEIGHT has reviewed tendency/harm-path fields;
 - network/retrieval allowlist cannot expose upstream resolution through any enabled model-reachable tool;
-- external case records resolution date/training-cutoff relation and sensitivity stratum;
+- external case records the pinned sampling reference model/provider/cutoff, resolution date, and sampling cutoff relation; execution relation is recomputed at pre-run freeze;
 - resolution identifiers/canary IDs exist where applicable;
 - alternative valid solutions are accepted;
 - severity uses final effects;
