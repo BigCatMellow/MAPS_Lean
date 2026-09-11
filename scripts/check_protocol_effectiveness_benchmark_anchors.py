@@ -1,16 +1,20 @@
 """Fail closed if a resolved PR #341 benchmark protection regresses.
 
 AGENTS.md invariant 13 requires machinery after repeated correction-pass
-regressions. This checker deliberately has two independent layers:
+regressions. This checker deliberately has independent layers:
 
 1. the human-reviewable manifest maps every resolved finding to its owner and
-   semantic anchors; and
-2. this script independently pins the complete ID->owner map plus exact
-   normalized content hashes for the historically vulnerable rule sections.
+   semantic anchors;
+2. this script independently pins the complete ID->owner map;
+3. exact normalized hashes pin the five normative owner documents accepted by
+   the independent review; and
+4. localized section hashes plus direct report-vocabulary checks provide useful
+   failure messages for historically vulnerable surfaces.
 
-The second layer catches additive/semantic rewrites that can preserve individual
-sentences while changing the surrounding rule. Any intentional edit to a pinned
-section therefore requires an explicit checker update and fresh independent
+Whole-document pins close the additive-contradiction class that survived v4:
+preserving an accepted sentence or section while adding a superseding exception
+elsewhere in the same owner document now fails. An intentional normative owner
+edit therefore requires a deliberate checker hash update plus fresh independent
 review.
 """
 
@@ -45,8 +49,6 @@ EXPECTED_OWNER_PATHS = {
 }
 EXPECTED_IDS = set(EXPECTED_OWNER_PATHS)
 
-# Count unique anchors, not raw list length. These minima are independent of the
-# manifest and apply only where repeated review showed semantic fragility.
 MIN_ANCHOR_COUNTS = {
     "M6": 7,
     "M7": 4,
@@ -69,9 +71,20 @@ MANIFEST_REL = Path(
     "work/evals/protocol-effectiveness-benchmark/RESOLVED-FINDING-ANCHORS.json"
 )
 
-# Exact normalized section hashes from the independently reviewed r7 owner
-# documents. This pins whole rule blocks, so additive exceptions are detected
-# even when all old sentence-level anchors remain.
+# Normalized whole-document hashes from the independently reviewed r7 owner
+# blobs, independently reproduced during r8. These are the normative semantic
+# boundary. Any owner edit is intentional benchmark-spec work and must update
+# this checker under fresh independent review.
+PINNED_OWNER_DOCUMENT_CHECKS = {
+    SPEC: "86909cba3552121fcf17320d270fac45f7ba1b1e312ce723b8eb9c288d40cac6",
+    CASE: "363c5a0ffaaecbb1ce8cdfd141d80e5a5a41cb773d5c969ac8cc1f2bc28c0bfa",
+    RUN: "d5cf4fe8549e066bb153288c447a148928e4cdfd269bf03b55239157c0436939",
+    SCORE: "f40d462542b6607eece154ffb6c8c105e6fad64675ecf50465cc0dad92eeaf66",
+    REPORT: "558cecc5f5582ff3b1467eb67b8f6dd49cfaea360559d6e244118905e35c14ae",
+}
+
+# Localized pins remain for useful failure messages and to make the historical
+# regression surfaces explicit. Every pinned heading must occur exactly once.
 PINNED_SECTION_CHECKS = {
     (SCORE, "## 4. Final-effect severity and S4 counts"):
         "a9ff9d768244ea18249fbe30bb574c5a98d60eaa161ae68c33f3e2c13f8847d7",
@@ -111,7 +124,7 @@ MIN_NONTRIVIAL_ANCHOR_LEN = 20
 
 
 def _normalize_markdown(text: str) -> str:
-    """Normalize trailing whitespace and repeated blank lines, not semantics."""
+    """Normalize line endings, trailing whitespace, and repeated blank lines."""
     out: list[str] = []
     previous_blank = False
     for raw in text.strip().splitlines():
@@ -124,14 +137,23 @@ def _normalize_markdown(text: str) -> str:
     return "\n".join(out).strip()
 
 
+def _document_digest(text: str) -> str:
+    return hashlib.sha256(_normalize_markdown(text).encode("utf-8")).hexdigest()
+
+
+def _heading_count(text: str, heading: str) -> int:
+    return sum(1 for line in text.splitlines() if line == heading)
+
+
 def _extract_section(text: str, heading: str) -> str:
     """Return heading + body through the next same/higher-level heading."""
     lines = text.splitlines()
-    try:
-        start = lines.index(heading)
-    except ValueError as exc:
-        raise ValueError(f"missing pinned heading: {heading}") from exc
-
+    matches = [idx for idx, line in enumerate(lines) if line == heading]
+    if len(matches) != 1:
+        raise ValueError(
+            f"pinned heading must occur exactly once: {heading!r}; got {len(matches)}"
+        )
+    start = matches[0]
     level = len(heading) - len(heading.lstrip("#"))
     end = len(lines)
     for idx in range(start + 1, len(lines)):
@@ -248,8 +270,23 @@ def check(repo_root: Path) -> tuple[bool, str]:
                     f"{expected_owner}: {anchor!r}"
                 )
 
-    # Structural pins: a coordinated manifest edit cannot authorize a changed
-    # known rule block because expected section hashes live only in this script.
+    # Whole-owner pins close additive contradictions outside localized sections.
+    for owner_rel, expected_digest in sorted(PINNED_OWNER_DOCUMENT_CHECKS.items()):
+        owner_path = repo_root / owner_rel
+        if not owner_path.is_file():
+            failures.append(f"pinned owner document missing: {owner_rel}")
+            continue
+        text = owner_cache.setdefault(
+            owner_rel, owner_path.read_text(encoding="utf-8")
+        )
+        actual_digest = _document_digest(text)
+        if actual_digest != expected_digest:
+            failures.append(
+                f"{owner_rel}: normalized owner document changed; "
+                f"expected {expected_digest}, got {actual_digest}"
+            )
+
+    # Localized pins retain precise diagnostics and require unique headings.
     for (owner_rel, heading), expected_digest in sorted(PINNED_SECTION_CHECKS.items()):
         owner_path = repo_root / owner_rel
         if not owner_path.is_file():
@@ -258,6 +295,12 @@ def check(repo_root: Path) -> tuple[bool, str]:
         text = owner_cache.setdefault(
             owner_rel, owner_path.read_text(encoding="utf-8")
         )
+        count = _heading_count(text, heading)
+        if count != 1:
+            failures.append(
+                f"{owner_rel}: pinned heading must occur exactly once: {heading!r}; got {count}"
+            )
+            continue
         try:
             actual_digest = _section_digest(text, heading)
         except ValueError as exc:
@@ -274,17 +317,21 @@ def check(repo_root: Path) -> tuple[bool, str]:
         report_text = owner_cache.setdefault(
             REPORT, report_path.read_text(encoding="utf-8")
         )
-        verdict_section = _extract_section(report_text, "## Verdicts")
-        if verdict_section.count(CANONICAL_VERDICT_LINE) != 2:
-            failures.append(
-                "REPORT Verdicts must contain exactly two canonical five-verdict lines"
-            )
+        try:
+            verdict_section = _extract_section(report_text, "## Verdicts")
+            terminal_section = _extract_section(report_text, "## Terminal calibration")
+        except ValueError as exc:
+            failures.append(f"{REPORT}: {exc}")
+        else:
+            if verdict_section.count(CANONICAL_VERDICT_LINE) != 2:
+                failures.append(
+                    "REPORT Verdicts must contain exactly two canonical five-verdict lines"
+                )
+            if "| BLOCKED_WRONG_CLASS |" not in terminal_section:
+                failures.append("REPORT Terminal calibration must include BLOCKED_WRONG_CLASS")
         for token in sorted(REPORT_FORBIDDEN_VERDICT_TOKENS):
             if token in report_text:
                 failures.append(f"REPORT contains forbidden/non-owner vocabulary: {token!r}")
-        terminal_section = _extract_section(report_text, "## Terminal calibration")
-        if "| BLOCKED_WRONG_CLASS |" not in terminal_section:
-            failures.append("REPORT Terminal calibration must include BLOCKED_WRONG_CLASS")
     else:
         failures.append(f"report file missing: {REPORT}")
 
@@ -299,6 +346,7 @@ def check(repo_root: Path) -> tuple[bool, str]:
     return True, (
         "protocol benchmark safeguards OK "
         f"({len(EXPECTED_IDS)} findings, {total_anchors} semantic anchors, "
+        f"{len(PINNED_OWNER_DOCUMENT_CHECKS)} pinned owner documents, "
         f"{len(PINNED_SECTION_CHECKS)} structurally pinned rule sections)"
     )
 
