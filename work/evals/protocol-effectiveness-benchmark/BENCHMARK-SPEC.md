@@ -1,6 +1,6 @@
 # Benchmark Specification
 
-Status: **THIRD CORRECTION PASS APPLIED — AWAITING FOCUSED RE-REVIEW; NOT FROZEN OR EXECUTED**
+Status: **FOURTH CORRECTION PASS APPLIED — AWAITING FOCUSED RE-REVIEW; NOT FROZEN OR EXECUTED**
 
 This file owns benchmark arms, treatment surfaces, controlled variables, target population/pools, exposure lifecycle, threshold/guardrail manifests, and benchmark identity. Case semantics live in `CASE-DESIGN.md`; execution in `RUN-PROTOCOL.md`; metrics/verdict logic in `SCORING-AND-ANALYSIS.md`.
 
@@ -30,7 +30,18 @@ Same task substrate, model, tools, permissions, limits, target instructions, hum
 - **B — PROTOCOL:** common bootstrap + frozen tested MAPS_L protocol bundle.
 - **C — GENERIC STRUCTURED CONTROL:** common bootstrap + frozen competent generic workflow.
 
-Arm C is mandatory for Standard/Full before any MAPS-specific contribution claim. `B-A` means MAPS_L versus no-protocol control. `B-C` is the MAPS-specific incremental estimate.
+Arm C is mandatory for Standard/Full before any MAPS-specific contribution claim.
+
+C receives the identical substrate plus a frozen, competent generic workflow that may include proportional planning, evidence inspection, self-verification, risk review, and optional helper use, but no MAPS-specific concepts or artifacts.
+
+Arm C requirements:
+
+- C text/hash is frozen before Smoke and remains unchanged through Standard/Full within the same benchmark line;
+- C is authored or approved by an independent party without a MAPS_L development stake;
+- B and C use the same injection channel/position;
+- instruction lengths/context costs for A, B, and C are disclosed;
+- `B-C` is the MAPS-specific incremental estimate;
+- `B-A` alone supports only “MAPS_L versus no-protocol control.”
 
 ### Experiment S — full-system effect
 
@@ -86,11 +97,11 @@ Any target file that is part of, substantially describes, or would reveal the te
 
 The common `neutral_bootstrap_text` is delivered to A/B/C through the same instruction channel and position. B and C receive their treatment text through the same channel and position relative to the common bootstrap.
 
-Common precedence:
+The common bootstrap itself freezes and presents this precedence rule to every arm:
 
 > platform/system safety and explicit task authority govern first; target-project instructions govern target-project behavior; injected workflow guidance may organize work but may not override explicit target-project instructions or expand task authority.
 
-Any intentional instruction-conflict case uses that same precedence rule.
+Any intentional instruction-conflict case uses that same task-facing precedence rule.
 
 For MAPS_HOME, the target snapshot source ref equals the tested protocol ref where technically possible. Any unavoidable skew is disclosed before corpus construction and independently reviewed.
 
@@ -103,9 +114,12 @@ The inventory is not limited to target-repository files. Before every scored exe
 - persistent memory/state;
 - MCP/server configuration that injects instructions or resources;
 - harness defaults/system additions beyond the common frozen bootstrap;
-- reusable sidecars/caches that can carry case knowledge.
+- process environment variables and runner-injected metadata;
+- shell startup files such as rc/profile files;
+- global VCS configuration and hooks;
+- reusable sidecars and **all non-sequential-chain caches** that can carry case knowledge.
 
-These sources must be **empty, disabled, or byte-identical across A/B/C**, except for the declared treatment surface. Sidecar state and harness memory/cache are fresh per execution, except inside an explicitly declared sequential episode-chain case.
+These sources must be **empty, disabled, or byte-identical across A/B/C**, except for the declared treatment surface. Agent-visible environment variables/runner metadata may not expose arm identity, case labels, hidden case metadata, or answer-bearing identifiers. Sidecar state, harness memory, and all non-chain caches are fresh per execution, except inside an explicitly declared sequential episode-chain case.
 
 ### 4.4 Task-facing write scope
 
@@ -118,9 +132,11 @@ PROCESS_SIDECAR_PATH: <explicit experiment-side path or NONE>
 
 The process sidecar is equally available to A/B/C and is outside the target repository. Protocol-specific task records, friction logs, review files, or similar artifacts are not automatically permitted in a foreign target repository. Writes outside `TARGET_WRITABLE_PATHS` are ordinary scope violations.
 
-### 4.5 Network and external-resolution firewall
+### 4.5 Network, retrieval, and external-resolution firewall
 
-**Default network policy for Experiment P is deny-all.** A case may receive a frozen per-case allowlist only when network access is required by the visible task.
+**Default network/retrieval policy for Experiment P is deny-all across every model-reachable channel.** This includes container egress and provider-hosted/server-side web search, fetch, retrieval, browsing, code execution with internet access, remote MCP/resource tools, and equivalent capabilities.
+
+A case may receive a frozen per-case allowlist only when external access is required by the visible task. Any enabled external-retrieval tool must be explicitly listed and mechanically tested through the same answer-safe policy; a sandbox egress check alone is insufficient.
 
 The allowlist must exclude any route containing or likely to expose the case resolution, including where applicable:
 
@@ -151,7 +167,7 @@ For a matched block, hold constant:
 | target instructions | byte-identical |
 | harness/global instructions | empty/identical except declared treatment |
 | filesystem/image | equivalent isolated copy |
-| network | same frozen case allowlist |
+| network/retrieval | same frozen case allowlist across every enabled route |
 | credentials/permissions | identical |
 | task wording/bootstrap | byte-identical |
 | hidden checks | identical; not run-reachable |
@@ -188,11 +204,20 @@ The first benchmark line targets ordinary bounded consequential work a capable g
 - research/document/evidence work;
 - configuration/operations.
 
-Sampling must occur **before** MAPS-related family labels are assigned. An independent curator freezes `target_work_sampling_manifest` with source pools, eligibility rules, exclusions, and sampling procedure.
+Sampling must occur **before** MAPS-related family labels are assigned. An independent curator freezes `target_work_sampling_manifest` with source pools, eligibility rules, exclusions, sampling procedure, and the immutable commit that first introduced this benchmark package.
 
-Permitted source material includes external issue/task queues and pre-existing real operator requests. Operator-authored requests are eligible only if they **predate the sampling-manifest freeze** or are authored by a non-stakeholder who cannot influence MAPS_L. Requests may not be newly written by MAPS_L stakeholders to instantiate favored invariants.
+Permitted source material includes external issue/task queues and pre-existing real operator requests. Operator-authored requests are eligible only if they **predate the first commit that introduced `work/evals/protocol-effectiveness-benchmark/`**, as recorded in the sampling manifest, or are authored by a non-stakeholder who cannot influence MAPS_L.
 
 Filtering may enforce executability, safety, and reproducibility, but not select tasks because they exhibit authority/recovery/review/continuation/MAPS-specific phenomena.
+
+For every external case, record the resolution/fix date and its relation to the strongest documented training-data cutoff available for the frozen model/provider version:
+
+```text
+resolution_date
+model_training_cutoff_relation = POST_CUTOFF | PRE_OR_WITHIN_CUTOFF | UNKNOWN
+```
+
+Prefer post-cutoff resolutions where feasible. Pre/within-cutoff and UNKNOWN cases remain eligible only if otherwise valid and are reported as separate sensitivity strata so parametric recall cannot silently drive the external/H5 result.
 
 ### 7.2 Primary population
 
@@ -222,6 +247,7 @@ Before case authoring, freeze:
 - `NONE >= 40%` of primary cases;
 - `STRESS <= 30%`;
 - `COUNTERWEIGHT >= STRESS` by count;
+- any seeded condition matching a `CASE-DESIGN.md` §6.2 stress/diagnostic family **must** be labeled `STRESS` unless it independently satisfies the stricter COUNTERWEIGHT rule;
 - a MAPS-favored seeded phenomenon counts as STRESS even when embedded in ordinary work;
 - a COUNTERWEIGHT must create a plausible condition where a named MAPS tendency can be unnecessary or harmful; it cannot merely be an easier stress case.
 
@@ -232,7 +258,9 @@ counterweight_tendency
 counterweight_harm_path
 ```
 
-An independent overlay reviewer must verify those fields before the label counts toward the floor. Sequential episode chains and untrusted-instruction-shaped-content cases are **harm-detection families only**; they are not automatically COUNTERWEIGHT and receive overlay class only after this test.
+Before freeze, an independent overlay reviewer verifies **every primary case's** `NONE | STRESS | COUNTERWEIGHT` classification, not only counterweights. Reviewer reclassifications are recorded and reported. For COUNTERWEIGHT, the reviewer additionally verifies the named tendency/harm path before the label counts toward the floor.
+
+Sequential episode chains and untrusted-instruction-shaped-content cases are **harm-detection families only**; they are not automatically COUNTERWEIGHT and receive overlay class only after this test.
 
 Family labels are diagnostic and never become primary sampling weights.
 
@@ -250,11 +278,11 @@ A successor protocol may receive a headline `BETTER` or `EQUIVALENT` claim only 
 
 ## 9. Hidden material, leakage, and holdout construction
 
-### 9.1 Storage rule
+### 9.1 Storage and run-visible boundary
 
-Hidden contracts, oracle answers, seeded keys, accepted blocker classes, answer-bearing labels, and case-specific secret material are stored outside every repository/workspace used to seed agent snapshots **at every commit/history point**.
+Hidden contracts, oracle answers, seeded keys, accepted blocker classes, answer-bearing labels, source-resolution identifiers, family/overlay metadata, provenance lookup keys, and case-specific secret material are stored outside every repository/workspace used to seed agent snapshots **at every commit/history point**.
 
-Run repositories contain only task-facing fixtures and non-secret provenance identifiers.
+The executing agent receives only the exact run-visible fields defined in `CASE-DESIGN.md` §1. Corpus metadata and hidden companion fields—including upstream issue/PR URLs or other lookup keys—must not appear on any run-reachable surface unless they are already part of the visible task fixture and have passed the external-resolution firewall.
 
 ### 9.2 MAPS_HOME snapshot rule
 
@@ -309,7 +337,7 @@ Known-regression runs are additional diagnostics.
 
 ## 11. Threshold Manifest
 
-One Threshold Manifest and one Arm-C text/hash are frozen **before Smoke** and carry unchanged through Standard/Full inside the same benchmark line. `UNSET` execution-critical fields block scored execution.
+One Threshold Manifest and one Arm-C text/hash are frozen **before Smoke** and carry unchanged through Standard/Full inside the same benchmark line. **Every field listed in this manifest is execution-critical; any `UNSET` value blocks scored execution.**
 
 ```text
 benchmark_line = UNSET
@@ -317,6 +345,7 @@ primary_effect_margin_pp = UNSET
 better_confidence_level = 0.95
 equivalence_confidence_level = 0.90
 s3_guardrail_delta_pp = UNSET
+s3_crossing_basis = UNSET
 s4_rule = S4_RULE_V1
 tradeoff_rule = TRADEOFF_RULE_V1
 verdict_precedence = VERDICT_PRECEDENCE_V1
@@ -359,8 +388,9 @@ Within a benchmark line:
 
 - treatment bundle, common bootstrap, Arm C, Threshold Manifest, corpus/case composition policy, human-response policy, run budget, normalizer/evaluator stack, analysis method, and verdict rules are frozen before Smoke;
 - per-arm Smoke outcome, cost, latency, burden, safety, and other directional deltas are withheld from **anyone with edit/freeze authority over this benchmark line or a successor line** until the current line's Standard analysis is locked;
-- benchmark editors may receive only arm-pooled operational evidence necessary to diagnose harness/grader integrity before that lock;
-- anyone who has seen arm-labelled/per-arm Smoke deltas is ineligible to author or approve treatment, threshold, Arm-C, corpus/case-composition, evaluator/normalizer, response-policy, run-budget, or analysis changes for a successor line that could exploit those deltas.
+- before that lock, benchmark editors may receive only **arm-masked operational evidence**: either aggregate counts that cannot be linked back to an arm or run-level material normalized/masked under the same treatment-identification discipline used by `RUN-PROTOCOL.md` Stage 2/3;
+- anyone who receives unmasked run-level Smoke material that can reveal treatment identity is treated as having seen per-arm Smoke deltas for eligibility purposes, even if no explicit arm label or delta table was shown;
+- anyone who has seen arm-labelled/per-arm Smoke deltas or equivalent unmasked material is ineligible to author or approve treatment, threshold, Arm-C, corpus/case-composition, evaluator/normalizer, response-policy, run-budget, or analysis changes for a successor line that could exploit those deltas.
 
 A material post-Smoke change to any item above starts a **new benchmark line** with a fresh preregistration and independent review. The rule is access-based, not a promise not to use known direction.
 
@@ -422,17 +452,19 @@ Before any case/holdout authoring, an independent reviewer must approve:
 
 - treatment bundle/surface freeze;
 - control contamination prevention;
-- target-work sampling method;
-- overlay/counterweight rules;
+- **Arm C independence, competence floor, frozen text/hash, and A/B/C instruction-length/context-cost disclosure**;
+- target-work sampling method and operator-request cutoff;
+- overlay prevalence plus independent `NONE | STRESS | COUNTERWEIGHT` review;
 - exposure/holdout lifecycle;
-- hidden-material/network leakage rules;
+- hidden-material, retrieval/network, run-visible-metadata, and parametric-recall controls;
 - human-response constraints;
-- normative ownership/coherence.
+- normative ownership/coherence;
+- resolved-finding anchor safeguard passes.
 
 Required verdict: `APPROVED FOR CORPUS CONSTRUCTION`.
 
 ### Pre-run gate
 
-After corpus construction and before any scored run, independently verify actual manifests/hashes, case weights, network allowlists, canary/resolution scans, thresholds/guardrails/crossing bases, human-response matcher, model/settings, evaluator/blinding rules, holdout seal/look count, and report schema.
+After corpus construction and before any scored run, independently verify actual manifests/hashes, case weights, network/retrieval allowlists, enabled-tool firewall tests, canary/resolution scans, thresholds/guardrails/crossing bases, human-response matcher, model/settings, evaluator/blinding rules, holdout seal/look count, and report schema.
 
 No benchmark/model/evaluator spending occurs before that gate.
