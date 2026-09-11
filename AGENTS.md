@@ -86,13 +86,10 @@ it. If routine work needs several overlapping methods, consolidate.
     and better alternatives when they exist; push back when that would improve
     the result. Do not manufacture objections or disagree performatively—agreement
     is appropriate when it survives scrutiny, and should be specific about why.
-15. **Close handoff loops.** Durable handoffs use
-    [`work/handoffs/README.md`](work/handoffs/README.md): create/register an ID +
-    receipt; receiver records `Reviewed`; successor work sets `CONTINUED` + a
-    durable `Continued at`; finish with `CLOSED`/`SUPERSEDED`. Keep handoff and
-    register synchronized; legacy stays `UNTRIAGED` until checked. Thread-only
-    handoffs record the same receipt/pointer on the source GitHub thread; do not
-    create status-only commits.
+15. **Close handoff loops.** Follow
+    [`work/handoffs/README.md`](work/handoffs/README.md): register durable
+    handoffs, receipt review/continuation/terminal state, and keep the register
+    synchronized. Thread-only receipts stay on their source GitHub thread.
 
 ## Scope-level authorization
 
