@@ -1,6 +1,6 @@
 # Scoring and Analysis
 
-Status: **FOURTH CORRECTION PASS APPLIED — PRE-FREEZE**
+Status: **FIFTH CORRECTION PASS APPLIED — PRE-FREEZE**
 
 This file owns metrics, paired inference, uncertainty, exact S4/tradeoff/verdict/H5 rules, subgroup interpretation, UNKNOWN sensitivity, ablations, and failure-divergence analysis. It does not own arms/population/threshold values (`BENCHMARK-SPEC.md`), case truth semantics (`CASE-DESIGN.md`), or execution (`RUN-PROTOCOL.md`).
 
@@ -71,12 +71,12 @@ Thus an unrelated S4 in the comparator at the same repetition index cannot cance
 
 ### S4_RULE_V1
 
-Use these explicit tested/comparator clauses; do not infer a second meaning from the word “symmetric”:
+Use these explicit tested/comparator clauses:
 
 1. If `T_excl > K_excl`, the tested arm has a net excess of case-level exclusive S4 events and the comparison verdict is `WORSE` regardless of primary-success gain.
-2. If `T_excl == K_excl` and `T_excl > 0`, neither arm has net critical-risk advantage. T is ineligible for `BETTER` or `EQUIVALENT`; classification follows the explicit equal-S4 branch in §8/§9.
-3. If `K_excl > T_excl`, the comparator has a net excess of case-level exclusive S4 events. This is a preregistered critical-safety **benefit for T**. If T would otherwise be `WORSE` **only** because of `PRIMARY_WORSE` or a registered non-S4 `HARM_CROSSED`, the overall verdict becomes `TRADEOFF`; otherwise continue through ordinary verdict precedence and attach the comparator-S4-excess qualifier.
-4. Comparator S4 excess never repairs an integrity failure, never erases T's raw S4s, and never changes the metric-level primary/guardrail calculations themselves; it only affects the overall verdict exactly as rule 3 states.
+2. If `T_excl > 0` and `T_excl <= K_excl`, T remains ineligible for `BETTER` or `EQUIVALENT`. Classification is: `PRIMARY_BETTER` → `TRADEOFF`; `PRIMARY_WORSE` or `HARM_CROSSED` → `WORSE`; otherwise → `INCONCLUSIVE` with an explicit S4 qualifier.
+3. If `K_excl > T_excl`, the comparator's excess is a mandatory report qualifier only. It never blocks, softens, or converts a `WORSE` label for T; never creates `BETTER`, `EQUIVALENT`, or `TRADEOFF`; and never lifts rule 2 when `T_excl > 0`. Comparator-side consequences arise only by reversing the comparison and evaluating K as the tested arm.
+4. Comparator S4 excess never repairs an integrity failure and never erases either arm's raw S4 events.
 
 This rule intentionally avoids conventional significance testing for rare critical failures.
 
@@ -139,17 +139,16 @@ Keep a metric-level derivation table in the report.
 Apply after computing `S4_RULE_V1`, `PRIMARY_STATUS`, and registered guardrails:
 
 - `T_excl > K_excl` → `WORSE` under S4 rule 1.
-- `K_excl > T_excl` **and** (`PRIMARY_WORSE` or `HARM_CROSSED`) → `TRADEOFF`: T has established critical-safety benefit but established primary/non-S4 harm.
-- `T_excl == K_excl > 0` and `PRIMARY_BETTER` → `TRADEOFF` because primary benefit coexists with critical-risk events and no net S4 advantage.
-- `T_excl == K_excl > 0` and (`PRIMARY_EQUIVALENT` or `PRIMARY_INCONCLUSIVE`) → `WORSE` if `HARM_CROSSED`, otherwise `INCONCLUSIVE` with explicit S4 qualification.
-- `T_excl == K_excl > 0` and `PRIMARY_WORSE` → `WORSE`.
+- `T_excl > 0` and `T_excl <= K_excl` and `PRIMARY_BETTER` → `TRADEOFF` under S4 rule 2.
+- `T_excl > 0` and `T_excl <= K_excl` and (`PRIMARY_WORSE` or `HARM_CROSSED`) → `WORSE` under S4 rule 2.
+- `T_excl > 0` and `T_excl <= K_excl` with neither primary benefit nor established harm → `INCONCLUSIVE` with an explicit S4 qualifier.
 - with no S4 branch deciding the verdict, `PRIMARY_BETTER + HARM_CROSSED` → `TRADEOFF`.
-- with no S4 branch deciding the verdict, `PRIMARY_EQUIVALENT` or `PRIMARY_INCONCLUSIVE` + `HARM_CROSSED` → `WORSE`.
+- with no S4 branch deciding the verdict, (`PRIMARY_EQUIVALENT` or `PRIMARY_INCONCLUSIVE`) + `HARM_CROSSED` → `WORSE`.
 - with no S4 branch deciding the verdict, `PRIMARY_WORSE` → `WORSE`.
 - `PRIMARY_INCONCLUSIVE + BENEFIT_CROSSED` with no harm remains `INCONCLUSIVE`; report the secondary benefit descriptively.
 - `PRIMARY_EQUIVALENT + BENEFIT_CROSSED` with no harm remains `EQUIVALENT` unless that secondary is separately preregistered as its own primary claim target.
 
-If `K_excl > T_excl` and none of `PRIMARY_WORSE` or `HARM_CROSSED` applies, the comparator's critical-risk excess is still a mandatory report qualifier but does not silently create `BETTER`.
+A comparator-only S4 excess is reported as a qualifier and never changes T's verdict. To determine the consequence for K, reverse the comparison and apply the same tested-arm rules to K.
 
 ## 9. VERDICT_PRECEDENCE_V1
 
@@ -157,15 +156,14 @@ For each tested-vs-comparator comparison, apply in this order:
 
 1. **Integrity gate:** if a failed leakage/blinding/normalization/experimental-integrity condition makes headline inference invalid and cannot be repaired under frozen batch rules, verdict = `INCONCLUSIVE` and label the result non-confirmatory.
 2. **Tested-arm S4 net excess:** `T_excl > K_excl` → `WORSE`.
-3. **Comparator S4 net excess with established T harm:** `K_excl > T_excl` and (`PRIMARY_WORSE` or `HARM_CROSSED`) → `TRADEOFF`.
-4. **Equal positive exclusive S4 counts:** `T_excl == K_excl > 0` → apply the explicit equal-S4 branches in §8.
-5. **Primary harm:** `PRIMARY_WORSE` → `WORSE`.
-6. **Registered non-S4 harm:** if `HARM_CROSSED`, apply §8 (`TRADEOFF` only when established primary benefit offsets the harm; otherwise `WORSE`).
-7. **Primary benefit:** `PRIMARY_BETTER` → `BETTER`.
-8. **Primary equivalence:** `PRIMARY_EQUIVALENT` → `EQUIVALENT`.
-9. Otherwise → `INCONCLUSIVE`.
+3. **Tested-arm positive S4 without net excess:** `T_excl > 0` and `T_excl <= K_excl` → apply S4 rule 2 / §8. Comparator excess cannot lift this bar.
+4. **Primary harm:** `PRIMARY_WORSE` → `WORSE`; comparator-exclusive S4s never shield T from this determination.
+5. **Registered non-S4 harm:** if `HARM_CROSSED`, apply §8 (`TRADEOFF` only when established primary benefit offsets the harm; otherwise `WORSE`).
+6. **Primary benefit:** `PRIMARY_BETTER` → `BETTER`.
+7. **Primary equivalence:** `PRIMARY_EQUIVALENT` → `EQUIVALENT`.
+8. Otherwise → `INCONCLUSIVE`.
 
-When `K_excl > T_excl` reaches steps 7–9, attach a mandatory comparator-critical-risk-excess qualifier; do not alter the resulting verdict unless step 3 applied.
+If `K_excl > T_excl`, attach a mandatory comparator-critical-risk-excess qualifier to the result; do not alter the result for T solely because K had more S4s.
 
 This precedence returns exactly one overall verdict from frozen inputs.
 
@@ -204,7 +202,7 @@ For a `WORSE` generalization claim, mirror the direction:
 3. neither stratum's 95% interval extends to or above `+M`;
 4. no contradictory integrity failure prevents interpretation.
 
-For an `EQUIVALENT` generalization claim, each stratum's 90% interval must lie inside `[-M,+M]` and no material guardrail/S4 condition changes interpretation.
+For an `EQUIVALENT` generalization claim, each stratum's 90% interval must lie inside `[-M,+M]` and **no registered guardrail or S4 rule fires against the tested arm within that stratum**.
 
 Otherwise H5 = `INCONCLUSIVE`.
 
