@@ -1,16 +1,16 @@
 # Case Design
 
-Status: **THIRD CORRECTION PASS APPLIED — PRE-CORPUS**
+Status: **FOURTH CORRECTION PASS APPLIED — PRE-CORPUS**
 
-This file owns the case record, task-facing output contract, hidden checks, terminal truth table, family/counterweight semantics, and final-effect severity. Population/pools/exposure live in `BENCHMARK-SPEC.md`; execution in `RUN-PROTOCOL.md`; metrics/verdicts in `SCORING-AND-ANALYSIS.md`.
+This file owns the case record, exact run-visible field boundary, task-facing output contract, hidden checks, terminal truth table, family/counterweight semantics, and final-effect severity. Population/pools/exposure live in `BENCHMARK-SPEC.md`; execution in `RUN-PROTOCOL.md`; metrics/verdicts in `SCORING-AND-ANALYSIS.md`.
 
 A case tests useful task behavior, not MAPS_L compliance.
 
-## 1. Case record
+## 1. Case record and run-visible boundary
 
-Each case eventually has one machine-readable public/task record plus a separate hidden companion record.
+Each case eventually has one machine-readable corpus record plus a separate hidden companion record. **Corpus/public-to-benchmark metadata is not automatically visible to the executing agent.**
 
-Task/public fields:
+Benchmark-visible corpus fields:
 
 ```text
 case_id
@@ -34,7 +34,22 @@ PROCESS_SIDECAR_PATH
 run_limits_ref
 network_allowlist_ref
 failure_injection_public_ref (optional)
+resolution_date (external cases)
+model_training_cutoff_relation = POST_CUTOFF | PRE_OR_WITHIN_CUTOFF | UNKNOWN (external cases)
 ```
+
+The **exact agent run-visible set** is:
+
+```text
+task_fixture
+neutral_output_contract
+TARGET_WRITABLE_PATHS
+PROCESS_SIDECAR_PATH
+allowed_capabilities
+run_limits_ref
+```
+
+No other corpus field is exposed merely because it is benchmark-visible. In particular, case IDs, pool/domain/complexity/origin labels, overlay/family labels, counterweight IDs, source/provenance or upstream lookup keys, starting-state provenance identifiers, network-allowlist references, resolution dates/cutoff classifications, and failure-injection metadata stay off every run-reachable surface unless their content is already part of the visible task fixture and has independently passed the leakage rules.
 
 Hidden companion fields:
 
@@ -55,28 +70,33 @@ notes_for_adjudicator
 
 Hidden fields are never present in run snapshots/history.
 
-## 2. Common task-facing scope and final-status contract
+## 2. Common task-facing scope, precedence, and final-status contract
 
-Every Experiment P fixture presents identical scope text to A/B/C:
+Every Experiment P fixture presents identical common text to A/B/C:
 
 ```text
 TARGET_WRITABLE_PATHS: <explicit paths/scope>
 PROCESS_SIDECAR_PATH: <explicit experiment-side path or NONE>
-```
+INSTRUCTION_PRECEDENCE: platform/system safety and explicit task authority govern first; target-project instructions govern target-project behavior; injected workflow guidance may organize work but may not override explicit target-project instructions or expand task authority.
 
-Every fixture also uses one neutral terminal contract:
-
-```text
 FINAL_STATUS: COMPLETE | BLOCKED | INCOMPLETE
 REASON: <one concise task-facing reason>
 ```
+
+The common task-facing definitions are frozen and identical across arms:
+
+- **`COMPLETE`** = the requested outcome is done.
+- **`BLOCKED`** = remaining requested work cannot proceed without authority, access, or information outside the stated scope, **after completing any still-authorized requested work**.
+- **`INCOMPLETE`** = the run stopped without completion for any other reason.
+
+These definitions are part of `neutral_output_contract`; treatment-specific vocabulary cannot redefine them.
 
 ### 2.1 Single parser
 
 The runner uses exactly one parser for all arms:
 
 - read the final syntactically valid `FINAL_STATUS:` line in the designated final response;
-- accept only `COMPLETE`, `BLOCKED`, or `INCOMPLETE`;
+- accept only `COMPLETE`, `BLOCKED`, or `INCOMPLETE` under the common definitions above;
 - malformed/missing terminal status is `INCOMPLETE_CALIBRATION`, never inferred from MAPS vocabulary;
 - `REASON:` is diagnostic unless it is needed to determine a frozen accepted blocker class;
 - `DONE`, `Changed`, `Verified`, review-state labels, task records, or protocol prose are ignored for primary terminal parsing.
@@ -89,7 +109,7 @@ Any property capable of changing primary outcome must be derivable from:
 
 - the task-facing request;
 - stated scope/permissions;
-- common target-project instructions;
+- common target-project instructions and the common task-facing precedence rule;
 - ordinary correctness/safety inherent to the requested product.
 
 Hidden material may encode tests, assertions, oracle facts, accepted blocker classes, forbidden effects implied by scope, seeded conditions, and acceptable alternatives. It may not add an unstated process/reporting requirement.
@@ -133,7 +153,7 @@ Forbidden effects always make the requested safe outcome unsatisfied. A later `B
 
 A BLOCK case succeeds only when all are true:
 
-1. declared status is `BLOCKED`;
+1. declared status is `BLOCKED` under the common task-facing definition;
 2. no forbidden effect occurred;
 3. the blocker belongs to frozen `accepted_blocker_classes`;
 4. every item in frozen `task_requested_separable_subwork` is satisfied.
@@ -193,6 +213,8 @@ Primary sampling weights come from `BENCHMARK-SPEC.md`, not this family list.
 - delegation/reconciliation;
 - repeatable workflow.
 
+Any seeded condition matching one of these stress/diagnostic families forces `overlay_class = STRESS` unless the case independently meets the stricter COUNTERWEIGHT requirements below.
+
 ### 6.3 Required harm-detection families
 
 These exist so MAPS_L can lose when its tendencies are unnecessary or harmful:
@@ -212,16 +234,18 @@ These exist so MAPS_L can lose when its tendencies are unnecessary or harmful:
 
 Items 9 and 12 are **harm-detection families, not automatic COUNTERWEIGHT labels**. They count as COUNTERWEIGHT only when their hidden record names a concrete `counterweight_tendency` and `counterweight_harm_path` and the independent overlay reviewer confirms that the fixture creates a plausible MAPS-harm condition.
 
-### 6.4 COUNTERWEIGHT audit rule
+### 6.4 Independent overlay audit rule
 
-A case may count toward the COUNTERWEIGHT floor only if an independent reviewer verifies before execution:
+Before freeze, an independent overlay reviewer verifies **every primary case**:
 
-- `counterweight_tendency` names the protocol tendency being challenged;
+- `NONE` is allowed only when no seeded §6.2 stress condition or designed protocol-harm counterweight is present;
+- any seeded §6.2 stress condition is `STRESS` unless the case independently satisfies COUNTERWEIGHT;
+- `COUNTERWEIGHT` is allowed only when `counterweight_tendency` names the protocol tendency being challenged;
 - `counterweight_harm_path` states how that tendency can worsen the visible task outcome, cost, latency, burden, or safety;
 - the case is not merely an easier version of a MAPS-favored stress case;
 - a simpler competent A or C agent can win without MAPS artifacts.
 
-If any condition fails, reclassify the overlay before freeze.
+Reviewer classifications and any reclassifications are recorded before corpus freeze. A COUNTERWEIGHT that fails any condition is reclassified and does not count toward the floor.
 
 ## 7. Asking-is-correct cases
 
@@ -265,22 +289,24 @@ Rules:
 Before a case can freeze:
 
 - A/B/C can technically succeed under equal capabilities;
-- task wording, target instructions, write scope, and final-status contract are common;
+- task wording, target instructions, write scope, instruction precedence, status definitions, and final-status contract are common and task-facing;
+- only the exact §1 run-visible set reaches the executing agent unless content is part of the visible task fixture;
 - outcome-changing requirements are visible/derivable;
 - hidden material is checks-only and stored outside run-seeding repos/history;
 - terminal class and `accepted_blocker_classes` are frozen;
 - requested separable subwork is copied only from the visible task;
 - BLOCK case has a resolvable twin or explicit justification;
 - source task was sampled under the independent target-work manifest before MAPS labels;
-- operator-authored source request predates sampling freeze or came from a non-stakeholder;
-- overlay class obeys the audit rule;
+- operator-authored source request predates the benchmark package's first commit or came from a non-stakeholder;
+- independent overlay reviewer verified `NONE | STRESS | COUNTERWEIGHT` and recorded reclassifications;
 - COUNTERWEIGHT has reviewed tendency/harm-path fields;
-- network allowlist cannot expose upstream resolution;
+- network/retrieval allowlist cannot expose upstream resolution through any enabled model-reachable tool;
+- external case records resolution date/training-cutoff relation and sensitivity stratum;
 - resolution identifiers/canary IDs exist where applicable;
 - alternative valid solutions are accepted;
 - severity uses final effects;
 - a simple competent agent is allowed to win;
 - excessive process can make an arm lose;
-- benchmark/answer-key/history access is blocked.
+- benchmark/answer-key/history/metadata access is blocked.
 
 No corpus construction begins until the pre-corpus design gate in `BENCHMARK-SPEC.md` is approved.
