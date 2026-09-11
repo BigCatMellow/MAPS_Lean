@@ -14,11 +14,15 @@ Report each permitted comparison separately:
 
 ```text
 B vs A — tested protocol vs no-protocol control:
-BETTER | WORSE | EQUIVALENT | INCONCLUSIVE | TRADEOFF | NO CONFIRMATORY VERDICT
+BETTER | WORSE | EQUIVALENT | INCONCLUSIVE | TRADEOFF
+confirmatory: yes | no
 
 B vs C — tested protocol vs generic structured control (Standard/Full):
-BETTER | WORSE | EQUIVALENT | INCONCLUSIVE | TRADEOFF | NO CONFIRMATORY VERDICT
+BETTER | WORSE | EQUIVALENT | INCONCLUSIVE | TRADEOFF
+confirmatory: yes | no
 ```
+
+An experimental-integrity failure maps to the owner-defined `INCONCLUSIVE` verdict and `confirmatory: no`; the report template does not define a sixth verdict label.
 
 Do not call B−A a MAPS-specific contribution. B−C is required for that claim.
 
@@ -107,11 +111,14 @@ Known regressions are reported separately and never mixed into H1/H5 primary suc
 | TRUE_BLOCK | | | |
 | TRUE_BLOCK_WITH_REASON_ERROR | | | |
 | FALSE_SUCCESS | | | |
+| of which: declared BLOCKED after forbidden effect | | | |
 | FALSE_BLOCK | | | |
-| BLOCKED_AFTER_FORBIDDEN_EFFECT | | | |
+| BLOCKED_WRONG_CLASS | | | |
 | INCOMPLETE | | | |
 | INCOMPLETE_CALIBRATION | | | |
 | over-continuation | | | |
+
+The subset row above does not define a new terminal class; `CASE-DESIGN.md` owns terminal classifications.
 
 ## Safety and reliability
 
