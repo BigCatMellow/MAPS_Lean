@@ -1,6 +1,6 @@
 # Protocol Effectiveness Benchmark
 
-Status: **SEVENTH CORRECTION PASS APPLIED — AWAITING FOCUSED J1 RE-REVIEW; NOT EXECUTED**
+Status: **EIGHTH CORRECTION PASS APPLIED — AWAITING FOCUSED J3 RE-REVIEW; NOT EXECUTED**
 
 Primary question:
 
@@ -20,14 +20,16 @@ Review evidence:
 - [`../../reviews/pr-341-rereview-evidence-7ec7e1d.md`](../../reviews/pr-341-rereview-evidence-7ec7e1d.md) — r4: `MINOR CORRECTIONS REQUIRED`.
 - [`../../reviews/pr-341-rereview-evidence-0aee65b.md`](../../reviews/pr-341-rereview-evidence-0aee65b.md) — r5: `MINOR CORRECTIONS REQUIRED`.
 - [`../../reviews/pr-341-rereview-evidence-8b9efd9.md`](../../reviews/pr-341-rereview-evidence-8b9efd9.md) — r6: `MINOR CORRECTIONS REQUIRED`.
-- [`../../reviews/pr-341-rereview-evidence-5f1ef8e.md`](../../reviews/pr-341-rereview-evidence-5f1ef8e.md) — r7 at `5f1ef8e090b62c8393113ddb211399646d381c84`: `MINOR CORRECTIONS REQUIRED`; I2–I4 resolved, no B/M/N/F/G/H owner-document regression, J1 is the only gate-holding residual; J2 is optional/NIT.
+- [`../../reviews/pr-341-rereview-evidence-5f1ef8e.md`](../../reviews/pr-341-rereview-evidence-5f1ef8e.md) — r7: `MINOR CORRECTIONS REQUIRED`.
+- [`../../reviews/pr-341-rereview-evidence-fd2408f.md`](../../reviews/pr-341-rereview-evidence-fd2408f.md) — r8 at `fd2408fda31d574554bf345cde6319fe8313bd90`: `MINOR CORRECTIONS REQUIRED`; I2–I4 and all B/M/N/F/G/H owner findings still resolved; J3 is the only gate-holding residual; J2/J4 are optional.
 
-J1 is now owner-corrected on this branch. That is an **owner claim, not approval**. J2 was deliberately left unchanged because it is optional and another semantic edit would add risk without opening the gate.
+J3 is now owner-corrected on this branch. That is an **owner claim, not approval**.
 
-The invariant-13 backstop is now v4:
+The invariant-13 backstop is now v5:
 
-- [`RESOLVED-FINDING-ANCHORS.json`](RESOLVED-FINDING-ANCHORS.json) is a line-reviewable 49-finding map with the exact comparator no-shield protection restored;
-- [`../../../scripts/check_protocol_effectiveness_benchmark_anchors.py`](../../../scripts/check_protocol_effectiveness_benchmark_anchors.py) independently hard-codes the complete finding-ID → owner-path map, rejects duplicate/trivial anchors, enforces minimum unique-anchor counts, pins 13 historically vulnerable whole rule sections by normalized content hash, and directly checks canonical report vocabulary;
+- [`RESOLVED-FINDING-ANCHORS.json`](RESOLVED-FINDING-ANCHORS.json) remains the human-reviewable 49-finding map;
+- [`../../../scripts/check_protocol_effectiveness_benchmark_anchors.py`](../../../scripts/check_protocol_effectiveness_benchmark_anchors.py) independently pins the complete finding-ID → owner-path map, normalized whole-document hashes for SPEC/CASE/RUN/SCORING/REPORT, 13 localized rule-section hashes, pinned-heading uniqueness, anchor-quality/minimum-count rules, and canonical report vocabulary;
+- an additive contradiction anywhere in a normative owner document now changes its normalized whole-document digest and cannot pass merely by retaining the accepted sentence or section;
 - the `review-evidence` workflow runs the checker on each PR revision.
 
 Nothing has been executed: no corpus/holdout authored or frozen, no scored candidate/evaluator/model calls, no benchmark spending, and no MAPS_L runtime/protocol behavior changes.
@@ -45,14 +47,14 @@ One concept, one owner:
 
 This README is navigation/status only. Follow the owning file rather than treating summaries here as normative rules.
 
-## Seventh-pass correction focus
+## Eighth-pass correction focus
 
-J1 only: the v3 sentence-presence safeguard was insufficient against additive semantic exceptions, manifest-coordinated owner retargeting, duplicate/trivial anchors, and report-vocabulary additions. v4 adds script-owned structural pins around the independently accepted owner sections without changing those owner semantics.
+J3 only: r8 proved v4 still allowed additive contradictions when moved outside the 13 pinned spans. v5 pins the full normalized normative owner documents while retaining localized section pins for diagnostics and requires every pinned heading to occur exactly once.
 
-I2–I4 remain independently resolved from r7. J2 remains optional and was not changed.
+The normative owner documents themselves were not edited in this pass. I2–I4 and B/M/N/F/G/H therefore carry forward only subject to fresh verification that those owner blobs remain identical.
 
 ## Current next step
 
-**Fresh focused independent re-review of J1 at the exact current PR head.** It must rerun the v4 safeguard, r7 mutation probes 1–9 including 2b and 8a–8c plus additive variants, rerun the 512-state S4 enumeration, and perform a bounded B/M/N/F/G/H regression check.
+**Fresh focused independent re-review of J3 at the exact current PR head.** It must rerun v5, independently recompute the five owner-document hashes from the accepted r7/r8 blobs, repeat r8 probe 9b plus representative out-of-span/duplicate-heading/additive variants, and confirm the normative owner blobs are unchanged.
 
 Only `APPROVED FOR CORPUS CONSTRUCTION` opens bounded corpus construction followed by independent corpus/freeze review. Benchmark execution remains prohibited.
