@@ -16,25 +16,30 @@ This record exists because the current GitHub connector does not provide a safe 
 - signal: independent reviews repeatedly found correction-pass regressions or
   safeguard gaps. M4 regressed at r3; M2/N5/N7 regressed at r4; M6/N4/F4
   regressed at r5 while headings survived; r6 showed the v2 anchor safeguard
-  still missed exact H1/H2/G3/H5 rewrites; r7 then showed v3 still missed the
-  comparator no-shield mutation plus report-vocabulary additions and could be
-  weakened by duplicate/trivial anchors or owner-path retargeting. Prose and
-  sentence-presence checks alone were insufficient.
-- countermeasure: AGENTS.md invariant-13 safeguard upgraded to v4.
-  `RESOLVED-FINDING-ANCHORS.json` remains the human-reviewable 49-finding map,
-  is now line-reviewable, restores the exact comparator no-shield anchor, and
-  uses unique non-trivial anchors. `check_protocol_effectiveness_benchmark_anchors.py`
-  independently hard-codes the complete finding-ID -> owner-path map, minimum
-  unique-anchor counts, forbidden report vocabulary, exact five-verdict lines,
-  and normalized hashes for 13 historically vulnerable whole rule sections:
-  SCORING §4/§8/§9/§10; CASE §1/§2/§6.4; SPEC §4.2/§7.4/§9.1/§12; REPORT
-  Verdicts and Terminal calibration. A coordinated manifest edit therefore
-  cannot authorize an owner retarget or additive exception without changing the
-  checker itself and triggering review.
-- verified: UNVERIFIED — require the v4 checker to pass CI at the corrected head
-  and a fresh independent review to rerun r7 probes 1-9 (including 2b and
-  8a-8c), additive variants, the 512-state S4 enumeration, and bounded
-  B/M/N/F/G/H regression verification.
-- follow-up: if another known semantic regression escapes v4, replace or extend
-  the affected structural pin rather than adding another prose preservation rule.
+  still missed exact H1/H2/G3/H5 rewrites; r7 showed v3 still missed the
+  comparator no-shield mutation, report-vocabulary additions, weak anchors, and
+  owner retargeting; r8 then showed v4 still allowed the same additive-exception
+  class when contradictory semantics were moved outside the 13 pinned sections
+  (including required cutoff probe 9 in SPEC §7.1 and duplicate-heading/sibling
+  section variants). Prose, sentence anchors, and selected-section hashes were
+  insufficient against relocation of a contradiction.
+- countermeasure: AGENTS.md invariant-13 safeguard upgraded to v5.
+  `RESOLVED-FINDING-ANCHORS.json` remains the human-reviewable 49-finding map.
+  `check_protocol_effectiveness_benchmark_anchors.py` independently hard-codes
+  the complete finding-ID -> owner-path map and now also pins normalized
+  whole-document SHA-256 values for all five normative owners: SPEC, CASE, RUN,
+  SCORING, and REPORT. The 13 section hashes remain for localized diagnostics,
+  and each pinned heading must occur exactly once. An additive exception cannot
+  pass merely by retaining the accepted sentence/section or moving the
+  contradiction elsewhere in the same owner document; authorizing such a
+  semantic change requires deliberately changing the checker itself and fresh
+  independent review.
+- verified: UNVERIFIED — require v5 safeguard CI plus a fresh independent review
+  that recomputes whole-owner hashes from the accepted r7/r8 blobs, reruns r8
+  probes including 9b and out-of-span/duplicate-heading variants, and confirms
+  the five owner blobs remain unchanged. The r8 512-state S4 and B/M/N/F/G/H
+  regression results may carry forward only if owner blobs are unchanged.
+- follow-up: if a known semantic regression escapes whole-owner pinning, replace
+  the checker architecture rather than adding another narrower prose/section
+  preservation rule.
 ```
