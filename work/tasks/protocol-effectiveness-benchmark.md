@@ -7,68 +7,61 @@
 - Risk: `MEDIUM`
 - Goal: Establish an independently reviewable, protocol-neutral specification for comparing MAPS_L with matched controls without MAPS-favoring grading, treatment contamination, benchmark leakage, or post-result analyst discretion.
 - Parent roadmap: `none — PR #341 is the bounded specification work`
-- Related records: [`../evals/protocol-effectiveness-benchmark/README.md`](../evals/protocol-effectiveness-benchmark/README.md); [`../reviews/pr-341-review-evidence.md`](../reviews/pr-341-review-evidence.md); [`../reviews/pr-341-rereview-evidence-56c43aa.md`](../reviews/pr-341-rereview-evidence-56c43aa.md); [`../reviews/pr-341-rereview-evidence-dcc064b.md`](../reviews/pr-341-rereview-evidence-dcc064b.md); [`../reviews/pr-341-rereview-evidence-7ec7e1d.md`](../reviews/pr-341-rereview-evidence-7ec7e1d.md); [`../reviews/pr-341-rereview-evidence-0aee65b.md`](../reviews/pr-341-rereview-evidence-0aee65b.md)
+- Related records: [`../evals/protocol-effectiveness-benchmark/README.md`](../evals/protocol-effectiveness-benchmark/README.md); all PR #341 review records through [`../reviews/pr-341-rereview-evidence-8b9efd9.md`](../reviews/pr-341-rereview-evidence-8b9efd9.md)
 - Autonomous continuation: `YES`
 
 ## Inputs and source of truth
 
-- Inputs: repository `AGENTS.md`; package owners; original review at `465d97300cf021840fb1fe0434656ff3772d1db4`; r2 at `56c43aa9c176a98b733c32cfb53b182b3c034b9f`; r3 at `dcc064bbc70648bded8f3e944d4f00c46b198fa5`; r4 at `7ec7e1d43e4252e3e6995cd83fc3ed6631a10e14`; r5 at `0aee65b4b6ecc31cd3ac4042e1a47786d9490b06`.
-- Authoritative sources: `AGENTS.md` for repository rules; this task for bounded work; each package owner file for its concept; review records as immutable reviewer evidence.
-- Evidence labels: review findings are VERIFIED as reviewer findings; H1–H5 correction completion is an OWNER CLAIM pending focused fresh independent verification; benchmark effectiveness remains UNKNOWN because nothing has run.
-- Dependencies / preconditions: focused fresh independent re-review of H1–H5, strengthened semantic-anchor check, and bounded B/M/N/F/G regression check at the current corrected head before any corpus or holdout authoring.
+- Inputs: repository `AGENTS.md`; package owners; independent review generations r1–r6, with r6 bound to `8b9efd95f2cd48843f5eb38273a94eec55a49b58`.
+- Authoritative sources: `AGENTS.md` for repository rules; this task for bounded work; each package owner file for its concept; immutable review records for reviewer findings.
+- Evidence labels: r6 findings are VERIFIED reviewer findings; I1–I4 correction completion is an OWNER CLAIM pending focused fresh independent verification; benchmark effectiveness remains UNKNOWN because nothing has run.
+- Dependencies / preconditions: fresh review of I1–I4, semantic-anchor mutation probes/S4 enumeration, and bounded B/M/N/F/G/H regression check before any corpus or holdout authoring.
 
 ## Change boundary
 
 - MAY CHANGE: `work/evals/protocol-effectiveness-benchmark/**`; this task; PR #341 metadata; review/handoff evidence for this benchmark.
-- MAY CHANGE FOR REQUIRED MECHANICAL SAFEGUARD: `scripts/check_protocol_effectiveness_benchmark_anchors.py`; the benchmark-specific step in `.github/workflows/review-evidence.yml`; append-only `work/coordination/FRICTION_LOG.md` entry required by AGENTS.md invariant 13.
+- MAY CHANGE FOR REQUIRED MECHANICAL SAFEGUARD: `scripts/check_protocol_effectiveness_benchmark_anchors.py`; benchmark-specific CI integration; append-only friction capture when tooling permits.
 - MUST NOT CHANGE: MAPS_L runtime/protocol behavior, existing frozen regression/end-to-end semantics, benchmark corpus/holdout contents, model/evaluator execution, spending, `main`.
-- MAY CHANGE IF NECESSARY: documentation-only cross-links required to route this bounded work.
-- HUMAN REAUTHORIZATION REQUIRED: benchmark/model/API spending; material scope expansion beyond specification/correction work; merge path remains governed by repository merge rules.
+- HUMAN REAUTHORIZATION REQUIRED: benchmark/model/API spending; material scope expansion beyond specification/correction work; merge remains governed by repository rules.
 
 ## Decision authority
 
-- Inherited roadmap authority: user requested creation and correction of the benchmark information in MAPS_L.
-- Owner may decide: bounded documentation corrections and the mechanical regression safeguard required to resolve independent review without changing runtime/protocol behavior.
-- Resolve internally first: wording, ownership, experimental definitions, and regression pins.
-- Human escalation only if: execution/spend or material objective change is required.
+- Owner may make bounded documentation/safeguard corrections required by independent review without changing runtime/protocol behavior.
+- Resolve internally first: wording, ownership, experimental definitions, report vocabulary, and regression pins.
+- Human escalation only if execution/spend or material objective change is required.
 
 ## Acceptance criteria
 
-- [x] Original independent review evidence preserved: `MAJOR CORRECTIONS REQUIRED`.
-- [x] B1–B3 and M1–M12 correction pass preserved without removing the reviewer-designated architecture.
-- [x] Fresh re-review at `56c43aa...` preserved separately: `MINOR CORRECTIONS REQUIRED`.
-- [x] N1–N10 second correction pass preserved.
-- [x] Focused r3 re-review at `dcc064b...` preserved separately: `MINOR CORRECTIONS REQUIRED`.
-- [x] F1–F9 third correction pass preserved.
-- [x] Focused r4 re-review at `7ec7e1d...` preserved separately: `MINOR CORRECTIONS REQUIRED`; G1–G4 MATERIAL, G5–G10 MINOR; M2/N5/N7 regressions identified.
-- [x] G1–G10 fourth correction pass preserved, including all-channel retrieval firewall, task-facing status/precedence, overlay audit, Smoke masking, environment parity, and parametric-recall strata.
-- [x] Focused r5 re-review at `0aee65b...` preserved separately: `MINOR CORRECTIONS REQUIRED`; H1/H2 MATERIAL, H3–H5 MINOR; M6/N4/F4 semantic regression identified.
-- [x] H1 restored accepted S4 semantics: comparator S4 excess cannot shield or soften tested-arm WORSE and cannot lift a tested-arm S4 bar; comparator consequences require reversing the comparison.
-- [x] H2 seeded §6.2 stress can count as COUNTERWEIGHT only with a plausible primary case-correct harm path; efficiency/burden-only paths remain STRESS; `seeded_stress_families[]` is frozen/reported.
-- [x] H3 anchor safeguard upgraded to multiple semantic anchors, expected IDs extended through H1–H5, and r5 semantic-rewrite recurrence captured.
-- [x] H4 report template aligned to H5 labels, S4/guardrail TRADEOFF rules, crossing bases, A/B/C instruction-context disclosure, overlay reclassifications, seeded-stress share, and cutoff sensitivity.
-- [x] H5 sampling manifest pins reference model/provider and documented cutoff (or UNKNOWN); executed-model relation is recomputed deterministically at pre-run freeze and both are reported.
+- [x] Original independent review through r5 preserved separately.
+- [x] r6 review at `8b9efd95f2cd48843f5eb38273a94eec55a49b58` preserved separately: `MINOR CORRECTIONS REQUIRED`.
+- [x] r6 confirmed H1/H2/H5 resolved and no B/M/N/F/G regression.
+- [x] I1 semantic safeguard strengthened: full known rule surfaces are pinned; checker independently enforces 49 expected IDs and minimum semantic-anchor counts on historically vulnerable findings.
+- [x] I2 TRADEOFF overlap removed by excluding `PRIMARY_BETTER` from the tested-arm-S4 harm bullet.
+- [x] I3 H5 support requires the matching aggregate verdict; H5 BETTER excludes tested-arm S4 rule firing or registered harm in either supporting stratum.
+- [x] I4 report vocabulary uses only the five owner-defined verdicts; confirmatory state is separate; forbidden-effect BLOCKED is a FALSE_SUCCESS subset; `BLOCKED_WRONG_CLASS` is reported.
+- [x] r6 safeguard-gap occurrence captured in `work/coordination/FRICTION-PR341-REVIEW-REGRESSION.md` with v3 countermeasure.
 - [x] Status remains not executed; no corpus or holdout authored.
-- [ ] Focused fresh independent reviewer at the current head returns `APPROVED FOR CORPUS CONSTRUCTION` and confirms strengthened anchor/semantic checks pass without B/M/N/F/G regression.
+- [ ] Fresh independent reviewer at the exact current head returns `APPROVED FOR CORPUS CONSTRUCTION`, confirms the v3 checker/mutation probes and S4 enumeration, and finds no B/M/N/F/G/H regression.
 
 ## Verification and evidence
 
-- Verification: compare current owners against H1–H5 in `../reviews/pr-341-rereview-evidence-0aee65b.md`; run `python scripts/check_protocol_effectiveness_benchmark_anchors.py`; explicitly exercise the S4 semantic branches; bounded regression check that B/M/N/F/G findings remain intact.
-- Evidence to preserve: PR/head/diff; all review generations; anchor-manifest/check output; future approval evidence.
+- Run `python scripts/check_protocol_effectiveness_benchmark_anchors.py`.
+- Repeat the r6 semantic mutation probes, especially S4 rule 2/rule 3, §8/§9 precedence, SPEC/CASE seeded-stress rules, exact G3 run-visible block, H5 non-retroactivity, and report vocabulary.
+- Repeat the S4 branch/enumeration check against accepted semantics.
+- Compare current owners against I1–I4 in `../reviews/pr-341-rereview-evidence-8b9efd9.md`.
+- Perform bounded regression check over B1–B3, M1–M12, N1–N10, F1–F9, G1–G10, H1–H5.
 - Review required: `INDEPENDENT_REVIEW`.
 
 ## Conditional execution rules
 
 - Environment / target: GitHub documentation branch for PR #341.
-- Ordered procedure: preserve r5 review → apply targeted H1–H5 owner corrections → strengthen semantic anchor backstop and r5 friction capture → update PR/task status → focused independent re-review.
-- Failure branches: if focused re-review finds a remaining validity defect, correct only that defect and repeat review before corpus work. Any future repeat regression extends the mechanical semantic anchor/check rather than relying on another prose reminder.
+- Ordered procedure: preserve r6 → apply I1–I4 only → strengthen semantic safeguard/friction record → update task/PR → fresh independent re-review.
+- Failure branch: correct only any independently found residual before corpus work; repeated semantic-regression classes extend machinery rather than prose reminders.
 - Rollback / recovery: branch/commit history.
-- Security / privacy controls: no actual case secrets/holdout contents introduced; future storage/isolation rules only.
+- Security / privacy: no actual case secrets/holdout contents introduced.
 - External side effects: GitHub branch/PR metadata and CI safeguard only.
 - Effort limit: specification corrections/safeguard only; no benchmark execution/corpus construction.
-- Approved reference: r5 review at `0aee65b...` for H1–H5 scope and strengthened invariant-13 safeguard requirement.
-- Operational independence: `N/A — one-off specification correction; future benchmark execution will have its own reproducible package`.
-- Reproduction package: package owners + immutable PR/review history + semantic anchor manifest/check.
+- Approved reference: r6 review at `8b9efd9...` for I1–I4 scope.
 
 ## AGI readiness
 
@@ -82,25 +75,18 @@
 
 ## Notes / decisions
 
-- Primary inference uses only unexposed Standard + sealed holdout evidence for the protocol version under test.
-- Treatment bundle is frozen before case authoring; run snapshots are history-free/sanitized and full execution environments undergo canary/resolution checks.
-- Network/retrieval is deny-all by default across sandbox and provider-hosted routes; enabled tools are individually tested against answer leakage.
-- The agent-visible case surface is explicit and excludes benchmark labels/provenance/answer-bearing metadata.
-- Standard cases retire from later confirmatory inference after exposure to protocol modifiers.
-- Smoke material available to benchmark editors is arm-masked; treatment-identifiable run-level Smoke material creates exposure.
-- Human-response content has a mandatory neutral default; responder implementation may not turn check-ins into stalls.
-- S4 semantics are deliberately conservative for the tested arm: its own S4s continue to bar BETTER/EQUIVALENT even when the comparator has more, and comparator S4s cannot rescue a tested-arm WORSE.
-- Every overlay class is independently reviewed; seeded MAPS-favored stress cannot escape the STRESS ceiling via cost/latency/burden-only counterweight paths.
-- Sampling-time parametric-recall classification uses a pinned reference model/cutoff; execution-time relation is recomputed and reported separately without changing corpus composition.
-- Arm C is independently authored/approved, competent, frozen, and disclosed for instruction/context cost.
-- Experiment P remains outcome-scored; MAPS runtime/E2E criteria remain outside its primary scorer.
+- Primary inference remains outcome-based and protocol-neutral.
+- Comparator S4s cannot rescue a tested-arm loss; tested-arm S4 restrictions remain conservative.
+- Seeded MAPS-favored stress cannot escape the STRESS ceiling through efficiency/burden-only counterweight paths.
+- Arm C remains the independently authored/approved generic structured comparator for MAPS-specific B−C claims.
+- The v3 invariant-13 safeguard now treats exact semantic clauses, not section headings, as the mechanically protected surface.
+- Experiment P remains separate from MAPS runtime/E2E process grading.
 
 ## Completion / handoff
 
-- Completed: H1–H5 targeted owner corrections prepared; r5 review preserved; semantic regression safeguard strengthened through H1–H5.
-- Not completed: focused fresh independent verification at current head; corpus construction; canonical `FRICTION_LOG.md` append.
-- Triage capture: repeat-regression signal is durably captured in temporary carrier `work/coordination/FRICTION-PR341-REVIEW-REGRESSION.md`; it now includes the r5 semantic rewrite and why deletion-oriented v1 anchors were insufficient. The carrier still does not replace the append-only canonical log.
-- Reproduction package: package owner files + PR/review history + `RESOLVED-FINDING-ANCHORS.json` v2 + anchor-check script/CI step.
-- Current blocker: focused fresh independent re-review; canonical friction-log append remains administrative repository-rule cleanup, not permission to build/run the benchmark.
+- Completed: I1–I4 targeted corrections; r6 evidence preserved; semantic safeguard upgraded to v3; friction carrier updated.
+- Not completed: fresh independent verification at current head; corpus construction; canonical `FRICTION_LOG.md` append.
+- Canonical friction-log append is administrative housekeeping; the temporary carrier does not claim to replace the append-only log.
+- Current blocker: fresh focused independent re-review.
 - Next eligible roadmap task: bounded corpus construction only after `APPROVED FOR CORPUS CONSTRUCTION`.
 - Human action required: none unless execution/spending is later requested.
