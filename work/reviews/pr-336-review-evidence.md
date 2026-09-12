@@ -25,3 +25,10 @@ APPROVED
 - CI: Runtime stack tests workflow run 1644 (run id 34473133019), job 102857474349, reports head_sha 98681be136237e6dbbd2128825785bc50a22306d and conclusion success.
 
 No trusted producer implemented. No schema added. No merge performed.
+
+---
+
+reviewer: bila (main-sync rebind only; the APPROVE above stands unchanged)
+head_sha: 49b01d8ac30f73a1f3859ca0e83bb34a34177ba0
+independent: true
+summary: Mechanical main-sync rebind, not a new substantive review. Main advanced past this evidence's `7dfcbd0` freeze point via #335 (unrelated recovery/harness fix) and docs-only "Refresh Development status" commits. Merged `origin/main` into PR #336 with `git merge --no-edit`; confirmed `git diff <previously-approved 98681be> -- work/notes/2026-09-10-reviewer-execution-lineage-design.md work/tasks/reviewer-execution-lineage-design.md` is empty (byte-identical, zero regression). The incoming main content (#335's recovery/harness files, docs/wiki/Development.md) has zero overlap with #336's two substantive design-record files. The independent APPROVE verdict above (SENTINEL-FRESH-PR336, at `98681be`) stands unchanged; this commit exists only to rebind evidence to the new merge-commit head required by `check_review_evidence.py`'s merge-commit walk-back rule.
