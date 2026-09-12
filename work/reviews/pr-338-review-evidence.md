@@ -26,3 +26,10 @@ APPROVED
 - Exact-head CI: Runtime stack tests run #1648 (`34481432394`), job `102884923844`, reports `head_sha=3a3d46d0da6f8a8c4b98b6da6bc97ef5f5d86484` and conclusion `success`.
 
 No schema triggers added. No task deletion/archive/redaction implemented. No merge performed.
+
+---
+
+reviewer: bila (main-sync rebind only; the APPROVE above stands unchanged)
+head_sha: 991ebac8689ae4078beb2d90f8e931a30dbb9a82
+independent: true
+summary: Mechanical main-sync rebind, not a new substantive review. Main advanced past this evidence's `7dfcbd0` freeze point via #335 (unrelated recovery/harness fix) and docs-only "Refresh Development status" commits. Merged `origin/main` into PR #338 with `git merge --no-edit`; confirmed `git diff <previously-approved 3a3d46d> -- work/notes/2026-09-10-task-history-retention-design.md work/tasks/task-history-retention-design.md` is empty (byte-identical, zero regression). The incoming main content has zero overlap with #338's two substantive design-record files. The independent APPROVE verdict above (SENTINEL-FRESH-PR338, at `3a3d46d`) stands unchanged; this commit exists only to rebind evidence to the new merge-commit head required by `check_review_evidence.py`'s merge-commit walk-back rule.
