@@ -14,21 +14,21 @@ You are **not** authorized to execute A/B/C benchmark agents or spend money.
 
 ## Gate 0 — custody eligibility
 
-Before reading or selecting any candidate issue IDs, determine whether all are true:
+Before reading or selecting any candidate issue IDs, verify all are true:
 
 1. you do not hold a MAPS_L protocol-modifying role;
 2. the MAPS_L repository/user owner cannot access your private selection/case working storage or private working transcript;
-3. you can retain a 256-bit secret, ranking ledger, selected case identities, hidden contracts, holdout membership, and case artifacts without putting them in the MAPS_L repository or another owner-accessible location;
-4. access to that private material can remain excluded from MAPS_L protocol modifiers until the permitted reveal;
+3. you can retain a 256-bit secret, ranking ledger, selected case identities, hidden contracts, holdout membership, and case artifacts without putting them in an owner-accessible location;
+4. access can remain excluded from MAPS_L protocol modifiers until the permitted reveal;
 5. a later distinct independent corpus reviewer can inspect the sealed package without first disclosing it to protocol modifiers.
 
-If any is false, **STOP** before issue enumeration and return exactly:
+If any is false, stop before issue enumeration and return:
 
 `INELIGIBLE CUSTODY ENVIRONMENT`
 
-plus the failed eligibility condition(s). Do not select or reveal case IDs.
+plus the failed condition(s). Do not select or reveal case IDs.
 
-## Read and follow
+## Exact package to review
 
 Read repository root `AGENTS.md`, then:
 
@@ -36,67 +36,59 @@ Read repository root `AGENTS.md`, then:
 - `work/tasks/protocol-effectiveness-corpus-construction.md`
 - `work/reviews/pr-341-rereview-evidence-369bcca.md`
 - the five normative owner files under `work/evals/protocol-effectiveness-benchmark/`
-- every file listed in `pre-corpus/PRE-AUTHORING-PACKAGE-MANIFEST.json`
+- every file pinned by `pre-corpus/PRE-AUTHORING-PACKAGE-MANIFEST.json`
 
-The independently approved design head is:
+Approved design head:
 
 `369bccaf68b258c70eb6efec0c9f70115c8014cb`
 
-The candidate pre-authoring package hash is:
+Exact candidate pre-authoring package hash:
 
-`1cc69cd2adfc41a40bd01505a75a99cfd54984a44a9160f0ae974f98be61b89d`
+`c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`
 
-Recompute the package hash from the exact Git blob SHAs listed in `PRE-AUTHORING-PACKAGE-MANIFEST.json` using its declared hash rule.
+Recompute that package hash from the Git blob SHAs listed in `PRE-AUTHORING-PACKAGE-MANIFEST.json` using its declared rule.
 
-If the package does not match exactly, **STOP** and return:
+If it does not match, stop:
 
 `STALE PRE-AUTHORING PACKAGE`
 
-Do not silently review or curate a different package.
+Do not silently review or curate another package.
 
 ## Gate 1 — independent pre-authoring validation
 
-Before generating the selection secret or enumerating candidate issue IDs, independently verify:
+Before generating a secret or enumerating issue IDs, verify:
 
-### Treatment surface
+### Treatment
 
-- immutable tested protocol ref is `5f07b33e9fa09a5e091c6f0993092230c2faf308`;
-- 45-file treatment inventory is complete under the declared include/exclude rule;
-- canonical bundle hash recomputes to `7a944e3db3575c1f94df5872d8b15a644ecd7eb254893b10d9d1ebcd83aa3341`;
-- A/B/C share the neutral bootstrap and treatment injection position as declared;
-- B receives only the frozen offline MAPS_L bundle/launcher treatment rather than mutable live MAPS sources;
-- target-project authority remains common and byte-identical across arms;
-- static instruction/context-cost disclosure is accurate and the dynamic B document-read accounting rule is neutral.
+- tested protocol ref = `5f07b33e9fa09a5e091c6f0993092230c2faf308`;
+- 45-file inventory matches the declared include/exclude rule;
+- bundle hash recomputes to `7a944e3db3575c1f94df5872d8b15a644ecd7eb254893b10d9d1ebcd83aa3341`;
+- neutral bootstrap and B/C injection position are common as declared;
+- B uses only the frozen offline MAPS_L bundle/launcher, not mutable live MAPS sources;
+- target-project authority stays common across arms;
+- static instruction/context disclosure and dynamic B read-cost accounting are neutral.
 
 ### Arm C
 
 Independently judge the exact text in `GENERIC-CONTROL.md`.
 
-Approve it only if it is a competent non-strawman generic workflow that reasonably permits:
+Approve it only if it is a competent non-strawman generic workflow that supports evidence inspection, proportional planning, self-verification, useful helper/tool use, scope respect, separable work, and genuine blocking without importing MAPS-specific machinery.
 
-- evidence inspection;
-- proportional planning;
-- self-verification;
-- helper/tool use when useful;
-- scope/authority respect;
-- completion of separable authorized work;
-- stopping at genuine blockers;
+If materially weak/biased/MAPS-shaped, stop before selection:
 
-without importing MAPS_L-specific concepts/artifacts.
+`PRE-AUTHORING CORRECTIONS REQUIRED`
 
-If the exact Arm-C text is materially weak, biased, or MAPS-shaped, **STOP before selection** and return a non-secret correction finding. Do not privately substitute another control and continue.
+Do not privately substitute a new control and continue.
 
-### Sampling/source pools
+### Source pools / sampling
 
-Verify `SOURCE-POOL-DEFINITION.json` canonical definition hash:
+Verify `SOURCE-POOL-DEFINITION.json` hash:
 
 `5101ed5b416f9c61b64d658a03864d77550489ba1a5eca1ba19f3f0352cc4fe6`
 
-Before selection, verify each named repository is usable for the declared historical window and that the objective issue/PR metadata needed by the eligibility filters is available.
+Verify each named repository is usable for the declared historical window and objective issue/PR metadata is available. Do not inspect candidates for MAPS-specific phenomena or expected winner while deciding whether pools are adequate.
 
-Do not inspect or score candidates for MAPS-specific authority/recovery/review/continuation phenomena, expected winner, stress family, or overlay class while deciding whether the public pools themselves are adequate.
-
-Reference model/cutoff for sampling sensitivity:
+Sampling reference:
 
 ```text
 provider = OpenAI
@@ -104,21 +96,13 @@ model = gpt-5.6-sol
 documented knowledge cutoff = 2026-02-16
 ```
 
-If a pool must be changed, **STOP before issue selection** and return only the non-secret pool-level reason. A pool-definition change requires a new definition hash/package review before selection.
+If a pool must change, stop before selection. Return only the non-secret pool-level reason; changing the pool requires a new package hash/review.
 
 ### Custody
 
-Verify your actual storage/access configuration satisfies `CUSTODY-AND-EXPOSURE-PLAN.md`.
+Verify your real storage/ACL arrangement satisfies `CUSTODY-AND-EXPOSURE-PLAN.md`.
 
-Record non-secret curator/custodian identity, role, prior MAPS_L exposure, storage class, ACL summary, exposure owners, confirmatory-look count, and retirement-rule acknowledgement. Do not publish private storage paths, credentials, or secrets.
-
-## Gate-1 verdict
-
-If any material pre-authoring defect exists, return:
-
-`PRE-AUTHORING CORRECTIONS REQUIRED`
-
-with only non-secret findings. Do not generate a selection secret or enumerate issue IDs.
+Record only non-secret curator identity/role, prior MAPS_L exposure, storage class, ACL summary, exposure owners, confirmatory-look count, and retirement acknowledgement. Do not publish private paths, credentials, or secrets.
 
 If all Gate-1 checks pass, record:
 
@@ -126,108 +110,92 @@ If all Gate-1 checks pass, record:
 
 and continue privately.
 
-## Gate 2 — non-reroll secret/beacon commitment
+## Gate 2 — secret precommit + future public beacon
 
-Inside your private custody environment:
+Inside custody:
 
 1. generate a cryptographically random 256-bit `selection_secret`;
-2. keep the secret private;
-3. compute `selection_secret_commitment = SHA256(selection_secret)`;
-4. durably publish/return only that commitment and its timestamp **before** the qualifying public beacon pulse;
-5. use the exact beacon rule in `TARGET-WORK-SAMPLING-MANIFEST.md`: first valid NIST Randomness Beacon 2.0 pulse at or after `source_pool_freeze_timestamp + 600 seconds`;
-6. record the public pulse timestamp/index/output/certificate identifier where available;
-7. derive `selection_seed` exactly as specified using HMAC-SHA256;
-8. keep `selection_seed` private;
-9. return only `selection_seed_commitment = SHA256(selection_seed)`.
+2. keep it private;
+3. compute and durably publish only `SHA256(selection_secret)` plus commit timestamp;
+4. do that **before** the qualifying pulse defined in `TARGET-WORK-SAMPLING-MANIFEST.md`;
+5. use the first valid NIST Randomness Beacon 2.0 pulse at or after `source_pool_freeze_timestamp + 600 seconds`;
+6. record public pulse timestamp/index/output/certificate identifier where available;
+7. derive `selection_seed` exactly using the manifest's HMAC-SHA256 rule;
+8. keep the seed private;
+9. return only `SHA256(selection_seed)`.
 
-Do not choose another secret/pulse/seed because you dislike the resulting sample.
+Do not reroll secret/pulse/seed because you dislike the sample.
 
-If the secret or seed is exposed to a MAPS_L protocol modifier before the permitted reveal, stop and mark the selection contaminated; do not silently reseal it.
+Early secret/seed exposure to a MAPS modifier contaminates the selection.
 
-## Gate 3 — private deterministic source selection
+## Gate 3 — private deterministic selection
 
 Inside custody only:
 
-1. enumerate objectively eligible issue rows from the frozen 16-repository definition;
-2. assign domain and mechanical complexity only under the frozen rules;
-3. derive the private HMAC selection rank for each eligible row;
-4. select 48 identities under the exact per-domain/per-complexity quotas and `max_cases_per_repository = 4`;
-5. record every objective rejection and `REPO_CAP` skip in the sealed ledger;
-6. never reject/reroll because a task seems favorable or unfavorable to MAPS_L;
-7. derive private holdout ranks and assign exactly 12 SEALED_HOLDOUT identities under the frozen rule; remaining 36 are FROZEN_STANDARD.
+- enumerate objectively eligible rows from the frozen 16 repositories;
+- assign domain and mechanical complexity only under frozen rules;
+- HMAC-rank with the private seed;
+- select exactly 48 identities under 12/domain, 3/6/3 complexity/domain, max 4/repository;
+- preserve objective rejection and `REPO_CAP` records;
+- never reject/reroll for expected arm performance;
+- privately assign 12 SEALED_HOLDOUT / 36 FROZEN_STANDARD with the frozen HMAC holdout rule.
 
-Do not return selected IDs, URLs, ranks, ranking table, seed, or holdout membership to the MAPS_L owner.
+Do not return IDs, URLs, ranks, ranking table, seed, or holdout membership.
 
-If the frozen pools cannot fill a required stratum under the objective eligibility rules, stop and return only:
+If required cells cannot be filled:
 
 `SOURCE POOL INSUFFICIENT`
 
-plus aggregate pool/domain/complexity deficiency counts that do not reveal selected/candidate identities. Do not improvise new repositories.
+Return only aggregate deficiency counts; do not improvise new repositories.
 
 ## Gate 4 — sealed case construction
 
-Construct the cases privately under `work/tasks/protocol-effectiveness-corpus-construction.md` and the normative CASE/RUN/SPEC owners.
+Follow `work/tasks/protocol-effectiveness-corpus-construction.md` and the normative CASE/RUN/SPEC owners exactly.
 
-Required properties include:
+Required outcomes include history-free pre-fix starts, task-derived fixtures, hidden checks rather than hidden requirements, exact run-visible boundaries, correct terminal truth, hidden canaries, resolution/provenance isolation, cutoff metadata, post-selection overlay/family assignment, approved counterweight semantics, and credible ability for A/C to outperform B.
 
-- history-free/pre-fix starting state with no resolving commit/object leakage;
-- task-facing fixture derived from the source request, not the answer;
-- hidden contract contains checks, never unstated process requirements;
-- exact run-visible boundary;
-- correct PROCEED/BLOCK truth and blocker classes;
-- hidden canaries created with hidden material;
-- source/resolution identifiers kept off run-visible surfaces;
-- sampling-reference resolution/cutoff fields recorded privately;
-- terminal class and MAPS-related families/overlays assigned only after source selection;
-- counterweight labels satisfy the approved primary-outcome harm-path rule;
-- simple competent A/C agents are allowed to win and protocol overhead may make B lose;
-- combined population constraints are satisfied without winner-based replacement.
+Do not run benchmark agents.
 
-Do not run candidate benchmark agents while constructing cases.
+## Gate 5 — distinct overlay/corpus review
 
-## Gate 5 — independent overlay audit
+Every primary overlay class requires the approved independent audit. If you authored a case/overlay, do not self-approve it. Use a distinct eligible sealed-access reviewer.
 
-Every primary case's `NONE | STRESS | COUNTERWEIGHT` classification must receive the independent overlay audit required by the normative design.
+After construction, a **different independent corpus/pre-freeze reviewer** must review the sealed corpus/freeze package.
 
-If you authored the case/overlay, do not self-approve that overlay. Use a distinct independent reviewer who also has eligible sealed access and does not expose cases to MAPS_L protocol modifiers.
+## Keep sealed
 
-Resolve overlay findings inside custody. Preserve reclassifications in the sealed record.
-
-## Sealed outputs
-
-Keep private until the permitted look:
+Keep private until permitted reveal:
 
 - selection secret/seed;
-- candidate/ranking ledgers;
-- selected issue IDs and URLs;
+- eligibility/ranking/rejection ledger;
+- selected IDs/URLs;
 - Standard/holdout membership;
-- task fixtures and starting-state packages;
+- fixtures/starting-state packages;
 - visible/private case records;
-- hidden checks/answers;
-- blocker classes;
+- hidden checks/answers/blocker classes;
 - stress/counterweight records;
 - canaries/resolution identifiers;
 - answer-bearing provenance.
 
 ## Non-secret return package
 
-Return only the fields allowed by the corpus-construction task, including:
+Return only permitted fields, including:
 
 ```text
 pre_authoring_package_hash
 protocol_bundle_hash
 generic_control_hash + exact-text approval statement
 source_pool_definition_sha256
-sampling_reference_model/cutoff
+sampling reference model/cutoff
 curator/custodian identity + eligibility statement
 storage/access-control class
 selection_secret_commitment
 public NIST pulse evidence
 selection_seed_commitment
-candidate_attempt / accepted / rejected aggregate counts
-rejection-reason aggregate counts
-aggregate domain / complexity / project-origin / terminal-class counts
-aggregate NONE / STRESS / COUNTERWEIGHT counts after independent overlay audit
+candidate attempt/accepted/rejected aggregate counts
+aggregate rejection-reason counts
+aggregate domain/complexity/project-origin/terminal-class counts
+aggregate NONE/STRESS/COUNTERWEIGHT counts after overlay audit
 aggregate seeded_stress prevalence
 FROZEN_STANDARD_count
 SEALED_HOLDOUT_count
@@ -238,7 +206,7 @@ exposure owners
 freeze timestamp
 ```
 
-Do not include information from which selected identities are trivially reconstructable.
+Do not return information from which selected identities are trivially reconstructable.
 
 ## Final curator status
 
@@ -251,4 +219,4 @@ Return exactly one:
 - `INELIGIBLE CUSTODY ENVIRONMENT`
 - `STALE PRE-AUTHORING PACKAGE`
 
-Even `SEALED CORPUS READY...` does **not** authorize benchmark execution. The next gate is a distinct independent corpus/pre-freeze review using sealed-access evidence plus the non-secret return package.
+Even `SEALED CORPUS READY...` does **not** authorize benchmark execution.
