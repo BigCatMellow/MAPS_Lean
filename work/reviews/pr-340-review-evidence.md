@@ -113,3 +113,10 @@ reviewer: bila (main-sync rebind only; the APPROVE above stands unchanged)
 head_sha: cd2ab7e526cfbcaa15738e9b1e35b3a4589a8c92
 independent: true
 summary: Mechanical main-sync rebind, not a new substantive review. Main advanced past this evidence's `344b4ae` freeze point to `82f6373` (merge of #335, an unrelated recovery/harness fix) and further docs-only "Refresh Development status" commits. Merged `origin/main` into PR #340 with `git merge --no-edit`; confirmed `git diff <previously-approved f5d512cf> -- AGENTS.md templates/handoff.md work/README.md work/handoffs/README.md` is empty (byte-identical, zero regression) and `AGENTS.md` remains 12,856 bytes, under the 13,000-byte budget. The incoming main content (#335's recovery/harness files, `docs/wiki/Development.md`) has zero overlap with #340's four substantive lifecycle files. The independent APPROVE verdict above (SENTINEL-INTEGRATED-PR340-FRESH, at `f5d512cf`) stands unchanged; this commit exists only to rebind evidence to the new merge-commit head required by `check_review_evidence.py`'s merge-commit walk-back rule.
+
+---
+
+reviewer: bila (third main-sync rebind; the APPROVE above stands unchanged)
+head_sha: af4a491562f10d4b9ef72f040d136da6eb204942
+independent: true
+summary: Third mechanical main-sync rebind. Main advanced substantially since the second rebind via #336, #337, #338, and #342 (design/research docs plus the task-history-retention schema guards) -- all unrelated to #340's own content. Merged `origin/main` with `git merge --no-edit` (16 files, all creations from the incoming PRs, zero touching #340's own paths). Re-confirmed `git diff f5d512cf540534336cd0134202c6ef0db36fc8af..HEAD -- AGENTS.md templates/handoff.md work/README.md work/handoffs/README.md` is empty and `AGENTS.md` is still 12,856 bytes. No new judgment; the APPROVE verdict above stands.
