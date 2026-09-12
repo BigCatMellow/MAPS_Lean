@@ -4,71 +4,68 @@
 > [`work/roadmaps/CAPABILITY_CHECKLIST.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md)
 > remain canonical. Open PRs and proposals do not change shipped behavior or the canonical capability scoreboard.
 
-**Last refreshed:** 2026-09-11 14:22 ET  
-**Canonical main at reconciliation:** `344b4ae` *(this Development-only refresh advances `main` without changing capability behavior)*  
+**Last refreshed:** 2026-09-12 13:53 ET  
+**Canonical main at reconciliation:** `5e2f7d7` *(this Development-only refresh advances `main` without changing capability behavior)*  
 **Capability scoreboard:** **19 DONE / 10 IN PROGRESS / 6 NOT STARTED**
 
 Deeper working view: [MAPS Lean Live Roadmap](https://docs.google.com/spreadsheets/d/1R8NqxfO1ZVvSl0up20fnTCcmXozXIRKbMWI9DQeDbC8/edit).
 
 ## Current focus
 
-No implementation merged to `main` in the last 24 hours. Work advanced inside the seven open PRs rather than changing canonical capability status.
+The integration queue largely cleared. Only **#341** and **#344** remain open.
 
-1. **#340 — durable handoff lifecycle:** corrections, integration onto current `main`, exact-head validation, and fresh independent integrated-head review are complete. It is now at **final merge disposition**, not a repair gate.
-2. **#341 — protocol-effectiveness benchmark:** the owner has corrected the remaining J1 safeguard issue after seven review passes. A fresh independent J1 re-review is still required before `APPROVED FOR CORPUS CONSTRUCTION` can be claimed.
-3. **#335 — recovery ambiguity safety:** reviewed and green; keep the change narrow and merge only through the required authority path.
-4. **#338 → #339 — canonical task/history retention:** reviewed/green design and stacked enforcement; preserve dependency order.
-5. **#336/#337 — reviewer execution provenance:** technically reviewed but substantively `BLOCKED_ON_TRUSTED_PRODUCER`; do not replace trusted provenance with reviewer self-description.
-6. **6.22 — `BEFORE_SEND` / memory-provenance first exposure:** still an explicit old roadmap watch and should not disappear behind newer reliability/evaluation work.
+1. **6.22 — memory-provenance enforcement:** the first real production `BEFORE_SEND` exposure is now recorded on `main` by #346. A live `send-context --deliver-context` actually delivered a payload through `HarnessService.send()`. The remaining gap is narrower but material: the fixture had `memory_provenance=[]`, so the guard's non-trivial `WITHHOLD`/`DENY` re-derivation paths remain unexercised. The row stays **IN PROGRESS**.
+2. **#344 — 6.22 exercise evidence:** the exercise note and independent review are still in the open PR even though #346 already records their result in the canonical checklist. Preserve/land that evidence through the normal merge-authority path; do not rerun the same empty-provenance exercise.
+3. **#341 — protocol-effectiveness benchmark:** the design gate is now **APPROVED FOR CORPUS CONSTRUCTION** and the owner-safe pre-authoring package is complete. The true blocker is independent custody: a curator/custodian whose private selection data and transcript are inaccessible to MAPS_L protocol modifiers. No benchmark cases or model/API runs have been executed.
+4. **Reviewer execution provenance:** #336/#337 are merged. Their durable result remains `BLOCKED_ON_TRUSTED_PRODUCER`; current MAPS evidence cannot independently bind actual machine/process execution to the logical reviewer identity.
 
 ## Active / proposed work
 
 | State | Work | Current verified read | Source |
 | --- | --- | --- | --- |
-| **IN REVIEW** | Recovery ambiguity safety | #335 suppresses same-tick direct fallback after a failed bound harness resume with `RetryDisposition.UNKNOWN`; Runtime and review-evidence are green. | [#335](https://github.com/BigCatMellow/MAPS_Lean/pull/335) |
-| **BLOCKED** | Trusted reviewer execution lineage | #336 defines the missing execution-provenance relation. #337 finds no current trusted producer that independently proves actual machine/process reviewer execution → logical reviewer principal. Green CI does not remove this substantive blocker. | [#336](https://github.com/BigCatMellow/MAPS_Lean/pull/336) · [#337](https://github.com/BigCatMellow/MAPS_Lean/pull/337) |
-| **IN REVIEW** | Canonical task/history retention | #338 defines the narrow retention contract; stacked #339 adds DB guards rejecting task-event update/delete and canonical task hard-delete. Both current heads are runtime/review green; #338 must integrate before or with #339. | [#338](https://github.com/BigCatMellow/MAPS_Lean/pull/338) · [#339](https://github.com/BigCatMellow/MAPS_Lean/pull/339) |
-| **IN REVIEW — FINAL MERGE DISPOSITION** | Durable handoff lifecycle | #340 now has corrected thread-only lifecycle semantics, root `AGENTS.md` below its enforced size budget, integration onto accepted `main`, exact-head validation, fresh independent integrated-head **APPROVE**, and green Runtime/review-evidence. No implementation defect remains; merge is a separate authority action. | [#340](https://github.com/BigCatMellow/MAPS_Lean/pull/340) |
-| **IN REVIEW** | Protocol-effectiveness benchmark | #341 has progressed through one major and six minor-correction reviews. At current head, J1 is owner-corrected but still awaits focused independent verification. Runtime is green; review-evidence remains red. Nothing has been executed. | [#341](https://github.com/BigCatMellow/MAPS_Lean/pull/341) |
-| **NEXT / WATCH** | 6.22 — real `BEFORE_SEND` / memory-provenance exposure | The production `maps run send-context --deliver-context` path is shipped, but trajectory #27 still found no real first-exposure evidence. | [#310](https://github.com/BigCatMellow/MAPS_Lean/pull/310) · [#332](https://github.com/BigCatMellow/MAPS_Lean/pull/332) |
-| **IN PROGRESS / EVIDENCE-GATED** | E5 recovery compatibility | Stage-0 design is merged (#325), but enforcement remains withheld. Advisory operational evidence is the legitimate next step if reprioritized. | [#325](https://github.com/BigCatMellow/MAPS_Lean/pull/325) |
+| **NEXT** | 6.22 — non-vacuous memory-provenance exposure | First real `BEFORE_SEND` exposure is shipped, but the payload had an empty provenance list. Exercise real memory-like evidence so `MemoryProvenanceGuard` actually re-derives a `WITHHOLD` or `DENY` decision; do not pre-flip status. | [Checklist](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md) · [#346](https://github.com/BigCatMellow/MAPS_Lean/pull/346) |
+| **IN REVIEW** | #344 — 6.22 exercise evidence | Research-only PR containing the exact exercise note and review. Runtime and review-evidence are green. Its result is already summarized on `main` by #346, so the priority is durable evidence reconciliation, not a duplicate exposure. | [#344](https://github.com/BigCatMellow/MAPS_Lean/pull/344) |
+| **BLOCKED** | #341 — protocol-effectiveness benchmark corpus | Design is approved and the owner-safe pre-authoring package is complete. Construction is blocked on a genuinely independent curator/custodian. A normal fresh chat under the same owner account is explicitly ineligible. | [#341](https://github.com/BigCatMellow/MAPS_Lean/pull/341) |
+| **BLOCKED** | Trusted reviewer execution lineage | #336/#337 are merged, but no trustworthy producer currently proves actual reviewer execution → logical reviewer principal independently of reviewer-supplied evidence. | [#337](https://github.com/BigCatMellow/MAPS_Lean/pull/337) |
+| **IN PROGRESS / EVIDENCE-GATED** | E5 recovery compatibility | Stage-0 design is merged; enforcement remains withheld pending advisory production evidence. | [#325](https://github.com/BigCatMellow/MAPS_Lean/pull/325) |
 
 ## Operator decisions / blockers
 
-- **Merge authority remains separate from CI/readiness.** Every merge to `main` still requires the repository's mandatory `scripts/opcmd_merge.py` path and operator-authored authorization. This now applies to #340 as a ready-to-dispose merge as well as the other green PRs.
-- **Reviewer-execution lineage remains blocked on trusted evidence.** If a credible producer requires a new account/App, provider access, credentials, or spending, that bounded branch needs explicit operator authority. Until then, #337's `BLOCKED_ON_TRUSTED_PRODUCER` is the honest state.
-- **Protocol benchmark corpus/model execution is not authorized.** #341 first needs a fresh independent `APPROVED FOR CORPUS CONSTRUCTION` verdict. That would authorize bounded corpus construction/review only, not scored model/API runs or spending.
-- **E5 enforcement remains intentionally withheld** pending real advisory production evidence.
-- **Issue #331 remains open.** Its two tool-friction records still need a safe terminal/local append into `work/coordination/FRICTION_LOG.md`; do not reconstruct the large log from truncated connector output. [#331](https://github.com/BigCatMellow/MAPS_Lean/issues/331)
+- **Merge authority remains separate from CI/readiness.** Any desired merge still goes through mandatory `scripts/opcmd_merge.py` with operator-authored authorization.
+- **#341 independent custody may cross a real authority boundary.** If the required curator/custodian channel needs new storage, accounts, credentials, provider access, or spending, obtain explicit operator authority before creating it.
+- **Benchmark execution remains unauthorized.** Design approval and future corpus approval do not authorize scored model/API/evaluator execution or spending.
+- **Reviewer-execution lineage remains blocked** unless a trusted execution producer is actually demonstrated; do not substitute reviewer-entered provider/model/session fields.
+- **E5 enforcement remains intentionally withheld** pending real advisory evidence.
+- **Issue #331 remains open.** Its tool-friction records still need a safe append into `work/coordination/FRICTION_LOG.md` from a terminal-capable workflow. [#331](https://github.com/BigCatMellow/MAPS_Lean/issues/331)
 
 ## Meaningful recently shipped changes
 
-No code or capability-changing commit landed in the last 24 hours. The most meaningful current shipped basis remains:
-
-- **6.4 destructive-action first exposure:** #320 proved real `BEFORE_DESTRUCTIVE_ACTION` DENY/ALLOW behavior; the broader row remains IN PROGRESS for residual controls.
-- **H4 enforced-validation first exposure:** #324 proved real quick-tier enforcement can block resume without consuming attempt budget; normal/full tiers and per-spec enforcement remain open.
-- **Reliability/evidence wave:** #322–#334 landed roadmap reconciliation, borrow-before-build evidence, regression hardening, dependency-cycle rejection, recovery-ambiguity characterization, cost/resource analysis, transaction rollback proof, operator insight dispositions, and stalled-worker repair closure.
-- **Trajectory check #27:** #332 re-derived **19 / 10 / 6**, action **CONTINUE**, and placed 6.22 on explicit watch.
+- **Recovery ambiguity safety (#335):** after a returned failed harness resume with `RetryDisposition.UNKNOWN`, recovery no longer immediately attempts a second direct resume in the same tick; the next tick re-observes real session state.
+- **Reviewer-provenance research (#336/#337):** the design and producer audit are now canonical; the honest result is a trusted-producer blocker rather than self-attested execution metadata.
+- **Canonical history retention (#338/#342):** normal hard-delete of canonical tasks and mutation/deletion of committed task events are mechanically rejected while ordinary append-only lifecycle operation remains intact.
+- **Durable handoff lifecycle (#340):** durable handoffs now track acknowledgment/continuation/closure without becoming a second store of volatile GitHub state.
+- **Trajectory check #28 (#343):** re-derived **19 / 10 / 6**, action **CONTINUE**, and escalated the then-unexercised 6.22 send seam; #344/#346 subsequently produced and recorded the first real exposure.
+- **Rebase-safe review revalidation (#345):** pure rebases can use diff equivalence rather than literal ancestry when determining the zero-diff review tier.
+- **6.22 first exposure status update (#346):** canonical checklist now records that `BEFORE_SEND` fired for real while preserving the remaining non-vacuous provenance gap and keeping 6.22 IN PROGRESS.
 
 ## Capability-area snapshot
 
 | Area | Current read | Development direction |
 | --- | --- | --- |
-| **Harness Mechanics** | Advanced / active | Core resume/stop/send machinery exists. #335 tightens ambiguous-resume safety. H4 residual tiers remain; 6.22 still needs a real send exposure. |
+| **Harness Mechanics** | Advanced / active | Core contracts, lineage and recovery paths are established; #335 ambiguity safety is shipped. H4 residual tiers remain. |
 | **Procedural Knowledge & Skills** | Advanced | S1–S6 remain DONE; later semantic/retrieval expansion stays evidence-gated. |
-| **Environment & Reproducibility** | Mixed / active | 6.16 is DONE; H4 has first-exposure evidence but residual tiers remain; E5 is advisory/evidence-gated. |
-| **Agentic Security** | Advanced / active | Real resume and destructive-action evidence exist; 6.4 remains open for residual controls and 6.22 lacks real send/provenance exposure. |
-| **Learning & Evaluation** | Active / maturing | Emergence/trajectory machinery operates; #341 is building a falsifiable effectiveness benchmark but is not approved for corpus construction. |
-| **Portable Deployment** | Mixed / active | Worktree/canonical-run infrastructure is substantial; #340 handoff lifecycle is now review-valid and awaiting merge disposition. Durable project memory/context compilation remain deferred. |
+| **Environment & Reproducibility** | Mixed / active | 6.16 is DONE; H4 has real quick-tier enforcement evidence but normal/full/per-spec gaps remain; E5 is advisory/evidence-gated. |
+| **Agentic Security** | Advanced / active | Real resume, destructive-action and `BEFORE_SEND` exposures exist. 6.22 remains IN PROGRESS because meaningful memory-provenance `WITHHOLD`/`DENY` behavior has not yet been exercised. |
+| **Learning & Evaluation** | Active / maturing | #341's benchmark design is approved. Progress is now blocked on independent custody before private corpus construction; nothing has been executed. |
+| **Portable Deployment** | Mixed / active | Durable handoff lifecycle is shipped; worktree/canonical-run infrastructure is substantial. Durable project memory/context compilation remain deferred. |
 
 ## Likely next sequence
 
-1. Resolve **#340** through the final merge-authority gate; do not redo its corrected implementation/review.
-2. Obtain the focused fresh independent J1 review for **#341**. Do not construct the corpus until it earns `APPROVED FOR CORPUS CONSTRUCTION`.
-3. Integrate **#335** and **#338 → #339** only after current-head/dependency checks and operator merge authorization.
-4. Treat **#337** as a legitimate stop condition unless a trusted producer is actually identified; do not add self-attested provenance fields.
-5. Run the overdue **6.22** real `BEFORE_SEND` / memory-provenance exposure before another roadmap arc makes it recurring debt.
-6. Re-derive capability status from merged evidence before opening another broad capability arc.
+1. Reconcile **#344** so the detailed 6.22 exercise evidence cited by canonical `main` is itself durable on `main`; do not repeat the empty-provenance exposure.
+2. Design/run the smallest **non-vacuous 6.22 provenance exercise** with real recorded memory-like evidence, then independently review what the guard actually does before any status change.
+3. For **#341**, establish an eligible independent curator/custodian only if the required custody can genuinely be kept outside MAPS_L protocol-modifier access; stop for operator authority if new external resources are required.
+4. Move **issue #331** friction records into the canonical friction log and close the temporary issue.
+5. Re-derive capability status from merged evidence before selecting another broad capability arc.
 
 ## Development surfaces
 
@@ -84,6 +81,6 @@ No code or capability-changing commit landed in the last 24 hours. The most mean
 
 ## Status-reading rule
 
-> **Open work can become technically/review ready without becoming shipped, and green CI can coexist with a substantive BLOCKED state.**
+> **Shipped evidence can narrow a blocker without closing the capability.** A real hook firing is not the same as exercising every meaningful guard branch, and an approved benchmark design is not the same as an executed benchmark.
 
-This page separates **SHIPPED/current behavior** from **IN REVIEW/PROPOSED/BLOCKED work**. Open work never changes the canonical scoreboard by itself.
+Open work never changes the canonical scoreboard by itself.
