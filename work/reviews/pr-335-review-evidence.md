@@ -46,3 +46,10 @@ summary: APPROVE — fresh independent review bound to exact code head 6a8dc8953
 - Exact-head CI: Runtime stack tests workflow run 1641 / run id 34425953377 / job 102711106769 reports `head_sha=6a8dc8953a388b0c86170c8953a7493f7fe54b23` and `conclusion=success`.
 
 Verdict: APPROVED.
+
+---
+
+reviewer: bila (main-sync rebind only; both reviews above stand unchanged, see below)
+head_sha: 633cfc850ff38fa48b91af7eef8605e3f859f58c
+independent: true
+summary: Mechanical main-sync rebind, not a new substantive review. Merged origin/main (5f07b33, automated "Refresh Development status" docs-only commit) into PR #335 with `git merge --no-edit`; the merge touched only docs/wiki/Development.md and has zero overlap with #335's reviewed files (runtime/recovery/supervisor.py, tests/test_recovery_external_effect_ambiguity.py, work/decisions/2026-09-09-recovery-unknown-same-tick-fallback.md, work/tasks/recovery-unknown-same-tick-fallback.md). The reviewed code itself is byte-identical to what both independent reviewers above (vivo and the lineage's SENTINEL reviewer) already approved at code head 6a8dc8953a388b0c86170c8953a7493f7fe54b23; re-ran the targeted regression suite post-merge to confirm nothing regressed: `pytest tests/test_recovery_external_effect_ambiguity.py tests/test_recovery_supervisor.py` = 79 passed, exit 0. Both prior independent verdicts stand unchanged; this commit exists only to rebind their evidence to the new merge-commit head required by `check_review_evidence.py`'s merge-commit walk-back rule (a merge commit is never walked past, so a main-sync always needs a fresh evidence commit even when the reviewed code itself is unchanged).
