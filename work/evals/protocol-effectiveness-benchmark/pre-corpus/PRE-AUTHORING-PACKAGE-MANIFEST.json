@@ -2,10 +2,10 @@
   "schema": "protocol-effectiveness-pre-authoring-package-v0",
   "approved_design_head": "369bccaf68b258c70eb6efec0c9f70115c8014cb",
   "package_hash_rule": "SHA256(concat(sorted(path + NUL + git_blob_sha + LF)))",
-  "package_hash": "1cc69cd2adfc41a40bd01505a75a99cfd54984a44a9160f0ae974f98be61b89d",
+  "package_hash": "c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963",
   "files": {
     "work/evals/protocol-effectiveness-benchmark/pre-corpus/CUSTODY-AND-EXPOSURE-PLAN.md": "a47e44571c8f91c8db7c29c2284c58e0950e5518",
-    "work/evals/protocol-effectiveness-benchmark/pre-corpus/GENERIC-CONTROL.md": "3c6a15e1099d052df20626689b0e8e55ac7a3a43",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/GENERIC-CONTROL.md": "0628d9d8bccf5744bf918335976976b2cc308d10",
     "work/evals/protocol-effectiveness-benchmark/pre-corpus/SOURCE-POOL-DEFINITION.json": "33ad77ca265c8aae0de586c8ca36db69348f446c",
     "work/evals/protocol-effectiveness-benchmark/pre-corpus/TARGET-WORK-SAMPLING-MANIFEST.md": "6f60e87b7e4c1c0321d0f0532410262e18d654e3",
     "work/evals/protocol-effectiveness-benchmark/pre-corpus/TREATMENT-BUNDLE-INVENTORY.tsv": "51fbcaac67dd39d08a190568ec7ab3b662752083",
