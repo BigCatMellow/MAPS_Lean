@@ -36,7 +36,8 @@ Read repository root `AGENTS.md`, then:
 - `work/tasks/protocol-effectiveness-corpus-construction.md`
 - `work/reviews/pr-341-rereview-evidence-369bcca.md`
 - the five normative owner files under `work/evals/protocol-effectiveness-benchmark/`
-- every file pinned by `pre-corpus/PRE-AUTHORING-PACKAGE-MANIFEST.json`
+- `pre-corpus/PRE-AUTHORING-PACKAGE-MANIFEST.json`
+- every file listed in that package manifest
 
 Approved design head:
 
@@ -46,7 +47,7 @@ Exact candidate pre-authoring package hash:
 
 `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`
 
-Recompute that package hash from the Git blob SHAs listed in `PRE-AUTHORING-PACKAGE-MANIFEST.json` using its declared rule.
+Recompute the package hash from the six `files` path/blob-SHA entries inside `PRE-AUTHORING-PACKAGE-MANIFEST.json` using its declared rule. The manifest file itself is not one of the six hashed inputs.
 
 If it does not match, stop:
 
