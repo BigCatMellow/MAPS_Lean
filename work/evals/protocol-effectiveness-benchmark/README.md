@@ -36,8 +36,8 @@ Current public/non-secret instantiation is under [`pre-corpus/`](pre-corpus/):
 - `SOURCE-POOL-DEFINITION.json` — fixed 16-repository external public source-pool definition, canonical hash `5101ed5b...`, 48-case quotas and objective eligibility filters.
 - `TARGET-WORK-SAMPLING-MANIFEST.md` — sampling reference `OpenAI gpt-5.6-sol`, documented cutoff `2026-02-16`, plus secret-commit + future NIST-beacon HMAC selection so MAPS modifiers cannot reconstruct selected issue IDs.
 - `CUSTODY-AND-EXPOSURE-PLAN.md` — access-based custody boundary covering selected content **and** secret/seed/ranking material.
-- `PRE-AUTHORING-PACKAGE-MANIFEST.json` — package pin for the six owner-prepared pre-authoring inputs; candidate package hash `1cc69cd2...`.
-- `INDEPENDENT-CURATOR-START-PROMPT.md` — standalone handoff for the genuinely independent curator/custodian.
+- `PRE-AUTHORING-PACKAGE-MANIFEST.json` — exact six-input package pin, hash `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`.
+- `INDEPENDENT-CURATOR-START-PROMPT.md` — standalone handoff pinned to that exact package for the genuinely independent curator/custodian.
 
 Parent task: [`../../tasks/protocol-effectiveness-benchmark.md`](../../tasks/protocol-effectiveness-benchmark.md).
 Corpus child task: [`../../tasks/protocol-effectiveness-corpus-construction.md`](../../tasks/protocol-effectiveness-corpus-construction.md).
@@ -70,7 +70,7 @@ Nothing has been executed. No A/B/C candidate runs, Smoke, Standard, benchmark e
 
 ## Exact next phase
 
-1. eligible independent curator/custodian receives the exact `PRE-AUTHORING-PACKAGE-MANIFEST.json` package;
+1. eligible independent curator/custodian receives package `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963` through `INDEPENDENT-CURATOR-START-PROMPT.md`;
 2. curator independently verifies treatment/Arm C/source pools/custody and either returns non-secret corrections or `PRE-AUTHORING PACKAGE ACCEPTED FOR SEALED SELECTION`;
 3. only after acceptance, curator privately precommits the sampling secret, uses the frozen NIST-beacon rule, and performs deterministic selection/construction outside MAPS_L-owner access;
 4. a distinct sealed-access reviewer audits overlays/corpus/freeze;
