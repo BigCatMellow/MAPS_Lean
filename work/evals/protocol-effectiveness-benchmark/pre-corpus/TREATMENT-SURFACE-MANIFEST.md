@@ -1,6 +1,6 @@
 # Experiment P Treatment Surface Manifest — candidate pre-authoring freeze
 
-Status: **CANDIDATE — NOT FROZEN; NO CASE AUTHORING PERMITTED**
+Status: **CANDIDATE OWNER COMPLETE — AWAITING INDEPENDENT PRE-AUTHORING FREEZE REVIEW; NO CASE AUTHORING PERMITTED**
 
 Normative rules remain in `../BENCHMARK-SPEC.md`, `../CASE-DESIGN.md`, and `../RUN-PROTOCOL.md`. This file instantiates those rules for the first benchmark line; it does not redefine them.
 
@@ -10,15 +10,33 @@ Normative rules remain in `../BENCHMARK-SPEC.md`, `../CASE-DESIGN.md`, and `../R
 benchmark_line = protocol-effectiveness-v0
 tested_protocol_name = MAPS_L documentation/workflow protocol
 tested_protocol_immutable_ref = 5f07b33e9fa09a5e091c6f0993092230c2faf308
-protocol_bundle_hash = UNSET — must be generated and frozen before any case authoring
+protocol_bundle_hash = 7a944e3db3575c1f94df5872d8b15a644ecd7eb254893b10d9d1ebcd83aa3341
+protocol_bundle_inventory = TREATMENT-BUNDLE-INVENTORY.tsv
+protocol_bundle_file_count = 45
+protocol_bundle_total_blob_bytes = 298322
 protocol_bundle_selection_rationale = complete deployed documentation/workflow surface reachable from Pilot/AGENTS/INDEX, excluding runtime implementation, volatile work/state, benchmark material, migration, and legacy
 ```
 
-The selected ref is the current `main` head at pre-corpus shaping time. Relative to the design-review base `7dfcbd09a2df930ee3449ce047984e4da5cec460`, the only `main` change is `docs/wiki/Development.md`; no runtime/protocol source changed outside that documentation snapshot.
+The selected ref is the `main` head used at pre-corpus shaping time. Relative to the design-review base `7dfcbd09a2df930ee3449ce047984e4da5cec460`, the only `main` change before that ref was `docs/wiki/Development.md`; no runtime/protocol implementation change was introduced by that main-only delta.
 
-## Frozen bundle path rule
+## Bundle inventory / hash rule
 
-The offline bundle SHALL contain the exact blobs at `tested_protocol_immutable_ref` matching:
+The human-reviewable inventory is `TREATMENT-BUNDLE-INVENTORY.tsv` with one sorted `path<TAB>blob_sha` row per included file.
+
+The canonical treatment hash is **not** the TSV file hash. It is recomputed as:
+
+```text
+inventory_bytes = concat(sorted(path + NUL + blob_sha + LF))
+protocol_bundle_hash = SHA256(inventory_bytes)
+```
+
+For the 45 recorded blobs this yields:
+
+```text
+7a944e3db3575c1f94df5872d8b15a644ecd7eb254893b10d9d1ebcd83aa3341
+```
+
+The offline bundle contains the exact blobs at `tested_protocol_immutable_ref` matching:
 
 ```text
 AGENTS.md
@@ -33,7 +51,7 @@ templates/task.md
 templates/handoff.md
 ```
 
-Explicitly excluded from the treatment bundle:
+Explicitly excluded:
 
 ```text
 work/**
@@ -41,15 +59,14 @@ state/**
 migration/**
 legacy/**
 scripts/**
-src/**
+runtime/**
 tests/**
 .github/**
-work/evals/protocol-effectiveness-benchmark/**
 ```
 
 Reason: Experiment P tests the documented operating protocol/workflow rather than MAPS_L runtime implementation or benchmark-specific material. Runtime/system effects remain Experiment S.
 
-Before freeze, generate a deterministic sorted `<path>\0<blob_sha>\n` inventory for every included file and set `protocol_bundle_hash = SHA256(inventory_bytes)`. Preserve the inventory beside this manifest. Any path/blob change creates a new treatment surface.
+Any included path/blob change creates a new treatment surface and requires a new inventory/hash plus the applicable independent review before use.
 
 ## Common neutral bootstrap
 
@@ -100,6 +117,26 @@ protocol_launcher_whitespace_word_count = 58
 
 C receives the independently approved generic-control text from `GENERIC-CONTROL.md` at the identical B treatment position.
 
+## Instruction-length / context-cost disclosure
+
+Static pre-authoring disclosure:
+
+| arm | common neutral | arm-specific injected text | read-only workflow material available |
+| --- | ---: | ---: | ---: |
+| A | 786 chars / 103 words | none | none |
+| B | 786 chars / 103 words | launcher: 413 chars / 58 words | 45 files / 298,322 blob bytes; not preloaded into prompt |
+| C | 786 chars / 103 words | generic control: 975 chars / 145 words | none |
+
+Context accounting rule:
+
+1. before scored execution, freeze the exact execution model/provider/version/settings and the tokenizer/accounting implementation used for static injected text;
+2. record token counts for neutral/bootstrap, B launcher, and C control under that frozen method;
+3. the B offline bundle is mounted material, not automatically prompt context; record actual workflow-document bytes/tokens admitted to model context per run from the harness/provider trace;
+4. report both static instruction cost and treatment-induced dynamic document-read cost by arm; do not normalize away B's extra context as it is part of protocol overhead;
+5. if provider accounting cannot distinguish dynamic document reads reliably, mark token-level context cost `UNKNOWN` and retain exact static chars/words, bundle bytes, wall-clock, and total input-token usage rather than estimating.
+
+This method is frozen before case authoring; exact execution-model token counts are a later pre-run value and cannot affect case selection.
+
 ## Target / harness parity
 
 ```text
@@ -116,13 +153,12 @@ maps_home_snapshot_policy = history-free export by default; scrub treatment/benc
 harness_state_reset_policy = fresh execution state, memory, caches, sidecar, environment, shell/VCS state per run except explicitly declared sequential-chain cases
 ```
 
-## Pre-authoring blockers
+## Remaining pre-authoring blockers
 
 No benchmark case may be authored or selected until all are true:
 
-- `protocol_bundle_hash` and exact inventory are set;
-- Arm C is independently authored or approved and its text/hash/context cost are frozen;
-- A/B/C instruction lengths/context costs are measured under the intended tokenizer/context accounting method;
-- the target-work sampling manifest is frozen by an independent curator;
-- an access-based corpus/holdout custody mechanism exists that excludes anyone able to modify the tested protocol or a successor;
-- a fresh independent pre-authoring freeze review approves this instantiated package.
+- [x] exact MAPS_L treatment ref, 45-file inventory, bundle hash, bundle byte count, neutral bootstrap, B launcher, and static/context-cost accounting rule are instantiated;
+- [ ] Arm C is independently authored or approved as competent/non-strawman and this exact text/hash is frozen;
+- [ ] the concrete target-work source-pool definition/reference model is independently approved and frozen by the curator before selection;
+- [ ] an access-based corpus/holdout custodian and storage mechanism are assigned that exclude anyone able to modify the tested protocol or a successor;
+- [ ] a fresh independent pre-authoring freeze review approves the fully instantiated package after the preceding assignments.
