@@ -1,13 +1,13 @@
-# PR #341 repeated correction-pass regression friction
+# PR #341 benchmark friction carrier
 
 Status: **PENDING CANONICAL FRICTION_LOG APPEND**
 
 Date: 2026-09-11
-Class: process-gap
+Class: process-gap / evaluation-integrity
 
-This record exists because the current GitHub connector does not provide a safe append operation for the large append-only `work/coordination/FRICTION_LOG.md`. It is a temporary carrier, not a competing friction log. The canonical entry still needs to be appended when an append-capable path is available.
+This record exists because the current GitHub connector does not provide a safe append operation for the large append-only `work/coordination/FRICTION_LOG.md`. It is a temporary carrier, not a competing friction log. Both entries still need canonical append when an append-capable path is available.
 
-## Entry to append
+## Entry 1 to append
 
 ```text
 ## 2026-09-11 — PR #341 correction passes repeatedly regressed resolved benchmark protections
@@ -19,27 +19,48 @@ This record exists because the current GitHub connector does not provide a safe 
   still missed exact H1/H2/G3/H5 rewrites; r7 showed v3 still missed the
   comparator no-shield mutation, report-vocabulary additions, weak anchors, and
   owner retargeting; r8 then showed v4 still allowed the same additive-exception
-  class when contradictory semantics were moved outside the 13 pinned sections
-  (including required cutoff probe 9 in SPEC §7.1 and duplicate-heading/sibling
-  section variants). Prose, sentence anchors, and selected-section hashes were
-  insufficient against relocation of a contradiction.
-- countermeasure: AGENTS.md invariant-13 safeguard upgraded to v5.
-  `RESOLVED-FINDING-ANCHORS.json` remains the human-reviewable 49-finding map.
-  `check_protocol_effectiveness_benchmark_anchors.py` independently hard-codes
-  the complete finding-ID -> owner-path map and now also pins normalized
-  whole-document SHA-256 values for all five normative owners: SPEC, CASE, RUN,
-  SCORING, and REPORT. The 13 section hashes remain for localized diagnostics,
-  and each pinned heading must occur exactly once. An additive exception cannot
-  pass merely by retaining the accepted sentence/section or moving the
-  contradiction elsewhere in the same owner document; authorizing such a
-  semantic change requires deliberately changing the checker itself and fresh
-  independent review.
-- verified: UNVERIFIED — require v5 safeguard CI plus a fresh independent review
-  that recomputes whole-owner hashes from the accepted r7/r8 blobs, reruns r8
-  probes including 9b and out-of-span/duplicate-heading variants, and confirms
-  the five owner blobs remain unchanged. The r8 512-state S4 and B/M/N/F/G/H
-  regression results may carry forward only if owner blobs are unchanged.
-- follow-up: if a known semantic regression escapes whole-owner pinning, replace
-  the checker architecture rather than adding another narrower prose/section
-  preservation rule.
+  class when contradictory semantics were moved outside the 13 pinned sections.
+- countermeasure: invariant-13 safeguard upgraded to v5. The checker independently
+  pins all five complete normative owner documents in addition to the 49 finding
+  map, owner mappings, anchor checks, 13 localized section hashes, unique-heading
+  checks, and report-vocabulary invariants.
+- verified: VERIFIED at r9 reviewed head
+  369bccaf68b258c70eb6efec0c9f70115c8014cb. Fresh reviewer recomputed all five
+  owner hashes, demonstrated previously escaping additive/out-of-span mutations
+  fail under v5, carried forward the 512-state S4 result with zero ambiguity /
+  unhandled / semantic mismatch, and returned APPROVED FOR CORPUS CONSTRUCTION.
+- follow-up: deliberate normative owner edits require checker rebaseline + fresh
+  review; do not restart safeguard hardening absent a demonstrated escaping
+  semantic regression or actual benchmark-validity defect.
+```
+
+## Entry 2 to append
+
+```text
+## 2026-09-11 — public deterministic corpus seed would expose selected public issues
+- class: evaluation-integrity
+- opened: 2026-09-11
+- signal: during post-approval pre-authoring instantiation, the owner noticed that
+  deriving the selection seed only from public design/source-pool hashes makes
+  selected GitHub issue IDs reproducible by any MAPS_L protocol modifier. Under
+  the approved access-based exposure rule, withholding the IDs from git/chat is
+  insufficient if the owner can reconstruct them from public inputs.
+- consequence: a public deterministic seed would contaminate FROZEN_STANDARD and
+  SEALED_HOLDOUT selection before construction and make the public-source holdout
+  unsuitable as pristine evidence.
+- countermeasure: TARGET-WORK-SAMPLING-MANIFEST now requires an eligible curator
+  to generate a private 256-bit secret, publish only SHA256(secret) before a
+  predetermined future NIST Randomness Beacon 2.0 pulse, derive the selection
+  seed via HMAC-SHA256(secret, fixed package inputs + pulse), publish only
+  SHA256(seed), and retain secret/seed/ranks/selected IDs/holdout membership in
+  sealed custody until the permitted reveal. Public source pools remain auditable
+  without making the sample reconstructable.
+- verified: OWNER-SHAPED / NOT YET INDEPENDENTLY FROZEN. No issue IDs were
+  enumerated, ranked, or selected in the MAPS_L owner context. Require the
+  independent curator/custodian to validate the package before generating the
+  secret, then later reveal/recompute commitments and no-reroll selection during
+  the permitted audit.
+- follow-up: if independent review rejects the beacon/commit construction, stop
+  before enumeration and revise only the public selection/custody method; never
+  expose a candidate sample while correcting it.
 ```
