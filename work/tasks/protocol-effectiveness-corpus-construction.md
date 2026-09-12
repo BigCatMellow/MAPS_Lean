@@ -29,7 +29,7 @@ The five normative owner documents are frozen design owners. Do not rewrite them
 
 All must be true before enumerating/ranking candidate issue IDs:
 
-- package hash recomputes to `1cc69cd2adfc41a40bd01505a75a99cfd54984a44a9160f0ae974f98be61b89d`;
+- package hash recomputes to `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`;
 - treatment bundle hash recomputes to `7a944e3db3575c1f94df5872d8b15a644ecd7eb254893b10d9d1ebcd83aa3341`;
 - exact neutral bootstrap, B launcher, and Arm-C text/hash are pinned;
 - Arm C receives independent competence/non-strawman approval;
@@ -194,4 +194,4 @@ That verdict may open only the separate pre-run manifest/threshold/runner gate. 
 
 `independent curator/custodian + access-controlled storage unavailable in current MAPS_L owner context`.
 
-The owner-side public package is complete. Exact next action is external handoff via `pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md`. Another fresh chat visible to the MAPS_L owner is not eligible custody.
+The owner-side public package is complete. Exact next action is external handoff via `pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md`, pinned to package `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`. Another fresh chat visible to the MAPS_L owner is not eligible custody.
