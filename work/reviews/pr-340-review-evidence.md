@@ -106,3 +106,10 @@ Before this evidence update, the separate `review-evidence` workflow passed its 
 No blocking or non-blocking integration defect was found. The integrated implementation is ready for normal final merge disposition, but this review does not authorize or perform the merge.
 
 Exact next gate: `FINAL MERGE DISPOSITION FOR MAPS_L PR #340`.
+
+---
+
+reviewer: bila (main-sync rebind only; the APPROVE above stands unchanged)
+head_sha: cd2ab7e526cfbcaa15738e9b1e35b3a4589a8c92
+independent: true
+summary: Mechanical main-sync rebind, not a new substantive review. Main advanced past this evidence's `344b4ae` freeze point to `82f6373` (merge of #335, an unrelated recovery/harness fix) and further docs-only "Refresh Development status" commits. Merged `origin/main` into PR #340 with `git merge --no-edit`; confirmed `git diff <previously-approved f5d512cf> -- AGENTS.md templates/handoff.md work/README.md work/handoffs/README.md` is empty (byte-identical, zero regression) and `AGENTS.md` remains 12,856 bytes, under the 13,000-byte budget. The incoming main content (#335's recovery/harness files, `docs/wiki/Development.md`) has zero overlap with #340's four substantive lifecycle files. The independent APPROVE verdict above (SENTINEL-INTEGRATED-PR340-FRESH, at `f5d512cf`) stands unchanged; this commit exists only to rebind evidence to the new merge-commit head required by `check_review_evidence.py`'s merge-commit walk-back rule.
