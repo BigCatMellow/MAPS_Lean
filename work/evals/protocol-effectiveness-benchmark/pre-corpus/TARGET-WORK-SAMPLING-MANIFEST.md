@@ -2,7 +2,7 @@
 
 Status: **CANDIDATE OWNER COMPLETE — INDEPENDENT CURATOR/CUSTODIAN UNASSIGNED; NO CASE SELECTION PERMITTED**
 
-Normative population rules remain in `../BENCHMARK-SPEC.md`. This file instantiates the sampling method and public source pools for independent approval. The MAPS_L owner does **not** draw the sample.
+Normative population rules remain in `../BENCHMARK-SPEC.md`. This file instantiates the sampling method and public source pools for independent approval. The MAPS_L owner does **not** draw the sample and must not be able to reconstruct it before the permitted look.
 
 ## Immutable benchmark cutoff
 
@@ -104,11 +104,19 @@ project_origin_external = 100%
 
 The combined 48 therefore preserves the approved 25% / 50% / 25% complexity target and balanced four-domain population without using MAPS-derived family weights.
 
-Holdout assignment occurs only after the 48 source identities have been selected and before case authoring. Within each domain, exactly one STRAIGHTFORWARD, one MEDIUM, and one COMPLEX selected identity is assigned to holdout by the independent secondary hash below, yielding 12 holdouts total; the remaining 36 become Standard.
+Holdout assignment occurs only after the 48 source identities have been selected and before case authoring. Within each domain, exactly one STRAIGHTFORWARD, one MEDIUM, and one COMPLEX selected identity is assigned to holdout by the independent secondary ranking below, yielding 12 holdouts total; the remaining 36 become Standard.
 
-## Deterministic selection
+## Non-derivable deterministic selection
 
-Independent curator fields that must be set before drawing IDs:
+### Why the seed is secret
+
+A seed derived only from public repository state, source pools, and the approved design head would let a MAPS_L protocol modifier reproduce the selected issue IDs. That would violate the access-based exposure rule even if the IDs were never committed here.
+
+Selection therefore uses a curator-held secret that is committed **before** an unpredictable public randomness pulse. Only commitments and public beacon evidence return to this repository before the permitted look.
+
+### Curator precommit fields
+
+Before any issue IDs are enumerated/ranked for selection, the eligible curator must set:
 
 ```text
 curator_identity = UNSET
@@ -116,25 +124,63 @@ curator_role = UNSET
 prior_MAPS_L_development_role = UNSET
 source_pool_freeze_timestamp = UNSET
 source_pool_definition_sha256 = 5101ed5b416f9c61b64d658a03864d77550489ba1a5eca1ba19f3f0352cc4fe6
-selection_seed = UNSET UNTIL CURATOR ACCEPTS EXACT POOL DEFINITION
+selection_secret_commitment = UNSET
+beacon_rule = first valid NIST Randomness Beacon 2.0 pulse with timestamp >= source_pool_freeze_timestamp + 600 seconds
+beacon_source = https://beacon.nist.gov/beacon/2.0/
+selection_seed_commitment = UNSET UNTIL DERIVATION
 ```
 
-After independent acceptance of the exact definition, derive:
+The curator generates a cryptographically random 256-bit `selection_secret` inside sealed custody and returns **only**:
 
 ```text
-selection_seed = SHA256(
-  "MAPS_PROTOCOL_EFFECTIVENESS_V0\n" +
-  approved_design_head + "\n" +
-  source_pool_definition_sha256 + "\n"
+selection_secret_commitment = SHA256(selection_secret)
+```
+
+The secret itself never enters this repository/chat before the permitted reveal.
+
+The commitment must be durably timestamped before the qualifying beacon pulse. The NIST 2.0 beacon publishes signed, chained 512-bit pulses approximately every 60 seconds. If the first qualifying pulse is unavailable, use the first later valid pulse; the curator may not choose among available pulses after seeing resulting samples.
+
+### Seed derivation
+
+After the qualifying pulse exists, inside sealed custody derive exactly:
+
+```text
+selection_seed = HMAC-SHA256(
+  key = selection_secret,
+  message =
+    "MAPS_PROTOCOL_EFFECTIVENESS_V0\n" +
+    approved_design_head + "\n" +
+    source_pool_definition_sha256 + "\n" +
+    nist_pulse_timestamp + "\n" +
+    nist_pulse_output_value + "\n"
 )
+
+selection_seed_commitment = SHA256(selection_seed)
 ```
 
-For each objectively eligible issue row derive:
+Return only these non-secret audit fields before selection results are exposed:
 
 ```text
-selection_rank = SHA256(
-  selection_seed + "\n" +
-  lower(repository_full_name) + "#" + decimal(issue_number) + "\n"
+selection_secret_commitment
+nist_pulse_timestamp
+nist_pulse_index_or_identifier
+nist_pulse_output_value
+nist_pulse_certificate_identifier_if_available
+selection_seed_commitment
+```
+
+Do not return `selection_secret` or `selection_seed` before the permitted reveal.
+
+This commit/beacon construction prevents protocol modifiers from reconstructing the sample and prevents the curator from deliberately choosing a seed after the public pulse without breaking the earlier secret commitment.
+
+### Candidate ranking
+
+For each objectively eligible issue row inside custody derive:
+
+```text
+selection_rank = HMAC-SHA256(
+  key = selection_seed,
+  message = lower(repository_full_name) + "#" + decimal(issue_number) + "\n"
 )
 ```
 
@@ -142,15 +188,22 @@ Sort ascending by `selection_rank` within each domain/complexity stratum and tak
 
 If a drawn row proves objectively ineligible, preserve the rejection reason and take the next row in deterministic order. Do not reroll because the task appears favorable/unfavorable to any arm.
 
-After the 48 identities are fixed, derive:
+### Holdout assignment
+
+After the 48 identities are fixed, derive for each selected row:
 
 ```text
-holdout_rank = SHA256(selection_seed + "\nHOLDOUT\n" + lower(repository_full_name) + "#" + decimal(issue_number) + "\n")
+holdout_rank = HMAC-SHA256(
+  key = selection_seed,
+  message = "HOLDOUT\n" + lower(repository_full_name) + "#" + decimal(issue_number) + "\n"
+)
 ```
 
 Within each domain/complexity cell, the smallest `holdout_rank` becomes SEALED_HOLDOUT. All others are FROZEN_STANDARD.
 
-Actual issue IDs/ranks/selected URLs remain exclusively with the independent curator/custodian before the permitted look and are never committed here.
+Actual secret/seed, issue IDs, ranks, ranking tables, selected URLs, and holdout membership remain exclusively with the independent curator/custodian before the permitted look and are never committed here.
+
+At the permitted reveal, the curator can disclose the secret/seed and sealed selection ledger so an independent auditor can recompute the commitments, rankings, and no-reroll property.
 
 ## Terminal and overlay constraints
 
@@ -160,15 +213,15 @@ The final corpus must still meet the approved limits (`BLOCK <=25%`, `NONE >=40%
 
 ## Custody / freeze rule
 
-The MAPS_L owner can propose the public source-pool definition but cannot be the selecting curator or custodian. Before `selection_seed` is used:
+The MAPS_L owner can propose the public source-pool definition but cannot be the selecting curator or custodian. Before the secret commitment is created:
 
 - an eligible independent curator/custodian and access-controlled storage must be assigned per `CUSTODY-AND-EXPOSURE-PLAN.md`;
 - that curator independently accepts or revises the source-pool definition without examining selected IDs first;
-- any revision changes `source_pool_definition_sha256` and therefore the seed;
+- any revision changes `source_pool_definition_sha256` and therefore the committed selection procedure;
 - a fresh independent pre-authoring freeze review approves the complete instantiated treatment/control/sampling/custody package.
 
 ## Repository-safe outputs
 
-Before the confirmatory look, this repository may contain only public procedure/source-pool definitions, hashes/counts, role identities, exposure-owner identities, and independently approved aggregate metadata.
+Before the confirmatory look, this repository may contain only public procedure/source-pool definitions, cryptographic commitments, public beacon evidence, hashes/counts, role identities, exposure-owner identities, and independently approved aggregate metadata.
 
-Do **not** commit selected primary case IDs, task fixtures, hidden contracts, answer-bearing provenance, selected source URLs, holdout content, ranking tables, or decryption material here if doing so gives access to anyone who can modify MAPS_L or a successor.
+Do **not** commit selected primary case IDs, task fixtures, hidden contracts, answer-bearing provenance, selected source URLs, secret/seed material, holdout content, ranking tables, or decryption material here if doing so gives access to anyone who can modify MAPS_L or a successor.
