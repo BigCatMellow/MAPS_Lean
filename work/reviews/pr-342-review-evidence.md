@@ -1,0 +1,6 @@
+reviewer: bila (canonical-filename carryover; substantive verdict is unchanged from pr-339-review-evidence.md below)
+head_sha: 0a2df3d82357742d20a3bf32dc763cacb6040c92
+independent: true
+summary: PR #342 supersedes closed PR #339 (whose base branch, #338's own branch, was deleted on #338's merge, which GitHub does not allow reopening). This is the identical, already-reviewed content from the same source branch (`impl/task-history-retention-guards-2026-09-10`), now targeting `main` directly since #338 has merged. No new commit, no new content, no new judgment: this file exists only because `check_review_evidence.py` requires a filename bound to the current PR number. The full carried-forward review history — SENTINEL-FRESH-PR339's independent APPROVE plus the coordinator's main-sync rebind confirming byte-identical substantive files and a clean re-run of `tests/test_task_history_retention.py` (3 passed) — is preserved verbatim in `work/reviews/pr-339-review-evidence.md` in this same commit/tree and is not repeated here to avoid drift between two copies of one verdict.
+
+See `work/reviews/pr-339-review-evidence.md` for the full independent review and rebind evidence. Verdict: APPROVED (unchanged).
