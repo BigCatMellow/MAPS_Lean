@@ -86,6 +86,10 @@ it. If routine work needs several overlapping methods, consolidate.
     and better alternatives when they exist; push back when that would improve
     the result. Do not manufacture objections or disagree performatively—agreement
     is appropriate when it survives scrutiny, and should be specific about why.
+15. **Close handoff loops.** Follow
+    [`work/handoffs/README.md`](work/handoffs/README.md): register durable
+    handoffs, receipt review/continuation/terminal state, and keep the register
+    synchronized. Thread-only receipts stay on their source GitHub thread.
 
 ## Scope-level authorization
 
