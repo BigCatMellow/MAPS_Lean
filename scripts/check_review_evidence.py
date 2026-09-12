@@ -39,14 +39,23 @@ INSIGHT-29a10ad4) is the price of the safety property above -- do NOT
 reopen exactly the hole this docstring describes.
 
 Additive revalidation exception (does NOT touch the walk-back above): if
-the evidence's head_sha does not equal the resolved reviewed-code head,
-it can still pass if (a) head_sha is an ancestor of the reviewed-code head
-and (b) the diff between head_sha and the reviewed-code head is empty --
-i.e. literally nothing changed between what was reviewed and now, so there
-is no unreviewed content to sneak in. This is unlike the walk-back hole,
-which was about evidence-only commits masking real changes; a zero-diff
-ancestor has no room to hide anything. See
-playbook/MODEL_CAPABILITY_ROUTING.md's "Revalidation review tier" section.
+the evidence's head_sha does not equal the resolved reviewed-code head, it
+can still pass if the diff between head_sha and the reviewed-code head is
+empty -- i.e. literally nothing changed between what was reviewed and now,
+so there is no unreviewed content to sneak in. This does NOT require
+head_sha to be an ancestor of the reviewed-code head (IDEA-fe6c0f0f): a
+plain `git rebase` replays commits onto new parents, producing a new SHA
+whose tree is byte-identical to the original but which `git merge-base
+--is-ancestor` reports as unrelated to the pre-rebase commit -- so the
+ancestry requirement never fired on this repo's actual rebase-based
+merge-prep workflow. Dropping it does not weaken the safety property: an
+empty tree diff between two commits means their content is identical
+regardless of which commit came "first" in history, so there is nothing
+for a claimed head_sha to hide -- ancestry added no information the diff
+didn't already provide. This is unlike the walk-back hole, which was
+about evidence-only commits masking real changes; a zero-diff head_sha
+has no room to hide anything. See playbook/MODEL_CAPABILITY_ROUTING.md's
+"Revalidation review tier" section.
 """
 
 from __future__ import annotations
@@ -103,22 +112,25 @@ def _reviewed_code_head(repo_root: Path, start: str) -> str:
         return current
 
 
-def _is_ancestor(repo_root: Path, ancestor: str, descendant: str) -> bool:
-    result = subprocess.run(
-        ["git", "-C", str(repo_root), "merge-base", "--is-ancestor", ancestor, descendant],
-        capture_output=True,
-        text=True,
-    )
-    return result.returncode == 0
-
-
 def _diff_is_empty(repo_root: Path, old: str, new: str) -> bool:
+    """True iff `old` and `new` resolve to commits with an identical tree.
+
+    Deliberately does NOT require `old` to be an ancestor of `new` --
+    IDEA-fe6c0f0f: a plain rebase replays commits onto new parents, so a
+    pre-rebase commit is never an ancestor of the post-rebase head even
+    though their trees are byte-identical. `git diff` compares trees
+    directly and needs no ancestry relationship between the two commits.
+    Returns False (not an exception) if either ref fails to resolve, so an
+    invalid/garbage head_sha is treated as "not equivalent" rather than
+    crashing the check.
+    """
     result = subprocess.run(
         ["git", "-C", str(repo_root), "diff", "--name-only", old, new],
-        check=True,
         capture_output=True,
         text=True,
     )
+    if result.returncode != 0:
+        return False
     return result.stdout.strip() == ""
 
 
@@ -152,14 +164,13 @@ def check(pr_number: str, repo_root: Path) -> tuple[bool, str]:
     reviewed_head = _reviewed_code_head(repo_root, actual_head)
     claimed_head = fields["head_sha"].strip()
     if claimed_head != reviewed_head:
-        if _is_ancestor(repo_root, claimed_head, reviewed_head) and _diff_is_empty(
-            repo_root, claimed_head, reviewed_head
-        ):
+        if _diff_is_empty(repo_root, claimed_head, reviewed_head):
             return True, (
                 f"review-evidence OK for {evidence_path}: revalidated by "
-                f"tree-equality (head_sha {claimed_head} is an ancestor of "
-                f"reviewed code head {reviewed_head} with an empty diff "
-                f"between them -- nothing changed since the reviewed state)"
+                f"tree-equality (head_sha {claimed_head} has an empty diff "
+                f"with reviewed code head {reviewed_head} -- nothing changed "
+                f"since the reviewed state; ancestry not required, "
+                f"rebase-safe per IDEA-fe6c0f0f)"
             )
         return False, (
             f"review-evidence head_sha ({claimed_head!r}) does not match "
