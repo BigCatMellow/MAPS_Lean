@@ -39,9 +39,9 @@ Under [`../evals/protocol-effectiveness-benchmark/pre-corpus/`](../evals/protoco
 - `CUSTODY-AND-EXPOSURE-PLAN.md`
   - selection secret/seed/ranking ledger/selected identities are protected alongside case content.
 - `PRE-AUTHORING-PACKAGE-MANIFEST.json`
-  - exact six-input candidate package hash `1cc69cd2adfc41a40bd01505a75a99cfd54984a44a9160f0ae974f98be61b89d`.
+  - exact six-input candidate package hash `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`.
 - `INDEPENDENT-CURATOR-START-PROMPT.md`
-  - standalone external curator/custodian contract.
+  - standalone external curator/custodian contract pinned to that exact package hash.
 
 Child task: [`protocol-effectiveness-corpus-construction.md`](protocol-effectiveness-corpus-construction.md).
 
@@ -97,6 +97,6 @@ No issue IDs were enumerated/ranked/selected in the MAPS_L owner context before 
 
 The current repository owner/user account and this chat are ineligible custody environments. Another fresh review chat under the same account does not solve this boundary.
 
-Exact next action: give `pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md` plus the package pinned by `PRE-AUTHORING-PACKAGE-MANIFEST.json` to a genuinely separate curator/custodian. They either return non-secret pre-authoring corrections or accept the package, precommit the secret, and proceed privately.
+Exact next action: give `pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md` plus the exact package pinned by `PRE-AUTHORING-PACKAGE-MANIFEST.json` (`c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`) to a genuinely separate curator/custodian. They either return non-secret pre-authoring corrections or accept the package, precommit the secret, and proceed privately.
 
 Benchmark execution remains a later gate.
