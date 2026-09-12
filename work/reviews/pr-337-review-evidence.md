@@ -36,3 +36,10 @@ reviewer: bila (main-sync rebind only; the APPROVE above stands unchanged)
 head_sha: feeded073fd92fc50a2ad7f64b857db6eca5effe
 independent: true
 summary: Mechanical main-sync rebind, not a new substantive review. Main advanced past this evidence's `7dfcbd0` freeze point via #335 (unrelated recovery/harness fix) and docs-only "Refresh Development status" commits. Merged `origin/main` into PR #337 with `git merge --no-edit`; confirmed `git diff <previously-approved f2a10ab> -- work/research/2026-09-10-reviewer-execution-trusted-producer-audit.md work/tasks/reviewer-execution-trusted-producer-audit.md` is empty (byte-identical, zero regression). The incoming main content has zero overlap with #337's two substantive research-record files. The independent APPROVE verdict above (SENTINEL-FRESH-PR337, at `f2a10ab`) stands unchanged; this commit exists only to rebind evidence to the new merge-commit head required by `check_review_evidence.py`'s merge-commit walk-back rule.
+
+---
+
+reviewer: bila (second main-sync rebind; the APPROVE above stands unchanged)
+head_sha: 8ce0de6e29062c8c5d6c4f5bde833040e9b1dcd5
+independent: true
+summary: Second mechanical main-sync rebind. Main advanced again via #336 (unrelated design-doc PR, merge commit 4819c4a) between authz #96160 and staging. Merged `origin/main` into PR #337 with `git merge --no-edit`; the incoming content is exactly #336's own two files plus its review evidence, with zero overlap with #337's substantive files. Re-confirmed `git diff f2a10ab247323cc6c190cd2d5f7596befa8c2eab..HEAD -- work/research/2026-09-10-reviewer-execution-trusted-producer-audit.md work/tasks/reviewer-execution-trusted-producer-audit.md` is empty. No new judgment; both independent verdicts above stand.
