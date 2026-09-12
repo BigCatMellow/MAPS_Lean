@@ -1,6 +1,6 @@
 # Arm C — Generic Structured Control — candidate
 
-Status: **CANDIDATE — REQUIRES INDEPENDENT AUTHORSHIP/APPROVAL BEFORE CASE AUTHORING**
+Status: **CANDIDATE OWNER COMPLETE — EXACT TEXT/HASH PINNED; REQUIRES INDEPENDENT COMPETENCE APPROVAL BEFORE SELECTION**
 
 This is an instantiated control text under `../BENCHMARK-SPEC.md`. It is intentionally generic and contains no MAPS_L-specific concepts, file names, lifecycle labels, or artifacts.
 
@@ -29,11 +29,13 @@ generic_control_whitespace_word_count = 145
 
 ## Independence requirement
 
-Before freeze, an independent party without a MAPS_L development stake must either:
+Before issue enumeration/selection, an independent party without a MAPS_L development stake must either:
 
-1. author a replacement competent generic workflow; or
-2. explicitly approve this exact text as a competent non-strawman control.
+1. explicitly approve this exact text as a competent non-strawman control; or
+2. reject it and return a public/non-secret correction finding **before any sample exists**.
 
-Any replacement changes the hash and requires the treatment-surface manifest to be updated before case authoring.
+For `protocol-effectiveness-v0`, the eligible external curator/custodian may perform this pre-selection competence approval because they are independent from the MAPS_L owner. If they reject the text, selection stops; a replacement changes the hash/package and requires refreshed pre-authoring review before selection.
 
-The independent approver must assess whether a competent generic agent can reasonably plan, inspect evidence, self-verify, use helpers, respect scope, complete separable work, and stop without importing MAPS-specific machinery.
+Approval must assess whether a competent generic agent can reasonably plan, inspect evidence, self-verify, use helpers, respect scope, complete separable work, and stop without importing MAPS-specific machinery.
+
+The later corpus/pre-freeze reviewer must be distinct from the corpus constructor; curator approval of Arm C does not allow the curator to self-approve the finished corpus.
