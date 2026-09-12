@@ -949,3 +949,26 @@ BEFORE DELETE ON authorized_operator_revocations
 BEGIN
     SELECT RAISE(ABORT, 'authorized operator revocations are immutable');
 END;
+
+-- Canonical task history is immutable in normal MAPS_L operation. Corrections
+-- append later semantic events; they do not rewrite committed history.
+CREATE TRIGGER IF NOT EXISTS trg_task_events_no_update
+BEFORE UPDATE ON task_events
+BEGIN
+    SELECT RAISE(ABORT, 'task events are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_task_events_no_delete
+BEFORE DELETE ON task_events
+BEGIN
+    SELECT RAISE(ABORT, 'task events are immutable');
+END;
+
+-- Parent retention is explicit rather than an accidental consequence of child
+-- no-delete triggers. A separately authorized future disposal design may define
+-- a privileged purge/redaction path; ordinary SQL/runtime hard deletion is not it.
+CREATE TRIGGER IF NOT EXISTS trg_tasks_no_delete
+BEFORE DELETE ON tasks
+BEGIN
+    SELECT RAISE(ABORT, 'canonical tasks cannot be hard-deleted');
+END;
