@@ -8,10 +8,11 @@ name: review-evidence
 #
 # Also runs scripts/check_stale_no_caller_docstrings.py (CLAUDE.md rule 20
 # safeguard: fails when a runtime docstring still claims a symbol has "no
-# production caller" after one was added) and
-# scripts/check_coverage_note_pins.py (rule 20 safeguard: fails when a
-# self-describing coverage note in context_builder.py has no test pinning it --
-# work/notes/2026-09-01-invariant-prose-drift-safeguard-design.md).
+# production caller" after one was added), scripts/check_coverage_note_pins.py
+# (rule 20 safeguard: fails when a self-describing coverage note in
+# context_builder.py has no test pinning it), and the PR #341 protocol-benchmark
+# resolved-finding anchor check required by AGENTS.md invariant 13 after repeated
+# correction-pass regressions.
 
 on:
   pull_request:
@@ -38,6 +39,9 @@ jobs:
 
       - name: Verify every context-builder coverage note is test-pinned
         run: python scripts/check_coverage_note_pins.py
+
+      - name: Verify protocol benchmark resolved-finding anchors
+        run: python scripts/check_protocol_effectiveness_benchmark_anchors.py
 
       - name: Verify review evidence for exact head
         run: python scripts/check_review_evidence.py "${{ github.event.pull_request.number }}"
