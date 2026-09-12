@@ -11,6 +11,7 @@
     "work/evals/protocol-effectiveness-benchmark/pre-corpus/TREATMENT-BUNDLE-INVENTORY.tsv": "51fbcaac67dd39d08a190568ec7ab3b662752083",
     "work/evals/protocol-effectiveness-benchmark/pre-corpus/TREATMENT-SURFACE-MANIFEST.md": "7779535543e9d9445aed5cd5084475498d62b0b2"
   },
+  "owner_recompute_status": "MATCH",
   "status": "candidate-owner-complete-awaiting-independent-curator-custodian",
   "selected_case_content_present": false,
   "benchmark_execution_authorized": false
