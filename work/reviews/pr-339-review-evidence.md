@@ -23,3 +23,10 @@ APPROVED
 - Scope restraint: no archive state, tombstone identity, purge/redaction service, retention scheduler, privacy/legal retention duration, provider/harness/recovery behavior, capability status, or review/task authority changed.
 
 No schema or runtime changes were made by the reviewer. No merge performed.
+
+---
+
+reviewer: bila (main-sync rebind only; the APPROVE above stands unchanged)
+head_sha: 0a2df3d82357742d20a3bf32dc763cacb6040c92
+independent: true
+summary: Mechanical main-sync rebind, not a new substantive review. Main advanced past this evidence's `bedb653` base via #335, #336, #337, #338 (all unrelated except #338, which is #339's own approved parent design and has now itself merged). Merged `origin/main` into PR #339 with `git merge --no-edit`; the only conflict was an incidental add/add collision on `work/reviews/pr-338-review-evidence.md` (#339's branch carried an older snapshot of #338's own evidence file, not #339's content) -- resolved by taking main's authoritative version (`git checkout --theirs`), since that file is #338's record, not #339's. Confirmed `git diff <previously-approved 9689cef> -- runtime/state/schema.sql tests/test_task_history_retention.py work/coordination/FRICTION_LOG.md work/notes/2026-09-10-task-history-event-sequence-assumption-repair.md work/tasks/task-history-retention-guards.md` is empty (byte-identical, zero regression) across all five of #339's own substantive files. Re-ran `pytest tests/test_task_history_retention.py -q` post-merge: 3 passed, exit 0. The independent APPROVE verdict above (SENTINEL-FRESH-PR339, at `9689cef`) stands unchanged; this commit exists only to rebind evidence to the new merge-commit head required by `check_review_evidence.py`'s merge-commit walk-back rule.
