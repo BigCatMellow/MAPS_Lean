@@ -1,0 +1,47 @@
+name: direct-push-alert
+
+# Post-hoc, loud alert for a commit pushed straight to `main` with no
+# associated merged PR (2nd occurrence: commit `ce198ae`, see
+# work/notes/2026-09-12-roadmap-trajectory-check-29.md §2 and the
+# feedback_no_direct_main_push memory pattern). This CANNOT be a merge
+# gate -- branch protection on this repo's plan has already been bypassed
+# twice by an admin identity, and by the time this workflow runs the push
+# has already landed. What it provides: a failing, visible GitHub Actions
+# run against `main` itself, naming the offending SHA and author, instead
+# of relying on an agent noticing and self-reporting (the only reason the
+# 1st occurrence was ever caught) or a human finding it at the next
+# roadmap trajectory check (how the 2nd occurrence was found).
+#
+# scripts/check_direct_push.py does the actual detection via GitHub's
+# "list pull requests associated with a commit" API -- see its docstring.
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  direct-push-alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+
+      - name: Check for direct-to-main pushes with no associated merged PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/check_direct_push.py \
+            "${{ github.event.before }}" \
+            "${{ github.event.after }}" \
+            --repo "${{ github.repository }}"
