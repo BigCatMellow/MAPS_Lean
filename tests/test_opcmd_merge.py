@@ -1,12 +1,16 @@
 """Tests for scripts/opcmd_merge.py -- the mechanical pre-merge authz gate.
 
-Design: work/notes/2026-09-04-merge-auth-mechanical-backstop-design.md (§3.1, §7).
+Design: work/notes/2026-09-04-merge-auth-mechanical-backstop-design.md (§3.1, §7)
+and work/notes/2026-09-13-standing-merge-authorization-design.md (standing mode).
 
-The four §7 acceptance behaviors are pinned:
+The four §7 acceptance behaviors (per-PR authz path) are pinned:
   1. --dry-run + valid authz (operator, text names #N) -> prints merge cmd + quote, exit 0
   2. authz `from` is a coordinator/agent seat -> exit non-zero, no merge cmd printed
   3. a post-authz operator HOLD present -> exit non-zero
   4. #N absent from authz text, no batch designation -> exit non-zero
+
+Standing-authorization acceptance behaviors are pinned further down (see
+StandingAuthorizationTest).
 
 No network: the hcom/gh subprocess runner is monkeypatched. The script is also
 verified to be dormant (nothing in the repo calls it).
@@ -18,9 +22,11 @@ import datetime as dt
 import importlib.util
 import io
 import json
+import os
 import pathlib
 import re
 import subprocess
+import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 
@@ -48,10 +54,32 @@ def _msg_event(msg_id, sender, text, ts=None):
 class FakeRunner:
     """Stands in for opcmd_merge.run_command. Records calls, no subprocess."""
 
-    def __init__(self, authz_event=None, post_authz_events=None, head_sha="deadbeef"):
+    def __init__(
+        self,
+        authz_event=None,
+        post_authz_events=None,
+        head_sha="deadbeef",
+        merge_state_status="CLEAN",
+        status_checks=None,
+        author_login="mibe",
+        review_evidence_rc=0,
+        review_evidence_out="review-evidence OK\n",
+    ):
         self.authz_event = authz_event
         self.post_authz_events = post_authz_events or []
         self.head_sha = head_sha
+        self.merge_state_status = merge_state_status
+        self.status_checks = (
+            status_checks
+            if status_checks is not None
+            else [
+                {"name": "test", "conclusion": "SUCCESS"},
+                {"name": "review-evidence", "conclusion": "SUCCESS"},
+            ]
+        )
+        self.author_login = author_login
+        self.review_evidence_rc = review_evidence_rc
+        self.review_evidence_out = review_evidence_out
         self.calls = []
 
     def __call__(self, cmd):
@@ -73,7 +101,16 @@ class FakeRunner:
                 events = []
             return 0, "\n".join(json.dumps(e) for e in events) + "\n", ""
         if cmd[:3] == ["gh", "pr", "view"]:
+            if "mergeStateStatus,statusCheckRollup,author" in cmd:
+                payload = {
+                    "mergeStateStatus": self.merge_state_status,
+                    "statusCheckRollup": self.status_checks,
+                    "author": {"login": self.author_login},
+                }
+                return 0, json.dumps(payload) + "\n", ""
             return 0, self.head_sha + "\n", ""
+        if cmd[:2] == ["python3", "scripts/check_review_evidence.py"]:
+            return self.review_evidence_rc, self.review_evidence_out, ""
         if cmd[:3] == ["gh", "pr", "merge"]:
             return 0, "merged\n", ""
         return 1, "", f"unexpected cmd: {cmd}"
@@ -312,6 +349,160 @@ class OpcmdMergeGateTest(unittest.TestCase):
             ["--pr", "42", "--authz", "508", "--dry-run"], runner
         )
         self.assertEqual(rc, 0, err)
+
+
+# --- standing authorization (--authz omitted) ---
+#
+# Design: work/notes/2026-09-13-standing-merge-authorization-design.md.
+# The per-PR authz path above is unaffected (regression-guarded by the tests
+# above still passing). This mode replaces the fresh-per-PR-message
+# requirement with a reviewed, git-tracked record; it does NOT relax the
+# independent-review or CI-green hard gates.
+
+def _standing_record(tmpdir, status="ACTIVE", authorized_by="bigboss", anchor_event_id=1000):
+    path = os.path.join(tmpdir, "standing-merge-authorization.md")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(
+            f"status: {status}\n"
+            f"authorized_by: {authorized_by}\n"
+            "recorded: 2026-09-13T03:20:00+00:00\n"
+            f"anchor_event_id: {anchor_event_id}\n"
+            "authority_evidence: settings.json autoMode.allow rule\n"
+            "scope: routine CLEAN + independently-reviewed + CI-green merges\n"
+        )
+    return path
+
+
+def _evidence_file(tmpdir, pr, reviewer="nesa"):
+    path = os.path.join(tmpdir, f"pr-{pr}-review-evidence.md")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(
+            f"reviewer: {reviewer}\n"
+            "head_sha: deadbeef\n"
+            "independent: true\n"
+            "summary: looks good\n"
+        )
+    return path
+
+
+class StandingAuthorizationTest(unittest.TestCase):
+    def setUp(self):
+        self._orig_runner = om.run_command
+        self.addCleanup(lambda: setattr(om, "run_command", self._orig_runner))
+        self._td = tempfile.TemporaryDirectory()
+        self.addCleanup(self._td.cleanup)
+        self.tmpdir = self._td.name
+
+    def _gate(self, pr=42, runner=None, standing_path=None, evidence_path=None, dry_run=True):
+        om.run_command = runner
+        return om.gate(
+            pr=pr,
+            authz_id=None,
+            caller="livo",
+            merge_args=[],
+            dry_run=dry_run,
+            standing_authz_path=standing_path or _standing_record(self.tmpdir),
+            evidence_path=evidence_path or _evidence_file(self.tmpdir, pr),
+        )
+
+    # 1. everything green -> gate passes, mode recorded
+    def test_standing_authorization_passes_when_all_hard_gates_met(self):
+        runner = FakeRunner(authz_event=_msg_event(1000, "bigboss", "anchor"))
+        entry = self._gate(runner=runner)
+        self.assertEqual(entry["mode"], "standing-authorization")
+        self.assertEqual(entry["authz_from"], "bigboss")
+
+    # 2a. mergeStateStatus not CLEAN -> refused
+    def test_standing_authorization_refuses_when_not_clean(self):
+        runner = FakeRunner(
+            authz_event=_msg_event(1000, "bigboss", "anchor"),
+            merge_state_status="BEHIND",
+        )
+        with self.assertRaisesRegex(om.GateError, "not CLEAN"):
+            self._gate(runner=runner)
+
+    # 2b. a CI check not green -> refused
+    def test_standing_authorization_refuses_when_ci_not_green(self):
+        runner = FakeRunner(
+            authz_event=_msg_event(1000, "bigboss", "anchor"),
+            status_checks=[
+                {"name": "test", "conclusion": "SUCCESS"},
+                {"name": "review-evidence", "conclusion": "FAILURE"},
+            ],
+        )
+        with self.assertRaisesRegex(om.GateError, "non-green CI checks"):
+            self._gate(runner=runner)
+
+    # 2c. check_review_evidence.py itself refuses -> refused
+    def test_standing_authorization_refuses_when_evidence_check_fails(self):
+        runner = FakeRunner(
+            authz_event=_msg_event(1000, "bigboss", "anchor"),
+            review_evidence_rc=1,
+            review_evidence_out="missing required review-evidence file\n",
+        )
+        with self.assertRaisesRegex(om.GateError, "review-evidence check failed"):
+            self._gate(runner=runner)
+
+    # 2d. reviewer is the same identity as the PR author -> refused (not independent)
+    def test_standing_authorization_refuses_when_reviewer_is_author(self):
+        runner = FakeRunner(
+            authz_event=_msg_event(1000, "bigboss", "anchor"), author_login="nesa"
+        )
+        evidence = _evidence_file(self.tmpdir, 42, reviewer="nesa")
+        with self.assertRaisesRegex(om.GateError, "not independent"):
+            self._gate(runner=runner, evidence_path=evidence)
+
+    # 3. a post-anchor HOLD refuses, regardless of how old the record is
+    def test_standing_authorization_refuses_on_post_anchor_hold(self):
+        runner = FakeRunner(
+            authz_event=_msg_event(1000, "bigboss", "anchor"),
+            post_authz_events=[_msg_event(1005, "bigboss", "HOLD -- found a bug")],
+        )
+        with self.assertRaisesRegex(om.GateError, "HOLD"):
+            self._gate(runner=runner)
+
+    # 4a. record missing -> refused, distinct message
+    def test_standing_authorization_refuses_when_record_missing(self):
+        runner = FakeRunner(authz_event=_msg_event(1000, "bigboss", "anchor"))
+        missing = os.path.join(self.tmpdir, "does-not-exist.md")
+        with self.assertRaisesRegex(om.GateError, "no standing-authorization record"):
+            self._gate(runner=runner, standing_path=missing)
+
+    # 4b. status != ACTIVE -> refused
+    def test_standing_authorization_refuses_when_revoked(self):
+        runner = FakeRunner(authz_event=_msg_event(1000, "bigboss", "anchor"))
+        revoked = _standing_record(self.tmpdir, status="REVOKED")
+        with self.assertRaisesRegex(om.GateError, "not ACTIVE"):
+            self._gate(runner=runner, standing_path=revoked)
+
+    # 4c. authorized_by not an operator identity -> refused
+    def test_standing_authorization_refuses_when_authorized_by_not_operator(self):
+        runner = FakeRunner(authz_event=_msg_event(1000, "bigboss", "anchor"))
+        bad = _standing_record(self.tmpdir, authorized_by="razu")
+        with self.assertRaisesRegex(om.GateError, "not an operator identity"):
+            self._gate(runner=runner, standing_path=bad)
+
+    def test_standing_authorization_non_dry_run_merges_and_ledgers(self):
+        runner = FakeRunner(authz_event=_msg_event(1000, "bigboss", "anchor"))
+        ledger = os.path.join(self.tmpdir, "merge-ledger.jsonl")
+        om.run_command = runner
+        entry = om.gate(
+            pr=42,
+            authz_id=None,
+            caller="livo",
+            merge_args=["--delete-branch"],
+            dry_run=False,
+            ledger_path=ledger,
+            standing_authz_path=_standing_record(self.tmpdir),
+            evidence_path=_evidence_file(self.tmpdir, 42),
+        )
+        self.assertTrue(entry["merged"])
+        self.assertTrue(runner.merge_invoked)
+        with open(ledger, encoding="utf-8") as fh:
+            rows = [json.loads(l) for l in fh if l.strip()]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["mode"], "standing-authorization")
+        self.assertIsNone(rows[0]["authz_id"])
 
 
 # --- dormancy check (rewritten after PR #287 review findings F2/F3) ---
