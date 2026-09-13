@@ -1,0 +1,18 @@
+{
+  "schema": "protocol-effectiveness-pre-authoring-package-v0",
+  "approved_design_head": "369bccaf68b258c70eb6efec0c9f70115c8014cb",
+  "package_hash_rule": "SHA256(concat(sorted(path + NUL + git_blob_sha + LF)))",
+  "package_hash": "c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963",
+  "files": {
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/CUSTODY-AND-EXPOSURE-PLAN.md": "a47e44571c8f91c8db7c29c2284c58e0950e5518",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/GENERIC-CONTROL.md": "0628d9d8bccf5744bf918335976976b2cc308d10",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/SOURCE-POOL-DEFINITION.json": "33ad77ca265c8aae0de586c8ca36db69348f446c",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/TARGET-WORK-SAMPLING-MANIFEST.md": "6f60e87b7e4c1c0321d0f0532410262e18d654e3",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/TREATMENT-BUNDLE-INVENTORY.tsv": "51fbcaac67dd39d08a190568ec7ab3b662752083",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/TREATMENT-SURFACE-MANIFEST.md": "7779535543e9d9445aed5cd5084475498d62b0b2"
+  },
+  "owner_recompute_status": "MATCH",
+  "status": "candidate-owner-complete-awaiting-independent-curator-custodian",
+  "selected_case_content_present": false,
+  "benchmark_execution_authorized": false
+}
