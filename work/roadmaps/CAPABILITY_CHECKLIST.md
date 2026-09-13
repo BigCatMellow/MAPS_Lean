@@ -143,6 +143,30 @@ re-researched, only cross-referenced, except where noted as a standalone gap.
 | 6.34 | Mission / multi-task goal object | NOT STARTED | No `Mission`-shaped object anywhere; matches the roadmap's own current decision not to build one yet. |
 | 6.35 | Portable deployment to external projects | IN PROGRESS | = D0–D6 above. Design-only roadmap added 2026-08-19; no code exists yet. The highest-risk unknown (SQLite port vs. file-convention-only for v1) and four other operator decisions were resolved 2026-08-19 (file-convention-only, sibling-clone adapter, best-effort review discipline, stack-agnostic scope, in-repo `.maps/` state); D1 defines the explicit target-root contract, D2a defines the target `.maps/` convention and draft templates, D2b defines the thin target-local adapter contract, and D2c defines the first-external-pilot selection/preflight/evidence sequence. D3 remains not started and no pilot target is selected, so portable deployment is not proven against an external project yet. |
 
+## 8. Cross-project dependencies (`/home/home/Pilot_Projects` — THINK, PLAN, Prime)
+
+These are **not** MAPS_Lean-owned work. THINK and PLAN carry their own
+explicit authority gates in their own repos (PLAN's `HANDOFF.md`: "PLAN
+implementation DEFERRED", "MAPS_L modification NOT AUTHORIZED"; THINK's
+`THINK_PROJECT.md`: MAPS_L is REFERENCE ONLY). This section exists so
+MAPS_Lean stops losing track of upstream/downstream state that affects it —
+visibility only, no new authority granted by adding a row here. Do not
+dispatch MAPS_Lean fleet agents to "close" one of these rows; only the
+named external project (with its own authorization) can move its status.
+Full detail + evidence citations: `/home/home/Pilot_Projects/2026-09-13-landscape-audit-maps-think-plan-prime.md`.
+
+| Item | Status (as of source doc) | Pointer |
+| --- | --- | --- |
+| THINK (`ai-creativity-and-ideation`) | `ACTIVE — E5 COMPLETE; LIMITED HEADROOM REVIEWED`. Shallow/richer search rejected (E4: +0.0000 quality/recovery at 2.85x tokens). Current recovery axis is at ceiling (100% occupancy) — next question is designing a harder frozen recovery/discrimination diagnostic, not another small-effect experiment. | `/home/home/Pilot_Projects/ai-creativity-and-ideation/THINK_PROJECT.md` |
+| PLAN (`ai-planning-and-orchestration`) | `CURRENT — CHAT-CLOSE CHECKPOINT / PREPARED INSTANCE C / STATELESS STAGE B NEXT`. Stage A (mechanical coding) PASSED. Blocked purely on execution: 73 stateless Stage-B API scoring requests against the frozen calibration package have not been run (0/73). Already authorized for control-only calibration execution+spend; PLAN implementation and MAPS_L modification remain explicitly NOT AUTHORIZED. | `/home/home/Pilot_Projects/ai-planning-and-orchestration/HANDOFF.md` |
+| Prime Agent adoption study | `PLANNING / ADOPTION STUDY`, owning task `DEFERRED`. External upstream (`PrimeIntellect-ai/prime-agent`), pinned research snapshot from 2026-09-04 (commit `5c2750b`). No A/B/C/D adoption-ladder decision made; no integration code exists anywhere in either repo. | `/home/home/Pilot_Projects/complete-ai-work-system/roadmaps/02-PRIME-AND-EXECUTION-PLANE.md` (roadmap framing); commit pin, owning-task status, and adoption-ladder detail trace to `/home/home/Pilot_Projects/complete-ai-work-system/research/2026-09-04-w0-02-prime-subsystem-adoption-boundary.md` and `/home/home/Pilot_Projects/complete-ai-work-system/tasks/W0-02-prime-subsystem-adoption-boundary.md` |
+| THINK-first scope boundary | 2026-09-04 decision restricted active Pilot Projects work to THINK only (MAPS_L/Prime reference-only). Narrowed 2026-09-09 to also authorize PLAN research/roadmapping (not implementation). PLAN's current activity is confirmed inside that envelope — not drifted. | `/home/home/Pilot_Projects/ai-creativity-and-ideation/decisions/2026-09-04-think-first-scope-correction.md`, `/home/home/Pilot_Projects/AGENTS.md` |
+
+**Known stale-path risk:** a full duplicate tree exists at
+`/home/home/Pilot_Projects/Pilot_Projects/` (older/parallel copy of the same
+structure). Always resolve paths against the outer `/home/home/Pilot_Projects/`
+tree; do not let a future check silently read the nested duplicate.
+
 ## How to keep this current
 
 When a phase's status changes (a PR merges, a new gap is found), edit this
