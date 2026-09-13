@@ -138,9 +138,8 @@ The operator MUST:
 - retain accountability after delegation and inspect/reconcile returned work;
 - give helpers bounded outputs, context/evidence targets, stop conditions, and
   non-overlapping write boundaries where relevant;
-- default every dispatched implementer/reviewer session to its own isolated
-  `git worktree` or fresh clone, never the coordinator's own checkout, per
-  [Worktree Isolation](playbook/WORKTREE_ISOLATION.md);
+- dispatch workers into isolated worktrees/clones, never the shared
+  checkout ([Worktree Isolation](playbook/WORKTREE_ISOLATION.md));
 - automatically continue after a child task/checkpoint/review when authorized
   parent work remains;
 - retry, reassign, reduce, research, or re-plan stalled/failed work rather than
