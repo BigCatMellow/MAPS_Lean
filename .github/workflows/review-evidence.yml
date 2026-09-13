@@ -8,10 +8,14 @@ name: review-evidence
 #
 # Also runs scripts/check_stale_no_caller_docstrings.py (CLAUDE.md rule 20
 # safeguard: fails when a runtime docstring still claims a symbol has "no
-# production caller" after one was added) and
+# production caller" after one was added),
 # scripts/check_coverage_note_pins.py (rule 20 safeguard: fails when a
 # self-describing coverage note in context_builder.py has no test pinning it --
-# work/notes/2026-09-01-invariant-prose-drift-safeguard-design.md).
+# work/notes/2026-09-01-invariant-prose-drift-safeguard-design.md), and
+# scripts/check_handoff_receipts.py (rule 20 safeguard: fails when a
+# work/handoffs/ file is unregistered, or a non-legacy registered handoff is
+# missing its PR #340 receipt block -- the mechanical fix for the gap #354
+# caught by hand).
 
 on:
   pull_request:
@@ -38,6 +42,9 @@ jobs:
 
       - name: Verify every context-builder coverage note is test-pinned
         run: python scripts/check_coverage_note_pins.py
+
+      - name: Verify every handoff is registered and receipted
+        run: python scripts/check_handoff_receipts.py
 
       - name: Verify review evidence for exact head
         run: python scripts/check_review_evidence.py "${{ github.event.pull_request.number }}"
