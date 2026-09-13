@@ -76,6 +76,7 @@ Keep newest/recently changed handoffs first.
 
 | Handoff ID | Handoff status | Handoff | Reviewed | Continued at |
 | --- | --- | --- | --- | --- |
+| `MAPS-HO-20260913-session43` | `CONTINUED` | `MAPS_Lean_Handoff_2026-09-13-session43.md` (outside repo, `/home/home/`) | 2026-09-13 by bobo | This session (bobo, hcom name), post-self-clear resume of session 43. |
 | `LEGACY-MAPS-20260821` | `UNTRIAGED` | [`2026-08-21-roadmap-progress-and-handoff.md`](2026-08-21-roadmap-progress-and-handoff.md) | Pre-register receiving history not reconciled under this rule. | Not yet registered; recover mutable state from live GitHub before acting. |
 
 This register begins on 2026-09-10. Unlisted older handoffs are not implicitly
