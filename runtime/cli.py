@@ -458,6 +458,14 @@ def build_parser() -> argparse.ArgumentParser:
         'bound; requires --base-revision (run creation fails with '
         'WORKTREE_BINDING_REQUIRES_BASE_REVISION if passed alone)',
     )
+    flow_start.add_argument(
+        '--require-write-scope-binding',
+        action='store_true',
+        help='record that this run\'s write scope (readable/writable/'
+        'forbidden, already always computed) is a conscious declaration to '
+        'enforce later, not just the untouched default; no guard reads this '
+        'yet (roadmap 6.4)',
+    )
     flow_review_start = flow_sub.add_parser(
         'review-start',
         help='claim review work and optionally bind the immutable review subject',
@@ -1084,6 +1092,7 @@ def main(argv: list[str] | None = None) -> int:
                 runtime_limit_args=args.runtime_limit,
                 base_revision=args.base_revision,
                 require_worktree_binding=args.require_worktree_binding,
+                require_write_scope_binding=args.require_write_scope_binding,
             ))
         if args.flow_command == 'review-start':
             return _emit(flow_review_start(

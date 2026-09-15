@@ -112,6 +112,7 @@ class IntegrityTests(unittest.TestCase):
         self.assertEqual(manifest["context_refs"][0]["path"], "context.md")
         self.assertEqual(len(manifest["context_refs"][0]["sha256"]), 64)
         self.assertIsNone(manifest["worktree"])
+        self.assertIs(manifest["write_scope_binding_required"], False)
 
     def test_non_git_placeholder_base_revision_remains_unbound(self):
         task_id = self.make_active()
@@ -176,6 +177,39 @@ class IntegrityTests(unittest.TestCase):
             ],
             [],
         )
+
+    def test_write_scope_binding_defaults_false(self):
+        task_id = self.make_active()
+        manifest = self.make_run(task_id, writable_paths=["src"])
+        self.assertIs(manifest["write_scope_binding_required"], False)
+
+    def test_write_scope_binding_persists_true_and_round_trips(self):
+        task_id = self.make_active()
+        manifest = self.make_run(
+            task_id, writable_paths=["src"], require_write_scope_binding=True
+        )
+        self.assertIs(manifest["write_scope_binding_required"], True)
+        fetched = self.store.get_run_manifest(manifest["run_id"])
+        self.assertIs(fetched["write_scope_binding_required"], True)
+
+    def test_write_scope_binding_needs_no_companion_flag(self):
+        # Unlike require_worktree_binding, this flag has nothing to fail
+        # loudly about: readable/writable/forbidden scope is already always
+        # computed regardless. Opting in with only the (also default)
+        # writable_paths succeeds.
+        task_id = self.make_active(outputs=["src"])
+        result = self.store.create_run_manifest(
+            task_id,
+            "worker",
+            repo_root=self.repo,
+            created_by="dispatcher",
+            context_paths=["context.md"],
+            readable_paths=["."],
+            require_write_scope_binding=True,
+        )
+        self.assertTrue(result.ok, result.message)
+        self.assertIs(result.task["write_scope_binding_required"], True)
+        self.assertEqual(result.task["writable_scope"], ["src"])
 
     def test_no_worktree_flag_without_base_revision_still_succeeds_unbound(self):
         # No `--require-worktree-binding`: absent `base_revision` stays a
@@ -494,6 +528,28 @@ class IntegrityTests(unittest.TestCase):
         )
         self.assertFalse(verdict.ok)
         self.assertEqual(verdict.code, "CONTINUITY_REVIEW_FORBIDDEN")
+
+
+class WriteScopeBindingFlagIsolationTest(unittest.TestCase):
+    """Roadmap 6.4 slice boundary: `require_write_scope_binding` is schema +
+    API only (`work/notes/2026-09-15-6.4-write-scope-binding-flag-design.md`)
+    -- no guard reads it yet. Confirms that boundary held: nothing under
+    `runtime/policy/` or `runtime/recovery/` references the flag or its
+    persisted column name.
+    """
+
+    def test_no_policy_or_recovery_code_references_the_flag(self):
+        root = Path(__file__).resolve().parents[1]
+        sources = sorted((root / "runtime" / "policy").rglob("*.py")) + sorted(
+            (root / "runtime" / "recovery").rglob("*.py")
+        )
+        offenders = [
+            str(path.relative_to(root))
+            for path in sources
+            if "write_scope_binding_required" in path.read_text(encoding="utf-8")
+            or "require_write_scope_binding" in path.read_text(encoding="utf-8")
+        ]
+        self.assertEqual(offenders, [])
 
 
 if __name__ == "__main__":

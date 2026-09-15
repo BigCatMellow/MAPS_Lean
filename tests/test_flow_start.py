@@ -143,6 +143,25 @@ class FlowStartTests(unittest.TestCase):
         self.assertEqual(result["step_result"]["code"], "WORKTREE_BINDING_REQUIRED")
         self.assertEqual(self.store.trace_task(task_id)["runs"], [])
 
+    def test_flow_start_can_require_write_scope_binding(self):
+        # Unlike require_worktree_binding, this has no companion requirement
+        # and no failure mode to test -- readable/writable/forbidden scope is
+        # already always computed. Confirms it succeeds and persists true.
+        task_id = self.make_ready()
+
+        result = flow_start(
+            self.store,
+            task_id,
+            worker_id="worker-1",
+            repo_root=self.repo,
+            created_by="tester",
+            context_paths=["README.md"],
+            require_write_scope_binding=True,
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertIs(result["run_manifest"]["write_scope_binding_required"], True)
+
     def _add_bundled_skill(self, dir_name: str, name: str, description: str, body: str):
         skill = self.repo / ".claude" / "skills" / dir_name
         skill.mkdir(parents=True)
@@ -353,6 +372,35 @@ class FlowStartTests(unittest.TestCase):
         self.assertFalse(payload["ok"])
         self.assertEqual(payload["failed_step"], "run_manifest")
         self.assertEqual(payload["step_result"]["code"], "WORKTREE_BINDING_REQUIRED")
+
+    def test_cli_flow_start_require_write_scope_binding_persists(self):
+        task_id = self.make_ready()
+        buffer = io.StringIO()
+
+        with redirect_stdout(buffer):
+            exit_code = main(
+                [
+                    "--db",
+                    str(self.root / "maps.db"),
+                    "flow",
+                    "start",
+                    task_id,
+                    "--worker-id",
+                    "worker-1",
+                    "--repo-root",
+                    str(self.repo),
+                    "--context-path",
+                    "README.md",
+                    "--require-write-scope-binding",
+                ]
+            )
+
+        self.assertEqual(exit_code, 0)
+        payload = json.loads(buffer.getvalue())
+        self.assertTrue(payload["ok"], payload)
+        self.assertIs(
+            payload["run_manifest"]["write_scope_binding_required"], True
+        )
 
 
 if __name__ == "__main__":

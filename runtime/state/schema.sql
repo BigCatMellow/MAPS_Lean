@@ -147,6 +147,7 @@ CREATE TABLE IF NOT EXISTS run_manifests (
     forbidden_scope TEXT NOT NULL DEFAULT '[]',
     runtime_limits TEXT NOT NULL DEFAULT '{}',
     base_revision TEXT,
+    write_scope_binding_required INTEGER NOT NULL DEFAULT 0,
     created_by TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
