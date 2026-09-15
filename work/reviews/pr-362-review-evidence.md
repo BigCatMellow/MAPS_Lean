@@ -1,5 +1,5 @@
 reviewer: maps-review-bane/rumi (independent, fresh clone, not the PR author)
-head_sha: ab2aadc4d3cc34ae0b7196187992fae4ba64d83f
+head_sha: 35d0e330fe4e94d6597d9f811683c72ef4bda01e
 independent: true
 summary: APPROVED — flag is genuinely schema/recording-only (zero touches to runtime/policy/ or runtime/recovery/, confirmed by grep and by re-reading the source-guard isolation test), threading through create_run_manifest/flow_start/both CLIs is complete and casts to bool correctly, all 39 directly-targeted tests plus a 385-test sweep across every manifest-constructing test file pass with zero regressions, and the "no companion requirement" reasoning from PR #361 checks out against the real diff.
 verdict: APPROVED
