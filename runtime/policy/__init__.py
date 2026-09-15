@@ -25,6 +25,7 @@ from .harness_guard import (
     register_canonical_run_guards,
 )
 from .models import PolicyDecision, WorkerProfile
+from .write_scope_guard import WriteScopeGuard, register_write_scope_guards
 
 __all__ = [
     "CanonicalRunGuard",
@@ -38,6 +39,7 @@ __all__ = [
     "MemoryTrustGateError",
     "PolicyDecision",
     "WorkerProfile",
+    "WriteScopeGuard",
     "admit_memory_evidence",
     "evaluate_assignment",
     "evaluate_review",
@@ -45,6 +47,7 @@ __all__ = [
     "register_canonical_run_guards",
     "register_destructive_external_action_guards",
     "register_memory_provenance_guards",
+    "register_write_scope_guards",
     "task_needs_human_reauthorization",
     "task_needs_operator_approval",
 ]
