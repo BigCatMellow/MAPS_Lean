@@ -11,6 +11,7 @@ trajectory check' main | head -1`): `b60b81d`.
 Arc: `b60b81d..HEAD` = `git log --oneline b60b81d..HEAD`:
 
 ```
+f192ab7 6.4: require_write_scope_binding opt-in flag -- schema + API, no guard yet (#362)
 6ee99b7 6.4: scope verify_git_run enforcement wiring -- names a fork, stops before choosing (#361)
 0a58d23 6.4: composed-but-inert write-scope guard + verify_git_run discovery (#360)
 8adfa31 Add pre-dispatch roadmap-row freshness check (#359)
@@ -27,21 +28,26 @@ a0d979c Register session43 handoff, add missing receipt (#354)
 8f70527 Document isolated-worktree default in AGENTS.md (IDEA-20615e4d) (#350)
 ```
 
-12 PRs (#350, #351, #352, #353, #354, #355, #356, #357, #358, #359, #360,
-#361) plus two direct-to-`main` commits with no associated PR (`08fd074`,
-`41277b5`, both "docs: refresh Development status", both authored by the
-operator's own git identity — see below). No PR merged outside this range
-(`gh pr list --state merged --limit 15` cross-checked against the log).
+13 PRs (#350, #351, #352, #353, #354, #355, #356, #357, #358, #359, #360,
+#361, #362) plus two direct-to-`main` commits with no associated PR
+(`08fd074`, `41277b5`, both "docs: refresh Development status", both
+authored by the operator's own git identity — see below). No PR merged
+outside this range (`gh pr list --state merged --limit 15` cross-checked
+against the log).
 
-**Mid-pass re-fetch note:** #360 and #361 (the active 6.4 guard-work lane)
-landed while this pass was waiting on the full test suite — `origin/main`
-moved from `8adfa31` to `6ee99b7` mid-run, exactly the stop condition this
-pass's dispatch named ("if you find the 6.4 lane has already changed
-`CAPABILITY_CHECKLIST.md` rows out from under you, re-fetch and re-derive").
-Re-fetched, fast-forwarded the local clone (`git status --porcelain` before
-the merge showed only this pass's own uncommitted edits, no conflict), and
-re-derived the scoreboard fresh below rather than trusting the pre-fetch
-count. #362 (the lane's third PR) is still open, not part of this arc.
+**Mid-pass re-fetch note (two rounds).** Round 1: #360 and #361 (the active
+6.4 guard-work lane) landed while this pass was waiting on the full test
+suite — `origin/main` moved from `8adfa31` to `6ee99b7` mid-run, exactly the
+stop condition this pass's dispatch named ("if you find the 6.4 lane has
+already changed `CAPABILITY_CHECKLIST.md` rows out from under you,
+re-fetch and re-derive"). Re-fetched, fast-forwarded the local clone
+(`git status --porcelain` before the merge showed only this pass's own
+uncommitted edits, no conflict), and re-derived the scoreboard fresh below.
+Round 2: #362 landed shortly after this PR was first opened (the PR sat at
+`mergeStateStatus: BEHIND` and was correctly flagged as missing #362 by
+independent review, `zali`, on PR #363 — see that PR's review-evidence).
+Re-fetched again, rebased this branch onto current main (`f192ab7`, clean,
+no conflicts), and extended the re-verify/arc coverage through #362 below.
 `venu`/`zali`/`bane`'s lane remains not this pass's to manage or redirect —
 only re-verified as merged-and-landed content, same as any other PR in the
 arc.
@@ -108,8 +114,9 @@ re-derive the script's own test pass/fail here (out of this pass's bounded
 scope, and CI already gates it); confirmed only that it exists and is
 scoped as claimed.
 
-**PRs #360/#361 (6.4 guard-work lane, landed mid-pass).** Re-verified
-directly against the fast-forwarded checklist row rather than the PR bodies:
+**PRs #360/#361/#362 (6.4 guard-work lane, landed mid-pass — all three
+now).** Re-verified directly against the rebased checklist row rather than
+the PR bodies:
 `runtime/policy/write_scope_guard.py::WriteScopeGuard` now exists
 (caller-declared, fail-closed, same shape as the destructive/external
 guard), composed into `build_canonical_harness_service`
@@ -127,10 +134,18 @@ Skill-manifest system, not 6.4-specific unbuilt work) — a real correction to
 a long-standing row misreading, not new work. #361 explicitly scopes (does
 not yet wire) `verify_git_run` as the well-grounded template for actually
 closing the write gap, deliberately deferring the DENY-capable wiring
-decision as bigger than its own slice. Row **correctly stays IN PROGRESS**
-— re-verified from the diff and row text directly, not taken on the PRs'
-own say-so. Not this pass's lane to act further on; #362 (the third PR in
-this lane) remains open and outside this arc.
+decision as bigger than its own slice. **#362** (coordinator-decided
+follow-on to #361's fork B) adds `write_scope_binding_required` (opt-in,
+default `0`) to `run_manifests`, threaded through
+`TaskStore.create_run_manifest`, `flow_start()`, and both CLI surfaces —
+mirroring the existing `require_worktree_binding` pattern exactly. Schema +
+API only, explicitly no guard yet; confirmed via `git diff` against its
+merge commit that it does **not** touch `CAPABILITY_CHECKLIST.md` at all
+(no row text, no bucket). Row **correctly stays IN PROGRESS** across all
+three PRs — re-verified from the diffs and row text directly, not taken on
+the PRs' own say-so. Not this pass's lane to act further on; #362 is the
+last PR of this lane as of this pass (`gh pr list --state open` shows no
+further #36x).
 
 **Direct-to-`main` push alert, 3rd/4th firing.** `08fd074` and `41277b5`
 ("docs: refresh Development status" for 2026-09-13 and 2026-09-14) both
@@ -144,13 +159,14 @@ protection is admin-bypassable. Not a new incident; no action needed.
 
 **Scoreboard re-derivation.** Direct count of `CAPABILITY_CHECKLIST.md` §7
 6.x rows (row number + status column extracted and paired programmatically,
-all 35 rows counted, not sampled), **re-run after the #360/#361
-fast-forward above, not from the pre-fetch clone**: **19 DONE / 10 IN
-PROGRESS (9 + 6.33 "evaluation-only, by design") / 6 NOT STARTED.**
-Unchanged from check #30 — #360/#361 expanded 6.4's evidence text but did
-not flip its bucket. 6.4 and 6.22 remain the two live IN PROGRESS rows with
-open fleet work against them (6.4: #362 still open; 6.22: fixture (b)
-landed this arc, residual gaps stand as stated above).
+all 35 rows counted, not sampled), **re-run a third time after the #362
+rebase, not from either earlier clone**: **19 DONE / 10 IN PROGRESS (9 + 6.33
+"evaluation-only, by design") / 6 NOT STARTED.** Unchanged from check #30 —
+#360/#361/#362 expanded 6.4's evidence text but did not flip its bucket.
+6.4 and 6.22 remain the two live IN PROGRESS rows with open fleet work
+against them (6.4: no further open PR in the lane as of this pass — `gh pr
+list --state open` confirmed only #363 itself and the unrelated #341; 6.22:
+fixture (b) landed this arc, residual gaps stand as stated above).
 
 **`python3 -m runtime.smoke`**: exit 0, `ok: true`.
 
@@ -230,13 +246,13 @@ open friction entry awaiting one).
 ## 5. Trajectory action
 
 **CONTINUE.** This arc landed one real capability advance (6.22 fixture
-(b), non-vacuous WITHHOLD exercise), a write-scope guard slice (6.4, #360)
-plus a scoping-only follow-on (#361), two mechanical rule-20 safeguards
-(handoff-register drift, dispatch-freshness), and process/infra work
-(standing merge authorization exercised without incident, reset desk,
-cross-project visibility tracking). Nothing changes roadmap scope,
-priority, or route to DONE. #362, the third PR in the active 6.4 lane, is
-still open and untouched by this pass.
+(b), non-vacuous WITHHOLD exercise), the full 6.4 write-scope lane (#360's
+guard, #361's scoping-only follow-on, #362's opt-in flag), two mechanical
+rule-20 safeguards (handoff-register drift, dispatch-freshness), and
+process/infra work (standing merge authorization exercised without
+incident, reset desk, cross-project visibility tracking). Nothing changes
+roadmap scope, priority, or route to DONE. No PR in this lane remains open
+as of this pass.
 
 ## 6. Tenth Seat Review §7 check
 
@@ -289,13 +305,16 @@ Carried to #32 explicitly:
    only files written since this check; confirm each carries a receipt and
    a matching `work/handoffs/README.md` row.
 3. Re-derive the scoreboard from `CAPABILITY_CHECKLIST.md` §7 by direct
-   count — expect 19/10/6 unless something moved (watch 6.4: #360/#361
-   landed this pass without flipping the row, #362 was still open as of
-   this pass and may have landed by #32).
-4. Also watch for the same mid-pass-refetch situation this pass hit: if the
-   active 6.4 lane lands a PR while you're mid-run, re-fetch, fast-forward,
-   and re-derive rather than trusting your pre-fetch clone (see this note's
-   own "Mid-pass re-fetch note" above for the mechanics that worked).
+   count — expect 19/10/6 unless something moved (6.4's write-scope lane —
+   #360/#361/#362 — is fully landed as of this pass with no row flip; check
+   whether a follow-on PR wiring `BEFORE_WRITE`'s firing call site or the
+   `verify_git_run` template #361 named has appeared).
+4. Also watch for the same mid-pass-refetch situation this pass hit twice:
+   if any lane lands a PR while you're mid-run (even after your own PR is
+   open — this happened here after independent review caught it), re-fetch,
+   rebase/fast-forward, and re-derive rather than trusting a stale clone or
+   an already-open PR's content (see this note's own "Mid-pass re-fetch
+   note" above for the mechanics that worked both times).
 
 DELIVERABLE: one PR, branch off `main`, titled `Roadmap trajectory check #32
 (<anchor>..HEAD — PRs <list>) (#<PR>)`, adding
