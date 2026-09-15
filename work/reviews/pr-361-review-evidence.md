@@ -1,5 +1,5 @@
 reviewer: maps-review-bane (independent, fresh clone, not the PR author)
-head_sha: 3342e5023f345ad3a2c65b23c65e7d541aaa1cd0
+head_sha: a8dfa141e0e3126a03785358f25f2643287ff126
 independent: true
 summary: APPROVED — design-only note verified diff-only against runtime/, its core technical claim about create_run_manifest checks out exactly against current source, its citations of the 6.16 precedent note and run-worktree-binding.md's escalation criteria are verbatim-accurate, and the (A)/(B) fork is accurately characterized and genuinely left unresolved.
 verdict: APPROVED
