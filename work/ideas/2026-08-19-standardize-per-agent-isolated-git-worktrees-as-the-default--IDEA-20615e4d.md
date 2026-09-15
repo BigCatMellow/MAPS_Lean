@@ -29,3 +29,17 @@ Not promoted. Promotion is a deliberate decision made by a human or task-lifecyc
 ## Disposition 2026-09-03 (Emergence pass, tuba)
 
 **PROMOTED / SUPERSEDED.** Landed. `playbook/WORKTREE_ISOLATION.md` is now the standing method and AGENTS.md carries the worktree convention; dispatch briefs routinely require a unique clone/worktree path. The idea is implemented — this record is superseded by that playbook. (Note: stale-worktree *accumulation* is a new, distinct problem — see the 2026-09-03 Emergence pass insight on worktree pollution — not a reason to re-open this record.)
+
+## Disposition 2026-09-15 (trajectory check #31)
+
+**Correction to the 2026-09-03 disposition above, now genuinely closed.** That
+entry claimed "AGENTS.md carries the worktree convention," but trajectory
+check #30 (2026-09-13) found `grep -n worktree AGENTS.md` returned nothing —
+the claim was premature; only `WORKTREE_ISOLATION.md` existed, never linked
+from `AGENTS.md` itself. Check #30 re-promoted this record on that evidence.
+**PR #350** (`8f70527`, merged 2026-09-13/14) closed the real gap:
+`AGENTS.md` line 141 now reads "dispatch workers into isolated
+worktrees/clones, never the shared checkout ([Worktree
+Isolation](playbook/WORKTREE_ISOLATION.md))" — verified present at this
+pass's `HEAD` (`8adfa31`). Record is now closed for real; no further sweep
+attention needed.

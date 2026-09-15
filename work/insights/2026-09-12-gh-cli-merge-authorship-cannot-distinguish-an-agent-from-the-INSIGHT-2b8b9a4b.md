@@ -23,3 +23,22 @@ Check whether GitHub branch protection can require a review approval distinct fr
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+## Disposition 2026-09-15 (trajectory check #31)
+
+**promote** — this is the 3rd consecutive incubate pass (checks #29, #30,
+#31) with no prior movement; running this record's own "smallest next test"
+produced real evidence rather than leaving it open a 4th time. `gh api
+repos/BigCatMellow/MAPS_Lean/branches/main/protection` (checked live at this
+pass's `HEAD`, `8adfa31`) shows
+`required_pull_request_reviews.required_approving_review_count: 0` and
+`require_last_push_approval: false` — GitHub's native "require approval of
+the most recent reviewable push" feature exists and is unset. Setting
+`required_approving_review_count >= 1` + `require_last_push_approval: true`
+would make PR #345's failure class (reviewer self-merging their own review)
+mechanically unrepresentable at the GitHub level, independent of the shared
+`gh` CLI identity that made post-hoc `mergedBy` auditing a no-op. This is a
+GitHub repo-settings change (branch protection), not a code change — the
+pass recommends it but does not apply it; operator/coordinator disposes per
+`EMERGENCE.md` Phase 3's authority split. Named in this pass's
+Operator-section.

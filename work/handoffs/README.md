@@ -79,6 +79,7 @@ Keep newest/recently changed handoffs first.
 
 | Handoff ID | Handoff status | Handoff | Reviewed | Continued at |
 | --- | --- | --- | --- | --- |
+| `MAPS-HO-20260915-session-bobo-plan-calibration` | `OPEN` | `MAPS_Lean_Handoff_2026-09-15-session-bobo-plan-calibration.md` (outside repo, `/home/home/`) | NOT YET | NOT YET |
 | `MAPS-HO-20260913-session43` | `CONTINUED` | `MAPS_Lean_Handoff_2026-09-13-session43.md` (outside repo, `/home/home/`) | 2026-09-13 by bobo | This session (bobo, hcom name), post-self-clear resume of session 43. |
 | `LEGACY-MAPS-20260912-session42` | `CONTINUED` | `MAPS_Lean_Handoff_2026-09-12-session42.md` (outside repo — operator home dir, not tracked in git) | 2026-09-13 by `nepo` (handoff-audit reconciliation pass) | commits `1c35470..b60b81d` (PRs #344, #345, #346, #348, #349 — trajectory checks #29 and #30) |
 | `LEGACY-MAPS-20260910-hore-backup-seat` | `CONTINUED` | `MAPS_Lean_Handoff_2026-09-10-hore-backup-seat.md` (outside repo — operator home dir, not tracked in git) | 2026-09-13 by `nepo` (handoff-audit reconciliation pass) | role continuity — session 42's handoff names `mube` as the then-current backup seat |
