@@ -189,6 +189,7 @@ class ExecutionIntegrityMixin:
         runtime_limits: Mapping[str, int] | None = None,
         base_revision: str | None = None,
         require_worktree_binding: bool = False,
+        require_write_scope_binding: bool = False,
     ) -> MutationResult:
         if not worker_id.strip() or not created_by.strip():
             return MutationResult(
@@ -335,8 +336,9 @@ class ExecutionIntegrityMixin:
                 INSERT INTO run_manifests(
                     run_id, task_id, task_revision, worker_id, session_id,
                     readable_scope, writable_scope, forbidden_scope,
-                    runtime_limits, base_revision, created_by, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    runtime_limits, base_revision, write_scope_binding_required,
+                    created_by, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run_id,
@@ -349,6 +351,7 @@ class ExecutionIntegrityMixin:
                     json.dumps(forbidden, separators=(",", ":")),
                     json.dumps(limits, sort_keys=True, separators=(",", ":")),
                     base_revision,
+                    1 if require_write_scope_binding else 0,
                     created_by.strip(),
                     created_at,
                 ),
@@ -396,6 +399,9 @@ class ExecutionIntegrityMixin:
             record = dict(row)
             for field in ("readable_scope", "writable_scope", "forbidden_scope", "runtime_limits"):
                 record[field] = json.loads(record[field])
+            record["write_scope_binding_required"] = bool(
+                record["write_scope_binding_required"]
+            )
             record["context_refs"] = [
                 dict(item)
                 for item in conn.execute(

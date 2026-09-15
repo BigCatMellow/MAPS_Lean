@@ -54,6 +54,14 @@ def main(argv: list[str] | None = None) -> int:
         "bound; requires --base-revision (run creation fails with "
         "WORKTREE_BINDING_REQUIRES_BASE_REVISION if passed alone)",
     )
+    create.add_argument(
+        "--require-write-scope-binding",
+        action="store_true",
+        help="record that this run's write scope (readable/writable/"
+        "forbidden, already always computed) is a conscious declaration to "
+        "enforce later, not just the untouched default; no guard reads this "
+        "yet (roadmap 6.4)",
+    )
     create.add_argument("--runtime-seconds", type=int)
     create.add_argument("--max-tool-failures", type=int)
     create.add_argument("--max-attempts", type=int)
@@ -134,6 +142,7 @@ def main(argv: list[str] | None = None) -> int:
                 runtime_limits=limits,
                 base_revision=args.base_revision,
                 require_worktree_binding=args.require_worktree_binding,
+                require_write_scope_binding=args.require_write_scope_binding,
             )
         )
     if args.command == "run-show":
