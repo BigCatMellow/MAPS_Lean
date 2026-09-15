@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Mapping, Protocol
+from typing import Any, Callable, Iterable, Mapping, Protocol
 
 from runtime.harness import (
     HookDirective,
@@ -14,6 +14,7 @@ from runtime.harness import (
 )
 from runtime.harness.hooks import HookEnforcement
 from runtime.integrity.git_scope import (
+    collect_git_changes,
     collect_git_worktree_identity,
     compare_worktree_identity,
 )
@@ -21,6 +22,7 @@ from runtime.state.common import parse_time, utc_now
 
 
 WorktreeIdentitySource = Callable[[str], Mapping[str, Any]]
+ChangedPathsSource = Callable[..., Iterable[str]]
 
 
 class CanonicalRunSource(Protocol):
@@ -29,6 +31,9 @@ class CanonicalRunSource(Protocol):
     def compute_task_revision(self, task_id: str) -> str | None: ...
     def check_run_stale(self, run_id: str, *, repo_root: str | Path) -> dict[str, Any]: ...
     def resolve_run_session(self, run_id: str) -> dict[str, Any] | None: ...
+    def verify_run_changes(
+        self, run_id: str, changed_paths: Iterable[str], *, repo_root: str | Path
+    ) -> dict[str, Any]: ...
 
 
 class CanonicalRunGuard:
@@ -41,11 +46,13 @@ class CanonicalRunGuard:
         repo_root: str | Path,
         now: Callable[[], datetime] = utc_now,
         worktree_identity: WorktreeIdentitySource = collect_git_worktree_identity,
+        changed_paths: ChangedPathsSource = collect_git_changes,
     ) -> None:
         self.source = source
         self.repo_root = Path(repo_root).resolve()
         self.now = now
         self.worktree_identity = worktree_identity
+        self.changed_paths = changed_paths
 
     @staticmethod
     def _deny(code: str, reason: str) -> HookOutcome:
@@ -129,6 +136,42 @@ class CanonicalRunGuard:
             return self._deny(
                 "RUN_WORKTREE_MISMATCH",
                 "Run is bound to a different Git worktree than the one continuing it.",
+            )
+        return None
+
+    def _require_write_scope(
+        self, manifest: Mapping[str, Any], run_id: str
+    ) -> HookOutcome | None:
+        """Fail closed only for runs that opted into write-scope enforcement.
+
+        Mirrors `_require_bound_worktree` exactly: the opt-in
+        (`write_scope_binding_required`, roadmap 6.4) defaults to falsy for
+        every run that never asked for it, and absence of the opt-in is a
+        coverage gap, not a failure -- those runs are always allowed here,
+        unchanged. Only a run whose manifest carries the flag pays the cost
+        of a real Git diff (`collect_git_changes`) compared against its own
+        already-frozen `writable_scope`, via the same `verify_run_changes()`
+        the advisory `run-verify-git` CLI already uses (no second definition
+        of scope membership -- rule 12).
+        """
+        if not manifest.get("write_scope_binding_required"):
+            return None
+        try:
+            changed = self.changed_paths(
+                str(self.repo_root), base_revision=manifest.get("base_revision")
+            )
+        except RuntimeError:
+            return self._deny(
+                "RUN_WRITE_SCOPE_UNAVAILABLE",
+                "Actual Git changes could not be read for a write-scope-bound run.",
+            )
+        result = self.source.verify_run_changes(run_id, changed, repo_root=self.repo_root)
+        if not result.get("ok", True):
+            out_of_scope = result.get("out_of_scope") or []
+            return self._deny(
+                "RUN_WRITE_SCOPE_VIOLATION",
+                "Run's actual changes exceed its declared write scope: "
+                + ", ".join(out_of_scope),
             )
         return None
 
@@ -220,6 +263,9 @@ class CanonicalRunGuard:
             if error is not None:
                 return error
             error = self._require_bound_worktree(manifest)
+            if error is not None:
+                return error
+            error = self._require_write_scope(manifest, run_id)
             if error is not None:
                 return error
         if session_bound:
