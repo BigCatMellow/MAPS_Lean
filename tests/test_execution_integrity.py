@@ -5,8 +5,9 @@ import subprocess
 import tempfile
 import unittest
 
+from runtime.harness import HookDirective
 from runtime.integrity import verify_git_run
-from runtime.policy import WorkerProfile
+from runtime.policy import CanonicalRunGuard, WorkerProfile
 from runtime.routing import recommend_route
 from runtime.state import TaskStore
 
@@ -301,6 +302,74 @@ class IntegrityTests(unittest.TestCase):
         self.assertIn("src/a.py", result["changed_paths"])
         self.assertEqual((self.repo / "README.md").read_text(), "changed\n")
 
+    def _write_scope_context(self, task_id, manifest, *, operation="start"):
+        return {
+            "operation": operation,
+            "binding": {
+                "task_id": task_id,
+                "run_id": manifest["run_id"],
+                "worker_id": "worker",
+                "task_revision": manifest["task_revision"],
+                "project_id": "default",
+            },
+        }
+
+    def test_canonical_run_guard_denies_real_out_of_scope_write(self):
+        # End-to-end, no mocks: real TaskStore, real git repo, real
+        # CanonicalRunGuard consulting the real write_scope_binding_required
+        # flag (PR #362) and the real verify_run_changes()/collect_git_changes
+        # path (roadmap 6.4 guard wiring).
+        base = self.init_git_repo()
+        task_id = self.make_active(outputs=["src"])
+        manifest = self.make_run(
+            task_id,
+            writable_paths=["src"],
+            base_revision=base,
+            require_write_scope_binding=True,
+        )
+        self.assertIs(manifest["write_scope_binding_required"], True)
+        (self.repo / "README.md").write_text("changed\n", encoding="utf-8")
+
+        guard = CanonicalRunGuard(self.store, repo_root=self.repo)
+        outcome = guard(self._write_scope_context(task_id, manifest))
+
+        self.assertEqual(outcome.directive, HookDirective.DENY)
+        self.assertEqual(outcome.annotations["guard_code"], "RUN_WRITE_SCOPE_VIOLATION")
+        self.assertIn("README.md", outcome.reason)
+
+    def test_canonical_run_guard_allows_real_in_scope_write(self):
+        base = self.init_git_repo()
+        task_id = self.make_active(outputs=["src"])
+        manifest = self.make_run(
+            task_id,
+            writable_paths=["src"],
+            base_revision=base,
+            require_write_scope_binding=True,
+        )
+        (self.repo / "src" / "a.py").write_text("x = 2\n", encoding="utf-8")
+
+        guard = CanonicalRunGuard(self.store, repo_root=self.repo)
+        outcome = guard(self._write_scope_context(task_id, manifest))
+
+        self.assertEqual(outcome.directive, HookDirective.ANNOTATE)
+        self.assertEqual(outcome.annotations["guard_code"], "CANONICAL_RUN_VERIFIED")
+
+    def test_canonical_run_guard_ignores_write_scope_when_not_bound(self):
+        # No require_write_scope_binding=True -- an out-of-scope change on an
+        # otherwise-ordinary run must not be denied (opt-in only, PR #362's
+        # whole point).
+        base = self.init_git_repo()
+        task_id = self.make_active(outputs=["src"])
+        manifest = self.make_run(task_id, writable_paths=["src"], base_revision=base)
+        self.assertIs(manifest["write_scope_binding_required"], False)
+        (self.repo / "README.md").write_text("changed\n", encoding="utf-8")
+
+        guard = CanonicalRunGuard(self.store, repo_root=self.repo)
+        outcome = guard(self._write_scope_context(task_id, manifest))
+
+        self.assertEqual(outcome.directive, HookDirective.ANNOTATE)
+        self.assertEqual(outcome.annotations["guard_code"], "CANONICAL_RUN_VERIFIED")
+
     def test_required_worktree_binding_accepts_git_repo(self):
         base = self.init_git_repo()
         task_id = self.make_active(outputs=["src"])
@@ -531,23 +600,30 @@ class IntegrityTests(unittest.TestCase):
 
 
 class WriteScopeBindingFlagIsolationTest(unittest.TestCase):
-    """Roadmap 6.4 slice boundary: `require_write_scope_binding` is schema +
-    API only (`work/notes/2026-09-15-6.4-write-scope-binding-flag-design.md`)
-    -- no guard reads it yet. Confirms that boundary held: nothing under
-    `runtime/policy/` or `runtime/recovery/` references the flag or its
-    persisted column name.
+    """Roadmap 6.4: `write_scope_binding_required`/`require_write_scope_binding`
+    (PR #362, schema + API) is now consulted by exactly one guard --
+    `runtime/policy/harness_guard.py::CanonicalRunGuard._require_write_scope`
+    -- and nowhere else. Confirms that boundary: no other `runtime/policy/`
+    file and nothing under `runtime/recovery/` references the flag or its
+    persisted column name (`runtime/recovery/production.py` needs no change
+    for this wiring -- `CanonicalRunGuard`'s new capability is opt-in via a
+    constructor default, not a new composition-root call).
     """
 
-    def test_no_policy_or_recovery_code_references_the_flag(self):
+    def test_only_the_canonical_run_guard_references_the_flag(self):
         root = Path(__file__).resolve().parents[1]
+        allowed = {root / "runtime" / "policy" / "harness_guard.py"}
         sources = sorted((root / "runtime" / "policy").rglob("*.py")) + sorted(
             (root / "runtime" / "recovery").rglob("*.py")
         )
         offenders = [
             str(path.relative_to(root))
             for path in sources
-            if "write_scope_binding_required" in path.read_text(encoding="utf-8")
-            or "require_write_scope_binding" in path.read_text(encoding="utf-8")
+            if path not in allowed
+            and (
+                "write_scope_binding_required" in path.read_text(encoding="utf-8")
+                or "require_write_scope_binding" in path.read_text(encoding="utf-8")
+            )
         ]
         self.assertEqual(offenders, [])
 
