@@ -56,6 +56,18 @@ Keep that path as small as practical without deleting decision-relevant meaning.
 Add state, coordination, evidence, or another method only when the work requires
 it. If routine work needs several overlapping methods, consolidate.
 
+### Contract protection
+
+Substantive changes to `AGENTS.md` are **high-risk authority changes**, not ordinary
+documentation. They require an explicitly authorized contract/authority scope;
+generic documentation, cleanup, refactor, or implementation authority is not
+enough and cannot bootstrap permission to rewrite this contract. Before approval,
+compare the proposed contract with the prior one for invariant loss, authority
+drift, contradiction, and routing effects, then verify the exact substantive head
+with genuinely independent review. Cost/size metrics are diagnostic constraints,
+never reasons to weaken a necessary global invariant. Keep contract changes
+narrowly scoped and separately reviewable when practical.
+
 ## Hard operating invariants
 
 1. **Smallest coherent change.** Make the smallest change that preserves or
@@ -84,7 +96,8 @@ it. If routine work needs several overlapping methods, consolidate.
     complete the [Operational independence gate](playbook/TASK_LIFECYCLE.md#operational-independence-gate) when triggered.
 12. **One owner, independent review.** Each active task has one accountable
     owner; no owner approves their own substantive work.
-13. **Mistakes must teach the system.** Capture material failures/friction through
+13. **Mistakes must teach the system.** Route qualifying failures, friction, wrong
+    assumptions, tool/environment gaps, and review-caught defect classes through
     [Repair and Learning](playbook/REPAIR_AND_LEARNING.md). First occurrence:
     fix, record cause/lesson, and verify. Recurrence means the prior fix was
     insufficient — add a mechanical safeguard (test, template field, hook, or
