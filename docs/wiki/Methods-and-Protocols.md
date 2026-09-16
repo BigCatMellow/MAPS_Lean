@@ -15,6 +15,7 @@ human authority
 → AGENTS.md global operating contract
 → approved project / roadmap
 → active task contract
+→ canonical runtime / task state
 → one relevant MAPS_L method
 → project-specific protocol when needed
 → evidence / review / handoff
