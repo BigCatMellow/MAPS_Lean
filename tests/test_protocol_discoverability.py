@@ -12,24 +12,63 @@ def normalized(text: str) -> str:
     return " ".join(text.split())
 
 
+def active_methods() -> list[str]:
+    return [
+        path.name
+        for path in sorted(PLAYBOOK.glob("*.md"))
+        if path.name != "INDEX.md"
+    ]
+
+
+def trigger_router(index: str) -> str:
+    return index.split("## Route by situation", 1)[1].split(
+        "### Related non-playbook routes", 1
+    )[0]
+
+
 class ProtocolDiscoverabilityTests(unittest.TestCase):
     def test_trigger_router_covers_entire_active_playbook_surface(self):
         index = INDEX.read_text(encoding="utf-8")
         self.assertIn("## Route by situation", index)
 
-        router = index.split("## Route by situation", 1)[1].split(
-            "### Related non-playbook routes", 1
-        )[0]
-        missing = [
-            path.name
-            for path in sorted(PLAYBOOK.glob("*.md"))
-            if path.name != "INDEX.md" and path.name not in router
-        ]
+        router = trigger_router(index)
+        missing = [name for name in active_methods() if name not in router]
         self.assertEqual(
             missing,
             [],
             "Every active playbook method must be discoverable by trigger, not only "
             f"listed elsewhere in the index. Missing: {missing}",
+        )
+
+    def test_trigger_router_has_one_primary_row_per_active_method(self):
+        """Keep the router structurally compact without an arbitrary token ceiling."""
+
+        router = trigger_router(INDEX.read_text(encoding="utf-8"))
+        methods = active_methods()
+
+        duplicate_or_missing = {
+            name: router.count(f"]({name})")
+            for name in methods
+            if router.count(f"]({name})") != 1
+        }
+        self.assertEqual(
+            duplicate_or_missing,
+            {},
+            "Each active playbook must have exactly one primary trigger-route link. "
+            f"Bad counts: {duplicate_or_missing}",
+        )
+
+        primary_rows = [
+            line
+            for line in router.splitlines()
+            if line.startswith("|")
+            and any(f"]({name})" in line for name in methods)
+        ]
+        self.assertEqual(
+            len(primary_rows),
+            len(methods),
+            "Route by situation must stay one primary table row per active method; "
+            "do not grow duplicate routing rows merely to repeat guidance.",
         )
 
     def test_router_preserves_authority_boundaries(self):
