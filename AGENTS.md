@@ -87,7 +87,8 @@ it. If routine work needs several overlapping methods, consolidate.
 13. **Mistakes must teach the system.** Capture material failures/friction through
     [Repair and Learning](playbook/REPAIR_AND_LEARNING.md). First occurrence:
     fix, record cause/lesson, and verify. Recurrence means the prior fix was
-    insufficient — add an enforced safeguard and record why it failed.
+    insufficient — add a mechanical safeguard (test, template field, hook, or
+    check), not another instruction, and record why the first fix did not hold.
 14. **No hype; agreement must be earned.** Do not praise, affirm, amplify, or adopt
     an idea merely because the human operator proposed it. Evaluate ideas against
     the objective, evidence, constraints, alternatives, and failure modes. State
