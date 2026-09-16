@@ -33,12 +33,12 @@ a nearby but wrong method.
 | Bind/reconstruct run scope, context, evidence, or review independence | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) | Execution/review proof; does not grant authority. |
 | Choose the right next task inside an approved program | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Per-task steering; not roadmap redesign. |
 | Recheck roadmap trajectory after accumulated work/evidence | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) | Roadmap/work-arc correction; not routine task selection. |
-| Failure, drift, wrong assumption, friction, or recurrence | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | Repair/triage; findings do not silently become policy. |
-| New idea, improvement, cross-root connection, or challenge | [EMERGENCE.md](EMERGENCE.md) | E/I proposes/captures; trajectory checks provide cadence; promotion and authority stay deliberate. |
-| Durable information may be isolated, stale, or weakly connected | [SPIDERWEB_AUDIT.md](SPIDERWEB_AUDIT.md) | Relationship diagnostic; graph/link density is not authority. |
+| Failure, drift, wrong assumption, friction, or recurrence | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | Mandatory triage: capture → severity → recurrence → mechanical safeguard → live verify; findings do not silently become policy. |
+| New idea, improvement, cross-root connection, or challenge | [EMERGENCE.md](EMERGENCE.md) | E/I proposes/captures and may challenge or supersede mechanisms; trajectory checks provide cadence; `AGENTS.md` / Decisions & Safety authorize change, while drift repair stays with Repair & Learning. |
+| Durable information may be isolated, stale, or weakly connected | [SPIDERWEB_AUDIT.md](SPIDERWEB_AUDIT.md) | Relationship diagnostic; topic similarity, link count/density, or the derived graph are not authority. |
 | Consequential consensus needs formal independent dissent | [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md) | Formal dissent protocol; ordinary challenge need not invoke it. |
-| Distinguish authority, context, facts, Skills, flows, tools, examples | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Information type; classification does not create authority. |
-| Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Lifecycle/routing; not information-type classification. |
+| Distinguish authority, context, facts, Skills, flows, tools, examples | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Information type; not lifecycle status and does not create authority. |
+| Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Active/retired/archive lifecycle plus routing maintenance; not information-type classification. |
 | Route by demonstrated model/harness capability, cost, or retained HPOM heuristic | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Capability/cost choice; capability is not permission. |
 | Apply provider/tool-specific guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Provider adaptation; cannot redefine MAPS authority. |
 | Locate runtime/control-plane ownership | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Runtime responsibility map; UI/session presence is not authority. |
