@@ -266,13 +266,44 @@ protocol-tuning risk above, which is about the owner's *judgment* after a
 genuine, undeniable, already-fixed result exists — not about timing or
 grinding, and not something any commitment scheme can close.
 
-**Compensating control, per the authorization in §0:** there is no
-technical fix for this within a solo-owner, no-third-party constraint —
+**A third, separate residual risk, named explicitly per rumi's required
+follow-up on this PR's implementation pass (revision 3): reroll.**
+Formula-grinding (picking a favorable *formula*) is technically blocked by
+§3.2's ordering. Rerolling the *ceremony itself* is not: nothing in §3.2
+stops an operator from re-declaring a new `source_pool_freeze_timestamp`
+after seeing an unfavorable draw from an earlier one, with byte-identical
+pool content, to force a different qualifying beacon pulse and therefore a
+different 48-case result. This is not a new mechanism gap this note failed
+to consider before — the original sealed design carried the exact same
+theoretical vulnerability and relied on the same two things this note
+already names as retired or weakened: an independent, non-incentivized
+custodian (Gate 0, now gone) and the "do not reroll... because you dislike
+the sample" instruction (prose, always trust-based, never technically
+enforced, even in the original design). What changes here is that the
+custodian backstop is gone, so reroll now rests on self-discipline alone,
+the same footing as protocol-tuning. The implementation PR
+(`INDEPENDENT-CURATOR-START-PROMPT.md` Gate 2,
+`TARGET-WORK-SAMPLING-MANIFEST.md`'s "Precommit fields") makes
+`source_pool_freeze_timestamp` immutable-once-committed by the same rule
+that already governs a pool-content change, which gives reroll the same
+*tamper-evidence* property §3.3 gives a post-hoc case swap — a second
+freeze-timestamp commit is a permanent, dated, attributable fact in git
+history — but this is detection, not prevention, exactly like §3.3's
+original argument, and the existing "do not reroll" prose survives that
+edit intact (verified in the implementation PR, not silently dropped).
+
+**Compensating control, per the authorization in §0, covering both
+open residual risks (protocol-tuning and reroll):** there is no
+technical fix for either within a solo-owner, no-third-party constraint —
 the mitigation is the operator's own explicit self-attestation, recorded
 here verbatim per this dispatch's instruction: *"solo owner, no trusted
 third party available or wanted, explicitly accepts running curation
 themselves and self-attests they will not tune case selection toward
-favorable outcomes."* This note does not treat that attestation as closing
+favorable outcomes."* "Tune case selection toward favorable outcomes"
+already reads naturally over reroll (choosing which *draw* to keep) as
+much as over protocol-tuning (choosing how to respond to a fixed draw) —
+this note records that reading explicitly rather than leaving it
+implicit. This note does not treat that attestation as closing
 the risk — it treats it as the operator's informed, explicit acceptance of
 a risk that has no available technical closure, which is a materially
 different and more honest thing to record than silently weakening the
