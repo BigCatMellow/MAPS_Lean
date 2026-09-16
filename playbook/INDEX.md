@@ -34,12 +34,12 @@ a nearby but wrong method.
 | Choose the right next task inside an approved program | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Per-task steering; not roadmap redesign. |
 | Recheck roadmap trajectory after accumulated work/evidence | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) | Roadmap/work-arc correction; not routine task selection. |
 | Failure, drift, wrong assumption, friction, or recurrence | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | Repair/triage; findings do not silently become policy. |
-| New idea, improvement, cross-root connection, or challenge | [EMERGENCE.md](EMERGENCE.md) | E/I proposes/captures; promotion and authority stay deliberate. |
+| New idea, improvement, cross-root connection, or challenge | [EMERGENCE.md](EMERGENCE.md) | E/I proposes/captures; trajectory checks provide cadence; promotion and authority stay deliberate. |
 | Durable information may be isolated, stale, or weakly connected | [SPIDERWEB_AUDIT.md](SPIDERWEB_AUDIT.md) | Relationship diagnostic; graph/link density is not authority. |
 | Consequential consensus needs formal independent dissent | [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md) | Formal dissent protocol; ordinary challenge need not invoke it. |
 | Distinguish authority, context, facts, Skills, flows, tools, examples | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Information type; classification does not create authority. |
 | Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Lifecycle/routing; not information-type classification. |
-| Route by demonstrated model/harness capability and cost | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Capability/cost choice; capability is not permission. |
+| Route by demonstrated model/harness capability, cost, or retained HPOM heuristic | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Capability/cost choice; capability is not permission. |
 | Apply provider/tool-specific guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Provider adaptation; cannot redefine MAPS authority. |
 | Locate runtime/control-plane ownership | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Runtime responsibility map; UI/session presence is not authority. |
 | Consequential decision, destruction, safety, or reauthorization | [DECISIONS_AND_SAFETY.md](DECISIONS_AND_SAFETY.md) | Decision/safety path inside the existing authority model. |
@@ -57,9 +57,11 @@ ownership.
 
 ### Related non-playbook routes
 
-- Fresh control-plane install/verification → [Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md)
-- Portable deployment planning → [Portable Deployment roadmap](../work/roadmaps/agent-harness-capabilities/06-portable-deployment.md)
-- Session continuation → [Current state](../state/CURRENT.md) + [handoff template](../templates/handoff.md)
+| Need | Route | Boundary |
+| --- | --- | --- |
+| Fresh control-plane install/verification | [Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md) | Setup/migration only; keep database/runtime responsibility separate from authority. |
+| Portable control-plane deployment planning | [Portable Deployment roadmap](../work/roadmaps/agent-harness-capabilities/06-portable-deployment.md) | Current deployment roadmap; not a global operating rule. |
+| Session continuation/recovery | [Current state](../state/CURRENT.md) + [handoff template](../templates/handoff.md) | Continuation state/evidence only; does not expand task authority. |
 
 ## Adding or changing a method
 
@@ -72,7 +74,8 @@ Follow the anti-sprawl invariant in `AGENTS.md`. Before adding a playbook file:
 5. Merge/retire anything it supersedes in the same arc.
 
 A new file is not evidence of a new capability. Fewer, clearer owners are
-preferred.
+preferred when they preserve the same or better behavior; file count alone is
+not a reason to merge distinct responsibilities.
 
 ## Legacy audit and migration sources
 
