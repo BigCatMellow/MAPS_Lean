@@ -24,7 +24,8 @@ to the most restrictive text. Repair a stale lower source when safe and in scope
 
 ### Documentation sprawl invariant
 
-MAPS_L MUST prefer consolidation over accumulation.
+MAPS_L MUST prefer consolidation over accumulation, but consolidation is a means,
+not the objective. Preserve or improve behavior first.
 
 - New global rules belong here.
 - A new playbook needs one distinct reusable job that cannot fit an existing owner.
@@ -32,30 +33,37 @@ MAPS_L MUST prefer consolidation over accumulation.
 - Forward-relevant durable information should not be an island: link it to the
   parent/source/decision/evidence/successor that gives it meaning. Prefer links
   over copied explanation.
-- Optimize for **shortest useful route**, not graph density. Use a few stable
-  hubs and direct links to the owning source; do not make agents chain-browse or
-  search directories to discover routine paths.
+- Optimize for **shortest reliable route and useful information per token**, not
+  the smallest file, fewest files, or lowest metric. File size, method count, and
+  token proxies are diagnostic costs, not hard ceilings. Growth is valid when
+  distinct necessary behavior earns its cost; compaction is valid only without
+  semantic or behavioral loss.
+- Use a few stable hubs and direct links to the owning source; do not make agents
+  chain-browse or search directories to discover routine paths.
 - When routine documentation retrieval starts requiring search/chain reads or
-  entry/hub budgets grow, run the [information-routing maintenance pass](playbook/INFORMATION_LIFECYCLE.md#information-routing-maintenance-pass).
+  read cost/semantic density degrades, run the [information-routing maintenance pass](playbook/INFORMATION_LIFECYCLE.md#information-routing-maintenance-pass).
 - New methods must be indexed in [`playbook/INDEX.md`](playbook/INDEX.md).
 - Task notes, reviews, handoffs, experiments, migration findings, and examples do
   not become global process merely because they contain imperative language.
 
-Common-case reading budget:
+Common-case read path:
 
 ```text
 AGENTS.md + approved roadmap/task + one relevant playbook method
 ```
 
+Keep that path as small as practical without deleting decision-relevant meaning.
 Add state, coordination, evidence, or another method only when the work requires
 it. If routine work needs several overlapping methods, consolidate.
 
 ## Hard operating invariants
 
-1. **Smallest coherent change.** Do not build infrastructure for a one-off need.
+1. **Smallest coherent change.** Make the smallest change that preserves or
+   improves required behavior. Do not build infrastructure for a one-off need.
 2. **Brevity over grammar. Tokens are a resource.** Default to the shortest
-   complete answer or record. Preserve only information that changes correctness,
-   action, evidence, risk, or understanding; expand only when needed.
+   complete answer or record. Preserve information that changes correctness,
+   action, evidence, risk, or understanding. Do not delete decision-relevant
+   meaning merely to hit a size/token target; expand only when needed.
 3. **Do not guess across a material boundary.** Inspect evidence, research or use
    focused helpers, challenge consequential uncertainty, then decide inside authority.
 4. **Do not silently expand scope.** The operator may reshape implementation and
@@ -80,14 +88,22 @@ it. If routine work needs several overlapping methods, consolidate.
     [Repair and Learning](playbook/REPAIR_AND_LEARNING.md). First occurrence:
     fix, record cause/lesson, and verify. Recurrence means the prior fix was
     insufficient — add an enforced safeguard and record why it failed.
-14. **No hype; agreement must be earned.** Evaluate ideas against objective,
-    evidence, constraints, alternatives, and failure modes. State material
-    weaknesses or better alternatives when useful. Do not praise/agree merely
-    because the human proposed it, and do not disagree performatively.
+14. **No hype; agreement must be earned.** Do not praise, affirm, amplify, or adopt
+    an idea merely because the human operator proposed it. Evaluate ideas against
+    the objective, evidence, constraints, alternatives, and failure modes. State
+    material weaknesses, tradeoffs, unsupported assumptions, counterarguments,
+    and better alternatives when they exist; push back when that would improve
+    the result. Do not manufacture objections or disagree performatively—agreement
+    is appropriate when it survives scrutiny, and should be specific about why.
 15. **Close handoff loops.** Follow
     [`work/handoffs/README.md`](work/handoffs/README.md): register durable
     handoffs, receipt review/continuation/terminal state, and keep the register
     synchronized. Thread-only receipts stay on their source GitHub thread.
+16. **Methods are replaceable, not sacred.** Past success is evidence, not
+    permanent authority. When evidence and review support a materially better
+    method, deliberately supersede the old one: update the canonical owner,
+    routes/tests, preserve provenance, and retire obsolete duplication. E/I may
+    surface candidates; it does not itself authorize the change.
 
 ## Scope-level authorization
 
