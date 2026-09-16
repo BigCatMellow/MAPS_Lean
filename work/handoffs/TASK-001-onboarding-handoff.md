@@ -5,6 +5,13 @@
 - Task: [TASK-001](../tasks/TASK-001-first-run-onboarding-simulation.md)
 - Status: owner-complete; ready for independent accuracy review
 
+```text
+Handoff ID: LEGACY-MAPS-20260818-task-001-onboarding-handoff
+Handoff status: CLOSED
+Reviewed: 2026-09-13 by nepo (handoff-audit reconciliation pass)
+Continued at: work/reviews/TASK-001-independent-review.md
+```
+
 ## What is true now
 
 - The owner completed the active-doc onboarding simulation and wrote the

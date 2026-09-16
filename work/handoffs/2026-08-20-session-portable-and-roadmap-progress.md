@@ -5,6 +5,13 @@
 - Task: roadmap continuation after 2026-08-19 session handoffs
 - Status: portable deployment is blocked at D3; follow-on internal roadmap work is active
 
+```text
+Handoff ID: LEGACY-MAPS-20260820-session-portable-and-roadmap-progress
+Handoff status: CONTINUED
+Reviewed: 2026-09-13 by nepo (handoff-audit reconciliation pass)
+Continued at: work/handoffs/2026-08-21-roadmap-progress-and-handoff.md
+```
+
 ## What is true now
 
 - VERIFIED: PRs #133 through #140 were merged to `main` by 2026-08-21 00:15 UTC.
