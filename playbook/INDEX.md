@@ -14,39 +14,41 @@ AGENTS.md → approved roadmap/project → active task
 
 A playbook may define requirements for the method it owns, but cannot override a
 higher authority source. If it conflicts, follow the higher source and repair
-the lower one. Do not chain-read playbooks by default.
+the lower one. Do not chain-read playbooks by default; if methods routinely
+overlap, consolidate their owners.
 
 ## Route by situation
 
 Read only the method triggered by the concern. The trigger is routing, not new
-authority or a copy of the procedure.
+authority or a copy of the procedure. Use the boundary column to avoid choosing
+a nearby but wrong method.
 
-| Trigger | Route |
-| --- | --- |
-| Start/frame a durable project | [PROJECT_BOOTSTRAP.md](PROJECT_BOOTSTRAP.md) |
-| Compile a concise request into bounded work | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) |
-| Decide whether consequential work is agent-ready | [AGI_STANDARD.md](AGI_STANDARD.md) |
-| Shape, assign, execute, review, or finish a task | [TASK_LIFECYCLE.md](TASK_LIFECYCLE.md) |
-| Delegate or communicate across agents | [HELPERS_AND_COMMUNICATION.md](HELPERS_AND_COMMUNICATION.md) |
-| Bind/reconstruct run scope, context, evidence, or review independence | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) |
-| Choose the right next task inside an approved program | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) |
-| Recheck roadmap trajectory after accumulated work/evidence | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) |
-| Failure, drift, wrong assumption, friction, or recurrence | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) |
-| New idea, improvement, cross-root connection, or challenge | [EMERGENCE.md](EMERGENCE.md) |
-| Durable information may be isolated, stale, or weakly connected | [SPIDERWEB_AUDIT.md](SPIDERWEB_AUDIT.md) |
-| Consequential consensus needs formal independent dissent | [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md) |
-| Distinguish authority, context, facts, Skills, flows, tools, examples | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) |
-| Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) |
-| Route by demonstrated model/harness capability and cost | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) |
-| Apply provider/tool-specific guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) |
-| Locate runtime/control-plane ownership | [CONTROL_PLANE.md](CONTROL_PLANE.md) |
-| Consequential decision, destruction, safety, or reauthorization | [DECISIONS_AND_SAFETY.md](DECISIONS_AND_SAFETY.md) |
-| Isolate writable dispatched work or recover a worktree failure | [WORKTREE_ISOLATION.md](WORKTREE_ISOLATION.md) |
-| Test/tune a workflow with a bounded agent scenario | [SIMULATION_DESIGN.md](SIMULATION_DESIGN.md) |
-| Represent/import a project in ProjectUpdater | [ROADMAP_AND_PROJECTUPDATER.md](ROADMAP_AND_PROJECTUPDATER.md) |
-| Establish facts or evaluate a workflow/document/usability path | [RESEARCH.md](RESEARCH.md) |
-| Analyze downside, reversibility, blast radius, or mitigations | [RISK_AND_CHANGE.md](RISK_AND_CHANGE.md) |
-| Trace legacy provenance/original retained guidance | [SOURCE_CATALOG.md](SOURCE_CATALOG.md) |
+| Trigger | Route | Key boundary |
+| --- | --- | --- |
+| Start/frame a durable project | [PROJECT_BOOTSTRAP.md](PROJECT_BOOTSTRAP.md) | Project framing; not task-level policy. |
+| Compile a concise request into bounded work | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) | Compiles inherited intent; cannot expand authority. |
+| Decide whether consequential work is agent-ready | [AGI_STANDARD.md](AGI_STANDARD.md) | Readiness standard; readiness is not authorization. |
+| Shape, assign, execute, review, or finish a task | [TASK_LIFECYCLE.md](TASK_LIFECYCLE.md) | Task lifecycle under inherited scope. |
+| Delegate or communicate across agents | [HELPERS_AND_COMMUNICATION.md](HELPERS_AND_COMMUNICATION.md) | Delegation transfers execution, not parent ownership. |
+| Bind/reconstruct run scope, context, evidence, or review independence | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) | Execution/review proof; does not grant authority. |
+| Choose the right next task inside an approved program | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Per-task steering; not roadmap redesign. |
+| Recheck roadmap trajectory after accumulated work/evidence | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) | Roadmap/work-arc correction; not routine task selection. |
+| Failure, drift, wrong assumption, friction, or recurrence | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | Repair/triage; findings do not silently become policy. |
+| New idea, improvement, cross-root connection, or challenge | [EMERGENCE.md](EMERGENCE.md) | E/I proposes/captures; promotion and authority stay deliberate. |
+| Durable information may be isolated, stale, or weakly connected | [SPIDERWEB_AUDIT.md](SPIDERWEB_AUDIT.md) | Relationship diagnostic; graph/link density is not authority. |
+| Consequential consensus needs formal independent dissent | [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md) | Formal dissent protocol; ordinary challenge need not invoke it. |
+| Distinguish authority, context, facts, Skills, flows, tools, examples | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Information type; classification does not create authority. |
+| Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Lifecycle/routing; not information-type classification. |
+| Route by demonstrated model/harness capability and cost | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Capability/cost choice; capability is not permission. |
+| Apply provider/tool-specific guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Provider adaptation; cannot redefine MAPS authority. |
+| Locate runtime/control-plane ownership | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Runtime responsibility map; UI/session presence is not authority. |
+| Consequential decision, destruction, safety, or reauthorization | [DECISIONS_AND_SAFETY.md](DECISIONS_AND_SAFETY.md) | Decision/safety path inside the existing authority model. |
+| Isolate writable dispatched work or recover a worktree failure | [WORKTREE_ISOLATION.md](WORKTREE_ISOLATION.md) | Git isolation; no merge or permission authority. |
+| Test/tune a workflow with a bounded agent scenario | [SIMULATION_DESIGN.md](SIMULATION_DESIGN.md) | Simulation evidence; plausible output is not production proof. |
+| Represent/import a project in ProjectUpdater | [ROADMAP_AND_PROJECTUPDATER.md](ROADMAP_AND_PROJECTUPDATER.md) | Representation only; not canonical task truth. |
+| Establish facts or evaluate a workflow/document/usability path | [RESEARCH.md](RESEARCH.md) | Evidence gathering; does not create implementation authority. |
+| Analyze downside, reversibility, blast radius, or mitigations | [RISK_AND_CHANGE.md](RISK_AND_CHANGE.md) | Risk analysis; does not create a second approval system. |
+| Trace legacy provenance/original retained guidance | [SOURCE_CATALOG.md](SOURCE_CATALOG.md) | Provenance/reference; current owners outrank historical sources. |
 
 Do not invoke a mechanism merely because it exists. Diagnostics such as
 Spiderweb do not repair; E/I capture does not authorize; Skills/tools do not
