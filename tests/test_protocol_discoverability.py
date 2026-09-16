@@ -8,13 +8,17 @@ INDEX = PLAYBOOK / "INDEX.md"
 AGENTS = ROOT / "AGENTS.md"
 
 
+def normalized(text: str) -> str:
+    return " ".join(text.split())
+
+
 class ProtocolDiscoverabilityTests(unittest.TestCase):
     def test_trigger_router_covers_entire_active_playbook_surface(self):
         index = INDEX.read_text(encoding="utf-8")
         self.assertIn("## Route by situation", index)
 
         router = index.split("## Route by situation", 1)[1].split(
-            "## Core workflow methods", 1
+            "### Related non-playbook routes", 1
         )[0]
         missing = [
             path.name
@@ -29,7 +33,7 @@ class ProtocolDiscoverabilityTests(unittest.TestCase):
         )
 
     def test_router_preserves_authority_boundaries(self):
-        index = INDEX.read_text(encoding="utf-8")
+        index = normalized(INDEX.read_text(encoding="utf-8"))
 
         for boundary in (
             "Diagnostics such as Spiderweb do not repair",
@@ -40,7 +44,7 @@ class ProtocolDiscoverabilityTests(unittest.TestCase):
             self.assertIn(boundary, index)
 
     def test_root_contract_makes_brevity_and_learning_explicit(self):
-        agents = " ".join(AGENTS.read_text(encoding="utf-8").split())
+        agents = normalized(AGENTS.read_text(encoding="utf-8"))
 
         for invariant in (
             "Brevity over grammar. Tokens are a resource.",
