@@ -16,6 +16,7 @@ GitHub evidence take precedence.
 ## Start here
 
 - New to the system: [[What MAPS_L Is]]
+- Need to understand the method/protocol structure: [[Methods and Protocols]]
 - Want a practical example: [[First Task Walkthrough]]
 - Need current development status: [[Development]]
 - Need to know whether a capability is actually complete: [[Capability Status]]
@@ -67,6 +68,8 @@ verification failure mode.
 ## Core pages
 
 - [[What MAPS_L Is]] — purpose, concepts, and responsibility boundaries
+- [[Methods and Protocols]] — how global authority, reusable methods, important
+  subprotocols, and project-specific procedures fit together
 - [[Task, Run and Flow Lifecycle]] — task states, immutable runs, and every
   current `maps flow` verb
 - [[Execution, Recovery and Worktrees]] — session lineage, guarded recovery,
