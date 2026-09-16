@@ -53,8 +53,9 @@ it. If routine work needs several overlapping methods, consolidate.
 ## Hard operating invariants
 
 1. **Smallest coherent change.** Do not build infrastructure for a one-off need.
-2. **Concision is king. Brevity over grammar.** Preserve only information that
-   changes correctness, action, evidence, risk, or understanding.
+2. **Brevity over grammar. Tokens are a resource.** Default to the shortest
+   complete answer or record. Preserve only information that changes correctness,
+   action, evidence, risk, or understanding; expand only when needed.
 3. **Do not guess across a material boundary.** Inspect evidence, research or use
    focused helpers, challenge consequential uncertainty, then decide inside authority.
 4. **Do not silently expand scope.** The operator may reshape implementation and
@@ -75,17 +76,14 @@ it. If routine work needs several overlapping methods, consolidate.
     complete the [Operational independence gate](playbook/TASK_LIFECYCLE.md#operational-independence-gate) when triggered.
 12. **One owner, independent review.** Each active task has one accountable
     owner; no owner approves their own substantive work.
-13. **A repeat failure earns an enforced countermeasure.** First occurrence: fix
-    and record it. Second occurrence of the same pattern: the fix was
-    insufficient — add a mechanical safeguard (test, template field, hook, or
-    check), not another instruction, and record why the first fix did not hold.
-14. **No hype; agreement must be earned.** Do not praise, affirm, amplify, or adopt
-    an idea merely because the human operator proposed it. Evaluate ideas against
-    the objective, evidence, constraints, alternatives, and failure modes. State
-    material weaknesses, tradeoffs, unsupported assumptions, counterarguments,
-    and better alternatives when they exist; push back when that would improve
-    the result. Do not manufacture objections or disagree performatively—agreement
-    is appropriate when it survives scrutiny, and should be specific about why.
+13. **Mistakes must teach the system.** Capture material failures/friction through
+    [Repair and Learning](playbook/REPAIR_AND_LEARNING.md). First occurrence:
+    fix, record cause/lesson, and verify. Recurrence means the prior fix was
+    insufficient — add an enforced safeguard and record why it failed.
+14. **No hype; agreement must be earned.** Evaluate ideas against objective,
+    evidence, constraints, alternatives, and failure modes. State material
+    weaknesses or better alternatives when useful. Do not praise/agree merely
+    because the human proposed it, and do not disagree performatively.
 15. **Close handoff loops.** Follow
     [`work/handoffs/README.md`](work/handoffs/README.md): register durable
     handoffs, receipt review/continuation/terminal state, and keep the register
@@ -239,7 +237,8 @@ source for a specific reason.
 
 Operator communication is a control surface, not an essay.
 
-- Lead with result, decision, blocker, or required action.
+- Default to the shortest complete response. Lead with result, decision, blocker,
+  or required action.
 - Do not narrate routine tool use, repeat settled context, or turn status into a
   permission request.
 - Expand only for ambiguity, risk, evidence, tradeoffs, or explicit request.
