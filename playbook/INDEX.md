@@ -17,6 +17,33 @@ higher authority source. If it appears to conflict, follow the higher source and
 repair the lower one. Normal work should not require chain-reading playbooks; if
 several routinely overlap, consolidate their owners.
 
+## Route by situation
+
+Use this table when the concern is clear but the MAPS_L method name is not. It
+selects the owning method; it does not copy that method's procedure. Read only
+the routed method unless a distinct concern requires another.
+
+| Situation / trigger | Primary route | What it answers |
+| --- | --- | --- |
+| A consequential task is underspecified or may not be safely executable | [AGI_STANDARD.md](AGI_STANDARD.md) | Is the task sufficiently bounded, evidenced, and verifiable for an agent to execute? |
+| Exact run context/scope must be reconstructable; sources conflict; reviewer independence or recovery evidence matters | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) | What was this run actually bound to, and can its execution/review be trusted? |
+| Choosing whether a candidate task is the right next work | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Is this the right task now inside the approved program? |
+| Several tasks/PRs accumulated or evidence may have changed the plan | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) | Is the roadmap still pointed toward DONE? |
+| A failure, drift, wrong assumption, operator friction, or repeated defect occurred | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | How is the signal captured, triaged, prevented, live-verified, and closed? |
+| A useful idea, improvement, cross-root connection, or challenge to an established mechanism appears | [EMERGENCE.md](EMERGENCE.md) | How does E/I move `IMAGINE → CAPTURE → PROMOTE` without turning discovery into authority? |
+| Durable information looks isolated, stale, misleadingly unfinished, or weakly connected across sessions | [SPIDERWEB_AUDIT.md](SPIDERWEB_AUDIT.md) | Can a fresh agent recover the surrounding meaning, and is a relationship actually missing? |
+| Consequential consensus looks unusually clean or a strong independent dissent test is warranted | [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md) | What is the strongest credible case that the current conclusion is wrong? |
+| Authority, task context, facts, Skills, flows, tools, or examples are being confused | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | What kind of information is this, and what authority does it not acquire merely by being loaded? |
+| Project information is hard to retrieve, duplicated, stale, or needs active/retired/archive handling | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Where should durable information live, link, retire, or be consolidated? |
+| Model/harness capability, cost, or provider-specific behavior affects worker/tool choice | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) and [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Which demonstrated capability/provider route fits without creating authority? |
+| Runtime ownership, SQLite/LangGraph/RnS/hcom responsibility, or recovery/control-plane behavior is the concern | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Which runtime surface owns the state or action? |
+| A consequential decision, destructive action, safety boundary, or reauthorization question is active | [DECISIONS_AND_SAFETY.md](DECISIONS_AND_SAFETY.md) | What decision/safety path applies under the existing authority envelope? |
+
+Do not invoke a named mechanism merely because it exists. Trigger it because the
+work presents the concern it owns. Diagnostics such as Spiderweb do not repair;
+E/I capture does not authorize; Skills/tools do not grant permission; and review
+does not replace the orchestration operator's ownership.
+
 ## Core workflow methods
 
 Prefer these for the common project lifecycle.
