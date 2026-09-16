@@ -3,6 +3,7 @@
 - [[Home]]
 - [[Development]]
 - [[What MAPS_L Is]]
+- [[Methods and Protocols]]
 - [[Task, Run and Flow Lifecycle]]
 - [[Execution, Recovery and Worktrees]]
 - [[Context, Memory, Skills and Capabilities]]
