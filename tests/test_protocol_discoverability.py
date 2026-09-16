@@ -43,14 +43,37 @@ class ProtocolDiscoverabilityTests(unittest.TestCase):
         ):
             self.assertIn(boundary, index)
 
-    def test_root_contract_makes_brevity_and_learning_explicit(self):
+    def test_router_preserves_distinctions_that_change_method_choice(self):
+        """Compaction may remove repetition, not method-selection semantics."""
+
+        index = normalized(INDEX.read_text(encoding="utf-8"))
+        for distinction in (
+            "Per-task steering; not roadmap redesign.",
+            "Roadmap/work-arc correction; not routine task selection.",
+            "Mandatory triage: capture → severity → recurrence → mechanical safeguard → live verify",
+            "may challenge or supersede mechanisms",
+            "drift repair stays with Repair & Learning",
+            "topic similarity, link count/density, or the derived graph are not authority",
+            "Information type; not lifecycle status and does not create authority.",
+            "Active/retired/archive lifecycle plus routing maintenance; not information-type classification.",
+            "plausible output is not production proof",
+            "Representation only; not canonical task truth.",
+            "does not create implementation authority",
+            "does not create a second approval system",
+        ):
+            self.assertIn(distinction, index)
+
+    def test_root_contract_makes_brevity_learning_and_evolution_explicit(self):
         agents = normalized(AGENTS.read_text(encoding="utf-8"))
 
         for invariant in (
             "Brevity over grammar. Tokens are a resource.",
             "Default to the shortest complete answer or record.",
+            "Do not delete decision-relevant meaning merely to hit a size/token target",
             "Mistakes must teach the system.",
             "Repair and Learning",
+            "Methods are replaceable, not sacred.",
+            "Past success is evidence, not permanent authority.",
             "Default to the shortest complete response.",
         ):
             self.assertIn(invariant, agents)
