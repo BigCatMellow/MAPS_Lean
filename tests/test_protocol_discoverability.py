@@ -40,7 +40,7 @@ class ProtocolDiscoverabilityTests(unittest.TestCase):
             self.assertIn(boundary, index)
 
     def test_root_contract_makes_brevity_and_learning_explicit(self):
-        agents = AGENTS.read_text(encoding="utf-8")
+        agents = " ".join(AGENTS.read_text(encoding="utf-8").split())
 
         for invariant in (
             "Brevity over grammar. Tokens are a resource.",
