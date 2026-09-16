@@ -25,7 +25,11 @@ the routed method unless a distinct concern requires another.
 
 | Situation / trigger | Primary route | What it answers |
 | --- | --- | --- |
+| Starting a durable project that needs framing and an initial roadmap | [PROJECT_BOOTSTRAP.md](PROJECT_BOOTSTRAP.md) | How is the project framed without prematurely creating task-level policy? |
+| Turning a concise human request into a bounded executable contract | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) | How is intent compiled without silently expanding inherited authority? |
 | A consequential task is underspecified or may not be safely executable | [AGI_STANDARD.md](AGI_STANDARD.md) | Is the task sufficiently bounded, evidenced, and verifiable for an agent to execute? |
+| Shaping, assigning, executing, reviewing, or finishing an authorized task | [TASK_LIFECYCLE.md](TASK_LIFECYCLE.md) | What lifecycle step and completion gate applies? |
+| Delegating to helpers or communicating across agents while retaining parent ownership | [HELPERS_AND_COMMUNICATION.md](HELPERS_AND_COMMUNICATION.md) | How should bounded helper work and cross-agent communication be handled? |
 | Exact run context/scope must be reconstructable; sources conflict; reviewer independence or recovery evidence matters | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) | What was this run actually bound to, and can its execution/review be trusted? |
 | Choosing whether a candidate task is the right next work | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Is this the right task now inside the approved program? |
 | Several tasks/PRs accumulated or evidence may have changed the plan | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) | Is the roadmap still pointed toward DONE? |
@@ -38,6 +42,12 @@ the routed method unless a distinct concern requires another.
 | Model/harness capability, cost, or provider-specific behavior affects worker/tool choice | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) and [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Which demonstrated capability/provider route fits without creating authority? |
 | Runtime ownership, SQLite/LangGraph/RnS/hcom responsibility, or recovery/control-plane behavior is the concern | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Which runtime surface owns the state or action? |
 | A consequential decision, destructive action, safety boundary, or reauthorization question is active | [DECISIONS_AND_SAFETY.md](DECISIONS_AND_SAFETY.md) | What decision/safety path applies under the existing authority envelope? |
+| Writable work must be dispatched safely, or a worktree-specific failure must be recovered | [WORKTREE_ISOLATION.md](WORKTREE_ISOLATION.md) | How is writable agent work isolated without granting merge or permission authority? |
+| A workflow needs a bounded agent scenario for testing or tuning | [SIMULATION_DESIGN.md](SIMULATION_DESIGN.md) | How is a useful simulation designed without treating plausible output as production proof? |
+| A project must be represented or imported into ProjectUpdater | [ROADMAP_AND_PROJECTUPDATER.md](ROADMAP_AND_PROJECTUPDATER.md) | How is ProjectUpdater representation kept separate from canonical task truth? |
+| Facts must be established or a workflow, document, or usability path evaluated | [RESEARCH.md](RESEARCH.md) | What evidence-gathering/evaluation method applies without creating implementation authority? |
+| Downside, reversibility, blast radius, or mitigations need explicit treatment | [RISK_AND_CHANGE.md](RISK_AND_CHANGE.md) | How should risk and change reversibility be analyzed without adding another approval system? |
+| Legacy provenance or the original source of retained guidance must be traced | [SOURCE_CATALOG.md](SOURCE_CATALOG.md) | Where did historical guidance come from, and what current owner supersedes or retains it? |
 
 Do not invoke a named mechanism merely because it exists. Trigger it because the
 work presents the concern it owns. Diagnostics such as Spiderweb do not repair;
