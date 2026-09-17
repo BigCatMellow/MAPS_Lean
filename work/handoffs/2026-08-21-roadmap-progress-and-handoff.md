@@ -5,6 +5,13 @@
 - Task: continue MAPS_L runtime/roadmap execution after PRs #142-#146
 - Status: no open PRs; next likely work is H4/E4/6.5 validation-tier production-call-site shaping
 
+```text
+Handoff ID: LEGACY-MAPS-20260821
+Handoff status: CLOSED
+Reviewed: 2026-09-13 by nepo (handoff-audit reconciliation pass)
+Continued at: work/notes/2026-08-21-rns-harness-validation-callsite-design.md; work/reviews/pr-154-review-evidence.md
+```
+
 ## What is true now
 
 - VERIFIED: as of 2026-08-21, `origin/main` includes PRs #142 through #146.

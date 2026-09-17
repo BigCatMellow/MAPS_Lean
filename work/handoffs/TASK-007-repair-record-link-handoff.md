@@ -5,6 +5,13 @@
 - Task: [TASK-007](../tasks/TASK-007-repair-record-link-traversal.md)
 - Status: complete
 
+```text
+Handoff ID: LEGACY-MAPS-20260818-task-007-repair-record-link-handoff
+Handoff status: CLOSED
+Reviewed: 2026-09-13 by nepo (handoff-audit reconciliation pass)
+Continued at: work/reviews/TASK-007-independent-review.md
+```
+
 ## What is true now
 
 - The active link route from the repository root reaches the repair-record template: README → First Run → playbook index → Repair and Learning → repair-record template.

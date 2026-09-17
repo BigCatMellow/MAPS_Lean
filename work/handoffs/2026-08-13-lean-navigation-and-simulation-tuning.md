@@ -4,6 +4,13 @@
 - To: next coordinator / operator
 - Status: active work safely paused; recent documentation and simulation work is complete
 
+```text
+Handoff ID: LEGACY-MAPS-20260813-lean-navigation-and-simulation-tuning
+Handoff status: ACKNOWLEDGED
+Reviewed: 2026-09-13 by nepo (handoff-audit reconciliation pass)
+Continued at: NOT YET
+```
+
 ## What is true now
 
 - MAP Lean is the working copy at `/home/mellow/Projects/MultiAgentProject-Lean`.

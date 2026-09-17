@@ -5,6 +5,13 @@
 - Task: [TASK-005](../tasks/TASK-005-linked-route-selection-simulation.md)
 - Status: complete; awaiting independent route review
 
+```text
+Handoff ID: LEGACY-MAPS-20260818-task-005-linked-route-selection-handoff
+Handoff status: CLOSED
+Reviewed: 2026-09-13 by nepo (handoff-audit reconciliation pass)
+Continued at: work/reviews/TASK-005-independent-review.md
+```
+
 ## What is true now
 
 - The linked active route supports Research Before Architecture plus Project
