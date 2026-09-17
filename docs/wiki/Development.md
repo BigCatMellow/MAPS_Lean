@@ -1,65 +1,62 @@
 # Development
 
-> **Live status snapshot, not authority.** GitHub `main` and [`work/roadmaps/CAPABILITY_CHECKLIST.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md) remain canonical. Open PRs and proposals do not change shipped behavior or the capability scoreboard.
+> **Live status snapshot, not authority.** GitHub `main` and [`work/roadmaps/CAPABILITY_CHECKLIST.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md) remain canonical. Open PRs, proposals, and merges into non-`main` benchmark branches do not change shipped behavior or the capability scoreboard.
 
-**Last refreshed:** 2026-09-16 1:54 PM ET  
-**Canonical main at reconciliation:** `cac29bf`  
+**Last refreshed:** 2026-09-17 2:43 PM ET  
+**Canonical main at reconciliation:** `0010397`  
 **Capability scoreboard:** **19 DONE / 10 IN PROGRESS / 6 NOT STARTED**
 
 Deeper working view: [MAPS Lean Live Roadmap](https://docs.google.com/spreadsheets/d/1R8NqxfO1ZVvSl0up20fnTCcmXozXIRKbMWI9DQeDbC8/edit).
 
 ## Current focus
 
-No implementation or capability-changing commit landed on `main` after the September 15 Development refresh. The important movement is in the open queue, which expanded from one PR to five: #341, #367, #368, #369, and #370.
+PR #368 is now **shipped on `main`**. It reconciled legacy handoff lifecycle receipts/register state and merged as `0010397`; the post-merge Runtime test and direct-push safeguard both passed.
 
-PR #367 is a high-risk operating-contract/discoverability change touching `AGENTS.md` and routing surfaces. Its exact substantive head has independent approval, Runtime and review-evidence pass, and GitHub reports it mergeable. It is still proposed behavior until merged.
+The active queue is now #341, #367, #370, and #371. PR #367 remains a high-risk `AGENTS.md` / protocol-discoverability proposal and is not current contract behavior while open. PR #370 is documentation-only Wiki orientation awaiting genuine independent review. New PR #371 isolates a remaining protocol-effectiveness-benchmark problem: the public-beacon solution for selection unpredictability does not itself provide an independent competence/non-strawman judgment of Arm C's text.
 
-PR #368 reconciles legacy handoff lifecycle receipts. Its exact substantive correction has passed fresh independent review and current checks are green, but the PR explicitly requires operator merge authority. Any merge must use `scripts/opcmd_merge.py`.
-
-PR #369 is stacked on the protocol-effectiveness benchmark branch, not `main`. It replaces the private-secret Gate 2 selection method with a public NIST-beacon-anchored deterministic selection method. The owner recomputed the package hash, but the mechanism change explicitly awaits fresh independent review before `PRE-AUTHORING PACKAGE ACCEPTED` can be claimed. No case selection, corpus construction, model/API run, or spending is authorized.
-
-PR #370 proposes a new non-authoritative Wiki orientation page for MAPS methods and protocols. It does not change current authority, runtime behavior, or capability status while open.
+PR #369 is no longer an open review item: it merged into `eval/protocol-effectiveness-benchmark-v0`, **not `main`**. Its public deterministic NIST-beacon selection method is therefore benchmark-branch state, not canonical MAPS_L behavior. Hidden case construction/material handling remain separate, and #371 addresses the still-open Arm C approval-independence question.
 
 ## Active / next
 
 | State | Work | Verified read | Source |
 | --- | --- | --- | --- |
-| **IN REVIEW** | #367 protocol discoverability / AGENTS contract | High-risk authority-surface changes independently approved; Runtime and review-evidence pass; mergeable. | [#367](https://github.com/BigCatMellow/MAPS_Lean/pull/367) |
-| **DECISION NEEDED** | #368 handoff reconciliation | Reviewed correction is green and mergeable; explicit operator merge authority remains the gate. | [#368](https://github.com/BigCatMellow/MAPS_Lean/pull/368) |
-| **IN REVIEW** | #369 benchmark Gate 2 rewrite | Public beacon-anchored selection is proposed on the benchmark branch; fresh independent review is still required. | [#369](https://github.com/BigCatMellow/MAPS_Lean/pull/369) |
-| **PROPOSED** | #370 Wiki methods/protocols orientation | Documentation-only orientation; non-authoritative by design and not current Wiki behavior until merged/synced. | [#370](https://github.com/BigCatMellow/MAPS_Lean/pull/370) |
-| **BLOCKED** | #341 protocol-effectiveness benchmark | Benchmark remains open; its pre-authoring selection/custody mechanism is being revised by stacked #369. No benchmark execution has occurred. | [#341](https://github.com/BigCatMellow/MAPS_Lean/pull/341) |
+| **SHIPPED** | #368 handoff reconciliation | Merged to `main` as `0010397`; Runtime test and direct-push safeguard passed. | [#368](https://github.com/BigCatMellow/MAPS_Lean/pull/368) |
+| **IN REVIEW** | #371 Arm C solo-owner approval design | Design-only note distinguishes selection unpredictability from content-quality independence; proposes an inspectable self-critique fallback while explicitly admitting it is not true independence. | [#371](https://github.com/BigCatMellow/MAPS_Lean/pull/371) |
+| **IN REVIEW** | #367 protocol discoverability / AGENTS contract | High-risk authority-surface proposal remains open; prior review state must be revalidated against current `main` after #368. | [#367](https://github.com/BigCatMellow/MAPS_Lean/pull/367) |
+| **PROPOSED** | #370 Wiki methods/protocols orientation | Documentation-only orientation; author reports Runtime pass and review-evidence pending a genuine fresh independent review. | [#370](https://github.com/BigCatMellow/MAPS_Lean/pull/370) |
+| **BLOCKED** | #341 protocol-effectiveness benchmark | Benchmark PR remains open. #369 changed its benchmark branch selection mechanism; #371 addresses a separate remaining Arm C approval gate. No benchmark execution has occurred. | [#341](https://github.com/BigCatMellow/MAPS_Lean/pull/341) |
 | **NEXT** | Issue #331 friction capture | Two tool-friction records still need safe migration into the canonical friction log. | [#331](https://github.com/BigCatMellow/MAPS_Lean/issues/331) |
 
 ## Meaningful recently shipped changes
 
-- **No new implementation/capability change in the last 24 hours.** `cac29bf` is the September 15 Development-source refresh.
-- The prior shipped 6.4 write-scope foundation remains current: #361 Git-scope verification, #362 explicit opt-in, and #365 `CanonicalRunGuard` wiring. No production caller currently opts in, so that foundation did not itself change the 19/10/6 score.
-- #364's merge-path audit remains a durable warning: repository policy requires `scripts/opcmd_merge.py`; open #367/#368 explicitly preserve that boundary.
+- **#368:** legacy handoff lifecycle reconciliation is now canonical on `main`.
+- **#369:** public beacon-anchored deterministic selection is merged into the benchmark branch only. It removes the private selection secret for Gates 0–3 but does not solve hidden case construction or Arm C content-quality independence.
+- The earlier 6.4 write-scope foundation (#361/#362/#365) remains shipped behind an unused production opt-in; it did not change the 19/10/6 score.
 
 ## Capability-area snapshot
 
 | Area | Current read |
 | --- | --- |
-| Harness / security | Advanced and active. Existing 6.4 write-scope foundation is shipped; residual production exposure/status work remains governed by the exact checklist exit criteria. |
+| Harness / security | Advanced and active. 6.4 write-scope foundation is shipped; residual production opt-in/exposure and exact checklist closure remain. |
 | Skills / context | Advanced. #367 proposes discoverability/contract changes but is not canonical while open. |
-| Environment / reproducibility | Mixed; existing H4/E5 residuals remain. |
-| Learning / evaluation | Benchmark design work is active, but #369 changes the pre-authoring selection mechanism and requires fresh independent review before corpus work. |
-| Portable deployment / continuity | Durable handoff mechanisms are shipped; #368 proposes legacy receipt corrections but is not canonical until merged. |
+| Environment / reproducibility | Mixed; H4 normal/full/per-spec and E5 evidence-gated residuals remain. |
+| Learning / evaluation | Benchmark design is active. Gate 2 selection rewrite is benchmark-branch state; #371 exposes a distinct Arm C content-quality independence gate. No benchmark execution is authorized. |
+| Portable deployment / continuity | Durable handoff lifecycle plus #368 legacy reconciliation are now canonical. |
 
 ## Operator decisions / blockers
 
-- **#368:** explicit operator merge authority is required for the exact reviewed PR identity. If granted, the merge must use `scripts/opcmd_merge.py`; a bare GitHub/`gh pr merge` is not the repository-authorized route.
-- **#369/#341:** fresh independent review must accept the revised pre-authoring package before selection/corpus work proceeds. Benchmark model/evaluator/API execution and spending remain separate later gates.
-- **#367:** reports standing merge authorization active, but the mandatory merge helper and all review/CI/live-stop gates still apply.
+- No new immediate operator decision is required by today's live state.
+- **Benchmark execution:** model/evaluator/API execution and spending remain a separate later operator gate; nothing in #341/#369/#371 authorizes it.
+- **#367:** any eventual merge must preserve the exact independent-review/CI/live-stop gates and use the repository's mandatory `scripts/opcmd_merge.py` route. Its open changes are not current authority.
+- **#371:** an inspectable solo-owner self-critique must not be mislabeled as true independence; fresh independent review is the next gate.
 
 ## Likely next sequence
 
-1. Preserve #367's reviewed identity and process it only through the required merge route if its authorization remains valid.
-2. Decide #368's explicit merge authority; if granted, merge only through `scripts/opcmd_merge.py`.
-3. Perform a fresh independent review of #369 before any benchmark selection or corpus work.
-4. Review #370 as orientation-only documentation, ensuring it routes to canonical owners rather than becoming a second contract.
-5. Safely migrate issue #331 into `work/coordination/FRICTION_LOG.md`, then re-derive the next MAPS_L-owned capability priority from merged `main`.
+1. Fresh independently review #371's Arm C design and #370's Wiki orientation.
+2. Revalidate #367's exact reviewed identity against current `main`; use only the mandatory OPCMD merge route if still authorized.
+3. Recover #341's exact benchmark-branch state after #369 and the #371 review, then enumerate the remaining pre-corpus gates.
+4. Safely migrate issue #331 into `work/coordination/FRICTION_LOG.md`.
+5. Re-derive the next MAPS_L-owned capability priority from merged `main` rather than from stale handoffs.
 
 ## Development surfaces
 
