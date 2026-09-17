@@ -1,8 +1,8 @@
 # Target Work Sampling Manifest — candidate pre-authoring freeze
 
-Status: **CANDIDATE OWNER COMPLETE — INDEPENDENT CURATOR/CUSTODIAN UNASSIGNED; NO CASE SELECTION PERMITTED**
+Status: **CANDIDATE OWNER COMPLETE — PUBLIC SELECTION MODEL (revision 2, `work/notes/2026-09-15-pr341-custody-descope-design.md`); AWAITING FRESH INDEPENDENT REVIEW OF THIS MECHANISM CHANGE; NO CASE SELECTION PERMITTED UNTIL THEN**
 
-Normative population rules remain in `../BENCHMARK-SPEC.md`. This file instantiates the sampling method and public source pools for independent approval. The MAPS_L owner does **not** draw the sample and must not be able to reconstruct it before the permitted look.
+Normative population rules remain in `../BENCHMARK-SPEC.md`. This file instantiates the sampling method and public source pools for independent approval. Under the public precommitment model, the MAPS_L owner **does** draw the sample directly, openly — there is no independent custodian for selection. Integrity comes from the beacon-anchored precommitment sequence below (grinding-resistant by construction) and public reproducibility (tamper-evident), not from denying the owner access to the result. See `../pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md` for the full procedure this section's formula feeds.
 
 ## Immutable benchmark cutoff
 
@@ -58,7 +58,7 @@ issue_created_after = 2026-02-16T23:59:59Z
 resolving_PR_merged_before = 2026-09-10T15:50:07Z
 ```
 
-Independent curator must verify every named repository is still public/non-archived for the relevant historical window, exposes the required issue/PR metadata, and contains enough objectively eligible candidates. Any pool replacement must occur **before any issue IDs are drawn**, be justified without MAPS-family/expected-winner information, change the definition hash, and receive the same pre-authoring review.
+The operator must verify every named repository is still public/non-archived for the relevant historical window, exposes the required issue/PR metadata, and contains enough objectively eligible candidates. Any pool replacement must occur **before any issue IDs are drawn**, be justified without MAPS-family/expected-winner information, change the definition hash, and receive the same pre-authoring review.
 
 ## Objective eligibility filters
 
@@ -106,81 +106,82 @@ The combined 48 therefore preserves the approved 25% / 50% / 25% complexity targ
 
 Holdout assignment occurs only after the 48 source identities have been selected and before case authoring. Within each domain, exactly one STRAIGHTFORWARD, one MEDIUM, and one COMPLEX selected identity is assigned to holdout by the independent secondary ranking below, yielding 12 holdouts total; the remaining 36 become Standard.
 
-## Non-derivable deterministic selection
+## Public deterministic selection
 
-### Why the seed is secret
+**Revision 2** (`work/notes/2026-09-15-pr341-custody-descope-design.md`,
+reviewed by `rumi`). Replaces the prior secret-seed construction. Keeps
+the NIST beacon as the sole source of unpredictability; drops the secret
+entirely, since no independent custodian exists to protect one from the
+operator who is also the one selecting.
 
-A seed derived only from public repository state, source pools, and the approved design head would let a MAPS_L protocol modifier reproduce the selected issue IDs. That would violate the access-based exposure rule even if the IDs were never committed here.
+### Why the beacon still matters with no secret
 
-Selection therefore uses a curator-held secret that is committed **before** an unpredictable public randomness pulse. Only commitments and public beacon evidence return to this repository before the permitted look.
+Every input to a selection formula except the beacon pulse is already
+public and frozen before selection begins (`approved_design_head`,
+`source_pool_definition_sha256`, and the candidate issue identities
+themselves, which are pre-existing GitHub-assigned facts). If the formula
+depended on *only* those inputs, anyone — including the operator —
+could privately test many textually-different, equally-defensible formula
+variants against the already-known pool and pre-register whichever
+produces the most favorable 48-case list, with no detectable trace. This
+was a real gap in revision 1 of this section, caught by independent
+review; see the design note §3 for the full account, quoting the finding
+directly.
 
-### Curator precommit fields
+The beacon pulse closes that gap: its `nist_pulse_output_value` does not
+exist at the moment the formula must be committed, so no formula variant
+can be tested against the real future value before committing to one. The
+beacon is not there to hide anything from the operator (nothing is
+hidden); it is there so that *at commit time*, the eventual result is
+genuinely unknowable to whoever is committing.
 
-Before any issue IDs are enumerated/ranked for selection, the eligible curator must set:
+### Precommit fields
+
+Before any issue IDs are enumerated/ranked, the operator sets:
 
 ```text
-curator_identity = UNSET
-curator_role = UNSET
-prior_MAPS_L_development_role = UNSET
+operator_identity = UNSET
 source_pool_freeze_timestamp = UNSET
 source_pool_definition_sha256 = 5101ed5b416f9c61b64d658a03864d77550489ba1a5eca1ba19f3f0352cc4fe6
-selection_secret_commitment = UNSET
 beacon_rule = first valid NIST Randomness Beacon 2.0 pulse with timestamp >= source_pool_freeze_timestamp + 600 seconds
 beacon_source = https://beacon.nist.gov/beacon/2.0/
-selection_seed_commitment = UNSET UNTIL DERIVATION
 ```
 
-The curator generates a cryptographically random 256-bit `selection_secret` inside sealed custody and returns **only**:
+`source_pool_freeze_timestamp` is committed to git, publicly, **before**
+the qualifying pulse exists, alongside the exact formulas below (verbatim,
+as checked-in text — this section, unmodified from what was committed, is
+itself the commitment). **Once committed, `source_pool_freeze_timestamp`
+is final.** Changing it later is not a private do-over — the same rule
+that already governs a pool-*content* change (new hash, new review)
+applies to a freeze-*timestamp* change, because re-declaring the timestamp
+alone, with byte-identical pool content, is enough to select a different
+qualifying pulse and therefore a completely different 48-case draw. See
+`INDEPENDENT-CURATOR-START-PROMPT.md` Gate 2's "Do not reroll" section for
+why this is disclosed as a residual risk rather than claimed as fully
+prevented: the immutability rule makes a reroll attempt *visible* in git
+history, not impossible to attempt.
 
-```text
-selection_secret_commitment = SHA256(selection_secret)
-```
-
-The secret itself never enters this repository/chat before the permitted reveal.
-
-The commitment must be durably timestamped before the qualifying beacon pulse. The NIST 2.0 beacon publishes signed, chained 512-bit pulses approximately every 60 seconds. If the first qualifying pulse is unavailable, use the first later valid pulse; the curator may not choose among available pulses after seeing resulting samples.
-
-### Seed derivation
-
-After the qualifying pulse exists, inside sealed custody derive exactly:
-
-```text
-selection_seed = HMAC-SHA256(
-  key = selection_secret,
-  message =
-    "MAPS_PROTOCOL_EFFECTIVENESS_V0\n" +
-    approved_design_head + "\n" +
-    source_pool_definition_sha256 + "\n" +
-    nist_pulse_timestamp + "\n" +
-    nist_pulse_output_value + "\n"
-)
-
-selection_seed_commitment = SHA256(selection_seed)
-```
-
-Return only these non-secret audit fields before selection results are exposed:
-
-```text
-selection_secret_commitment
-nist_pulse_timestamp
-nist_pulse_index_or_identifier
-nist_pulse_output_value
-nist_pulse_certificate_identifier_if_available
-selection_seed_commitment
-```
-
-Do not return `selection_secret` or `selection_seed` before the permitted reveal.
-
-This commit/beacon construction prevents protocol modifiers from reconstructing the sample and prevents the curator from deliberately choosing a seed after the public pulse without breaking the earlier secret commitment.
+If the first qualifying pulse is unavailable, use the first later valid
+pulse; the operator may not choose among available pulses after seeing
+resulting samples — this is unenforceable by mechanism once the pulse
+exists (nothing stops re-checking a later pulse against an already-known
+formula), so it is enforced by the same before-the-pulse commitment
+discipline as the formula itself: the pulse-selection rule above is
+committed before any qualifying pulse exists, exactly like the formula.
 
 ### Candidate ranking
 
-For each objectively eligible issue row inside custody derive:
+For each objectively eligible issue row, once the qualifying pulse
+publishes:
 
 ```text
-selection_rank = HMAC-SHA256(
-  key = selection_seed,
-  message = lower(repository_full_name) + "#" + decimal(issue_number) + "\n"
+selection_rank = SHA256(
+  "MAPS_PROTOCOL_EFFECTIVENESS_V0_PUBLIC\n" +
+  approved_design_head + "\n" +
+  source_pool_definition_sha256 + "\n" +
+  nist_pulse_timestamp + "\n" +
+  nist_pulse_output_value + "\n" +
+  lower(repository_full_name) + "#" + decimal(issue_number) + "\n"
 )
 ```
 
@@ -193,17 +194,31 @@ If a drawn row proves objectively ineligible, preserve the rejection reason and 
 After the 48 identities are fixed, derive for each selected row:
 
 ```text
-holdout_rank = HMAC-SHA256(
-  key = selection_seed,
-  message = "HOLDOUT\n" + lower(repository_full_name) + "#" + decimal(issue_number) + "\n"
+holdout_rank = SHA256(
+  "MAPS_PROTOCOL_EFFECTIVENESS_V0_PUBLIC_HOLDOUT\n" +
+  approved_design_head + "\n" +
+  nist_pulse_timestamp + "\n" +
+  nist_pulse_output_value + "\n" +
+  lower(repository_full_name) + "#" + decimal(issue_number) + "\n"
 )
 ```
 
-Within each domain/complexity cell, the smallest `holdout_rank` becomes SEALED_HOLDOUT. All others are FROZEN_STANDARD.
+Within each domain/complexity cell, the smallest `holdout_rank` becomes `SEALED_HOLDOUT`. All others are `FROZEN_STANDARD`.
 
-Actual secret/seed, issue IDs, ranks, ranking tables, selected URLs, and holdout membership remain exclusively with the independent curator/custodian before the permitted look and are never committed here.
+**Issue IDs, ranks, ranking tables, selected URLs, and holdout membership
+are published, not sealed** — there is no custodian to seal them from, and
+pretending otherwise would add cosmetic-only restriction with no technical
+backing. What "sealed" still correctly describes, unaffected by this
+change: the *case-construction content* for those identities (hidden
+contracts, oracle answers, canaries — `BENCHMARK-SPEC.md` §9.1–9.3, Gate
+4/5). Knowing *which* 48 issues and *which* 12 are nominally holdout does
+not reveal their hidden answers; see the design note's §6 for the
+precise boundary this draws.
 
-At the permitted reveal, the curator can disclose the secret/seed and sealed selection ledger so an independent auditor can recompute the commitments, rankings, and no-reroll property.
+At any point, an independent auditor can recompute the commitments,
+rankings, and holdout assignment directly from this section's formulas
+plus the publicly recorded `source_pool_freeze_timestamp` and NIST pulse
+evidence — no disclosure step is needed because nothing was withheld.
 
 ## Terminal and overlay constraints
 
@@ -211,17 +226,38 @@ Terminal class and `NONE | STRESS | COUNTERWEIGHT` are **not** inputs to source 
 
 The final corpus must still meet the approved limits (`BLOCK <=25%`, `NONE >=40%`, `STRESS <=30%`, `COUNTERWEIGHT >= STRESS`). If a sampled source cannot support a valid case without violating the task-facing source or answer-leakage rules, it may be rejected only under a documented objective eligibility reason and replaced by the next deterministic source row. Never reject merely to improve an overlay/family mix or expected arm result.
 
-## Custody / freeze rule
+## Selection freeze rule
 
-The MAPS_L owner can propose the public source-pool definition but cannot be the selecting curator or custodian. Before the secret commitment is created:
+The MAPS_L owner performs selection directly under this model — see
+"Why the beacon still matters with no secret" above for what still makes
+that safe. Before the formula/freeze-timestamp commitment is created:
 
-- an eligible independent curator/custodian and access-controlled storage must be assigned per `CUSTODY-AND-EXPOSURE-PLAN.md`;
-- that curator independently accepts or revises the source-pool definition without examining selected IDs first;
-- any revision changes `source_pool_definition_sha256` and therefore the committed selection procedure;
-- a fresh independent pre-authoring freeze review approves the complete instantiated treatment/control/sampling/custody package.
+- the source-pool definition must already be independently accepted
+  (unchanged — this predates and is unaffected by the custody descope);
+- any revision to the pool changes `source_pool_definition_sha256` and
+  therefore the committed selection procedure, exactly as before;
+- **this mechanism itself (this section, revision 2) requires a fresh
+  independent pre-authoring freeze review before selection may proceed** —
+  it is a different cryptographic construction from what any prior review
+  approved, not a superficial edit (design note §8). `owner_recompute_status`
+  in `PRE-AUTHORING-PACKAGE-MANIFEST.json` reflects a mechanical
+  self-recompute by the editing party, not an independent confirmation;
+  treat it as unreviewed until a fresh independent pass records otherwise.
+
+Case-construction custody (Gate 4/5, holdout builder role) remains
+governed by `CUSTODY-AND-EXPOSURE-PLAN.md`'s construction-scoped sections,
+unaffected by this change and still open per the design note's §5.
 
 ## Repository-safe outputs
 
-Before the confirmatory look, this repository may contain only public procedure/source-pool definitions, cryptographic commitments, public beacon evidence, hashes/counts, role identities, exposure-owner identities, and independently approved aggregate metadata.
+Selection outputs are now fully public — see "Public deterministic
+selection" above. This repository may contain the complete selection
+result (identities, ranks, holdout membership) once Gate 2/3 complete.
 
-Do **not** commit selected primary case IDs, task fixtures, hidden contracts, answer-bearing provenance, selected source URLs, secret/seed material, holdout content, ranking tables, or decryption material here if doing so gives access to anyone who can modify MAPS_L or a successor.
+What still may **not** be committed here, because it belongs to Gate 4/5's
+separate case-construction seal (`BENCHMARK-SPEC.md` §9.1–9.3), unaffected
+by this change: task fixtures, hidden contracts, answer-bearing
+provenance, hidden canaries, or any material from which hidden
+case-construction content is reconstructable, if doing so gives access to
+anyone who can modify MAPS_L or a successor before the Gate 5 permitted
+reveal.
