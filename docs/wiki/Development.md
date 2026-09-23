@@ -2,29 +2,29 @@
 
 > **Live status snapshot, not authority.** GitHub `main` and [`work/roadmaps/CAPABILITY_CHECKLIST.md`](https://github.com/BigCatMellow/MAPS_Lean/blob/main/work/roadmaps/CAPABILITY_CHECKLIST.md) remain canonical. Open PRs, proposals, and merges into non-`main` benchmark branches do not change shipped behavior or the capability scoreboard.
 
-**Last refreshed:** 2026-09-22 2:34 PM ET  
-**Canonical main at reconciliation:** `f15c71c`  
+**Last refreshed:** 2026-09-23 2:47 PM ET  
+**Canonical main at reconciliation:** `882d7b1`  
 **Capability scoreboard:** **19 DONE / 10 IN PROGRESS / 6 NOT STARTED**
 
 Deeper working view: [MAPS Lean Live Roadmap](https://docs.google.com/spreadsheets/d/1R8NqxfO1ZVvSl0up20fnTCcmXozXIRKbMWI9DQeDbC8/edit).
 
 ## Current focus
 
-No commit landed on `main` in the preceding 24 hours. The latest canonical commit at reconciliation remained the 2026-09-21 Development status refresh (`f15c71c`), so capability status remains 19/10/6.
+No commit landed on `main` in the preceding 24 hours. The latest canonical commit at reconciliation remained the 2026-09-22 Development status refresh (`882d7b1`), so capability status remains 19/10/6.
 
-The active queue remains #341, #367, #370, and #371. The important live correction is #367: GitHub now reports it mergeable again at live head `3f3ec42`, but its PR body still names reviewed substantive head `0d53e88` and then-current head `d4df341`. Mergeability is not proof that the old high-risk review covers the live head; exact review binding/equivalence must be reconciled before any OPCMD merge.
+The active queue remains #341, #367, #370, and #371. PR #367 remains mergeable at live head `3f3ec42`, but its PR body still names reviewed substantive head `0d53e88` and then-current head `d4df341`. Mergeability is not proof that the old high-risk review covers the live head; exact review binding/equivalence must be reconciled before any OPCMD merge.
 
-PR #370 and benchmark-branch PR #371 still require genuine independent review. PR #341 remains open/non-mergeable and its body remains partly stale because it describes the older private-secret selection scheme superseded by #369 on the benchmark branch.
+PR #370 and benchmark-branch PR #371 still require genuine independent review. PR #341 remains open and its body remains partly stale because it describes the older private-secret selection scheme superseded by #369 on the benchmark branch. Issue #331 remains open with two temporary friction records awaiting safe canonical-log migration.
 
 ## Active / next
 
 | State | Work | Verified live read | Next gate |
 | --- | --- | --- | --- |
 | **IN REVIEW** | [#367 protocol discoverability / AGENTS contract](https://github.com/BigCatMellow/MAPS_Lean/pull/367) | Live head `3f3ec42`; GitHub `mergeable=true`; PR-body reviewed/current identities are stale. | Recover exact commit/review equivalence and live checks; use OPCMD only if all gates validate. |
-| **IN REVIEW** | [#370 Wiki methods/protocols orientation](https://github.com/BigCatMellow/MAPS_Lean/pull/370) | Head `85e85e1`; GitHub `mergeable=true`; PR itself records missing genuine independent review evidence. | Fresh independent documentation review; preserve non-authoritative orientation. |
-| **IN REVIEW** | [#371 Arm C solo-owner approval design](https://github.com/BigCatMellow/MAPS_Lean/pull/371) | Benchmark head `e46fd8f`; GitHub `mergeable=true`; independent methodological review remains required. | Fresh independent methodological review; do not relabel inspectable self-critique as true independence. |
-| **BLOCKED** | [#341 protocol-effectiveness benchmark](https://github.com/BigCatMellow/MAPS_Lean/pull/341) | Open/non-mergeable at `19d3d36`; branch contains #369's selection rewrite while PR body still describes the superseded private-secret selection scheme. | After #371 review, recover branch files and enumerate the actual remaining pre-corpus gates. |
-| **NEXT** | [#331 friction capture](https://github.com/BigCatMellow/MAPS_Lean/issues/331) | Two temporary friction records remain to be migrated. | Safely append them to `work/coordination/FRICTION_LOG.md` from a terminal-capable lane and close with evidence. |
+| **IN REVIEW** | [#370 Wiki methods/protocols orientation](https://github.com/BigCatMellow/MAPS_Lean/pull/370) | Head `85e85e1`; proposal remains non-authoritative and still requires genuine independent review. | Fresh independent documentation review; preserve non-authoritative orientation. |
+| **IN REVIEW** | [#371 Arm C solo-owner approval design](https://github.com/BigCatMellow/MAPS_Lean/pull/371) | Benchmark head `e46fd8f`; independent methodological review remains required. | Fresh independent methodological review; do not relabel inspectable self-critique as true independence. |
+| **BLOCKED** | [#341 protocol-effectiveness benchmark](https://github.com/BigCatMellow/MAPS_Lean/pull/341) | Open; branch contains #369's selection rewrite while PR body still describes the superseded private-secret selection scheme. | After #371 review, recover branch files and enumerate the actual remaining pre-corpus gates. |
+| **NEXT** | [#331 friction capture](https://github.com/BigCatMellow/MAPS_Lean/issues/331) | Issue remains open; two temporary friction records remain to be migrated. | Safely append them to `work/coordination/FRICTION_LOG.md` from a terminal-capable lane and close with evidence. |
 
 ## Meaningful recently shipped changes
 
