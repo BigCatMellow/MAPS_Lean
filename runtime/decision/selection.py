@@ -46,12 +46,17 @@ def _criteria(worker: WorkerProfile) -> str:
 def _valid_decision(decision: ChoiceDecision, eligible_ids: set[str]) -> bool:
     if decision.choice not in eligible_ids:
         return False
-    if not math.isfinite(decision.confidence) or not 0.0 <= decision.confidence <= 1.0:
+    try:
+        confidence = float(decision.confidence)
+        probability_items = list(decision.probabilities.items())
+    except (AttributeError, TypeError, ValueError):
         return False
-    probability_keys = {str(key) for key in decision.probabilities}
+    if not math.isfinite(confidence) or not 0.0 <= confidence <= 1.0:
+        return False
+    probability_keys = {str(key) for key, _ in probability_items}
     if not probability_keys.issubset(eligible_ids):
         return False
-    for value in decision.probabilities.values():
+    for _, value in probability_items:
         try:
             probability = float(value)
         except (TypeError, ValueError):
