@@ -102,6 +102,7 @@ from time import monotonic
 from typing import Any, Callable, Mapping
 
 from runtime.communication import HcomAdapter
+from runtime.decision import DecisionBroker, annotate_recovery_actions
 
 # Import order below is load-bearing, not alphabetical: `runtime.state` must be
 # fully imported before `runtime.environment`. Those two packages are mutually
@@ -570,6 +571,7 @@ def run_recovery_tick(
         if validation_repo_root is not None
         else None
     )
+    recovery_store = RecoveryStore(recovery_state_path)
     supervisor = RecoverySupervisor(
         task_reader=task_reader,
         hcom=HcomAdapter(
@@ -577,7 +579,7 @@ def run_recovery_tick(
             executable=hcom_executable,
             timeout_seconds=hcom_timeout_seconds,
         ),
-        recovery_store=RecoveryStore(recovery_state_path),
+        recovery_store=recovery_store,
         resume_validator=resume_validator,
         harness_service=harness_service,
         validation_blocks_resume=enforce_validation,
@@ -589,6 +591,14 @@ def run_recovery_tick(
     )
     opened = supervisor.observe_silent_stops(dict(bindings or {}))
     actions = supervisor.tick()
+    decision_broker = DecisionBroker.from_environment()
+    recovery_state = recovery_store.load()
+    actions = annotate_recovery_actions(
+        actions,
+        task_reader,
+        broker=decision_broker,
+        incident_index=recovery_state.get("incidents", {}),
+    )
     return {
         "ok": True,
         "error": "",
