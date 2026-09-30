@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Mapping, TypedDict
 
+from runtime.decision import DecisionBroker, DecisionConfig
 from runtime.policy.halt import HaltRecord
 from runtime.policy.models import WorkerProfile
 from .router import recommend_route
@@ -17,6 +18,7 @@ class RoutingState(TypedDict, total=False):
     workers: list[dict[str, Any]]
     halt: dict[str, Any]
     environment_reports: dict[str, dict[str, Any]]
+    decision_config: dict[str, Any]
     recommendation: dict[str, Any]
 
 
@@ -29,15 +31,8 @@ def _serialize_environment_reports(
 def _deserialize_environment_reports(
     reports: Mapping[str, Mapping[str, Any]],
 ) -> dict[str, CompatibilityReport]:
-    """Rebuild caller-supplied compatibility metadata from checkpoint state.
+    """Rebuild caller-supplied compatibility metadata from checkpoint state."""
 
-    This is intentionally a value conversion only: it never reads a local
-    environment, computes a fingerprint, or validates a report's freshness.
-    """
-
-    # Keep environment imports local. The environment package intentionally
-    # depends on state helpers, while routing must remain importable without
-    # loading that optional evidence domain.
     from runtime.environment.fingerprint import CompatibilityReport, CompatibilityState
 
     deserialized: dict[str, CompatibilityReport] = {}
@@ -74,7 +69,7 @@ def _deserialize_environment_reports(
 
 
 def build_graph(checkpointer: Any = None):
-    """Build the thin LangGraph wrapper around the deterministic router."""
+    """Build the thin LangGraph wrapper around MAPS routing."""
     try:
         from langgraph.graph import END, START, StateGraph
     except ImportError as exc:
@@ -97,11 +92,14 @@ def build_graph(checkpointer: Any = None):
             if serialized_reports is not None
             else None
         )
+        decision_config = DecisionConfig.from_mapping(state.get("decision_config"))
+        broker = DecisionBroker(decision_config)
         recommendation = recommend_route(
             state.get("tasks", []),
             workers,
             halt,
             environment_reports=environment_reports,
+            decision_broker=broker,
         )
         return {"recommendation": recommendation.to_dict()}
 
@@ -121,6 +119,7 @@ def run_checkpointed_route(
     thread_id: str = "maps-routing",
     task_db_path: str | Path | None = None,
     environment_reports: Mapping[str, CompatibilityReport] | None = None,
+    decision_config: DecisionConfig | None = None,
 ) -> dict[str, Any]:
     checkpoint_path = Path(checkpoint_path)
     if task_db_path is not None and checkpoint_path.resolve() == Path(task_db_path).resolve():
@@ -129,8 +128,6 @@ def run_checkpointed_route(
         )
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Current langgraph-checkpoint-sqlite guidance recommends strict msgpack
-    # loading. Preserve an explicit operator override if one is already set.
     os.environ.setdefault("LANGGRAPH_STRICT_MSGPACK", "true")
     try:
         from langgraph.checkpoint.sqlite import SqliteSaver
@@ -140,10 +137,12 @@ def run_checkpointed_route(
             "`python -m pip install -r runtime/requirements.txt`"
         ) from exc
 
+    config = decision_config or DecisionConfig()
     initial: RoutingState = {
         "tasks": tasks,
         "workers": [worker.to_dict() for worker in workers],
         "halt": halt.to_dict(),
+        "decision_config": config.to_dict(),
     }
     if environment_reports is not None:
         initial["environment_reports"] = _serialize_environment_reports(

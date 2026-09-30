@@ -34,7 +34,7 @@ class JevDecisionProvider:
                 "-r runtime/requirements-jev.txt"
             ) from exc
 
-        with TypeSafeClient(model=self.model) as client:
+        with TypeSafeClient(default_model=self.model) as client:
             response = client.system_one(
                 state=dict(state),
                 questions={
@@ -45,7 +45,13 @@ class JevDecisionProvider:
                 },
             )
 
-        answer = response.answers["decision"]
+        answers = getattr(response, "answers", None)
+        if answers is None:
+            answers = getattr(response, "choices", None)
+        if answers is None or "decision" not in answers:
+            raise RuntimeError("Jev response did not contain decision answer")
+
+        answer = answers["decision"]
         return ChoiceDecision(
             choice=str(answer.choice),
             confidence=float(answer.confidence),
@@ -53,5 +59,5 @@ class JevDecisionProvider:
                 str(key): float(value) for key, value in answer.probabilities.items()
             },
             provider=self.provider_name,
-            model=str(response.model),
+            model=str(getattr(response, "model", self.model)),
         )
