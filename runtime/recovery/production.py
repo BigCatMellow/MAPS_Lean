@@ -571,6 +571,7 @@ def run_recovery_tick(
         if validation_repo_root is not None
         else None
     )
+    recovery_store = RecoveryStore(recovery_state_path)
     supervisor = RecoverySupervisor(
         task_reader=task_reader,
         hcom=HcomAdapter(
@@ -578,7 +579,7 @@ def run_recovery_tick(
             executable=hcom_executable,
             timeout_seconds=hcom_timeout_seconds,
         ),
-        recovery_store=RecoveryStore(recovery_state_path),
+        recovery_store=recovery_store,
         resume_validator=resume_validator,
         harness_service=harness_service,
         validation_blocks_resume=enforce_validation,
@@ -591,7 +592,7 @@ def run_recovery_tick(
     opened = supervisor.observe_silent_stops(dict(bindings or {}))
     actions = supervisor.tick()
     decision_broker = DecisionBroker.from_environment()
-    recovery_state = supervisor.store.load()
+    recovery_state = recovery_store.load()
     actions = annotate_recovery_actions(
         actions,
         task_reader,
