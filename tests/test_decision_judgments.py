@@ -5,6 +5,7 @@ from runtime.decision import (
     DecisionBroker,
     DecisionConfig,
     diagnose_failure,
+    annotate_recovery_actions,
     recovery_path_advisory,
     review_evidence_preflight,
 )
@@ -125,6 +126,33 @@ class DecisionJudgmentTests(unittest.TestCase):
             provider.calls[0]["state"]["submission"]["evidence_text"],
             "pytest: 42 passed",
         )
+
+
+    def test_recovery_annotation_resolves_task_through_incident_index(self):
+        provider = FakeProvider([
+            IncidentClass.RECOVERY_FAILURE.value,
+            "reassign_worker",
+        ])
+
+        class Tasks:
+            def get_task(self, task_id):
+                return {
+                    "task_id": task_id,
+                    "status": "ACTIVE",
+                    "risk": "MEDIUM",
+                    "claimed_by": "worker-1",
+                }
+
+        output = annotate_recovery_actions(
+            [{"incident_id": "I1", "action": "resume_failed", "reason": "boom"}],
+            Tasks(),
+            broker=broker(provider),
+            incident_index={"I1": {"task_id": "T1"}},
+        )
+        advisory = output[0]["decision_advisory"]
+        task_state = provider.calls[0]["state"]["task"]
+        self.assertEqual(task_state["task_id"], "T1")
+        self.assertEqual(advisory["recovery_path"]["selected"], "reassign_worker")
 
 
 if __name__ == "__main__":
