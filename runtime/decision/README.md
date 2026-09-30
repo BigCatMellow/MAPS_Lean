@@ -14,15 +14,14 @@ Each routing cycle can use the broker for:
 1. **next task selection** among already-routable implementation tasks;
 2. **review task selection** among already-routable reviews;
 3. **worker selection** among workers already allowed by MAPS policy; and
-4. **reviewer selection** among already-independent eligible reviewers.
+4. **reviewer selection** among already-independent eligible reviewers;
+5. **review evidence preflight** before a valid review claim (advisory only); and
+6. **recovery failure/recovery-path advisories** on non-trivial recovery outcomes.
 
 Review work retains deterministic priority over implementation work. Jev cannot
 change that policy.
 
-Other possible judgment classes (failure classification, context relevance,
-evidence preflight) should be added only at a clear runtime seam with its own
-evaluation/privacy boundary. Do not send arbitrary repository/file content to an
-external provider merely because the broker exists.
+Failure diagnosis and recovery-path selection are attached as advisories; they do not change RecoverySupervisor behavior. Context relevance remains evaluation-only until the frozen retrieval gates justify a separate promotion proposal.
 
 ## Authority boundary
 
@@ -60,6 +59,7 @@ need to remember to call Jev.
     MAPS_DECISION_MODE=shadow
     MAPS_DECISION_MODEL=jev-latest
     MAPS_DECISION_MIN_CONFIDENCE=0.80
+    MAPS_DECISION_ALLOW_CONTENT=false
     TYPESAFE_API_KEY=...
 
 When `MAPS_DECISION_PROVIDER=jev` is set and mode is omitted, MAPS_L defaults
@@ -82,3 +82,15 @@ Set `TYPESAFE_API_KEY` outside the repository. Do not commit credentials.
 
 A future local/open decision model should implement the same
 `DecisionProvider` interface; routing code should not branch on provider names.
+
+
+## Content boundary
+
+By default, external decision providers receive bounded task/recovery metadata,
+not repository file bodies or submission evidence text.
+
+Set `MAPS_DECISION_ALLOW_CONTENT=true` only when you intentionally allow the
+configured external decision provider to receive bounded content. That flag is
+required for the evaluation-only Jev context-relevance candidate and allows the
+review evidence preflight to include up to 8,000 characters of submission
+evidence. It does not authorize publication or widen task authority.

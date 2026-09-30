@@ -102,6 +102,7 @@ from time import monotonic
 from typing import Any, Callable, Mapping
 
 from runtime.communication import HcomAdapter
+from runtime.decision import DecisionBroker, annotate_recovery_actions
 
 # Import order below is load-bearing, not alphabetical: `runtime.state` must be
 # fully imported before `runtime.environment`. Those two packages are mutually
@@ -589,6 +590,12 @@ def run_recovery_tick(
     )
     opened = supervisor.observe_silent_stops(dict(bindings or {}))
     actions = supervisor.tick()
+    decision_broker = DecisionBroker.from_environment()
+    actions = annotate_recovery_actions(
+        actions,
+        task_reader,
+        broker=decision_broker,
+    )
     return {
         "ok": True,
         "error": "",
