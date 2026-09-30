@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
+from runtime.decision import DecisionProvider, select_eligible_worker
 from runtime.policy.evaluator import (
     evaluate_assignment,
     evaluate_review,
@@ -21,10 +22,13 @@ class RouteRecommendation:
     task_id: str | None = None
     worker_id: str | None = None
     reasons: tuple[str, ...] = ()
+    decision_evidence: Mapping[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)
         payload["reasons"] = list(self.reasons)
+        if self.decision_evidence is None:
+            payload.pop("decision_evidence", None)
         return payload
 
 
@@ -38,6 +42,8 @@ def recommend_route(
     halt: HaltRecord | None = None,
     *,
     environment_reports: Mapping[str, CompatibilityReport] | None = None,
+    decision_provider: DecisionProvider | None = None,
+    decision_mode: str = "off",
 ) -> RouteRecommendation:
     """Return a deterministic recommendation from supplied task evidence.
 
@@ -165,13 +171,24 @@ def recommend_route(
                 reauthorization_required.update(decision.reasons)
 
         if allowed:
-            selected = allowed[0]
+            selection = select_eligible_worker(
+                task,
+                allowed,
+                provider=decision_provider,
+                mode=decision_mode,
+            )
+            selected = selection.worker
             route = (
                 "propose_helper"
                 if selected.worker_class in {"helper", "mechanical"}
                 else "claim_or_assign"
             )
-            return RouteRecommendation(route, task_id, selected.worker_id)
+            return RouteRecommendation(
+                route,
+                task_id,
+                selected.worker_id,
+                decision_evidence=selection.evidence,
+            )
         if reauthorization_required:
             blocked_fallbacks.append(
                 RouteRecommendation(
