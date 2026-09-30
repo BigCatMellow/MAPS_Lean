@@ -153,6 +153,7 @@ def annotate_recovery_actions(
     task_reader: Any,
     *,
     broker: DecisionBroker | None,
+    incident_index: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     """Attach advisory recovery judgments only when a provider is enabled."""
 
@@ -163,12 +164,11 @@ def annotate_recovery_actions(
     for action in actions:
         item = dict(action)
         task_id = str(item.get("task_id") or "")
-        if not task_id:
-            # Recovery action payloads use incident_id rather than task_id today;
-            # no guessing across that missing link here.
-            task = None
-        else:
-            task = task_reader.get_task(task_id)
+        if not task_id and incident_index is not None:
+            incident = incident_index.get(str(item.get("incident_id") or ""))
+            if isinstance(incident, Mapping):
+                task_id = str(incident.get("task_id") or "")
+        task = task_reader.get_task(task_id) if task_id else None
         advisory = recovery_path_advisory(item, task=task, broker=broker)
         if advisory is not None:
             item["decision_advisory"] = advisory
