@@ -591,10 +591,12 @@ def run_recovery_tick(
     opened = supervisor.observe_silent_stops(dict(bindings or {}))
     actions = supervisor.tick()
     decision_broker = DecisionBroker.from_environment()
+    recovery_state = supervisor.store.load()
     actions = annotate_recovery_actions(
         actions,
         task_reader,
         broker=decision_broker,
+        incident_index=recovery_state.get("incidents", {}),
     )
     return {
         "ok": True,
