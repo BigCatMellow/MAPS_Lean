@@ -5,6 +5,13 @@
 - Task: [TASK-006](../tasks/TASK-006-incident-triage-route-simulation.md)
 - Status: `BLOCKED` pending read-only canonical evidence
 
+```text
+Handoff ID: LEGACY-MAPS-20260818-task-006-incident-triage-handoff
+Handoff status: CLOSED
+Reviewed: 2026-09-13 by nepo (handoff-audit reconciliation pass)
+Continued at: work/reviews/TASK-006-independent-review.md
+```
+
 ## What is true now
 
 - The export (`IN_PROGRESS`), expired lease, and Agent A handoff (claimed

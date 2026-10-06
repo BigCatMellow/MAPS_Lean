@@ -5,6 +5,13 @@
 - Task: [TASK-008](../tasks/TASK-008-returning-agent-recovery-simulation.md)
 - Status: `NO_RESUME — BLOCKED ON AUTHORITY AND EVIDENCE`
 
+```text
+Handoff ID: LEGACY-MAPS-20260818-task-008-returning-agent-handoff
+Handoff status: CLOSED
+Reviewed: 2026-09-13 by nepo (handoff-audit reconciliation pass)
+Continued at: work/reviews/TASK-008-independent-review.md
+```
+
 ## What is true now
 
 - The simulated prior handoff has no canonical task, target file, owner,

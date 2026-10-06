@@ -13,6 +13,17 @@ The one narrow handoff-lifecycle index is
 files were reviewed and where their work continued; it must not copy volatile
 PR/CI/review/ownership state from GitHub.
 
+## Volume rule
+
+The large `tasks/`, `reviews/`, and `notes/` collections are intentionally
+retained provenance/evidence, not browsing surfaces. A record becomes relevant
+because the current task, roadmap, PR, handoff, decision, or focused retrieval
+question points to it. Do not scan these directories to infer current work, and
+do not treat an old "next action", status, or review disposition as live state.
+
+For cross-session recovery, start at [`../state/CURRENT.md`](../state/CURRENT.md)
+and then verify volatile facts on GitHub.
+
 ## Fast route
 
 | Need | Go to | Read rule |
