@@ -1,52 +1,73 @@
 # Current State
 
-**This file is a durable orientation snapshot, not a live status board.** It
-was last brought back into alignment with reality on 2026-08-17. Do not trust
-a PR number, test count, or "current tranche" claim below without checking it
-against live GitHub state. For the actual current PR/task/review queue, use
-`work/coordination/README.md` and recover state live from GitHub as it
-instructs — that is the authoritative live-state entry point, not this file.
+**Last reconciled: 2026-10-06.** This is a compact cross-session orientation
+snapshot, not a live status board. Before acting on PR/CI/review/ownership state,
+recover live GitHub state through
+[`work/coordination/README.md`](../work/coordination/README.md).
 
-## Latest coordination handoff
+## Parent objective
 
-The latest compact multi-session handoff is
-[`work/handoffs/2026-08-21-roadmap-progress-and-handoff.md`](../work/handoffs/2026-08-21-roadmap-progress-and-handoff.md).
-Use it for durable orientation only, then recover live GitHub state per
-`work/coordination/README.md` before acting on PRs, CI, or current blockers.
+MAPS_L is a provider-neutral operating system around capable AI workers. It owns
+task truth, bounded authority, orchestration, reusable methods, verification,
+recovery, durable evidence, and controlled learning; workers supply reasoning,
+judgment, exploration, coding, and synthesis.
 
-## Durable facts (unlikely to need per-PR updates)
+## Current baseline
 
-- Current goal: the MAPS Lean migration's runtime replacement is complete and
-  merged. The only remaining migration action is an explicit
-  operator-approved deletion of top-level `legacy/` (not yet authorized — see
-  "Remaining migration action" below).
-- Original replacement-runtime promotion: PR #16 (squash commit
-  `78791fca0d5cd0def5bae2c5b2eb9addcbf0770e`). Former stacked PRs #9-#15 are
-  closed as superseded by PR #16 and remain only as historical review context.
-  Substantial further work has landed on `main` since PR #16 — do not treat
-  PR #16 as describing current `main`.
-- `work/reviews/RUNTIME_INTEGRATION_REVIEW.md` records the original fresh
-  adversarial integration review for PR #16. It was performed by the same
-  assistant continuity that participated in implementation, so it is not
-  represented as an independent model/human review.
-- Independent verification is mechanical and GitHub-hosted: compile, Ruff,
-  Bandit, dependency checks, regression tests, LangGraph/SQLite smoke,
-  installer checks, and the active legacy-dependency gate, all required by
-  branch protection on `main` (PR-only, required Runtime CI check, no
-  force-push/delete — see issue #61 for the mechanical-independent-review gap
-  that branch protection does not yet close).
-- Release decision remains: Lean does **not** restore a universal
-  `APPROVED -> RELEASED` state machine. Real deploy/destructive/external
-  actions are explicit policy-gated tasks/actions.
-- Historical Markdown/task/report files may still mention `legacy/`; they are
-  provenance/safety records and are not execution dependencies. The curated
-  preservation snapshots remain under `migration/` and are evidence, not
-  runtime dependencies.
+- `main`: `08cd0e81576779c5b06371c58fcbfe3b22352c05` (2026-09-23 status refresh).
+- The replacement-runtime migration is complete and active runtime code is
+  independent of top-level `legacy/`.
+- **Operator decision 2026-10-06:** retain `legacy/` as an intentional reference
+  corpus. Deletion is no longer a pending migration action.
+- A separate safety fork exists at
+  `BigCatMellow-Archive/MAPSL_Backup`; it does not become an authority source.
 
-## Remaining migration action
+## Active development arcs
 
-**Only one migration action remains:** explicit operator-approved deletion of
- top-level `legacy/`.
+These are dated orientation facts; verify them live before acting.
 
-Do not infer deletion authority from this status file. The deletion must be a
-separate explicit operator instruction/change.
+1. **PR #372 — DecisionBroker / Jev evaluation seam.** Latest substantive
+   development lane. Runtime-stack CI passed at its recorded head; the PR is
+   still draft because independent review evidence has not been satisfied.
+2. **PR #367 — protocol discoverability.** Intended to reduce operating-method
+   retrieval cost. It previously reached independent approval, but should be
+   reconciled against current `main` and later work before merge.
+3. **PR #370 — Wiki methods/protocol orientation.** Documentation-only
+   orientation work; fresh independent review remains the recorded gate.
+4. **PR #341 — protocol-effectiveness benchmark.** Owner-safe design/pre-authoring
+   work is complete; execution is blocked on genuinely independent corpus
+   custody. PR #371 is a design child of this benchmark arc.
+
+## Restart order
+
+1. Finish independent review/correction for PR #372.
+2. Reconcile the discoverability work in PR #367.
+3. Reconcile PR #370 after the canonical method structure is settled.
+4. Run a fresh roadmap/capability trajectory pass against merged code/tests/CI.
+5. Select a small next set of parent outcomes rather than advancing every
+   unfinished roadmap row mechanically.
+
+## Retrieval boundaries
+
+Normal work should still need:
+
+```text
+AGENTS.md + approved roadmap/task + one relevant playbook method
+```
+
+- `work/tasks/`, `work/reviews/`, and `work/notes/` are retained evidence
+  collections, not orientation surfaces. Reach a record from its current
+  task/roadmap/PR/handoff or a focused retrieval question; do not directory-scan
+  them as startup context.
+- `legacy/` is intentionally retained for historical implementations, negative
+  lessons, experiments, methods, and source recovery. Prefer the curated
+  `migration/` audit/ledger when they already answer the question; read a
+  specific legacy source when the active question requires it.
+- Historical wording does not become current authority merely because it is
+  preserved.
+
+## True external blocker
+
+The benchmark in PR #341 requires an independent curator/custodian whose hidden
+working state is inaccessible to MAPS_L protocol modifiers. That remains a real
+external dependency rather than ordinary unfinished repository work.
