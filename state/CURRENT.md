@@ -34,9 +34,13 @@ These are dated orientation facts; verify them live before acting.
    reconciled against current `main` and later work before merge.
 3. **PR #370 — Wiki methods/protocol orientation.** Documentation-only
    orientation work; fresh independent review remains the recorded gate.
-4. **PR #341 — protocol-effectiveness benchmark.** Owner-safe design/pre-authoring
-   work is complete; execution is blocked on genuinely independent corpus
-   custody. PR #371 is a design child of this benchmark arc.
+4. **PR #341 — protocol-effectiveness benchmark.** PR #369 has already merged
+   the public beacon-anchored selection rewrite into the #341 branch, retiring
+   independent custody for **selection**. The current pre-authoring package
+   manifest is owner-recomputed and awaits fresh independent review. Gate 1's
+   exact Arm C competence/non-strawman approval remains unresolved; PR #371 is
+   the open design child addressing that issue. Separate Gate 4/5 case-
+   construction/hidden-material custody remains an unresolved later phase.
 
 ## Restart order
 
@@ -61,13 +65,16 @@ AGENTS.md + approved roadmap/task + one relevant playbook method
   them as startup context.
 - `legacy/` is intentionally retained for historical implementations, negative
   lessons, experiments, methods, and source recovery. Prefer the curated
-  `migration/` audit/ledger when they already answer the question; read a
-  specific legacy source when the active question requires it.
+  `migration/` router when it already answers the question. Under
+  `AGENTS.md`, read a specific legacy source only when an active higher-level
+  source links that specific source for a specific reason.
 - Historical wording does not become current authority merely because it is
   preserved.
 
-## True external blocker
+## Benchmark gates still unresolved
 
-The benchmark in PR #341 requires an independent curator/custodian whose hidden
-working state is inaccessible to MAPS_L protocol modifiers. That remains a real
-external dependency rather than ordinary unfinished repository work.
+For PR #341, the immediate package-level gate is fresh independent review of the
+selection-mechanism revision, with Gate 1 Arm C competence/non-strawman approval
+still unresolved. Gate 4/5 case-construction custody is a distinct later
+boundary and may still require an eligible external custodian or another
+approved design resolution. Benchmark execution remains unauthorized.
