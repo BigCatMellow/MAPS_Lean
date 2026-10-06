@@ -1,85 +1,101 @@
 # Task: protocol effectiveness benchmark
 
-- Status: `BLOCKED_ON_DEPENDENCY`
+- Status: `ACTIVE`
 - AGI status: `AGI READY`
 - Type: `PLANNING / EVALUATION`
 - Owner: benchmark orchestration owner
 - Risk: `MEDIUM`
-- Goal: Carry the independently approved protocol-effectiveness design through a contamination-resistant primary-corpus/holdout freeze, then stop before benchmark execution.
+- Goal: Carry the independently approved protocol-effectiveness design through a valid pre-authoring review, public deterministic selection, contamination-resistant corpus construction, and pre-freeze review, then stop before benchmark execution.
 - Parent roadmap: `none — PR #341 is the bounded benchmark work`
-- Autonomous continuation: `YES` whenever eligible in-scope work exists.
+- Autonomous continuation: `YES` whenever an in-scope gate is open.
 
 ## Current verified state
 
-- Pre-corpus design gate: **APPROVED FOR CORPUS CONSTRUCTION** at reviewed head `369bccaf68b258c70eb6efec0c9f70115c8014cb`.
-- Independent approval: [`../reviews/pr-341-rereview-evidence-369bcca.md`](../reviews/pr-341-rereview-evidence-369bcca.md).
-- J3/v5 resolved; I2–I4 and all B/M/N/F/G/H owner findings remain resolved; 512-state S4 result has zero ambiguity/unhandled/mismatch.
-- The five normative owner documents have not been changed during pre-authoring instantiation.
-- Benchmark effectiveness remains `UNKNOWN`: no candidate agents, benchmark evaluators/models/APIs, Smoke, Standard, or spend have occurred.
+- Five normative benchmark-owner documents remain independently approved at design head `369bccaf68b258c70eb6efec0c9f70115c8014cb`.
+- Benchmark effectiveness remains `UNKNOWN`: no A/B/C agents, Smoke, Standard, evaluator/model/API execution, or benchmark spending has occurred.
+- PR #369 merged the public beacon-anchored selection rewrite into this branch. **Independent custody is retired for selection.**
+- Current branch is synchronized with `main` as of 2026-10-06.
+- Exact current pre-authoring package state is owned by
+  [`../evals/protocol-effectiveness-benchmark/pre-corpus/PRE-AUTHORING-PACKAGE-MANIFEST.json`](../evals/protocol-effectiveness-benchmark/pre-corpus/PRE-AUTHORING-PACKAGE-MANIFEST.json).
 
-## Owner-complete public pre-authoring package
+## Current pre-authoring package
 
-Under [`../evals/protocol-effectiveness-benchmark/pre-corpus/`](../evals/protocol-effectiveness-benchmark/pre-corpus/):
+The manifest currently records:
 
-- `TREATMENT-SURFACE-MANIFEST.md`
-  - tested ref `5f07b33e9fa09a5e091c6f0993092230c2faf308`;
-  - 45-file / 298,322-byte offline treatment surface;
-  - treatment bundle hash `7a944e3db3575c1f94df5872d8b15a644ecd7eb254893b10d9d1ebcd83aa3341`;
-  - static A/B/C instruction disclosure and dynamic context-cost accounting method instantiated.
-- `GENERIC-CONTROL.md`
-  - exact competent candidate Arm C hash `1eb3382e1b7e52d06523e44bacbf83177058a226b83c58b2fd1a07f09f3c780f`;
-  - independent competence/non-strawman approval still required.
-- `SOURCE-POOL-DEFINITION.json`
-  - 16 external public GitHub repositories across four domains;
-  - canonical definition hash `5101ed5b416f9c61b64d658a03864d77550489ba1a5eca1ba19f3f0352cc4fe6`;
-  - exact 48-case domain/complexity quotas and objective eligibility filters.
-- `TARGET-WORK-SAMPLING-MANIFEST.md`
-  - sampling reference `OpenAI gpt-5.6-sol`, documented cutoff `2026-02-16`;
-  - selection uses curator-secret precommit + future NIST-beacon HMAC derivation so selected public issue IDs are not reconstructable by MAPS modifiers.
-- `CUSTODY-AND-EXPOSURE-PLAN.md`
-  - selection secret/seed/ranking ledger/selected identities are protected alongside case content.
-- `PRE-AUTHORING-PACKAGE-MANIFEST.json`
-  - exact six-input candidate package hash `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`.
-- `INDEPENDENT-CURATOR-START-PROMPT.md`
-  - standalone external curator/custodian contract pinned to that exact package hash.
+- package hash `610ac80ba5f852543f6787a892e22a81117afff6e5f46a1682fd2852f77f8351`;
+- owner recompute status `SELF_RECOMPUTED_NOT_YET_INDEPENDENTLY_VERIFIED`;
+- status `candidate-owner-complete-selection-mechanism-revised-awaiting-fresh-independent-review`;
+- selected case content present: `false`;
+- benchmark execution authorized: `false`.
 
-Child task: [`protocol-effectiveness-corpus-construction.md`](protocol-effectiveness-corpus-construction.md).
+The public selection mechanism is defined by:
 
-## Owner-found contamination correction
+- [`TARGET-WORK-SAMPLING-MANIFEST.md`](../evals/protocol-effectiveness-benchmark/pre-corpus/TARGET-WORK-SAMPLING-MANIFEST.md);
+- [`INDEPENDENT-CURATOR-START-PROMPT.md`](../evals/protocol-effectiveness-benchmark/pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md); and
+- [`CUSTODY-AND-EXPOSURE-PLAN.md`](../evals/protocol-effectiveness-benchmark/pre-corpus/CUSTODY-AND-EXPOSURE-PLAN.md).
 
-During owner-side shaping, the initial public deterministic-seed proposal was rejected: because the source pools are public, a public seed would allow a protocol modifier to reconstruct the selected issue IDs.
+Selection is now public and beacon-anchored: the operator precommits the rule and immutable source-pool freeze timestamp before the qualifying future NIST Randomness Beacon pulse, then deterministically enumerates/ranks/selects and publishes the selected identities/ranks/holdout membership. Do not reroll.
 
-The corrected candidate method requires a private curator secret committed before a qualifying future public NIST beacon pulse, then HMAC-based private rankings. Public commitments preserve later no-reroll auditability without exposing the sample.
+## Gates still open
 
-No issue IDs were enumerated/ranked/selected in the MAPS_L owner context before this correction.
+### Gate 1 — Arm C
+
+The exact `GENERIC-CONTROL.md` text still requires competence/non-strawman approval.
+
+PR #371 is the design child addressing how that judgment should work under the solo-owner environment. Do not claim Arm C approval until the approved mechanism is actually applied to the exact control text.
+
+### Selection-mechanism review
+
+The revised pre-authoring/selection mechanism requires fresh independent review before the package can again be accepted for public selection.
+
+### Gate 4/5 — case-construction custody
+
+Case fixtures, hidden contracts/oracles, hidden checks, canaries, answer-bearing provenance, and other sealed construction material remain governed by `BENCHMARK-SPEC.md` §9 and the current custody/exposure plan.
+
+Whether the solo operator can satisfy the construction role requirement, or an eligible independent construction custodian is still necessary, remains a distinct later design boundary.
+
+Child task:
+[`protocol-effectiveness-corpus-construction.md`](protocol-effectiveness-corpus-construction.md).
 
 ## Source of truth
 
-- `AGENTS.md` — authority/invariants.
-- Approved five normative owner documents — benchmark design rules, mechanically pinned by v5.
-- Public pre-corpus package — instantiated treatment/control/sampling/custody inputs only.
-- This task — parent phase/state.
-- Child corpus task — exact sealed construction/custody contract.
+1. `AGENTS.md` — repository authority/invariants.
+2. The five approved normative benchmark owner documents — experiment semantics.
+3. Current `pre-corpus/` package — instantiated treatment/control/source-pool/selection/custody inputs.
+4. This task — parent phase/status only.
+5. Child corpus task — case-construction execution contract after its preconditions open.
+
+If this task conflicts with a normative owner or current pre-corpus package, repair this task rather than blending the texts.
 
 ## Change boundary
 
-- MAY CHANGE: public/non-secret pre-corpus manifests, task/review/handoff records, benchmark-specific packaging/hash evidence, PR #341 metadata.
+- MAY CHANGE: public/non-secret pre-corpus manifests, task/review/handoff records, benchmark-specific packaging/hash evidence, branch-maintenance integration, PR #341 metadata.
 - MUST NOT CHANGE without a new design review: the five accepted normative owner documents or their experimental semantics.
-- MUST NOT: enumerate/rank/select pristine primary source IDs in owner-visible context; expose selected primary/holdout content or sampling secret/seed; execute benchmark arms; call benchmark evaluator/model APIs; spend money; change MAPS_L runtime/protocol behavior; merge PR #341.
+- MUST NOT: hand-pick/reroll selection for expected arm performance; expose hidden case-construction answers/oracles/canaries to protocol modifiers before the permitted look; execute benchmark arms; call benchmark evaluator/model APIs; spend money; change MAPS_L runtime/protocol behavior for benchmark advantage; merge PR #341 outside its own gates.
 - HUMAN REAUTHORIZATION REQUIRED: spending/paid execution, new credentials/storage accounts controlled by the operator, merge, or material objective expansion.
 
-## Corpus-phase acceptance
+## Acceptance criteria for the current arc
 
-- [x] Design approval preserved durably.
-- [x] Owner-side exact treatment bundle inventory/hash and context-cost accounting method instantiated.
-- [x] Owner-side external source-pool definition, quotas, objective filters, sampling reference model/cutoff, and non-derivable selection algorithm instantiated.
-- [x] Access-based custody contract and standalone curator handoff instantiated.
-- [ ] Exact Arm C receives independent competence/non-strawman approval.
-- [ ] Eligible independent curator/custodian accepts/finalizes the public package and records non-secret identity/custody/commitment metadata before issue enumeration.
-- [ ] Initial primary corpus and sealed holdout are constructed under sealed custody without exposure to protocol modifiers.
-- [ ] Distinct independent overlay/corpus reviewer verifies strata, leakage boundaries, hidden-check neutrality, case truth, custody, hashes, and freeze package.
+- [x] Approved design preserved durably.
+- [x] Exact treatment bundle/source pools/selection mechanism instantiated.
+- [x] Selection custody retired in favor of public deterministic beacon-anchored selection.
+- [ ] Revised pre-authoring package receives fresh independent review.
+- [ ] Exact Arm C receives the required competence/non-strawman approval under an approved mechanism.
+- [ ] Public deterministic selection completes without reroll and publishes the required selection evidence.
+- [ ] Gate 4 case-construction role/custody boundary is resolved before hidden material is created.
+- [ ] Initial primary corpus is constructed under the approved exposure boundary.
+- [ ] Distinct independent overlay/corpus reviewer verifies the freeze package.
 - [ ] Fresh independent corpus/pre-freeze verdict opens the later pre-run gate.
 - [ ] No benchmark execution occurs in this task.
+
+## Current next actions
+
+1. Fresh independent review of the revised pre-authoring/selection package.
+2. Resolve/apply the Gate 1 Arm C approval mechanism (#371).
+3. Once both permit it, execute the public deterministic selection ceremony exactly as frozen.
+4. Before any hidden case construction, resolve the distinct Gate 4/5 construction-custody question.
+
+Benchmark execution remains a later, separate authorization gate.
 
 ## AGI readiness
 
@@ -90,13 +106,3 @@ No issue IDs were enumerated/ranked/selected in the MAPS_L owner context before 
 - Completion Test: `PASS`
 - Failure Test: `PASS`
 - Continuation Test: `PASS`
-
-## Current blocker / exact next action
-
-**True dependency:** an eligible independent curator/custodian with working storage and transcript inaccessible to MAPS_L protocol modifiers.
-
-The current repository owner/user account and this chat are ineligible custody environments. Another fresh review chat under the same account does not solve this boundary.
-
-Exact next action: give `pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md` plus the exact package pinned by `PRE-AUTHORING-PACKAGE-MANIFEST.json` (`c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`) to a genuinely separate curator/custodian. They either return non-secret pre-authoring corrections or accept the package, precommit the secret, and proceed privately.
-
-Benchmark execution remains a later gate.

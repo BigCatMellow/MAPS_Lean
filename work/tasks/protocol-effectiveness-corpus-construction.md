@@ -1,13 +1,13 @@
 # Task: protocol effectiveness corpus construction
 
-- Status: `BLOCKED_ON_DEPENDENCY`
+- Status: `BLOCKED`
 - AGI status: `AGI READY`
 - Type: `EVALUATION DATASET / CUSTODY`
-- Owner: independent corpus curator/custodian
+- Owner: case-construction owner (role/custody mechanism unresolved)
 - Risk: `HIGH`
 - Parent: [`protocol-effectiveness-benchmark.md`](protocol-effectiveness-benchmark.md)
-- Goal: Construct the initial unexposed primary corpus and sealed holdout under the independently approved Experiment-P design, preserve access-based exposure integrity, and return only a non-secret freeze package for independent pre-run review.
-- Autonomous continuation: `YES` once an eligible curator/custody environment exists.
+- Goal: After public selection and Gate 4 authority/custody resolution, construct the initial benchmark cases and hidden materials under the approved Experiment-P design, preserve exposure integrity, and return the non-secret freeze package for independent pre-run review.
+- Autonomous continuation: `YES` once the preconditions below are satisfied.
 
 ## Source / inputs
 
@@ -17,181 +17,126 @@ Read first:
 2. `work/evals/protocol-effectiveness-benchmark/BENCHMARK-SPEC.md`;
 3. `CASE-DESIGN.md`;
 4. `RUN-PROTOCOL.md`;
-5. `SCORING-AND-ANALYSIS.md` only for case-independent analysis requirements;
-6. `pre-corpus/PRE-AUTHORING-PACKAGE-MANIFEST.json`;
+5. `SCORING-AND-ANALYSIS.md`;
+6. current `pre-corpus/PRE-AUTHORING-PACKAGE-MANIFEST.json`;
 7. every file pinned by that package manifest;
-8. `pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md`;
-9. r9 approval `work/reviews/pr-341-rereview-evidence-369bcca.md`.
+8. current `pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md`;
+9. current `pre-corpus/CUSTODY-AND-EXPOSURE-PLAN.md`;
+10. r9 approval `work/reviews/pr-341-rereview-evidence-369bcca.md`.
 
-The five normative owner documents are frozen design owners. Do not rewrite them while building the corpus.
+The five normative benchmark owner documents are frozen design owners. This task must not restate or override them when a link is sufficient.
 
-## Preconditions before issue enumeration
+## Preconditions before case construction
 
-All must be true before enumerating/ranking candidate issue IDs:
+All must be true:
 
-- package hash recomputes to `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`;
-- treatment bundle hash recomputes to `7a944e3db3575c1f94df5872d8b15a644ecd7eb254893b10d9d1ebcd83aa3341`;
-- exact neutral bootstrap, B launcher, and Arm-C text/hash are pinned;
-- Arm C receives independent competence/non-strawman approval;
-- static A/B/C instruction/context disclosure and dynamic context-cost accounting are accepted;
-- source-pool definition hash recomputes to `5101ed5b416f9c61b64d658a03864d77550489ba1a5eca1ba19f3f0352cc4fe6`;
-- reference model/cutoff and source pools receive independent acceptance before selection;
-- curator/custodian identity and eligibility are recorded;
-- genuinely separate access-controlled storage excludes MAPS_L protocol modifiers;
-- curator privately generates a 256-bit selection secret and publicly commits only its SHA-256 **before** the frozen future NIST-beacon pulse;
-- selected IDs/content, secret/seed, ranking ledger, and holdout membership cannot enter this repository or a user-visible MAPS_L-owner chat before the permitted look.
+- revised pre-authoring package has fresh independent acceptance;
+- exact Arm C has the required competence/non-strawman approval;
+- public deterministic selection (Gates 2/3) has completed under the frozen beacon rule;
+- selected IDs/URLs/ranks and holdout membership have been published as required by the current selection protocol;
+- Gate 4 case-construction role/custody question has an approved resolution;
+- the resulting hidden-material storage/access boundary satisfies `BENCHMARK-SPEC.md` §9 and the current custody/exposure plan;
+- no benchmark execution has begun.
 
-If any precondition is missing, stop before enumeration and return only the exact missing item(s).
+Until those conditions are met, remain `BLOCKED` and do not create hidden case material.
 
 ## Boundary
 
-### MAY
+### MAY — after preconditions open
 
-- independently accept/reject the public pre-authoring package before selection;
-- generate/retain the private selection secret and derive the seed exactly under the frozen commit/beacon rule;
-- enumerate objectively eligible public-source candidates inside sealed custody;
-- deterministically rank/select 48 primary identities and assign 36 Standard / 12 Holdout under the frozen quotas;
-- construct benchmark-visible and hidden case records in sealed storage;
-- create canaries when hidden material is first created;
-- reject objectively ineligible selected tasks using only frozen eligibility rules and deterministic replacement order;
-- after sampling, construct terminal truth, hidden checks, stress-family records, counterweight fields, and task fixtures according to CASE-DESIGN;
-- build the sealed-holdout bundle and freeze hashes/look-count/exposure-owner records;
-- return only commitments, hashes, counts, aggregate strata, rejection totals, and non-secret custody evidence.
+- consume the already-public selected 48 identities;
+- construct benchmark-visible fixtures and hidden companion records under `CASE-DESIGN.md`;
+- create task-derived hidden checks rather than hidden requirements;
+- create/record canaries and answer-bearing provenance under the approved exposure boundary;
+- assign post-selection stress/counterweight/family fields under the normative rules;
+- apply objective case-construction rejection/replacement rules defined by the benchmark owners;
+- build the Standard/Holdout construction packages and freeze hashes/look-count/exposure-owner records;
+- return the non-secret construction/freeze evidence permitted by the normative owners.
 
 ### MUST NOT
 
 - modify MAPS_L runtime/protocol behavior or the five normative benchmark owners;
-- privately substitute a different Arm C or source-pool definition and continue without re-review;
-- select/reject tasks because they look favorable/unfavorable to MAPS_L;
-- assign MAPS-related stress/counterweight/family labels before source selection;
-- expose selection secret/seed, ranks, selected IDs/URLs, holdout membership, fixtures, hidden records, answer-bearing provenance, canaries, or resolution identifiers to MAPS_L protocol modifiers;
-- put selected primary/holdout content in MAPS_L git history;
+- rerun or alter the already-approved selection process merely because a selected case is inconvenient;
+- reject tasks because they look favorable/unfavorable to MAPS_L;
+- expose hidden contracts, oracle answers, hidden checks, canaries, answer-bearing provenance, or sealed fixtures to MAPS_L protocol modifiers before the permitted look;
 - run A/B/C agents, Smoke, Standard, evaluators, graders, or benchmark APIs;
 - spend money;
 - merge PR #341.
 
-## Frozen selection rules
+## Selection boundary
 
-Use `pre-corpus/TARGET-WORK-SAMPLING-MANIFEST.md` exactly.
+Selection is **not** a sealed child-task activity anymore.
 
-Key invariants:
+PR #369 retired selection custody. The current pre-corpus protocol makes selection public and beacon-anchored. Selected IDs/URLs, ranks, and holdout membership are expected to be public after Gate 3 and are not themselves case-content leaks.
 
-- public pools: 16 external GitHub repositories across four declared domains;
-- source-pool hash: `5101ed5b416f9c61b64d658a03864d77550489ba1a5eca1ba19f3f0352cc4fe6`;
-- sampling reference: OpenAI `gpt-5.6-sol`, documented cutoff `2026-02-16`;
-- issue creation after that cutoff; resolving PR merged before package first commit `2026-09-10T15:50:07Z`;
-- 48 total: 12/domain; within each domain 3 straightforward / 6 medium / 3 complex;
-- max 4 selected cases per repository;
-- private selection seed derived only after secret precommit + qualifying future NIST pulse;
-- selection and holdout rankings use HMAC-SHA256 keyed by the private derived seed;
-- secret/seed/ranks remain sealed until permitted reveal;
-- exactly one holdout per domain/complexity cell => 12 Holdout, 36 Standard;
-- objective ineligibility takes next deterministic row; no winner-based rerolls.
+This task begins with those selected identities only after the parent task has completed the selection gates.
 
 ## Construction requirements
 
-For every selected case, enforce CASE-DESIGN exactly. In particular:
+Follow `CASE-DESIGN.md`, `RUN-PROTOCOL.md`, and `BENCHMARK-SPEC.md` exactly. In particular:
 
-- A/B/C can technically succeed under equal capability;
+- A/B/C must be technically capable of success under equal capability;
 - hidden material adds checks only, never unstated requirements;
-- exact run-visible field boundary is preserved;
-- PROCEED/BLOCK truth and accepted blocker classes are frozen;
-- BLOCK cases satisfy the prevalence ceiling and resolvable-twin rule where feasible;
-- source/provenance and later resolution are separable from authorized run sources;
-- external cases receive sampling-reference cutoff fields;
-- seeded stress is recorded before overlay audit;
-- counterweight labels require the approved primary-outcome harm-path semantics;
-- a simple competent A/C agent is allowed to win and protocol overhead can make B lose.
+- exact run-visible field boundaries are preserved;
+- PROCEED/BLOCK truth and accepted blocker classes are frozen from task-derived truth;
+- source/provenance and later resolution remain separated from authorized run sources;
+- external cases carry the required sampling-reference cutoff fields;
+- stress/counterweight/family assignment happens after source selection under the approved semantics;
+- simple competent A/C agents are allowed to win and protocol overhead is allowed to make B lose.
 
-Terminal class and MAPS-related overlay/family labels are not selection inputs.
+## Keep sealed during construction
 
-## Required sealed outputs
-
-Keep inaccessible to MAPS_L protocol modifiers until the permitted look:
+Subject to the approved Gate 4/5 exposure plan, keep inaccessible to MAPS_L protocol modifiers until the permitted look:
 
 ```text
-selection_secret / selection_seed
-candidate eligibility/ranking/rejection ledger
-selected case IDs / source URLs
-holdout membership
-case fixtures / starting-state packages
-benchmark-visible case records
+case fixtures / starting-state packages when answer-bearing
 hidden companion records
-objective checks / semantic properties
-accepted blocker classes
-seeded_stress_families
-counterweight fields
+objective hidden checks / semantic properties
+accepted blocker classes when hidden
+stress/counterweight records when answer-bearing
 canaries / resolution identifiers
 answer-bearing provenance
+sealed holdout construction bundle
 ```
 
-## Required non-secret outputs
+Selected issue identities, public ranks, and holdout membership are **not** in this sealed list under the current selection model.
 
-Return only:
+## Required non-secret construction outputs
 
-```text
-pre_authoring_package_hash
-protocol_bundle_hash
-generic_control_hash + exact-text approval statement
-source_pool_definition_sha256
-sampling reference model/cutoff
-curator/custodian identity + eligibility statement
-storage/access-control class
-selection_secret_commitment
-public NIST pulse evidence
-selection_seed_commitment
-candidate attempts / accepted / rejected aggregate counts
-aggregate rejection-reason counts
-aggregate domain / complexity / project-origin / terminal-class counts
-aggregate NONE / STRESS / COUNTERWEIGHT counts after independent overlay audit
-aggregate seeded_stress prevalence
-FROZEN_STANDARD_count
-SEALED_HOLDOUT_count
-corpus_hash
-holdout_bundle_hash
-confirmatory look count
-exposure owners
-freeze timestamp
-```
+Return only the fields permitted by the normative owners/current custody plan, including the applicable package hashes, aggregate construction/rejection counts, aggregate strata/terminal/overlay counts, corpus/freeze hashes, exposure-owner/look-count records, and freeze timestamp.
 
-Do not return data from which selected identities can be trivially reconstructed.
+Do not return hidden case answers or data that defeats the approved exposure boundary.
 
 ## Verification / review
 
 Before DONE:
 
-1. deterministic secret/beacon/selection commitments are reproducible later without revealing secret now;
-2. distinct sealed-access reviewer audits every primary overlay class after construction;
+1. construction/custody state satisfies the approved Gate 4/5 boundary;
+2. distinct reviewer audits required overlays after construction;
 3. population constraints and BLOCK/twin rules pass;
 4. hidden checks are task-derived and protocol-neutral;
 5. case sources/answers cannot leak through intended run surfaces;
-6. access logs/custody state and seal hashes pass;
-7. a **different independent corpus/pre-freeze reviewer** returns the required next-gate verdict.
+6. access/custody state and freeze hashes pass;
+7. a different independent corpus/pre-freeze reviewer returns the required next-gate verdict.
 
-That verdict may open only the separate pre-run manifest/threshold/runner gate. It does not authorize benchmark execution.
+That verdict may open only the separate pre-run gate. It does not authorize benchmark execution.
 
 ## Failure / recovery
 
-- Ineligible sampled task → record frozen reason; take next deterministic row.
-- Source pool cannot fill a required cell → return `SOURCE POOL INSUFFICIENT`; do not add repositories privately.
-- Secret/seed/sample exposure before permitted look → `CUSTODY BREACH — SELECTION CONTAMINATED`; new secret commitment + later beacon + reselection required.
-- Exposure of one case without seed/sample-wide exposure → retire affected case and follow deterministic replacement rule.
-- Stratum imbalance caused by objective rejections → continue deterministic within-stratum order; never hand-pick.
-- Required source necessarily reveals resolution → case ineligible.
-- Missing independent custody → remain BLOCKED; no case IDs are enumerated.
-
-## AGI readiness
-
-- Fresh-Agent Test: `PASS`
-- No-Guess Test: `PASS`
-- Scope Test: `PASS`
-- Authority Test: `PASS`
-- Completion Test: `PASS`
-- Failure Test: `PASS`
-- Continuation Test: `PASS`
+- Objective selected-case ineligibility discovered during construction → apply the frozen replacement rule; do not hand-pick.
+- Source pool/selection deficiency that cannot be solved under frozen rules → return the applicable parent selection failure status; do not improvise repositories.
+- Hidden case material exposed before the permitted look → retire/replace affected confirmatory material according to the normative exposure rules.
+- Missing approved construction custody/role boundary → remain `BLOCKED`; do not author hidden material.
+- Missing independent construction/pre-freeze review → do not mark DONE.
 
 ## Current blocker
 
-`independent curator/custodian + access-controlled storage unavailable in current MAPS_L owner context`.
+Public selection has not yet completed, and the separate Gate 4 case-construction role/custody mechanism remains unresolved.
 
-The owner-side public package is complete. Exact next action is external handoff via `pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md`, pinned to package `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`. Another fresh chat visible to the MAPS_L owner is not eligible custody.
+Immediate parent-side work is therefore:
+
+1. fresh independent review of the revised pre-authoring/selection package;
+2. Gate 1 Arm C approval resolution;
+3. public deterministic selection.
+
+Only then should this child move from `BLOCKED` to active construction.
