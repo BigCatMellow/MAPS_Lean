@@ -1,19 +1,34 @@
 #!/usr/bin/env python3
 """Mechanical pre-merge operator-authorization gate for the OPCMD merge seat.
 
-Design: work/notes/2026-09-04-merge-auth-mechanical-backstop-design.md (§3.1, §7).
+Design: work/notes/2026-09-04-merge-auth-mechanical-backstop-design.md (§3.1, §7)
+and work/notes/2026-09-13-standing-merge-authorization-design.md (standing mode).
 
 A merge-runner must not invoke ``gh pr merge <N>`` unless it can point to a
-concrete, external, operator-authored hcom message that authorizes merging that
-specific PR (or explicitly designates the caller as the batch merge seat). This
-wrapper resolves that authorization, checks it fail-closed, appends a ledger
-entry, and only then runs the merge.
+concrete authorization for that specific PR. There are two paths:
+
+1. **Per-PR authz** (``--authz <hcom_message_id>``): a fresh, external,
+   operator-authored hcom message naming that PR (or a fresh batch
+   designation). Unchanged from the original design.
+2. **Standing authorization** (``--authz`` omitted): a reviewed, git-tracked
+   record (``work/coordination/standing-merge-authorization.md``) plus three
+   hard, mechanically-checked gates at merge time -- mergeStateStatus=CLEAN,
+   independent review evidence (reviewer distinct from the PR author), and
+   both CI checks green -- with a live HOLD/STOP kill switch scanned from the
+   record's anchor event forward. See the design note for why this exists
+   and what it does not change (the independent-review and CI requirements
+   are not loosened by this mode).
+
+This wrapper resolves whichever authorization applies, checks it fail-closed,
+appends a ledger entry, and only then runs the merge.
 
 Ships DORMANT: nothing in the repo calls it. Opt-in for the ``gule`` / OPCMD seat.
 
 Usage:
     python scripts/opcmd_merge.py --pr <N> --authz <hcom_message_id> \\
         [--dry-run] [--caller <name>] [--merge-arg ARG]...
+    python scripts/opcmd_merge.py --pr <N> \\
+        [--dry-run] [--caller <name>] [--merge-arg ARG]...   # standing mode
 
 Exit codes:
     0  gate passed (merge run, or --dry-run printed the plan)
@@ -70,6 +85,22 @@ _AUTHZ_VOIDING_PATTERNS = (
 )
 
 LEDGER_PATH = os.path.join("work", "coordination", "merge-ledger.jsonl")
+
+STANDING_AUTHZ_PATH = os.path.join(
+    "work", "coordination", "standing-merge-authorization.md"
+)
+CHECK_REVIEW_EVIDENCE_SCRIPT = os.path.join(
+    "scripts", "check_review_evidence.py"
+)
+REVIEW_EVIDENCE_PATH_TEMPLATE = os.path.join("work", "reviews", "pr-{pr}-review-evidence.md")
+
+_STANDING_FIELD_RE = re.compile(r"^([a-z_]+):\s*(.*)$")
+_STANDING_REQUIRED_FIELDS = (
+    "status",
+    "authorized_by",
+    "recorded",
+    "anchor_event_id",
+)
 
 
 class GateError(Exception):
@@ -295,6 +326,116 @@ def _head_sha(pr):
     return out.strip() or None
 
 
+def load_standing_authorization(path=STANDING_AUTHZ_PATH):
+    """Load and validate the standing-authorization record. Fail closed.
+
+    See work/notes/2026-09-13-standing-merge-authorization-design.md. This
+    record replaces the *fresh per-PR message* requirement, not the
+    independent-review / CI hard gates -- those are enforced separately by
+    check_merge_ready() and check_independent_review()."""
+    if not os.path.isfile(path):
+        raise GateError(
+            f"no standing-authorization record at {path}; --authz is required"
+        )
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
+    fields = {}
+    for line in text.splitlines():
+        m = _STANDING_FIELD_RE.match(line.strip())
+        if m:
+            fields[m.group(1)] = m.group(2).strip()
+    missing = [f for f in _STANDING_REQUIRED_FIELDS if not fields.get(f)]
+    if missing:
+        raise GateError(
+            f"standing-authorization record ({path}) missing/empty fields: {missing}"
+        )
+    if fields["status"] != "ACTIVE":
+        raise GateError(
+            f"standing-authorization record status is {fields['status']!r}, not ACTIVE"
+        )
+    if fields["authorized_by"] not in OPERATOR_IDENTITIES:
+        raise GateError(
+            f"standing-authorization authorized_by {fields['authorized_by']!r} "
+            f"is not an operator identity (allowed: {sorted(OPERATOR_IDENTITIES)})"
+        )
+    try:
+        int(fields["anchor_event_id"])
+    except ValueError:
+        raise GateError(
+            f"standing-authorization anchor_event_id {fields['anchor_event_id']!r} "
+            "is not an integer"
+        )
+    return fields
+
+
+def check_merge_ready(pr):
+    """Standing-mode hard gate: mergeStateStatus=CLEAN and every CI check
+    green. Returns the PR author's GitHub login (for the independence check)."""
+    rc, out, err = run_command(
+        ["gh", "pr", "view", str(pr), "--json", "mergeStateStatus,statusCheckRollup,author"]
+    )
+    if rc != 0:
+        raise EnvError(f"gh pr view failed for #{pr} (rc={rc}): {err.strip() or out.strip()}")
+    try:
+        data = json.loads(out)
+    except json.JSONDecodeError as exc:
+        raise EnvError(f"gh pr view returned non-JSON for #{pr}: {exc}")
+
+    status = data.get("mergeStateStatus")
+    if status != "CLEAN":
+        raise GateError(f"PR #{pr} mergeStateStatus is {status!r}, not CLEAN")
+
+    checks = data.get("statusCheckRollup") or []
+    if not checks:
+        raise GateError(f"PR #{pr} has no CI checks reported; refusing (cannot confirm green)")
+    not_green = [c.get("name") for c in checks if c.get("conclusion") != "SUCCESS"]
+    if not_green:
+        raise GateError(f"PR #{pr} has non-green CI checks: {not_green}")
+
+    author = ((data.get("author") or {}).get("login") or "").strip()
+    if not author:
+        raise GateError(f"PR #{pr} has no resolvable author login")
+    return author
+
+
+def _load_evidence_reviewer(pr, evidence_path=None):
+    path = evidence_path or REVIEW_EVIDENCE_PATH_TEMPLATE.format(pr=pr)
+    if not os.path.isfile(path):
+        raise GateError(f"no review-evidence file at {path} for PR #{pr}")
+    reviewer = None
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            m = re.match(r"^reviewer:\s*(.+)$", line.strip())
+            if m:
+                reviewer = m.group(1).strip()
+                break
+    if not reviewer:
+        raise GateError(f"review-evidence file {path} has no 'reviewer' field")
+    return reviewer
+
+
+def check_independent_review(pr, author, evidence_path=None):
+    """Standing-mode hard gate: review-evidence exists and passes
+    scripts/check_review_evidence.py (head-bound, non-empty, independent:
+    true), AND its reviewer is a different identity from the PR author --
+    the one distinctness check that script's own docstring says it does not
+    make (the same GitHub account could otherwise write both)."""
+    rc, out, err = run_command(
+        ["python3", CHECK_REVIEW_EVIDENCE_SCRIPT, str(pr)]
+    )
+    if rc != 0:
+        raise GateError(
+            f"review-evidence check failed for PR #{pr}: {(out + err).strip()}"
+        )
+    reviewer = _load_evidence_reviewer(pr, evidence_path)
+    if reviewer.strip().lower() == (author or "").strip().lower():
+        raise GateError(
+            f"review-evidence reviewer ({reviewer!r}) is the same identity as "
+            f"PR #{pr}'s author ({author!r}); not independent"
+        )
+    return reviewer
+
+
 def append_ledger(entry, ledger_path=LEDGER_PATH):
     """Step 5: append one JSON line to the append-only merge ledger."""
     os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
@@ -313,33 +454,62 @@ def build_merge_cmd(pr, merge_args):
     return cmd
 
 
-def gate(pr, authz_id, caller, merge_args, dry_run, ledger_path=LEDGER_PATH):
-    """Run steps 1-6. Return the ledger entry dict. Raise GateError to refuse."""
-    msg = resolve_authz(authz_id)              # 1
-    check_sender(msg)                          # 2
-    scope = check_scope(msg, pr)               # 3
-    check_authz_not_prohibiting(msg, pr)       # 3b: authz must not itself say "don't merge #N"
-    check_no_hold(authz_id, pr)                # 4
+def gate(
+    pr,
+    authz_id,
+    caller,
+    merge_args,
+    dry_run,
+    ledger_path=LEDGER_PATH,
+    standing_authz_path=STANDING_AUTHZ_PATH,
+    evidence_path=None,
+):
+    """Resolve authorization (per-PR authz_id, or standing if authz_id is
+    None), check it fail-closed, and merge. Return the ledger entry dict.
+    Raise GateError to refuse."""
+    if authz_id is not None:
+        msg = resolve_authz(authz_id)              # 1
+        check_sender(msg)                          # 2
+        scope = check_scope(msg, pr)               # 3
+        check_authz_not_prohibiting(msg, pr)       # 3b: authz must not itself say "don't merge #N"
+        check_no_hold(authz_id, pr)                # 4
+
+        mode = "per-pr-authz"
+        authz_from = msg["from"]
+        quote = _excerpt(msg["text"])
+        entry_extra = {"authz_id": msg["id"]}
+    else:
+        standing = load_standing_authorization(standing_authz_path)
+        check_no_hold(standing["anchor_event_id"], pr)   # kill switch since the record's anchor
+        author = check_merge_ready(pr)                    # mergeStateStatus=CLEAN + CI green
+        check_independent_review(pr, author, evidence_path)
+
+        mode = "standing-authorization"
+        scope = "standing-authorization"
+        authz_from = standing["authorized_by"]
+        quote = _excerpt(standing.get("scope", ""))
+        entry_extra = {"authz_id": None, "standing_recorded": standing["recorded"]}
 
     entry = {
         "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "pr": int(pr),
-        "authz_id": msg["id"],
-        "authz_from": msg["from"],
-        "authz_excerpt": _excerpt(msg["text"]),
+        "mode": mode,
+        "authz_from": authz_from,
+        "authz_excerpt": quote,
         "scope": scope,
         "caller": caller,
         "head_sha": _head_sha(pr),
         "dry_run": bool(dry_run),
+        **entry_extra,
     }
 
     merge_cmd = build_merge_cmd(pr, merge_args)
 
     print("GATE PASSED")
-    print(f"  authz_id : {msg['id']}")
-    print(f"  authz_from: {msg['from']}")
+    print(f"  mode     : {mode}")
+    print(f"  authz_from: {authz_from}")
     print(f"  scope    : {scope}")
-    print(f'  authz quote: "{_excerpt(msg["text"])}"')
+    print(f'  authz quote: "{quote}"')
     print(f"  merge cmd : {' '.join(merge_cmd)}")
 
     if dry_run:
@@ -368,8 +538,12 @@ def main(argv=None):
     parser.add_argument("--pr", type=int, required=True, help="PR number to merge")
     parser.add_argument(
         "--authz",
-        required=True,
-        help="hcom message id of the operator authorization",
+        default=None,
+        help=(
+            "hcom message id of a fresh per-PR operator authorization. "
+            "Omit to use the standing-authorization record instead "
+            "(work/coordination/standing-merge-authorization.md)."
+        ),
     )
     parser.add_argument(
         "--dry-run",

@@ -1,9 +1,19 @@
 # Handoff: <topic>
 
+- Handoff ID: `MAPS-HO-YYYYMMDD-<short-slug>`
+- Handoff status: `OPEN | ACKNOWLEDGED | CONTINUED | CLOSED | SUPERSEDED`
+- Reviewed: `NOT YET | YYYY-MM-DD by <agent/role/session>`
+- Continued at: `NOT YET | <durable repo path / issue / PR / commit / URL>`
 - From: <agent or person>
 - To: <agent or person, if known>
 - Task: <link>
-- Status: <current state>
+- Work status: <current work state>
+
+The handoff lifecycle fields above are required for forward-looking durable
+handoffs. Keep the matching row in
+[`work/handoffs/README.md`](../work/handoffs/README.md) synchronized. Work status
+and handoff status are different: blocked work may still have an acknowledged or
+continued handoff.
 
 ## What is true now
 
@@ -54,6 +64,11 @@ Separate evidence from assumptions.
 
 ## Before finalizing / self-clearing
 
+- If this handoff was consumed during the session, update its `Reviewed`,
+  `Handoff status`, and `Continued at` receipt plus the matching
+  [`work/handoffs/README.md`](../work/handoffs/README.md) row before claiming it
+  was addressed. `CONTINUED`, `CLOSED`, and `SUPERSEDED` require a durable
+  continuation/final/replacement pointer.
 - Append this session's friction signals to
   [`work/coordination/FRICTION_LOG.md`](../work/coordination/FRICTION_LOG.md) —
   one entry each, with a `countermeasure` and a `verified:` field. A

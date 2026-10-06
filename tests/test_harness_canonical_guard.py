@@ -38,6 +38,7 @@ class FakeSource:
         self.session_project = "project-1"
         self.current_revision = "rev-1"
         self.stale = False
+        self.write_scope_result = {"ok": True, "out_of_scope": []}
 
     def get_task(self, task_id):
         return dict(self.task) if task_id == "TASK-1" else None
@@ -50,6 +51,9 @@ class FakeSource:
 
     def check_run_stale(self, run_id, *, repo_root):
         return {"run_id": run_id, "stale": self.stale}
+
+    def verify_run_changes(self, run_id, changed_paths, *, repo_root):
+        return dict(self.write_scope_result)
 
     def resolve_run_session(self, run_id):
         if run_id != "RUN-1":
@@ -382,6 +386,87 @@ class WorktreeBindingGuardTests(unittest.TestCase):
     def test_session_stopping_is_not_denied_by_worktree_check(self):
         self.source.session_adapter = "dummy"
         guard = self._guard(lambda repo_root: dict(OTHER_WORKTREE))
+
+        outcome = guard(context("stop"))
+
+        self.assertEqual(outcome.directive, HookDirective.ANNOTATE)
+        self.assertEqual(outcome.annotations["guard_code"], "CANONICAL_RUN_VERIFIED")
+
+
+class WriteScopeGuardTests(unittest.TestCase):
+    """Roadmap 6.4: `_require_write_scope`, mirroring the worktree seam above
+    exactly -- same opt-in-only shape, `write_scope_binding_required`
+    (PR #362) in place of `manifest["worktree"]`."""
+
+    def setUp(self):
+        self.source = FakeSource()
+        self.source.manifest["write_scope_binding_required"] = True
+
+    def _guard(self, changed):
+        return CanonicalRunGuard(
+            self.source, repo_root=".", now=lambda: NOW, changed_paths=changed
+        )
+
+    def test_bound_run_with_changes_in_scope_is_verified(self):
+        self.source.write_scope_result = {"ok": True, "out_of_scope": []}
+        guard = self._guard(lambda repo_root, base_revision=None: {"src/foo.py"})
+
+        outcome = guard(context("start", include_session=False))
+
+        self.assertEqual(outcome.directive, HookDirective.ANNOTATE)
+        self.assertEqual(outcome.annotations["guard_code"], "CANONICAL_RUN_VERIFIED")
+
+    def test_bound_run_with_changes_outside_scope_is_denied(self):
+        self.source.write_scope_result = {
+            "ok": False,
+            "out_of_scope": ["docs/readme.md"],
+        }
+        guard = self._guard(lambda repo_root, base_revision=None: {"docs/readme.md"})
+
+        for operation in ("start", "resume"):
+            with self.subTest(operation=operation):
+                self.source.session_adapter = "dummy"
+                outcome = guard(context(operation))
+                self.assertEqual(outcome.directive, HookDirective.DENY)
+                self.assertEqual(
+                    outcome.annotations["guard_code"], "RUN_WRITE_SCOPE_VIOLATION"
+                )
+
+    def test_unreadable_changed_paths_is_denied(self):
+        def boom(repo_root, base_revision=None):
+            raise RuntimeError("not a git repo")
+
+        guard = self._guard(boom)
+
+        outcome = guard(context("send"))
+
+        self.assertEqual(outcome.directive, HookDirective.DENY)
+        self.assertEqual(
+            outcome.annotations["guard_code"], "RUN_WRITE_SCOPE_UNAVAILABLE"
+        )
+
+    def test_unbound_run_is_still_allowed_without_reading_changes(self):
+        self.source.manifest.pop("write_scope_binding_required")
+        calls = []
+
+        def spy(repo_root, base_revision=None):
+            calls.append(repo_root)
+            raise AssertionError("must not read changed paths for a non-opted-in run")
+
+        guard = self._guard(spy)
+
+        outcome = guard(context("start", include_session=False))
+
+        self.assertEqual(outcome.directive, HookDirective.ANNOTATE)
+        self.assertEqual(calls, [])
+
+    def test_session_stopping_is_not_denied_by_write_scope_check(self):
+        self.source.session_adapter = "dummy"
+        self.source.write_scope_result = {
+            "ok": False,
+            "out_of_scope": ["docs/readme.md"],
+        }
+        guard = self._guard(lambda repo_root, base_revision=None: {"docs/readme.md"})
 
         outcome = guard(context("stop"))
 

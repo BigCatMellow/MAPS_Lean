@@ -147,6 +147,7 @@ CREATE TABLE IF NOT EXISTS run_manifests (
     forbidden_scope TEXT NOT NULL DEFAULT '[]',
     runtime_limits TEXT NOT NULL DEFAULT '{}',
     base_revision TEXT,
+    write_scope_binding_required INTEGER NOT NULL DEFAULT 0,
     created_by TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
@@ -948,4 +949,27 @@ CREATE TRIGGER IF NOT EXISTS trg_authorized_operator_revocations_no_delete
 BEFORE DELETE ON authorized_operator_revocations
 BEGIN
     SELECT RAISE(ABORT, 'authorized operator revocations are immutable');
+END;
+
+-- Canonical task history is immutable in normal MAPS_L operation. Corrections
+-- append later semantic events; they do not rewrite committed history.
+CREATE TRIGGER IF NOT EXISTS trg_task_events_no_update
+BEFORE UPDATE ON task_events
+BEGIN
+    SELECT RAISE(ABORT, 'task events are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_task_events_no_delete
+BEFORE DELETE ON task_events
+BEGIN
+    SELECT RAISE(ABORT, 'task events are immutable');
+END;
+
+-- Parent retention is explicit rather than an accidental consequence of child
+-- no-delete triggers. A separately authorized future disposal design may define
+-- a privileged purge/redaction path; ordinary SQL/runtime hard deletion is not it.
+CREATE TRIGGER IF NOT EXISTS trg_tasks_no_delete
+BEFORE DELETE ON tasks
+BEGIN
+    SELECT RAISE(ABORT, 'canonical tasks cannot be hard-deleted');
 END;

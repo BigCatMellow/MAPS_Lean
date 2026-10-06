@@ -51,6 +51,7 @@ class HookEnforcement(str, Enum):
     CANONICAL_RUN = "CANONICAL_RUN"
     DESTRUCTIVE_EXTERNAL_ACTION = "DESTRUCTIVE_EXTERNAL_ACTION"
     MEMORY_PROVENANCE = "MEMORY_PROVENANCE"
+    WRITE_SCOPE = "WRITE_SCOPE"
 
 
 HookCallback = Callable[[Mapping[str, Any]], "HookOutcome"]

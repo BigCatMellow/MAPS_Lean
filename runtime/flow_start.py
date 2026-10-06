@@ -94,6 +94,7 @@ def flow_start(
     runtime_limits: Mapping[str, int] | None = None,
     base_revision: str | None = None,
     require_worktree_binding: bool = False,
+    require_write_scope_binding: bool = False,
 ) -> dict[str, Any]:
     """Start a deterministic local execution flow without provider launch.
 
@@ -154,6 +155,7 @@ def flow_start(
         runtime_limits=runtime_limits,
         base_revision=base_revision,
         require_worktree_binding=require_worktree_binding,
+        require_write_scope_binding=require_write_scope_binding,
     )
     if not run.ok:
         return _failed("run_manifest", run)
@@ -206,6 +208,7 @@ def flow_start_from_runtime_limit_args(
     runtime_limit_args: Sequence[str] = (),
     base_revision: str | None = None,
     require_worktree_binding: bool = False,
+    require_write_scope_binding: bool = False,
 ) -> dict[str, Any]:
     limits = _parse_runtime_limits(runtime_limit_args)
     if isinstance(limits, MutationResult):
@@ -224,4 +227,5 @@ def flow_start_from_runtime_limit_args(
         runtime_limits=limits or None,
         base_revision=base_revision,
         require_worktree_binding=require_worktree_binding,
+        require_write_scope_binding=require_write_scope_binding,
     )

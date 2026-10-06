@@ -249,6 +249,56 @@ class CheckReviewEvidenceTests(unittest.TestCase):
             self.assertTrue(ok, msg)
             self.assertIn("revalidated", msg)
 
+    def test_rebased_non_ancestor_head_sha_with_zero_diff_passes_via_revalidation(self):
+        # IDEA-fe6c0f0f: a plain `git rebase` replays a commit onto a new
+        # parent, producing a SHA that is NOT an ancestor of the original
+        # branch tip even though its tree is byte-identical. The
+        # revalidation tier must still accept this -- literal
+        # is-ancestor was the gap that made the tier never fire on this
+        # repo's actual rebase-based merge-prep workflow.
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            old_head = _init_repo(root)
+
+            # Simulate a rebase: reset to a root-equivalent state and
+            # replay an equivalent tree onto an unrelated new commit, so
+            # the new head shares no ancestry with old_head at all.
+            subprocess.run(
+                ["git", "checkout", "--orphan", "rebased"], cwd=root, check=True
+            )
+            subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+            subprocess.run(
+                ["git", "commit", "-q", "-m", "rebased onto unrelated history"],
+                cwd=root,
+                check=True,
+            )
+            new_head = subprocess.run(
+                ["git", "rev-parse", "HEAD"], cwd=root, check=True, capture_output=True, text=True
+            ).stdout.strip()
+            self.assertNotEqual(old_head, new_head)
+            # Prove there is genuinely no ancestry between the two commits
+            # (an orphan branch shares no history) -- this is the exact
+            # case literal is-ancestor rejected before this change.
+            merge_base = subprocess.run(
+                ["git", "-C", str(root), "merge-base", "--is-ancestor", old_head, new_head],
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(merge_base.returncode, 0)
+
+            reviews = root / "work" / "reviews"
+            reviews.mkdir(parents=True)
+            (reviews / "pr-99-review-evidence.md").write_text(
+                f"reviewer: SENTINEL-A\n"
+                f"head_sha: {old_head}\n"
+                f"independent: true\n"
+                f"summary: reviewed before the rebase\n",
+                encoding="utf-8",
+            )
+            ok, msg = crv.check("99", root)
+            self.assertTrue(ok, msg)
+            self.assertIn("revalidated", msg)
+
     def test_stale_ancestor_head_sha_with_any_diff_still_fails(self):
         # Same shape as above, but the "rebase" also carries a real content
         # change (one unrelated file). Revalidation must not paper over it.
