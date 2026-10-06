@@ -243,6 +243,105 @@ class TriggerHelperTests(unittest.TestCase):
         self.assertIsNone(captured.get("environment_reader"))
         self.assertIs(captured["task_reader"], self.store)
 
+    def test_default_off_skips_decision_advisory_path_entirely(self):
+        """Default-off recovery does not construct a broker or reload state."""
+        with (
+            mock.patch(
+                "runtime.recovery.production.RecoverySupervisor",
+                RecordingSupervisor,
+            ),
+            mock.patch(
+                "runtime.recovery.production.DecisionBroker.from_environment",
+                side_effect=AssertionError("decision broker must stay off"),
+            ) as broker_from_environment,
+            mock.patch(
+                "runtime.recovery.production.RecoveryStore.load",
+                side_effect=AssertionError("advisory state reload must stay off"),
+            ) as recovery_load,
+            mock.patch.dict(
+                os.environ,
+                {
+                    "MAPS_DECISION_PROVIDER": "off",
+                    "MAPS_DECISION_MODE": "off",
+                },
+                clear=False,
+            ),
+        ):
+            result = run_recovery_tick(
+                self.store,
+                bindings={"worker-1": "session-1"},
+                recovery_state_path=self.state_path,
+            )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["actions"], [{"action": "noop"}])
+        broker_from_environment.assert_not_called()
+        recovery_load.assert_not_called()
+
+    def test_decision_config_failure_cannot_fail_completed_recovery_tick(self):
+        """Malformed optional decision config cannot replace deterministic success."""
+        with (
+            mock.patch(
+                "runtime.recovery.production.RecoverySupervisor",
+                RecordingSupervisor,
+            ),
+            mock.patch(
+                "runtime.recovery.production.DecisionBroker.from_environment",
+                side_effect=ValueError("bad decision config"),
+            ),
+            mock.patch.dict(
+                os.environ,
+                {
+                    "MAPS_DECISION_PROVIDER": "jev",
+                    "MAPS_DECISION_MODE": "shadow",
+                },
+                clear=False,
+            ),
+        ):
+            result = run_recovery_tick(
+                self.store,
+                bindings={"worker-1": "session-1"},
+                recovery_state_path=self.state_path,
+            )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["opened_incidents"], ["incident-1"])
+        self.assertEqual(result["actions"], [{"action": "noop"}])
+
+    def test_decision_state_reload_failure_cannot_fail_completed_recovery_tick(self):
+        """Corrupt/unreadable advisory recovery state cannot fail the tick."""
+        fake_broker = mock.Mock()
+        with (
+            mock.patch(
+                "runtime.recovery.production.RecoverySupervisor",
+                RecordingSupervisor,
+            ),
+            mock.patch(
+                "runtime.recovery.production.DecisionBroker.from_environment",
+                return_value=fake_broker,
+            ),
+            mock.patch(
+                "runtime.recovery.production.RecoveryStore.load",
+                side_effect=json.JSONDecodeError("bad state", "{", 0),
+            ),
+            mock.patch.dict(
+                os.environ,
+                {
+                    "MAPS_DECISION_PROVIDER": "jev",
+                    "MAPS_DECISION_MODE": "shadow",
+                },
+                clear=False,
+            ),
+        ):
+            result = run_recovery_tick(
+                self.store,
+                bindings={"worker-1": "session-1"},
+                recovery_state_path=self.state_path,
+            )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["actions"], [{"action": "noop"}])
+
     def test_real_supervisor_pass_completes_against_an_empty_hcom(self):
         """The real RecoverySupervisor is constructible and returns from one pass."""
         fake = FakeHcom()
