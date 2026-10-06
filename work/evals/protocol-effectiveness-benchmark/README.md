@@ -81,11 +81,15 @@ Nothing has been executed. No A/B/C candidate runs, Smoke, Standard, benchmark e
 
 ## Exact next phase
 
-1. eligible independent curator/custodian receives package `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963` through `INDEPENDENT-CURATOR-START-PROMPT.md`;
-2. curator independently verifies treatment/Arm C/source pools/custody and either returns non-secret corrections or `PRE-AUTHORING PACKAGE ACCEPTED FOR SEALED SELECTION`;
-3. only after acceptance, curator privately precommits the sampling secret, uses the frozen NIST-beacon rule, and performs deterministic selection/construction outside MAPS_L-owner access;
-4. a distinct sealed-access reviewer audits overlays/corpus/freeze;
-5. only hashes/counts/commitments/non-secret aggregate evidence return here;
-6. fresh independent corpus/pre-freeze verdict opens the later pre-run gate.
+1. Fresh independent review of package
+   `32295d7152542b3d6aa2ec0f903c03c8fae2cd82056b4e0e72295d4f278a8e2f`.
+2. Independent Gate 1 review of the exact Arm C control.
+3. After both pass, enumerate/adjudicate the complete eligible population and
+   commit the candidate ledger + selection freeze before the future pulse.
+4. Apply the first qualifying NIST pulse to the frozen candidate set and publish
+   the deterministic selection result.
+5. Resolve the separate Gate 4/5 construction-custody boundary before hidden
+   case material is authored.
+6. Complete distinct corpus/pre-freeze review before any later run authorization.
 
 Benchmark execution remains a later, separate gate.
