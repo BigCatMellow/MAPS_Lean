@@ -21,10 +21,15 @@ entry point before searching that larger tree.
 
 ## Boundary
 
-Prefer the curated records above when they answer the question. Open a specific
-file under [`../legacy/`](../legacy/) when an active task, research question, or
-recovery need requires detail that the curated migration evidence does not
-capture.
+Prefer the curated records above when they answer the question. This router does
+**not** itself authorize reading the larger `legacy/` tree. Root
+[`AGENTS.md`](../AGENTS.md) controls that boundary: read a specific legacy
+source only when an active higher-level source links that specific source for a
+specific reason.
+
+If the curated records show that deeper legacy archaeology is needed, route that
+need through the active task/roadmap/research owner with the specific source and
+reason before reading it.
 
 Legacy history may contain stale facts, superseded instructions, old runtime
 state, and rejected designs. It remains evidence/reference; it does not outrank
