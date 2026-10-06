@@ -21,6 +21,7 @@ Do **not** read the repository tree broadly as orientation.
 - Role-bound browser coordination / current PR state → [Coordination](work/coordination/README.md), then live GitHub
 - Runtime/control-plane setup → [Fresh Clone Setup](docs/FRESH_INSTALL.md)
 - Capability/roadmap question → [Roadmap router](work/roadmaps/README.md)
+- Legacy/reference research → [Migration/reference router](migration/README.md)
 
 ## Documentation model
 
@@ -73,8 +74,8 @@ README inventory.
 | `runtime/` | Active provider-neutral runtime implementation |
 | `tests/` | Active regression/evaluation tests |
 | `templates/` | Record structures; not authority |
-| `migration/` | Curated promotion/removal evidence |
-| `legacy/` | Historical source; not an active execution dependency |
+| [`migration/README.md`](migration/README.md) | Curated migration/legacy reference router |
+| `legacy/` | Intentionally retained reference corpus; not an active execution dependency |
 
 For the visual relationship graph, see [`obsidian/README.md`](obsidian/README.md).
 Links are navigation claims, not proof of authority, freshness, or truth.
