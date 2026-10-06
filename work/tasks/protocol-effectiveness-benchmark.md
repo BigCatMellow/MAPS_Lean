@@ -22,9 +22,9 @@
 
 The manifest currently records:
 
-- package hash `610ac80ba5f852543f6787a892e22a81117afff6e5f46a1682fd2852f77f8351`;
+- package hash `32295d7152542b3d6aa2ec0f903c03c8fae2cd82056b4e0e72295d4f278a8e2f`;
 - owner recompute status `SELF_RECOMPUTED_NOT_YET_INDEPENDENTLY_VERIFIED`;
-- status `candidate-owner-complete-selection-mechanism-revised-awaiting-fresh-independent-review`;
+- status `candidate-owner-complete-revision3-candidate-ledger-freeze-awaiting-fresh-independent-review`;
 - selected case content present: `false`;
 - benchmark execution authorized: `false`.
 
@@ -34,7 +34,7 @@ The public selection mechanism is defined by:
 - [`INDEPENDENT-CURATOR-START-PROMPT.md`](../evals/protocol-effectiveness-benchmark/pre-corpus/INDEPENDENT-CURATOR-START-PROMPT.md); and
 - [`CUSTODY-AND-EXPOSURE-PLAN.md`](../evals/protocol-effectiveness-benchmark/pre-corpus/CUSTODY-AND-EXPOSURE-PLAN.md).
 
-Selection is now public and beacon-anchored: the operator precommits the rule and immutable source-pool freeze timestamp before the qualifying future NIST Randomness Beacon pulse, then deterministically enumerates/ranks/selects and publishes the selected identities/ranks/holdout membership. Do not reroll.
+Selection is public and beacon-anchored, but candidate membership is frozen first: after independent package/Gate 1 acceptance, the operator enumerates and adjudicates the complete eligible population, commits the canonical candidate ledger and `candidate_set_sha256` before a future NIST pulse, then performs only deterministic ranking/selection from that frozen set. Do not reroll or perform ordinary post-pulse eligibility adjudication.
 
 ## Gates still open
 
@@ -92,7 +92,7 @@ If this task conflicts with a normative owner or current pre-corpus package, rep
 
 1. Fresh independent review of the revised pre-authoring/selection package.
 2. Resolve/apply the Gate 1 Arm C approval mechanism (#371).
-3. Once both permit it, execute the public deterministic selection ceremony exactly as frozen.
+3. Once both permit it, freeze the complete eligible-candidate ledger/hash before a future qualifying pulse, then execute the public deterministic selection ceremony exactly as frozen.
 4. Before any hidden case construction, resolve the distinct Gate 4/5 construction-custody question.
 
 Benchmark execution remains a later, separate authorization gate.
