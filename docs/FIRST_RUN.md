@@ -37,9 +37,10 @@ Do not browse directories to discover these paths:
 | Verification/review level | [`docs/CHECKS_AND_BALANCES.md`](CHECKS_AND_BALANCES.md) |
 
 Read current state only for continuation/coordination. Read control-plane material
-only when runtime state/routing/recovery/transport matters. Read `legacy/` only
-when an active higher-level source links a specific legacy source for a specific
-reason.
+only when runtime state/routing/recovery/transport matters. Top-level `legacy/` is intentionally retained as a reference corpus. Read it
+only when an active higher-level source or focused question requires a specific
+legacy source; prefer the curated `migration/` audit/ledger when they already
+answer the question.
 
 Do not read the whole wiki, `work/`, roadmap corpus, or playbook as a prerequisite
 ritual. If routine work requires stitching several overlapping documents together,
