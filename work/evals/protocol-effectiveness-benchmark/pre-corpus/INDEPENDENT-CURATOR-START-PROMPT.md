@@ -2,8 +2,7 @@
 
 Use this prompt when the MAPS_L repository owner performs case selection
 directly, under the public, beacon-anchored precommitment model
-(`work/notes/2026-09-15-pr341-custody-descope-design.md`, revision 2,
-reviewed by `rumi`). It replaces the sealed independent-curator/custodian
+(`TARGET-WORK-SAMPLING-MANIFEST.md`, revision 3: public beacon selection with a pre-beacon frozen eligible-candidate ledger). It replaces the sealed independent-curator/custodian
 model this file originally specified for **selection only** (Gates 0–3
 below) — no independent custodian is required or used for selection.
 Gate 4 (case construction) and Gate 5 (corpus/overlay review), and
@@ -14,19 +13,20 @@ are unchanged.
 
 ---
 
-Act as the operator running **public deterministic selection** for
-`BigCatMellow/MAPS_Lean` PR #341, benchmark line `protocol-effectiveness-v0`.
+This handoff has two distinct roles:
 
-Your role is to independently validate the instantiated pre-authoring
-package, publicly commit the exact selection rule before the qualifying
-beacon pulse, apply it deterministically once the pulse exists, and
-publish the full non-secret result. There is no sealed selection material
-and nothing about which identities were selected is withheld from public
-git history. Case-construction hidden material (Gate 4/5) is a separate
-matter, still governed by its own sealing rules.
+1. **Gate 1 independent reviewer** — a reviewer without a MAPS_L development
+   stake independently validates the exact pre-authoring package and Arm C
+   control. That reviewer does not perform selection.
+2. **Gate 2/3 selection operator** — only after Gate 1 acceptance exists, the
+   MAPS_L repository owner performs the public deterministic candidate freeze,
+   future-beacon ranking, and publication steps. Selection itself needs no
+   private custodian.
 
-You are **not** authorized to execute A/B/C benchmark agents or spend
-money.
+Do not collapse these roles by treating owner self-review as Gate 1 approval.
+
+Neither role is authorized to execute A/B/C benchmark agents or spend money.
+Case-construction hidden material (Gate 4/5) remains a separate later boundary.
 
 ## Exact package to review
 
@@ -60,7 +60,7 @@ Do not silently review or curate another package.
 
 ## Gate 1 — independent pre-authoring validation
 
-Before enumerating issue IDs, verify:
+Before any eligible-candidate enumeration, the **independent Gate 1 reviewer** verifies:
 
 ### Treatment
 
@@ -115,91 +115,93 @@ There is no sealed custody for selection. Record only:
   only, and whether the operator satisfies it for holdout construction is
   the open question named in the design note's §5, not settled here.
 
-If all Gate-1 checks pass, record:
+If all Gate-1 checks pass, the independent reviewer records:
 
 `PRE-AUTHORING PACKAGE ACCEPTED FOR PUBLIC SELECTION`
 
-and continue to Gate 2.
+with evidence bound to the exact package hash and exact Arm C control hash. Only after that independent acceptance exists may the repository-owner selection operator continue to Gate 2.
 
-## Gate 2 — public rule precommitment + future public beacon
+## Gate 2 — freeze the eligible population before the future beacon
 
-1. Publicly commit, to git, timestamped, **before the qualifying pulse
-   exists**: the exact selection-rank and holdout-rank formulas
-   (`TARGET-WORK-SAMPLING-MANIFEST.md`'s "Public deterministic selection"
-   section, verbatim as checked-in text) and `source_pool_freeze_timestamp`.
-   This commit is the pre-registration; nothing about the eventual result
-   is knowable from it yet, because the pulse it depends on does not exist.
-2. **`source_pool_freeze_timestamp`, once committed, is final.** A later
-   change to it is not a private do-over — it requires a new package hash
-   and a fresh independent review, the same rule that already governs a
-   pool-*content* change. See "Reroll" below for why this matters even
-   without a secret.
-3. Use the first valid NIST Randomness Beacon 2.0 pulse at or after
-   `source_pool_freeze_timestamp + 600 seconds`. This rule for *which*
-   pulse counts is itself fixed and public before any qualifying pulse
-   exists — there is no room to pick a favorable pulse among several.
-4. Record public pulse timestamp/index/output/certificate identifier where
-   available.
-5. Apply the exact formula committed in step 1 to the pulse output. There
-   is no private seed to derive — the pulse output feeds the public
-   formula directly, once it exists.
+The ranking pulse must not exist until every judgment-bearing eligibility
+decision is frozen.
 
-**Do not reroll.** Re-running this ceremony under a *new*
-`source_pool_freeze_timestamp` after seeing an unfavorable result from an
-earlier attempt is a reroll like any other, whether or not a secret is
-involved — the pool content did not need to change, only the timestamp
-that determines which pulse qualifies, which is enough by itself to
-produce a completely different 48-case draw from the same frozen pool.
+1. Under the already-reviewed eligibility rules, enumerate and adjudicate the
+   complete eligible population from the 16 frozen repositories **before** the
+   qualifying beacon pulse.
+2. Assign domain and mechanical complexity before the pulse.
+3. Create the canonical public TSV required by
+   `TARGET-WORK-SAMPLING-MANIFEST.md` at
+   `selection/ELIGIBLE-CANDIDATE-LEDGER.tsv`.
+4. Compute `candidate_set_sha256` from the exact TSV bytes.
+5. In the same git commit, create `selection/SELECTION-FREEZE.json` binding:
+   - current pre-authoring package hash;
+   - approved design head;
+   - source-pool definition hash;
+   - candidate-set hash/count and candidate-ledger git blob SHA;
+   - operator identity;
+   - immutable `candidate_ledger_freeze_timestamp`;
+   - revision-3 selection/holdout formula identifiers; and
+   - the exact qualifying-pulse rule.
+6. The qualifying pulse is the first valid NIST Randomness Beacon 2.0 pulse with
+   timestamp at least 600 seconds after
+   `candidate_ledger_freeze_timestamp`.
+7. Once that freeze commit exists, do not edit candidate membership, formulas,
+   source-pool hash, or freeze timestamp and continue under the same ceremony.
+   Any such change requires a new freeze and a later future pulse.
 
-Unlike formula-grinding (which is technically blocked — step 1's ordering
-makes it impossible to know a formula's result before committing to it),
-**a reroll of the freeze timestamp is not technically prevented by this
-mechanism.** What step 2's immutability rule provides is *tamper evidence*,
-not *tamper prevention*, for this specific attack: a second
-`source_pool_freeze_timestamp` commit, dated after the first one's known
-(unfavorable) result was computable, is a visible, permanent, and
-attributable fact in git history — exactly the same kind of trace §3.3 of
-the design note relies on for a post-hoc case swap. It does not stop
-someone determined to reroll; it makes the attempt impossible to hide.
-Whether a reroll actually happened, given that trace, is a judgment call
-for whoever reviews the eventual git history — this file's job is only to
-make sure the trace exists to review. The compensating control beyond that
-is the same operator self-attestation the design note records for
-protocol-tuning (design note §4): there is no available technical fix for
-either inside a solo-owner, no-custodian model.
+The complete frozen candidate ledger is public. The purpose of the beacon is not
+secrecy; it makes the eventual ordering unknowable when the candidate set and
+formula become immutable.
 
-Early secret/seed exposure language from the prior version of this gate no
-longer applies — there is no secret or seed to expose.
+Record public pulse timestamp/index/output/certificate identifier where
+available.
 
-## Gate 3 — public deterministic selection
+**Do not reroll.** A second freeze created after the first qualifying pulse's
+result was knowable is a new ceremony and must be treated as such, with the old
+freeze retained in history. Do not silently substitute it.
 
-- enumerate objectively eligible rows from the frozen 16 repositories;
-- assign domain and mechanical complexity only under frozen rules;
-- rank with the public per-row formula from Gate 2 step 5;
+## Gate 3 — arithmetic selection from the frozen candidate ledger
+
+After the qualifying pulse publishes:
+
+- do **not** enumerate new issue IDs;
+- do **not** re-adjudicate ordinary eligibility;
+- recompute/verify the frozen candidate ledger hash;
+- rank only frozen eligible rows with revision 3's formula, including
+  `candidate_set_sha256`;
 - select exactly 48 identities under 12/domain, 3/6/3 complexity/domain,
   max 4/repository;
-- preserve objective rejection and `REPO_CAP` records;
-- never reject/reroll for expected arm performance;
-- assign 12 `SEALED_HOLDOUT` / 36 `FROZEN_STANDARD` with the frozen public
-  holdout-rank rule (`TARGET-WORK-SAMPLING-MANIFEST.md`).
+- record `REPO_CAP` skips mechanically;
+- assign 12 `SEALED_HOLDOUT` / 36 `FROZEN_STANDARD` with the revision-3
+  holdout-rank formula;
+- publish IDs, URLs, candidate-set hash, ranks, the complete ranking table, and
+  holdout membership.
 
-**Publish IDs, URLs, ranks, the full ranking table, and holdout
-membership.** There is no reason to withhold any of it — nothing about
-selection is secret under this model, and pretending otherwise would just
-recreate an unenforced, purely cosmetic version of the sealed design
-without any of its actual technical protection.
+### Post-freeze defect handling
 
-Case-specific hidden contracts/oracles/answers for the selected identities
-remain governed entirely by Gate 4/5 and `BENCHMARK-SPEC.md` §9.1–9.3,
-unaffected by this change — publishing selection identities does **not**
-publish case content. See the design note's §6 for the precise boundary
-(holdout *membership* is now public; holdout *answers* are not).
+A frozen candidate may be invalidated only under the narrow rule in
+`TARGET-WORK-SAMPLING-MANIFEST.md`: newly discovered objective contradiction
+or source-availability failure, published evidence/discovery time, explanation
+for why it was unavailable before freeze, and independent confirmation before
+admitting the next-ranked replacement.
 
-If required cells cannot be filled:
+If that confirmation is unavailable, stop:
+
+`SELECTION BLOCKED — POST-FREEZE DEFECT REVIEW REQUIRED`
+
+Never reject or reinterpret a frozen candidate because of its observed rank,
+MAPS mechanism/family properties, overlay needs, or expected arm performance.
+
+Case-specific hidden contracts/oracles/answers remain governed entirely by Gate
+4/5 and `BENCHMARK-SPEC.md` §9.1–9.3. Publishing selection identities does not
+publish case content.
+
+If the frozen ledger cannot fill required cells under the committed quotas:
 
 `SOURCE POOL INSUFFICIENT`
 
-Return only aggregate deficiency counts; do not improvise new repositories.
+Do not improvise new repositories or add post-pulse candidates.
 
 ## Gate 4 — sealed case construction
 
@@ -248,7 +250,10 @@ source_pool_definition_sha256
 sampling reference model/cutoff
 operator identity
 public NIST pulse evidence (Gate 2)
-source_pool_freeze_timestamp (Gate 2, immutable once committed)
+candidate_set_sha256
+candidate_count
+candidate_ledger_freeze_timestamp (Gate 2, immutable once committed)
+selection_freeze_commit_sha
 candidate attempt/accepted/rejected aggregate counts
 aggregate rejection-reason counts
 aggregate domain/complexity/project-origin/terminal-class counts
@@ -276,6 +281,7 @@ Return exactly one:
 - `PRE-AUTHORING CORRECTIONS REQUIRED`
 - `SOURCE POOL INSUFFICIENT`
 - `STALE PRE-AUTHORING PACKAGE`
+- `SELECTION BLOCKED — POST-FREEZE DEFECT REVIEW REQUIRED`
 
 `CUSTODY BREACH — SELECTION CONTAMINATED` and `INELIGIBLE CUSTODY
 ENVIRONMENT` are retired for selection — there is no selection custody to
