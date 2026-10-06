@@ -32,14 +32,17 @@ Do not browse directories to discover these paths:
 | Resume prior cross-session work | [`state/CURRENT.md`](../state/CURRENT.md) → linked handoff → live GitHub |
 | Find a `work/` record class | [`work/README.md`](../work/README.md) |
 | Capability/roadmap question | [`work/roadmaps/README.md`](../work/roadmaps/README.md) before opening a large roadmap/checklist |
+| Legacy/reference research | [`migration/README.md`](../migration/README.md) before opening the larger `legacy/` tree |
 | Runtime/control-plane concern | [`playbook/CONTROL_PLANE.md`](../playbook/CONTROL_PLANE.md) |
 | Fresh runtime installation | [`docs/FRESH_INSTALL.md`](FRESH_INSTALL.md) |
 | Verification/review level | [`docs/CHECKS_AND_BALANCES.md`](CHECKS_AND_BALANCES.md) |
 
 Read current state only for continuation/coordination. Read control-plane material
-only when runtime state/routing/recovery/transport matters. Read `legacy/` only
-when an active higher-level source links a specific legacy source for a specific
-reason.
+only when runtime state/routing/recovery/transport matters. Top-level `legacy/` is intentionally retained as a reference corpus. Under
+root `AGENTS.md`, read a specific legacy source only when an active
+higher-level source links that specific source for a specific reason. Prefer the
+[migration/reference router](../migration/README.md) when curated evidence
+already answers the question.
 
 Do not read the whole wiki, `work/`, roadmap corpus, or playbook as a prerequisite
 ritual. If routine work requires stitching several overlapping documents together,
