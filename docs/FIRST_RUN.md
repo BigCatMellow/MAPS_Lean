@@ -32,6 +32,7 @@ Do not browse directories to discover these paths:
 | Resume prior cross-session work | [`state/CURRENT.md`](../state/CURRENT.md) → linked handoff → live GitHub |
 | Find a `work/` record class | [`work/README.md`](../work/README.md) |
 | Capability/roadmap question | [`work/roadmaps/README.md`](../work/roadmaps/README.md) before opening a large roadmap/checklist |
+| Legacy/reference research | [`migration/README.md`](../migration/README.md) before opening the larger `legacy/` tree |
 | Runtime/control-plane concern | [`playbook/CONTROL_PLANE.md`](../playbook/CONTROL_PLANE.md) |
 | Fresh runtime installation | [`docs/FRESH_INSTALL.md`](FRESH_INSTALL.md) |
 | Verification/review level | [`docs/CHECKS_AND_BALANCES.md`](CHECKS_AND_BALANCES.md) |
