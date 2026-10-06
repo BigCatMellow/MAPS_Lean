@@ -13,8 +13,9 @@ do not become current authority.
 ## How to use it
 
 1. Start with the [migration/reference router](../migration/README.md) and its curated evidence when it already answers the question.
-2. Open a specific legacy source when an active task, research question, or
-   recovery need requires detail not captured by the curated record.
+2. Under root [`AGENTS.md`](../AGENTS.md), open a specific legacy source only
+   when an active higher-level source links that specific source for a specific
+   reason. This README does not widen that permission.
 3. Re-verify time-sensitive/vendor/environment facts before reusing them.
 4. Promote a useful recovered idea through the normal MAPS_L evidence/decision
    path; do not make `legacy/` a second operating contract.
