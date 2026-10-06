@@ -21,6 +21,7 @@ Do **not** read the repository tree broadly as orientation.
 - Role-bound browser coordination / current PR state → [Coordination](work/coordination/README.md), then live GitHub
 - Runtime/control-plane setup → [Fresh Clone Setup](docs/FRESH_INSTALL.md)
 - Capability/roadmap question → [Roadmap router](work/roadmaps/README.md)
+- Legacy/reference research → [Migration/reference router](migration/README.md)
 
 ## Documentation model
 
