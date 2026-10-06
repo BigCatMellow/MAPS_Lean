@@ -1,10 +1,15 @@
 # Legacy Knowledge & Implementation Audit
 
-Status: `ACTIVE MIGRATION RECORD`
+Status: `PRESERVED REFERENCE AUDIT — migration complete; legacy retained`
 
-Purpose: mine `legacy/` before it is removed, preserve behavior and lessons that
-still matter to MAPS Lean, and explicitly reject historical complexity that no
-longer earns its cost.
+Purpose: record what was learned and promoted from `legacy/`, map the retained
+reference corpus, preserve behavior and lessons that still matter to MAPS Lean,
+and explicitly reject historical complexity that no longer earns its cost.
+
+The original audit was conducted while deletion was being considered. On
+2026-10-06 the operator chose to retain top-level `legacy/` as a useful
+reference corpus. That decision changes its disposition, not the audit findings
+or the rule that active Lean must remain independent of legacy execution state.
 
 This document is an audit of the legacy MAP material, not a declaration that
 all legacy behavior should return.
@@ -481,17 +486,26 @@ repeat:
 - Do not equate UI visibility, hcom presence, provider identity, or technical
   access with project authority.
 
-## Removal conclusion
+## Current preservation conclusion
 
-The large `legacy/` tree does **not** need to remain permanently once:
+The migration established that active Lean does not require top-level `legacy/`
+for execution and that the most important behaviors, tests, evidence, and lessons
+have active or curated homes.
 
-1. the migration snapshots contain the unique code/test/evidence selected by
-   the promotion ledger;
-2. active Lean documents contain the missing behavioral rules;
-3. active runtime replacements exist for P0 control-plane behavior or the
-   migration snapshot remains intentionally available until they do;
-4. no active Lean file requires a live `legacy/` path;
-5. the removal checklist passes.
+On 2026-10-06 the operator explicitly chose to **retain** the larger legacy tree
+because it still has value as a deep source/reference corpus. The resulting
+boundary is:
 
-Git history remains historical provenance. Active MAPS should not require
-historical archaeology for ordinary execution.
+- active MAPS_L must remain independently operable without executing/importing
+  from `legacy/`;
+- curated `migration/` records remain the cheapest first route to already-mined
+  lessons and promotion decisions;
+- `legacy/` remains available for focused archaeology, implementation recovery,
+  negative-result research, experiments, and historical detail;
+- historical legacy instructions/state never outrank current `AGENTS.md`,
+  approved scope, canonical runtime state, or current evidence;
+- any future deletion proposal must be treated as a new decision and revalidated
+  against then-current state.
+
+Retention is therefore intentional preservation, not a rollback of the Lean
+migration.
