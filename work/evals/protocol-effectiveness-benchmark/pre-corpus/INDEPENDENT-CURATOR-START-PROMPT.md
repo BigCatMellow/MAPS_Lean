@@ -13,19 +13,20 @@ are unchanged.
 
 ---
 
-Act as the operator running **public deterministic selection** for
-`BigCatMellow/MAPS_Lean` PR #341, benchmark line `protocol-effectiveness-v0`.
+This handoff has two distinct roles:
 
-Your role is to independently validate the instantiated pre-authoring
-package, publicly commit the exact selection rule before the qualifying
-beacon pulse, apply it deterministically once the pulse exists, and
-publish the full non-secret result. There is no sealed selection material
-and nothing about which identities were selected is withheld from public
-git history. Case-construction hidden material (Gate 4/5) is a separate
-matter, still governed by its own sealing rules.
+1. **Gate 1 independent reviewer** — a reviewer without a MAPS_L development
+   stake independently validates the exact pre-authoring package and Arm C
+   control. That reviewer does not perform selection.
+2. **Gate 2/3 selection operator** — only after Gate 1 acceptance exists, the
+   MAPS_L repository owner performs the public deterministic candidate freeze,
+   future-beacon ranking, and publication steps. Selection itself needs no
+   private custodian.
 
-You are **not** authorized to execute A/B/C benchmark agents or spend
-money.
+Do not collapse these roles by treating owner self-review as Gate 1 approval.
+
+Neither role is authorized to execute A/B/C benchmark agents or spend money.
+Case-construction hidden material (Gate 4/5) remains a separate later boundary.
 
 ## Exact package to review
 
@@ -59,7 +60,7 @@ Do not silently review or curate another package.
 
 ## Gate 1 — independent pre-authoring validation
 
-Before enumerating issue IDs, verify:
+Before any eligible-candidate enumeration, the **independent Gate 1 reviewer** verifies:
 
 ### Treatment
 
@@ -114,11 +115,11 @@ There is no sealed custody for selection. Record only:
   only, and whether the operator satisfies it for holdout construction is
   the open question named in the design note's §5, not settled here.
 
-If all Gate-1 checks pass, record:
+If all Gate-1 checks pass, the independent reviewer records:
 
 `PRE-AUTHORING PACKAGE ACCEPTED FOR PUBLIC SELECTION`
 
-and continue to Gate 2.
+with evidence bound to the exact package hash and exact Arm C control hash. Only after that independent acceptance exists may the repository-owner selection operator continue to Gate 2.
 
 ## Gate 2 — freeze the eligible population before the future beacon
 
