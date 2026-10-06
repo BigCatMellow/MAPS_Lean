@@ -73,8 +73,8 @@ README inventory.
 | `runtime/` | Active provider-neutral runtime implementation |
 | `tests/` | Active regression/evaluation tests |
 | `templates/` | Record structures; not authority |
-| `migration/` | Curated promotion/removal evidence |
-| `legacy/` | Historical source; not an active execution dependency |
+| `migration/` | Curated promotion/preservation evidence |
+| `legacy/` | Intentionally retained reference corpus; not an active execution dependency |
 
 For the visual relationship graph, see [`obsidian/README.md`](obsidian/README.md).
 Links are navigation claims, not proof of authority, freshness, or truth.
