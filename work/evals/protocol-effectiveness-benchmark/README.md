@@ -1,6 +1,6 @@
 # Protocol Effectiveness Benchmark
 
-Status: **DESIGN APPROVED — OWNER PRE-AUTHORING PACKAGE COMPLETE; BLOCKED ON INDEPENDENT CURATOR/CUSTODIAN; NOT EXECUTED**
+Status: **DESIGN APPROVED — REVISION-3 PRE-AUTHORING PACKAGE COMPLETE; FRESH INDEPENDENT REVIEW + ARM C GATE 1 REQUIRED; NOT EXECUTED**
 
 Primary question:
 
@@ -26,43 +26,54 @@ The five normative owner documents remain frozen by the v5 whole-document safegu
 
 This README is navigation/status only. It does not redefine those owners.
 
-## Owner-complete pre-authoring package
+## Current pre-authoring package
 
 Current public/non-secret instantiation is under [`pre-corpus/`](pre-corpus/):
 
-- `TREATMENT-SURFACE-MANIFEST.md` — tested ref `5f07b33...`, exact 45-file offline MAPS_L treatment inventory, bundle hash `7a944e3d...`, common bootstrap, B launcher, parity and context-cost accounting.
-- `TREATMENT-BUNDLE-INVENTORY.tsv` — exact path/blob inventory used by the treatment hash.
-- `GENERIC-CONTROL.md` — competent candidate Arm C text/hash; exact text still requires independent non-strawman approval.
-- `SOURCE-POOL-DEFINITION.json` — fixed 16-repository external public source-pool definition, canonical hash `5101ed5b...`, 48-case quotas and objective eligibility filters.
-- `TARGET-WORK-SAMPLING-MANIFEST.md` — sampling reference `OpenAI gpt-5.6-sol`, documented cutoff `2026-02-16`, plus secret-commit + future NIST-beacon HMAC selection so MAPS modifiers cannot reconstruct selected issue IDs.
-- `CUSTODY-AND-EXPOSURE-PLAN.md` — access-based custody boundary covering selected content **and** secret/seed/ranking material.
-- `PRE-AUTHORING-PACKAGE-MANIFEST.json` — exact six-input package pin, hash `c0927f437e7a4d07d1a825eace7e3d061ad0bb9c6a8b8775c28b2e4bfd07e963`.
-- `INDEPENDENT-CURATOR-START-PROMPT.md` — standalone handoff pinned to that exact package for the genuinely independent curator/custodian.
+- `TREATMENT-SURFACE-MANIFEST.md` / `TREATMENT-BUNDLE-INVENTORY.tsv` — frozen offline treatment surface.
+- `GENERIC-CONTROL.md` — exact candidate Arm C control; still requires independent competent/non-strawman Gate 1 approval.
+- `SOURCE-POOL-DEFINITION.json` — frozen external public source-pool definition and eligibility rules.
+- `TARGET-WORK-SAMPLING-MANIFEST.md` — revision 3 public beacon selection with a complete eligible-candidate ledger frozen and hashed before the qualifying pulse.
+- `CUSTODY-AND-EXPOSURE-PLAN.md` — selection custody retired; Gate 4/5 case-construction/hidden-material custody remains separate.
+- `PRE-AUTHORING-PACKAGE-MANIFEST.json` — exact six-input package pin.
+- `INDEPENDENT-CURATOR-START-PROMPT.md` — operational public-selection procedure; the historical filename does not imply a private selection custodian.
 
-Parent task: [`../../tasks/protocol-effectiveness-benchmark.md`](../../tasks/protocol-effectiveness-benchmark.md).
-Corpus child task: [`../../tasks/protocol-effectiveness-corpus-construction.md`](../../tasks/protocol-effectiveness-corpus-construction.md).
+Current package hash:
 
-## Important owner-found correction before handoff
+`32295d7152542b3d6aa2ec0f903c03c8fae2cd82056b4e0e72295d4f278a8e2f`
 
-A fully public deterministic seed would make selected public GitHub issue IDs reconstructable by a MAPS_L protocol modifier, violating the access-based exposure rule even if the selected IDs were never committed here.
+The package is owner-recomputed and not yet independently verified at this revision. No selected case content exists.
 
-The candidate sampling method therefore now requires:
+## Revision 3 selection integrity
 
-1. curator-generated private 256-bit secret;
-2. public SHA-256 commitment to that secret before a future qualifying NIST Randomness Beacon pulse;
-3. HMAC-SHA256 seed derivation using the private secret + fixed public package inputs + that pulse;
-4. public commitment to the derived seed while the secret/seed/rankings remain sealed;
-5. reveal/recomputation only at the permitted look.
+Before the qualifying pulse exists, the operator must enumerate/adjudicate the complete eligible population, assign domain/complexity, commit the canonical public eligible-candidate ledger, compute `candidate_set_sha256`, and commit `selection/SELECTION-FREEZE.json` binding that set to the package/source-pool hashes, formulas, operator, freeze timestamp, and pulse rule.
 
-No issue enumeration/ranking has occurred in the MAPS_L owner context.
+The first valid NIST Randomness Beacon 2.0 pulse at least 600 seconds after the candidate-ledger freeze is then applied arithmetically to that frozen set. The ranking formulas include `candidate_set_sha256`.
 
-## Critical custody boundary
+Ordinary post-pulse eligibility adjudication is prohibited. A frozen row can be removed only under the documented objective-defect/source-availability exception with published evidence and independent confirmation.
 
-No selected `FROZEN_STANDARD` or `SEALED_HOLDOUT` identity/content, selection secret/seed, ranking table, selected URL, or holdout membership may be created in this repository or a user-visible MAPS_L-owner chat.
+## Gate 1 — Arm C remains separate
 
-The current repository/user context therefore cannot serve as the independent corpus custodian. A genuinely separate curator/custodian with access-controlled storage is now the exact blocker.
+Before candidate enumeration/selection, an independent reviewer without a MAPS_L development stake must explicitly judge the exact `GENERIC-CONTROL.md` text competent/non-strawman or return corrections.
 
-A normal fresh review chat under the same user account is not sufficient custody. Use `INDEPENDENT-CURATOR-START-PROMPT.md` only with a separate eligible person/service/environment.
+PR #371 clarifies that same-owner adversarial critique may be supporting evidence but does not satisfy this independence requirement. One eligible fresh reviewer may review #371 and the exact Arm C control in the same pass.
+
+## Gate 4/5 remains separate
+
+Publishing candidate/selected identities, ranks, and holdout membership does not publish case answers. Hidden fixtures/contracts/oracles/checks, canaries, answer-bearing provenance, and sealed case-construction material remain governed separately by `BENCHMARK-SPEC.md` §9 and `CUSTODY-AND-EXPOSURE-PLAN.md`.
+
+That later construction-custody boundary remains unresolved.
+
+## Current sequence
+
+1. Fresh independent review of revision-3 pre-authoring package.
+2. Independent Gate 1 approval of exact Arm C control.
+3. Freeze and commit the complete eligible-candidate ledger before a future qualifying pulse.
+4. Apply the future pulse deterministically and publish selection/ranking/holdout results.
+5. Resolve Gate 4/5 case-construction custody before hidden case content is created.
+6. Construct/audit/freeze corpus.
+7. Fresh independent pre-run review.
+8. Separate execution authorization before benchmark execution.
 
 ## What remains prohibited
 
