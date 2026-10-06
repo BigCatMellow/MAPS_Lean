@@ -1,17 +1,31 @@
 # Legacy Promotion Ledger
 
-This is the actionable companion to `LEGACY_KNOWLEDGE_AUDIT.md`.
+Status: **preserved migration disposition ledger — not a live task list**.
+
+This is the disposition companion to `LEGACY_KNOWLEDGE_AUDIT.md`. The status
+labels record what the migration decided to promote, rewrite, defer, or leave
+historical. They do not create current work merely because they use imperative
+language. Verify active Lean before acting on an old `MERGE`/`REWRITE` entry.
+
+The original migration assumed top-level `legacy/` might later be deleted. On
+2026-10-06 the operator instead chose to retain it as a reference corpus. The
+curated snapshots and active-runtime independence remain useful; deletion is not
+pending.
 
 Statuses:
 
 - `ACTIVE` — already represented in Lean; do not duplicate.
 - `PRESERVED-1` — preserved in `migration/legacy-runtime-source/` by the first extraction.
-- `PRESERVE-2` — preserve in the second curated migration snapshot before deleting `legacy/`.
-- `MERGE` — merge the rule/lesson into an active Lean playbook/template.
+- `PRESERVE-2` — historical migration label for material selected into the
+  second curated preservation snapshot; the snapshot is complete and the source
+  may also remain in retained `legacy/`.
+- `MERGE` — migration disposition: the rule/lesson belonged in active Lean;
+  verify whether promotion has already occurred before creating work.
 - `REWRITE` — useful behavior exists, but old implementation must not become active unchanged.
 - `OPTIONAL` — preserve evidence/reference; build only when a real need appears.
-- `HISTORICAL` — keep only in Git history after extraction.
-- `DROP` — presentation/obsolete implementation with no remaining Lean dependency.
+- `HISTORICAL` — reference/provenance only; not active Lean behavior.
+- `DROP` — do not promote this implementation into active Lean; retention of
+  its historical source under `legacy/` is separate from active disposition.
 
 ## P0 — behavior Lean must not lose
 
@@ -93,7 +107,7 @@ Statuses:
 
 ## Historical datasets — do not migrate into active Lean
 
-| Area | Classification | Use after removal |
+| Area | Classification | Reference use while legacy is retained |
 |---|---|---|
 | `tasks/TASK-*.json` | `HISTORICAL DATASET` | Git history / optional benchmark fixtures |
 | `events/events.jsonl` | `HISTORICAL DATASET` | Git history / measurements; active Lean starts fresh |
@@ -117,9 +131,11 @@ Statuses:
 | screenshots | `HISTORICAL` |
 | provider-specific permanent identity bindings | `DROP` |
 
-## Promotion order
+## Historical promotion order
 
-Do not attempt to revive everything at once.
+This sequence records the migration's intended promotion order. It is historical
+planning context, not a current instruction to recreate already-completed work or
+to advance every row.
 
 ```text
 1. Task ledger + AGI READY gate
@@ -134,8 +150,13 @@ Do not attempt to revive everything at once.
 10. Optional cost/retrieval/discovery features only from new evidence
 ```
 
-## Deletion gate
+## Preservation boundary
 
-No `PRESERVE-2` item may depend solely on a live `legacy/` path after the second
-snapshot lands. `legacy/` itself can then be removed after the separate removal
-checklist passes.
+The deletion-era gate is retired. Its useful invariant remains: active Lean must
+not depend for execution on a live top-level `legacy/` path, and curated
+`PRESERVE-2` material must have an independent preservation home.
+
+The second curated snapshot is complete, and top-level `legacy/` is now
+intentionally retained as reference/history. There is no pending deletion action.
+Any future removal proposal would require a new operator decision and fresh
+revalidation rather than relying on this historical ledger.

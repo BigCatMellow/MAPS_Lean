@@ -1,15 +1,20 @@
 # Legacy Removal Checklist
 
-Use this immediately before deleting top-level `legacy/`.
+**Status: historical deletion-readiness evidence; not an active removal plan.**
 
-**Current migration state: READY FOR THE SEPARATE DELETION ACTION.**
+On 2026-10-06 the operator explicitly chose to retain top-level `legacy/` as a
+useful reference corpus. The checks below are preserved because they prove the
+active runtime does not depend on legacy and document what was already audited;
+they no longer imply that deletion is the next project action.
+
+**Historical deletion-readiness result: PASSED.**
 
 The replacement runtime is merged, reviewed with the independence caveat recorded
 below, mechanically verified, privacy-swept, and proven free of active execution
 dependencies on `legacy/` or the curated migration snapshots.
 
-Deletion itself is intentionally **not** performed here and still requires an
-explicit operator-approved deletion change.
+Any future proposal to delete `legacy/` would require a new explicit operator
+decision and fresh revalidation against then-current repository state.
 
 ## 1. Knowledge and source extraction
 
@@ -147,12 +152,15 @@ Final dependency/reference sweep: YES — PASS
 Deletion safety gate installed in CI: YES
 
 Removal approved by operator: NO
+Current operator disposition: RETAIN as reference corpus (2026-10-06)
 Removal PR/commit: none
 ```
 
-## Only remaining migration action
+## Current disposition
 
-**Explicit operator-approved deletion of top-level `legacy/`.**
+Top-level `legacy/` is intentionally retained as reference/history and is not
+an active runtime dependency. There is no pending deletion action.
 
-Do not infer deletion authority from any other approval, merge, task state, or
-this checklist. The deletion must be its own explicit operator instruction/change.
+If deletion is reconsidered later, this checklist is historical evidence only:
+re-run the relevant dependency, preservation, privacy, and migration checks and
+require a new explicit operator instruction before removal.
