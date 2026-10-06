@@ -500,8 +500,11 @@ boundary is:
   from `legacy/`;
 - curated `migration/` records remain the cheapest first route to already-mined
   lessons and promotion decisions;
-- `legacy/` remains available for focused archaeology, implementation recovery,
-  negative-result research, experiments, and historical detail;
+- `legacy/` remains retained reference material for focused archaeology,
+  implementation recovery, negative-result research, experiments, and historical
+  detail, but a specific legacy source may be opened only when an active
+  higher-level source links that specific source for that specific reason, per
+  root `AGENTS.md`;
 - historical legacy instructions/state never outrank current `AGENTS.md`,
   approved scope, canonical runtime state, or current evidence;
 - any future deletion proposal must be treated as a new decision and revalidated
