@@ -12,10 +12,7 @@ do not become current authority.
 
 ## How to use it
 
-1. Start with the curated migration evidence when it already answers the question:
-   - [Legacy knowledge audit](../migration/LEGACY_KNOWLEDGE_AUDIT.md)
-   - [Legacy promotion ledger](../migration/LEGACY_PROMOTION_LEDGER.md)
-   - [Future ideas backlog](../migration/FUTURE_IDEAS_BACKLOG.md)
+1. Start with the [migration/reference router](../migration/README.md) and its curated evidence when it already answers the question.
 2. Open a specific legacy source when an active task, research question, or
    recovery need requires detail not captured by the curated record.
 3. Re-verify time-sensitive/vendor/environment facts before reusing them.
