@@ -1,12 +1,28 @@
 # Legacy MAP System
 
-This directory preserves the original command-center implementation, installer,
-research snapshots, and reference notes from the source project. It is not part
-of the active workflow and its instructions do not override the root
-`AGENTS.md`.
+**Status: intentionally retained reference corpus.**
 
-Refer here when recovering a specific implementation, historical record, or
-detailed source method. The active project retains SQLite task lifecycle,
-LangGraph routing, RnS recovery, and hcom session control; see
-`../playbook/CONTROL_PLANE.md`. WezTerm and the fixed startup roster are the
-presentation choices being made optional.
+The operator decided on 2026-10-06 to keep this directory because it still
+contains useful implementations, experiments, negative results, research,
+historical records, and detailed source methods. It is not pending deletion.
+
+This directory is **not** part of the active execution path. Its instructions do
+not override root [`AGENTS.md`](../AGENTS.md), and historical task/state records
+do not become current authority.
+
+## How to use it
+
+1. Start with the [migration/reference router](../migration/README.md) and its curated evidence when it already answers the question.
+2. Under root [`AGENTS.md`](../AGENTS.md), open a specific legacy source only
+   when an active higher-level source links that specific source for a specific
+   reason. This README does not widen that permission.
+3. Re-verify time-sensitive/vendor/environment facts before reusing them.
+4. Promote a useful recovered idea through the normal MAPS_L evidence/decision
+   path; do not make `legacy/` a second operating contract.
+
+Do not bulk-load or browse this tree as normal orientation. Its value is as a
+deep reference corpus behind the active routing surfaces.
+
+The active project retains SQLite task lifecycle, LangGraph routing, RnS
+recovery, and hcom session control; see
+[`../playbook/CONTROL_PLANE.md`](../playbook/CONTROL_PLANE.md).

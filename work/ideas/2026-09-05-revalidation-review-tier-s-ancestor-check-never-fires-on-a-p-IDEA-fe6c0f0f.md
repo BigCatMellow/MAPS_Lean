@@ -23,3 +23,5 @@ instead of is-ancestor, compare the PR's pre-rebase diff (old_head vs old_head's
 ## Promotion
 
 Not promoted. Promotion is a deliberate decision made by a human or task-lifecycle process (see `playbook/TASK_LIFECYCLE.md`), not an automated step of this script.
+
+- 2026-09-12 disposition (trajectory check #29, `vuna`): **promoted — implemented.** `scripts/check_review_evidence.py`'s revalidation tier now accepts on empty tree diff alone (PR #345, `_is_ancestor` removed), independently reviewed (`novi`, APPROVE, 13/13 `tests/test_check_review_evidence.py` passing) and independently re-verified this pass. Resolved one arc before the N=3 escalation bound named at check #28. Observation preserved as history.

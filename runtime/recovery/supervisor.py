@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Mapping
 
 from runtime.communication import HcomAdapter, HcomError
-from runtime.harness import ExecutionBinding, SessionRef
+from runtime.harness import ExecutionBinding, RetryDisposition, SessionRef
 from runtime.harness.binding_resolution import resolve_harness_binding
 from .store import RecoveryStore, parse_time
 
@@ -13,16 +13,20 @@ DEFAULT_BACKOFF_SECONDS = (300, 900, 1800, 3600, 7200)
 
 # Codes that mean an installed CANONICAL_RUN Hook actively evaluated this
 # resume and found a concrete mismatch (HOOK_DENIED) or withheld automatic
-# approval (APPROVAL_REQUIRED). This is the only outcome tick() treats as an
-# explicit canonical-run denial -- the one case where routing through the
-# harness changes observable behavior versus the pre-existing direct hcom
-# resume call. CANONICAL_GUARD_REQUIRED (no CANONICAL_RUN Hook installed at
-# all -- a configuration gap, not a concrete mismatch) and every other
-# failure code are deliberately NOT included here: per the design note's
-# "does not silently suppress a resume the direct path would have attempted
-# unless the canonical-run guard has a concrete mismatch," those fall back to
-# the pre-existing direct-resume call instead (see tick()).
+# approval (APPROVAL_REQUIRED). Those outcomes have their own deterministic
+# denial handling below. CANONICAL_GUARD_REQUIRED (no CANONICAL_RUN Hook
+# installed at all) remains a pre-dispatch compatibility gap and may fall back
+# to the legacy direct resume path. A different boundary now applies after an
+# actual harness attempt: a non-success result whose retry disposition is
+# UNKNOWN must not be blindly repeated through the direct path in the same tick.
 _CANONICAL_DENIAL_CODES = {"HOOK_DENIED", "APPROVAL_REQUIRED"}
+
+# Closed-vocabulary outcomes known to occur before adapter/provider dispatch.
+# They must never be reclassified as ambiguous external effects merely because
+# an older/fake caller used OperationResult's default retry=UNKNOWN. Canonical
+# denials keep their dedicated no-fallback handling; CANONICAL_GUARD_REQUIRED
+# keeps the original rollout compatibility fallback.
+_PRE_DISPATCH_RESULT_CODES = _CANONICAL_DENIAL_CODES | {"CANONICAL_GUARD_REQUIRED"}
 
 # A canonical-run denial is deterministic w.r.t. an identical re-run, so it must
 # not consume a transient `backoff_seconds` retry attempt (that would launder the
@@ -610,36 +614,61 @@ class RecoverySupervisor:
                             "summary": str(exc),
                         }
                     else:
+                        code = str(result.code)
+                        ambiguous_external_outcome = (
+                            not result.ok
+                            and result.retry == RetryDisposition.UNKNOWN
+                            and code not in _PRE_DISPATCH_RESULT_CODES
+                        )
                         harness_resume = {
                             "attempted": True,
                             "ok": bool(result.ok),
-                            "code": str(result.code),
+                            "code": code,
                             "summary": str(result.summary),
                         }
+                        if ambiguous_external_outcome:
+                            # Preserve the exact facts needed to understand why
+                            # the legacy direct fallback is suppressed. Keep
+                            # this additive and bounded to the ambiguous case so
+                            # existing result projections for known outcomes do
+                            # not churn unnecessarily.
+                            harness_resume.update(
+                                {
+                                    "mutated": bool(result.mutated),
+                                    "operation_id": str(result.operation_id),
+                                    "retry": result.retry.value,
+                                }
+                            )
                         if result.ok:
                             error = ""
                             action = "resume"
                             resolved = True
-                        elif str(result.code) in _CANONICAL_DENIAL_CODES:
+                        elif code in _CANONICAL_DENIAL_CODES:
                             # A concrete canonical-run mismatch -- an
                             # installed CANONICAL_RUN Hook actively denied
-                            # (or required approval for) this resume. This
-                            # is the one outcome allowed to change behavior
-                            # versus the pre-existing direct-resume call: no
-                            # fallback, the denial is observable via
-                            # harness_resume above, and no task truth is
-                            # touched.
+                            # (or required approval for) this resume. No direct
+                            # fallback; deterministic denial accounting below.
                             error = str(result.summary)
                             action = "resume_denied"
                             resolved = True
                             canonically_denied = True
-                        # else: harness attempt failed for a non-canonical
-                        # reason (e.g. no CANONICAL_RUN Hook installed at
-                        # all, an adapter/provider failure) -- fall through
-                        # below and preserve current direct-resume behavior
-                        # for this incident so a resume is never silently
-                        # suppressed by anything short of an explicit
-                        # canonical-run denial.
+                        elif ambiguous_external_outcome:
+                            # The harness reached a result that explicitly says
+                            # repeating the external operation is not known safe,
+                            # and the result is not a known pre-dispatch
+                            # compatibility outcome. Do not convert UNKNOWN into
+                            # an implicit SAFE by immediately invoking the legacy
+                            # direct resume. The normal probing/backoff bookkeeping
+                            # below remains in force, and every later tick
+                            # re-observes session liveness before it can attempt
+                            # another resume.
+                            error = str(result.summary)
+                            action = "resume_failed"
+                            resolved = True
+                        # else: known non-canonical pre-dispatch/configuration
+                        # outcomes preserve the historical direct-fallback
+                        # compatibility behavior. Missing canonical enforcement
+                        # is the deliberate first-call-site example.
                 else:
                     harness_resume = {"attempted": False, "reason": binding_reason}
 

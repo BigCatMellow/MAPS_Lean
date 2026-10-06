@@ -132,6 +132,10 @@ from runtime.policy.memory_provenance_guard import (
     MemoryProvenanceGuard,
     register_memory_provenance_guards,
 )
+from runtime.policy.write_scope_guard import (
+    WriteScopeGuard,
+    register_write_scope_guards,
+)
 from runtime.recovery.store import RecoveryStore
 from runtime.recovery.supervisor import RecoverySupervisor
 
@@ -423,6 +427,16 @@ def build_canonical_harness_service(
     # only the payload annotation and the pure `admit_memory_evidence()`. No
     # production `send()` caller exists yet, so this changes no live behavior.
     register_memory_provenance_guards(registry, MemoryProvenanceGuard())
+    # 6.4: fail-closed guard over caller-declared write scope, reusing the
+    # task's own real `output_paths`. Composed here for the same reason the
+    # guard above once was -- so the decision logic is real and testable --
+    # but genuinely unwired: no `HarnessService` operation corresponds to "a
+    # file write happens" (writes happen inside an agent's own tool loop,
+    # which this harness does not intercept), so this changes no live
+    # behavior. See `work/notes/2026-09-15-6.4-write-credential-guard-design.md`.
+    register_write_scope_guards(
+        registry, WriteScopeGuard(task_reader, repo_root=repo_root)
+    )
     return HarnessService([adapter], hooks=registry)
 
 

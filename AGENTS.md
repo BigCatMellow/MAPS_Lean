@@ -86,6 +86,10 @@ it. If routine work needs several overlapping methods, consolidate.
     and better alternatives when they exist; push back when that would improve
     the result. Do not manufacture objections or disagree performatively—agreement
     is appropriate when it survives scrutiny, and should be specific about why.
+15. **Close handoff loops.** Follow
+    [`work/handoffs/README.md`](work/handoffs/README.md): register durable
+    handoffs, receipt review/continuation/terminal state, and keep the register
+    synchronized. Thread-only receipts stay on their source GitHub thread.
 
 ## Scope-level authorization
 
@@ -134,6 +138,8 @@ The operator MUST:
 - retain accountability after delegation and inspect/reconcile returned work;
 - give helpers bounded outputs, context/evidence targets, stop conditions, and
   non-overlapping write boundaries where relevant;
+- dispatch workers into isolated worktrees/clones, never the shared
+  checkout ([Worktree Isolation](playbook/WORKTREE_ISOLATION.md));
 - automatically continue after a child task/checkpoint/review when authorized
   parent work remains;
 - retry, reassign, reduce, research, or re-plan stalled/failed work rather than

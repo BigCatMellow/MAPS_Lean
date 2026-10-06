@@ -82,6 +82,36 @@ Record in the trajectory note that the log was reviewed and what was found
 ("triage") loop; capture is owned by
 [`REPAIR_AND_LEARNING.md`](REPAIR_AND_LEARNING.md).
 
+## Handoff-register reconciliation (every pass)
+
+`scripts/check_handoff_receipts.py` (CI, every PR) only covers the in-repo half
+of the durable-handoff system: [`work/handoffs/`](../work/handoffs/). The
+dated session-handoff files at `/home/home/MAPS_Lean_Handoff_*.md` are outside
+any git repo, so no CI can ever see them — this pass is the only mechanism
+that can. This exists because the very first two handoffs written after PR
+#340 introduced the register (sessions 42 and 43) both skipped it, caught only
+by a one-off manual audit, exactly the drift `INSIGHT-bbb3b845` predicted for
+a new standing register with no reconciliation owner.
+
+Every trajectory-check pass:
+
+1. List `/home/home/MAPS_Lean_Handoff_*.md` newest-first
+   (`ls -1 /home/home/MAPS_Lean_Handoff_*.md | sort -V | tail -5` is usually
+   enough — only the files written since the last pass matter).
+2. For each one written since the last trajectory check, confirm it carries the
+   receipt block (`Handoff ID:` / `Handoff status:` / `Reviewed:` / `Continued
+   at:` near its top) and has a matching row in
+   [`work/handoffs/README.md`](../work/handoffs/README.md). If either is
+   missing, add it in this pass (register as `MAPS-HO-YYYYMMDD-<slug>`, not
+   `LEGACY-*` — `LEGACY-*` is reserved for handoffs that predate the register).
+3. Record in the trajectory note which handoffs were checked and whether
+   anything was missing (even "nothing missing" — same discipline as the
+   friction-log consumption step above).
+
+This does not replace a full historical sweep (see the 2026-09-13
+handoff-audit pass, PRs #351/#354, for what that looked like) — it only keeps
+the register from drifting again between sweeps.
+
 ## Emergence pass (every pass)
 
 Every trajectory-check pass runs a short E/I pass

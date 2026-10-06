@@ -5,6 +5,13 @@
 - Task: [TASK-002](../tasks/TASK-002-question-led-onboarding-simulation.md)
 - Status: owner documentation complete; ready for independent review
 
+```text
+Handoff ID: LEGACY-MAPS-20260818-task-002-question-led-onboarding-handoff
+Handoff status: CLOSED
+Reviewed: 2026-09-13 by nepo (handoff-audit reconciliation pass)
+Continued at: work/reviews/TASK-002-independent-review.md
+```
+
 ## What is true now
 
 - The report records the actual active-document read order, four decision-point
