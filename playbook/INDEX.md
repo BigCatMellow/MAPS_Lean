@@ -13,77 +13,76 @@ AGENTS.md → approved roadmap/project → active task
 ```
 
 A playbook may define requirements for the method it owns, but cannot override a
-higher authority source. If it appears to conflict, follow the higher source and
-repair the lower one. Normal work should not require chain-reading playbooks; if
-several routinely overlap, consolidate their owners.
+higher authority source. If it conflicts, follow the higher source and repair
+the lower one. Do not chain-read playbooks by default; if methods routinely
+overlap, consolidate their owners.
 
-## Core workflow methods
+## Route by situation
 
-Prefer these for the common project lifecycle.
+Read only the method triggered by the concern. The trigger is routing, not new
+authority or a copy of the procedure. Use the boundary column to avoid choosing
+a nearby but wrong method.
 
-| Need | Primary owner | Boundary |
+| Trigger | Route | Key boundary |
 | --- | --- | --- |
-| Start a durable project | [PROJECT_BOOTSTRAP.md](PROJECT_BOOTSTRAP.md) | Project framing and initial roadmap; not task execution policy. |
-| Turn a concise request into a bounded contract | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) | Compiles intent and inherited authority; cannot silently expand it. |
-| Decide whether a consequential task is agent-ready | [AGI_STANDARD.md](AGI_STANDARD.md) | Single task-readiness standard, including practical shaping guidance. |
-| Check whether self-selected work is the right next work | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Per-task program steering; not roadmap redesign. |
-| Check whether the roadmap itself is still on trajectory | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) | Work-arc/roadmap correction; not routine per-task steering. |
-| Shape, assign, execute, review, and finish a task | [TASK_LIFECYCLE.md](TASK_LIFECYCLE.md) | Task lifecycle procedure under inherited roadmap authority. |
-| Use helpers and cross-agent communication | [HELPERS_AND_COMMUNICATION.md](HELPERS_AND_COMMUNICATION.md) | Bounded delegation/communication; parent ownership remains with the orchestration operator. |
-| Freeze consequential execution context/scope and preserve review independence | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) | Execution binding/proof; does not grant new authority. |
-| Make a consequential decision or handle safety/destruction boundaries | [DECISIONS_AND_SAFETY.md](DECISIONS_AND_SAFETY.md) | Decision/safety method under `AGENTS.md` scope-level authorization. |
+| Start/frame a durable project | [PROJECT_BOOTSTRAP.md](PROJECT_BOOTSTRAP.md) | Project framing; not task-level policy. |
+| Compile a concise request into bounded work | [REQUEST_COMPILATION.md](REQUEST_COMPILATION.md) | Compiles inherited intent; cannot expand authority. |
+| Decide whether consequential work is agent-ready | [AGI_STANDARD.md](AGI_STANDARD.md) | Readiness standard; readiness is not authorization. |
+| Shape, assign, execute, review, or finish a task | [TASK_LIFECYCLE.md](TASK_LIFECYCLE.md) | Task lifecycle under inherited scope. |
+| Delegate or communicate across agents | [HELPERS_AND_COMMUNICATION.md](HELPERS_AND_COMMUNICATION.md) | Delegation transfers execution, not parent ownership. |
+| Bind/reconstruct run scope, context, evidence, or review independence | [EXECUTION_INTEGRITY.md](EXECUTION_INTEGRITY.md) | Execution/review proof; does not grant authority. |
+| Choose the right next task inside an approved program | [PROGRAM_STEERING.md](PROGRAM_STEERING.md) | Per-task steering; not roadmap redesign. |
+| Recheck roadmap trajectory after accumulated work/evidence | [ROADMAP_TRAJECTORY_CHECK.md](ROADMAP_TRAJECTORY_CHECK.md) | Roadmap/work-arc correction; not routine task selection. |
+| Failure, drift, wrong assumption, friction, or recurrence | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | Mandatory triage: capture → severity → recurrence → mechanical safeguard → live verify; findings do not silently become policy. |
+| New idea, improvement, cross-root connection, or challenge | [EMERGENCE.md](EMERGENCE.md) | E/I proposes/captures and may challenge or supersede mechanisms; trajectory checks provide cadence; `AGENTS.md` / Decisions & Safety authorize change, while drift repair stays with Repair & Learning. |
+| Durable records may be isolated, stale, unreconciled, or hard to rediscover across sessions | [SPIDERWEB_AUDIT.md](SPIDERWEB_AUDIT.md) | Relationship diagnostic; topic similarity, link count/density, or the derived graph are not authority. |
+| Consequential consensus needs formal independent dissent | [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md) | Formal dissent protocol; ordinary challenge need not invoke it. |
+| Distinguish authority, context, facts, Skills, flows, tools, examples | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Information type; not lifecycle status and does not create authority. |
+| Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Active/retired/archive lifecycle plus routing maintenance; not information-type classification. |
+| Route by demonstrated model/harness capability, cost, or retained HPOM heuristic | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Capability/cost choice; capability is not permission. |
+| Apply provider/tool-specific guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Provider adaptation; cannot redefine MAPS authority. |
+| Locate runtime/control-plane ownership | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Runtime responsibility map; UI/session presence is not authority. |
+| Consequential decision, destruction, safety, or reauthorization | [DECISIONS_AND_SAFETY.md](DECISIONS_AND_SAFETY.md) | Decision/safety path inside the existing authority model. |
+| Isolate writable dispatched work or recover a worktree failure | [WORKTREE_ISOLATION.md](WORKTREE_ISOLATION.md) | Git isolation; no merge or permission authority. |
+| Test/tune a workflow with a bounded agent scenario | [SIMULATION_DESIGN.md](SIMULATION_DESIGN.md) | Simulation evidence; plausible output is not production proof. |
+| Represent/import a project in ProjectUpdater | [ROADMAP_AND_PROJECTUPDATER.md](ROADMAP_AND_PROJECTUPDATER.md) | Representation only; not canonical task truth. |
+| Establish facts or evaluate a workflow/document/usability path | [RESEARCH.md](RESEARCH.md) | Evidence gathering; does not create implementation authority. |
+| Analyze downside, reversibility, blast radius, or mitigations | [RISK_AND_CHANGE.md](RISK_AND_CHANGE.md) | Risk analysis; does not create a second approval system. |
+| Trace legacy provenance/original retained guidance | [SOURCE_CATALOG.md](SOURCE_CATALOG.md) | Provenance/reference; current owners outrank historical sources. |
 
-## Specialized methods
+Do not invoke a mechanism merely because it exists. Diagnostics such as
+Spiderweb do not repair; E/I capture does not authorize; Skills/tools do not
+grant permission; review does not replace the orchestration operator's
+ownership.
 
-Use only when the specific concern is active.
+### Related non-playbook routes
 
-| Need | Use | Relationship / non-overlap |
+| Need | Route | Boundary |
 | --- | --- | --- |
-| Understand retained runtime controls | [CONTROL_PLANE.md](CONTROL_PLANE.md) | Runtime responsibility map; terminals/windows are not authority. |
-| Install/verify SQLite, LangGraph, and hcom on a fresh clone | [Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md) | Setup/migration only; keep databases and authority roles separate. |
-| Plan portable control-plane deployment into another repo | [Portable Deployment roadmap](../work/roadmaps/agent-harness-capabilities/06-portable-deployment.md) | Current deployment roadmap, not a general operating rule. |
-| Route by demonstrated model/harness capability and cost | [MODEL_CAPABILITY_ROUTING.md](MODEL_CAPABILITY_ROUTING.md) | Single worker-capability/routing method; includes the retained HPOM heuristic. |
-| Apply provider/tool-specific operating guidance | [PROVIDER_AND_TOOL_GUIDANCE.md](PROVIDER_AND_TOOL_GUIDANCE.md) | Provider adaptation only; cannot redefine MAPS authority. |
-| Test a consequential approved claim with a formal dissent mechanism | [TENTH_SEAT_REVIEW.md](TENTH_SEAT_REVIEW.md) | Formal narrow protocol; ordinary helper challenge does not require this artifact. |
-| Audit whether durable records are connected, reconciled, and discoverable across sessions | [SPIDERWEB_AUDIT.md](SPIDERWEB_AUDIT.md) | Treating link count, topic similarity, or the derived graph as authority. |
-| Isolate writable dispatched work or recover worktree-specific failures | [WORKTREE_ISOLATION.md](WORKTREE_ISOLATION.md) | Git isolation mechanics; no merge/permission authority. |
-| Test or tune a workflow with an agent scenario | [SIMULATION_DESIGN.md](SIMULATION_DESIGN.md) | Simulation/evaluation; plausible output is not production proof. |
-| Plan/import a project into ProjectUpdater | [ROADMAP_AND_PROJECTUPDATER.md](ROADMAP_AND_PROJECTUPDATER.md) | ProjectUpdater representation; not the canonical task store. |
-| Establish facts or evaluate a workflow/document/usability path | [RESEARCH.md](RESEARCH.md) | Evidence gathering/evaluation; no implementation authority by itself. |
-| Track downside, reversibility, and mitigations | [RISK_AND_CHANGE.md](RISK_AND_CHANGE.md) | Risk analysis; does not create a separate approval system. |
-| Elicit, capture, and route improvement ideas | [EMERGENCE.md](EMERGENCE.md) | Generation cadence is the trajectory check; promotion stays deliberate. Recommends dispositions, does not authorize work. May propose redesigning or superseding an established mechanism (incl. the lifecycle itself); the decision/authorization for such a change stays with [DECISIONS_AND_SAFETY.md](DECISIONS_AND_SAFETY.md) / `AGENTS.md`, and drift-driven repair stays with [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md). See [design note](../work/notes/2026-09-07-emergence-supersession-authority.md). |
-| Repair drift and run the mandatory triage loop: capture → severity → recurrence → mechanical countermeasure → live-verified close | [REPAIR_AND_LEARNING.md](REPAIR_AND_LEARNING.md) | The triage / continuous-improvement core standard; findings do not silently become global policy. |
-| Classify information as authority, task context, fact, Skill, flow, tool, or example | [INFORMATION_CLASSES.md](INFORMATION_CLASSES.md) | Information type, not lifecycle status or authority creation. |
-| Keep project information trustworthy and cheap to retrieve over time | [INFORMATION_LIFECYCLE.md](INFORMATION_LIFECYCLE.md) | Active/retired/archive lifecycle plus routing maintenance; not information classification. |
-| Continue across sessions | [Current state](../state/CURRENT.md) and [handoff template](../templates/handoff.md) | Continuation state/evidence only; does not expand task authority. |
+| Fresh control-plane install/verification | [Control-Plane Setup](../docs/CONTROL_PLANE_SETUP.md) | Setup/migration only; keep database/runtime responsibility separate from authority. |
+| Portable control-plane deployment planning | [Portable Deployment roadmap](../work/roadmaps/agent-harness-capabilities/06-portable-deployment.md) | Current deployment roadmap; not a global operating rule. |
+| Session continuation/recovery | [Current state](../state/CURRENT.md) + [handoff template](../templates/handoff.md) | Continuation state/evidence only; does not expand task authority. |
 
 ## Adding or changing a method
 
 Follow the anti-sprawl invariant in `AGENTS.md`. Before adding a playbook file:
 
-1. Name the existing concept owner and why it cannot coherently own the addition.
-2. Give the proposed method one distinct reusable job.
+1. Name the existing concept owner and why it cannot own the addition.
+2. Give the new method one distinct reusable job.
 3. Link rather than copy shared rules.
-4. Add one index entry that states the non-overlap.
-5. Merge/retire any method it supersedes in the same arc.
+4. Add one trigger route stating the non-overlap.
+5. Merge/retire anything it supersedes in the same arc.
 
-A new file is not evidence of a new capability. Fewer, clearer owners are preferred.
-
-## Runtime detail
-
-For SQLite/LangGraph/RnS/hcom responsibility boundaries, read
-[CONTROL_PLANE.md](CONTROL_PLANE.md). This index does not duplicate that detail.
+A new file is not evidence of a new capability. Fewer, clearer owners are
+preferred when they preserve the same or better behavior; file count alone is
+not a reason to merge distinct responsibilities.
 
 ## Legacy audit and migration sources
 
-Agents needing legacy provenance should start with:
-
-- [Legacy Knowledge Audit](../migration/LEGACY_KNOWLEDGE_AUDIT.md)
-- [Legacy Promotion Ledger](../migration/LEGACY_PROMOTION_LEDGER.md)
-- [Future Ideas Backlog](../migration/FUTURE_IDEAS_BACKLOG.md)
-- [Legacy Removal Checklist](../migration/LEGACY_REMOVAL_CHECKLIST.md)
-- [Source catalog](SOURCE_CATALOG.md)
-
-Migration snapshots are reference source only; active runtime code must not import
-or execute from them. Newer migration audit/ledger evidence outranks older source
-mapping for legacy-removal decisions.
+For historical provenance use [Legacy Knowledge Audit](../migration/LEGACY_KNOWLEDGE_AUDIT.md),
+[Legacy Promotion Ledger](../migration/LEGACY_PROMOTION_LEDGER.md),
+[Future Ideas Backlog](../migration/FUTURE_IDEAS_BACKLOG.md), and
+[Legacy Removal Checklist](../migration/LEGACY_REMOVAL_CHECKLIST.md).
+Migration snapshots are reference only; active runtime code must not execute
+from them. Newer migration audit/ledger evidence outranks older source mapping
+for legacy-removal decisions.

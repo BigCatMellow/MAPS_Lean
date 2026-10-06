@@ -54,7 +54,8 @@ over copying the decision rationale into another file.
 - Do not promote an idea, reopen a decision, or create a task merely to increase
   graph connectivity.
 
-The goal is shortest reliable retrieval, not a visually dense graph.
+The goal is shortest reliable retrieval, not a visually dense graph or the
+smallest possible corpus.
 
 ## Information-routing maintenance pass
 
@@ -62,7 +63,7 @@ Run this procedure when navigation cost has plausibly degraded, not merely becau
 time passed. Useful triggers include:
 
 - meaningful documentation/roadmap growth or restructuring;
-- an entry surface or routing hub approaching its explicit size budget;
+- an entry surface or routing hub whose read cost or semantic density has materially degraded;
 - agents repeatedly searching, chain-reading, or opening the wrong large document
   to answer a routine question;
 - Digital Fungus reporting new broken routes, orphan candidates, or increased
@@ -81,16 +82,19 @@ Do not create a recurring cleanup ritual when none of those conditions exists.
 
    Record the relevant entry/hub sizes, common-route hops and token proxy, broken
    routes/orphan candidates, and the current canonical owner(s). Use the analyzer's
-   token count only as a comparative planning proxy, never billing data.
+   token count only as a comparative planning proxy, never billing data or an
+   automatic pass/fail threshold.
 
 2. **Route by intent.** For each common question, identify the smallest owning
-   source. Prefer direct links from stable hubs; keep large specialist/history
-   surfaces behind a question router instead of the normal orientation path.
+   source that preserves the needed distinctions. Prefer direct links from stable
+   hubs; keep large specialist/history surfaces behind a question router instead
+   of the normal orientation path.
 
 3. **Consolidate before adding.** When two files explain the same rule/fact,
    preserve one owner, keep only the local implication elsewhere, and link to the
    owner. Remove stale status snapshots, repeated rule prose, activity narration,
-   and instructions whose only purpose is finding other instructions.
+   and instructions whose only purpose is finding other instructions. Do not
+   merge genuinely distinct responsibilities merely to reduce file count.
 
 4. **Connect or retire islands.** Give forward-relevant durable records a meaningful
    parent/source/decision/evidence/review/successor relationship. If a file has no
@@ -98,15 +102,20 @@ Do not create a recurring cleanup ritual when none of those conditions exists.
    justify its existence.
 
 5. **Compact without semantic loss.** Preserve authority, decisions, constraints,
-   unresolved work, acceptance criteria, risks, evidence/provenance, and current
-   relationships. Never trade correctness or recoverability merely for a smaller
-   byte count.
+   unresolved work, acceptance criteria, risks, evidence/provenance, current
+   relationships, and distinctions that affect routing or behavior. Never trade
+   correctness, capability, or recoverability merely for a smaller byte/file/token
+   count. Those metrics are diagnostic costs, not success criteria. A larger
+   canonical owner is correct when uniquely necessary information belongs there.
 
 6. **Remeasure.** Run Digital Fungus and the documentation/routing tests again.
-   Keep the maintenance change only when it produces a real routing benefit such
-   as lower common-path read cost, fewer hops/searches, a repaired route, a retired
-   duplicate/orphan, or clearer ownership without increasing common-path cost.
-   If the only result is more links/files/process, do not keep the churn.
+   Keep the maintenance change only when the overall tradeoff improves: lower
+   common-path read cost, fewer hops/searches, repaired routes, retired
+   duplicates/orphans, clearer ownership, or added necessary capability/clarity at
+   a justified read cost. If read cost rises, keep the change only when the added
+   correctness, capability, or decision clarity outweighs that cost and no cheaper
+   equally reliable route exists. If the only result is more links/files/process
+   or a smaller metric with less meaning, do not keep the churn.
 
 7. **Verify and review proportionally.** Normal documentation-only changes need
    relevant tests. Changes to always-read contracts, authority wording, or other
@@ -127,6 +136,16 @@ verification: ...
 Do not create a second graph registry, maintenance ledger, or copied navigation
 truth just to record the pass. The repository links and canonical files remain
 the source; preserve a report only when future work needs the evidence.
+
+## Method evolution and supersession
+
+A method does not become permanent because it worked before. Past success is
+useful evidence and raises the burden for replacement, but it is not authority.
+When evidence and review support a materially better approach, deliberately
+supersede the old one: update the canonical owner and routes/tests, preserve the
+reason and provenance needed to understand the change, and retire obsolete
+parallel instructions. Do not preserve legacy process merely to avoid change;
+do not churn a working method without comparative evidence.
 
 ## Compaction
 

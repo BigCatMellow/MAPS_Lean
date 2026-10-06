@@ -24,7 +24,8 @@ to the most restrictive text. Repair a stale lower source when safe and in scope
 
 ### Documentation sprawl invariant
 
-MAPS_L MUST prefer consolidation over accumulation.
+MAPS_L MUST prefer consolidation over accumulation, but consolidation is a means,
+not the objective. Preserve or improve behavior first.
 
 - New global rules belong here.
 - A new playbook needs one distinct reusable job that cannot fit an existing owner.
@@ -32,29 +33,49 @@ MAPS_L MUST prefer consolidation over accumulation.
 - Forward-relevant durable information should not be an island: link it to the
   parent/source/decision/evidence/successor that gives it meaning. Prefer links
   over copied explanation.
-- Optimize for **shortest useful route**, not graph density. Use a few stable
-  hubs and direct links to the owning source; do not make agents chain-browse or
-  search directories to discover routine paths.
+- Optimize for **shortest reliable route and useful information per token**, not
+  the smallest file, fewest files, or lowest metric. File size, method count, and
+  token proxies are diagnostic costs, not hard ceilings. Growth is valid when
+  distinct necessary behavior earns its cost; compaction is valid only without
+  semantic or behavioral loss.
+- Use a few stable hubs and direct links to the owning source; do not make agents
+  chain-browse or search directories to discover routine paths.
 - When routine documentation retrieval starts requiring search/chain reads or
-  entry/hub budgets grow, run the [information-routing maintenance pass](playbook/INFORMATION_LIFECYCLE.md#information-routing-maintenance-pass).
+  read cost/semantic density degrades, run the [information-routing maintenance pass](playbook/INFORMATION_LIFECYCLE.md#information-routing-maintenance-pass).
 - New methods must be indexed in [`playbook/INDEX.md`](playbook/INDEX.md).
 - Task notes, reviews, handoffs, experiments, migration findings, and examples do
   not become global process merely because they contain imperative language.
 
-Common-case reading budget:
+Common-case read path:
 
 ```text
 AGENTS.md + approved roadmap/task + one relevant playbook method
 ```
 
+Keep that path as small as practical without deleting decision-relevant meaning.
 Add state, coordination, evidence, or another method only when the work requires
 it. If routine work needs several overlapping methods, consolidate.
 
+### Contract protection
+
+Substantive changes to `AGENTS.md` are **high-risk authority changes**, not ordinary
+documentation. They require an explicitly authorized contract/authority scope;
+generic documentation, cleanup, refactor, or implementation authority is not
+enough and cannot bootstrap permission to rewrite this contract. Before approval,
+compare the proposed contract with the prior one for invariant loss, authority
+drift, contradiction, and routing effects, then verify the exact substantive head
+with genuinely independent review. Cost/size metrics are diagnostic constraints,
+never reasons to weaken a necessary global invariant. Keep contract changes
+narrowly scoped and separately reviewable when practical.
+
 ## Hard operating invariants
 
-1. **Smallest coherent change.** Do not build infrastructure for a one-off need.
-2. **Concision is king. Brevity over grammar.** Preserve only information that
-   changes correctness, action, evidence, risk, or understanding.
+1. **Smallest coherent change.** Make the smallest change that preserves or
+   improves required behavior. Do not build infrastructure for a one-off need.
+2. **Brevity over grammar. Tokens are a resource.** Default to the shortest
+   complete answer or record. Preserve information that changes correctness,
+   action, evidence, risk, or understanding. Do not delete decision-relevant
+   meaning merely to hit a size/token target; expand only when needed.
 3. **Do not guess across a material boundary.** Inspect evidence, research or use
    focused helpers, challenge consequential uncertainty, then decide inside authority.
 4. **Do not silently expand scope.** The operator may reshape implementation and
@@ -75,8 +96,10 @@ it. If routine work needs several overlapping methods, consolidate.
     complete the [Operational independence gate](playbook/TASK_LIFECYCLE.md#operational-independence-gate) when triggered.
 12. **One owner, independent review.** Each active task has one accountable
     owner; no owner approves their own substantive work.
-13. **A repeat failure earns an enforced countermeasure.** First occurrence: fix
-    and record it. Second occurrence of the same pattern: the fix was
+13. **Mistakes must teach the system.** Route qualifying failures, friction, wrong
+    assumptions, tool/environment gaps, and review-caught defect classes through
+    [Repair and Learning](playbook/REPAIR_AND_LEARNING.md). First occurrence:
+    fix, record cause/lesson, and verify. Recurrence means the prior fix was
     insufficient — add a mechanical safeguard (test, template field, hook, or
     check), not another instruction, and record why the first fix did not hold.
 14. **No hype; agreement must be earned.** Do not praise, affirm, amplify, or adopt
@@ -90,6 +113,11 @@ it. If routine work needs several overlapping methods, consolidate.
     [`work/handoffs/README.md`](work/handoffs/README.md): register durable
     handoffs, receipt review/continuation/terminal state, and keep the register
     synchronized. Thread-only receipts stay on their source GitHub thread.
+16. **Methods are replaceable, not sacred.** Past success is evidence, not
+    permanent authority. When evidence and review support a materially better
+    method, deliberately supersede the old one: update the canonical owner,
+    routes/tests, preserve provenance, and retire obsolete duplication. E/I may
+    surface candidates; it does not itself authorize the change.
 
 ## Scope-level authorization
 
@@ -239,7 +267,8 @@ source for a specific reason.
 
 Operator communication is a control surface, not an essay.
 
-- Lead with result, decision, blocker, or required action.
+- Default to the shortest complete response. Lead with result, decision, blocker,
+  or required action.
 - Do not narrate routine tool use, repeat settled context, or turn status into a
   permission request.
 - Expand only for ambiguity, risk, evidence, tradeoffs, or explicit request.

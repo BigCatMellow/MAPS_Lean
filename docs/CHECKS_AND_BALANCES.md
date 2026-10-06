@@ -4,9 +4,13 @@ The point is trustworthy autonomous work, not a larger approval process.
 
 | Risk | Typical examples | Minimum check |
 | --- | --- | --- |
-| Low | Documentation, formatting, isolated mechanical move | Owner checks result. |
+| Low | Ordinary documentation, formatting, isolated mechanical move | Owner checks result. |
 | Medium | Multi-file refactor, UI behavior, meaningful configuration | Relevant tests/reproduction plus independent review. |
-| High | Security, data loss, persistence, payments, release packaging, external side effects | Explicit task, reproduced evidence, independent review, operator-visible completion/release summary. |
+| High | Operating-contract/authority changes, security, data loss, persistence, payments, release packaging, external side effects | Explicit task, reproduced evidence, independent review, operator-visible completion/release summary. |
+
+Substantive `AGENTS.md` changes are always High risk and require the explicit
+contract/authority scope defined in `AGENTS.md`; generic documentation or refactor
+scope does not qualify.
 
 ## Non-negotiable controls
 
@@ -50,7 +54,9 @@ Use only lenses the task triggers. One independent reviewer may cover several.
 - **Destructive / data-loss** — deletion, overwrite, corruption, irreversible
   mutation.
 - **Release / acquisition** — real package/artifact/install/deploy path.
-- **Authority** — executed actions remain inside inherited permission envelope.
+- **Authority** — executed actions remain inside inherited permission envelope;
+  for operating-contract changes, verify no self-authorization, invariant loss,
+  authority drift, or unintended permission expansion.
 
 Prefer tests of executed behavior over source-text matching. Verify the exact
 state/revision being approved.
