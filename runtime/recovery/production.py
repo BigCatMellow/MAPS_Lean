@@ -97,11 +97,13 @@ changes until it lands.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from time import monotonic
 from typing import Any, Callable, Mapping
 
 from runtime.communication import HcomAdapter
+from runtime.decision import DecisionBroker, annotate_recovery_actions
 
 # Import order below is load-bearing, not alphabetical: `runtime.state` must be
 # fully imported before `runtime.environment`. Those two packages are mutually
@@ -570,6 +572,7 @@ def run_recovery_tick(
         if validation_repo_root is not None
         else None
     )
+    recovery_store = RecoveryStore(recovery_state_path)
     supervisor = RecoverySupervisor(
         task_reader=task_reader,
         hcom=HcomAdapter(
@@ -577,7 +580,7 @@ def run_recovery_tick(
             executable=hcom_executable,
             timeout_seconds=hcom_timeout_seconds,
         ),
-        recovery_store=RecoveryStore(recovery_state_path),
+        recovery_store=recovery_store,
         resume_validator=resume_validator,
         harness_service=harness_service,
         validation_blocks_resume=enforce_validation,
@@ -589,6 +592,29 @@ def run_recovery_tick(
     )
     opened = supervisor.observe_silent_stops(dict(bindings or {}))
     actions = supervisor.tick()
+
+    # Recovery judgments are strictly advisory. Preserve the completed
+    # deterministic tick as the authoritative result even if optional decision
+    # configuration/provider/state loading is malformed or unavailable.
+    #
+    # Fast-path the default/off case before constructing DecisionBroker or
+    # re-reading recovery state so "off" remains behaviorally inert.
+    provider_name = os.getenv("MAPS_DECISION_PROVIDER", "off").strip().lower() or "off"
+    default_mode = "off" if provider_name == "off" else "shadow"
+    decision_mode = os.getenv("MAPS_DECISION_MODE", default_mode).strip().lower() or default_mode
+    if provider_name != "off" and decision_mode != "off":
+        try:
+            decision_broker = DecisionBroker.from_environment()
+            recovery_state = recovery_store.load()
+            actions = annotate_recovery_actions(
+                actions,
+                task_reader,
+                broker=decision_broker,
+                incident_index=recovery_state.get("incidents", {}),
+            )
+        except Exception:  # noqa: BLE001 - advisory failure must not fail recovery
+            pass
+
     return {
         "ok": True,
         "error": "",
