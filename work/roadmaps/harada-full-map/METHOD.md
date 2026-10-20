@@ -54,7 +54,7 @@ HUMAN APPROVED OBJECTIVE + CANONICAL MAPS_L STATE
         all proof met: stop
 \`\`\`
 
-Neither the Harada-inspired adaptation nor Pilot PLAN's candidate decomposition has demonstrated production superiority. The review of this roadmap should compare omission detection, clarity, decision value, navigation cost, irrelevant work and safety/authority errors against MAPS_L's existing [Project Bootstrap](../../playbook/PROJECT_BOOTSTRAP.md). Adoption may legitimately be \`NO CHANGE\`.
+Neither the Harada-inspired adaptation nor Pilot PLAN's candidate decomposition has demonstrated production superiority. The review of this roadmap should compare omission detection, clarity, decision value, navigation cost, irrelevant work and safety/authority errors against MAPS_L's existing [Project Bootstrap](../../../playbook/PROJECT_BOOTSTRAP.md). Adoption may legitimately be \`NO CHANGE\`.
 
 ## Minimal node contract
 
