@@ -5,7 +5,7 @@
 - Parent: [MAPS_L goal remap / direct node index](../2026-10-20-think-plan-maps-goal-remap.md)
 - Logical parent: MAPS_L proposed next milestone
 - Child files: [Evidence and PR/checklist dispositions](PLAN.md) · [First-wave contracts](FIRST-WAVE.md)
-- Cross-branch dependencies: [Dependency and critical-path map](DEPENDENCIES.md)
+- Cross-branch dependency owner: this file (R0–R5, including cross-node edges)
 - Authority: No new MAPS_L, THINK/PLAN, experiment, external target, or merge authority
 
 ### Cross-branch edges (not duplicate child trees)
