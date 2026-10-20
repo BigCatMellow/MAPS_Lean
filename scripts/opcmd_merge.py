@@ -521,6 +521,8 @@ def gate(
     """Resolve authorization (per-PR authz_id, or standing if authz_id is
     None), check it fail-closed, and merge. Return the ledger entry dict.
     Raise GateError to refuse."""
+    # GitHub emergency HOLD applies to *all* modes, including legacy hcom.
+    check_github_hold()
     if authz_id is not None:
         msg = resolve_authz(authz_id)              # 1
         check_sender(msg)                          # 2
@@ -540,7 +542,6 @@ def gate(
         if any(arg in unsafe or arg.startswith("--admin=") or
                arg.startswith("--auto=") for arg in (merge_args or [])):
             raise GateError("standing authorization forbids --admin/--auto merge overrides")
-        check_github_hold()
         author, expected_head = check_merge_ready(pr)
         check_checkout_matches_head(pr, expected_head)
         check_independent_review(pr, author, evidence_path)

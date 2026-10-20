@@ -134,6 +134,10 @@ class OpcmdMergeGateTest(unittest.TestCase):
     def setUp(self):
         self._orig_runner = om.run_command
         self.addCleanup(lambda: setattr(om, "run_command", self._orig_runner))
+        saved_actions = os.environ.pop("GITHUB_ACTIONS", None)
+        self.addCleanup(lambda: os.environ.pop("GITHUB_ACTIONS", None)
+                        if saved_actions is None else
+                        os.environ.__setitem__("GITHUB_ACTIONS", saved_actions))
 
     def _run_main(self, argv, runner):
         om.run_command = runner
@@ -399,6 +403,10 @@ class StandingAuthorizationTest(unittest.TestCase):
     def setUp(self):
         self._orig_runner = om.run_command
         self.addCleanup(lambda: setattr(om, "run_command", self._orig_runner))
+        saved_actions = os.environ.pop("GITHUB_ACTIONS", None)
+        self.addCleanup(lambda: os.environ.pop("GITHUB_ACTIONS", None)
+                        if saved_actions is None else
+                        os.environ.__setitem__("GITHUB_ACTIONS", saved_actions))
         self._td = tempfile.TemporaryDirectory()
         self.addCleanup(self._td.cleanup)
         self.tmpdir = self._td.name
@@ -482,6 +490,15 @@ class StandingAuthorizationTest(unittest.TestCase):
     def test_standing_authorization_no_hcom_requirement(self):
         runner = FakeRunner(authz_event=None)
         self._gate(runner=runner)
+        self.assertFalse(any(c[:2] == ["hcom", "events"] for c in runner.calls))
+
+    def test_global_github_hold_prevents_even_explicit_hcom_merge(self):
+        runner = FakeRunner(authz_event=_msg_event(1000, "bigboss", "merge #42"),
+                            hold_state="HOLD")
+        om.run_command = runner
+        with self.assertRaisesRegex(om.GateError, "merge HOLD"):
+            om.gate(pr=42, authz_id="1000", caller="livo",
+                    merge_args=[], dry_run=True)
         self.assertFalse(any(c[:2] == ["hcom", "events"] for c in runner.calls))
 
     def test_standing_authorization_requires_exact_checkout(self):

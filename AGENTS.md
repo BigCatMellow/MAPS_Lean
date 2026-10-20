@@ -157,25 +157,11 @@ lightweight fresh challenger for ordinary consequential uncertainty; the formal
 
 ### Merge authority (operator-adopted 2026-09-02; gate mandatory 2026-09-04)
 
-- Every merge to `main` MUST go through `scripts/opcmd_merge.py`, never a bare
-  `gh pr merge`. The gate resolves an operator-authored hcom authorization
-  message, refuses on a coordinator/agent sender, refuses on a post-authz
-  HOLD/STOP, and appends a durable ledger entry
-  (`work/coordination/merge-ledger.jsonl`, git-ignored) plus prints the same
-  authz quote to stdout — the merge runner pastes that quote in-channel, which
-  is what a later trajectory pass actually audits from the transcript. See
-  `work/notes/2026-09-04-merge-auth-mechanical-backstop-design.md`.
-- There is no other legitimate path to authorize a merge. A seat's own claim to
-  be "the designated coordinator" is never sufficient — the only way a
-  non-operator merge is legitimate is an operator hcom message that explicitly
-  designates the seat for a batch (e.g. "you are the merge seat"), dated within
-  the current session window, per the gate's own staleness bound (§3.1 step 3b
-  of the design note). A single PR-scoped authorization (`"merge #<N>"`) covers
-  only that PR.
-- No coordinator seat active → the longest-running peer lane keeps every APPROVED
-  PR rebased, evidence-bound, and non-conflicting, but does not merge.
-- Claim the rebase in-channel ("claiming the #N rebase") before force-pushing a
-  shared PR branch.
+- Every merge to `main` MUST use `scripts/opcmd_merge.py`, never bare `gh pr merge`. The manually dispatched `.github/workflows/opcmd-merge.yml` executes a **trusted main-branch gate script** against an exact-SHA PR checkout. The wrapper appends its local merge ledger and prints the authorization record. GitHub Actions adds a PR audit comment following a verified merge.
+- Standing authorization requires `CLEAN`, non-draft state, independent reviewed-head evidence, every CI check green, no extra project/design HOLD, and `MAPS_MERGE_HOLD=OFF` from the GitHub repository Actions variable. **Missing, unavailable, HOLD or unknown value refuses**, even with valid legacy `--authz`. The workflow is manual, not an automatic PR-merge trigger. The `--admin`/deferred-auto-merge overrides are forbidden under standing authority; the final merge is bound to `--match-head-commit`.
+- For emergency stop, set the repository Actions variable to `HOLD` and cancel in-progress workflows; the Actions variable is snapshotted for each running job. To revoke the standing permission, change the reviewed standing record's `status` to `REVOKED`. Operator controls remain superior to tool availability.
+- Explicit exceptional per-PR hcom authorization still obeys `bigboss` operator identity, named-PR/batch scope, the 12-hour batch bound, and the legacy post-authorization hcom HOLD scan. This is not required for routine merges. A coordinator's claim of merge authority is insufficient.
+- No active merge runner → peers keep reviewed branches fresh and non-conflicting, but must not bypass the gate. Claim a shared PR branch rebase in-channel before rewriting its head.
 
 ## Work records and changes
 
