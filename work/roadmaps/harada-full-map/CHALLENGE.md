@@ -13,7 +13,7 @@
 | **Scope not widened?** | For any proposed node, ask whether it silently creates new tool authority, spending, external writes, independent review/merge permission or new global rules. If yes, reject or require normal authority. |
 | **Necessary vs optional correct?** | Try executing a representative goal without the allegedly essential mechanism. If it succeeds safely/with accepted proof, downgrade the mechanism to TRIGGERED/REUSE or remove it from the critical path. |
 | **Cross-branch dependencies real?** | Test recovery, reviewer identity, exact artifact revision, context poisoning, and Skill activation cases; challenge edges based only on architectural preference. |
-| **Recursive method actually adds value?** | Compare against [MAPS_L Project Bootstrap](../../playbook/PROJECT_BOOTSTRAP.md), which already says inspect reality → DONE → plan backward → challenge → execute adaptively. Do not claim new capability from similar language alone. |
+| **Recursive method actually adds value?** | Compare against [MAPS_L Project Bootstrap](../../../playbook/PROJECT_BOOTSTRAP.md), which already says inspect reality → DONE → plan backward → challenge → execute adaptively. Do not claim new capability from similar language alone. |
 | **Navigation materially better?** | Time/look at the number of files an independent agent reads to answer specific ID queries (e.g. H04.3.2.2, H09.2, SEC3 mapped to H06.3). Compare retrieval effort and errors to the existing master/checklist router. |
 | **No hidden work?** | Count speculative node children converted to implementation tasks or broad PRs. Good decomposition may yield NO WORK when existing infrastructure suffices. |
 | **Robust to future additions?** | Add a new H04.3.2.5 on a test copy: can it remain nested without creating a directory? Could a further distinct complex subtree be split with one owning file and link? |
@@ -32,7 +32,7 @@
 ## Proposed experiment for method value (not executed)
 
 On a representative, frozen set of MAPS_L planning questions with easy/complex/blocked cases:
-- **Control:** existing [master](../00-MASTER-MAPS-CAPABILITY-ROADMAP.md) + [checklist](../CAPABILITY_CHECKLIST.md) + [Project Bootstrap](../../playbook/PROJECT_BOOTSTRAP.md).
+- **Control:** existing [master](../00-MASTER-MAPS-CAPABILITY-ROADMAP.md) + [checklist](../CAPABILITY_CHECKLIST.md) + [Project Bootstrap](../../../playbook/PROJECT_BOOTSTRAP.md).
 - **Candidate:** this one-hop index + recursive condition ownership + dependencies, with equal permitted source access and budget.
 - **Outputs:** omissions detected, correct prioritized next action, invented tasks, source/authority errors, navigation steps, context/cost, reviewer agreement, and stable result after a branch update.
 - **Outcome:** adopt only the pieces that show useful benefit; otherwise **NO CHANGE** or narrow to a navigation pattern.
