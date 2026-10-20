@@ -58,12 +58,14 @@ class FakeRunner:
         self,
         authz_event=None,
         post_authz_events=None,
-        head_sha="deadbeef",
+        head_sha="a" * 40,
         merge_state_status="CLEAN",
         status_checks=None,
         author_login="mibe",
         review_evidence_rc=0,
         review_evidence_out="review-evidence OK\n",
+        is_draft=False,
+        hold_state="OFF",
     ):
         self.authz_event = authz_event
         self.post_authz_events = post_authz_events or []
@@ -80,6 +82,8 @@ class FakeRunner:
         self.author_login = author_login
         self.review_evidence_rc = review_evidence_rc
         self.review_evidence_out = review_evidence_out
+        self.is_draft = is_draft
+        self.hold_state = hold_state
         self.calls = []
 
     def __call__(self, cmd):
@@ -101,15 +105,21 @@ class FakeRunner:
                 events = []
             return 0, "\n".join(json.dumps(e) for e in events) + "\n", ""
         if cmd[:3] == ["gh", "pr", "view"]:
-            if "mergeStateStatus,statusCheckRollup,author" in cmd:
+            if "mergeStateStatus,statusCheckRollup,author,headRefOid,isDraft" in cmd:
                 payload = {
                     "mergeStateStatus": self.merge_state_status,
                     "statusCheckRollup": self.status_checks,
                     "author": {"login": self.author_login},
+                    "headRefOid": self.head_sha,
+                    "isDraft": self.is_draft,
                 }
                 return 0, json.dumps(payload) + "\n", ""
             return 0, self.head_sha + "\n", ""
-        if cmd[:2] == ["python3", "scripts/check_review_evidence.py"]:
+        if cmd[:3] == ["gh", "variable", "get"]:
+            return (0, self.hold_state + "\n", "") if self.hold_state is not None else (1, "", "not configured")
+        if cmd == ["git", "rev-parse", "HEAD"]:
+            return 0, self.head_sha + "\n", ""
+        if cmd and cmd[0] == "python3" and str(cmd[1]).endswith("check_review_evidence.py"):
             return self.review_evidence_rc, self.review_evidence_out, ""
         if cmd[:3] == ["gh", "pr", "merge"]:
             return 0, "merged\n", ""
@@ -378,7 +388,7 @@ def _evidence_file(tmpdir, pr, reviewer="nesa"):
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(
             f"reviewer: {reviewer}\n"
-            "head_sha: deadbeef\n"
+            "head_sha: " + ("a" * 40) + "\n"
             "independent: true\n"
             "summary: looks good\n"
         )
@@ -452,14 +462,63 @@ class StandingAuthorizationTest(unittest.TestCase):
         with self.assertRaisesRegex(om.GateError, "not independent"):
             self._gate(runner=runner, evidence_path=evidence)
 
-    # 3. a post-anchor HOLD refuses, regardless of how old the record is
-    def test_standing_authorization_refuses_on_post_anchor_hold(self):
-        runner = FakeRunner(
-            authz_event=_msg_event(1000, "bigboss", "anchor"),
-            post_authz_events=[_msg_event(1005, "bigboss", "HOLD -- found a bug")],
-        )
-        with self.assertRaisesRegex(om.GateError, "HOLD"):
+    # 3. current GitHub-native HOLD refuses; hcom is not consulted.
+    def test_standing_authorization_refuses_on_github_hold(self):
+        runner = FakeRunner(hold_state="HOLD")
+        with self.assertRaisesRegex(om.GateError, "merge HOLD"):
             self._gate(runner=runner)
+        self.assertFalse(any(c[:2] == ["hcom", "events"] for c in runner.calls))
+
+    def test_standing_authorization_refuses_when_github_hold_missing(self):
+        runner = FakeRunner(hold_state=None)
+        with self.assertRaisesRegex(om.GateError, "cannot read GitHub variable"):
+            self._gate(runner=runner)
+
+    def test_standing_authorization_refuses_when_github_hold_unknown(self):
+        runner = FakeRunner(hold_state="maybe")
+        with self.assertRaisesRegex(om.GateError, "not exactly 'OFF'"):
+            self._gate(runner=runner)
+
+    def test_standing_authorization_no_hcom_requirement(self):
+        runner = FakeRunner(authz_event=None)
+        self._gate(runner=runner)
+        self.assertFalse(any(c[:2] == ["hcom", "events"] for c in runner.calls))
+
+    def test_standing_authorization_requires_exact_checkout(self):
+        runner = FakeRunner()
+        original = runner.__call__
+        def mismatched(cmd):
+            if cmd == ["git", "rev-parse", "HEAD"]:
+                return 0, ("b" * 40) + "\n", ""
+            return original(cmd)
+        with self.assertRaisesRegex(om.GateError, "differs from live"):
+            self._gate(runner=mismatched)
+
+    def test_standing_authorization_rejects_draft(self):
+        with self.assertRaisesRegex(om.GateError, "draft state"):
+            self._gate(runner=FakeRunner(is_draft=True))
+
+    def test_standing_authorization_rejects_admin_merge(self):
+        runner = FakeRunner()
+        om.run_command = runner
+        with self.assertRaisesRegex(om.GateError, "forbids --admin"):
+            om.gate(pr=42, authz_id=None, caller="livo", merge_args=["--admin"],
+                    dry_run=True, standing_authz_path=_standing_record(self.tmpdir),
+                    evidence_path=_evidence_file(self.tmpdir, 42))
+
+    def test_standing_authorization_action_env_is_fail_closed(self):
+        runner = FakeRunner(hold_state="OFF")
+        original = dict(os.environ)
+        try:
+            os.environ["GITHUB_ACTIONS"] = "true"
+            os.environ.pop("MAPS_MERGE_HOLD", None)
+            with self.assertRaisesRegex(om.GateError, "merge HOLD"):
+                self._gate(runner=runner)
+            os.environ["MAPS_MERGE_HOLD"] = "OFF"
+            self._gate(runner=runner)
+        finally:
+            os.environ.clear()
+            os.environ.update(original)
 
     # 4a. record missing -> refused, distinct message
     def test_standing_authorization_refuses_when_record_missing(self):
@@ -503,9 +562,11 @@ class StandingAuthorizationTest(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["mode"], "standing-authorization")
         self.assertIsNone(rows[0]["authz_id"])
+        self.assertIn(["gh", "pr", "merge", "42", "--squash",
+                       "--match-head-commit", "a" * 40, "--delete-branch"], runner.calls)
 
 
-# --- dormancy check (rewritten after PR #287 review findings F2/F3) ---
+# --- caller audit (manual trusted workflow now invokes the gate) ---
 #
 # The script ships dormant: nothing in the repo runs it. Earlier walk-based
 # versions matched on absolute-path segments (the CI checkout lives under
@@ -571,9 +632,12 @@ def find_invocations(root):
 
 
 class DormancyTest(unittest.TestCase):
-    def test_script_is_dormant_in_the_repo(self):
+    def test_gate_has_only_the_reviewed_workflow_caller(self):
+        # The trusted, operator-dispatched workflow is the single exception
+        # to the former dormancy rule. No PR-triggered write workflow.
         self.assertEqual(
-            find_invocations(_ROOT), [], "nothing in the repo may invoke opcmd_merge.py"
+            [s.split(":", 1)[0] for s in find_invocations(_ROOT)],
+            [".github/workflows/opcmd-merge.yml"],
         )
 
 
