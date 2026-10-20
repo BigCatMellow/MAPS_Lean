@@ -2,11 +2,11 @@
 
 - **Role:** candidate *cross-branch edges* for goal map [root](README.md); NOT an active runtime dependency table
 - **Evidence:** [45/35 coverage crosswalk](COVERAGE.md) · [master roadmap](../00-MASTER-MAPS-CAPABILITY-ROADMAP.md) §§8–16 · [waves](WAVES.md)
-- **Rule:** record "must be true before..." only where correctness, safety or evidence requires it. Keep optional enhancements \`TRIGGERED\`; avoid forcing all descendants into one critical path.
+- **Rule:** record "must be true before..." only where correctness, safety or evidence requires it. Keep optional enhancements `TRIGGERED`; avoid forcing all descendants into one critical path.
 
 ## Goal-level requirements (directed, not a mandatory step-by-step pipeline)
 
-\`\`\`text
+```text
                           HUMAN OBJECTIVE + PERMISSION
                                       │
                                       ▼
@@ -33,7 +33,7 @@
                          └────────────┬────────────┘
                                       ▼
                          VERIFIED / REVIEWED IMPROVEMENT
-\`\`\`
+```
 
 **This diagram shows support relationships, not a serial implementation mandate.** H06 safety and H07 evidence govern every relevant operation, including those before H04. H01/H02/H05 can be independently assessed before H08; H08 can begin with a selected narrow safe capability subset. H09 follows outcome data for comparisons, but its foundational tests/incident taxonomy already operate today.
 
