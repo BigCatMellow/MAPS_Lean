@@ -5,6 +5,10 @@ Status: `PLANNING INDEX — NOT ACTIVE AUTHORITY`
 Use this page as the **roadmap router**. Do not open every roadmap to discover
 which one matters.
 
+## Full-program revision under consideration (2026-10-20)
+
+[Full recursive Harada goal map](harada-full-map/README.md) is the candidate **entire-program roadmap revision**, with nine goal branches, selective deep subbranches, all original capability/milestone coverage, cross-branch dependencies and a proposed execution sequence. It is **not yet approved** or a competing source of permission or live task truth. Use it when examining/revising the complete future direction; use the existing master for accepted orientation until explicit disposition.
+
 ## Route by question
 
 | Question | Open | Do not use it for |
