@@ -8,6 +8,9 @@ Purpose: provide one top-level planning map for the entire MAPS Lean capability 
 
 It does not replace active authority. `AGENTS.md`, canonical task/policy/review state, accepted task requirements, merged code, tests, and explicit operator decisions remain stronger than this roadmap.
 
+**2026-10-20 full Harada-style roadmap revision (candidate, NOT ADOPTED):** [Read the new complete, recursively decomposed MAPS_L goal map](harada-full-map/README.md). It retains all ten original program DONE properties (§15), scenarios A–F (§16), and links every §6 capability and all 45 source checklist milestones to one stable success-condition owner. Its [dependencies](harada-full-map/DEPENDENCIES.md) and [rolling waves](harada-full-map/WAVES.md) propose revised prioritization around full-system operational proof rather than automatic implementation of every old feature. **This is a substantial proposed replacement for this master’s old sequencing, not a new permission envelope, live task truth, or an approved change.** Original detailed subsystem design and current evidence/authority remain authoritative in their existing owners until review and explicit disposition.
+
+
 This document owns:
 
 - the overall capability inventory;
