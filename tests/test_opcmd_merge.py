@@ -529,7 +529,7 @@ class StandingAuthorizationTest(unittest.TestCase):
         om.run_command = runner
         excluded = _standing_record(self.tmpdir)
         with open(excluded, "a", encoding="utf-8") as fh:
-            fh.write("excluded_prs: 341\\n".replace("\\\\n", "\\n"))
+            fh.write("excluded_prs: 341" + chr(10))
         with self.assertRaisesRegex(om.GateError, "standing merge excluded"):
             om.gate(pr=341, authz_id=None, caller="livo", merge_args=[],
                     dry_run=True, standing_authz_path=excluded,
