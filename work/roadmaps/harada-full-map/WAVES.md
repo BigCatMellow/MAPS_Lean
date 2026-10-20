@@ -17,13 +17,13 @@ For full program acceptance, demonstrate the following **as appropriate to genui
 5. A substantive artifact has independently inspected acceptance, exact reviewed revision and retrievable task-to-outcome lineage (**H07**).
 6. At least one **real previously unmanaged external repo** completes an accepted bounded task, with target state isolated, legitimate integration and actual outcome proof (**H08**).
 7. Run-level configuration/evidence permits credible comparison against a simpler baseline; only supported improvements are proposed and explicitly authorized (**H09**).
-8. New agents/operators can reproduce the workflow without repeatedly asking for ordinary steering or searching a giant documentation corpus; unsupported/optional capabilities are honestly \`TRIGGERED\` or \`UNKNOWN\`, not falsely completed (**H01/H08/H09**).
+8. New agents/operators can reproduce the workflow without repeatedly asking for ordinary steering or searching a giant documentation corpus; unsupported/optional capabilities are honestly `TRIGGERED` or `UNKNOWN`, not falsely completed (**H01/H08/H09**).
 
 This is an **acceptance model**, not a mandate to enable every future API, Skill or fleet feature. A goal fails if its critical safety proof is missing, even when all checklist rows labeled DONE.
 
 ## Backward proof chain
 
-\`\`\`text
+```text
 FULL MISSION PROVEN
  ← reproducible operator experience + reviewed outcome/reversion (H08/H09)
  ← external real task + internal varied tasks reviewed end to end (H07/H08)
@@ -31,7 +31,7 @@ FULL MISSION PROVEN
  ← deterministic actual-boundary security/recovery/validation (H03/H04/H06)
  ← accepted task authority, source provenance and reproducible evidence (H01/H02/H07)
  ← current implemented baseline + inspected deficits (W0)
-\`\`\`
+```
 
 **Security and authority are parallel prerequisites**, not late-phase polish.
 
@@ -39,7 +39,7 @@ FULL MISSION PROVEN
 
 | Wave | Required outcome and minimum deliverable | Exit gate | Scope decision |
 | --- | --- | --- | --- |
-| **W0 — Truth** | Resolve baseline mismatches and all branch capability/permission evidence for selected near-term work, including L6's primitive-vs-real-run ambiguity; identify live owner/scope and critical gates | For chosen workflows, conditions classified \`EVIDENCED/PARTIAL/UNKNOWN/UNMET/TRIGGERED\`, with no unsupported DONE claim | Planning/research only; no blanket re-opening 45 items |
+| **W0 — Truth** | Resolve baseline mismatches and all branch capability/permission evidence for selected near-term work, including L6's primitive-vs-real-run ambiguity; identify live owner/scope and critical gates | For chosen workflows, conditions classified `EVIDENCED/PARTIAL/UNKNOWN/UNMET/TRIGGERED`, with no unsupported DONE claim | Planning/research only; no blanket re-opening 45 items |
 | **W1 — Trustworthy vertical control** | Audit actual H03.3/H04.3/H06.3/H07 call sites; close only safety/recovery/evidence defects shown to block approved high-value tasks; reconcile ongoing accepted PR integrations | Negative tests visibly block disallowed effects and invalid resumes; intended good path still functions | Scoped repairs under existing approved MAPS_L task/envelope and independent review |
 | **W2 — Real external proof** | H08.3 first real external-project task, using accepted lightweight sibling-clone design, isolated target state, independent review and target outcome | D3 [portable subroadmap](../agent-harness-capabilities/06-portable-deployment.md) exact v1 DONE is met; failures/interventions recorded | Requires an operator-selected real target and explicit target write/PR/merge authority |
 | **W3 — Broader integrated operation** | Exercise H01/H02 on complex multi-condition goal and repeated continuation, and H05 context/Skill correctness; prove operator-facing repeatability and H07 evidence | More than one representative task type works end-to-end without ad-hoc task-truth/permission exceptions; inspected failure and recovery coverage | Activate only tested branches and maintain normal concurrency/WIP limits |
@@ -50,7 +50,7 @@ Waves are a **rolling plan**, not a one-way waterfall. In W0/W1, read only the r
 
 ## Near-term first wave in implementable planning resolution
 
-1. **W0.1 — Reconcile the actual code-to-requirement graph.** Read current accepted \`main\`/tests/CI and canonical task state; inspect the chosen active PR contract(s) only where they affect full-system dependencies. Acceptance: current and unverified facts separated; no stale PR ordering promoted to program law.
+1. **W0.1 — Reconcile the actual code-to-requirement graph.** Read current accepted `main`/tests/CI and canonical task state; inspect the chosen active PR contract(s) only where they affect full-system dependencies. Acceptance: current and unverified facts separated; no stale PR ordering promoted to program law.
 2. **W0.2 — Verify enforcement reality.** Inspect H03.3/H04.3/H06.3 and their tests; run/reproduce defined positive and negative scenarios using accepted available test environment. Acceptance: a bounded matrix listing each affected call site, expected effect, actual proof, source SHA, missing gap and shortest corrective path. **Do not treat a test name alone as a live test.**
 3. **W0.3 — Audit intent and planning behavior.** On existing representative accepted tasks, compare direct/no decomposition and selective branch decomposition for correctness, omissions, complexity, intervention and decision quality. Acceptance: keep, narrow or reject the new method, with documented uncertainty.
 4. **W0.4 — Identify external pilot eligibility.** Recover [D2c](../agent-harness-capabilities/06-portable-deployment.md) decisions; if no operator-nominated target/permission envelope exists, record exact boundary and continue *other authorized* work. No assumed external writes.
