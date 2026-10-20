@@ -18,6 +18,10 @@
 
 **Next milestone being investigated:** an approved real external-project task can be shaped, carried through execution and independent review, legitimately integrated, and evidenced without losing project-specific authority or state isolation. This is a candidate *proof slice*, not the complete MAPS_L mission. See [scope and factual evidence](2026-10-20-maps-remap/EVIDENCE.md).
 
+## Interpreting branch status
+
+These labels classify **dated evidence**, not live task authority: `PRESENT` = implemented mechanism with code/test evidence, not necessarily integrated proof; `GAP` = recorded exit criterion lacks sufficient evidence; `CHECK` = inspect live state or resolve a material unknown; `TRIGGERED` = defer until an applicable project need or gate activates the work. `HUMAN BOUNDARY` means task/project permission must be established externally to this research.
+
 ## Root branches — open only what you need
 
 | Logical branch | Topic / status question | Owning file |
