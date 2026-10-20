@@ -1,7 +1,7 @@
 # MAPS_L — Full recursive Harada goal roadmap
 
 **Status:** COMPLETE *CANDIDATE REVISION* of the entire MAPS_L capability program; NOT YET APPROVED OR ACTIVE AUTHORITY  
-**Evidence checkpoint:** 2026-10-20 · source \`main\` \`69879cd0375f687c1df753fb5a4b83dda76b562e\`  
+**Evidence checkpoint:** 2026-10-20 · source `main` `69879cd0375f687c1df753fb5a4b83dda76b562e`  
 **Owner of accepted program planning:** [Existing master roadmap](../00-MASTER-MAPS-CAPABILITY-ROADMAP.md) until this proposal receives the appropriate review/disposition.  
 **Rules:** [AGENTS.md](../../../AGENTS.md) > approved roadmap/task > canonical state/code/tests > dated planning/evidence. New branches authorize no execution, PR merges, cost, or external effects.
 
@@ -61,9 +61,9 @@ Many of these rows have genuine code/test foundations; the question is whether a
 
 ## Roadmap status and promotion boundaries
 
-- This **revises the full program reasoning and proposed sequence**, not \`AGENTS.md\`, existing task truth, live PR status, accepted scope or policy.
+- This **revises the full program reasoning and proposed sequence**, not `AGENTS.md`, existing task truth, live PR status, accepted scope or policy.
 - The original 57 KB master and six subsystem design documents remain available and own legacy references / detailed design until the revised planning is reviewed and formally adopted. The linked baseline is **not silently superseded**.
 - Review must test **goal coverage, factual gaps, dependency correctness, safety, file navigation and whether the Harada adaptation improves planning**. If a condition is already satisfied or not required, avoid creating implementation work.
 - Independent review and operator roadmap disposition are needed before claiming these waves are approved or merged; the present full set is a self-contained **candidate** that can be revised without expanding the user-approved implementation permission envelope.
 
-**Navigation principle:** read \`AGENTS.md\` + the accepted task/roadmap + **one directly relevant goal node**; follow dependency/source links only when the decision demands them. Do not pre-read twenty roadmap files for routine work.
+**Navigation principle:** read `AGENTS.md` + the accepted task/roadmap + **one directly relevant goal node**; follow dependency/source links only when the decision demands them. Do not pre-read twenty roadmap files for routine work.
