@@ -515,10 +515,30 @@ class StandingAuthorizationTest(unittest.TestCase):
         with self.assertRaisesRegex(om.GateError, "draft state"):
             self._gate(runner=FakeRunner(is_draft=True))
 
+    def test_standing_authorization_rejects_head_override(self):
+        runner = FakeRunner()
+        om.run_command = runner
+        with self.assertRaisesRegex(om.GateError, "forbids unsafe"):
+            om.gate(pr=42, authz_id=None, caller="livo",
+                    merge_args=["--match-head-commit", "b" * 40],
+                    dry_run=True, standing_authz_path=_standing_record(self.tmpdir),
+                    evidence_path=_evidence_file(self.tmpdir, 42))
+
+    def test_standing_authorization_obeys_explicit_design_exclusion(self):
+        runner = FakeRunner()
+        om.run_command = runner
+        excluded = _standing_record(self.tmpdir)
+        with open(excluded, "a", encoding="utf-8") as fh:
+            fh.write("excluded_prs: 341\\n".replace("\\\\n", "\\n"))
+        with self.assertRaisesRegex(om.GateError, "standing merge excluded"):
+            om.gate(pr=341, authz_id=None, caller="livo", merge_args=[],
+                    dry_run=True, standing_authz_path=excluded,
+                    evidence_path=_evidence_file(self.tmpdir, 341))
+
     def test_standing_authorization_rejects_admin_merge(self):
         runner = FakeRunner()
         om.run_command = runner
-        with self.assertRaisesRegex(om.GateError, "forbids --admin"):
+        with self.assertRaisesRegex(om.GateError, "forbids unsafe"):
             om.gate(pr=42, authz_id=None, caller="livo", merge_args=["--admin"],
                     dry_run=True, standing_authz_path=_standing_record(self.tmpdir),
                     evidence_path=_evidence_file(self.tmpdir, 42))

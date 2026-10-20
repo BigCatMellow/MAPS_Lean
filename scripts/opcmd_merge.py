@@ -536,12 +536,16 @@ def gate(
         entry_extra = {"authz_id": msg["id"]}
     else:
         standing = load_standing_authorization(standing_authz_path)
-        # These options bypass GitHub requirements or defer execution beyond
-        # the head/CI/hold checks; they are forbidden under standing authority.
-        unsafe = {"--admin", "--auto", "--disable-auto"}
-        if any(arg in unsafe or arg.startswith("--admin=") or
-               arg.startswith("--auto=") for arg in (merge_args or [])):
-            raise GateError("standing authorization forbids --admin/--auto merge overrides")
+        # Only an inert cleanup flag is allowed. Never let a caller append
+        # --admin, --auto, or a second --match-head-commit after our check.
+        if any(arg != "--delete-branch" for arg in (merge_args or [])):
+            raise GateError("standing authorization forbids unsafe merge arguments")
+        exclusions = {
+            int(part.strip()) for part in standing.get("excluded_prs", "").split(",")
+            if part.strip().isdigit()
+        }
+        if int(pr) in exclusions:
+            raise GateError(f"PR #{pr} has a separate design/approval gate; standing merge excluded")
         author, expected_head = check_merge_ready(pr)
         check_checkout_matches_head(pr, expected_head)
         check_independent_review(pr, author, evidence_path)

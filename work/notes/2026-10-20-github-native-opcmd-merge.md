@@ -26,3 +26,5 @@ Manual `workflow_dispatch` resolves the live PR SHA and checks out trusted merge
 - Check `workflow_dispatch` token/variable permissions and `gh` behavior empirically after acceptance. This branch cannot exercise production dispatch before merge.
 - Current GitHub variable is sampled when the job begins. Cancel in-progress jobs when HOLD changes. Repository settings access and current branch protection remain authority boundaries.
 - Unit tests exercise normal and negative checks; GitHub CI and truly independent security review remain required. No test has approved a live merge.
+
+Known standing-authority exclusion: `excluded_prs: 341` in the canonical authorization record. PR #341's benchmark-specific design gates cannot be satisfied by routine green CI; update exclusion only after a separately reviewed owner disposition. Standing mode allows only the inert `--delete-branch` passthrough, so user-supplied flags cannot override the expected head or GitHub protection.
