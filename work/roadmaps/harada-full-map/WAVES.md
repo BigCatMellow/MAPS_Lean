@@ -21,6 +21,24 @@ For full program acceptance, demonstrate the following **as appropriate to genui
 
 This is an **acceptance model**, not a mandate to enable every future API, Skill or fleet feature. A goal fails if its critical safety proof is missing, even when all checklist rows labeled DONE.
 
+## End-state scenario coverage — original A–F plus newly proposed tests
+
+The [original master scenarios A–F](../00-MASTER-MAPS-CAPABILITY-ROADMAP.md) remain baseline acceptance cases. This is a **routing/coverage matrix**, not a claim that each test has been executed or passed.
+
+| End-state scenario | Harada success conditions | Discriminating result / remaining proof |
+| --- | --- | --- |
+| **A — Ordinary coding task** (original) | H01, H02, H03.3, H04.1, H05, H07 | Correct accepted task, minimal context, real near-mutation validation, artifact-bound independent review, actual outcome; H4 timing still unproven broadly |
+| **B — Prompt injection in repository** (original) | H05.1, H06.1–H06.3, H07 | Untrusted text cannot authorize deployment; actual before-external-action guard denies without side effect; SEC3 call-site coverage incomplete in source checklist |
+| **C — Interrupted worker** (original) | H02, H04.3, H06.3, H07.5 | Stale lease, environment and scope incompatibility visibly deny/route correctly; no replay of ambiguous external effects; E5 not fully enforced |
+| **D — Parallel writable agents** (original) | H02.4, H04.4, H06.2, H07 | Isolated writable worktrees, revision-bound integration, preserved separate work; E6 guard/dispatch coverage needs proof |
+| **E — Imported third-party Skill** (original) | H05.2–H05.4, H06.4, H07 | Provenance/hash/activation/quarantine enforced on actual Skill load; a malicious Skill cannot become authoritative; SEC4 partial |
+| **F — Repeated real-world failure** (original) | H07.5, H09.1–H09.6 | Outcome → frozen incident → fair config comparison → reviewed proposal/rollback; L6 real-run binding/L7 not yet proven |
+| **G — Previously unmanaged external repo** (new) | H01–H08, particularly H08.3 | Real approved target/task, isolated portable discipline, independent review and authorized integration; D3 has no verified real pilot |
+| **H — Natural-language goal with missing conditions** (new) | H01.1–H01.5, H02.2, H06.2 | Diagnose only necessary branches, resolve material unknowns, correctly stop at permission boundary and avoid invented task truth |
+| **I — Repeat operation by a fresh owner** (new) | H02.4, H04.5, H07.6, H08.1/H08.7 | Fresh operator/agent can resume and reproduce a successful path with limited context and no hidden live-chat dependency |
+
+**Acceptance discipline:** for any currently activated scenario, specify expected behavior, exact source/commit/environment, positive and negative cases, independently checkable evidence, and the limit of that proof. Synthetic fixtures are valid for adversarial checks but do not substitute for the real external task in G. A scenario is `UNKNOWN` until enough evidence supports it; no historical DONE status is upgraded by this mapping.
+
 ## Backward proof chain
 
 ```text
