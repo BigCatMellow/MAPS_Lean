@@ -53,6 +53,42 @@ Plan at different resolutions:
 
 Do not turn uncertain future guesses into binding detail.
 
+## Additional reasoning methods: selective, not a new workflow
+
+The Bootstrap flow above is already the default planning method. **Do not require
+Harada, Hoshin, Kata, TOC, Systems Thinking, or a composite method to launch or
+continue ordinary authorized work.** An interesting method name is not evidence
+that the existing plan is deficient.
+
+During an existing planning/challenge step, a focused question may be useful
+*only when the relevant problem is actually present*:
+
+- **Missing necessary condition?** Challenge the accepted DONE: what must be true
+  that the present plan fails to test? A bounded, Harada-inspired decomposition
+  can help, but stop at the smallest testable requirement; do not fill a grid.
+- **Conflicting owner or feasibility claims?** Check the specific affected roles
+  and existing evidence; a Hoshin-style counterview must not become another
+  approval chain.
+- **Uncertain cause at a real blocker?** State a prediction and run the smallest
+  authorized discriminating check (Kata/PDSA-style); skip this when the cause
+  is already known.
+- **Observed constrained throughput or causal feedback?** Check the measured
+  end-to-end bottleneck or feedback path (TOC/Systems Thinking) rather than
+  inventing a constraint from a long queue or process diagram.
+
+If none applies, **use no additional method**. Keep any useful conclusions
+inside the **existing** project roadmap, task, and evidence owners; do not
+create a second task database, master roadmap, method-specific report, or
+mandatory handoff. One concept has one owner, and direct links convey other
+relationships that do not fit a tree.
+
+These are optional *reasoning questions*, **not promoted implementations or
+validated improvements**. A proposed permanent process change must first
+demonstrate incremental benefit over this unchanged Bootstrap flow in the
+[existing comparative research/evaluation lane](https://github.com/BigCatMellow/Pilot_Projects/blob/research/comparative-goal-systems-20261020/goal-and-improvement-methods/EVALUATION_PROTOCOL.md),
+including false additions, authority errors, task outcomes and effort. Do not
+substitute more elaborate documentation for proof of better decisions.
+
 ## Minimum project brain
 
 A fresh orchestration operator should be able to answer:
