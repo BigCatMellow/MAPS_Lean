@@ -1,0 +1,74 @@
+name: OPCMD merge (standing authorization)
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: PR number to merge after independent checks
+        required: true
+        type: number
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: opcmd-merge-main
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    # The supported dispatcher must run the reviewed default-branch workflow,
+    # never an alternate ref chosen in the Actions UI or via --ref.
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ inputs.pr }}
+      MAPS_MERGE_HOLD: ${{ vars.MAPS_MERGE_HOLD }}
+    steps:
+      - name: Resolve live PR head
+        id: target
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo 'Invalid PR number'; exit 2; }
+          head=$(gh pr view "$PR_NUMBER" --json headRefOid --jq .headRefOid)
+          [[ "$head" =~ ^[0-9a-f]{40}$ ]] || { echo 'Invalid PR head'; exit 2; }
+          echo "sha=$head" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout trusted merge policy and verifier from main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          path: trusted
+
+      - name: Checkout candidate as data at its exact commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ steps.target.outputs.sha }}
+          fetch-depth: 0
+          path: candidate
+
+      - name: Enforce gates and merge
+        shell: bash
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          # Only the script under trusted/ executes; candidate scripts are not trusted.
+          python3 ../trusted/scripts/opcmd_merge.py --pr "$PR_NUMBER" --caller "github-actions/$GITHUB_ACTOR"
+
+      - name: Attach GitHub audit trail to merged PR
+        shell: bash
+        run: |
+          set -euo pipefail
+          state=$(gh pr view "$PR_NUMBER" --json state --jq .state)
+          merged_at=$(gh pr view "$PR_NUMBER" --json mergedAt --jq .mergedAt)
+          [[ "$state" == "MERGED" && "$merged_at" != "null" && -n "$merged_at" ]] || { echo 'Merge not confirmed'; exit 3; }
+          merged_sha=$(gh pr view "$PR_NUMBER" --json mergeCommit --jq '.mergeCommit.oid // empty')
+          [[ "$merged_sha" =~ ^[0-9a-f]{40}$ ]] || { echo 'No verified merge SHA'; exit 3; }
+          url="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh pr comment "$PR_NUMBER" --body "OPCMD authorized merge: reviewed PR head ${{ steps.target.outputs.sha }}; merge commit $merged_sha; Actions audit $url."
