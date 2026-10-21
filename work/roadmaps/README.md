@@ -36,6 +36,29 @@ Roadmaps plan work; they do not create authority. [`AGENTS.md`](../../AGENTS.md)
 the approved project/task permission envelope, canonical runtime/task state,
 merged code/tests, and explicit operator decisions remain stronger.
 
+## Competing Harada roadmap candidates — research only
+
+Two currently separate **unmerged** drafts overlap the existing full-program
+master roadmap: [PR #374's bounded recursive remap](https://github.com/BigCatMellow/MAPS_Lean/pull/374)
+and the [full-system Harada candidate branch](https://github.com/BigCatMellow/MAPS_Lean/tree/plan/full-recursive-harada-capability-roadmap-2026-10-20/work/roadmaps/harada-full-map).
+They are *alternative research representations of the same capability
+requirements*, **not** two additional master plans or implementation queues.
+Do not load either as the default planning authority.
+
+**Only the existing [master roadmap](00-MASTER-MAPS-CAPABILITY-ROADMAP.md)
+routes the cross-capability plan on `main`.** If evidence supports a change,
+integrate the useful findings into that **one** master (and the relevant
+subsystem owner) and explicitly supersede or archive overlapping drafts.
+Do not adopt both trees, replicate their checklist/status claims, or make
+recursive file structure a required runtime feature. The [current Bootstrap
+method](../../playbook/PROJECT_BOOTSTRAP.md) remains the normal way to plan
+and execute, and linked source records remain preferable for cross-cutting
+knowledge.
+
+[Comparative method research and candidate test controls](https://github.com/BigCatMellow/Pilot_Projects/blob/research/comparative-goal-systems-20261020/goal-and-improvement-methods/EVALUATION_PROTOCOL.md)
+may inform a later, evidence-based decision; no pilot result or promotion is
+asserted by this routing note.
+
 ## Supporting evidence
 
 Open only when a roadmap/task links them for a concrete reason:
