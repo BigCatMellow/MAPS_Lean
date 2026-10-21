@@ -526,9 +526,17 @@ def verify_merge_completed(pr):
 
 
 def build_merge_cmd(pr, merge_args, expected_head=None):
+    if expected_head is not None:
+        # Immediate REST endpoint: an enforced merge queue refuses rather than
+        # silently arming a deferred merge that could execute after a HOLD.
+        # "sha" is GitHub's atomic, exact-PR-head precondition.
+        return [
+            "gh", "api", "-X", "PUT",
+            f"repos/{{owner}}/{{repo}}/pulls/{pr}/merge",
+            "-f", "merge_method=squash",
+            "-f", f"sha={expected_head}",
+        ]
     cmd = ["gh", "pr", "merge", str(pr), "--squash"]
-    if expected_head:
-        cmd.extend(["--match-head-commit", expected_head])
     cmd.extend(merge_args or [])
     return cmd
 
@@ -561,9 +569,9 @@ def gate(
         entry_extra = {"authz_id": msg["id"]}
     else:
         standing = load_standing_authorization(standing_authz_path)
-        # Only an inert cleanup flag is allowed. Never let a caller append
-        # --admin, --auto, or a second --match-head-commit after our check.
-        if any(arg != "--delete-branch" for arg in (merge_args or [])):
+        # Standing authority permits no forwarded merge flags. The immediate
+        # endpoint never arms GitHub's asynchronous merge queue.
+        if merge_args:
             raise GateError("standing authorization forbids unsafe merge arguments")
         exclusions = {
             int(part.strip()) for part in standing.get("excluded_prs", "").split(",")
@@ -619,8 +627,16 @@ def gate(
     sys.stdout.write(out)
     sys.stderr.write(err)
     if rc != 0:
-        raise EnvError(f"gh pr merge failed (rc={rc})")
+        raise EnvError(f"merge attempt failed (rc={rc})")
     if authz_id is None:
+        try:
+            result = json.loads(out)
+        except json.JSONDecodeError as exc:
+            raise EnvError(f"immediate merge returned invalid JSON for #{pr}: {exc}")
+        if result.get("merged") is not True or not re.fullmatch(
+            r"[0-9a-f]{40}", str(result.get("sha", ""))
+        ):
+            raise GateError(f"immediate merge API did not confirm PR #{pr} merged")
         verify_merge_completed(pr)
     entry["merged"] = True
     return entry

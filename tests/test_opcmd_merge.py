@@ -131,13 +131,16 @@ class FakeRunner:
             return 0, self.head_sha + "\n", ""
         if cmd and cmd[0] == "python3" and str(cmd[1]).endswith("check_review_evidence.py"):
             return self.review_evidence_rc, self.review_evidence_out, ""
+        if cmd[:3] == ["gh", "api", "-X"]:
+            return 0, json.dumps({"merged": True, "sha": "c" * 40}) + "\n", ""
         if cmd[:3] == ["gh", "pr", "merge"]:
             return 0, "merged\n", ""
         return 1, "", f"unexpected cmd: {cmd}"
 
     @property
     def merge_invoked(self):
-        return any(c[:3] == ["gh", "pr", "merge"] for c in self.calls)
+        return any(c[:3] in (["gh", "pr", "merge"], ["gh", "api", "-X"])
+                   for c in self.calls)
 
 
 class OpcmdMergeGateTest(unittest.TestCase):
@@ -525,6 +528,13 @@ class StandingAuthorizationTest(unittest.TestCase):
         with self.assertRaisesRegex(om.GateError, "not the approved main branch"):
             self._gate(runner=FakeRunner(base_ref_name="maintenance"))
 
+    def test_standing_authorization_uses_synchronous_endpoint_only(self):
+        runner = FakeRunner()
+        self._gate(runner=runner, dry_run=False)
+        self.assertTrue(any(c[:3] == ["gh", "api", "-X"] for c in runner.calls))
+        self.assertFalse(any(c[:3] == ["gh", "pr", "merge"]
+                             for c in runner.calls))
+
     def test_standing_authorization_requires_actual_merge_not_queue(self):
         runner = FakeRunner(result_state="OPEN")
         ledger = os.path.join(self.tmpdir, "record.jsonl")
@@ -611,7 +621,7 @@ class StandingAuthorizationTest(unittest.TestCase):
             pr=42,
             authz_id=None,
             caller="livo",
-            merge_args=["--delete-branch"],
+            merge_args=[],
             dry_run=False,
             ledger_path=ledger,
             standing_authz_path=_standing_record(self.tmpdir),
@@ -624,8 +634,11 @@ class StandingAuthorizationTest(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["mode"], "standing-authorization")
         self.assertIsNone(rows[0]["authz_id"])
-        self.assertIn(["gh", "pr", "merge", "42", "--squash",
-                       "--match-head-commit", "a" * 40, "--delete-branch"], runner.calls)
+        self.assertIn(["gh", "api", "-X", "PUT",
+                       "repos/{owner}/{repo}/pulls/42/merge",
+                       "-f", "merge_method=squash",
+                       "-f", "sha=" + "a" * 40], runner.calls)
+        self.assertFalse(any("merge-async" in str(c) for c in runner.calls))
 
 
 # --- caller audit (manual trusted workflow now invokes the gate) ---
