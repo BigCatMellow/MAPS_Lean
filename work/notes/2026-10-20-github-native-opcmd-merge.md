@@ -28,3 +28,15 @@ Manual `workflow_dispatch` resolves the live PR SHA and checks out trusted merge
 - Unit tests exercise normal and negative checks; GitHub CI and truly independent security review remain required. No test has approved a live merge.
 
 Known standing-authority exclusion: `excluded_prs: 341` in the canonical authorization record. PR #341's benchmark-specific design gates cannot be satisfied by routine green CI; update exclusion only after a separately reviewed owner disposition. Standing mode allows only the inert `--delete-branch` passthrough, so user-supplied flags cannot override the expected head or GitHub protection.
+
+## Security review pass — 2026-10-21
+
+Author-side adversarial inspection identified two further implementation issues and one GitHub service-level limitation:
+
+1. **Manual dispatcher ref:** GitHub lets an operator choose a non-default ref for `workflow_dispatch`; a workflow runs the definition at that ref. The approved workflow now contains a job-level `main` ref guard and executes trusted code from `main`. This **does not protect against someone with write access installing and dispatching a *modified* workflow definition on another branch**. Repository/organization Actions execution policies, protected branches and restricted workflow edit/dispatch privileges must enforce the privileged-workflow trust boundary outside this YAML. See [manual workflow docs](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow?tool=cli), [execution policy docs](https://docs.github.com/en/actions/concepts/about-actions-policies).
+2. **Wrong target:** GitHub's `gh pr view --json baseRefName` is now checked: routine standing authorization is only for PRs targeting `main`. A clean non-main PR no longer qualifies.
+3. **False completion:** `gh pr merge` success can correspond to deferred/queued behavior on protected merge-queue branches. The gate now checks `state=MERGED` and a nonempty `mergedAt` before declaring the operation completed. The workflow repeats that check before posting its final audit. Queuing alone is not represented as a completed merge.
+
+**Remaining limitation:** review-evidence `reviewer:` is a free-form self-declared label; `reviewer != GitHub author` does not cryptographically or socially establish real independence. Before enabling unattended/scheduled merges, require a verified independent reviewer and strengthen the review-attestation identity mechanism. This PR remains **manual-dispatch only** and requires a genuine independent review before promotion.
+
+All three implementation changes require passing CI and an external approval; this note is not that approval.

@@ -66,6 +66,8 @@ class FakeRunner:
         review_evidence_out="review-evidence OK\n",
         is_draft=False,
         hold_state="OFF",
+        base_ref_name="main",
+        result_state="MERGED",
     ):
         self.authz_event = authz_event
         self.post_authz_events = post_authz_events or []
@@ -84,6 +86,8 @@ class FakeRunner:
         self.review_evidence_out = review_evidence_out
         self.is_draft = is_draft
         self.hold_state = hold_state
+        self.base_ref_name = base_ref_name
+        self.result_state = result_state
         self.calls = []
 
     def __call__(self, cmd):
@@ -105,15 +109,21 @@ class FakeRunner:
                 events = []
             return 0, "\n".join(json.dumps(e) for e in events) + "\n", ""
         if cmd[:3] == ["gh", "pr", "view"]:
-            if "mergeStateStatus,statusCheckRollup,author,headRefOid,isDraft" in cmd:
+            if "mergeStateStatus,statusCheckRollup,author,headRefOid,isDraft,baseRefName" in cmd:
                 payload = {
                     "mergeStateStatus": self.merge_state_status,
                     "statusCheckRollup": self.status_checks,
                     "author": {"login": self.author_login},
                     "headRefOid": self.head_sha,
                     "isDraft": self.is_draft,
+                    "baseRefName": self.base_ref_name,
                 }
                 return 0, json.dumps(payload) + "\n", ""
+            if "state,mergedAt" in cmd:
+                return 0, json.dumps({
+                    "state": self.result_state,
+                    "mergedAt": "2026-10-21T12:30:00Z" if self.result_state == "MERGED" else None
+                }) + "\n", ""
             return 0, self.head_sha + "\n", ""
         if cmd[:3] == ["gh", "variable", "get"]:
             return (0, self.hold_state + "\n", "") if self.hold_state is not None else (1, "", "not configured")
@@ -510,6 +520,21 @@ class StandingAuthorizationTest(unittest.TestCase):
             return original(cmd)
         with self.assertRaisesRegex(om.GateError, "differs from live"):
             self._gate(runner=mismatched)
+
+    def test_standing_authorization_rejects_non_main_target(self):
+        with self.assertRaisesRegex(om.GateError, "not the approved main branch"):
+            self._gate(runner=FakeRunner(base_ref_name="maintenance"))
+
+    def test_standing_authorization_requires_actual_merge_not_queue(self):
+        runner = FakeRunner(result_state="OPEN")
+        ledger = os.path.join(self.tmpdir, "record.jsonl")
+        om.run_command = runner
+        with self.assertRaisesRegex(om.GateError, "not confirmed MERGED"):
+            om.gate(pr=42, authz_id=None, caller="livo", merge_args=[],
+                    dry_run=False, ledger_path=ledger,
+                    standing_authz_path=_standing_record(self.tmpdir),
+                    evidence_path=_evidence_file(self.tmpdir, 42))
+        self.assertTrue(runner.merge_invoked)
 
     def test_standing_authorization_rejects_draft(self):
         with self.assertRaisesRegex(om.GateError, "draft state"):

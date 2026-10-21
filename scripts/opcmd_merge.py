@@ -419,7 +419,8 @@ def check_merge_ready(pr):
     """Standing-mode hard gate: mergeStateStatus=CLEAN and every CI check
     green. Returns the PR author's GitHub login (for the independence check)."""
     rc, out, err = run_command(
-        ["gh", "pr", "view", str(pr), "--json", "mergeStateStatus,statusCheckRollup,author,headRefOid,isDraft"]
+        ["gh", "pr", "view", str(pr), "--json",
+         "mergeStateStatus,statusCheckRollup,author,headRefOid,isDraft,baseRefName"]
     )
     if rc != 0:
         raise EnvError(f"gh pr view failed for #{pr} (rc={rc}): {err.strip() or out.strip()}")
@@ -430,6 +431,10 @@ def check_merge_ready(pr):
 
     if data.get("isDraft") is not False:
         raise GateError(f"PR #{pr} draft state is not explicitly false")
+    if data.get("baseRefName") != "main":
+        raise GateError(
+            f"PR #{pr} targets {data.get('baseRefName')!r}, not the approved main branch"
+        )
     status = data.get("mergeStateStatus")
     if status != "CLEAN":
         raise GateError(f"PR #{pr} mergeStateStatus is {status!r}, not CLEAN")
@@ -498,6 +503,26 @@ def append_ledger(entry, ledger_path=LEDGER_PATH):
 def _excerpt(text, limit=200):
     text = " ".join((text or "").split())
     return text if len(text) <= limit else text[: limit - 1] + "…"
+
+
+def verify_merge_completed(pr):
+    """Do not report a successful merge if gh merely queued it or enabled auto."""
+    rc, out, err = run_command(
+        ["gh", "pr", "view", str(pr), "--json", "state,mergedAt"]
+    )
+    if rc != 0:
+        raise EnvError(
+            f"cannot verify PR #{pr} final merged state (rc={rc}): {err.strip()}"
+        )
+    try:
+        result = json.loads(out)
+    except json.JSONDecodeError as exc:
+        raise EnvError(f"cannot decode final merged state for PR #{pr}: {exc}")
+    if result.get("state") != "MERGED" or not result.get("mergedAt"):
+        raise GateError(
+            f"PR #{pr} is not confirmed MERGED after gh returned success; "
+            "possible merge queue or deferred operation"
+        )
 
 
 def build_merge_cmd(pr, merge_args, expected_head=None):
@@ -595,6 +620,8 @@ def gate(
     sys.stderr.write(err)
     if rc != 0:
         raise EnvError(f"gh pr merge failed (rc={rc})")
+    if authz_id is None:
+        verify_merge_completed(pr)
     entry["merged"] = True
     return entry
 
