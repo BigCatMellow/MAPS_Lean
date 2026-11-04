@@ -664,8 +664,8 @@ def main(argv=None):
     )
     parser.add_argument(
         "--caller",
-        default=os.environ.get("HCOM_NAME") or os.environ.get("USER") or "unknown",
-        help="identity of the merge-runner seat (for the ledger)",
+        default=os.environ.get("GITHUB_ACTOR") or os.environ.get("USER") or "unknown",
+        help="GitHub actor or local operator identity (for the ledger)",
     )
     parser.add_argument(
         "--merge-arg",
