@@ -493,6 +493,52 @@ def check_independent_review(pr, author, evidence_path=None):
     return reviewer
 
 
+def check_github_review_approval(pr, author, reviewer, exact_head):
+    """Require an authenticated GitHub APPROVED review on the exact PR head.
+
+    A committed reviewer: field is only a claim. GitHub's review API supplies
+    the authenticated login and the reviewed commit. Requiring the exact live
+    head (including any evidence-only commit) avoids stale approvals.
+    """
+    rc, out, err = run_command([
+        "gh", "api", "--paginate", "--slurp",
+        f"repos/{{owner}}/{{repo}}/pulls/{pr}/reviews?per_page=100",
+    ])
+    if rc != 0:
+        raise GateError(
+            f"cannot verify authenticated GitHub reviews for PR #{pr}: "
+            f"{(err or out).strip()}"
+        )
+    try:
+        pages = json.loads(out)
+        if not isinstance(pages, list) or any(not isinstance(p, list) for p in pages):
+            raise ValueError("unexpected paginated reviews shape")
+        reviews = [item for page in pages for item in page]
+    except (ValueError, TypeError) as exc:
+        raise GateError(f"invalid GitHub review response for PR #{pr}: {exc}")
+
+    requested = reviewer.strip().lower()
+    owner = author.strip().lower()
+    if requested == owner:
+        raise GateError("PR author cannot serve as independent GitHub reviewer")
+    matching = [
+        x for x in reviews
+        if isinstance(x, dict)
+        and ((x.get("user") or {}).get("login") or "").strip().lower() == requested
+    ]
+    if not matching:
+        raise GateError(
+            f"PR #{pr} has no authenticated review by evidence reviewer {reviewer!r}"
+        )
+    latest = matching[-1]
+    if latest.get("state") != "APPROVED" or latest.get("commit_id") != exact_head:
+        raise GateError(
+            f"PR #{pr} reviewer {reviewer!r} lacks current APPROVED review "
+            f"on exact head {exact_head}"
+        )
+    return requested
+
+
 def append_ledger(entry, ledger_path=LEDGER_PATH):
     """Step 5: append one JSON line to the append-only merge ledger."""
     os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
@@ -581,7 +627,8 @@ def gate(
             raise GateError(f"PR #{pr} has a separate design/approval gate; standing merge excluded")
         author, expected_head = check_merge_ready(pr)
         check_checkout_matches_head(pr, expected_head)
-        check_independent_review(pr, author, evidence_path)
+        reviewer = check_independent_review(pr, author, evidence_path)
+        check_github_review_approval(pr, author, reviewer, expected_head)
 
         mode = "standing-authorization"
         scope = "standing-authorization"
