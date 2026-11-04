@@ -445,6 +445,15 @@ def check_merge_ready(pr):
     not_green = [c.get("name") for c in checks if c.get("conclusion") != "SUCCESS"]
     if not_green:
         raise GateError(f"PR #{pr} has non-green CI checks: {not_green}")
+    # "All reported checks green" is insufficient if the candidate removes
+    # a workflow entirely. These are the repository's required CI owners.
+    required = {"test", "review-evidence"}
+    reported = {c.get("name") for c in checks}
+    missing = required - reported
+    if missing:
+        raise GateError(
+            f"PR #{pr} missing required CI checks: {sorted(missing)}"
+        )
 
     author = ((data.get("author") or {}).get("login") or "").strip()
     if not author:
