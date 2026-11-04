@@ -530,8 +530,14 @@ def check_github_review_approval(pr, author, reviewer, exact_head):
         raise GateError(
             f"PR #{pr} has no authenticated review by evidence reviewer {reviewer!r}"
         )
-    latest = matching[-1]
-    if latest.get("state") != "APPROVED" or latest.get("commit_id") != exact_head:
+    # COMMENTED reviews do not revoke an earlier approval. Changes requested
+    # or a dismissed approval do; evaluate the last decisive state.
+    decisive = [
+        x for x in matching
+        if x.get("state") in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}
+    ]
+    if (not decisive or decisive[-1].get("state") != "APPROVED"
+            or decisive[-1].get("commit_id") != exact_head):
         raise GateError(
             f"PR #{pr} reviewer {reviewer!r} lacks current APPROVED review "
             f"on exact head {exact_head}"
