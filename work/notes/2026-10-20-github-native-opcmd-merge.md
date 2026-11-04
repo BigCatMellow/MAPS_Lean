@@ -50,3 +50,22 @@ The first hardening pass confirmed actual `MERGED` state only *after* invoking `
 The repository owner confirms hcom is retired from their current workflow. The supported successor is a **GitHub-native, manually dispatched** route that needs no hcom service, identity, events database, or per-PR hcom message. Historical `--authz` support in the script is transitional compatibility only, not the current recommended operator path. Retiring that code completely is separate from activating the independently reviewed successor; do not use it as the reason to bypass the present policy.
 
 To activate, complete independent review and repository-level workflow permission checks, provision the fail-closed HOLD variable, and land this change through the authority process still effective on `main`. Do not automatically merge the existing PR queue on migration: each PR retains its own CI, review, draft, and design-hold requirements.
+
+## Authenticated independent review hardening (2026-11-04)
+
+The standing gate now requires *both* its committed, exact-code-bound evidence
+and a GitHub-authenticated `APPROVED` PR review from the stated reviewer on
+the **exact live PR head**, including evidence-only commits. A mismatched,
+missing, stale, or subsequently changes-requested review fails closed. The
+GitHub review endpoint is queried with pagination; API failure also refuses.
+This removes the known ability to pass standing merge merely by writing a
+plausible `reviewer:` string. It does **not** itself supply the independent
+review required for this security-sensitive PR; reviewer must actually inspect
+the final head. Exact-head rebinding means a changed PR must be reviewed again.
+
+Remaining governance limitation: write-capable collaborators may still alter a
+workflow on another branch and dispatch it with a privileged token unless
+repository-level workflow permissions and branch protection constrain that
+capability. This is a GitHub administrative control, not solvable by the YAML
+ref guard alone. Keep the workflow manually dispatched until governance is
+verified.
