@@ -69,3 +69,13 @@ repository-level workflow permissions and branch protection constrain that
 capability. This is a GitHub administrative control, not solvable by the YAML
 ref guard alone. Keep the workflow manually dispatched until governance is
 verified.
+
+## Required-check preservation (2026-11-04)
+
+Standing merges now require successful `test` **and** `review-evidence` checks
+by name, in addition to requiring every reported check to be green. Previously,
+a candidate could remove one of these workflows and still satisfy the weaker
+"all *reported* checks green" condition. Two negative regression tests exercise
+both missing-check cases. This is defense in depth, not a replacement for
+branch protection or independent GitHub approval. Renaming required checks
+must be a deliberate policy change with matching tests.
