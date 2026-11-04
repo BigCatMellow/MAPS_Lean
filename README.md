@@ -12,6 +12,13 @@ then routes you to the approved roadmap/task and one relevant method.
 
 Do **not** read the repository tree broadly as orientation.
 
+### THINK / PLAN
+
+Both are native MAPS_L methods:
+
+- [THINK](playbook/DECISIONS_AND_SAFETY.md#think--reasoning-and-judgment): examine assumptions, alternatives and problem frames.
+- [PLAN](playbook/PROJECT_BOOTSTRAP.md#plan--proportional-adaptive-planning): plan and adapt proportionally.
+
 ### Fast routes
 
 - New durable project/work arc → [Project Bootstrap](playbook/PROJECT_BOOTSTRAP.md)
