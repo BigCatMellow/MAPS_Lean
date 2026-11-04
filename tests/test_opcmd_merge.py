@@ -554,6 +554,22 @@ class StandingAuthorizationTest(unittest.TestCase):
         with self.assertRaisesRegex(om.GateError, "no authenticated review"):
             self._gate(runner=runner)
 
+    def test_standing_comment_after_approval_does_not_revoke_it(self):
+        runner = FakeRunner(github_reviews=[
+            {"user": {"login": "nesa"}, "state": "APPROVED", "commit_id": "a" * 40},
+            {"user": {"login": "nesa"}, "state": "COMMENTED", "commit_id": "a" * 40},
+        ])
+        self._gate(runner=runner)
+        self.assertFalse(runner.merge_invoked)
+
+    def test_standing_dismissal_revokes_approval(self):
+        runner = FakeRunner(github_reviews=[
+            {"user": {"login": "nesa"}, "state": "APPROVED", "commit_id": "a" * 40},
+            {"user": {"login": "nesa"}, "state": "DISMISSED", "commit_id": "a" * 40},
+        ])
+        with self.assertRaisesRegex(om.GateError, "lacks current APPROVED review"):
+            self._gate(runner=runner)
+
     def test_standing_rejects_revoked_review(self):
         runner = FakeRunner(github_reviews=[
             {"user": {"login": "nesa"}, "state": "APPROVED", "commit_id": "a" * 40},
