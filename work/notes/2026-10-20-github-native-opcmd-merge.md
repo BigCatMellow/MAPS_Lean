@@ -9,7 +9,7 @@
 
 Routine standing mode no longer depends on hcom event availability. The **repository Actions variable** `MAPS_MERGE_HOLD` acts as a global emergency stop for BOTH legacy per-PR and standing modes. Only exact `OFF` permits further checks. Missing, denied, unrecognized or `HOLD` fails closed. Local `gh` reads the live variable; the trusted GitHub Actions workflow receives the `vars` context from GitHub.
 
-Manual `workflow_dispatch` resolves the live PR SHA and checks out trusted merge code and verification policy from protected `main`, separately from the PR's immutable candidate SHA. The candidate is inspected as data and never supplies executed authorization code. The reviewed-head verifier supports an explicit candidate repository root. Current PR head must match the candidate tree before a final `--match-head-commit` merge. The standing path forbids `--admin` and deferred `--auto`. The existing ledger prints to the Actions log, with a final PR audit comment.
+Manual `workflow_dispatch` resolves the live PR SHA and checks out trusted merge code and verification policy from protected `main`, separately from the PR's immutable candidate SHA. The candidate is inspected as data and never supplies executed authorization code. The reviewed-head verifier supports an explicit candidate repository root. Current PR head must match the candidate tree before a synchronous REST merge with GitHub's atomic `sha` precondition. The standing path forbids `--admin` and deferred `--auto`. The existing ledger prints to the Actions log, with a final PR audit comment.
 
 ## Deployment / emergency stop
 
@@ -27,7 +27,7 @@ Manual `workflow_dispatch` resolves the live PR SHA and checks out trusted merge
 - Current GitHub variable is sampled when the job begins. Cancel in-progress jobs when HOLD changes. Repository settings access and current branch protection remain authority boundaries.
 - Unit tests exercise normal and negative checks; GitHub CI and truly independent security review remain required. No test has approved a live merge.
 
-Known standing-authority exclusion: `excluded_prs: 341` in the canonical authorization record. PR #341's benchmark-specific design gates cannot be satisfied by routine green CI; update exclusion only after a separately reviewed owner disposition. Standing mode allows only the inert `--delete-branch` passthrough, so user-supplied flags cannot override the expected head or GitHub protection.
+Known standing-authority exclusion: `excluded_prs: 341` in the canonical authorization record. PR #341's benchmark-specific design gates cannot be satisfied by routine green CI; update exclusion only after a separately reviewed owner disposition. Standing mode forbids all forwarded merge arguments, so user-supplied flags cannot override the expected head or GitHub protection.
 
 ## Security review pass — 2026-10-21
 
@@ -37,7 +37,7 @@ Author-side adversarial inspection identified two further implementation issues 
 2. **Wrong target:** GitHub's `gh pr view --json baseRefName` is now checked: routine standing authorization is only for PRs targeting `main`. A clean non-main PR no longer qualifies.
 3. **False completion:** `gh pr merge` success can correspond to deferred/queued behavior on protected merge-queue branches. The gate now checks `state=MERGED` and a nonempty `mergedAt` before declaring the operation completed. The workflow repeats that check before posting its final audit. Queuing alone is not represented as a completed merge.
 
-**Remaining limitation:** review-evidence `reviewer:` is a free-form self-declared label; `reviewer != GitHub author` does not cryptographically or socially establish real independence. Before enabling unattended/scheduled merges, require a verified independent reviewer and strengthen the review-attestation identity mechanism. This PR remains **manual-dispatch only** and requires a genuine independent review before promotion.
+**Historical limitation, since corrected:** the original review-evidence `reviewer:` was a free-form self-declared label. The updated gate also requires an authenticated GitHub approval by that reviewer on the exact PR head. The gate still needs an independent security review before deployment; identity verification is not proof of review quality. This PR remains **manual-dispatch only** and requires a genuine independent review before promotion.
 
 All three implementation changes require passing CI and an external approval; this note is not that approval.
 
