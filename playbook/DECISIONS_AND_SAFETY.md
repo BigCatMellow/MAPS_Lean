@@ -35,6 +35,38 @@ Record a durable decision when it materially changes architecture, security,
 data handling, external behavior, a standing rule, or future work. The record is
 for continuity, not a human approval ceremony.
 
+## THINK-informed decision restraint (selective adaptation)
+
+Use this only when a decision is materially ambiguous or consequential; it is
+not a mandatory reasoning stage for routine, already-clear work.
+
+- **Execute directly** when the goal, permission, and next safe action are
+  clear. Do not summon a panel of methods or generate alternatives to justify
+  an obvious action.
+- **Investigate** when plausible causes or interpretations would produce
+  different actions. Separate observation, candidate explanation, and the
+  smallest evidence that would distinguish them.
+- **Critique** a consequential confident proposal with a real counterexample,
+  failure mode, or alternative explanation. Do not treat repeated generic
+  skepticism as additional evidence.
+- **Reframe** only when material repeated failures point to a shared mistaken
+  assumption; test that hypothesis before a broad redesign.
+- **Decide or stop** when further reasoning is unlikely to change the next
+  authorized action. Preserve `UNKNOWN` when the missing fact matters.
+
+For a material choice, retain the chosen route, rejected *material*
+alternative(s), assumptions/unknowns, decisive evidence, and a condition that
+would reverse the choice. A short decision note is sufficient; do not create
+an idea database or branching tree by default.
+
+This is a **lightweight operational adaptation**, not an adoption of the Pilot
+THINK research runtime. Pilot evidence supports efficient structured reasoning
+but did **not** establish that dynamic method routing or shallow multi-branch
+search merits default use. See the
+[THINK scope](https://github.com/BigCatMellow/Pilot_Projects/blob/main/ai-creativity-and-ideation/THINK_PROJECT.md)
+and [evaluated retrospective](https://github.com/BigCatMellow/Pilot_Projects/blob/main/autonomous-programs/project-evaluation/findings/PE-THINK-V1-full-retrospective.md).
+Future mechanisms require explicit scoped evaluation before promotion.
+
 ## Human reauthorization boundary
 
 Fresh human authorization is required when the proposed action would materially
