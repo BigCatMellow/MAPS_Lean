@@ -68,6 +68,7 @@ class FakeRunner:
         hold_state="OFF",
         base_ref_name="main",
         result_state="MERGED",
+        github_reviews=None,
     ):
         self.authz_event = authz_event
         self.post_authz_events = post_authz_events or []
@@ -88,6 +89,9 @@ class FakeRunner:
         self.hold_state = hold_state
         self.base_ref_name = base_ref_name
         self.result_state = result_state
+        self.github_reviews = github_reviews if github_reviews is not None else [
+            {"user": {"login": "nesa"}, "state": "APPROVED", "commit_id": head_sha}
+        ]
         self.calls = []
 
     def __call__(self, cmd):
@@ -131,6 +135,8 @@ class FakeRunner:
             return 0, self.head_sha + "\n", ""
         if cmd and cmd[0] == "python3" and str(cmd[1]).endswith("check_review_evidence.py"):
             return self.review_evidence_rc, self.review_evidence_out, ""
+        if cmd[:3] == ["gh", "api", "--paginate"]:
+            return 0, json.dumps([self.github_reviews]) + "\n", ""
         if cmd[:3] == ["gh", "api", "-X"]:
             return 0, json.dumps({"merged": True, "sha": "c" * 40}) + "\n", ""
         if cmd[:3] == ["gh", "pr", "merge"]:
@@ -527,6 +533,40 @@ class StandingAuthorizationTest(unittest.TestCase):
     def test_standing_authorization_rejects_non_main_target(self):
         with self.assertRaisesRegex(om.GateError, "not the approved main branch"):
             self._gate(runner=FakeRunner(base_ref_name="maintenance"))
+
+    def test_standing_requires_authenticated_approval(self):
+        runner = FakeRunner(github_reviews=[])
+        with self.assertRaisesRegex(om.GateError, "no authenticated review"):
+            self._gate(runner=runner)
+        self.assertFalse(runner.merge_invoked)
+
+    def test_standing_rejects_stale_approval(self):
+        runner = FakeRunner(github_reviews=[
+            {"user": {"login": "nesa"}, "state": "APPROVED", "commit_id": "b" * 40}
+        ])
+        with self.assertRaisesRegex(om.GateError, "lacks current APPROVED review"):
+            self._gate(runner=runner)
+
+    def test_standing_rejects_mismatched_reviewer(self):
+        runner = FakeRunner(github_reviews=[
+            {"user": {"login": "other"}, "state": "APPROVED", "commit_id": "a" * 40}
+        ])
+        with self.assertRaisesRegex(om.GateError, "no authenticated review"):
+            self._gate(runner=runner)
+
+    def test_standing_rejects_revoked_review(self):
+        runner = FakeRunner(github_reviews=[
+            {"user": {"login": "nesa"}, "state": "APPROVED", "commit_id": "a" * 40},
+            {"user": {"login": "nesa"}, "state": "CHANGES_REQUESTED", "commit_id": "a" * 40},
+        ])
+        with self.assertRaisesRegex(om.GateError, "lacks current APPROVED review"):
+            self._gate(runner=runner)
+
+    def test_standing_uses_all_paginated_reviews(self):
+        runner = FakeRunner()
+        self._gate(runner=runner)
+        self.assertTrue(any(c[:3] == ["gh", "api", "--paginate"]
+                            for c in runner.calls))
 
     def test_standing_authorization_uses_synchronous_endpoint_only(self):
         runner = FakeRunner()
