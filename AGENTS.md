@@ -50,18 +50,6 @@ AGENTS.md + approved roadmap/task + one relevant playbook method
 Add state, coordination, evidence, or another method only when the work requires
 it. If routine work needs several overlapping methods, consolidate.
 
-## Native THINK / PLAN method routing
-
-THINK and PLAN are now part of MAPS_L's own playbook; external Pilot_Projects
-research is supporting history, not active operational authority. For a material
-problem-frame, assumption, or creative-choice question, route to
-[THINK](playbook/DECISIONS_AND_SAFETY.md#think--reasoning-and-judgment).
-For a new project or consequential plan change, route to
-[PLAN](playbook/PROJECT_BOOTSTRAP.md#plan--proportional-adaptive-planning).
-During execution, existing task/steering/trajectory methods carry PLAN forward.
-Use only the necessary method; do not require a THINK → PLAN ceremony for
-clear, bounded work. This adds no permission, runtime, or parallel task truth.
-
 ## Hard operating invariants
 
 1. **Smallest coherent change.** Do not build infrastructure for a one-off need.
