@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import stat
 import sys
 from pathlib import Path
 
@@ -83,8 +84,18 @@ def initialize(maps_root: str, target_root: str, *, apply: bool = False) -> dict
                         0o644, dir_fd=maps_fd,
                     )
                 except FileExistsError:
-                    # No overwrite, even if a concurrent process creates it.
-                    # Preflight has already rejected symlinks/type conflicts.
+                    # A file may appear after preflight. Refuse a newly
+                    # introduced symlink/non-regular file; never follow it.
+                    old_fd = os.open(
+                        name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=maps_fd
+                    )
+                    try:
+                        if not stat.S_ISREG(os.fstat(old_fd).st_mode):
+                            raise PreflightError(
+                                f"unexpected convention path type: .maps/{name}"
+                            )
+                    finally:
+                        os.close(old_fd)
                     result["existing"].append(f".maps/{name}")
                     continue
                 with os.fdopen(fd, "wb") as output:
