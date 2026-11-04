@@ -470,6 +470,23 @@ class StandingAuthorizationTest(unittest.TestCase):
         with self.assertRaisesRegex(om.GateError, "non-green CI checks"):
             self._gate(runner=runner)
 
+    def test_standing_refuses_when_required_test_check_is_absent(self):
+        runner = FakeRunner(status_checks=[
+            {"name": "review-evidence", "conclusion": "SUCCESS"}
+        ])
+        with self.assertRaisesRegex(om.GateError, "missing required CI checks.*test"):
+            self._gate(runner=runner)
+        self.assertFalse(runner.merge_invoked)
+
+    def test_standing_refuses_when_required_review_check_is_absent(self):
+        runner = FakeRunner(status_checks=[
+            {"name": "test", "conclusion": "SUCCESS"},
+            {"name": "unrelated", "conclusion": "SUCCESS"},
+        ])
+        with self.assertRaisesRegex(om.GateError, "missing required CI checks.*review-evidence"):
+            self._gate(runner=runner)
+        self.assertFalse(runner.merge_invoked)
+
     # 2c. check_review_evidence.py itself refuses -> refused
     def test_standing_authorization_refuses_when_evidence_check_fails(self):
         runner = FakeRunner(
