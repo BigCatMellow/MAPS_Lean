@@ -158,8 +158,8 @@ lightweight fresh challenger for ordinary consequential uncertainty; the formal
 ### Merge authority (operator-adopted 2026-09-02; gate mandatory 2026-09-04)
 
 - Every `main` merge MUST use `scripts/opcmd_merge.py`, never bare `gh pr merge`. The manually dispatched `.github/workflows/opcmd-merge.yml` runs trusted `main` gate code against the exact PR SHA, not PR-authored code.
-- Standing merges require CLEAN, non-draft, green CI, independent reviewed-head evidence, no project/design HOLD, and repository Actions variable `MAPS_MERGE_HOLD=OFF`. Missing/unknown/HOLD refuses **all** modes. No `--admin` or deferred auto-merge under standing authority; final merge pins `--match-head-commit`.
-- Emergency HOLD: set the GitHub variable to `HOLD` **and cancel running merge jobs** (the variable is sampled per run); revoke standing authority via its reviewed record. Legacy explicit `--authz` keeps hcom operator/scope/HOLD protections, but routine merges require no hcom.
+- Standing merges require CLEAN, non-draft, green CI, independent reviewed-head evidence, no project/design HOLD, and repository Actions variable `MAPS_MERGE_HOLD=OFF`. Missing/unknown/HOLD refuses **all** modes. No `--admin` or deferred auto-merge under standing authority; the immediate REST merge pins the exact reviewed head SHA.
+- Emergency HOLD: set the GitHub variable to `HOLD` **and cancel running merge jobs** (the variable is sampled per run); revoke standing authority via its reviewed record. The historical `--authz` compatibility path is not part of routine operations; no hcom setup is required for GitHub-native merges.
 - No legitimate alternate merge path. Keep APPROVED branches fresh when the merge seat is absent; claim a shared-branch rebase before rewriting it. Full contract: [GitHub-native OPCMD candidate](work/notes/2026-10-20-github-native-opcmd-merge.md).
 
 ## Work records and changes
