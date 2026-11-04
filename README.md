@@ -12,6 +12,19 @@ then routes you to the approved roadmap/task and one relevant method.
 
 Do **not** read the repository tree broadly as orientation.
 
+### THINK + PLAN inside MAPS_L
+
+THINK and PLAN are native methods in the MAPS_L playbook, not separate
+operating systems or prerequisites in Pilot_Projects.
+
+- **THINK:** [reasoning and judgment](playbook/DECISIONS_AND_SAFETY.md#think--reasoning-and-judgment) when the problem, evidence, assumptions, or creative options need attention.
+- **PLAN:** [proportional planning](playbook/PROJECT_BOOTSTRAP.md#plan--proportional-adaptive-planning), then existing steering, task lifecycle, and trajectory checks to adapt execution to evidence.
+- **DO / JUDGE / reconcile:** existing task execution, verification, review, and recovery; move among them as evidence demands rather than forcing a rigid pipeline.
+
+Keep project-specific authority and review rules intact. Historical Pilot_Projects
+research is provenance, not a dependency for normal use. The methods can be
+tuned from real project outcomes without reopening their adoption decision.
+
 ### Fast routes
 
 - New durable project/work arc → [Project Bootstrap](playbook/PROJECT_BOOTSTRAP.md)
