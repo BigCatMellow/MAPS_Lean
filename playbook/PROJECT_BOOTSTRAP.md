@@ -42,11 +42,12 @@ without routine approval pauses.
    passes. Otherwise record the exact blocker and continue recovery or escalate the
    true boundary.
 
-## PLAN-informed proportional planning (selective adaptation)
+## PLAN — proportional, adaptive planning
 
 The existing bootstrap, program steering, task lifecycle, and trajectory check
-are the PLAN baseline. Do not install a second planner, task ledger, dependency
-graph, or approval system merely because Pilot research names a new primitive.
+are PLAN's native MAPS_L owners. PLAN is an **adopted MAPS_L method**,
+not an external dependency or second planner, task ledger, dependency graph,
+or approval system.
 
 At bootstrap or a material plan change:
 
@@ -72,10 +73,19 @@ At bootstrap or a material plan change:
 
 A generated plan is advice until projected through MAPS_L's existing task and
 authority controls. Useful does not automatically mean executable or
-authorized. The [Pilot MAPS_L subtraction audit](https://github.com/BigCatMellow/Pilot_Projects/blob/main/ai-planning-and-orchestration/MAPSL_PLAN_BASELINE.md)
-identifies already-owned capabilities; the
-[adaptive topology research](https://github.com/BigCatMellow/Pilot_Projects/blob/main/ai-planning-and-orchestration/agent-planning-systems/25-ADAPTIVE-PLAN-TOPOLOGY.md)
-is an unpromoted hypothesis, **not** a production design.
+authorized. At execution time, use the existing
+[Program Steering](PROGRAM_STEERING.md), [Task Lifecycle](TASK_LIFECYCLE.md),
+and [Roadmap Trajectory Check](ROADMAP_TRAJECTORY_CHECK.md) as the continued
+PLAN loop; do not bootstrap again merely to adjust a task.
+
+When the strategy itself is wrong, invoke
+[THINK](DECISIONS_AND_SAFETY.md#think--reasoning-and-judgment) before replacing
+the roadmap. When a local action fails, recover locally first. `NO ACTION`
+is valid if desired state already matches observed state.
+
+Historical provenance only: the [Pilot subtraction audit](https://github.com/BigCatMellow/Pilot_Projects/blob/main/ai-planning-and-orchestration/MAPSL_PLAN_BASELINE.md)
+and [adaptive topology research](https://github.com/BigCatMellow/Pilot_Projects/blob/main/ai-planning-and-orchestration/agent-planning-systems/25-ADAPTIVE-PLAN-TOPOLOGY.md).
+These are not required to operate PLAN in MAPS_L.
 
 ## Planning horizon
 
