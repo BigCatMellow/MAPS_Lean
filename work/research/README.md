@@ -38,6 +38,10 @@ The latest scan broadens beyond well-known vendors to small, independent reposit
 - [Evaluation / failure diagnosis](evaluation-and-reliability/2026-11-04-community-evaluation-mechanisms.md) — TrajDebug, AgentRx, Inspect AI, promptfoo, small edit-loop guards; frozen critical-failure step attribution and matched-arm evaluation.
 - [Security / effective permissions](security-and-authority/2026-11-04-community-security-mechanisms.md) — `franklin-ross/sandbox`, Pi hooks, Overstory, promptfoo; transitive host-tool privilege and role/approval regressions.
 
+### Should there be a GROW function alongside THINK and PLAN?
+
+[Code-level and cross-repository investigation: THINK, PLAN, JUDGE, LEARN and proposed GROW](evaluation-and-reliability/2026-11-04-think-grow-self-improvement-mechanisms.md) examines GEPA, Hermes Agent Self-Evolution, ADAS, Darwinian Evolver, autoresearch, Agent Lightning, LangMem, AgentRx and AI Scientist v2. It distinguishes inspected implementation code from README claims, maps each candidate to current MAPS_L and Pilot owners, and proposes **a falsifiable evidence-bound improvement loop**. It explicitly **does not** approve a new GROW subsystem: the current JUDGE/LEARN and operational-learning work may already own it.
+
 ### First research-to-improvement probes (not implementation authorization)
 
 1. **Source-linked compaction:** existing context/handoff baseline vs compact context with verified links back to source constraints. Count lost/recovered hard constraints, false authoritative claims, and token cost. Owner: context/continuity.
