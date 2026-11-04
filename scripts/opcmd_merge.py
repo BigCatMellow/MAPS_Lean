@@ -11,18 +11,21 @@ concrete authorization for that specific PR. There are two paths:
    operator-authored hcom message naming that PR (or a fresh batch
    designation). Unchanged from the original design.
 2. **Standing authorization** (``--authz`` omitted): a reviewed, git-tracked
-   record (``work/coordination/standing-merge-authorization.md``) plus three
-   hard, mechanically-checked gates at merge time -- mergeStateStatus=CLEAN,
-   independent review evidence (reviewer distinct from the PR author), and
-   both CI checks green -- with a live HOLD/STOP kill switch scanned from the
-   record's anchor event forward. See the design note for why this exists
+   record (``work/coordination/standing-merge-authorization.md``), CLEAN merge
+   state, current-head-bound independent review, green CI, and a GitHub-native
+   ``MAPS_MERGE_HOLD`` repository variable. Exactly ``OFF`` permits a
+   routine merge; HOLD/unknown/missing/unreadable state refuses. No hcom
+   dependency in this path. GitHub Actions reads the trusted workflow's
+   repository ``vars`` context; local runs use ``gh variable get``. See the design note for why this exists
    and what it does not change (the independent-review and CI requirements
    are not loosened by this mode).
 
 This wrapper resolves whichever authorization applies, checks it fail-closed,
 appends a ledger entry, and only then runs the merge.
 
-Ships DORMANT: nothing in the repo calls it. Opt-in for the ``gule`` / OPCMD seat.
+Routine use is available through an operator-dispatched GitHub Actions
+workflow once independently reviewed, merged, and the repository variable is
+provisioned. Legacy per-PR hcom mode is unchanged.
 
 Usage:
     python scripts/opcmd_merge.py --pr <N> --authz <hcom_message_id> \\
@@ -86,12 +89,16 @@ _AUTHZ_VOIDING_PATTERNS = (
 
 LEDGER_PATH = os.path.join("work", "coordination", "merge-ledger.jsonl")
 
+# Resolve policy and verification code relative to the reviewed/trusted script,
+# not the PR worktree that is being inspected by GitHub Actions.
+TRUSTED_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STANDING_AUTHZ_PATH = os.path.join(
-    "work", "coordination", "standing-merge-authorization.md"
+    TRUSTED_ROOT, "work", "coordination", "standing-merge-authorization.md"
 )
 CHECK_REVIEW_EVIDENCE_SCRIPT = os.path.join(
-    "scripts", "check_review_evidence.py"
+    TRUSTED_ROOT, "scripts", "check_review_evidence.py"
 )
+GITHUB_HOLD_VARIABLE = "MAPS_MERGE_HOLD"
 REVIEW_EVIDENCE_PATH_TEMPLATE = os.path.join("work", "reviews", "pr-{pr}-review-evidence.md")
 
 _STANDING_FIELD_RE = re.compile(r"^([a-z_]+):\s*(.*)$")
@@ -368,11 +375,52 @@ def load_standing_authorization(path=STANDING_AUTHZ_PATH):
     return fields
 
 
+def check_github_hold():
+    """Read the authoritative GitHub-native emergency brake; refuse unknown.
+
+    The dispatch workflow is sourced from protected main and injects the
+    repository vars context. A local operator instead reads the live GitHub
+    repository variable using their authenticated gh CLI. No hcom dependency.
+    """
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        state = os.environ.get(GITHUB_HOLD_VARIABLE, "").strip()
+        source = "GitHub Actions repository vars"
+    else:
+        rc, out, err = run_command(["gh", "variable", "get", GITHUB_HOLD_VARIABLE])
+        if rc != 0:
+            raise GateError(
+                f"cannot read GitHub variable {GITHUB_HOLD_VARIABLE}: "
+                f"{(err or out).strip()}; refusing"
+            )
+        state = out.strip()
+        source = "live GitHub repository variable"
+
+    if state != "OFF":
+        raise GateError(
+            f"GitHub merge HOLD is {state!r} from {source}, not exactly 'OFF'; "
+            "refusing (missing, HOLD, and unknown values fail closed)"
+        )
+    return source
+
+
+def check_checkout_matches_head(pr, remote_head):
+    """Ensure review evidence is read from the exact live PR tree."""
+    rc, out, err = run_command(["git", "rev-parse", "HEAD"])
+    if rc != 0 or not out.strip():
+        raise EnvError(f"unable to inspect local checkout HEAD for PR #{pr}: {err.strip()}")
+    if out.strip() != remote_head:
+        raise GateError(
+            f"checkout HEAD {out.strip()!r} differs from live PR #{pr} head "
+            f"{remote_head!r}; refusing stale or wrong-worktree review"
+        )
+
+
 def check_merge_ready(pr):
     """Standing-mode hard gate: mergeStateStatus=CLEAN and every CI check
     green. Returns the PR author's GitHub login (for the independence check)."""
     rc, out, err = run_command(
-        ["gh", "pr", "view", str(pr), "--json", "mergeStateStatus,statusCheckRollup,author"]
+        ["gh", "pr", "view", str(pr), "--json",
+         "mergeStateStatus,statusCheckRollup,author,headRefOid,isDraft,baseRefName"]
     )
     if rc != 0:
         raise EnvError(f"gh pr view failed for #{pr} (rc={rc}): {err.strip() or out.strip()}")
@@ -381,6 +429,12 @@ def check_merge_ready(pr):
     except json.JSONDecodeError as exc:
         raise EnvError(f"gh pr view returned non-JSON for #{pr}: {exc}")
 
+    if data.get("isDraft") is not False:
+        raise GateError(f"PR #{pr} draft state is not explicitly false")
+    if data.get("baseRefName") != "main":
+        raise GateError(
+            f"PR #{pr} targets {data.get('baseRefName')!r}, not the approved main branch"
+        )
     status = data.get("mergeStateStatus")
     if status != "CLEAN":
         raise GateError(f"PR #{pr} mergeStateStatus is {status!r}, not CLEAN")
@@ -391,11 +445,23 @@ def check_merge_ready(pr):
     not_green = [c.get("name") for c in checks if c.get("conclusion") != "SUCCESS"]
     if not_green:
         raise GateError(f"PR #{pr} has non-green CI checks: {not_green}")
+    # "All reported checks green" is insufficient if the candidate removes
+    # a workflow entirely. These are the repository's required CI owners.
+    required = {"test", "review-evidence"}
+    reported = {c.get("name") for c in checks}
+    missing = required - reported
+    if missing:
+        raise GateError(
+            f"PR #{pr} missing required CI checks: {sorted(missing)}"
+        )
 
     author = ((data.get("author") or {}).get("login") or "").strip()
     if not author:
         raise GateError(f"PR #{pr} has no resolvable author login")
-    return author
+    head = (data.get("headRefOid") or "").strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", head):
+        raise GateError(f"PR #{pr} has no valid headRefOid")
+    return author, head
 
 
 def _load_evidence_reviewer(pr, evidence_path=None):
@@ -421,7 +487,7 @@ def check_independent_review(pr, author, evidence_path=None):
     the one distinctness check that script's own docstring says it does not
     make (the same GitHub account could otherwise write both)."""
     rc, out, err = run_command(
-        ["python3", CHECK_REVIEW_EVIDENCE_SCRIPT, str(pr)]
+        ["python3", CHECK_REVIEW_EVIDENCE_SCRIPT, str(pr), os.getcwd()]
     )
     if rc != 0:
         raise GateError(
@@ -436,6 +502,58 @@ def check_independent_review(pr, author, evidence_path=None):
     return reviewer
 
 
+def check_github_review_approval(pr, author, reviewer, exact_head):
+    """Require an authenticated GitHub APPROVED review on the exact PR head.
+
+    A committed reviewer: field is only a claim. GitHub's review API supplies
+    the authenticated login and the reviewed commit. Requiring the exact live
+    head (including any evidence-only commit) avoids stale approvals.
+    """
+    rc, out, err = run_command([
+        "gh", "api", "--paginate", "--slurp",
+        f"repos/{{owner}}/{{repo}}/pulls/{pr}/reviews?per_page=100",
+    ])
+    if rc != 0:
+        raise GateError(
+            f"cannot verify authenticated GitHub reviews for PR #{pr}: "
+            f"{(err or out).strip()}"
+        )
+    try:
+        pages = json.loads(out)
+        if not isinstance(pages, list) or any(not isinstance(p, list) for p in pages):
+            raise ValueError("unexpected paginated reviews shape")
+        reviews = [item for page in pages for item in page]
+    except (ValueError, TypeError) as exc:
+        raise GateError(f"invalid GitHub review response for PR #{pr}: {exc}")
+
+    requested = reviewer.strip().lower()
+    owner = author.strip().lower()
+    if requested == owner:
+        raise GateError("PR author cannot serve as independent GitHub reviewer")
+    matching = [
+        x for x in reviews
+        if isinstance(x, dict)
+        and ((x.get("user") or {}).get("login") or "").strip().lower() == requested
+    ]
+    if not matching:
+        raise GateError(
+            f"PR #{pr} has no authenticated review by evidence reviewer {reviewer!r}"
+        )
+    # COMMENTED reviews do not revoke an earlier approval. Changes requested
+    # or a dismissed approval do; evaluate the last decisive state.
+    decisive = [
+        x for x in matching
+        if x.get("state") in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}
+    ]
+    if (not decisive or decisive[-1].get("state") != "APPROVED"
+            or decisive[-1].get("commit_id") != exact_head):
+        raise GateError(
+            f"PR #{pr} reviewer {reviewer!r} lacks current APPROVED review "
+            f"on exact head {exact_head}"
+        )
+    return requested
+
+
 def append_ledger(entry, ledger_path=LEDGER_PATH):
     """Step 5: append one JSON line to the append-only merge ledger."""
     os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
@@ -448,7 +566,37 @@ def _excerpt(text, limit=200):
     return text if len(text) <= limit else text[: limit - 1] + "…"
 
 
-def build_merge_cmd(pr, merge_args):
+def verify_merge_completed(pr):
+    """Do not report a successful merge if gh merely queued it or enabled auto."""
+    rc, out, err = run_command(
+        ["gh", "pr", "view", str(pr), "--json", "state,mergedAt"]
+    )
+    if rc != 0:
+        raise EnvError(
+            f"cannot verify PR #{pr} final merged state (rc={rc}): {err.strip()}"
+        )
+    try:
+        result = json.loads(out)
+    except json.JSONDecodeError as exc:
+        raise EnvError(f"cannot decode final merged state for PR #{pr}: {exc}")
+    if result.get("state") != "MERGED" or not result.get("mergedAt"):
+        raise GateError(
+            f"PR #{pr} is not confirmed MERGED after gh returned success; "
+            "possible merge queue or deferred operation"
+        )
+
+
+def build_merge_cmd(pr, merge_args, expected_head=None):
+    if expected_head is not None:
+        # Immediate REST endpoint: an enforced merge queue refuses rather than
+        # silently arming a deferred merge that could execute after a HOLD.
+        # "sha" is GitHub's atomic, exact-PR-head precondition.
+        return [
+            "gh", "api", "-X", "PUT",
+            f"repos/{{owner}}/{{repo}}/pulls/{pr}/merge",
+            "-f", "merge_method=squash",
+            "-f", f"sha={expected_head}",
+        ]
     cmd = ["gh", "pr", "merge", str(pr), "--squash"]
     cmd.extend(merge_args or [])
     return cmd
@@ -467,6 +615,8 @@ def gate(
     """Resolve authorization (per-PR authz_id, or standing if authz_id is
     None), check it fail-closed, and merge. Return the ledger entry dict.
     Raise GateError to refuse."""
+    # GitHub emergency HOLD applies to *all* modes, including legacy hcom.
+    check_github_hold()
     if authz_id is not None:
         msg = resolve_authz(authz_id)              # 1
         check_sender(msg)                          # 2
@@ -480,15 +630,27 @@ def gate(
         entry_extra = {"authz_id": msg["id"]}
     else:
         standing = load_standing_authorization(standing_authz_path)
-        check_no_hold(standing["anchor_event_id"], pr)   # kill switch since the record's anchor
-        author = check_merge_ready(pr)                    # mergeStateStatus=CLEAN + CI green
-        check_independent_review(pr, author, evidence_path)
+        # Standing authority permits no forwarded merge flags. The immediate
+        # endpoint never arms GitHub's asynchronous merge queue.
+        if merge_args:
+            raise GateError("standing authorization forbids unsafe merge arguments")
+        exclusions = {
+            int(part.strip()) for part in standing.get("excluded_prs", "").split(",")
+            if part.strip().isdigit()
+        }
+        if int(pr) in exclusions:
+            raise GateError(f"PR #{pr} has a separate design/approval gate; standing merge excluded")
+        author, expected_head = check_merge_ready(pr)
+        check_checkout_matches_head(pr, expected_head)
+        reviewer = check_independent_review(pr, author, evidence_path)
+        check_github_review_approval(pr, author, reviewer, expected_head)
 
         mode = "standing-authorization"
         scope = "standing-authorization"
         authz_from = standing["authorized_by"]
         quote = _excerpt(standing.get("scope", ""))
-        entry_extra = {"authz_id": None, "standing_recorded": standing["recorded"]}
+        entry_extra = {"authz_id": None, "standing_recorded": standing["recorded"],
+                       "hold_source": "github", "expected_head": expected_head}
 
     entry = {
         "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
@@ -503,7 +665,9 @@ def gate(
         **entry_extra,
     }
 
-    merge_cmd = build_merge_cmd(pr, merge_args)
+    merge_cmd = build_merge_cmd(
+        pr, merge_args, expected_head if authz_id is None else None
+    )
 
     print("GATE PASSED")
     print(f"  mode     : {mode}")
@@ -525,7 +689,17 @@ def gate(
     sys.stdout.write(out)
     sys.stderr.write(err)
     if rc != 0:
-        raise EnvError(f"gh pr merge failed (rc={rc})")
+        raise EnvError(f"merge attempt failed (rc={rc})")
+    if authz_id is None:
+        try:
+            result = json.loads(out)
+        except json.JSONDecodeError as exc:
+            raise EnvError(f"immediate merge returned invalid JSON for #{pr}: {exc}")
+        if result.get("merged") is not True or not re.fullmatch(
+            r"[0-9a-f]{40}", str(result.get("sha", ""))
+        ):
+            raise GateError(f"immediate merge API did not confirm PR #{pr} merged")
+        verify_merge_completed(pr)
     entry["merged"] = True
     return entry
 
@@ -552,8 +726,8 @@ def main(argv=None):
     )
     parser.add_argument(
         "--caller",
-        default=os.environ.get("HCOM_NAME") or os.environ.get("USER") or "unknown",
-        help="identity of the merge-runner seat (for the ledger)",
+        default=os.environ.get("GITHUB_ACTOR") or os.environ.get("USER") or "unknown",
+        help="GitHub actor or local operator identity (for the ledger)",
     )
     parser.add_argument(
         "--merge-arg",
