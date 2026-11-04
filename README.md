@@ -12,12 +12,12 @@ then routes you to the approved roadmap/task and one relevant method.
 
 Do **not** read the repository tree broadly as orientation.
 
-### THINK and PLAN
+### THINK / PLAN
 
-Both are native MAPS_L methods, not Pilot_Projects dependencies:
+Both are native MAPS_L methods:
 
-- [THINK](playbook/DECISIONS_AND_SAFETY.md#think--reasoning-and-judgment) — challenge assumptions, investigate, or reframe when needed.
-- [PLAN](playbook/PROJECT_BOOTSTRAP.md#plan--proportional-adaptive-planning) — plan proportionally and adapt from evidence.
+- [THINK](playbook/DECISIONS_AND_SAFETY.md#think--reasoning-and-judgment): examine assumptions, alternatives and problem frames.
+- [PLAN](playbook/PROJECT_BOOTSTRAP.md#plan--proportional-adaptive-planning): plan and adapt proportionally.
 
 ### Fast routes
 
