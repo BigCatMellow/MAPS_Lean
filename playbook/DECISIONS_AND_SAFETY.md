@@ -35,7 +35,7 @@ Record a durable decision when it materially changes architecture, security,
 data handling, external behavior, a standing rule, or future work. The record is
 for continuity, not a human approval ceremony.
 
-## THINK-informed decision restraint (selective adaptation)
+## THINK — reasoning and judgment
 
 Use this only when a decision is materially ambiguous or consequential; it is
 not a mandatory reasoning stage for routine, already-clear work.
@@ -59,13 +59,19 @@ alternative(s), assumptions/unknowns, decisive evidence, and a condition that
 would reverse the choice. A short decision note is sufficient; do not create
 an idea database or branching tree by default.
 
-This is a **lightweight operational adaptation**, not an adoption of the Pilot
-THINK research runtime. Pilot evidence supports efficient structured reasoning
-but did **not** establish that dynamic method routing or shallow multi-branch
-search merits default use. See the
-[THINK scope](https://github.com/BigCatMellow/Pilot_Projects/blob/main/ai-creativity-and-ideation/THINK_PROJECT.md)
-and [evaluated retrospective](https://github.com/BigCatMellow/Pilot_Projects/blob/main/autonomous-programs/project-evaluation/findings/PE-THINK-V1-full-retrospective.md).
-Future mechanisms require explicit scoped evaluation before promotion.
+THINK is an **adopted MAPS_L method**, owned here; it can be used without
+opening Pilot_Projects. On creative or exploratory work where alternatives
+matter, generate genuinely distinct candidate directions before converging;
+compare against the objective, constraints, and evidence rather than novelty
+alone. Keep useful rejected fragments/revival conditions only when they are
+likely to affect later choices. For an ordinary clear task, do not force
+ideation, multiple branches, or named thinking modes.
+
+The historical Pilot evaluations did not justify dynamic method routing or
+shallow multi-branch search as defaults. Keep those optional experimental
+techniques out of the default path unless later MAPS_L evidence earns them.
+Historical source evidence, not live operating instructions: [THINK research](https://github.com/BigCatMellow/Pilot_Projects/blob/main/ai-creativity-and-ideation/THINK_PROJECT.md)
+and [retrospective](https://github.com/BigCatMellow/Pilot_Projects/blob/main/autonomous-programs/project-evaluation/findings/PE-THINK-V1-full-retrospective.md).
 
 ## Human reauthorization boundary
 
