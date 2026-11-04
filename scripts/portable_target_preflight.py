@@ -76,7 +76,6 @@ def inspect(maps_root: str, target_root: str) -> dict:
     if maps in target.parents or target in maps.parents:
         raise PreflightError("roots must not be nested")
 
-    templates = maps / "templates" / "portable-deployment"
     for name in TEMPLATES:
         p = contained(maps, f"templates/portable-deployment/{name}")
         if not p.is_file():
@@ -90,7 +89,7 @@ def inspect(maps_root: str, target_root: str) -> dict:
         )
         if not p.exists():
             state = "missing"
-        elif p.is_dir() if expected_dir else p.is_file():
+        elif (p.is_dir() if expected_dir else p.is_file()):
             state = "present"
         else:
             raise PreflightError(f"unexpected convention path type: {relative}")
