@@ -42,6 +42,41 @@ without routine approval pauses.
    passes. Otherwise record the exact blocker and continue recovery or escalate the
    true boundary.
 
+## PLAN-informed proportional planning (selective adaptation)
+
+The existing bootstrap, program steering, task lifecycle, and trajectory check
+are the PLAN baseline. Do not install a second planner, task ledger, dependency
+graph, or approval system merely because Pilot research names a new primitive.
+
+At bootstrap or a material plan change:
+
+1. **Use existing state first.** Recover the approved objective, canonical
+   task/dependency state, current evidence, and scope boundaries.
+2. **Plan only to the useful horizon.** Make DONE and its proof precise; give
+   the current phase and first wave enough detail to execute; leave uncertain
+   later waves directional.
+3. **Prefer direct action when sufficient.** If a task is actionable at its
+   current granularity, execute it. Decompose only if a real dependency,
+   readiness, resource, or verification gap demands it.
+4. **Name an expected observation for consequential steps.** What result
+   should the next action produce? What evidence would show the assumption
+   failed? Skip this extra articulation for routine reversible work.
+5. **Route the discrepancy, not the ceremony.** Compare expected with
+   observed evidence. Recover a local execution failure locally; reshape a
+   too-coarse task; research missing information; revisit the roadmap if the
+   plan failed; return to strategy/THINK if the underlying frame failed.
+   Escalate only actual authority boundaries.
+6. **Keep speculative branches speculative.** Preserve a material conditional
+   alternative and its activation evidence in a plan/decision note when useful;
+   do not create live child tasks for unselected routes.
+
+A generated plan is advice until projected through MAPS_L's existing task and
+authority controls. Useful does not automatically mean executable or
+authorized. The [Pilot MAPS_L subtraction audit](https://github.com/BigCatMellow/Pilot_Projects/blob/main/ai-planning-and-orchestration/MAPSL_PLAN_BASELINE.md)
+identifies already-owned capabilities; the
+[adaptive topology research](https://github.com/BigCatMellow/Pilot_Projects/blob/main/ai-planning-and-orchestration/agent-planning-systems/25-ADAPTIVE-PLAN-TOPOLOGY.md)
+is an unpromoted hypothesis, **not** a production design.
+
 ## Planning horizon
 
 Plan at different resolutions:
