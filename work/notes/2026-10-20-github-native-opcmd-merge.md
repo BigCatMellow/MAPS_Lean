@@ -13,7 +13,7 @@ Manual `workflow_dispatch` resolves the live PR SHA and checks out trusted merge
 
 ## Deployment / emergency stop
 
-1. Independently review this security-sensitive change and verify CI. **Do not self-approve or merge this PR through direct GitHub merge.** The existing mandatory hcom-backed OPCMD merge route applies until this update itself is legitimately merged.
+1. Independently review this security-sensitive change and verify CI. **Do not self-approve or merge this PR through direct GitHub merge.** Until this update is legitimately merged, the existing policy remains authoritative; do not bypass it through a direct merge. An obsolete hcom prerequisite is a migration blocker, not permission to ignore independent review or executable merge guards.
 2. After accepted merge, set the GitHub repository Settings → Secrets and variables → Actions variable `MAPS_MERGE_HOLD=HOLD`. Switch to `OFF` explicitly to enable eligible merges; absent variable deliberately blocks.
 3. In Actions, manually run `OPCMD merge (standing authorization)` with a PR number. Workflow uses its GitHub token with minimal PR/content/issue write permissions; branch protection and any PR-specific design gates remain in force.
 4. Emergency stop: set `MAPS_MERGE_HOLD=HOLD` and **cancel any already-running merge workflow**. GitHub evaluates the variable into each workflow run, so a change is not a synchronous interrupt to a job already executing.
@@ -44,3 +44,9 @@ All three implementation changes require passing CI and an external approval; th
 ## Eliminate deferred merge-queue side effect (2026-10-21)
 
 The first hardening pass confirmed actual `MERGED` state only *after* invoking `gh pr merge`. GitHub CLI documents that `gh pr merge` can **enqueue** a request on branches requiring a merge queue. A later failure message cannot undo the queued future mutation; this is unsafe relative to an emergency HOLD. The routine standing-authorized path therefore uses the [synchronous REST merge endpoint](https://docs.github.com/en/rest/pulls/pulls#merge-a-pull-request) via trusted `gh api -X PUT`, sends the reviewed PR head in `sha` as an atomic precondition, and requires `merged: true` plus the final `MERGED` state. It refuses if GitHub's protection requires a queue (no admin bypass, no asynchronous merge request). The legacy exceptional per-PR hcom path remains on `gh pr merge` and must separately respect its authority and risk envelope. The immediate standing path accepts **no** forwarded merge arguments, including prior optional branch deletion. This is intentional to make a queued merge impossible via the approved standing route.
+
+## Migration boundary (2026-11-04)
+
+The repository owner confirms hcom is retired from their current workflow. The supported successor is a **GitHub-native, manually dispatched** route that needs no hcom service, identity, events database, or per-PR hcom message. Historical `--authz` support in the script is transitional compatibility only, not the current recommended operator path. Retiring that code completely is separate from activating the independently reviewed successor; do not use it as the reason to bypass the present policy.
+
+To activate, complete independent review and repository-level workflow permission checks, provision the fail-closed HOLD variable, and land this change through the authority process still effective on `main`. Do not automatically merge the existing PR queue on migration: each PR retains its own CI, review, draft, and design-hold requirements.
