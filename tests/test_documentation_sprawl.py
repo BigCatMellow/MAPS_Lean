@@ -342,5 +342,26 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("Sync agent onboarding wiki from main", sync)
 
 
+    def test_current_plan_routes_every_unfinished_capability(self):
+        import re
+
+        master = (ROADMAP_INDEX.parent / "00-MASTER-MAPS-CAPABILITY-ROADMAP.md").read_text(encoding="utf-8")
+        checklist = (ROADMAP_INDEX.parent / "CAPABILITY_CHECKLIST.md").read_text(encoding="utf-8")
+        plan = master.split("## Current development plan", 1)[1].split("This document owns:", 1)[0]
+        ids = []
+        for line in checklist.splitlines():
+            if not line.startswith("|"):
+                continue
+            cells = [cell.strip() for cell in line.split("|")[1:-1]]
+            if any(cell.startswith(("IN PROGRESS", "NOT STARTED", "BLOCKED", "UNKNOWN")) for cell in cells[1:3]):
+                match = re.match(r"^(?:[A-Z]+[0-9]+[a-z]?|6\\.[0-9]+)\\b", cells[0])
+                if match:
+                    ids.append(match.group())
+        self.assertTrue(ids, "Expected unfinished capability rows")
+        missing = [item for item in ids if not re.search(
+            r"(?<![\\w.])" + re.escape(item) + r"(?![\\w.])", plan)]
+        self.assertEqual(missing, [], "Unrouted capabilities in master plan")
+
+
 if __name__ == "__main__":
     unittest.main()
