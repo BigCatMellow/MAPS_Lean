@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Any, Mapping, Sequence
 
+from runtime.decision import DecisionBroker, review_evidence_preflight
 from runtime.state import MutationResult, TaskStore
 
 
@@ -50,6 +51,7 @@ def flow_review_start(
     freshness_mode: str | None = None,
     run_id: str | None = None,
     artifact_refs: Sequence[str] = (),
+    decision_broker: DecisionBroker | None = None,
 ) -> dict[str, Any]:
     """Start deterministic review work without recording a verdict.
 
@@ -80,6 +82,15 @@ def flow_review_start(
                 requirement.task,
             ),
         )
+
+
+
+    broker = decision_broker or DecisionBroker.from_environment()
+    evidence_preflight = review_evidence_preflight(
+        store,
+        task_id,
+        broker=broker,
+    )
 
     if requested_subject:
         claim = store.claim_review_with_subject(
@@ -131,6 +142,7 @@ def flow_review_start(
         "review_subject_required": requires_subject,
         "review_subject": subject,
         "claim": _mutation_payload(claim),
+        "evidence_preflight": evidence_preflight,
         "next_step": {
             "state": "STOPPED_BEFORE_REVIEW_VERDICT",
             "reason": (
