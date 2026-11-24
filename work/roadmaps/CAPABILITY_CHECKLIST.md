@@ -7,7 +7,7 @@ actual code, tests, and merged-PR history in this repo as of **2026-08-18**
 roadmap prose. Re-verify before trusting an entry once enough time has passed
 that it may have gone stale; a status here is a snapshot, not authority.
 
-**2026-11-24 reconciliation:** baseline [605ce61](https://github.com/BigCatMellow/MAPS_Lean/commit/605ce610e0be3334d1da7af2a7c6f5912b6cc05f), integrated [runtime CI success](https://github.com/BigCatMellow/MAPS_Lean/actions/runs/45405604013). Only the targeted rows and external dependency framing below have been refreshed; other dated evidence is retained, not independently revalidated. Current scheduling lives in the [master plan](00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan--2026-11-24). A DONE row is a regression obligation, not a guarantee of every production path.
+**2026-11-24 reconciliation:** baseline [605ce61](https://github.com/BigCatMellow/MAPS_Lean/commit/605ce610e0be3334d1da7af2a7c6f5912b6cc05f), integrated [runtime CI success](https://github.com/BigCatMellow/MAPS_Lean/actions/runs/45405604013). Only the targeted rows and external dependency framing below have been refreshed; other dated evidence is retained, not independently revalidated. Current scheduling lives in the [master plan](00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan). A DONE row is a regression obligation, not a guarantee of every production path.
 
 Status legend:
 
