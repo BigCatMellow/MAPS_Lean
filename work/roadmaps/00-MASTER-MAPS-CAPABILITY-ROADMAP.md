@@ -2,13 +2,72 @@
 
 Status: `PLANNING MASTER — NOT ACTIVE AUTHORITY`
 
-Last consolidated: `2026-08-15`
+Last consolidated: `2026-11-24` (planning proposal; technical evidence dates remain per checklist)
 
 Purpose: provide one top-level planning map for the entire MAPS Lean capability program. This document sits **above the Prime-derived roadmap, the external-agent research, and the six detailed capability roadmaps** as the primary orientation document for future planning and implementation.
 
 It does not replace active authority. `AGENTS.md`, canonical task/policy/review state, accepted task requirements, merged code, tests, and explicit operator decisions remain stronger than this roadmap.
 
-**2026-10-20 THINK + PLAN candidate reassessment (pending review):** [Goal-first critical-path assessment and recursive success-condition map](../research/evaluation-and-reliability/2026-10-20-think-plan-maps-goal-remap.md). This subordinate, dated evidence proposes validating a single real external-project end-to-end task before treating every unstarted capability row as mandatory; it identifies security/recovery and run-provenance dependencies, maps all sixteen unfinished checklist entries to a needed-or-triggered disposition, and outlines a bounded first wave. **It is not an approved roadmap revision, task authority, PR merge order, or experimental result.** Review and operator disposition are required before replacing any existing implementation sequence.
+## Current development plan — 2026-11-24
+
+**Planning disposition: proposed sequence for owner review; no new external,
+paid, destructive or merge authority.** Baseline
+[`605ce61`](https://github.com/BigCatMellow/MAPS_Lean/commit/605ce610e0be3334d1da7af2a7c6f5912b6cc05f).
+All eight reconciliation PRs (#367, #370, #372, #374, #375, #377, #378, #379)
+are merged under the owner's one-time exception; that exception has expired.
+[Integrated runtime CI](https://github.com/BigCatMellow/MAPS_Lean/actions/runs/45405604013)
+reported success. Fresh independent integrated review, real target behavior
+and deployment configuration are not established.
+
+**Next milestone:** MAPS_L reliably completes one useful external-project task
+from intent through verified result and recoverable handoff, using the least
+necessary operating depth. The human can understand status, next action and
+blocker from one short entry point without reconstructing chat history.
+
+The sequence below supersedes older *scheduling proposals* in this document
+and its children if adopted; capability designs, evidence and explicit
+authority boundaries remain intact. The [October goal remap](../research/evaluation-and-reliability/2026-10-20-think-plan-maps-goal-remap.md)
+is supporting rationale, not a second plan. Its old PR dispositions and
+first-wave snapshot are historical.
+
+| Stage | Outcome and exit evidence | Owning capability IDs / sources |
+| --- | --- | --- |
+| P0 — Stabilize and reconcile | Integrated tests reproduced as needed; verify GitHub-native merge identity, HOLD, required checks, and independent review path without activating/bypassing controls; reconcile HCOM-dependent production paths with actual usage; resolve status contradictions and queue receipts. A fresh independent reviewer checks safety-sensitive changes. | H4 E5 E6 SEC3 SEC4 L6; 6.4 6.5 6.10 6.16 6.18 6.22 6.24; #375/#372; [checklist](CAPABILITY_CHECKLIST.md) |
+| P1 — External pilot preparation | Inspect #378 preflight/init and test isolation, no overwrite, correct root, target instructions and actual call paths; select one real target/task with explicit owner authorization, comparator and acceptance evidence. Repair only safety/recovery gaps exercised by target. | D3; 6.35; [portable deployment](agent-harness-capabilities/06-portable-deployment.md); H4 E5 E6 SEC3 SEC4 |
+| P2 — Complete and evaluate pilot | Target task accepted, evidence/review bound to revision, target-local state isolated, recovery demonstrated if exercised, handoff sufficient for fresh continuation; compare with ordinary agent-assisted work (quality, interventions, elapsed time/cost if measured). No unsupported superiority claim. | D3; L4 L6 L7; 6.11 6.19 6.20 6.21 6.26 6.29 6.35 |
+| P3 — Close observed gaps | Prioritize repeat failures from real work; test narrow candidate fixes, including source-linked context, failure localization and lean-vs-helper routing. Retain THINK/PLAN as native methods; JUDGE/LEARN own improvement until evidence justifies GROW. | 6.11 6.19 6.20 6.21 6.22 6.24 6.30 6.31 6.33; L4 L7 L8; [research router](../research/README.md) |
+| Conditional — scale or extend only on trigger | Repeated packaging need, real reconstruction failure, secret boundary, second stack/CI, fleet need, or measured debugging/refinement benefit. No feature-count completion target. | S7 E7 SEC6 L8 L9 D4 D5 D6; 6.12 6.17 6.25 6.31 6.32 6.33 6.34 |
+
+### Coverage and disposition of parallel work sources
+
+The [capability checklist](CAPABILITY_CHECKLIST.md) owns technical evidence
+status for all six subsystems and all 35 master capabilities; IDs above
+route unfinished work, not duplicate status. Previously accepted capabilities
+remain regression obligations during P0–P2, not new implementation tasks.
+
+| Source / outstanding subject | Disposition and owner |
+| --- | --- |
+| [Prime-derived roadmap](prime-agent-capability-roadmap.md), [Intent Compiler](operator-intent-compiler.md), [GitHub async work pull](github-async-work-pull.md) | Existing lifecycle, request compilation and coordination owners; compare remaining proposals in P0, promote only gaps not covered by current methods/runtime. No external Prime adoption required. |
+| [October remap PLAN](../research/evaluation-and-reliability/2026-10-20-maps-remap/PLAN.md) / FIRST-WAVE / DEPENDENCIES | Evidence absorbed into P0–P3; do not run as a parallel queue. |
+| [Research](../research/README.md), Pilot Projects, competitor mechanisms, GROW | P3 candidate tests; authority remains with owning project. Benchmark [#341](https://github.com/BigCatMellow/MAPS_Lean/pull/341) parked: Gate 1/4/5 evidence and execution authority unresolved. |
+| [#247 Durable Project Memory](https://github.com/BigCatMellow/MAPS_Lean/issues/247), [#248 instruction/context compilation](https://github.com/BigCatMellow/MAPS_Lean/issues/248) | Conditional P3, 6.11/6.22/6.33; compare to existing context/continuity methods before adding stores. |
+| [#331 connector/tool friction](https://github.com/BigCatMellow/MAPS_Lean/issues/331) | P0 audit tooling limitation; reproduce before implementation, avoid treating search as exhaustive. |
+| [Handoffs](../handoffs/README.md), [friction](../coordination/FRICTION_LOG.md), [ideas](../ideas/), [insights](../insights/) | P0 reconcile outstanding receipts and dispositions; historical completed/promoted records are evidence. Open external handoff, local files and promoted-but-unverified items require explicit follow-through. |
+| [Migration backlog](../../migration/FUTURE_IDEAS_BACKLOG.md), [promotion ledger](../../migration/LEGACY_PROMOTION_LEDGER.md), [legacy recovery](../../migration/LEGACY_IDEA_RECOVERY_AUDIT.md) | Historical candidates retained; compare to checklist in P0/P3; existing rejections stand. No deletion or blanket reactivation. |
+| Wiki, Map the System, Pilot Project Folder, HCOM messages, competitor add-ons | P0 reconcile outward-facing documentation and HCOM guidance; P1/P2 clarify external project setup; P3 evaluate competitor additions. These are planning concerns, not new parallel workstreams. |
+| [Task records](../tasks/), [decisions](../decisions/), [notes](../notes/), [review evidence](../reviews/), [review queue](../review_queue/) | Evidence collections; focused recovery of unresolved records is a P0 deliverable, not a claim that every historical record has already been audited. |
+
+### Continuity acceptance gate
+
+At each meaningful work arc, update this sequence if priorities changed and the
+checklist if evidence changed; refresh [Current State](../../state/CURRENT.md)
+with baseline, active outcome, next action and blocker. Reconcile new/changed
+PRs, issues, handoffs, ideas, insights, friction, and newly discovered
+roadmap/research candidates to an existing owner or explicit disposition.
+Do not declare the trajectory clean when a source is inaccessible or a
+material item has no owner. Use the existing
+[trajectory check](../../playbook/ROADMAP_TRAJECTORY_CHECK.md), not a new
+register. Maintain one current plan and one evidence checklist.
 
 This document owns:
 
@@ -1547,7 +1606,9 @@ Instrumentation for learning begins early, but **automatic/semi-automatic refine
 
 ---
 
-# 9. Implementation waves in detail
+# 9. Original implementation waves — historical design sequence
+
+Use the current development plan above for proposed scheduling; these waves preserve capability design and original dependencies, not a second active queue.
 
 # Wave 0 — Review and stabilize the current foundation
 
@@ -1981,7 +2042,9 @@ Example: Operational lesson becomes active guidance only after review/promotion.
 
 ---
 
-# 14. First implementation tasks after Wave 0
+# 14. Historical first implementation task candidates
+
+Retained for provenance; do not dispatch these without checking the current plan and checklist.
 
 These are the strongest expected first tasks once the current foundation is independently accepted. They are planning candidates, not active task authority.
 
