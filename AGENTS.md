@@ -157,25 +157,10 @@ lightweight fresh challenger for ordinary consequential uncertainty; the formal
 
 ### Merge authority (operator-adopted 2026-09-02; gate mandatory 2026-09-04)
 
-- Every merge to `main` MUST go through `scripts/opcmd_merge.py`, never a bare
-  `gh pr merge`. The gate resolves an operator-authored hcom authorization
-  message, refuses on a coordinator/agent sender, refuses on a post-authz
-  HOLD/STOP, and appends a durable ledger entry
-  (`work/coordination/merge-ledger.jsonl`, git-ignored) plus prints the same
-  authz quote to stdout — the merge runner pastes that quote in-channel, which
-  is what a later trajectory pass actually audits from the transcript. See
-  `work/notes/2026-09-04-merge-auth-mechanical-backstop-design.md`.
-- There is no other legitimate path to authorize a merge. A seat's own claim to
-  be "the designated coordinator" is never sufficient — the only way a
-  non-operator merge is legitimate is an operator hcom message that explicitly
-  designates the seat for a batch (e.g. "you are the merge seat"), dated within
-  the current session window, per the gate's own staleness bound (§3.1 step 3b
-  of the design note). A single PR-scoped authorization (`"merge #<N>"`) covers
-  only that PR.
-- No coordinator seat active → the longest-running peer lane keeps every APPROVED
-  PR rebased, evidence-bound, and non-conflicting, but does not merge.
-- Claim the rebase in-channel ("claiming the #N rebase") before force-pushing a
-  shared PR branch.
+- Every `main` merge MUST use `scripts/opcmd_merge.py`, never bare `gh pr merge`. The manually dispatched `.github/workflows/opcmd-merge.yml` runs trusted `main` gate code against the exact PR SHA, not PR-authored code.
+- Standing merges require CLEAN, non-draft, green CI, independent reviewed-head evidence, no project/design HOLD, and repository Actions variable `MAPS_MERGE_HOLD=OFF`. Missing/unknown/HOLD refuses **all** modes. No `--admin` or deferred auto-merge under standing authority; the immediate REST merge pins the exact reviewed head SHA.
+- Emergency HOLD: set the GitHub variable to `HOLD` **and cancel running merge jobs** (the variable is sampled per run); revoke standing authority via its reviewed record. The historical `--authz` compatibility path is not part of routine operations; no hcom setup is required for GitHub-native merges.
+- No legitimate alternate merge path. Keep APPROVED branches fresh when the merge seat is absent; claim a shared-branch rebase before rewriting it. Full contract: [GitHub-native OPCMD candidate](work/notes/2026-10-20-github-native-opcmd-merge.md).
 
 ## Work records and changes
 
