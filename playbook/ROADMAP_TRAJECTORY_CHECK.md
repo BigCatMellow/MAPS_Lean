@@ -146,6 +146,18 @@ friction-log consumption above. Nothing here grants the Emergence pass authority
 to create tasks, open DECs, or edit the roadmap on its own — it produces
 recommendations in the trajectory note; the operator or coordinator disposes.
 
+## Continuity coverage (at a material arc boundary)
+
+Use the existing master plan's source-disposition section. Check all new or
+changed planning sources, open issues/PRs, checklist rows, ideas/insights,
+friction and handoffs; route each forward-relevant item to an existing owner,
+explicit conditional trigger, blocker or superseding evidence. Refresh
+[`state/CURRENT.md`](../state/CURRENT.md) with the baseline, outcome, next action
+and blocker. A missing source or unowned item prevents claiming a clean pass.
+Do not create another tracker; the master plan owns sequence and the checklist
+owns evidence. The coverage test checks unfinished capability IDs remain routed;
+it is not proof of factual freshness or exhaustive historical reconciliation.
+
 ## Roadmap/status truth rule
 
 Keep **one canonical live status view per program**. Do not accumulate parallel
