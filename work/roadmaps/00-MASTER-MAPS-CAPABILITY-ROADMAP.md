@@ -8,7 +8,9 @@ Purpose: provide one top-level planning map for the entire MAPS Lean capability 
 
 It does not replace active authority. `AGENTS.md`, canonical task/policy/review state, accepted task requirements, merged code, tests, and explicit operator decisions remain stronger than this roadmap.
 
-## Current development plan — 2026-11-24
+## Current development plan
+
+Planning refresh: 2026-11-24.
 
 **Planning disposition: proposed sequence for owner review; no new external,
 paid, destructive or merge authority.** Baseline
