@@ -8,6 +8,8 @@ Purpose: provide one top-level planning map for the entire MAPS Lean capability 
 
 It does not replace active authority. `AGENTS.md`, canonical task/policy/review state, accepted task requirements, merged code, tests, and explicit operator decisions remain stronger than this roadmap.
 
+**2026-10-20 THINK + PLAN candidate reassessment (pending review):** [Goal-first critical-path assessment and recursive success-condition map](../research/evaluation-and-reliability/2026-10-20-think-plan-maps-goal-remap.md). This subordinate, dated evidence proposes validating a single real external-project end-to-end task before treating every unstarted capability row as mandatory; it identifies security/recovery and run-provenance dependencies, maps all sixteen unfinished checklist entries to a needed-or-triggered disposition, and outlines a bounded first wave. **It is not an approved roadmap revision, task authority, PR merge order, or experimental result.** Review and operator disposition are required before replacing any existing implementation sequence.
+
 This document owns:
 
 - the overall capability inventory;
