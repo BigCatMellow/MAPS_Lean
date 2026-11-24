@@ -1,0 +1,64 @@
+{
+  "schema": "protocol-effectiveness-source-pools-v0",
+  "definition_sha256": "5101ed5b416f9c61b64d658a03864d77550489ba1a5eca1ba19f3f0352cc4fe6",
+  "hash_rule": "SHA256(UTF-8 canonical JSON of definition with recursively sorted keys, compact separators, and one trailing LF)",
+  "definition": {
+    "version": "source-pools-v0",
+    "eligible_created_after": "2026-02-16T23:59:59Z",
+    "eligible_resolution_before": "2026-09-10T15:50:07Z",
+    "source_type": "public GitHub issues with exactly one same-repository merged resolving PR",
+    "repos": {
+      "software_code": [
+        "astral-sh/ruff",
+        "encode/httpx",
+        "pallets/flask",
+        "pytest-dev/pytest"
+      ],
+      "automation_data": [
+        "apache/airflow",
+        "dbt-labs/dbt-core",
+        "pandas-dev/pandas",
+        "PrefectHQ/prefect"
+      ],
+      "research_document_evidence": [
+        "jupyter-book/jupyter-book",
+        "matplotlib/matplotlib",
+        "mkdocs/mkdocs",
+        "readthedocs/readthedocs.org"
+      ],
+      "configuration_operations": [
+        "ansible/ansible",
+        "docker/compose",
+        "helm/helm",
+        "kubernetes-sigs/kustomize"
+      ]
+    },
+    "eligibility_filters": [
+      "issue is public and contains a task-facing problem/request independent of the resolving PR",
+      "resolving PR merged after issue creation and before benchmark package first commit",
+      "reconstructable pre-fix base exists and can be exported history-free without any fix commit",
+      "task can be executed and verified offline after frozen dependency/image preparation",
+      "no private credentials, destructive external side effects, unsafe/illegal action, or unavailable proprietary dependency",
+      "resolution patch is <=12 files and <=800 changed lines excluding lock/vendor/generated files",
+      "resolution is not primarily benchmark/test-harness-for-this-benchmark content",
+      "task-facing sources can be separated from linked PR, final patch, resolution comments, and answer-bearing provenance"
+    ],
+    "quota": {
+      "primary_total": 48,
+      "domain_each": 12,
+      "complexity_total": {
+        "straightforward": 12,
+        "medium": 24,
+        "complex": 12
+      },
+      "repo_max_total": 4,
+      "standard": 36,
+      "holdout": 12
+    },
+    "complexity_rule": {
+      "straightforward": "resolving patch <=2 files and <=80 changed lines",
+      "medium": "resolving patch <=6 files and <=300 changed lines and not straightforward",
+      "complex": "resolving patch <=12 files and <=800 changed lines and not medium/straightforward"
+    }
+  }
+}

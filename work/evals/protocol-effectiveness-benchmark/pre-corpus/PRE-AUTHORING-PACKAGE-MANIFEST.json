@@ -1,0 +1,20 @@
+{
+  "schema": "protocol-effectiveness-pre-authoring-package-v0",
+  "approved_design_head": "369bccaf68b258c70eb6efec0c9f70115c8014cb",
+  "package_hash_rule": "SHA256(concat(sorted(path + NUL + git_blob_sha + LF)))",
+  "package_hash": "32295d7152542b3d6aa2ec0f903c03c8fae2cd82056b4e0e72295d4f278a8e2f",
+  "prior_package_hash": "610ac80ba5f852543f6787a892e22a81117afff6e5f46a1682fd2852f77f8351",
+  "package_hash_revision_note": "Revision 3 freezes the complete eligible-candidate ledger before the future beacon. TARGET-WORK-SAMPLING-MANIFEST.md changed to bind candidate_set_sha256 into the public ranking formulas and prohibit ordinary post-pulse eligibility adjudication; the other five hashed inputs are byte-identical to the prior package.",
+  "files": {
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/CUSTODY-AND-EXPOSURE-PLAN.md": "d2dfc4280b3a507597d67a1b29933a7fe41919ba",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/GENERIC-CONTROL.md": "0628d9d8bccf5744bf918335976976b2cc308d10",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/SOURCE-POOL-DEFINITION.json": "33ad77ca265c8aae0de586c8ca36db69348f446c",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/TARGET-WORK-SAMPLING-MANIFEST.md": "09e5eecd3b4c7b2a3530cf232febe203bb30cc04",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/TREATMENT-BUNDLE-INVENTORY.tsv": "51fbcaac67dd39d08a190568ec7ab3b662752083",
+    "work/evals/protocol-effectiveness-benchmark/pre-corpus/TREATMENT-SURFACE-MANIFEST.md": "7779535543e9d9445aed5cd5084475498d62b0b2"
+  },
+  "owner_recompute_status": "SELF_RECOMPUTED_NOT_YET_INDEPENDENTLY_VERIFIED",
+  "status": "candidate-owner-complete-revision3-candidate-ledger-freeze-awaiting-fresh-independent-review",
+  "selected_case_content_present": false,
+  "benchmark_execution_authorized": false
+}

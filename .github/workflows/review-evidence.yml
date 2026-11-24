@@ -6,16 +6,9 @@ name: review-evidence
 # scripts/check_review_evidence.py and
 # work/notes/2026-08-17-independent-review-enforcement-design.md.
 #
-# Also runs scripts/check_stale_no_caller_docstrings.py (CLAUDE.md rule 20
-# safeguard: fails when a runtime docstring still claims a symbol has "no
-# production caller" after one was added),
-# scripts/check_coverage_note_pins.py (rule 20 safeguard: fails when a
-# self-describing coverage note in context_builder.py has no test pinning it --
-# work/notes/2026-09-01-invariant-prose-drift-safeguard-design.md), and
-# scripts/check_handoff_receipts.py (rule 20 safeguard: fails when a
-# work/handoffs/ file is unregistered, or a non-legacy registered handoff is
-# missing its PR #340 receipt block -- the mechanical fix for the gap #354
-# caught by hand).
+# Also runs the active repository safeguards for stale caller docstrings,
+# context-builder coverage-note pins, registered/receipted handoffs, and the
+# PR #341 protocol-benchmark resolved-finding anchors.
 
 on:
   pull_request:
@@ -45,6 +38,9 @@ jobs:
 
       - name: Verify every handoff is registered and receipted
         run: python scripts/check_handoff_receipts.py
+
+      - name: Verify protocol benchmark resolved-finding anchors
+        run: python scripts/check_protocol_effectiveness_benchmark_anchors.py
 
       - name: Verify review evidence for exact head
         run: python scripts/check_review_evidence.py "${{ github.event.pull_request.number }}"
