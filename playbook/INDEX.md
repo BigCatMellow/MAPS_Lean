@@ -17,6 +17,22 @@ higher authority source. If it appears to conflict, follow the higher source and
 repair the lower one. Normal work should not require chain-reading playbooks; if
 several routinely overlap, consolidate their owners.
 
+## Native THINK and PLAN routes
+
+- **THINK:** for material ambiguity, competing explanations, creative alternatives,
+  counterexamples, or an invalid problem frame, use
+  [THINK — reasoning and judgment](DECISIONS_AND_SAFETY.md#think--reasoning-and-judgment).
+  Skip it when direct work is sufficient.
+- **PLAN:** for project framing and proportional planning, use
+  [PLAN — proportional, adaptive planning](PROJECT_BOOTSTRAP.md#plan--proportional-adaptive-planning).
+  During execution, [Program Steering](PROGRAM_STEERING.md),
+  [Task Lifecycle](TASK_LIFECYCLE.md), and
+  [Roadmap Trajectory Check](ROADMAP_TRAJECTORY_CHECK.md) own the existing PLAN
+  continuation/reconciliation responsibilities. Do not create a parallel plan.
+
+These are MAPS_L methods, not required links to Pilot_Projects. The historical
+research remains provenance; MAPS_L owns the active operating instructions.
+
 ## Core workflow methods
 
 Prefer these for the common project lifecycle.
