@@ -21,6 +21,8 @@ Both are native MAPS_L methods:
 
 ### Fast routes
 
+- Project direction / next milestone → [Current development plan](work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan--2026-11-24)
+
 - New durable project/work arc → [Project Bootstrap](playbook/PROJECT_BOOTSTRAP.md)
 - Select a reusable method → [Playbook index](playbook/INDEX.md)
 - Find a durable `work/` record class → [Work routing index](work/README.md)
