@@ -204,7 +204,7 @@ Learning/evaluation begins with instrumentation early, but **automatic or semi-a
 
 # 5. Recommended implementation order
 
-The [master current development plan](../00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan--2026-11-24) owns proposed current scheduling. The waves below are **historical design sequence**, not an active queue. PR #19 has long since merged; do not restart from that prerequisite.
+The [master current development plan](../00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan) owns proposed current scheduling. The waves below are **historical design sequence**, not an active queue. PR #19 has long since merged; do not restart from that prerequisite.
 
 ## Wave 0 — Stabilize current foundation
 
