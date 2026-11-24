@@ -19,25 +19,9 @@ WIKI_SOURCE = ROOT / "docs" / "wiki"
 WIKI_SYNC = ROOT / ".github" / "workflows" / "sync-wiki.yml"
 PILOT_SKILL = ROOT / ".claude" / "skills" / "pilot" / "SKILL.md"
 
-# Conscious-friction guards. These are not claims that the exact numbers are
-# inherently optimal; changing them requires an explicit reviewed tradeoff.
-# Raised 23 -> 24 for playbook/SPIDERWEB_AUDIT.md: a genuinely distinct
-# reusable method (bounded advisory durable-record relationship audit) that
-# does not belong to an existing concept owner.
-PLAYBOOK_SURFACE_BUDGET = 24
-# Raised 10_000 -> 10_400 for the operator-adopted merge-authority rule
-# (PR #266, decision batch 2026-09-02 item 2): a genuinely new global rule,
-# which the anti-sprawl invariant says belongs in AGENTS.md itself.
-# Raised 10_400 -> 11_200 for the triage / continuous-improvement core standard
-# (triage slice 1, design note 2026-09-03-triage-core-standard-design.md §5.1):
-# invariant 13 (repeat-failure -> enforced countermeasure, rule 20 promoted) +
-# the one-sentence mandatory friction-capture rule in "Work records and changes".
-# Raised 11_200 -> 13_000 (operator-approved, PR #294): the merge-authority
-# gate wording (mandatory opcmd_merge.py gate, persistent ledger — operator
-# decision 2026-09-04) pushed AGENTS.md to 12_020 bytes. This is a budget
-# increase to accommodate operator-approved content, not a loosening of the
-# anti-sprawl check's intent; headroom left for small future edits.
-AGENTS_BYTE_BUDGET = 13_000
+# Tiny routing/entry surfaces can use explicit hard budgets because their job is
+# to route elsewhere. The repository-wide contract and active method surface are
+# guarded semantically instead: their legitimate content may grow with capability.
 ROOT_README_BYTE_BUDGET = 4_000
 FIRST_RUN_BYTE_BUDGET = 3_000
 
@@ -71,18 +55,6 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
             f"Index, merge, narrow, move to the correct non-playbook area, or retire: {missing}",
         )
 
-    def test_playbook_surface_does_not_grow_silently(self):
-        files = active_playbook_files()
-        self.assertLessEqual(
-            len(files),
-            PLAYBOOK_SURFACE_BUDGET,
-            "Active playbook surface exceeded its explicit budget. Prefer merging "
-            "with the existing concept owner or moving non-method material to its "
-            "proper area. If a genuinely distinct reusable method is necessary, "
-            "raise PLAYBOOK_SURFACE_BUDGET deliberately in the same reviewed change. "
-            f"Current files ({len(files)}): {[path.name for path in files]}",
-        )
-
     def test_entrypoints_name_one_repository_wide_contract(self):
         agents = normalized_text(AGENTS)
         readme = normalized_text(README)
@@ -100,18 +72,19 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertNotIn("Negative operating contract", agents)
         self.assertNotIn("## Negative operating contract", agents)
 
-    def test_agents_owns_anti_sprawl_rule(self):
-        agents = AGENTS.read_text(encoding="utf-8")
+    def test_agents_owns_anti_sprawl_rule_without_size_worship(self):
+        agents = normalized_text(AGENTS)
         self.assertIn("## Authority, precedence, and anti-sprawl", agents)
         self.assertIn("### Documentation sprawl invariant", agents)
         self.assertIn("One concept, one owner document", agents)
-        self.assertIn("shortest useful route", agents)
+        self.assertIn("shortest reliable route and useful information per token", agents)
+        self.assertIn("diagnostic costs, not hard ceilings", agents)
+        self.assertIn("semantic or behavioral loss", agents)
         self.assertIn("information-routing maintenance pass", agents)
         self.assertIn("playbook/INFORMATION_LIFECYCLE.md#information-routing-maintenance-pass", agents)
 
-    def test_always_read_entry_surfaces_have_explicit_size_budgets(self):
+    def test_small_routing_entry_surfaces_keep_explicit_size_budgets(self):
         budgets = {
-            AGENTS: AGENTS_BYTE_BUDGET,
             README: ROOT_README_BYTE_BUDGET,
             FIRST_RUN: FIRST_RUN_BYTE_BUDGET,
         }
@@ -121,9 +94,16 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
                 size,
                 budget,
                 f"{path.relative_to(ROOT)} grew to {size} bytes (budget {budget}). "
-                "Prefer links/routing to copied explanation; raise the budget only "
-                "for an explicit reviewed reason.",
+                "These surfaces are routers; move detail to the canonical owner rather than duplicating it here.",
             )
+
+    def test_agents_contract_allows_evidence_backed_growth_and_supersession(self):
+        agents = normalized_text(AGENTS)
+        self.assertIn("Growth is valid when distinct necessary behavior earns its cost", agents)
+        self.assertIn("Methods are replaceable, not sacred", agents)
+        self.assertIn("Past success is evidence, not permanent authority", agents)
+        self.assertIn("materially better method", agents)
+        self.assertIn("retire obsolete duplication", agents)
 
     def test_work_index_routes_every_top_level_record_directory(self):
         index = WORK_INDEX.read_text(encoding="utf-8")
@@ -179,8 +159,9 @@ class DocumentationSprawlGuardTests(unittest.TestCase):
         self.assertIn("consolidate before adding", lifecycle)
         self.assertIn("connect or retire islands", lifecycle)
         self.assertIn("compact without semantic loss", lifecycle)
-        self.assertIn("remeasure", lifecycle)
-        self.assertIn("keep the maintenance change only when it produces a real routing benefit", lifecycle)
+        self.assertIn("diagnostic costs, not success criteria", lifecycle)
+        self.assertIn("overall tradeoff improves", lifecycle)
+        self.assertIn("method evolution and supersession", lifecycle)
         self.assertIn("do not create a second graph registry", lifecycle)
 
     def test_playbook_index_routes_maintenance_without_retired_context_doc(self):
