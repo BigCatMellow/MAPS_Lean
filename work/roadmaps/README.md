@@ -5,13 +5,13 @@ Status: `PLANNING INDEX — NOT ACTIVE AUTHORITY`
 Use this page as the **roadmap router**. Do not open every roadmap to discover
 which one matters.
 
-**For project direction and next actions, start at [the current development plan](00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan--2026-11-24).** The other roadmaps are detailed designs, not additional queues.
+**For project direction and next actions, start at [the current development plan](00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan).** The other roadmaps are detailed designs, not additional queues.
 
 ## Route by question
 
 | Question | Open | Do not use it for |
 | --- | --- | --- |
-| What is the current development sequence? | [Master current development plan](00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan--2026-11-24) | live PR status or new authority |
+| What is the current development sequence? | [Master current development plan](00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan) | live PR status or new authority |
 | How do capability areas fit/depend on each other? | [MASTER capability roadmap](00-MASTER-MAPS-CAPABILITY-ROADMAP.md) | live PR/task state |
 | What capability evidence/status was last reconciled? | [Capability checklist](CAPABILITY_CHECKLIST.md) | permission or live truth; re-verify current code/tests/CI |
 | What did Prime-derived lifecycle/harness work contribute? | [Prime Agent roadmap](prime-agent-capability-roadmap.md) | current queue/status |
