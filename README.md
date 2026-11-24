@@ -21,15 +21,13 @@ Both are native MAPS_L methods:
 
 ### Fast routes
 
-- Project direction / next milestone → [Current development plan](work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan--2026-11-24)
-
 - New durable project/work arc → [Project Bootstrap](playbook/PROJECT_BOOTSTRAP.md)
 - Select a reusable method → [Playbook index](playbook/INDEX.md)
 - Find a durable `work/` record class → [Work routing index](work/README.md)
 - Resume cross-session work → [Current State](state/CURRENT.md), then its linked handoff and live GitHub
 - Role-bound browser coordination / current PR state → [Coordination](work/coordination/README.md), then live GitHub
 - Runtime/control-plane setup → [Fresh Clone Setup](docs/FRESH_INSTALL.md)
-- Capability/roadmap question → [Roadmap router](work/roadmaps/README.md)
+- Direction / next milestone → [Roadmap router](work/roadmaps/README.md)
 - Legacy/reference research → [Migration/reference router](migration/README.md)
 
 ## Documentation model
