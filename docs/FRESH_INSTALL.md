@@ -85,6 +85,37 @@ The smoke uses a temporary directory. It verifies:
 It does **not** send messages, launch/kill agents, run Ollama/Aider, or touch the
 real project task database.
 
+## External Git project: portable Markdown convention (candidate)
+
+From the MAPS_L clone, point both commands at **existing, distinct Git roots**.
+Paths must be canonical, with no symlinked roots. This portable-v1 path is
+independent of the MAPS runtime installer above and does **not** set up SQLite,
+hcom, dependencies, Git hooks, CI, or target-project code execution.
+
+Read-only inspection:
+
+```bash
+python3 scripts/portable_target_preflight.py --maps-root /path/to/MAPS_Lean --target-repo /path/to/project
+```
+
+Preview initialization (also read-only):
+
+```bash
+python3 scripts/portable_target_init.py --maps-root /path/to/MAPS_Lean --target-repo /path/to/project
+```
+
+Explicitly initialize missing `.maps/` Markdown and task/review/handoff
+directories only after inspecting the preview:
+
+```bash
+python3 scripts/portable_target_init.py --maps-root /path/to/MAPS_Lean --target-repo /path/to/project --apply
+```
+
+Existing target files are never overwritten. Inspect generated files and
+commit them under **the target project's own authority**. An empty portable
+convention does not mean a task is ready, reviewed, authorized, or finished.
+The first real external-project pilot (Roadmap D3) remains a separate gate.
+
 ## Windows
 
 The Bash installer is not the Windows installer. Follow
