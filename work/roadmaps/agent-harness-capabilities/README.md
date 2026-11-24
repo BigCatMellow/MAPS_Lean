@@ -33,7 +33,7 @@ Each roadmap is intentionally detailed. They are planning artifacts, not instruc
 
 # 2. Shared design rules
 
-These rules apply across all five roadmaps.
+These rules apply across the six roadmaps.
 
 ## 2.1 Existing MAPS authorities remain authoritative
 
@@ -204,7 +204,7 @@ Learning/evaluation begins with instrumentation early, but **automatic or semi-a
 
 # 5. Recommended implementation order
 
-The master roadmap is authoritative for planning order when this summary becomes stale. Current summary:
+The [master current development plan](../00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan--2026-11-24) owns proposed current scheduling. The waves below are **historical design sequence**, not an active queue. PR #19 has long since merged; do not restart from that prerequisite.
 
 ## Wave 0 — Stabilize current foundation
 
