@@ -11,7 +11,7 @@ recovery, durable evidence and controlled learning.
 
 ## Direction
 
-**One plan:** [Current development plan in the master roadmap](../work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan--2026-11-24).
+**One plan:** [Current development plan in the master roadmap](../work/roadmaps/00-MASTER-MAPS-CAPABILITY-ROADMAP.md#current-development-plan).
 **One technical evidence view:** [Capability checklist](../work/roadmaps/CAPABILITY_CHECKLIST.md).
 The revised sequence is proposed for owner review; it does not authorize external
 execution or waive the normal merge/review rules.
