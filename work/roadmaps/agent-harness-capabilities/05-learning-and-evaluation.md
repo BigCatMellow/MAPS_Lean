@@ -727,6 +727,9 @@ Prefer content hashes/versioned config references over copying configs into ever
 
 ## 19.1 Candidate generation
 
+**Research candidate — THINK / GROW (2026-11-04):** [upstream code-level comparison of GEPA, Hermes Self-Evolution, ADAS, Darwinian Evolver, autoresearch and other learning systems](../../research/evaluation-and-reliability/2026-11-04-think-grow-self-improvement-mechanisms.md). The proposed GROW function is **evidence-bound candidate variation and held-out evaluation** under this existing Section 19 and L7–L8, *not* a new authorized agent, scheduler, method or control plane. Test with existing frozen Skill-routing failures and a locked evaluator before deciding whether a distinct capability adds value. Research is unvalidated on MAPS_L; no phase or status promotion is implied.
+
+
 Candidates may come from:
 
 - recurring incident analysis;

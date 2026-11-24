@@ -1,0 +1,81 @@
+# GitHub-native standing merge gate — candidate
+
+- Record role: `DESIGN / SECURITY-SENSITIVE IMPLEMENTATION`
+- Status: `CANDIDATE / INDEPENDENT REVIEW REQUIRED / NOT YET ACTIVE`
+- Authority: existing standing authorization; no new merge permission; emergency HOLD controlled by human operator
+- Parent: [OPCMD](../../scripts/opcmd_merge.py), [standing authorization](../coordination/standing-merge-authorization.md)
+
+## Implementation and boundary
+
+Routine standing mode no longer depends on hcom event availability. The **repository Actions variable** `MAPS_MERGE_HOLD` acts as a global emergency stop for BOTH legacy per-PR and standing modes. Only exact `OFF` permits further checks. Missing, denied, unrecognized or `HOLD` fails closed. Local `gh` reads the live variable; the trusted GitHub Actions workflow receives the `vars` context from GitHub.
+
+Manual `workflow_dispatch` resolves the live PR SHA and checks out trusted merge code and verification policy from protected `main`, separately from the PR's immutable candidate SHA. The candidate is inspected as data and never supplies executed authorization code. The reviewed-head verifier supports an explicit candidate repository root. Current PR head must match the candidate tree before a synchronous REST merge with GitHub's atomic `sha` precondition. The standing path forbids `--admin` and deferred `--auto`. The existing ledger prints to the Actions log, with a final PR audit comment.
+
+## Deployment / emergency stop
+
+1. Independently review this security-sensitive change and verify CI. **Do not self-approve or merge this PR through direct GitHub merge.** Until this update is legitimately merged, the existing policy remains authoritative; do not bypass it through a direct merge. An obsolete hcom prerequisite is a migration blocker, not permission to ignore independent review or executable merge guards.
+2. After accepted merge, set the GitHub repository Settings → Secrets and variables → Actions variable `MAPS_MERGE_HOLD=HOLD`. Switch to `OFF` explicitly to enable eligible merges; absent variable deliberately blocks.
+3. In Actions, manually run `OPCMD merge (standing authorization)` with a PR number. Workflow uses its GitHub token with minimal PR/content/issue write permissions; branch protection and any PR-specific design gates remain in force.
+4. Emergency stop: set `MAPS_MERGE_HOLD=HOLD` and **cancel any already-running merge workflow**. GitHub evaluates the variable into each workflow run, so a change is not a synchronous interrupt to a job already executing.
+5. For local use authenticate `gh`, check out the exact PR head, and run the gate. Exceptional `--authz` remains supported but cannot bypass the GitHub HOLD.
+
+## Independent reviewer targets / limits
+
+- Verify `check_review_evidence.py` is executed from trusted checkout against candidate as data, with no candidate Python imported or executed.
+- Check all fail-closed paths, no stale checkout, no review identity substitution, no `--admin`/auto under standing, no bypass of special PR-specific holds, no implicit scope expansion.
+- Check `workflow_dispatch` token/variable permissions and `gh` behavior empirically after acceptance. This branch cannot exercise production dispatch before merge.
+- Current GitHub variable is sampled when the job begins. Cancel in-progress jobs when HOLD changes. Repository settings access and current branch protection remain authority boundaries.
+- Unit tests exercise normal and negative checks; GitHub CI and truly independent security review remain required. No test has approved a live merge.
+
+Known standing-authority exclusion: `excluded_prs: 341` in the canonical authorization record. PR #341's benchmark-specific design gates cannot be satisfied by routine green CI; update exclusion only after a separately reviewed owner disposition. Standing mode forbids all forwarded merge arguments, so user-supplied flags cannot override the expected head or GitHub protection.
+
+## Security review pass — 2026-10-21
+
+Author-side adversarial inspection identified two further implementation issues and one GitHub service-level limitation:
+
+1. **Manual dispatcher ref:** GitHub lets an operator choose a non-default ref for `workflow_dispatch`; a workflow runs the definition at that ref. The approved workflow now contains a job-level `main` ref guard and executes trusted code from `main`. This **does not protect against someone with write access installing and dispatching a *modified* workflow definition on another branch**. Repository/organization Actions execution policies, protected branches and restricted workflow edit/dispatch privileges must enforce the privileged-workflow trust boundary outside this YAML. See [manual workflow docs](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow?tool=cli), [execution policy docs](https://docs.github.com/en/actions/concepts/about-actions-policies).
+2. **Wrong target:** GitHub's `gh pr view --json baseRefName` is now checked: routine standing authorization is only for PRs targeting `main`. A clean non-main PR no longer qualifies.
+3. **False completion:** `gh pr merge` success can correspond to deferred/queued behavior on protected merge-queue branches. The gate now checks `state=MERGED` and a nonempty `mergedAt` before declaring the operation completed. The workflow repeats that check before posting its final audit. Queuing alone is not represented as a completed merge.
+
+**Historical limitation, since corrected:** the original review-evidence `reviewer:` was a free-form self-declared label. The updated gate also requires an authenticated GitHub approval by that reviewer on the exact PR head. The gate still needs an independent security review before deployment; identity verification is not proof of review quality. This PR remains **manual-dispatch only** and requires a genuine independent review before promotion.
+
+All three implementation changes require passing CI and an external approval; this note is not that approval.
+
+## Eliminate deferred merge-queue side effect (2026-10-21)
+
+The first hardening pass confirmed actual `MERGED` state only *after* invoking `gh pr merge`. GitHub CLI documents that `gh pr merge` can **enqueue** a request on branches requiring a merge queue. A later failure message cannot undo the queued future mutation; this is unsafe relative to an emergency HOLD. The routine standing-authorized path therefore uses the [synchronous REST merge endpoint](https://docs.github.com/en/rest/pulls/pulls#merge-a-pull-request) via trusted `gh api -X PUT`, sends the reviewed PR head in `sha` as an atomic precondition, and requires `merged: true` plus the final `MERGED` state. It refuses if GitHub's protection requires a queue (no admin bypass, no asynchronous merge request). The legacy exceptional per-PR hcom path remains on `gh pr merge` and must separately respect its authority and risk envelope. The immediate standing path accepts **no** forwarded merge arguments, including prior optional branch deletion. This is intentional to make a queued merge impossible via the approved standing route.
+
+## Migration boundary (2026-11-04)
+
+The repository owner confirms hcom is retired from their current workflow. The supported successor is a **GitHub-native, manually dispatched** route that needs no hcom service, identity, events database, or per-PR hcom message. Historical `--authz` support in the script is transitional compatibility only, not the current recommended operator path. Retiring that code completely is separate from activating the independently reviewed successor; do not use it as the reason to bypass the present policy.
+
+To activate, complete independent review and repository-level workflow permission checks, provision the fail-closed HOLD variable, and land this change through the authority process still effective on `main`. Do not automatically merge the existing PR queue on migration: each PR retains its own CI, review, draft, and design-hold requirements.
+
+## Authenticated independent review hardening (2026-11-04)
+
+The standing gate now requires *both* its committed, exact-code-bound evidence
+and a GitHub-authenticated `APPROVED` PR review from the stated reviewer on
+the **exact live PR head**, including evidence-only commits. A mismatched,
+missing, stale, or subsequently changes-requested review fails closed. The
+GitHub review endpoint is queried with pagination; API failure also refuses.
+This removes the known ability to pass standing merge merely by writing a
+plausible `reviewer:` string. It does **not** itself supply the independent
+review required for this security-sensitive PR; reviewer must actually inspect
+the final head. Exact-head rebinding means a changed PR must be reviewed again.
+
+Remaining governance limitation: write-capable collaborators may still alter a
+workflow on another branch and dispatch it with a privileged token unless
+repository-level workflow permissions and branch protection constrain that
+capability. This is a GitHub administrative control, not solvable by the YAML
+ref guard alone. Keep the workflow manually dispatched until governance is
+verified.
+
+## Required-check preservation (2026-11-04)
+
+Standing merges now require successful `test` **and** `review-evidence` checks
+by name, in addition to requiring every reported check to be green. Previously,
+a candidate could remove one of these workflows and still satisfy the weaker
+"all *reported* checks green" condition. Two negative regression tests exercise
+both missing-check cases. This is defense in depth, not a replacement for
+branch protection or independent GitHub approval. Renaming required checks
+must be a deliberate policy change with matching tests.

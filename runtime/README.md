@@ -20,6 +20,9 @@ Implemented components:
   capability envelopes, and durable dispatch halt state.
 - `runtime/routing/` — deterministic route selection wrapped by LangGraph with
   a separate SQLite checkpoint database.
+- `runtime/decision/` — optional provider-neutral semantic decision seam for
+  ranking choices that have already passed deterministic authority/capability gates;
+  defaults off, supports shadow evaluation, and does not create task authority.
 - `runtime/communication/` — project-isolated hcom messaging/session adapter;
   transport state never grants MAPS authority.
 - `runtime/recovery/` — deterministic RnS recovery for known already-active

@@ -184,15 +184,18 @@ def check(pr_number: str, repo_root: Path) -> tuple[bool, str]:
 
 
 def main() -> int:
-    if len(sys.argv) != 2:
-        print("usage: check_review_evidence.py <pr_number>", file=sys.stderr)
+    if len(sys.argv) not in (2, 3):
+        print("usage: check_review_evidence.py <pr_number> [repo_root]", file=sys.stderr)
         return 2
     pr_number = sys.argv[1].strip()
     if not pr_number.isdigit():
         print(f"error: pr_number must be numeric, got {pr_number!r}", file=sys.stderr)
         return 2
 
-    repo_root = Path(__file__).resolve().parent.parent
+    # Trusted verifier can inspect a separate exact-SHA PR checkout without
+    # executing the verifier contained in that untrusted checkout.
+    repo_root = (Path(sys.argv[2]).resolve() if len(sys.argv) == 3
+                 else Path(__file__).resolve().parent.parent)
     ok, message = check(pr_number, repo_root)
     print(message)
     return 0 if ok else 1
